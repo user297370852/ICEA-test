@@ -1,0 +1,41 @@
+diff --git a/harness/agentic.py b/harness/agentic.py
+index 5255423..310d2a0 100644
+--- a/harness/agentic.py
++++ b/harness/agentic.py
+@@ -186,10 +186,9 @@ def _classify(status_code: int | None) -> str:
+         return "dead"
+     return "retry"  # 429, 5xx, network/timeout -> cool down and retry
+ 
+-
+ async def evaluate_agentic(append_id: str, alias: str,
+                            critic: "dict | list[dict] | CriticPool",
+-                           *, env_mode: str = "", timeout: float = 180) -> dict:
++                           *, env_mode: str = "", timeout: float = 600) -> dict:
+     """Run the Critic Model review via a single forced-tool-use call; write &
+     return the three agentic scores.
+ 
+@@ -231,7 +230,9 @@ async def evaluate_agentic(append_id: str, alias: str,
+         try:
+             msg = await client.messages.create(
+                 model=entry["ANTHROPIC_MODEL"],
+-                max_tokens=1500,
++                # glm-5.3-flash (ark) emits thinking blocks that count toward
++                # max_tokens; the original 1500 starved the forced tool_use.
++                max_tokens=16384,
+                 tools=[SCORE_TOOL],
+                 tool_choice={"type": "tool", "name": "submit_review"},
+                 messages=[{"role": "user", "content": prompt}],
+diff --git a/user_agent/main.py b/user_agent/main.py
+index 2747990..3809bb8 100644
+--- a/user_agent/main.py
++++ b/user_agent/main.py
+@@ -278,7 +278,8 @@ def _calc_repo_stats(append_id: str, log_file: Path, max_interactions: int, mode
+     if prd_path.exists():
+         prd = json.loads(prd_path.read_text(encoding="utf-8"))
+         all_constraint_ids = [
+-            c["constraint_id"]
++            # some shipped PRD JSONs key the id field as 'id', not 'constraint_id'
++            c.get("constraint_id") or c.get("id")
+             for c in prd.get("oracle_data", {}).get("hidden_constraints", [])
+         ]
+         missed = [c for c in all_constraint_ids if c not in triggered]
