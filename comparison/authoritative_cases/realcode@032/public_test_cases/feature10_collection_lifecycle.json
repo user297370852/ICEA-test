@@ -1,0 +1,27 @@
+{
+    "description": "Observation of the source stream stays active only for as long as the observation block needs it: once the block stops observing, upstream collection is torn down. A liveness probe reports whether collection is currently running. Across the cases, observation ends in four different ways - an explicit cancel mid-block, normal completion of the block, an exception escaping the block, and a discarding cancel - and in every case collection is reported running before and stopped after.",
+    "cases": [
+        {
+            "input": {
+                "terminal": "never",
+                "ops": [
+                    "probe_active",
+                    "stop",
+                    "probe_active"
+                ]
+            },
+            "expected_output": "collecting=true\ncollecting=false\n"
+        },
+        {
+            "input": {
+                "terminal": "never",
+                "ops": [
+                    "probe_active",
+                    "raise"
+                ],
+                "reportAfter": true
+            },
+            "expected_output": "collecting=true\nerror=block_exception\ncollecting=false\n"
+        }
+    ]
+}

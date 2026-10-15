@@ -1,0 +1,40 @@
+{
+  "description": "For protocol v1 (no version field), Set-Cookie values are returned under a multi-value headers map; other multi-valued response headers are comma-joined into a single header value.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "headers": {
+              "Set-Cookie": [
+                "qwerty=one",
+                "qwerty=two"
+              ],
+              "X-Custom-Header": [
+                "ciao",
+                "salve"
+              ]
+            },
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world2"
+              }
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": "{\"greet\":\"hi\"}"
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world2\"}\nheader.connection=keep-alive\nheader.content-length=18\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\nheader.x-custom-header=ciao,salve\nmultiValueHeaders.set-cookie=qwerty=one,qwerty=two\n"
+    }
+  ]
+}

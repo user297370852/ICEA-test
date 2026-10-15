@@ -1,0 +1,47 @@
+{
+  "description": "Caller-location gating combined with other concerns: an outside call under tracking-only (counted, no notice), an outside call routed to the PSR backend, an outside call whose identifier is suppressed, and an outside call from a silenced package (counted, no notice).",
+  "cases": [
+    {
+      "input": {
+        "enable": [
+          "track"
+        ],
+        "from_outside": "outside"
+      },
+      "expected_output": "unique_count=1\ncount[https://deprecations.example.com/widgets/42]=1\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "psr"
+        ],
+        "from_outside": "outside"
+      },
+      "expected_output": "event=deprecation_notice\nbackend=psr_logger\nmessage=oldWidget() is deprecated, use newWidget() instead.\npackage=acme/widgets\nlink=https://deprecations.example.com/widgets/42\nunique_count=1\ncount[https://deprecations.example.com/widgets/42]=1\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "ignore_links": [
+          "https://deprecations.example.com/widgets/42"
+        ],
+        "from_outside": "outside"
+      },
+      "expected_output": "unique_count=0\ntracked=(none)\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "ignore_packages": [
+          "acme/widgets"
+        ],
+        "from_outside": "outside"
+      },
+      "expected_output": "unique_count=1\ncount[https://deprecations.example.com/widgets/42]=1\n"
+    }
+  ]
+}

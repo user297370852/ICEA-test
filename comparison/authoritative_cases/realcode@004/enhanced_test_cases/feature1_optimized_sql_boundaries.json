@@ -1,0 +1,37 @@
+{
+  "description": "Additional optimized SQL boundary cases cover single-row loading, zero-row loading, and ordered offset loading while exposing SQL shape and selected records.",
+  "cases": [
+    {
+      "input": {
+        "mode": "optimized_sql",
+        "include_records": true,
+        "page_request": {
+          "limit": 1
+        }
+      },
+      "expected_output": "sql_count=2\nsql=SELECT \"users\".\"id\" FROM \"users\" LIMIT ?\nsql=SELECT \"users\".* FROM \"users\" WHERE \"users\".\"id\" = ?\nrecords_count=1\nrecords_ids=9\nrecords_logins=ayrton\n"
+    },
+    {
+      "input": {
+        "mode": "optimized_sql",
+        "include_records": true,
+        "page_request": {
+          "limit": 0
+        }
+      },
+      "expected_output": "sql_count=1\nsql=SELECT \"users\".\"id\" FROM \"users\" LIMIT ?\nrecords_count=0\nrecords_ids=\nrecords_logins=\n"
+    },
+    {
+      "input": {
+        "mode": "optimized_sql",
+        "include_records": true,
+        "page_request": {
+          "limit": 3,
+          "offset": 2,
+          "order": "newest_first"
+        }
+      },
+      "expected_output": "sql_count=2\nsql=SELECT \"users\".\"id\" FROM \"users\" ORDER BY \"users\".\"created_at\" DESC LIMIT ? OFFSET ?\nsql=SELECT \"users\".* FROM \"users\" WHERE \"users\".\"id\" IN (?, ?, ?) ORDER BY \"users\".\"created_at\" DESC\nrecords_count=3\nrecords_ids=8,7,6\nrecords_logins=dgraham,derek,jason\n"
+    }
+  ]
+}

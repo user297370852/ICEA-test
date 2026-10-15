@@ -1,0 +1,69 @@
+{
+  "description": "Boundary coverage for leading-edge value behavior: the first change settles immediately while a later change within the same window is deferred, and a fresh change after a full idle window is again reflected immediately as a new leading edge.",
+  "cases": [
+    {
+      "input": {
+        "hook": "value",
+        "delay": 500,
+        "options": {
+          "leading": true
+        },
+        "initial": {
+          "value": "A"
+        },
+        "steps": [
+          {
+            "do": "setProps",
+            "props": {
+              "value": "B"
+            }
+          },
+          {
+            "do": "observe"
+          },
+          {
+            "do": "advance",
+            "ms": 500
+          },
+          {
+            "do": "setProps",
+            "props": {
+              "value": "C"
+            }
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "value=B\nvalue=C\n"
+    },
+    {
+      "input": {
+        "hook": "value",
+        "delay": 0,
+        "options": {
+          "leading": true
+        },
+        "initial": {
+          "value": "A"
+        },
+        "steps": [
+          {
+            "do": "setProps",
+            "props": {
+              "value": "B"
+            }
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "value=B\n"
+    }
+  ]
+}

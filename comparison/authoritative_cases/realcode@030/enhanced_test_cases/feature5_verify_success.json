@@ -1,0 +1,135 @@
+{
+  "description": "Happy-path verification (the native suite only exercises failures). A token passes every claim check and yields the success signal: with a string audience under RS256; with the same under HS256; with a single-element audience array (no authorized-party requirement); with a multi-valued audience plus a matching authorized party; with a matching expected nonce; and with a maximum-age window satisfied by a far-future authentication time.",
+  "cases": [
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "sample-client",
+          "exp": 9999999999,
+          "iat": 1000000000
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "sample-client"
+        }
+      },
+      "expected_output": "verified\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "HS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "sample-client",
+          "exp": 9999999999,
+          "iat": 1000000000
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "sample-client"
+        }
+      },
+      "expected_output": "verified\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": [
+            "sample-client"
+          ],
+          "exp": 9999999999,
+          "iat": 1000000000
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "sample-client"
+        }
+      },
+      "expected_output": "verified\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": [
+            "sample-client",
+            "other-client"
+          ],
+          "exp": 9999999999,
+          "iat": 1000000000,
+          "azp": "sample-client"
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "sample-client"
+        }
+      },
+      "expected_output": "verified\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "sample-client",
+          "exp": 9999999999,
+          "iat": 1000000000,
+          "nonce": "n1"
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "sample-client",
+          "nonce": "n1"
+        }
+      },
+      "expected_output": "verified\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "sample-client",
+          "exp": 9999999999,
+          "iat": 1000000000,
+          "auth_time": 9999999999
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "sample-client",
+          "maxAge": 123
+        }
+      },
+      "expected_output": "verified\n"
+    }
+  ]
+}

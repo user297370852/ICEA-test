@@ -1,0 +1,73 @@
+{
+    "description": "Render a parent that embeds a child component that does NOT declare an update capability. When the parent re-renders with new inputs for that same child position, the framework cannot update the existing instance in place, so it builds a fresh instance and replaces the previous element with the new one. The before/after observation points show the child element's identity token changing, confirming a replacement rather than an in-place patch, even though the rendered text is what the new inputs imply.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "components": {
+                    "Child": {
+                        "render": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "var": "props.greeting"
+                                },
+                                " ",
+                                {
+                                    "var": "children"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "root": {
+                    "state": {
+                        "greeting": "Hello",
+                        "greeted": "World"
+                    },
+                    "render": {
+                        "el": "div",
+                        "children": [
+                            {
+                                "comp": "Child",
+                                "props": {
+                                    "greeting": {
+                                        "var": "greeting"
+                                    }
+                                },
+                                "children": [
+                                    {
+                                        "el": "span",
+                                        "children": [
+                                            {
+                                                "var": "greeted"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "before"
+                    },
+                    {
+                        "set": {
+                            "greeting": "Goodnight",
+                            "greeted": "Moon"
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "after"
+                    }
+                ]
+            },
+            "expected_output": "== before ==\nelement=<div#n1><div#n2>Hello <span#n3>World</span></div></div>\ntext=Hello World\n== after ==\nelement=<div#n1><div#n4>Goodnight <span#n5>Moon</span></div></div>\ntext=Goodnight Moon\n"
+        }
+    ]
+}

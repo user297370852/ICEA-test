@@ -1,0 +1,58 @@
+{
+  "description": "Activation-mode boundary cases beyond the native suite: an empty scenario object, tracking enabled with no triggers, and combining 'track' with 'trigger' (the bitmask should still fire the error backend exactly once while counting).",
+  "cases": [
+    {
+      "input": [],
+      "expected_output": "unique_count=0\ntracked=(none)\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "track"
+        ],
+        "triggers": []
+      },
+      "expected_output": "unique_count=0\ntracked=(none)\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "track",
+          "trigger"
+        ],
+        "triggers": [
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/9",
+            "message": "combined %s",
+            "args": [
+              "modes"
+            ]
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=combined modes\npackage=acme/orm\nlink=https://dep.example.com/orm/9\nunique_count=1\ncount[https://dep.example.com/orm/9]=1\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "trigger",
+          "track"
+        ],
+        "triggers": [
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/9",
+            "message": "m"
+          },
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/9",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=m\npackage=acme/orm\nlink=https://dep.example.com/orm/9\nunique_count=2\ncount[https://dep.example.com/orm/9]=2\n"
+    }
+  ]
+}

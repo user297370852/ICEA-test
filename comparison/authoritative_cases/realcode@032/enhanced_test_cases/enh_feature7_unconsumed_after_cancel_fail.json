@@ -1,0 +1,49 @@
+{
+  "description": "Plain stop retains multiple already-received events: after reading one item and cancelling, several leftovers (items plus a terminal signal) are reported in arrival order at block end.",
+  "cases": [
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b",
+          "c"
+        ],
+        "terminal": "never",
+        "ops": [
+          "take_item",
+          "stop"
+        ]
+      },
+      "expected_output": "item=a\nerror=unconsumed_events\nunconsumed=item:b\nunconsumed=item:c\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "stop"
+        ]
+      },
+      "expected_output": "item=a\nerror=unconsumed_events\nunconsumed=item:b\nunconsumed=complete\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b"
+        ],
+        "terminal": "error",
+        "errorLabel": "boom",
+        "ops": [
+          "take_item",
+          "stop"
+        ]
+      },
+      "expected_output": "item=a\nerror=unconsumed_events\nunconsumed=item:b\nunconsumed=error:boom\n"
+    }
+  ]
+}

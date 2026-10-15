@@ -1,0 +1,66 @@
+{
+    "description": "Login issues session tokens and returns configured response fields.",
+    "cases": [
+        {
+            "description": "A valid credential exchange creates one persisted session token and returns a successful HTTP response with an expiry timestamp.",
+            "input": {
+                "operation": "login",
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "route=/api/login/\nlogin.status=200\nlogin.url=/api/login/\nlogin.expiry=\"2020-01-01T10:00:00Z\"\nlogin.token_present=true\nlogin.token_prefix=\nlogin.token_length=64\ntoken_count=1\nstored_token_keys_present=true\n"
+        },
+        {
+            "description": "Repeated valid credential exchanges create independent persisted session tokens.",
+            "input": {
+                "operation": "login",
+                "repeat": 5,
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "route=/api/login/\nlogin.status=200\nlogin.url=/api/login/\nlogin.expiry=\"2020-01-01T10:00:00Z\"\nlogin.token_present=true\nlogin.token_prefix=\nlogin.token_length=64\ntoken_count=5\nstored_token_keys_present=true\n"
+        },
+        {
+            "description": "When account profile output is enabled, the login response includes the authenticated account identifier as a nested user object.",
+            "input": {
+                "operation": "login",
+                "settings": {
+                    "include_user_profile": true
+                },
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "route=/api/login/\nlogin.status=200\nlogin.url=/api/login/\nlogin.expiry=\"2020-01-01T10:00:00Z\"\nlogin.token_present=true\nlogin.token_prefix=\nlogin.token_length=64\nlogin.user_fields=username\nlogin.user.username=john.doe\ntoken_count=1\nstored_token_keys_present=true\n"
+        },
+        {
+            "description": "When a custom expiry display format is configured, the login response renders the expiry timestamp using that format.",
+            "input": {
+                "operation": "login",
+                "settings": {
+                    "expiry_display_format": "%H:%M %d/%m/%y"
+                },
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "route=/api/login/\nlogin.status=200\nlogin.url=/api/login/\nlogin.expiry=\"10:00 01/01/20\"\nlogin.token_present=true\nlogin.token_prefix=\nlogin.token_length=64\ntoken_count=1\nstored_token_keys_present=true\n"
+        },
+        {
+            "description": "When sessions are configured not to expire, the login response still includes the expiry field with a null value.",
+            "input": {
+                "operation": "login",
+                "settings": {
+                    "session_lifetime": null
+                },
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "route=/api/login/\nlogin.status=200\nlogin.url=/api/login/\nlogin.expiry=null\nlogin.token_present=true\nlogin.token_prefix=\nlogin.token_length=64\ntoken_count=1\nstored_token_keys_present=true\n"
+        },
+        {
+            "description": "When an issued-token prefix is configured, a newly issued session token includes that prefix and remains persisted.",
+            "input": {
+                "operation": "login",
+                "settings": {
+                    "issued_token_prefix": "TEST_"
+                },
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "route=/api/login/\nlogin.status=200\nlogin.url=/api/login/\nlogin.expiry=\"2020-01-01T10:00:00Z\"\nlogin.token_present=true\nlogin.token_prefix=TEST_\nlogin.token_length=69\ntoken_count=1\nstored_token_keys_present=true\n"
+        }
+    ]
+}

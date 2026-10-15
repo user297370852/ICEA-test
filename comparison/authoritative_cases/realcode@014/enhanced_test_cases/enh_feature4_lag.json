@@ -1,0 +1,143 @@
+{
+  "description": "Replica-lag guard boundaries: lag exactly equal to threshold (incl. zero), lag far over a larger threshold, no-log lag_failover when under threshold, scope option overriding a stricter global default, and lag_on under threshold.",
+  "cases": [
+    {
+      "input": {
+        "lag": 1,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "max_lag": 1
+            },
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\n"
+    },
+    {
+      "input": {
+        "lag": 0,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "max_lag": 0
+            },
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\n"
+    },
+    {
+      "input": {
+        "lag": 100,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "max_lag": 5
+            },
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=too_much_lag\nmessage=Replica lag over 5 seconds\n"
+    },
+    {
+      "input": {
+        "lag": 5,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "max_lag": 5
+            },
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\n"
+    },
+    {
+      "input": {
+        "lag": 0,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "max_lag": 1,
+              "lag_failover": true
+            },
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\n"
+    },
+    {
+      "input": {
+        "default_options": {
+          "max_lag": 1
+        },
+        "lag": 2,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "max_lag": 5
+            },
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\n"
+    },
+    {
+      "input": {
+        "lag": 0,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "max_lag": 1,
+              "lag_on": "User"
+            },
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\n"
+    }
+  ]
+}

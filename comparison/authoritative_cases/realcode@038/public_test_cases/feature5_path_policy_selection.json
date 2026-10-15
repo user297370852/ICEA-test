@@ -1,0 +1,99 @@
+{
+  "description": "Path-based policy selection returns the first configured path pattern that matches the request URL, falls back to defaults when no path matches, and can select regex-origin policies.",
+  "cases": [
+    {
+      "input": {
+        "interaction": "configuration_match",
+        "defaults": {
+          "allowed_origins": [
+            "http://one.example.com"
+          ],
+          "allowed_headers": [],
+          "allowed_methods": [
+            "GET"
+          ]
+        },
+        "path_policies": {
+          "^/test/regex": {
+            "credentials": true,
+            "allowed_origins": [
+              "^http://(.*)\\.example\\.com"
+            ],
+            "origin_pattern_matching": true,
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ]
+          },
+          "^/test/": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://two.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 120
+          }
+        },
+        "request": {
+          "path": "/default/path"
+        }
+      },
+      "expected_output": "allowed_origins=http://one.example.com\ncredentials=no\nallowed_headers=\nallowed_methods=GET\nexposed_headers=\ncache_seconds=0\nhost_patterns=\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    },
+    {
+      "input": {
+        "interaction": "configuration_match",
+        "defaults": {
+          "allowed_origins": [
+            "http://one.example.com"
+          ],
+          "allowed_headers": [],
+          "allowed_methods": [
+            "GET"
+          ]
+        },
+        "path_policies": {
+          "^/test/regex": {
+            "credentials": true,
+            "allowed_origins": [
+              "^http://(.*)\\.example\\.com"
+            ],
+            "origin_pattern_matching": true,
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ]
+          },
+          "^/test/": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://two.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 120
+          }
+        },
+        "request": {
+          "path": "/test/abc"
+        }
+      },
+      "expected_output": "allowed_origins=http://two.example.com\ncredentials=yes\nallowed_headers=*\nallowed_methods=PUT, POST\nexposed_headers=X-CorsTest\ncache_seconds=120\nhost_patterns=\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    }
+  ]
+}

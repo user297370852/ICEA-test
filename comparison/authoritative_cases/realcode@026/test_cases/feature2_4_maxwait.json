@@ -1,0 +1,78 @@
+{
+    "description": "A maximum-wait bound on a debounced value guarantees the debounced value advances to the latest source value no later than the maximum wait measured from the first pending change, even when the source keeps changing within the quiet period. The maximum-wait timer is only armed once a real change is pending; it is not started on the initial render, so a change introduced after some idle time will not be forced through earlier than the maximum wait measured from that change.",
+    "cases": [
+        {
+            "input": {
+                "hook": "value",
+                "delay": 500,
+                "options": {
+                    "maxWait": 600
+                },
+                "initial": {
+                    "value": "Hello"
+                },
+                "steps": [
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Wrong value"
+                        }
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 400
+                    },
+                    {
+                        "do": "observe"
+                    },
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Right value"
+                        }
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 400
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "value=Hello\nvalue=Right value\n"
+        },
+        {
+            "input": {
+                "hook": "value",
+                "delay": 1000,
+                "options": {
+                    "maxWait": 500
+                },
+                "initial": {
+                    "value": "Hello"
+                },
+                "steps": [
+                    {
+                        "do": "advance",
+                        "ms": 250
+                    },
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Test"
+                        }
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 250
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "value=Hello\n"
+        }
+    ]
+}

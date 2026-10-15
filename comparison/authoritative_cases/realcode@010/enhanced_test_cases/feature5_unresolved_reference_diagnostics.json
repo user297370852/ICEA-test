@@ -1,0 +1,21 @@
+{
+  "description": "Enhanced boundary coverage for unresolved reference diagnostics: a view that selects from a missing table under distinct object names, and a table whose foreign key targets a table that does not exist in the project or any reference.",
+  "cases": [
+    {
+      "input": {
+        "sql_files": {
+          "ReportView.sql": "-- references a table that is never defined\nCREATE VIEW [dbo].[ReportView]\n  AS SELECT * FROM [GhostTable]\n"
+        }
+      },
+      "expected_output": "exit_code=1\npackage_exists=false\ntables=\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=error_code=SQL71501;object=[dbo].[ReportView];referenced=[dbo].[GhostTable]\n"
+    },
+    {
+      "input": {
+        "sql_files": {
+          "ChildTable.sql": "CREATE TABLE [dbo].[ChildTable]\n(\n\tid int NOT NULL PRIMARY KEY,\n\tparent_id int NOT NULL,\n\tCONSTRAINT FK_Child_Parent FOREIGN KEY (parent_id) REFERENCES [dbo].[MissingParent](id)\n)\n"
+        }
+      },
+      "expected_output": "exit_code=1\npackage_exists=false\ntables=\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=error_code=SQL71501;object=[dbo].[FK_Child_Parent];referenced=[dbo].[MissingParent]\n"
+    }
+  ]
+}

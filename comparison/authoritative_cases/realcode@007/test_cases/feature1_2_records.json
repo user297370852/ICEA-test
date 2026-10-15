@@ -1,0 +1,33 @@
+{
+    "description": "Parsing a textual block of one or more records, where records are separated by a blank line and each record is a set of `key: value` lines, produces an ordered list of key/value maps. Record order and per-record key order follow the input; records need not share the same keys, and any blank lines trailing the final record are ignored.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse",
+                "input": "device: /dev/disk1\ndescription: Macintosh HD\nsize: 249.8 GB\nmountpoint: /"
+            },
+            "expected_output": "[{\"device\":\"/dev/disk1\",\"description\":\"Macintosh HD\",\"size\":\"249.8 GB\",\"mountpoint\":\"/\"}]\n"
+        },
+        {
+            "input": {
+                "action": "parse",
+                "input": "device: /dev/disk1\ndescription: Macintosh HD\nsize: 249.8 GB\nmountpoint: /\n\ndevice: /dev/disk2\ndescription: elementary OS\nsize: 15.7 GB\nmountpoint: /Volumes/Elementary"
+            },
+            "expected_output": "[{\"device\":\"/dev/disk1\",\"description\":\"Macintosh HD\",\"size\":\"249.8 GB\",\"mountpoint\":\"/\"},{\"device\":\"/dev/disk2\",\"description\":\"elementary OS\",\"size\":\"15.7 GB\",\"mountpoint\":\"/Volumes/Elementary\"}]\n"
+        },
+        {
+            "input": {
+                "action": "parse",
+                "input": "device: /dev/disk1\ndescription: Macintosh HD\nsize: 249.8 GB\nmountpoint: /\n\ndevice: /dev/disk2\ndescription: elementary OS\nsize: 15.7 GB\nmountpoint: /Volumes/Elementary\n\n\n\n"
+            },
+            "expected_output": "[{\"device\":\"/dev/disk1\",\"description\":\"Macintosh HD\",\"size\":\"249.8 GB\",\"mountpoint\":\"/\"},{\"device\":\"/dev/disk2\",\"description\":\"elementary OS\",\"size\":\"15.7 GB\",\"mountpoint\":\"/Volumes/Elementary\"}]\n"
+        },
+        {
+            "input": {
+                "action": "parse",
+                "input": "hello: world\nfoo: bar\n\nhey: there"
+            },
+            "expected_output": "[{\"hello\":\"world\",\"foo\":\"bar\"},{\"hey\":\"there\"}]\n"
+        }
+    ]
+}

@@ -1,0 +1,89 @@
+{
+  "description": "Adds callback-failure variants: completely missing state, error_reason-driven provider failure, error with description, and default-response-type missing authorization code.",
+  "cases": [
+    {
+      "input": {
+        "flow": "callback_request",
+        "request_params": {
+          "code": "abc"
+        },
+        "session": {
+          "omniauth.state": "expected-state",
+          "omniauth.nonce": "expected-nonce"
+        }
+      },
+      "expected_output": "status=302\nfailure_url=/auth/failure?message=invalid_credentials&strategy=openid_connect\nerror=invalid_callback\ndetail=invalid_state\n"
+    },
+    {
+      "input": {
+        "flow": "callback_request",
+        "request_params": {
+          "code": "abc",
+          "state": ""
+        },
+        "session": {
+          "omniauth.state": "expected-state",
+          "omniauth.nonce": "expected-nonce"
+        }
+      },
+      "expected_output": "status=302\nfailure_url=/auth/failure?message=invalid_credentials&strategy=openid_connect\nerror=invalid_callback\ndetail=invalid_state\n"
+    },
+    {
+      "input": {
+        "flow": "callback_request",
+        "request_params": {
+          "error_reason": "access_denied"
+        },
+        "session": {
+          "omniauth.state": "expected-state",
+          "omniauth.nonce": "expected-nonce"
+        }
+      },
+      "expected_output": "status=302\nfailure_url=/auth/failure?message=invalid_credentials&strategy=openid_connect\nerror=invalid_callback\ndetail=provider_error\n"
+    },
+    {
+      "input": {
+        "flow": "callback_request",
+        "request_params": {
+          "error": "access_denied",
+          "error_description": "User declined"
+        },
+        "session": {
+          "omniauth.state": "expected-state",
+          "omniauth.nonce": "expected-nonce"
+        }
+      },
+      "expected_output": "status=302\nfailure_url=/auth/failure?message=invalid_credentials&strategy=openid_connect\nerror=invalid_callback\ndetail=provider_error\n"
+    },
+    {
+      "input": {
+        "flow": "callback_request",
+        "request_params": {
+          "state": "expected-state"
+        },
+        "session": {
+          "omniauth.state": "expected-state",
+          "omniauth.nonce": "expected-nonce"
+        }
+      },
+      "expected_output": "status=302\nfailure_url=/auth/failure?message=missing_code&strategy=openid_connect\nerror=missing_authorization_code\n"
+    },
+    {
+      "input": {
+        "flow": "callback_request",
+        "request_params": {
+          "id_token": "tok",
+          "state": "bad"
+        },
+        "session": {
+          "omniauth.state": "expected-state",
+          "omniauth.nonce": "expected-nonce"
+        },
+        "options": {
+          "response_type": "id_token"
+        }
+      },
+      "expected_output": "status=302\nfailure_url=/auth/failure?message=invalid_credentials&strategy=openid_connect\nerror=invalid_callback\ndetail=invalid_state\n"
+    }
+  ]
+}

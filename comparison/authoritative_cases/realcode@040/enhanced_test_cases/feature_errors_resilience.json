@@ -1,0 +1,107 @@
+{
+  "description": "Resilience cases: normalized language-neutral error categories for unknown mode, missing mode, unknown distance unit, negative durations, invalid JSON, and a malformed payload (missing required field).",
+  "cases": [
+    {
+      "input": {
+        "mode": "teleport",
+        "start": "a",
+        "end": "b",
+        "estimates": []
+      },
+      "expected_output": "error=undefined_mode\nselector=teleport\n"
+    },
+    {
+      "input": {
+        "start": "a",
+        "end": "b",
+        "estimates": []
+      },
+      "expected_output": "error=undefined_mode\nselector=undefined\n"
+    },
+    {
+      "input": {
+        "mode": "price",
+        "start": "a",
+        "end": "b",
+        "estimates": [
+          {
+            "productName": "r",
+            "distance": {
+              "value": 1,
+              "unit": "LIGHTYEAR"
+            },
+            "range": {
+              "low": 5,
+              "high": 8
+            },
+            "duration": 60,
+            "currencyCode": "USD",
+            "surgeMultiplier": 1
+          }
+        ]
+      },
+      "expected_output": "error=unknown_distance_unit\nunit=LIGHTYEAR\n"
+    },
+    {
+      "input": {
+        "mode": "price",
+        "start": "a",
+        "end": "b",
+        "estimates": [
+          {
+            "productName": "r",
+            "distance": {
+              "value": 1,
+              "unit": "MILE"
+            },
+            "range": {
+              "low": 5,
+              "high": 8
+            },
+            "duration": -5,
+            "currencyCode": "USD",
+            "surgeMultiplier": 1
+          }
+        ]
+      },
+      "expected_output": "error=negative_duration\n"
+    },
+    {
+      "input": {
+        "mode": "time",
+        "location": "loc",
+        "estimates": [
+          {
+            "productName": "r",
+            "estimateSeconds": -3
+          }
+        ]
+      },
+      "expected_output": "error=negative_duration\n"
+    },
+    {
+      "input": "this is not valid json {",
+      "expected_output": "error=invalid_input\n"
+    },
+    {
+      "input": {
+        "mode": "price",
+        "start": "a",
+        "end": "b",
+        "estimates": [
+          {
+            "productName": "x",
+            "range": {
+              "low": 1,
+              "high": 2
+            },
+            "duration": 10,
+            "currencyCode": "USD",
+            "surgeMultiplier": 1
+          }
+        ]
+      },
+      "expected_output": "error=invalid_input\n"
+    }
+  ]
+}

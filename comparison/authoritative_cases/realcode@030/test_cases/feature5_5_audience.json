@@ -1,0 +1,47 @@
+{
+    "description": "Verification requires the audience claim to be a present string or array of strings, and the expected audience must be the audience (string form) or be contained in it (array form). A missing/invalid audience yields an audience-invalid category; an expected audience absent from the claim yields an audience-mismatch category carrying the expected audience as a separate field.",
+    "cases": [
+        {
+            "input": {
+                "op": "verify",
+                "header": {
+                    "alg": "RS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|abc",
+                    "exp": 9999999999,
+                    "iat": 1000000000
+                },
+                "options": {
+                    "iss": "https://login.example.com/"
+                }
+            },
+            "expected_output": "error=audience_invalid\n"
+        },
+        {
+            "input": {
+                "op": "verify",
+                "header": {
+                    "alg": "RS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|abc",
+                    "aud": [
+                        "sample-client",
+                        "other-client"
+                    ],
+                    "exp": 9999999999,
+                    "iat": 1000000000,
+                    "azp": "sample-client"
+                },
+                "options": {
+                    "iss": "https://login.example.com/",
+                    "aud": "expectedAudience"
+                }
+            },
+            "expected_output": "error=audience_mismatch\nexpected=expectedAudience\n"
+        }
+    ]
+}

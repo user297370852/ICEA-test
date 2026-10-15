@@ -1,0 +1,64 @@
+{
+  "description": "ENHANCED: invocation/context-flag edge cases — the empty-event-loop-wait flag is written under a default promise invocation, and the context is left untouched when no option is provided.",
+  "cases": [
+    {
+      "input": {
+        "options": {
+          "callbackWaitsForEmptyEventLoop": false
+        },
+        "context": {},
+        "emitContext": [
+          "callbackWaitsForEmptyEventLoop"
+        ],
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n[context]\ncontext.callbackWaitsForEmptyEventLoop=false\n"
+    },
+    {
+      "input": {
+        "context": {},
+        "emitContext": [
+          "callbackWaitsForEmptyEventLoop"
+        ],
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n[context]\ncontext.callbackWaitsForEmptyEventLoop=<undefined>\n"
+    }
+  ]
+}

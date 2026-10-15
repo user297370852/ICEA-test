@@ -1,0 +1,57 @@
+{
+  "description": "take_event consuming each kind to clean end-of-block (no leftover) including a sole completion and a sole error, a mixed sequence of items then completion, and items then a terminal error, all fully consumed.",
+  "cases": [
+    {
+      "input": {
+        "emissions": [],
+        "terminal": "complete",
+        "ops": [
+          "take_event"
+        ]
+      },
+      "expected_output": "event=complete\n"
+    },
+    {
+      "input": {
+        "emissions": [],
+        "terminal": "error",
+        "errorLabel": "boom",
+        "ops": [
+          "take_event"
+        ]
+      },
+      "expected_output": "event=error:boom\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_event",
+          "take_event",
+          "take_event"
+        ]
+      },
+      "expected_output": "event=item:a\nevent=item:b\nevent=complete\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "one",
+          "two"
+        ],
+        "terminal": "error",
+        "errorLabel": "fail",
+        "ops": [
+          "take_event",
+          "take_event",
+          "take_event"
+        ]
+      },
+      "expected_output": "event=item:one\nevent=item:two\nevent=error:fail\n"
+    }
+  ]
+}

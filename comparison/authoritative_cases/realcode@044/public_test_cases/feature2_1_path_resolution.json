@@ -1,0 +1,69 @@
+{
+  "description": "Choose the path the framework routes to: prefer the explicit request path, and fall back to the raw path (deriving the method from the request context) when only that is present.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/test\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/prod/projects",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url",
+          "query.t"
+        ],
+        "event": {
+          "version": "2.0",
+          "rawPath": "/prod/projects",
+          "requestContext": {
+            "http": {
+              "method": "GET",
+              "path": "/prod/projects"
+            }
+          },
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          },
+          "queryStringParameters": {
+            "t": "1698604776681"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/prod/projects?t=1698604776681\nrequest.query.t=1698604776681\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "description": "Feature 2.3 root-node-type-change coverage via synchronous updates: rejecting span->div and div->p root tag changes (neutral error category), plus the positive logical path where the root tag is unchanged across a conditional branch switch so the update succeeds.",
+  "cases": [
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "d": true
+          },
+          "render": {
+            "if": "d",
+            "then": {
+              "el": "span"
+            },
+            "else": {
+              "el": "div"
+            }
+          }
+        },
+        "steps": [
+          {
+            "set": {
+              "d": false
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "error=unsupported_root_node_change\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "d": true
+          },
+          "render": {
+            "if": "d",
+            "then": {
+              "el": "div",
+              "children": [
+                "x"
+              ]
+            },
+            "else": {
+              "el": "p",
+              "children": [
+                "x"
+              ]
+            }
+          }
+        },
+        "steps": [
+          {
+            "set": {
+              "d": false
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "error=unsupported_root_node_change\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "d": true
+          },
+          "render": {
+            "if": "d",
+            "then": {
+              "el": "div",
+              "children": [
+                "T"
+              ]
+            },
+            "else": {
+              "el": "div",
+              "children": [
+                "F"
+              ]
+            }
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "d": false
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1>T</div>\ntext=T\n== after ==\nelement=<div#n1>F</div>\ntext=F\n"
+    }
+  ]
+}

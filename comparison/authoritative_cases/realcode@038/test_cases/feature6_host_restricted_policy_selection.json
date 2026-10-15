@@ -1,0 +1,218 @@
+{
+  "description": "A path policy with host restrictions is used only when the request host matches one of its host patterns; otherwise matching continues to the next eligible path policy.",
+  "cases": [
+    {
+      "input": {
+        "interaction": "configuration_match",
+        "defaults": {
+          "allowed_origins": [
+            "http://one.example.com"
+          ],
+          "allowed_headers": [],
+          "allowed_methods": [
+            "GET"
+          ]
+        },
+        "path_policies": {
+          "^/test/match": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://domainmatch.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "cache_seconds": 160,
+            "host_patterns": [
+              "^test\\.",
+              "\\.example\\.org$"
+            ]
+          },
+          "^/test/nomatch": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://nomatch.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 180,
+            "host_patterns": [
+              "^nomatch\\."
+            ]
+          },
+          "^/test/": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://two.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 120
+          }
+        },
+        "request": {
+          "path": "/test/match",
+          "method": "OPTIONS",
+          "host": "test.example.com"
+        }
+      },
+      "expected_output": "allowed_origins=http://domainmatch.example.com\ncredentials=yes\nallowed_headers=*\nallowed_methods=PUT, POST\nexposed_headers=\ncache_seconds=160\nhost_patterns=^test\\., \\.example\\.org$\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    },
+    {
+      "input": {
+        "interaction": "configuration_match",
+        "defaults": {
+          "allowed_origins": [
+            "http://one.example.com"
+          ],
+          "allowed_headers": [],
+          "allowed_methods": [
+            "GET"
+          ]
+        },
+        "path_policies": {
+          "^/test/match": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://domainmatch.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "cache_seconds": 160,
+            "host_patterns": [
+              "^test\\.",
+              "\\.example\\.org$"
+            ]
+          },
+          "^/test/nomatch": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://nomatch.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 180,
+            "host_patterns": [
+              "^nomatch\\."
+            ]
+          },
+          "^/test/": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://two.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 120
+          }
+        },
+        "request": {
+          "path": "/test/match",
+          "method": "OPTIONS",
+          "host": "foo.example.org"
+        }
+      },
+      "expected_output": "allowed_origins=http://domainmatch.example.com\ncredentials=yes\nallowed_headers=*\nallowed_methods=PUT, POST\nexposed_headers=\ncache_seconds=160\nhost_patterns=^test\\., \\.example\\.org$\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    },
+    {
+      "input": {
+        "interaction": "configuration_match",
+        "defaults": {
+          "allowed_origins": [
+            "http://one.example.com"
+          ],
+          "allowed_headers": [],
+          "allowed_methods": [
+            "GET"
+          ]
+        },
+        "path_policies": {
+          "^/test/match": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://domainmatch.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "cache_seconds": 160,
+            "host_patterns": [
+              "^test\\.",
+              "\\.example\\.org$"
+            ]
+          },
+          "^/test/nomatch": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://nomatch.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 180,
+            "host_patterns": [
+              "^nomatch\\."
+            ]
+          },
+          "^/test/": {
+            "credentials": true,
+            "allowed_origins": [
+              "http://two.example.com"
+            ],
+            "allowed_headers": "*",
+            "allowed_methods": [
+              "PUT",
+              "POST"
+            ],
+            "exposed_headers": [
+              "X-CorsTest"
+            ],
+            "cache_seconds": 120
+          }
+        },
+        "request": {
+          "path": "/test/nomatch",
+          "method": "OPTIONS",
+          "host": "example.com"
+        }
+      },
+      "expected_output": "allowed_origins=http://two.example.com\ncredentials=yes\nallowed_headers=*\nallowed_methods=PUT, POST\nexposed_headers=X-CorsTest\ncache_seconds=120\nhost_patterns=\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    }
+  ]
+}

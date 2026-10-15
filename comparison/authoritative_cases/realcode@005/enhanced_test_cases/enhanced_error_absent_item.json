@@ -1,0 +1,81 @@
+{
+  "description": "Resilience: operations targeting a line item that is not in the cart surface an explicit, catchable error. Removing or updating an absent product yields error=does_not_exist, and an unrecognized operation yields error=unknown_operation; the cart state is otherwise unaffected.",
+  "cases": [
+    {
+      "input": {
+        "products": [
+          1
+        ],
+        "operations": [
+          {
+            "op": "remove",
+            "product": 1
+          },
+          {
+            "op": "dump"
+          }
+        ]
+      },
+      "expected_output": "error=does_not_exist product=1\ntotal=0\ncount=0\n"
+    },
+    {
+      "input": {
+        "products": [
+          1
+        ],
+        "operations": [
+          {
+            "op": "update",
+            "product": 1,
+            "quantity": 2,
+            "unit_price": "5"
+          },
+          {
+            "op": "dump"
+          }
+        ]
+      },
+      "expected_output": "error=does_not_exist product=1\ntotal=0\ncount=0\n"
+    },
+    {
+      "input": {
+        "products": [
+          1,
+          2
+        ],
+        "operations": [
+          {
+            "op": "add",
+            "product": 1,
+            "unit_price": "5",
+            "quantity": 1
+          },
+          {
+            "op": "remove",
+            "product": 2
+          },
+          {
+            "op": "dump"
+          }
+        ]
+      },
+      "expected_output": "error=does_not_exist product=2\nitem product=1 quantity=1 unit_price=5.00 subtotal=5.00\ntotal=5.00\ncount=1\n"
+    },
+    {
+      "input": {
+        "products": [
+          1
+        ],
+        "operations": [
+          {
+            "op": "frobnicate"
+          },
+          {
+            "op": "dump"
+          }
+        ]
+      },
+      "expected_output": "error=unknown_operation op=frobnicate\ntotal=0\ncount=0\n"
+    }
+  ]
+}

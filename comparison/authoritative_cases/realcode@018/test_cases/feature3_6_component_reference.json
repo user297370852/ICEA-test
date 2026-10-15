@@ -1,0 +1,91 @@
+{
+    "description": "Render a parent that embeds a child component tagged with a reference name supplied from state. The reference resolves to the child component instance itself (not merely its DOM node), exposing the reference name it was mounted under and its own internal references. When the parent re-renders with a different reference name for the same child definition, the binding moves to the new name and the old name is cleared while the same instance is kept. When the parent re-renders with a different child definition, a new instance is built and bound. Each observation point lists the bound references with the child's serialized element, its mounted reference name, and its nested references.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "components": {
+                    "A": {
+                        "update": true,
+                        "render": {
+                            "el": "div",
+                            "ref": "self",
+                            "children": [
+                                "A"
+                            ]
+                        }
+                    },
+                    "B": {
+                        "render": {
+                            "el": "div",
+                            "ref": "self",
+                            "children": [
+                                "B"
+                            ]
+                        }
+                    }
+                },
+                "root": {
+                    "state": {
+                        "condition": true,
+                        "refName": "child"
+                    },
+                    "render": {
+                        "if": "condition",
+                        "then": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "comp": "A",
+                                    "ref": {
+                                        "var": "refName"
+                                    }
+                                }
+                            ]
+                        },
+                        "else": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "comp": "B",
+                                    "ref": {
+                                        "var": "refName"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "p1"
+                    },
+                    {
+                        "set": {
+                            "refName": "kid"
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "p2"
+                    },
+                    {
+                        "set": {
+                            "refName": "child",
+                            "condition": false
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "p3"
+                    }
+                ]
+            },
+            "expected_output": "== p1 ==\nelement=<div#n1><div#n2>A</div></div>\ntext=A\nrefs:\n  child=component element=<div#n2>A</div> ref=child\n    self=<div#n2>A</div>\n== p2 ==\nelement=<div#n1><div#n2>A</div></div>\ntext=A\nrefs:\n  kid=component element=<div#n2>A</div> ref=kid\n    self=<div#n2>A</div>\n== p3 ==\nelement=<div#n1><div#n3>B</div></div>\ntext=B\nrefs:\n  child=component element=<div#n3>B</div> ref=child\n    self=<div#n3>B</div>\n"
+        }
+    ]
+}

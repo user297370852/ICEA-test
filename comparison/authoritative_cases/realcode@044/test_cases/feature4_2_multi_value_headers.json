@@ -1,0 +1,75 @@
+{
+  "description": "Promote a header to the request only when it carries more than one value; a multi-header with a single value is not promoted, and a header with several values is exposed as the combined value.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.x-multi"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "x-multi": "just-the-first"
+          },
+          "multiValueHeaders": {
+            "x-multi": [
+              "just-the-first",
+              "and-the-second"
+            ]
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.x-multi=just-the-first,and-the-second\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.x-custom-multi-bad",
+          "headers.x-custom-multi-gut"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          },
+          "multiValueHeaders": {
+            "x-custom-multi-bad": [
+              "100"
+            ],
+            "x-custom-multi-gut": [
+              "100",
+              "200"
+            ]
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.x-custom-multi-bad=<undefined>\nrequest.headers.x-custom-multi-gut=100,200\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

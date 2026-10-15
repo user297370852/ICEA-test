@@ -1,0 +1,49 @@
+{
+  "description": "Requests that are same-origin or whose Origin is not allowed by the policy continue without an immediate HTTP response during request processing.",
+  "cases": [
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "request",
+        "policy": {
+          "allowed_origins": [],
+          "allowed_headers": [
+            "foo",
+            "bar"
+          ],
+          "allowed_methods": [
+            "POST",
+            "PUT"
+          ]
+        },
+        "request": {
+          "path": "/foo",
+          "method": "POST",
+          "host": "example.com",
+          "headers": {
+            "Origin": "http://example.com"
+          }
+        }
+      },
+      "expected_output": "phase=request\nurl=/foo\nmethod=POST\nresponse_created=no\n"
+    },
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "request",
+        "policy": {
+          "allowed_origins": []
+        },
+        "request": {
+          "path": "/foo",
+          "method": "GET",
+          "host": "example.com",
+          "headers": {
+            "Origin": "http://evil.com"
+          }
+        }
+      },
+      "expected_output": "phase=request\nurl=/foo\nmethod=GET\nresponse_created=no\n"
+    }
+  ]
+}

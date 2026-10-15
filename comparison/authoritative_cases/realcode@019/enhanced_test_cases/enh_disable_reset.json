@@ -1,0 +1,52 @@
+{
+  "description": "Disable/reset boundaries: a notice emitted by the error backend before disabling still appears in output yet the counter resets to zero; multiple identifiers all reset to zero retaining first-seen order; and disabling after no triggers yields a clean empty baseline.",
+  "cases": [
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "triggers": [
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/d1",
+            "message": "m"
+          }
+        ],
+        "disable_after": true
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=m\npackage=acme/orm\nlink=https://dep.example.com/orm/d1\nunique_count=0\ncount[https://dep.example.com/orm/d1]=0\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "track"
+        ],
+        "triggers": [
+          {
+            "package": "acme/a",
+            "link": "https://dep.example.com/da",
+            "message": "m"
+          },
+          {
+            "package": "acme/b",
+            "link": "https://dep.example.com/db",
+            "message": "m"
+          }
+        ],
+        "disable_after": true
+      },
+      "expected_output": "unique_count=0\ncount[https://dep.example.com/da]=0\ncount[https://dep.example.com/db]=0\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "track"
+        ],
+        "triggers": [],
+        "disable_after": true
+      },
+      "expected_output": "unique_count=0\ntracked=(none)\n"
+    }
+  ]
+}

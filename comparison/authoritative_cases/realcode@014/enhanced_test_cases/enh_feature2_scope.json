@@ -1,0 +1,123 @@
+{
+  "description": "Scoped-read distribution edge cases: nested scopes, reads before/inside/after a scope, multiple writes not pinning inside a plain scope, transactions with multiple reads, and a write-only scope.",
+  "cases": [
+    {
+      "input": {
+        "program": [
+          {
+            "op": "scope",
+            "options": {},
+            "body": [
+              {
+                "op": "read"
+              },
+              {
+                "op": "scope",
+                "options": {},
+                "body": [
+                  {
+                    "op": "read"
+                  }
+                ]
+              },
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\nread=replica\nread=replica\n"
+    },
+    {
+      "input": {
+        "program": [
+          {
+            "op": "read"
+          },
+          {
+            "op": "scope",
+            "options": {},
+            "body": [
+              {
+                "op": "read"
+              }
+            ]
+          },
+          {
+            "op": "read"
+          }
+        ]
+      },
+      "expected_output": "read=primary\nread=replica\nread=primary\n"
+    },
+    {
+      "input": {
+        "program": [
+          {
+            "op": "scope",
+            "options": {},
+            "body": [
+              {
+                "op": "write"
+              },
+              {
+                "op": "write"
+              },
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=replica\n"
+    },
+    {
+      "input": {
+        "program": [
+          {
+            "op": "scope",
+            "options": {},
+            "body": [
+              {
+                "op": "transaction",
+                "body": [
+                  {
+                    "op": "read"
+                  },
+                  {
+                    "op": "read"
+                  }
+                ]
+              },
+              {
+                "op": "read"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "read=primary\nread=primary\nread=replica\n"
+    },
+    {
+      "input": {
+        "program": [
+          {
+            "op": "scope",
+            "options": {},
+            "body": [
+              {
+                "op": "write"
+              },
+              {
+                "op": "write"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": ""
+    }
+  ]
+}

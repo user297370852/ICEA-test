@@ -1,0 +1,31 @@
+{
+    "description": "The retry delay may be supplied as a function instead of a fixed number, allowing the caller to compute each wait (for example, exponential backoff). Before scheduling each retry the wrapper invokes this function, supplying the zero-based attempt index, the network error of the failed attempt (when the failure was an error), and the response (when applicable); the function's returned number is used as the delay. The trace records each invocation with the arguments the wrapper supplied, in order, across successive retries.",
+    "cases": [
+        {
+            "input": {
+                "url": "http://someUrl",
+                "options": {"retryDelay": {"fn": true, "returns": 5000}},
+                "script": [
+                    {"reject": "first error"},
+                    {"advance": 5000},
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "retryDelay_call attempt=0 error=first error status=none\nfetch_count=2\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+        },
+        {
+            "input": {
+                "url": "http://someUrl",
+                "options": {"retryDelay": {"fn": true, "returns": 5000}},
+                "script": [
+                    {"reject": "first error"},
+                    {"advance": 5000},
+                    {"reject": "second error"},
+                    {"advance": 5000},
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "retryDelay_call attempt=0 error=first error status=none\nretryDelay_call attempt=1 error=second error status=none\nfetch_count=3\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+        }
+    ]
+}

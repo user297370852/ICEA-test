@@ -1,0 +1,22 @@
+{
+  "description": "Enhanced boundary coverage for project reference resolution: the current project contributes its own local table in addition to a view that depends on an object supplied by an external referenced project, confirming only current-project objects are reported.",
+  "cases": [
+    {
+      "input": {
+        "sql_files": {
+          "LocalTbl.sql": "CREATE TABLE [dbo].[LocalTbl]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n",
+          "View1.sql": "-- references Table1 from the referenced project\nCREATE VIEW [dbo].[View1]\n  AS SELECT * FROM [Table1]\n"
+        },
+        "project_references": [
+          {
+            "path": "/external/ReferenceProj/ReferenceProj.sqlproj",
+            "sql_files": {
+              "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n"
+            }
+          }
+        ]
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[LocalTbl]\nviews=[dbo].[View1]\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    }
+  ]
+}

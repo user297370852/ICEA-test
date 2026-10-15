@@ -1,0 +1,99 @@
+{
+  "description": "Deletion edge cases: deleting an absent key whose parent exists still reports a change while leaving the snapshot unchanged; deleting every key leaves an empty store; a key can be deleted and re-added; and deleting a nested absent key reports the full dotted path.",
+  "cases": [
+    {
+      "input": {
+        "init": {
+          "a": 1,
+          "b": 2
+        },
+        "ops": [
+          {
+            "op": "delete",
+            "path": [
+              "ghost"
+            ]
+          }
+        ]
+      },
+      "expected_output": "changes=[\"store.ghost\"]\nsnapshot={\"a\":1,\"b\":2}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "a": 1,
+          "b": 2
+        },
+        "ops": [
+          {
+            "op": "delete",
+            "path": [
+              "a"
+            ]
+          },
+          {
+            "op": "delete",
+            "path": [
+              "b"
+            ]
+          }
+        ]
+      },
+      "expected_output": "changes=[\"store.a\",\"store.b\"]\nsnapshot={}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "a": 1
+        },
+        "ops": [
+          {
+            "op": "delete",
+            "path": [
+              "a"
+            ]
+          },
+          {
+            "op": "set",
+            "path": [
+              "a"
+            ],
+            "value": 2
+          },
+          {
+            "op": "get",
+            "path": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.a = 2\nchanges=[\"store.a\",\"store.a\"]\nsnapshot={\"a\":2}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "user": {
+            "name": "ada"
+          }
+        },
+        "ops": [
+          {
+            "op": "delete",
+            "path": [
+              "user",
+              "missing"
+            ]
+          },
+          {
+            "op": "get",
+            "path": [
+              "user"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.user = {\"name\":\"ada\"}\nchanges=[\"store.user.missing\"]\nsnapshot={\"user\":{\"name\":\"ada\"}}\n"
+    }
+  ]
+}

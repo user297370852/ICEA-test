@@ -1,0 +1,229 @@
+{
+  "description": "Synthetic enhanced cases covering redirect encoding, query-param customization, state transitions, nested-route query preservation, and parameter-aware authorization boundaries.",
+  "cases": [
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "requires_session",
+        "events": [
+          {
+            "type": "visit",
+            "url": "/auth?next=/deep/path&flag=true"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=visit:/auth?next=/deep/path&flag=true\npath=/login\nsearch=?redirect=%2Fauth%3Fnext%3D%2Fdeep%2Fpath%26flag%3Dtrue\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "requires_session",
+        "events": [
+          {
+            "type": "login"
+          },
+          {
+            "type": "visit",
+            "url": "/auth?test=foo&return=/nested"
+          },
+          {
+            "type": "logout"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=login\npath=/\nsearch=\nrendered=empty\nstep=1\nevent=visit:/auth?test=foo&return=/nested\npath=/auth\nsearch=?test=foo&return=/nested\nrendered=target\nstep=2\nevent=logout\npath=/login\nsearch=?redirect=%2Fauth%3Ftest%3Dfoo%26return%3D%2Fnested\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "requires_session",
+        "events": [
+          {
+            "type": "start_authentication"
+          },
+          {
+            "type": "visit",
+            "url": "/auth?mode=slow"
+          },
+          {
+            "type": "login"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=start_authentication\npath=/\nsearch=\nrendered=empty\nstep=1\nevent=visit:/auth?mode=slow\npath=/auth\nsearch=?mode=slow\nrendered=empty\nstep=2\nevent=login\npath=/auth\nsearch=?mode=slow\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "custom_query_name",
+        "events": [
+          {
+            "type": "visit",
+            "url": "/protected?source=email&token=a=b"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=visit:/protected?source=email&token=a=b\npath=/login\nsearch=?customRedirect=%2Fprotected%3Fsource%3Demail%26token%3Da%3Db\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "first_name_rule",
+        "events": [
+          {
+            "type": "login",
+            "first_name": "NotTest",
+            "last_name": "McDuderson"
+          },
+          {
+            "type": "visit",
+            "url": "/testOnly?reason=name"
+          },
+          {
+            "type": "login",
+            "first_name": "Test",
+            "last_name": "Other"
+          },
+          {
+            "type": "visit",
+            "url": "/testOnly?reason=name"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=login\npath=/\nsearch=\nrendered=empty\nstep=1\nevent=visit:/testOnly?reason=name\npath=/\nsearch=?redirect=%2FtestOnly%3Freason%3Dname\nrendered=empty\nstep=2\nevent=login\npath=/\nsearch=?redirect=%2FtestOnly%3Freason%3Dname\nrendered=empty\nstep=3\nevent=visit:/testOnly?reason=name\npath=/testOnly\nsearch=?reason=name\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "no_redirect_back",
+        "events": [
+          {
+            "type": "visit",
+            "url": "/hidden?secret=1"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=visit:/hidden?secret=1\npath=/\nsearch=\nrendered=empty\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "two_nested_name_rules",
+        "events": [
+          {
+            "type": "login",
+            "first_name": "NotTest",
+            "last_name": "NotMcDuderson"
+          },
+          {
+            "type": "visit",
+            "url": "/testMcDudersonOnly?layer=both"
+          },
+          {
+            "type": "login",
+            "first_name": "Test",
+            "last_name": "McDuderson"
+          },
+          {
+            "type": "visit",
+            "url": "/testMcDudersonOnly?layer=both"
+          },
+          {
+            "type": "logout"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=login\npath=/\nsearch=\nrendered=empty\nstep=1\nevent=visit:/testMcDudersonOnly?layer=both\npath=/\nsearch=?redirect=%2FtestMcDudersonOnly%3Flayer%3Dboth\nrendered=empty\nstep=2\nevent=login\npath=/\nsearch=?redirect=%2FtestMcDudersonOnly%3Flayer%3Dboth\nrendered=empty\nstep=3\nevent=visit:/testMcDudersonOnly?layer=both\npath=/testMcDudersonOnly\nsearch=?layer=both\nrendered=target\nstep=4\nevent=logout\npath=/\nsearch=?redirect=%2FtestMcDudersonOnly%3Flayer%3Dboth\nrendered=empty\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "nested_parent_child",
+        "events": [
+          {
+            "type": "visit",
+            "url": "/parent/child?tab=profile"
+          },
+          {
+            "type": "login"
+          },
+          {
+            "type": "visit",
+            "url": "/parent/child?tab=profile"
+          },
+          {
+            "type": "logout"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=visit:/parent/child?tab=profile\npath=/login\nsearch=?redirect=%2Fparent%2Fchild%3Ftab%3Dprofile\nrendered=target\nstep=1\nevent=login\npath=/login\nsearch=?redirect=%2Fparent%2Fchild%3Ftab%3Dprofile\nrendered=target\nstep=2\nevent=visit:/parent/child?tab=profile\npath=/parent/child\nsearch=?tab=profile\nrendered=target\nstep=3\nevent=logout\npath=/login\nsearch=?redirect=%2Fparent%2Fchild%3Ftab%3Dprofile\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_flow",
+        "policy": "context_router_redirect",
+        "events": [
+          {
+            "type": "visit",
+            "url": "/noaction?via=context"
+          }
+        ]
+      },
+      "expected_output": "step=0\nevent=visit:/noaction?via=context\npath=/login\nsearch=?redirect=%2Fnoaction%3Fvia%3Dcontext\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_parameter_policy",
+        "events": [
+          {
+            "type": "visit",
+            "url": "/ownProps/1"
+          }
+        ]
+      },
+      "expected_output": "path=/login\nsearch=?redirect=%2FownProps%2F1\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_parameter_policy",
+        "events": [
+          {
+            "type": "login"
+          },
+          {
+            "type": "visit",
+            "url": "/ownProps/1?view=detail"
+          }
+        ]
+      },
+      "expected_output": "path=/ownProps/1\nsearch=?view=detail\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "route_parameter_policy",
+        "events": [
+          {
+            "type": "login"
+          },
+          {
+            "type": "visit",
+            "url": "/ownProps/01"
+          }
+        ]
+      },
+      "expected_output": "path=/login\nsearch=?redirect=%2FownProps%2F01\nrendered=target\n"
+    },
+    {
+      "input": {
+        "flow": "dynamic_failure_destination",
+        "events": [
+          {
+            "type": "visit",
+            "url": "/ownProps/1?foo=bar"
+          }
+        ]
+      },
+      "expected_output": "path=/login/1\nsearch=?redirect=%2FownProps%2F1%3Ffoo%3Dbar\nrendered=target\n"
+    }
+  ]
+}

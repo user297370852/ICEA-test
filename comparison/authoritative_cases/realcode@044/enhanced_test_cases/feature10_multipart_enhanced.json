@@ -1,0 +1,62 @@
+{
+  "description": "ENHANCED: multipart parsing edge cases — a body containing both a file part and a text field, and a unicode text field value.",
+  "cases": [
+    {
+      "input": {
+        "multipart": true,
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoMultipart",
+              "fields": [
+                "uploadFile1",
+                "note"
+              ]
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryENH123"
+          },
+          "body": "------WebKitFormBoundaryENH123\r\nContent-Disposition: form-data; name=\"uploadFile1\"; filename=\"a.txt\"\r\nContent-Type: text/plain\r\n\r\nAAA\r\n------WebKitFormBoundaryENH123\r\nContent-Disposition: form-data; name=\"note\"\r\n\r\nhello-note\r\n------WebKitFormBoundaryENH123--",
+          "isBase64Encoded": false
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"uploadFile1\":{\"fieldname\":\"uploadFile1\",\"filename\":\"a.txt\",\"encoding\":\"7bit\",\"mimetype\":\"text/plain\",\"content\":\"AAA\"},\"note\":{\"fieldname\":\"note\",\"encoding\":\"7bit\",\"mimetype\":\"text/plain\",\"value\":\"hello-note\"}}\nheader.connection=keep-alive\nheader.content-length=211\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "multipart": true,
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoMultipart",
+              "fields": [
+                "msg"
+              ]
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "content-type": "multipart/form-data; boundary=zZyYx"
+          },
+          "body": "--zZyYx\r\nContent-Disposition: form-data; name=\"msg\"\r\n\r\nGrüße, 世界\r\n--zZyYx--\r\n",
+          "isBase64Encoded": false
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"msg\":{\"fieldname\":\"msg\",\"encoding\":\"7bit\",\"mimetype\":\"text/plain\",\"value\":\"Grüße, 世界\"}}\nheader.connection=keep-alive\nheader.content-length=95\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

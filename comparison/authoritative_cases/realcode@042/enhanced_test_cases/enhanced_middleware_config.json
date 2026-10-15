@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "expected_output": "status_code=200\ncontent_type=text/html\n---content---\n<html>  <body>x</body>  </html>\n",
+      "input": {
+        "content": "<html>  <body>x</body>  </html>",
+        "exclude_paths": [
+          "^api",
+          "^admin"
+        ],
+        "op": "middleware_response",
+        "path": "/admin/panel"
+      }
+    },
+    {
+      "expected_output": "status_code=200\ncontent_type=text/html\n---content---\n<html><head></head><body>x </body></html>\n",
+      "input": {
+        "content": "<html>  <body>x</body>  </html>",
+        "exclude_paths": [
+          "^api",
+          "^admin"
+        ],
+        "op": "middleware_response",
+        "path": "/public/page"
+      }
+    },
+    {
+      "expected_output": "status_code=200\ncontent_type=text/html\n---content---\n<html><!-- hold --><head></head><body>x </body></html>\n",
+      "input": {
+        "content": "<html>  <!-- hold --><body>x</body>  </html>",
+        "keep_comments": true,
+        "op": "middleware_response"
+      }
+    },
+    {
+      "expected_output": "status_code=200\ncontent_type=text/html\n---content---\n<html>  <body>x</body>  </html>\n",
+      "input": {
+        "content": "<html>  <body>x</body>  </html>",
+        "minify_enabled": true,
+        "minify_response": false,
+        "op": "middleware_response"
+      }
+    }
+  ],
+  "description": "Enhanced middleware configuration edge cases: multi-pattern exclusion where the path matches a later pattern, an exclusion list whose patterns do not match (so minification proceeds), comment retention preserving a comment in the response body, and a per-response opt-out that overrides an otherwise-eligible HTML response. Native-disjoint coverage of config-driven decisions."
+}

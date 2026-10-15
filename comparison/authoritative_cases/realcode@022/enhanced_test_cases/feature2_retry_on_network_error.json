@@ -1,0 +1,80 @@
+{
+  "description": "Boundary coverage for the default network-error retry budget: a chain of consecutive transient failures that finally succeeds exactly as the default budget is reached should resolve with that late response, while a run that keeps failing until the budget is exhausted should reject with the final attempt's error. Failures whose error message is degenerate (empty) are still treated as retryable network failures.",
+  "cases": [
+    {
+      "input": {
+        "url": "http://someurl",
+        "script": [
+          {
+            "reject": "e1"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "reject": "e2"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "reject": "e3"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "fetch_count=4\nurl=http://someurl\noptions_passed=false\noutcome=resolved status=200\n"
+    },
+    {
+      "input": {
+        "url": "http://someurl",
+        "script": [
+          {
+            "reject": ""
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "fetch_count=2\nurl=http://someurl\noptions_passed=false\noutcome=resolved status=200\n"
+    },
+    {
+      "input": {
+        "url": "http://someurl",
+        "script": [
+          {
+            "reject": ""
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "reject": ""
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "reject": ""
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "reject": ""
+          }
+        ]
+      },
+      "expected_output": "fetch_count=4\nurl=http://someurl\noptions_passed=false\noutcome=rejected error=none\n"
+    }
+  ]
+}

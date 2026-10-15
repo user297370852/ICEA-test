@@ -1,0 +1,17 @@
+{
+  "description": "A protected route allows a valid session, and if the session later becomes missing or authentication finishes unsuccessfully, the active route changes to the login route.",
+  "cases": [
+    {
+      "input": {"flow":"route_flow","policy":"requires_session","events":[{"type":"login"},{"type":"visit","url":"/auth"}]},
+      "expected_output": "step=0\nevent=login\npath=/\nsearch=\nrendered=empty\nstep=1\nevent=visit:/auth\npath=/auth\nsearch=\nrendered=target\n"
+    },
+    {
+      "input": {"flow":"route_flow","policy":"requires_session","events":[{"type":"login"},{"type":"visit","url":"/auth"},{"type":"logout"}]},
+      "expected_output": "step=0\nevent=login\npath=/\nsearch=\nrendered=empty\nstep=1\nevent=visit:/auth\npath=/auth\nsearch=\nrendered=target\nstep=2\nevent=logout\npath=/login\nsearch=?redirect=%2Fauth\nrendered=target\n"
+    },
+    {
+      "input": {"flow":"route_flow","policy":"requires_session","events":[{"type":"start_authentication"},{"type":"visit","url":"/auth"},{"type":"logout"}]},
+      "expected_output": "step=0\nevent=start_authentication\npath=/\nsearch=\nrendered=empty\nstep=1\nevent=visit:/auth\npath=/auth\nsearch=\nrendered=empty\nstep=2\nevent=logout\npath=/login\nsearch=?redirect=%2Fauth\nrendered=target\n"
+    }
+  ]
+}

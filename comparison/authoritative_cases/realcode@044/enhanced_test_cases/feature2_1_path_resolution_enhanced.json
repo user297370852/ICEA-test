@@ -1,0 +1,71 @@
+{
+  "description": "ENHANCED: path/URL resolution edge cases — default \"/\" when neither path nor rawPath is present, and method derived from request-context for a raw-path-only v1 event with a query string.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "root": true
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "requestContext": {
+            "http": {
+              "method": "GET"
+            }
+          },
+          "headers": {
+            "X-My-Header": "h"
+          },
+          "queryStringParameters": ""
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"root\":true}\nheader.connection=keep-alive\nheader.content-length=13\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/items",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "ok": 1
+              }
+            }
+          }
+        },
+        "probe": [
+          "url",
+          "query.page"
+        ],
+        "event": {
+          "rawPath": "/items",
+          "requestContext": {
+            "http": {
+              "method": "GET"
+            }
+          },
+          "headers": {
+            "X-My-Header": "h"
+          },
+          "queryStringParameters": {
+            "page": "2"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/items?page=2\nrequest.query.page=2\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"ok\":1}\nheader.connection=keep-alive\nheader.content-length=8\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

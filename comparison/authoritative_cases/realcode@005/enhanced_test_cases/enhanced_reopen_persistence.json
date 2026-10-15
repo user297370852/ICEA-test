@@ -1,0 +1,75 @@
+{
+  "description": "Session persistence across reopen: re-establishing the cart for the same session resolves to the same open cart, so line items added before the reopen survive and items added after the reopen accumulate into the same cart. Reopening an empty cart also resolves to the same cart.",
+  "cases": [
+    {
+      "input": {
+        "products": [
+          1,
+          2
+        ],
+        "operations": [
+          {
+            "op": "add",
+            "product": 1,
+            "unit_price": "5",
+            "quantity": 1
+          },
+          {
+            "op": "reopen"
+          },
+          {
+            "op": "add",
+            "product": 2,
+            "unit_price": "3",
+            "quantity": 2
+          },
+          {
+            "op": "dump"
+          }
+        ]
+      },
+      "expected_output": "same_cart=yes\nitem product=1 quantity=1 unit_price=5.00 subtotal=5.00\nitem product=2 quantity=2 unit_price=3.00 subtotal=6.00\ntotal=11.00\ncount=3\n"
+    },
+    {
+      "input": {
+        "products": [
+          1
+        ],
+        "operations": [
+          {
+            "op": "reopen"
+          },
+          {
+            "op": "dump"
+          }
+        ]
+      },
+      "expected_output": "same_cart=yes\ntotal=0\ncount=0\n"
+    },
+    {
+      "input": {
+        "products": [
+          1
+        ],
+        "operations": [
+          {
+            "op": "add",
+            "product": 1,
+            "unit_price": "2.50",
+            "quantity": 2
+          },
+          {
+            "op": "reopen"
+          },
+          {
+            "op": "reopen"
+          },
+          {
+            "op": "dump"
+          }
+        ]
+      },
+      "expected_output": "same_cart=yes\nsame_cart=yes\nitem product=1 quantity=2 unit_price=2.50 subtotal=5.00\ntotal=5.00\ncount=2\n"
+    }
+  ]
+}

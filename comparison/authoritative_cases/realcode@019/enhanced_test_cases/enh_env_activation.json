@@ -1,0 +1,78 @@
+{
+  "description": "Environment-selector boundaries: an unsupported selector ('psr' is only programmatic) and an empty/uppercase value all leave the layer a no-op, while an explicit enable call overrides any environment selector (including 'off').",
+  "cases": [
+    {
+      "input": {
+        "env": "psr",
+        "triggers": [
+          {
+            "package": "acme/foo",
+            "link": "https://dep.example.com/foo/1",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "unique_count=0\ntracked=(none)\n"
+    },
+    {
+      "input": {
+        "env": "",
+        "triggers": [
+          {
+            "package": "acme/foo",
+            "link": "https://dep.example.com/foo/1",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "unique_count=0\ntracked=(none)\n"
+    },
+    {
+      "input": {
+        "env": "TRACK",
+        "triggers": [
+          {
+            "package": "acme/foo",
+            "link": "https://dep.example.com/foo/1",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "unique_count=0\ntracked=(none)\n"
+    },
+    {
+      "input": {
+        "env": "off",
+        "enable": [
+          "track"
+        ],
+        "triggers": [
+          {
+            "package": "acme/foo",
+            "link": "https://dep.example.com/foo/1",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "unique_count=1\ncount[https://dep.example.com/foo/1]=1\n"
+    },
+    {
+      "input": {
+        "env": "track",
+        "triggers": [
+          {
+            "package": "acme/foo",
+            "link": "https://dep.example.com/foo/2",
+            "message": "m"
+          },
+          {
+            "package": "acme/foo",
+            "link": "https://dep.example.com/foo/2",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "unique_count=2\ncount[https://dep.example.com/foo/2]=2\n"
+    }
+  ]
+}

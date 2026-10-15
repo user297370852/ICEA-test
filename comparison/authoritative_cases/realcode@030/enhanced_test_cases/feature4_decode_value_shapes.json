@@ -1,0 +1,61 @@
+{
+  "description": "Decoding round-trips a variety of claim value shapes: array, nested object, boolean, null, and number claims are rendered as compact JSON (claims emitted in sorted key order); an empty payload yields only the header algorithm, the signature segment, and the round-trip flag; a multibyte UTF-8 claim survives the base64 round trip; and a raw token string supplied directly is decoded and reported as retained unchanged.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|1",
+          "roles": [
+            "admin",
+            "user"
+          ],
+          "meta": {
+            "a": 1,
+            "b": 2
+          },
+          "active": true,
+          "deleted": null,
+          "count": 5
+        }
+      },
+      "expected_output": "alg=RS256\nactive=true\ncount=5\ndeleted=null\niss=https://login.example.com/\nmeta={\"a\":1,\"b\":2}\nroles=[\"admin\",\"user\"]\nsub=user|1\nsignature=sig\nraw_matches=true\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "header": {
+          "alg": "HS256"
+        },
+        "payload": {}
+      },
+      "expected_output": "alg=HS256\nsignature=sig\nraw_matches=true\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "header": {
+          "alg": "HS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|99",
+          "name": "日本語",
+          "age": 30
+        }
+      },
+      "expected_output": "alg=HS256\nage=30\niss=https://login.example.com/\nname=日本語\nsub=user|99\nsignature=sig\nraw_matches=true\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "token": "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhYmMiLCJ4IjoxfQ==.mysig"
+      },
+      "expected_output": "alg=RS256\nsub=abc\nx=1\nsignature=mysig\nraw_matches=true\n"
+    }
+  ]
+}

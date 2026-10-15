@@ -1,0 +1,103 @@
+{
+  "description": "Stream substitution over boundary inputs: global replacement of several matches per line, a longer replacement string, a pattern that matches nothing (text unchanged), in-place replacement without the global suffix, unicode replacement, a digit character class, and an empty file.",
+  "cases": [
+    {
+      "input": {
+        "args": [
+          "sed",
+          "s/a/X/g",
+          "f.txt"
+        ],
+        "files": {
+          "f.txt": "aaa\nbab\n"
+        }
+      },
+      "expected_output": "exit_code=0\nstdout=\"XXX\\nbXb\\n\"\nstderr=\"\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "sed",
+          "s/x/LONG/g",
+          "f.txt"
+        ],
+        "files": {
+          "f.txt": "x\nxx\n"
+        }
+      },
+      "expected_output": "exit_code=0\nstdout=\"LONG\\nLONGLONG\\n\"\nstderr=\"\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "sed",
+          "s/zzz/q/g",
+          "f.txt"
+        ],
+        "files": {
+          "f.txt": "abc\ndef\n"
+        },
+        "show_files": [
+          "f.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"abc\\ndef\\n\"\nstderr=\"\"\nfile:f.txt=\"abc\\ndef\\n\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "sed",
+          "-i",
+          "s/a/b/",
+          "f.txt"
+        ],
+        "files": {
+          "f.txt": "aa\naa\n"
+        },
+        "show_files": [
+          "f.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"ba\\nba\\n\"\nstderr=\"\"\nfile:f.txt=\"ba\\nba\\n\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "sed",
+          "s/foo/héllo/g",
+          "f.txt"
+        ],
+        "files": {
+          "f.txt": "foo\nfoofoo\n"
+        }
+      },
+      "expected_output": "exit_code=0\nstdout=\"héllo\\nhéllohéllo\\n\"\nstderr=\"\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "sed",
+          "s/[0-9]/#/g",
+          "f.txt"
+        ],
+        "files": {
+          "f.txt": "a1b2\n33\n"
+        }
+      },
+      "expected_output": "exit_code=0\nstdout=\"a#b#\\n##\\n\"\nstderr=\"\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "sed",
+          "s/a/b/g",
+          "f.txt"
+        ],
+        "files": {
+          "f.txt": ""
+        }
+      },
+      "expected_output": "exit_code=0\nstdout=\"\"\nstderr=\"\"\n"
+    }
+  ]
+}

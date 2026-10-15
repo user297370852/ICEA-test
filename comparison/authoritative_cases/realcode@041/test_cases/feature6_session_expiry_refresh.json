@@ -1,0 +1,97 @@
+{
+    "description": "Session expiry times are renewed only under the configured refresh rules.",
+    "cases": [
+        {
+            "description": "With automatic refresh enabled, a successful authenticated request extends the stored expiry and the token remains usable beyond its original expiry until the renewed expiry is passed.",
+            "input": {
+                "operation": "expiry_refresh",
+                "settings": {
+                    "auto_extend_sessions": true
+                },
+                "original_time": "2018-07-25T00:00:00",
+                "checks": [
+                    {
+                        "at": {
+                            "hours": 5
+                        }
+                    },
+                    {
+                        "at": {
+                            "hours": 11
+                        }
+                    },
+                    {
+                        "at": {
+                            "hours": 21,
+                            "seconds": 1
+                        }
+                    }
+                ]
+            },
+            "expected_output": "check1.status=200\ncheck1.url=/api/\ncheck1.body=User is authenticated.\ncheck1.stored_expiry=2018-07-25T15:00:00\ncheck2.status=200\ncheck2.url=/api/\ncheck2.body=User is authenticated.\ncheck2.stored_expiry=2018-07-25T21:00:00\ncheck3.status=401\ncheck3.url=/api/\ncheck3.detail=Invalid token.\ncheck3.stored_expiry=null\noriginal_expiry=2018-07-25T10:00:00\n"
+        },
+        {
+            "description": "With automatic refresh disabled, a successful authenticated request does not change the stored expiry timestamp.",
+            "input": {
+                "operation": "expiry_refresh",
+                "settings": {
+                    "auto_extend_sessions": false
+                },
+                "original_time": "2018-07-25T00:00:00",
+                "checks": [
+                    {
+                        "at": {
+                            "hours": 1
+                        }
+                    }
+                ]
+            },
+            "expected_output": "check1.status=200\ncheck1.url=/api/\ncheck1.body=User is authenticated.\ncheck1.stored_expiry=2018-07-25T10:00:00\noriginal_expiry=2018-07-25T10:00:00\n"
+        },
+        {
+            "description": "With automatic refresh enabled, a request inside the minimum refresh write interval succeeds without rewriting the stored expiry timestamp.",
+            "input": {
+                "operation": "expiry_refresh",
+                "settings": {
+                    "auto_extend_sessions": true
+                },
+                "original_time": "2018-07-25T00:00:00",
+                "checks": [
+                    {
+                        "at": {
+                            "seconds": 50
+                        }
+                    }
+                ]
+            },
+            "expected_output": "check1.status=200\ncheck1.url=/api/\ncheck1.body=User is authenticated.\ncheck1.stored_expiry=2018-07-25T10:00:00\noriginal_expiry=2018-07-25T10:00:00\n"
+        },
+        {
+            "description": "With automatic refresh enabled and a maximum session age configured, renewal is capped at that maximum and the token is rejected after the capped expiry.",
+            "input": {
+                "operation": "expiry_refresh",
+                "settings": {
+                    "auto_extend_sessions": true,
+                    "maximum_session_age": {
+                        "hours": 12
+                    }
+                },
+                "original_time": "2018-07-25T00:00:00",
+                "checks": [
+                    {
+                        "at": {
+                            "hours": 5
+                        }
+                    },
+                    {
+                        "at": {
+                            "hours": 12,
+                            "seconds": 1
+                        }
+                    }
+                ]
+            },
+            "expected_output": "check1.status=200\ncheck1.url=/api/\ncheck1.body=User is authenticated.\ncheck1.stored_expiry=2018-07-25T12:00:00\ncheck2.status=401\ncheck2.url=/api/\ncheck2.detail=Invalid token.\ncheck2.stored_expiry=null\noriginal_expiry=2018-07-25T10:00:00\n"
+        }
+    ]
+}

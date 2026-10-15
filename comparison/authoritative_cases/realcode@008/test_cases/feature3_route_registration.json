@@ -1,0 +1,11 @@
+{
+    "description": "Register a list of webhook definitions as routes, expanding any definition whose method is a list into one route per method. Each definition supplies a method (a single HTTP verb or a list of verbs), a relative path, and a command. Registration validates every definition first; a definition with a single method produces one route, while a definition whose method is a list produces one route for each listed method, preserving the order of definitions and of the methods within each definition. If no list of definitions is supplied at all the operation fails; if a supplied definition is not valid the operation fails. The output is the ordered list of registered routes, each shown as the HTTP verb and the path, one route per line; an empty list of definitions registers nothing.",
+    "cases": [
+        {"input": {"feature": "register", "hooks": [{"method": "GET", "path": "/foo", "command": "echo bar"}]}, "expected_output": "GET /foo\n"},
+        {"input": {"feature": "register", "hooks": [{"method": "GET", "path": "/foo", "command": "echo bar"}, {"method": ["GET", "POST"], "path": "/hello", "command": "echo hello world"}]}, "expected_output": "GET /foo\nGET /hello\nPOST /hello\n"},
+        {"input": {"feature": "register", "hooks": [{"method": ["GET", "POST", "PUT", "DELETE"], "path": "/multi", "command": "echo m"}]}, "expected_output": "GET /multi\nPOST /multi\nPUT /multi\nDELETE /multi\n"},
+        {"input": {"feature": "register", "hooks": []}, "expected_output": ""},
+        {"input": {"feature": "register"}, "expected_output": "error=no_hooks\n"},
+        {"input": {"feature": "register", "hooks": [{"method": "NONSENSE", "path": "/x", "command": "echo x"}]}, "expected_output": "error=invalid_hook\n"}
+    ]
+}

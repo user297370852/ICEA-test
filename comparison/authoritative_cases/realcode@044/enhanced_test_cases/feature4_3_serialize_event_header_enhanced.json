@@ -1,0 +1,41 @@
+{
+  "description": "ENHANCED: serialized-event header edge case — when enabled with a context, both the URL-encoded event and the URL-encoded context headers are exposed.",
+  "cases": [
+    {
+      "input": {
+        "options": {
+          "serializeLambdaArguments": true
+        },
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.x-apigateway-event",
+          "headers.x-apigateway-context"
+        ],
+        "context": {
+          "functionName": "fn",
+          "awsRequestId": "rid-9"
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.x-apigateway-event=%7B%22version%22%3A%222.0%22%2C%22httpMethod%22%3A%22GET%22%2C%22path%22%3A%22%2Ftest%22%2C%22headers%22%3A%7B%22X-My-Header%22%3A%22h%22%7D%7D\nrequest.headers.x-apigateway-context=%7B%22functionName%22%3A%22fn%22%2C%22awsRequestId%22%3A%22rid-9%22%7D\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

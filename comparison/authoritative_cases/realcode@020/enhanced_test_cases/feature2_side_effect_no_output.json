@@ -1,0 +1,106 @@
+{
+  "description": "Side-effecting copy and remove commands over boundary file states: empty source content, overwriting an existing destination, unicode and multi-line content, and removing among several files. Effects are observed via post-run file state.",
+  "cases": [
+    {
+      "input": {
+        "args": [
+          "cp",
+          "a.txt",
+          "b.txt"
+        ],
+        "files": {
+          "a.txt": ""
+        },
+        "show_files": [
+          "b.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"\"\nstderr=\"\"\nfile:b.txt=\"\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "cp",
+          "a.txt",
+          "b.txt"
+        ],
+        "files": {
+          "a.txt": "new\n",
+          "b.txt": "old\n"
+        },
+        "show_files": [
+          "b.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"\"\nstderr=\"\"\nfile:b.txt=\"new\\n\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "cp",
+          "a.txt",
+          "b.txt"
+        ],
+        "files": {
+          "a.txt": "héllo\n世界\n"
+        },
+        "show_files": [
+          "b.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"\"\nstderr=\"\"\nfile:b.txt=\"héllo\\n世界\\n\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "cp",
+          "a.txt",
+          "b.txt"
+        ],
+        "files": {
+          "a.txt": "l1\nl2\nl3\n"
+        },
+        "show_files": [
+          "a.txt",
+          "b.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"\"\nstderr=\"\"\nfile:a.txt=\"l1\\nl2\\nl3\\n\"\nfile:b.txt=\"l1\\nl2\\nl3\\n\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "rm",
+          "a.txt"
+        ],
+        "files": {
+          "a.txt": "x",
+          "c.txt": "y"
+        },
+        "show_files": [
+          "a.txt",
+          "c.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"\"\nstderr=\"\"\nfile:a.txt=null\nfile:c.txt=\"y\"\n"
+    },
+    {
+      "input": {
+        "args": [
+          "rm",
+          "a.txt",
+          "b.txt"
+        ],
+        "files": {
+          "a.txt": "1",
+          "b.txt": "2"
+        },
+        "show_files": [
+          "a.txt",
+          "b.txt"
+        ]
+      },
+      "expected_output": "exit_code=0\nstdout=\"\"\nstderr=\"\"\nfile:a.txt=null\nfile:b.txt=null\n"
+    }
+  ]
+}

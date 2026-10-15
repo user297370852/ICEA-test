@@ -1,0 +1,48 @@
+{
+    "description": "When an expected nonce is supplied, verification requires the nonce claim to be a present string equal to it. A missing nonce yields a nonce-missing category; a non-matching nonce yields a nonce-mismatch category carrying the expected and actual nonce values as separate fields.",
+    "cases": [
+        {
+            "input": {
+                "op": "verify",
+                "header": {
+                    "alg": "RS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|abc",
+                    "aud": "sample-client",
+                    "exp": 9999999999,
+                    "iat": 1000000000
+                },
+                "options": {
+                    "iss": "https://login.example.com/",
+                    "aud": "sample-client",
+                    "nonce": "a1b2c3"
+                }
+            },
+            "expected_output": "error=nonce_missing\n"
+        },
+        {
+            "input": {
+                "op": "verify",
+                "header": {
+                    "alg": "RS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|abc",
+                    "aud": "sample-client",
+                    "exp": 9999999999,
+                    "iat": 1000000000,
+                    "nonce": "notExpected"
+                },
+                "options": {
+                    "iss": "https://login.example.com/",
+                    "aud": "sample-client",
+                    "nonce": "noncey"
+                }
+            },
+            "expected_output": "error=nonce_mismatch\nexpected=noncey\nactual=notExpected\n"
+        }
+    ]
+}

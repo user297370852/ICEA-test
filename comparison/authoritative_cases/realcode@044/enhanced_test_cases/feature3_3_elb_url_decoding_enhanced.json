@@ -1,0 +1,58 @@
+{
+  "description": "ENHANCED: load-balancer query decoding edge cases — percent-encoded spaces are decoded, and for ELB events a comma value is left intact (the v2 comma-split is not applied on the ELB path).",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "event": {
+          "requestContext": {
+            "elb": {
+              "targetGroupArn": "tg"
+            }
+          },
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "name": "John%20Doe"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"name\":\"John Doe\"}\nheader.connection=keep-alive\nheader.content-length=19\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "requestContext": {
+            "elb": {
+              "targetGroupArn": "tg"
+            }
+          },
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "tags": "a,b"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"tags\":\"a,b\"}\nheader.connection=keep-alive\nheader.content-length=14\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

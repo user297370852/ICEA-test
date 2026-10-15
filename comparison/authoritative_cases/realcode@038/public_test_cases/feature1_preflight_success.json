@@ -1,0 +1,54 @@
+{
+  "description": "Preflight requests that match the configured cross-origin policy return an immediate HTTP response with the allowed origin, allowed methods, allowed request headers, and Origin in Vary.",
+  "cases": [
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "request",
+        "policy": {
+          "allowed_origins": "*",
+          "allowed_headers": [
+            "foo",
+            "bar"
+          ],
+          "allowed_methods": [
+            "POST",
+            "PUT"
+          ]
+        },
+        "request": {
+          "path": "/foo",
+          "method": "OPTIONS",
+          "headers": {
+            "Origin": "http://example.com",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "Foo, BAR"
+          }
+        }
+      },
+      "expected_output": "phase=request\nurl=/foo\nmethod=OPTIONS\nresponse_created=yes\nstatus=200\nheader:Access-Control-Allow-Origin=http://example.com\nheader:Access-Control-Allow-Methods=POST, PUT\nheader:Access-Control-Allow-Headers=foo, bar\nheader:Access-Control-Allow-Credentials=\nheader:Access-Control-Expose-Headers=\nheader:Access-Control-Max-Age=\nvary=Origin\nbody=\n"
+    },
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "request",
+        "policy": {
+          "allowed_origins": "*",
+          "allowed_methods": [
+            "LINK",
+            "PUT"
+          ]
+        },
+        "request": {
+          "path": "/foo",
+          "method": "OPTIONS",
+          "headers": {
+            "Origin": "http://example.com",
+            "Access-Control-Request-Method": "Link"
+          }
+        }
+      },
+      "expected_output": "phase=request\nurl=/foo\nmethod=OPTIONS\nresponse_created=yes\nstatus=200\nheader:Access-Control-Allow-Origin=http://example.com\nheader:Access-Control-Allow-Methods=LINK, PUT, Link\nheader:Access-Control-Allow-Headers=\nheader:Access-Control-Allow-Credentials=\nheader:Access-Control-Expose-Headers=\nheader:Access-Control-Max-Age=\nvary=Origin\nbody=\n"
+    }
+  ]
+}

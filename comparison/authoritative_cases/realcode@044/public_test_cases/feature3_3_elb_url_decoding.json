@@ -1,0 +1,63 @@
+{
+  "description": "For load-balancer sourced events, URL-decode both query keys and query values (single and multi-valued).",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "event": {
+          "requestContext": {
+            "elb": {
+              "targetGroupArn": "xxx"
+            }
+          },
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "q%24": "foo%3Fbar"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"q$\":\"foo?bar\"}\nheader.connection=keep-alive\nheader.content-length=16\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "event": {
+          "requestContext": {
+            "elb": {
+              "targetGroupArn": "xxx"
+            }
+          },
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "q%24": "foo%3Fbar"
+          },
+          "multiValueQueryStringParameters": {
+            "q%24": [
+              "foo%40bar",
+              "foo%3Fbar"
+            ]
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"q$\":[\"foo@bar\",\"foo?bar\"]}\nheader.connection=keep-alive\nheader.content-length=28\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

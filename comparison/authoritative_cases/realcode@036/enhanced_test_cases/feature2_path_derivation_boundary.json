@@ -1,0 +1,86 @@
+{
+  "description": "Derive the project filesystem paths when only a subset of the logical names is supplied (each remaining name falling back to its built-in default), when the application root is deeply nested, and when a non-default active environment selects a different configuration section. Verifies that the fixed location of the path-configuration document is independent of any overridden configuration directory.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_paths",
+        "root": "/app",
+        "paths": {
+          "production": {
+            "source": "src"
+          }
+        }
+      },
+      "expected_output": "source=src\nsource_path=/app/src\nentry_path=/app/src/packs\noutput_path=/app/public/packs\nmanifest_path=/app/public/packs/manifest.json\nconfig_path=/app/config/webpack\nfile_path=/app/config/webpack/paths.yml\n"
+    },
+    {
+      "input": {
+        "action": "config_paths",
+        "root": "/app",
+        "paths": {
+          "production": {
+            "output": "bundles"
+          }
+        }
+      },
+      "expected_output": "source=app/javascript\nsource_path=/app/app/javascript\nentry_path=/app/app/javascript/packs\noutput_path=/app/public/bundles\nmanifest_path=/app/public/bundles/manifest.json\nconfig_path=/app/config/webpack\nfile_path=/app/config/webpack/paths.yml\n"
+    },
+    {
+      "input": {
+        "action": "config_paths",
+        "root": "/app",
+        "paths": {
+          "production": {
+            "manifest": "assets-manifest.json"
+          }
+        }
+      },
+      "expected_output": "source=app/javascript\nsource_path=/app/app/javascript\nentry_path=/app/app/javascript/packs\noutput_path=/app/public/packs\nmanifest_path=/app/public/packs/assets-manifest.json\nconfig_path=/app/config/webpack\nfile_path=/app/config/webpack/paths.yml\n"
+    },
+    {
+      "input": {
+        "action": "config_paths",
+        "root": "/app",
+        "paths": {
+          "production": {
+            "config": "webpack/config"
+          }
+        }
+      },
+      "expected_output": "source=app/javascript\nsource_path=/app/app/javascript\nentry_path=/app/app/javascript/packs\noutput_path=/app/public/packs\nmanifest_path=/app/public/packs/manifest.json\nconfig_path=/app/webpack/config\nfile_path=/app/config/webpack/paths.yml\n"
+    },
+    {
+      "input": {
+        "action": "config_paths",
+        "root": "/var/www/myapp/current"
+      },
+      "expected_output": "source=app/javascript\nsource_path=/var/www/myapp/current/app/javascript\nentry_path=/var/www/myapp/current/app/javascript/packs\noutput_path=/var/www/myapp/current/public/packs\nmanifest_path=/var/www/myapp/current/public/packs/manifest.json\nconfig_path=/var/www/myapp/current/config/webpack\nfile_path=/var/www/myapp/current/config/webpack/paths.yml\n"
+    },
+    {
+      "input": {
+        "action": "config_paths",
+        "root": "/app",
+        "paths": {
+          "production": {
+            "entry": "app_packs"
+          }
+        }
+      },
+      "expected_output": "source=app/javascript\nsource_path=/app/app/javascript\nentry_path=/app/app/javascript/app_packs\noutput_path=/app/public/packs\nmanifest_path=/app/public/packs/manifest.json\nconfig_path=/app/config/webpack\nfile_path=/app/config/webpack/paths.yml\n"
+    },
+    {
+      "input": {
+        "action": "config_paths",
+        "root": "/srv",
+        "paths": {
+          "development": {
+            "source": "client"
+          },
+          "production": {}
+        },
+        "rails_env": "development"
+      },
+      "expected_output": "source=client\nsource_path=/srv/client\nentry_path=/srv/client/packs\noutput_path=/srv/public/packs\nmanifest_path=/srv/public/packs/manifest.json\nconfig_path=/srv/config/webpack\nfile_path=/srv/config/webpack/paths.yml\n"
+    }
+  ]
+}

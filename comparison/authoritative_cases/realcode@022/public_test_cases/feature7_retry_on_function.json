@@ -1,0 +1,27 @@
+{
+    "description": "The retryOn option may instead be a predicate function that fully governs whether to retry. After every attempt the wrapper invokes it with the zero-based attempt index, the network error (when the attempt failed with an error, otherwise absent), and the response (when the attempt produced one, otherwise absent). A truthy return triggers another attempt; a falsy return settles the wrapper — resolving with the response if the last attempt produced one, or rejecting with the error if it failed. When this predicate is used it alone decides retries (the numeric retry budget is not consulted). The trace records each invocation with the arguments supplied, then the final outcome.",
+    "cases": [
+        {
+            "input": {
+                "url": "http://someUrl",
+                "options": {"retryOn": {"fn": true, "returns": false}},
+                "script": [
+                    {"reject": "first error"}
+                ]
+            },
+            "expected_output": "retryOn_call attempt=0 error=first error status=none\nfetch_count=1\nurl=http://someUrl\noptions_passed=true\noutcome=rejected error=first error\n"
+        },
+        {
+            "input": {
+                "url": "http://someUrl",
+                "options": {"retryOn": {"fn": true, "returns": [true, false]}},
+                "script": [
+                    {"resolve": 502},
+                    {"advance": 1000},
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "retryOn_call attempt=0 error=none status=502\nretryOn_call attempt=1 error=none status=200\nfetch_count=2\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+        }
+    ]
+}

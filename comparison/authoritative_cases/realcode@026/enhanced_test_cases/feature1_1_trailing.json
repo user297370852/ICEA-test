@@ -1,0 +1,128 @@
+{
+  "description": "Boundary coverage for default trailing-edge debouncing of an action: a zero-length quiet window, an absence of any trigger at all, an exact off-by-one boundary around the quiet window, and a burst that carries multiple heterogeneous arguments so the most-recent argument list survives.",
+  "cases": [
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 0,
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              "z"
+            ]
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[\"z\"] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 1000,
+        "steps": [
+          {
+            "do": "observe"
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "calls=0\ncalls=0\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 200,
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              "p"
+            ]
+          },
+          {
+            "do": "advance",
+            "ms": 199
+          },
+          {
+            "do": "observe"
+          },
+          {
+            "do": "advance",
+            "ms": 1
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "calls=0\ncall#1 args=[\"p\"] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 1000,
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              1,
+              true,
+              null
+            ]
+          },
+          {
+            "do": "call",
+            "args": [
+              2,
+              false,
+              {
+                "k": "v"
+              }
+            ]
+          },
+          {
+            "do": "advance",
+            "ms": 1000
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[2,false,{\"k\":\"v\"}] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 500,
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              "café☕"
+            ]
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[\"café☕\"] tag=fn\ncalls=1\n"
+    }
+  ]
+}

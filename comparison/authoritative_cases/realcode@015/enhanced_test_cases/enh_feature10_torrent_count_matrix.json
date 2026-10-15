@@ -1,0 +1,63 @@
+{
+  "description": "Category x state count matrix: nonzero grid, category/torrent source errors.",
+  "cases": [
+    {
+      "input": {
+        "operation": "torrent_count_matrix",
+        "categories": {
+          "Movies": {
+            "name": "Movies",
+            "savePath": "/m"
+          }
+        },
+        "torrents": [
+          {
+            "name": "a",
+            "category": "Movies",
+            "state": "downloading"
+          },
+          {
+            "name": "b",
+            "category": "Movies",
+            "state": "uploading"
+          },
+          {
+            "name": "c",
+            "category": "",
+            "state": "error"
+          }
+        ],
+        "only_nonzero": true
+      },
+      "expected_output": "metric_count=3\nmetric[0].name=qbittorrent_torrents_count\nmetric[0].type=gauge\nmetric[0].value=1\nmetric[0].labels={\"category\":\"Movies\",\"server\":\"localhost:8080/qbt/\",\"status\":\"uploading\"}\nmetric[0].help=Number of torrents in status uploading under category Movies\nmetric[1].name=qbittorrent_torrents_count\nmetric[1].type=gauge\nmetric[1].value=1\nmetric[1].labels={\"category\":\"Movies\",\"server\":\"localhost:8080/qbt/\",\"status\":\"downloading\"}\nmetric[1].help=Number of torrents in status downloading under category Movies\nmetric[2].name=qbittorrent_torrents_count\nmetric[2].type=gauge\nmetric[2].value=1\nmetric[2].labels={\"category\":\"Uncategorized\",\"server\":\"localhost:8080/qbt/\",\"status\":\"error\"}\nmetric[2].help=Number of torrents in status error under category Uncategorized\n"
+    },
+    {
+      "input": {
+        "operation": "torrent_count_matrix",
+        "category_source_error": true,
+        "torrents": [
+          {
+            "name": "x",
+            "category": "",
+            "state": "stalledDL"
+          }
+        ],
+        "only_nonzero": true
+      },
+      "expected_output": "metric_count=1\nmetric[0].name=qbittorrent_torrents_count\nmetric[0].type=gauge\nmetric[0].value=1\nmetric[0].labels={\"category\":\"Uncategorized\",\"server\":\"localhost:8080/qbt/\",\"status\":\"stalledDL\"}\nmetric[0].help=Number of torrents in status stalledDL under category Uncategorized\n"
+    },
+    {
+      "input": {
+        "operation": "torrent_count_matrix",
+        "categories": {
+          "X": {
+            "name": "X"
+          }
+        },
+        "torrent_source_error": true,
+        "only_nonzero": true
+      },
+      "expected_output": "metric_count=0\n"
+    }
+  ]
+}

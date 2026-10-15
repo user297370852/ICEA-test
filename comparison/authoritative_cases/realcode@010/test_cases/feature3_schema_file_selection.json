@@ -1,0 +1,43 @@
+{
+    "description": "Control which SQL files participate in schema compilation and report only the schema objects contributed by files that remain in the build set.",
+    "cases": [
+        {
+            "input": {
+                "sql_files": {
+                    "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n",
+                    "Table2.sql": "-- This file to be excluded from project by the test\nCREATE TABLE [dbo].[Table2]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n"
+                },
+                "remove_build": [
+                    "Table2.sql"
+                ]
+            },
+            "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Table1]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+        },
+        {
+            "input": {
+                "sql_files": {
+                    "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n",
+                    "Table2.sql": "-- This file to be excluded from project by the test\nCREATE TABLE [dbo].[Table2]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n"
+                },
+                "none": [
+                    "Table2.sql"
+                ]
+            },
+            "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Table1]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+        },
+        {
+            "input": {
+                "sql_files": {
+                    "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n"
+                },
+                "external_sql_files": {
+                    "test.sql": "CREATE TABLE [dbo].[Table2] ( C1 INT NOT NULL )"
+                },
+                "build": [
+                    "/external/test.sql"
+                ]
+            },
+            "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Table1],[dbo].[Table2]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+        }
+    ]
+}

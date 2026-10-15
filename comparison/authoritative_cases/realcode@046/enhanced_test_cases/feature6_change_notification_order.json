@@ -1,0 +1,106 @@
+{
+  "description": "Ordered notification under heavy interleaving: a mix of sets, deletes and a wholesale replace report in exact application order with removals-before-additions during replace; repeated identical writes are each reported; and interleaved nested writes and deletes preserve order.",
+  "cases": [
+    {
+      "input": {
+        "init": {
+          "x": 1
+        },
+        "ops": [
+          {
+            "op": "replace",
+            "value": {
+              "y": 2
+            }
+          },
+          {
+            "op": "replace",
+            "value": {
+              "z": 3
+            }
+          }
+        ]
+      },
+      "expected_output": "changes=[\"store.x\",\"store.y\",\"store.y\",\"store.z\"]\nsnapshot={\"z\":3}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "a": 1
+        },
+        "ops": [
+          {
+            "op": "delete",
+            "path": [
+              "a"
+            ]
+          },
+          {
+            "op": "set",
+            "path": [
+              "a"
+            ],
+            "value": 2
+          },
+          {
+            "op": "set",
+            "path": [
+              "a"
+            ],
+            "value": 2
+          },
+          {
+            "op": "delete",
+            "path": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected_output": "changes=[\"store.a\",\"store.a\",\"store.a\",\"store.a\"]\nsnapshot={}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "o": {
+            "a": 1,
+            "b": 2
+          }
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "o",
+              "a"
+            ],
+            "value": 9
+          },
+          {
+            "op": "delete",
+            "path": [
+              "o",
+              "b"
+            ]
+          },
+          {
+            "op": "set",
+            "path": [
+              "o",
+              "c"
+            ],
+            "value": 3
+          },
+          {
+            "op": "set",
+            "path": [
+              "top"
+            ],
+            "value": 0
+          }
+        ]
+      },
+      "expected_output": "changes=[\"store.o.a\",\"store.o.b\",\"store.o.c\",\"store.top\"]\nsnapshot={\"o\":{\"a\":9,\"c\":3},\"top\":0}\n"
+    }
+  ]
+}

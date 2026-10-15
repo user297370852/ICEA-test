@@ -1,0 +1,52 @@
+{
+  "description": "Login-parameter assembly boundary cases: a full combination forwards all eight recognized parameters in the fixed order; a configured maximum age of zero is still forwarded because the gate is purely a numeric-type check; a non-numeric configured maximum age is dropped; a recorded textual nonce coexists with per-request textual hints.",
+  "cases": [
+    {
+      "input": {
+        "op": "auth_params",
+        "strategyMaxAge": 7200,
+        "strategyAuthParams": {
+          "nonce": "deadbeef"
+        },
+        "options": {
+          "connection": "google-oauth2",
+          "connection_scope": "email",
+          "audience": "https://api.example.com",
+          "prompt": "consent",
+          "login_hint": "a@b.com",
+          "acr_values": "mfa"
+        }
+      },
+      "expected_output": "connection=google-oauth2\nconnection_scope=email\naudience=https://api.example.com\nprompt=consent\nlogin_hint=a@b.com\nacr_values=mfa\nmax_age=7200\nnonce=deadbeef\n"
+    },
+    {
+      "input": {
+        "op": "auth_params",
+        "strategyMaxAge": 0,
+        "options": {}
+      },
+      "expected_output": "max_age=0\n"
+    },
+    {
+      "input": {
+        "op": "auth_params",
+        "strategyMaxAge": "3600",
+        "options": {}
+      },
+      "expected_output": "(none)\n"
+    },
+    {
+      "input": {
+        "op": "auth_params",
+        "strategyAuthParams": {
+          "nonce": "abc123"
+        },
+        "options": {
+          "connection": "db",
+          "prompt": "none"
+        }
+      },
+      "expected_output": "connection=db\nprompt=none\nnonce=abc123\n"
+    }
+  ]
+}

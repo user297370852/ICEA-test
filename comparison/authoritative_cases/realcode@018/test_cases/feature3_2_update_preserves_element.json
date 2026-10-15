@@ -1,0 +1,74 @@
+{
+    "description": "Render a parent that embeds a child component, where the child declares an update capability. When the parent re-renders with new inputs for the same child component (same definition at the same position), the existing child instance is updated in place and re-rendered rather than rebuilt: its DOM element is reused. The before/after observation points show the same identity token for the child element while its content changes to reflect the new inputs.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "components": {
+                    "Child": {
+                        "update": true,
+                        "render": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "var": "props.greeting"
+                                },
+                                " ",
+                                {
+                                    "var": "children"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "root": {
+                    "state": {
+                        "greeting": "Hello",
+                        "greeted": "World"
+                    },
+                    "render": {
+                        "el": "div",
+                        "children": [
+                            {
+                                "comp": "Child",
+                                "props": {
+                                    "greeting": {
+                                        "var": "greeting"
+                                    }
+                                },
+                                "children": [
+                                    {
+                                        "el": "span",
+                                        "children": [
+                                            {
+                                                "var": "greeted"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "before"
+                    },
+                    {
+                        "set": {
+                            "greeting": "Goodnight",
+                            "greeted": "Moon"
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "after"
+                    }
+                ]
+            },
+            "expected_output": "== before ==\nelement=<div#n1><div#n2>Hello <span#n3>World</span></div></div>\ntext=Hello World\n== after ==\nelement=<div#n1><div#n2>Goodnight <span#n3>Moon</span></div></div>\ntext=Goodnight Moon\n"
+        }
+    ]
+}

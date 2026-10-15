@@ -1,0 +1,63 @@
+{
+  "description": "Boundary coverage for the fixed inter-attempt delay: advancing the virtual clock by exactly the configured wait must fire the pending retry, and with a different configured wait the request count must hold steady right up to the instant just before the wait elapses and only increment once the final tick crosses the threshold, demonstrating the off-by-one timing edge of the delay window.",
+  "cases": [
+    {
+      "input": {
+        "url": "http://someUrl",
+        "options": {
+          "retryDelay": 3000
+        },
+        "script": [
+          {
+            "reject": "e1"
+          },
+          {
+            "observe": "fetch_count"
+          },
+          {
+            "advance": 3000
+          },
+          {
+            "observe": "fetch_count"
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "fetch_count=1\nfetch_count=2\nfetch_count=2\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+    },
+    {
+      "input": {
+        "url": "http://someUrl",
+        "options": {
+          "retryDelay": 2000
+        },
+        "script": [
+          {
+            "reject": "e1"
+          },
+          {
+            "observe": "fetch_count"
+          },
+          {
+            "advance": 1999
+          },
+          {
+            "observe": "fetch_count"
+          },
+          {
+            "advance": 1
+          },
+          {
+            "observe": "fetch_count"
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "fetch_count=1\nfetch_count=1\nfetch_count=2\nfetch_count=2\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+    }
+  ]
+}

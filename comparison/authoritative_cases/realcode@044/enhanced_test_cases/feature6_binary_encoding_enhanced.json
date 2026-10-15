@@ -1,0 +1,89 @@
+{
+  "description": "ENHANCED: binary-encoding decision edge cases — identity Content-Encoding is not encoded, and a configured text/JSON binary MIME type forces Base64 encoding.",
+  "cases": [
+    {
+      "input": {
+        "options": {
+          "binaryMimeTypes": []
+        },
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "headers": {
+              "content-encoding": "identity"
+            },
+            "body": {
+              "type": "text",
+              "value": "plain-text-body"
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody=plain-text-body\nheader.connection=keep-alive\nheader.content-encoding=identity\nheader.content-length=15\nheader.content-type=text/plain; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "options": {
+          "binaryMimeTypes": [
+            "application/json"
+          ]
+        },
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=true\nbody=eyJoZWxsbyI6IndvcmxkIn0=\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "options": {
+          "binaryMimeTypes": [
+            "application/octet-stream"
+          ]
+        },
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "bytes",
+              "value": "YmluYXJ5LW9jdGV0cy1oZXJl"
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=true\nbody=YmluYXJ5LW9jdGV0cy1oZXJl\nheader.connection=keep-alive\nheader.content-length=18\nheader.content-type=application/octet-stream\nheader.date=<present>\n"
+    }
+  ]
+}

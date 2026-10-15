@@ -1,0 +1,139 @@
+{
+  "description": "Deep-update edge cases: assigning a whole nested object at a new top-level key and reading a value inside it; introducing several new sibling keys at depth; overwriting a nested object wholesale with a primitive (collapsing the sub-tree); and rendering of sorted keys for the rebuilt parent.",
+  "cases": [
+    {
+      "input": {
+        "init": {},
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "user"
+            ],
+            "value": {
+              "name": "x",
+              "addr": {
+                "city": "london"
+              }
+            }
+          },
+          {
+            "op": "get",
+            "path": [
+              "user",
+              "addr",
+              "city"
+            ]
+          },
+          {
+            "op": "get",
+            "path": [
+              "user",
+              "name"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.user.addr.city = \"london\"\nget store.user.name = \"x\"\nchanges=[\"store.user\"]\nsnapshot={\"user\":{\"addr\":{\"city\":\"london\"},\"name\":\"x\"}}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "cfg": {
+            "a": 1
+          }
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "cfg",
+              "b"
+            ],
+            "value": 2
+          },
+          {
+            "op": "set",
+            "path": [
+              "cfg",
+              "c"
+            ],
+            "value": 3
+          },
+          {
+            "op": "get",
+            "path": [
+              "cfg"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.cfg = {\"a\":1,\"b\":2,\"c\":3}\nchanges=[\"store.cfg.b\",\"store.cfg.c\"]\nsnapshot={\"cfg\":{\"a\":1,\"b\":2,\"c\":3}}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "a": {
+            "deep": {
+              "v": 1
+            }
+          }
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "a"
+            ],
+            "value": 5
+          },
+          {
+            "op": "get",
+            "path": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.a = 5\nchanges=[\"store.a\"]\nsnapshot={\"a\":5}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "a": {
+            "b": {
+              "c": 1
+            }
+          }
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "a",
+              "b",
+              "c"
+            ],
+            "value": {
+              "k": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "op": "get",
+            "path": [
+              "a",
+              "b",
+              "c",
+              "k",
+              1
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.a.b.c.k.1 = 2\nchanges=[\"store.a.b.c\"]\nsnapshot={\"a\":{\"b\":{\"c\":{\"k\":[1,2]}}}}\n"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "description": "Encode and decode tokens across the HMAC algorithm variants (HS384/HS512) including a key-id header, verifying the decoded header algorithm and kid round-trip correctly and automatic iat/exp claims are present.",
+  "cases": [
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "-A",
+          "HS384",
+          "--exp",
+          "-S",
+          "sec",
+          "-P",
+          "f=value"
+        ],
+        "decode_args": [
+          "decode",
+          "-A",
+          "HS384",
+          "-S",
+          "sec"
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "claim.f",
+          "claim.iat.presence",
+          "claim.exp.presence"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=HS384\nclaim.f=value\nclaim.iat=present\nclaim.exp=present\n"
+    },
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "-A",
+          "HS512",
+          "-k",
+          "mykey",
+          "--exp",
+          "-S",
+          "sec",
+          "-P",
+          "f=value"
+        ],
+        "decode_args": [
+          "decode",
+          "-A",
+          "HS512",
+          "-S",
+          "sec"
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "header.kid",
+          "claim.f"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=HS512\nheader.kid=mykey\nclaim.f=value\n"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "description": "Boundary coverage for target-URL forwarding: the wrapper must forward whatever target string the caller supplied verbatim, including degenerate or non-ASCII targets, and must keep targeting the identical destination across a deeper chain of retried attempts. Observing the most recently issued request after several transient failures confirms the target is never rewritten between attempts.",
+  "cases": [
+    {
+      "input": {
+        "url": "",
+        "script": [
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "fetch_count=1\nurl=\noptions_passed=false\noutcome=resolved status=200\n"
+    },
+    {
+      "input": {
+        "url": "http://例え.テスト/路径?q=café",
+        "script": [
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "fetch_count=1\nurl=http://例え.テスト/路径?q=café\noptions_passed=false\noutcome=resolved status=200\n"
+    },
+    {
+      "input": {
+        "url": "http://host.example/path?a=1&b=2#frag",
+        "script": [
+          {
+            "reject": "x"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "reject": "y"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "observe": "last_url"
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "last_url=http://host.example/path?a=1&b=2#frag\nfetch_count=3\nurl=http://host.example/path?a=1&b=2#frag\noptions_passed=false\noutcome=resolved status=200\n"
+    }
+  ]
+}

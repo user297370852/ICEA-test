@@ -1,0 +1,61 @@
+{
+  "description": "Parse a multipart/form-data body (provided either as a raw string or Base64-encoded) and expose the uploaded file part to the handler.",
+  "cases": [
+    {
+      "input": {
+        "multipart": true,
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoMultipart",
+              "fields": [
+                "uploadFile1"
+              ]
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryDP6Z1qHQSzB6Pf8c"
+          },
+          "body": "------WebKitFormBoundaryDP6Z1qHQSzB6Pf8c\r\nContent-Disposition: form-data; name=\"uploadFile1\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundaryDP6Z1qHQSzB6Pf8c--",
+          "isBase64Encoded": false
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"uploadFile1\":{\"fieldname\":\"uploadFile1\",\"filename\":\"test.txt\",\"encoding\":\"7bit\",\"mimetype\":\"text/plain\",\"content\":\"Hello World!\"}}\nheader.connection=keep-alive\nheader.content-length=132\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "multipart": true,
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoMultipart",
+              "fields": [
+                "uploadFile1"
+              ]
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryDP6Z1qHQSzB6Pf8c"
+          },
+          "body": "LS0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5RFA2WjFxSFFTekI2UGY4Yw0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJ1cGxvYWRGaWxlMSI7IGZpbGVuYW1lPSJ0ZXN0LnR4dCINCkNvbnRlbnQtVHlwZTogdGV4dC9wbGFpbg0KDQpIZWxsbyBXb3JsZCENCi0tLS0tLVdlYktpdEZvcm1Cb3VuZGFyeURQNloxcUhRU3pCNlBmOGMtLQ==",
+          "isBase64Encoded": true
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"uploadFile1\":{\"fieldname\":\"uploadFile1\",\"filename\":\"test.txt\",\"encoding\":\"7bit\",\"mimetype\":\"text/plain\",\"content\":\"Hello World!\"}}\nheader.connection=keep-alive\nheader.content-length=132\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

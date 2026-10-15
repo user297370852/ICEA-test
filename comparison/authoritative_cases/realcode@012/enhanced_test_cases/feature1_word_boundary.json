@@ -1,0 +1,52 @@
+{
+  "description": "Whole-word boundary matching of sensitive field names: a sensitive name embedded as a proper sub-token (e.g. a plural or a longer compound where the configured name is not a standalone word) must NOT be treated as sensitive, whereas a sensitive name appearing as a standalone word delimited by non-word characters or whitespace MUST be redacted. The compound configured names are matched in full. Sensitive values are replaced by a run of asterisks whose length equals the byte length of the original value; non-sensitive fields pass through unchanged and key order is preserved. The output is the resulting payload serialized as a JSON object.",
+  "cases": [
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "passwords": "keepme",
+          "secrets": "alsokeep"
+        }
+      },
+      "expected_output": "{\"passwords\":\"keepme\",\"secrets\":\"alsokeep\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "x-secret": "abcd"
+        }
+      },
+      "expected_output": "{\"x-secret\":\"****\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "my secret token": "hunter2"
+        }
+      },
+      "expected_output": "{\"my secret token\":\"*******\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "cc": "42",
+          "account": "cc-holder"
+        }
+      },
+      "expected_output": "{\"cc\":\"**\",\"account\":\"cc-holder\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "password_confirmation": "abcdef"
+        }
+      },
+      "expected_output": "{\"password_confirmation\":\"******\"}\n"
+    }
+  ]
+}

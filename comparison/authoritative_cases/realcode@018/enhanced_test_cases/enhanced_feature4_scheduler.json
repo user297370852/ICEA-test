@@ -1,0 +1,174 @@
+{
+  "description": "Feature 4.1/4.2/4.3 scheduler coverage: a larger deferred batch preserving submission order, fan-out where multiple deferred requests each enqueue more (drained in the same frame), mixed thenAsync/thenSync nested inside an async flush, multiple top-level synchronous requests, deep async nesting, string emit labels, and an empty request list.",
+  "cases": [
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "async",
+        "requests": [
+          {
+            "emit": 1
+          },
+          {
+            "emit": 2
+          },
+          {
+            "emit": 3
+          },
+          {
+            "emit": 4
+          },
+          {
+            "emit": 5
+          }
+        ]
+      },
+      "expected_output": "1\n2\n3\n4\n5\n"
+    },
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "async",
+        "requests": [
+          {
+            "emit": 1,
+            "thenAsync": [
+              {
+                "emit": "1a"
+              }
+            ]
+          },
+          {
+            "emit": 2,
+            "thenAsync": [
+              {
+                "emit": "2a"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "1\n2\n1a\n2a\n"
+    },
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "async",
+        "requests": [
+          {
+            "emit": 1,
+            "thenAsync": [
+              {
+                "emit": 2
+              }
+            ],
+            "thenSync": [
+              {
+                "emit": 3
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "1\n2\n3\n"
+    },
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "sync",
+        "requests": [
+          {
+            "emit": 1
+          },
+          {
+            "emit": 2
+          },
+          {
+            "emit": 3
+          }
+        ]
+      },
+      "expected_output": "1\n2\n3\n"
+    },
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "async",
+        "requests": [
+          {
+            "emit": 1,
+            "thenAsync": [
+              {
+                "emit": 2,
+                "thenAsync": [
+                  {
+                    "emit": 3,
+                    "thenAsync": [
+                      {
+                        "emit": 4
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "1\n2\n3\n4\n"
+    },
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "sync",
+        "requests": [
+          {
+            "emit": "a",
+            "thenSync": [
+              {
+                "emit": "b",
+                "thenAsync": [
+                  {
+                    "emit": "c"
+                  }
+                ]
+              }
+            ],
+            "thenAsync": [
+              {
+                "emit": "d"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "a\nd\nb\nc\n"
+    },
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "async",
+        "requests": [
+          {
+            "emit": "alpha"
+          },
+          {
+            "emit": "beta"
+          },
+          {
+            "emit": "gamma"
+          }
+        ]
+      },
+      "expected_output": "alpha\nbeta\ngamma\n"
+    },
+    {
+      "input": {
+        "kind": "scheduler",
+        "mode": "async",
+        "requests": []
+      },
+      "expected_output": "\n"
+    }
+  ]
+}

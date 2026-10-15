@@ -1,0 +1,124 @@
+{
+  "description": "Failure-path boundaries not exercised by the native suite: a malformed token (not three segments) is undecodable; the 'none' and 'RS384' algorithms are unsupported; a missing issued-at claim is rejected after a valid expiry; a missing expiration is rejected; a string-form audience that differs from the expected one is a mismatch; and empty-string issuer/subject claims are treated as missing (falsy).",
+  "cases": [
+    {
+      "input": {
+        "op": "verify",
+        "token": "abc",
+        "options": {}
+      },
+      "expected_output": "error=token_undecodable\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "none"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "sample-client"
+        },
+        "options": {
+          "iss": "https://login.example.com/"
+        }
+      },
+      "expected_output": "error=unsupported_algorithm\nalg=none\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS384"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "sample-client"
+        },
+        "options": {
+          "iss": "https://login.example.com/"
+        }
+      },
+      "expected_output": "error=unsupported_algorithm\nalg=RS384\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "sample-client",
+          "iat": 1000000000
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "sample-client"
+        }
+      },
+      "expected_output": "error=exp_invalid\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "user|abc",
+          "aud": "actual-aud",
+          "exp": 9999999999,
+          "iat": 1000000000
+        },
+        "options": {
+          "iss": "https://login.example.com/",
+          "aud": "expected-aud"
+        }
+      },
+      "expected_output": "error=audience_mismatch\nexpected=expected-aud\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "",
+          "sub": "user|abc",
+          "aud": "sample-client",
+          "exp": 9999999999,
+          "iat": 1000000000
+        },
+        "options": {
+          "iss": "https://login.example.com/"
+        }
+      },
+      "expected_output": "error=issuer_missing\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "header": {
+          "alg": "RS256"
+        },
+        "payload": {
+          "iss": "https://login.example.com/",
+          "sub": "",
+          "aud": "sample-client",
+          "exp": 9999999999,
+          "iat": 1000000000
+        },
+        "options": {
+          "iss": "https://login.example.com/"
+        }
+      },
+      "expected_output": "error=subject_missing\n"
+    }
+  ]
+}

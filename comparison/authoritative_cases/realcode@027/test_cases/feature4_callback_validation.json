@@ -1,0 +1,64 @@
+{
+    "description": "Validates sign-in callback parameters and renders framework-observable failure redirects with normalized error categories for invalid or incomplete callbacks.",
+    "cases": [
+        {
+            "input": {
+                "flow": "callback_request",
+                "request_params": {
+                    "error": "invalid_request"
+                },
+                "session": {
+                    "omniauth.state": "expected-state",
+                    "omniauth.nonce": "expected-nonce"
+                }
+            },
+            "expected_output": "status=302\nfailure_url=/auth/failure?message=invalid_credentials&strategy=openid_connect\nerror=invalid_callback\ndetail=provider_error\n"
+        },
+        {
+            "input": {
+                "flow": "callback_request",
+                "request_params": {
+                    "code": "abc",
+                    "state": "wrong-state"
+                },
+                "session": {
+                    "omniauth.state": "expected-state",
+                    "omniauth.nonce": "expected-nonce"
+                }
+            },
+            "expected_output": "status=302\nfailure_url=/auth/failure?message=invalid_credentials&strategy=openid_connect\nerror=invalid_callback\ndetail=invalid_state\n"
+        },
+        {
+            "input": {
+                "flow": "callback_request",
+                "request_params": {
+                    "state": "expected-state"
+                },
+                "session": {
+                    "omniauth.state": "expected-state",
+                    "omniauth.nonce": "expected-nonce"
+                },
+                "options": {
+                    "response_type": "code"
+                }
+            },
+            "expected_output": "status=302\nfailure_url=/auth/failure?message=missing_code&strategy=openid_connect\nerror=missing_authorization_code\n"
+        },
+        {
+            "input": {
+                "flow": "callback_request",
+                "request_params": {
+                    "state": "expected-state"
+                },
+                "session": {
+                    "omniauth.state": "expected-state",
+                    "omniauth.nonce": "expected-nonce"
+                },
+                "options": {
+                    "response_type": "id_token"
+                }
+            },
+            "expected_output": "status=302\nfailure_url=/auth/failure?message=missing_id_token&strategy=openid_connect\nerror=missing_identity_token\n"
+        }
+    ]
+}

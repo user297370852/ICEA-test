@@ -1,0 +1,78 @@
+{
+  "description": "An extensible Markdown engine is wrapped by a slide-extension hook that activates slide rendering only when the document begins with a front-matter block carrying the opt-in directive. Activation is observable through wire-format markers in the produced HTML: a slide container element, an injected style element, and inline slide-renderer output. These boundary scenarios exercise the activation decision across an empty source, an explicit opt-out directive, a front-matter block that carries unrelated keys but no opt-in directive, an opted-in block that additionally carries unrelated keys, and a source whose leading line is not the front-matter fence. The input supplies the raw Markdown source and the markers to probe; each probed marker is reported as present or absent.",
+  "cases": [
+    {
+      "input": {
+        "action": "render",
+        "markdown": "",
+        "signals": [
+          "container",
+          "style",
+          "svg",
+          "img"
+        ]
+      },
+      "expected_output": "container=absent\nstyle=absent\nsvg=absent\nimg=absent\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "markdown": "---\nmarp: false\n---\n\n# Plain deck",
+        "signals": [
+          "container",
+          "style",
+          "svg",
+          "img"
+        ]
+      },
+      "expected_output": "container=absent\nstyle=absent\nsvg=absent\nimg=absent\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "markdown": "---\ntitle: Untitled\nauthor: Nobody\n---\n\n# Heading",
+        "signals": [
+          "container",
+          "style",
+          "svg",
+          "img"
+        ]
+      },
+      "expected_output": "container=absent\nstyle=absent\nsvg=absent\nimg=absent\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "markdown": "---\nmarp: true\ntheme: default\npaginate: true\n---\n\n# Heading\n\nBody text",
+        "signals": [
+          "container",
+          "style"
+        ]
+      },
+      "expected_output": "container=present\nstyle=present\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "markdown": "\n\n---\nmarp: true\n---\n\n# Heading",
+        "signals": [
+          "container",
+          "style",
+          "svg",
+          "img"
+        ]
+      },
+      "expected_output": "container=absent\nstyle=absent\nsvg=absent\nimg=absent\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "markdown": "---\nmarp: true\n---\n\n# Solo probe",
+        "signals": [
+          "container"
+        ]
+      },
+      "expected_output": "container=present\n"
+    }
+  ]
+}

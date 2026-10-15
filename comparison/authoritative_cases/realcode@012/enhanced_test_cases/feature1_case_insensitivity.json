@@ -1,0 +1,34 @@
+{
+  "description": "Case-insensitive matching of sensitive field names: field names that differ only in letter casing from a configured sensitive name must still be detected and redacted, while names that are not sensitive pass through unchanged. Sensitive values are replaced by a run of asterisks whose length equals the byte length of the original value, and key order is preserved. The output is the resulting payload serialized as a JSON object.",
+  "cases": [
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "PASSWORD": "Secret9",
+          "USER": "Joe"
+        }
+      },
+      "expected_output": "{\"PASSWORD\":\"*******\",\"USER\":\"Joe\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "PassWord": "abc",
+          "SeCrEt": "xy"
+        }
+      },
+      "expected_output": "{\"PassWord\":\"***\",\"SeCrEt\":\"**\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "API_KEY": "tokenZ"
+        }
+      },
+      "expected_output": "{\"API_KEY\":\"******\"}\n"
+    }
+  ]
+}

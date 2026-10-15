@@ -1,0 +1,71 @@
+{
+    "description": "Render a parent that, depending on its state, embeds one of two DIFFERENT child component definitions at the same position. When the parent re-renders and the child at that position is a different component definition than before, the previous instance and its element are discarded and a new instance is built and inserted in its place. The before/after observation points show different identity tokens and different rendered content.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "components": {
+                    "A": {
+                        "update": true,
+                        "render": {
+                            "el": "div",
+                            "children": [
+                                "A"
+                            ]
+                        }
+                    },
+                    "B": {
+                        "update": true,
+                        "render": {
+                            "el": "div",
+                            "children": [
+                                "B"
+                            ]
+                        }
+                    }
+                },
+                "root": {
+                    "state": {
+                        "condition": true
+                    },
+                    "render": {
+                        "if": "condition",
+                        "then": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "comp": "A"
+                                }
+                            ]
+                        },
+                        "else": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "comp": "B"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "before"
+                    },
+                    {
+                        "set": {
+                            "condition": false
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "after"
+                    }
+                ]
+            },
+            "expected_output": "== before ==\nelement=<div#n1><div#n2>A</div></div>\ntext=A\n== after ==\nelement=<div#n1><div#n3>B</div></div>\ntext=B\n"
+        }
+    ]
+}

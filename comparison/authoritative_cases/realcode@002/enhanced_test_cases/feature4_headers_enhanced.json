@@ -1,0 +1,55 @@
+{
+  "description": "Enhanced response header coverage for duplicate fields with mixed casing, value whitespace preservation, colon-containing values, blank header blobs, and absent lookups.",
+  "cases": [
+    {
+      "input": {
+        "op": "headers",
+        "request": {
+          "url": "/headers-duplicates"
+        },
+        "transport": {
+          "responseHeaders": "Set-Cookie: a=1\nset-cookie: b=2\nSET-COOKIE: c=3\nX-Time: 10:20:30"
+        },
+        "queries": [
+          "set-cookie",
+          "SET-cookie",
+          "x-time"
+        ]
+      },
+      "expected_output": "get[set-cookie]=a=1,b=2,c=3\nhas[set-cookie]=true\nget[SET-cookie]=a=1,b=2,c=3\nhas[SET-cookie]=true\nget[x-time]=10:20:30\nhas[x-time]=true"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "request": {
+          "url": "/headers-spaces"
+        },
+        "transport": {
+          "responseHeaders": "X-Spaced:   padded value  \nX-Empty-No-Space:\nX-Case: MiXeD"
+        },
+        "queries": [
+          "x-spaced",
+          "x-empty-no-space",
+          "x-case",
+          "missing"
+        ]
+      },
+      "expected_output": "get[x-spaced]=padded value  \nhas[x-spaced]=true\nget[x-empty-no-space]=\nhas[x-empty-no-space]=true\nget[x-case]=MiXeD\nhas[x-case]=true\nget[missing]=\nhas[missing]=false"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "request": {
+          "url": "/headers-none"
+        },
+        "transport": {
+          "responseHeaders": ""
+        },
+        "queries": [
+          "anything"
+        ]
+      },
+      "expected_output": "get[anything]=\nhas[anything]=false"
+    }
+  ]
+}

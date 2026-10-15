@@ -1,0 +1,153 @@
+{
+  "description": "Additional native-disjoint configuration edge cases covering empty strings, precedence, fallback paths, long runtime keys, empty path components, custom roots, unmatched release tags, and sorted nested metadata.",
+  "cases": [
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "debug_destination",
+          "debug_filename_env": ""
+        }
+      },
+      "expected_output": "debug_destination=\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "shared_extension",
+          "dynamic_extension": "bundle",
+          "windows": true
+        }
+      },
+      "expected_output": "shared_extension=dylib\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "runtime_key",
+          "runtime_version": "10.12.99"
+        }
+      },
+      "expected_output": "runtime_key=ruby1012\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "library_base_name",
+          "manifest": {
+            "lib": {
+              "name": ""
+            },
+            "package": {
+              "name": "pkg"
+            }
+          }
+        }
+      },
+      "expected_output": "library_base_name=\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "shared_library_file",
+          "manifest": {
+            "lib": {},
+            "package": {
+              "name": "fallback_pkg"
+            }
+          },
+          "dynamic_extension": "bundle",
+          "windows": false
+        }
+      },
+      "expected_output": "shared_library_file=libfallback_pkg.dylib\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "binary_archive_name",
+          "manifest": {
+            "lib": {},
+            "package": {
+              "name": "pkg-name"
+            }
+          },
+          "runtime_version": "10.12.99",
+          "target_os": "linux-musl",
+          "target_arch": "x86_64",
+          "version": "2024.0.15"
+        }
+      },
+      "expected_output": "binary_archive_name=pkg-name-2024.0.15-ruby1012-linux-musl-x86_64.tar.gz\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "project_paths",
+          "current_dir": "/workspace/app",
+          "options": {
+            "native_project_path": "/workspace/native"
+          },
+          "components": []
+        }
+      },
+      "expected_output": "host_project_root=/workspace/app\nhost_project_path=/workspace/app\nnative_project_root=/workspace/native\nnative_project_path=/workspace/native\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "host_extension_path",
+          "current_dir": "/tmp/project",
+          "options": {
+            "host_project_path": "/opt/host"
+          },
+          "shared_library": "addon.dll"
+        }
+      },
+      "expected_output": "host_extension_path=/opt/host/lib/addon.dll\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "release_tag_pattern",
+          "options": {
+            "release_tag_pattern": "release-(\\d+\\.\\d+)"
+          },
+          "sample_tag": "v9.9.9"
+        }
+      },
+      "expected_output": "tag_pattern=release-(\\d+\\.\\d+)\nsample_tag=v9.9.9\nversion_match=null\n"
+    },
+    {
+      "input": {
+        "command": "config",
+        "data": {
+          "selector": "manifest_tool_metadata",
+          "manifest": {
+            "package": {
+              "metadata": {
+                "thermite": {
+                  "zeta": "last",
+                  "alpha": "first",
+                  "nested": {
+                    "b": 2,
+                    "a": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "tool_metadata=alpha=first,nested=a=1,b=2,zeta=last\n"
+    }
+  ]
+}

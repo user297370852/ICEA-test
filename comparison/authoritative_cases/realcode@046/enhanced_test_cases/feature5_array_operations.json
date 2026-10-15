@@ -1,0 +1,163 @@
+{
+  "description": "Array behaviour edge cases: appending several elements and observing the grown length; assigning past the end to create a sparse array with null holes; deleting an element leaves a null hole without shrinking length; and replacing an array element with an object then mutating it preserves untouched siblings via structural sharing.",
+  "cases": [
+    {
+      "input": {
+        "init": {
+          "items": []
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "items",
+              0
+            ],
+            "value": 7
+          },
+          {
+            "op": "set",
+            "path": [
+              "items",
+              1
+            ],
+            "value": 8
+          },
+          {
+            "op": "set",
+            "path": [
+              "items",
+              2
+            ],
+            "value": 9
+          },
+          {
+            "op": "get",
+            "path": [
+              "items",
+              "length"
+            ]
+          },
+          {
+            "op": "get",
+            "path": [
+              "items"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.items.length = 3\nget store.items = [7,8,9]\nchanges=[\"store.items.0\",\"store.items.1\",\"store.items.2\"]\nsnapshot={\"items\":[7,8,9]}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "items": [
+            1,
+            2
+          ]
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "items",
+              5
+            ],
+            "value": 9
+          },
+          {
+            "op": "get",
+            "path": [
+              "items"
+            ]
+          },
+          {
+            "op": "get",
+            "path": [
+              "items",
+              "length"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.items = [1,2,null,null,null,9]\nget store.items.length = 6\nchanges=[\"store.items.5\"]\nsnapshot={\"items\":[1,2,null,null,null,9]}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "items": [
+            10,
+            20,
+            30
+          ]
+        },
+        "ops": [
+          {
+            "op": "delete",
+            "path": [
+              "items",
+              1
+            ]
+          },
+          {
+            "op": "get",
+            "path": [
+              "items"
+            ]
+          },
+          {
+            "op": "get",
+            "path": [
+              "items",
+              "length"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.items = [10,null,30]\nget store.items.length = 3\nchanges=[\"store.items.1\"]\nsnapshot={\"items\":[10,null,30]}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "arr": [
+            {
+              "v": 1
+            },
+            {
+              "v": 2
+            }
+          ]
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "arr",
+              0
+            ],
+            "value": {
+              "v": 9,
+              "w": 8
+            }
+          },
+          {
+            "op": "set",
+            "path": [
+              "arr",
+              0,
+              "w"
+            ],
+            "value": 7
+          }
+        ],
+        "identity": [
+          [
+            "arr",
+            1
+          ]
+        ]
+      },
+      "expected_output": "changes=[\"store.arr.0\",\"store.arr.0.w\"]\nidentity store.arr.1 = preserved\nsnapshot={\"arr\":[{\"v\":9,\"w\":7},{\"v\":2}]}\n"
+    }
+  ]
+}

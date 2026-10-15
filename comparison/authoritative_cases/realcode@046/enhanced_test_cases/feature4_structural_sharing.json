@@ -1,0 +1,117 @@
+{
+  "description": "Structural-sharing probes beyond the basics: probing both the changed node's parent and grandparent as replaced while an off-path sibling stays preserved; assigning a fresh nested object then mutating inside it; and verifying that an untouched deep branch keeps its reference when a parallel branch changes.",
+  "cases": [
+    {
+      "input": {
+        "init": {
+          "p": {
+            "q": {
+              "r": 1
+            }
+          },
+          "s": {
+            "t": 2
+          }
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "p",
+              "q",
+              "r"
+            ],
+            "value": 9
+          }
+        ],
+        "identity": [
+          [
+            "p"
+          ],
+          [
+            "p",
+            "q"
+          ],
+          [
+            "s"
+          ]
+        ]
+      },
+      "expected_output": "changes=[\"store.p.q.r\"]\nidentity store.p = replaced\nidentity store.p.q = replaced\nidentity store.s = preserved\nsnapshot={\"p\":{\"q\":{\"r\":9}},\"s\":{\"t\":2}}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "a": {
+            "x": 1
+          },
+          "b": {
+            "y": 2
+          },
+          "c": {
+            "z": 3
+          }
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "b",
+              "y"
+            ],
+            "value": 20
+          }
+        ],
+        "identity": [
+          [
+            "a"
+          ],
+          [
+            "b"
+          ],
+          [
+            "c"
+          ]
+        ]
+      },
+      "expected_output": "changes=[\"store.b.y\"]\nidentity store.a = preserved\nidentity store.b = replaced\nidentity store.c = preserved\nsnapshot={\"a\":{\"x\":1},\"b\":{\"y\":20},\"c\":{\"z\":3}}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "left": {
+            "keep": {
+              "v": 1
+            }
+          },
+          "right": {
+            "v": 2
+          }
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "right",
+              "v"
+            ],
+            "value": 5
+          }
+        ],
+        "identity": [
+          [
+            "left"
+          ],
+          [
+            "left",
+            "keep"
+          ],
+          [
+            "right"
+          ]
+        ]
+      },
+      "expected_output": "changes=[\"store.right.v\"]\nidentity store.left = preserved\nidentity store.left.keep = preserved\nidentity store.right = replaced\nsnapshot={\"left\":{\"keep\":{\"v\":1}},\"right\":{\"v\":5}}\n"
+    }
+  ]
+}

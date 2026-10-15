@@ -1,0 +1,17 @@
+{
+    "description": "Activation can be driven by an environment selector instead of explicit calls. The selector value 'track' enables counting only; 'trigger' enables the error-trigger backend; any other/absent value leaves the manager a no-op.",
+    "cases": [
+        {
+            "input": {"env": "track", "triggers": [{"package": "acme/foo", "link": "https://dep.example.com/foo/1", "message": "message"}]},
+            "expected_output": "unique_count=1\ncount[https://dep.example.com/foo/1]=1\n"
+        },
+        {
+            "input": {"env": "trigger", "triggers": [{"package": "acme/foo", "link": "https://dep.example.com/foo/1", "message": "message"}]},
+            "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=message\npackage=acme/foo\nlink=https://dep.example.com/foo/1\nunique_count=1\ncount[https://dep.example.com/foo/1]=1\n"
+        },
+        {
+            "input": {"env": "off", "triggers": [{"package": "acme/foo", "link": "https://dep.example.com/foo/1", "message": "message"}]},
+            "expected_output": "unique_count=0\ntracked=(none)\n"
+        }
+    ]
+}

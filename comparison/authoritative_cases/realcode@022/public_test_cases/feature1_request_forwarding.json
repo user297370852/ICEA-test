@@ -1,0 +1,27 @@
+{
+    "description": "The wrapper issues the request to the underlying fetch using exactly the caller-supplied target URL, and reuses that same URL for every retried attempt. The trace echoes the URL recorded on the first issued request; when a retry occurs after a transient failure, the URL of the most recently issued request is observed to be identical, confirming the wrapper does not alter the target between attempts.",
+    "cases": [
+        {
+            "input": {
+                "url": "http://some-url.com",
+                "script": [
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "fetch_count=1\nurl=http://some-url.com\noptions_passed=false\noutcome=resolved status=200\n"
+        },
+        {
+            "input": {
+                "url": "http://some-url.com",
+                "script": [
+                    {"reject": "network down"},
+                    {"observe": "last_url"},
+                    {"advance": 1000},
+                    {"observe": "last_url"},
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "last_url=http://some-url.com\nlast_url=http://some-url.com\nfetch_count=2\nurl=http://some-url.com\noptions_passed=false\noutcome=resolved status=200\n"
+        }
+    ]
+}

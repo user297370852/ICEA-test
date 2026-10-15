@@ -1,0 +1,58 @@
+{
+  "description": "ENHANCED: response rendering edge cases — a custom status code with a text body, and a v1 single (non-array) Set-Cookie which stays as a normal response header.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "status": 404,
+            "headers": {
+              "Content-Type": "text/plain; charset=utf-8"
+            },
+            "body": {
+              "type": "text",
+              "value": "not found here"
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=404\nisBase64Encoded=false\nbody=not found here\nheader.connection=keep-alive\nheader.content-length=14\nheader.content-type=text/plain; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "headers": {
+              "Set-Cookie": "single=cookie"
+            },
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\nheader.set-cookie=single=cookie\n"
+    }
+  ]
+}

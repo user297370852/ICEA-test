@@ -1,0 +1,106 @@
+{
+  "description": "Boundary and multi-emission coverage for take_item: reading several data items back to back in FIFO order, an empty-string value, values carrying spaces/colons/equals/unicode, numeric-looking values, and a fully drained stream ending in completion. Also the failure path where take_item meets a terminal error carrying a non-default category.",
+  "cases": [
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b",
+          "c"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "take_item",
+          "take_item",
+          "take_completion"
+        ]
+      },
+      "expected_output": "item=a\nitem=b\nitem=c\ncomplete\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          ""
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "take_completion"
+        ]
+      },
+      "expected_output": "item=\ncomplete\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "hello world"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "stop_and_discard"
+        ]
+      },
+      "expected_output": "item=hello world\nignored\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "k=v:x"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "stop_and_discard"
+        ]
+      },
+      "expected_output": "item=k=v:x\nignored\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "123",
+          "45.6",
+          "-7"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "take_item",
+          "take_item",
+          "take_completion"
+        ]
+      },
+      "expected_output": "item=123\nitem=45.6\nitem=-7\ncomplete\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "café",
+          "日本語",
+          "emoji😀"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "take_item",
+          "take_item",
+          "take_completion"
+        ]
+      },
+      "expected_output": "item=café\nitem=日本語\nitem=emoji😀\ncomplete\n"
+    },
+    {
+      "input": {
+        "emissions": [],
+        "terminal": "error",
+        "errorLabel": "io_failure",
+        "ops": [
+          "take_item"
+        ]
+      },
+      "expected_output": "error=unexpected_event\nexpected=item\nfound=error:io_failure\n"
+    }
+  ]
+}

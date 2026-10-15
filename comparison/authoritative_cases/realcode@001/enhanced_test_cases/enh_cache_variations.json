@@ -1,0 +1,80 @@
+{
+  "description": "Feature 5 (memoization) extension: cache short-circuit and reuse variations. (1) Caching the entry amd/a.js with its full list returns it directly. (2) Caching the entry cyclic/a.js with an empty list short-circuits all traversal yielding empty output. (3) Pre-seeding the entry commonjs/a.js with its complete tree returns it directly. (4) An empty cached list for an intermediate es6/b.js prunes its sub-tree, dropping es6/b.js from the final set. (5) A cache key that does not correspond to any visited file is ignored and the tree resolves from scratch. (6) Pre-seeding both leaf intermediates of commonjs/a.js still yields the full tree.",
+  "cases": [
+    {
+      "input": {
+        "entry": "amd/a.js",
+        "root": "amd",
+        "cache": {
+          "amd/a.js": [
+            "amd/a.js",
+            "amd/b.js",
+            "amd/c.js"
+          ]
+        }
+      },
+      "expected_output": "amd/a.js\namd/b.js\namd/c.js\n"
+    },
+    {
+      "input": {
+        "entry": "cyclic/a.js",
+        "root": "cyclic",
+        "cache": {
+          "cyclic/a.js": []
+        }
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "entry": "commonjs/a.js",
+        "root": "commonjs",
+        "cache": {
+          "commonjs/a.js": [
+            "commonjs/a.js",
+            "commonjs/b.js",
+            "commonjs/c.js"
+          ]
+        }
+      },
+      "expected_output": "commonjs/a.js\ncommonjs/b.js\ncommonjs/c.js\n"
+    },
+    {
+      "input": {
+        "entry": "es6/a.js",
+        "root": "es6",
+        "cache": {
+          "es6/b.js": []
+        }
+      },
+      "expected_output": "es6/a.js\nes6/c.js\n"
+    },
+    {
+      "input": {
+        "entry": "amd/a.js",
+        "root": "amd",
+        "cache": {
+          "amd/zzz.js": [
+            "amd/zzz.js"
+          ]
+        }
+      },
+      "expected_output": "amd/a.js\namd/b.js\namd/c.js\n"
+    },
+    {
+      "input": {
+        "entry": "commonjs/a.js",
+        "root": "commonjs",
+        "cache": {
+          "commonjs/b.js": [
+            "commonjs/b.js"
+          ],
+          "commonjs/c.js": [
+            "commonjs/c.js"
+          ]
+        }
+      },
+      "expected_output": "commonjs/a.js\ncommonjs/b.js\ncommonjs/c.js\n"
+    }
+  ]
+}

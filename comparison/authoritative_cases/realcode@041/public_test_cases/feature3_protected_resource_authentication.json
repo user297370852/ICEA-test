@@ -1,0 +1,26 @@
+{
+    "description": "Protected resource requests accept valid session tokens and configured authorization schemes.",
+    "cases": [
+        {
+            "description": "A request to a protected resource with a valid session token succeeds through the HTTP authentication layer.",
+            "input": {
+                "operation": "authenticated_request"
+            },
+            "expected_output": "request1.status=200\nrequest1.url=/api/\nrequest1.body=User is authenticated.\n"
+        },
+        {
+            "description": "When a custom authorization scheme is configured, the default scheme is rejected and the configured scheme is accepted for the same token.",
+            "input": {
+                "operation": "authenticated_request",
+                "settings": {
+                    "authorization_scheme": "Baerer"
+                },
+                "header_prefixes": [
+                    "Token",
+                    "Baerer"
+                ]
+            },
+            "expected_output": "request1.status=401\nrequest1.url=/api/\nrequest1.detail=Authentication credentials were not provided.\nrequest2.status=200\nrequest2.url=/api/\nrequest2.body=User is authenticated.\n"
+        }
+    ]
+}

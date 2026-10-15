@@ -1,0 +1,85 @@
+{
+  "description": "Translate a shell command string into the concrete spawn descriptor for the host operating-system family, given only the command and the platform identifier. The Windows-family branch is selected only by the exact platform token; any other token, including a differently-cased spelling, selects the POSIX-shell branch. Empty commands and commands containing quotes or shell metacharacters must be carried through verbatim. The output is the resulting invocation descriptor: the executable file, the ordered argument list, and the options map.",
+  "cases": [
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "echo build start",
+        "platform": "linux"
+      },
+      "expected_output": "{\"file\":\"/bin/sh\",\"args\":[\"-c\",\"echo build start\"],\"options\":{}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "ls -la",
+        "platform": "freebsd"
+      },
+      "expected_output": "{\"file\":\"/bin/sh\",\"args\":[\"-c\",\"ls -la\"],\"options\":{}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "echo nope",
+        "platform": "WIN32"
+      },
+      "expected_output": "{\"file\":\"/bin/sh\",\"args\":[\"-c\",\"echo nope\"],\"options\":{}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "",
+        "platform": "win32"
+      },
+      "expected_output": "{\"file\":\"cmd.exe\",\"args\":[\"/s\",\"/c\",\"\\\"\\\"\"],\"options\":{\"windowsVerbatimArguments\":true}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "",
+        "platform": "darwin"
+      },
+      "expected_output": "{\"file\":\"/bin/sh\",\"args\":[\"-c\",\"\"],\"options\":{}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "echo \"quoted\"",
+        "platform": "win32"
+      },
+      "expected_output": "{\"file\":\"cmd.exe\",\"args\":[\"/s\",\"/c\",\"\\\"echo \\\"quoted\\\"\\\"\"],\"options\":{\"windowsVerbatimArguments\":true}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "dir & echo done",
+        "platform": "win32"
+      },
+      "expected_output": "{\"file\":\"cmd.exe\",\"args\":[\"/s\",\"/c\",\"\\\"dir & echo done\\\"\"],\"options\":{\"windowsVerbatimArguments\":true}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "uname -a",
+        "platform": "sunos"
+      },
+      "expected_output": "{\"file\":\"/bin/sh\",\"args\":[\"-c\",\"uname -a\"],\"options\":{}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "echo café",
+        "platform": "linux"
+      },
+      "expected_output": "{\"file\":\"/bin/sh\",\"args\":[\"-c\",\"echo café\"],\"options\":{}}\n"
+    },
+    {
+      "input": {
+        "feature": "normalize",
+        "command": "echo build start",
+        "platform": "win32"
+      },
+      "expected_output": "{\"file\":\"cmd.exe\",\"args\":[\"/s\",\"/c\",\"\\\"echo build start\\\"\"],\"options\":{\"windowsVerbatimArguments\":true}}\n"
+    }
+  ]
+}

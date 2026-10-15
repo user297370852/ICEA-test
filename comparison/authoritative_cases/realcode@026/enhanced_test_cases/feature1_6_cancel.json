@@ -1,0 +1,78 @@
+{
+  "description": "Boundary coverage for cancelling an action: cancelling when nothing is pending is a harmless no-op, a trigger issued after a cancel re-arms a fresh pending execution that can still run, and cancelling after a leading execution has already fired does not retract that completed execution.",
+  "cases": [
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 1000,
+        "steps": [
+          {
+            "do": "cancel"
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "calls=0\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 1000,
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              "x"
+            ]
+          },
+          {
+            "do": "cancel"
+          },
+          {
+            "do": "call",
+            "args": [
+              "y"
+            ]
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[\"y\"] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 1000,
+        "options": {
+          "leading": true
+        },
+        "steps": [
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "cancel"
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[] tag=fn\ncalls=1\n"
+    }
+  ]
+}

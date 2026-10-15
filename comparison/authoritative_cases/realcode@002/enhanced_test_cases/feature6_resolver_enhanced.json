@@ -1,0 +1,63 @@
+{
+  "description": "Enhanced resolver coverage for URL preservation across browser and universal entries, native precedence in server-like runtimes, and server-side normalization of protocol-relative URLs with paths and query strings.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve",
+        "entry": "browser",
+        "has_native_fetch": true,
+        "url": "https://example.test/absolute?q=1"
+      },
+      "expected_output": "selected=native\nrouted_url=https://example.test/absolute?q=1"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "entry": "browser",
+        "has_native_fetch": false,
+        "url": "/asset/path.css?v=2"
+      },
+      "expected_output": "selected=polyfill\nrouted_url=/asset/path.css?v=2"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "entry": "main",
+        "server": false,
+        "has_native_fetch": false,
+        "url": "//cdn.example.test/lib.js"
+      },
+      "expected_output": "selected=polyfill\nrouted_url=//cdn.example.test/lib.js"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "entry": "main",
+        "server": true,
+        "has_native_fetch": true,
+        "url": "//native.example.test/resource"
+      },
+      "expected_output": "selected=native\nrouted_url=//native.example.test/resource"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "entry": "main",
+        "server": true,
+        "has_native_fetch": false,
+        "url": "//cdn.example.test/path/file.js?cache=1"
+      },
+      "expected_output": "selected=server\nrouted_url=https://cdn.example.test/path/file.js?cache=1"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "entry": "main",
+        "server": true,
+        "has_native_fetch": false,
+        "url": "https://already.example.test/path"
+      },
+      "expected_output": "selected=server\nrouted_url=https://already.example.test/path"
+    }
+  ]
+}

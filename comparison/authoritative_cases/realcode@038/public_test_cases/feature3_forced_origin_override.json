@@ -1,0 +1,50 @@
+{
+  "description": "When an override allow-origin value is configured, the emitted Access-Control-Allow-Origin response header uses that override value for matching preflight requests, non-matching preflight requests, accepted actual requests, and requests without an Origin header.",
+  "cases": [
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "response",
+        "policy": {
+          "allowed_origins": "*",
+          "allowed_methods": [
+            "GET"
+          ],
+          "override_allow_origin": "*"
+        },
+        "request": {
+          "path": "/foo",
+          "method": "OPTIONS",
+          "headers": {
+            "Origin": "http://example.com",
+            "Access-Control-Request-Method": "GET"
+          }
+        }
+      },
+      "expected_output": "phase=response\nurl=/foo\nmethod=OPTIONS\nresponse_created=yes\nstatus=200\nheader:Access-Control-Allow-Origin=*\nheader:Access-Control-Allow-Methods=GET\nheader:Access-Control-Allow-Headers=\nheader:Access-Control-Allow-Credentials=\nheader:Access-Control-Expose-Headers=\nheader:Access-Control-Max-Age=\nvary=Origin\nbody=\n"
+    },
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "response",
+        "policy": {
+          "allowed_origins": [
+            "http://example.com"
+          ],
+          "allowed_methods": [
+            "GET"
+          ],
+          "override_allow_origin": "http://example.com http://huh-lala.foobar"
+        },
+        "request": {
+          "path": "/foo",
+          "method": "GET",
+          "headers": {
+            "Origin": "http://example.com"
+          }
+        }
+      },
+      "expected_output": "phase=response\nurl=/foo\nmethod=GET\nresponse_created=yes\nstatus=200\nheader:Access-Control-Allow-Origin=http://example.com http://huh-lala.foobar\nheader:Access-Control-Allow-Methods=\nheader:Access-Control-Allow-Headers=\nheader:Access-Control-Allow-Credentials=\nheader:Access-Control-Expose-Headers=\nheader:Access-Control-Max-Age=\nvary=\nbody=\n"
+    }
+  ]
+}

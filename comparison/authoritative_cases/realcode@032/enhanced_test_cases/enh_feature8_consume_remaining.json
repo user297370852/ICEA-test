@@ -1,0 +1,58 @@
+{
+  "description": "stop_and_drain returning several still-buffered events at once: a multi-item tail plus a completion, a multi-item tail plus an error, draining everything with no prior read, and a never-stream tail of items only.",
+  "cases": [
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b",
+          "c"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "take_item",
+          "stop_and_drain"
+        ]
+      },
+      "expected_output": "item=a\nremaining=item:b\nremaining=item:c\nremaining=complete\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b"
+        ],
+        "terminal": "error",
+        "errorLabel": "boom",
+        "ops": [
+          "stop_and_drain"
+        ]
+      },
+      "expected_output": "remaining=item:a\nremaining=item:b\nremaining=error:boom\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b",
+          "c"
+        ],
+        "terminal": "never",
+        "ops": [
+          "stop_and_drain"
+        ]
+      },
+      "expected_output": "remaining=item:a\nremaining=item:b\nremaining=item:c\n"
+    },
+    {
+      "input": {
+        "emissions": [],
+        "terminal": "complete",
+        "ops": [
+          "stop_and_drain"
+        ]
+      },
+      "expected_output": "remaining=complete\n"
+    }
+  ]
+}
