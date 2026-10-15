@@ -46,7 +46,8 @@
 │   ├── comparison_table.md          ├── paper_main_results.csv   （论文 Table I/II 数字）
 │   ├── glm53flash_results.csv       ├── figs/（四张图 + stats.json）
 │   ├── aggregate_results.py         ├── charts.py                （聚合 / 制图脚本，可复用）
-│   └── run_records_5b3b6db7/        （原始 run 的 settings/summary 备份）
+│   ├── run_records_5b3b6db7/        （原始 run 的 settings/summary 备份）
+│   └── authoritative_cases/         （Lite 50 全部权威用例：输入+期望输出，3587 个 case）
 └── patches/                         ← 对官方 ICAE-EVAL 的本地适配（见第 3 节）
     ├── icae-eval-macos-adaptations.patch
     └── ark-config-example/          （脱敏后的 model_list / user_model 模板，填入自己的 key）
