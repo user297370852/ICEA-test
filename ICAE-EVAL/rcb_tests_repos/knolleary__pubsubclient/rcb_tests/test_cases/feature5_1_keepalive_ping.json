@@ -1,0 +1,45 @@
+{
+    "description": "To keep an idle session alive, once the keepalive interval elapses with no traffic the client transmits a PINGREQ control packet when servicing the connection. When the broker answers with a PINGRESP, the outstanding ping is cleared so that, after another idle interval, the client issues a fresh PINGREQ instead of disconnecting. The case advances a virtual clock past the keepalive interval, services the connection, supplies a PINGRESP, then advances again and observes a second PINGREQ.",
+    "cases": [
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "advance",
+                        "ms": 16000
+                    },
+                    {
+                        "op": "loop"
+                    },
+                    {
+                        "op": "inbound",
+                        "bytes": "d0 00"
+                    },
+                    {
+                        "op": "loop"
+                    },
+                    {
+                        "op": "advance",
+                        "ms": 16000
+                    },
+                    {
+                        "op": "loop"
+                    }
+                ]
+            },
+            "expected_output": "loop=1\nmessage=none\nsent=c0 00\nloop=1\nmessage=none\nsent=\nloop=1\nmessage=none\nsent=c0 00\n"
+        }
+    ]
+}

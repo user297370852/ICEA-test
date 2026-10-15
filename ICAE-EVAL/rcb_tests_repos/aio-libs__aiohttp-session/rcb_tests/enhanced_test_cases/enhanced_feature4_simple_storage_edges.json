@@ -1,0 +1,74 @@
+{
+  "description": "Additional plaintext cookie storage cases for custom cookie names, disabled httponly flag, preserved creation timestamps, zero max-age expiry, and domain-scope mismatch.",
+  "cases": [
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "simple",
+          "cookie_name": "CUSTOM_SESSION",
+          "httponly": false,
+          "domain": "example.com",
+          "path": "/app"
+        },
+        "scenario": "change",
+        "path": "/app"
+      },
+      "expected_output": "status=200\nloaded.new=true\nloaded.empty=true\nloaded.contents={}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=false\ncookie.path=/app\ncookie.domain=example.com\npayload.created=1000000000\npayload.session={\"c\": 3}\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "simple"
+        },
+        "scenario": "change",
+        "incoming": {
+          "data": {
+            "old": "value"
+          },
+          "created": 42
+        }
+      },
+      "expected_output": "status=200\nloaded.new=false\nloaded.empty=false\nloaded.contents={\"old\": \"value\"}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=true\ncookie.path=/\ncookie.domain=127.0.0.1\npayload.created=42\npayload.session={\"c\": 3, \"old\": \"value\"}\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "simple",
+          "max_age": 0
+        },
+        "scenario": "change",
+        "now": 0,
+        "incoming": {
+          "data": {
+            "x": 9
+          },
+          "created": 0
+        }
+      },
+      "expected_output": "status=200\nloaded.new=false\nloaded.empty=false\nloaded.contents={\"x\": 9}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=true\ncookie.path=/\ncookie.domain=127.0.0.1\ncookie.max_age=0\ncookie.expires=Thu, 01-Jan-1970 00:00:00 GMT\npayload.created=0\npayload.session={\"c\": 3, \"x\": 9}\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "simple",
+          "path": "/anotherpath",
+          "domain": "127.0.0.1"
+        },
+        "scenario": "change",
+        "path": "/anotherpath",
+        "incoming": {
+          "data": {
+            "a": 1
+          },
+          "path": "/anotherpath",
+          "domain": "example.com"
+        }
+      },
+      "expected_output": "status=200\nloaded.new=true\nloaded.empty=true\nloaded.contents={}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=true\ncookie.path=/anotherpath\ncookie.domain=127.0.0.1\npayload.created=1000000000\npayload.session={\"c\": 3}\n"
+    }
+  ]
+}

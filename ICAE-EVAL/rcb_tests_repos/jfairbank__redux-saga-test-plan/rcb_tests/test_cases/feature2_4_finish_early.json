@@ -1,0 +1,29 @@
+{
+  "description": "Terminate the walk early before the workflow would naturally finish, optionally supplying a value as if the workflow had returned it. Finishing drives the workflow to completion so a subsequent completion assertion is met, and a supplied finish value is observable by a return assertion.",
+  "cases": [
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "body": [ { "yield": { "take": "HELLO" } }, { "yield": { "call": { "fn": "identity", "args": [1] } } }, { "yield": { "take": "HELLO" } } ] },
+        "steps": [
+          { "next": true }, { "assert": { "take": "HELLO" } },
+          { "next": true }, { "assert": { "call": { "fn": "identity", "args": [1] } } },
+          { "finish": true },
+          { "next": true }, { "assert": { "isDone": true } }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\nassertion 3 met\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "body": [ { "yield": { "take": "HELLO" } }, { "yield": { "call": { "fn": "identity", "args": [1] } } } ] },
+        "steps": [
+          { "next": true }, { "assert": { "take": "HELLO" } },
+          { "finishWith": 42 }, { "assert": { "returns": 42 } }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\n"
+    }
+  ]
+}

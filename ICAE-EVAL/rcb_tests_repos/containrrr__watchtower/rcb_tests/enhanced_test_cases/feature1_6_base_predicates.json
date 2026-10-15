@@ -1,0 +1,48 @@
+{
+  "description": "Boundary coverage for the two base predicates. For self-identification, adds the rejection paths the native suite omits: a candidate that reports is_self_agent=false and one that omits the flag entirely are both rejected, while a self-reporting candidate is admitted, all in one input-ordered batch. For admit-all, a heterogeneous batch confirms every candidate is admitted regardless of its attributes. Output lists each candidate as its name and whether it was admitted.",
+  "cases": [
+    {
+      "input": {
+        "action": "filter",
+        "mode": "self_agent",
+        "containers": [
+          {
+            "name": "self",
+            "is_self_agent": true
+          },
+          {
+            "name": "other",
+            "is_self_agent": false
+          },
+          {
+            "name": "unset"
+          }
+        ]
+      },
+      "expected_output": "container=self included=true\ncontainer=other included=false\ncontainer=unset included=false\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "no_filter",
+        "containers": [
+          {
+            "name": "plain"
+          },
+          {
+            "name": "with_enable",
+            "enabled": {
+              "value": false,
+              "present": true
+            }
+          },
+          {
+            "name": "agent",
+            "is_self_agent": true
+          }
+        ]
+      },
+      "expected_output": "container=plain included=true\ncontainer=with_enable included=true\ncontainer=agent included=true\n"
+    }
+  ]
+}

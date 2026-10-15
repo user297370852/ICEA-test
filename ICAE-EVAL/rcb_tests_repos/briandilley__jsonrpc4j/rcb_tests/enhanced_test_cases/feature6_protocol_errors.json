@@ -1,0 +1,67 @@
+{
+  "description": "Enhanced protocol-level error reporting: assorted malformed payloads (truncated array, bare token, whitespace-only) yielding parse errors, lenient tolerance of trailing content after a valid object, method-name case sensitivity, and an unknown method reached via a named-parameter object.",
+  "cases": [
+    {
+      "description": "truncated JSON array is a parse error",
+      "input": {
+        "transport": "raw",
+        "request_raw": "[{\"jsonrpc\":\"2.0\","
+      },
+      "expected_output": "jsonrpc=2.0\nid=\"null\"\noutcome=error\nerror_code=-32700\nerror_category=parse_error\nerror_message=JSON parse error\n"
+    },
+    {
+      "description": "trailing content after a valid object is tolerated by the lenient parser and the leading request succeeds",
+      "input": {
+        "transport": "raw",
+        "request_raw": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"echo\",\"params\":[\"a\"]} garbage"
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"a\"\n"
+    },
+    {
+      "description": "bare unquoted token is a parse error",
+      "input": {
+        "transport": "raw",
+        "request_raw": "notjson"
+      },
+      "expected_output": "jsonrpc=2.0\nid=\"null\"\noutcome=error\nerror_code=-32700\nerror_category=parse_error\nerror_message=JSON parse error\n"
+    },
+    {
+      "description": "whitespace-only payload is a parse error",
+      "input": {
+        "transport": "raw",
+        "request_raw": "   "
+      },
+      "expected_output": "jsonrpc=2.0\nid=\"null\"\noutcome=error\nerror_code=-32700\nerror_category=parse_error\nerror_message=JSON parse error\n"
+    },
+    {
+      "description": "method name is case-sensitive: Echo is unknown",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "Echo",
+          "params": [
+            "x"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n"
+    },
+    {
+      "description": "unknown method via named-parameter object is method-not-found",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 2,
+          "method": "doesNotExist",
+          "params": {
+            "k": "v"
+          }
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=2\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n"
+    }
+  ]
+}

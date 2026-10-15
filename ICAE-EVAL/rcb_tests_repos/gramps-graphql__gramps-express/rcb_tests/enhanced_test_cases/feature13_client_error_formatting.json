@@ -1,0 +1,69 @@
+{
+  "description": "Client error formatting: production hides private fields and fills/sanitizes description, plus empty-environment dev-like behavior.",
+  "cases": [
+    {
+      "input": {
+        "action": "format_client_error",
+        "environment": "production",
+        "error": {
+          "statusCode": 403,
+          "error": "Forbidden",
+          "message": "no access",
+          "errorCode": "FORBIDDEN",
+          "graphqlModel": "AuthModel",
+          "targetEndpoint": "https://example.test/secure",
+          "docsLink": "https://example.test/docs",
+          "guid": "guid-403"
+        }
+      },
+      "expected_output": "{\n  \"description\": \"no access\",\n  \"error\": \"Forbidden\",\n  \"errorCode\": \"FORBIDDEN\",\n  \"graphqlModel\": \"AuthModel\",\n  \"guid\": \"guid-403\",\n  \"statusCode\": 403\n}\n"
+    },
+    {
+      "input": {
+        "action": "format_client_error",
+        "environment": "production",
+        "error": {
+          "statusCode": 400,
+          "error": "Bad Request",
+          "message": "msg",
+          "description": "value \"x\" is invalid",
+          "errorCode": "BAD",
+          "guid": "guid-400"
+        }
+      },
+      "expected_output": "{\n  \"description\": \"value 'x' is invalid\",\n  \"error\": \"Bad Request\",\n  \"errorCode\": \"BAD\",\n  \"guid\": \"guid-400\",\n  \"message\": \"msg\",\n  \"statusCode\": 400\n}\n"
+    },
+    {
+      "input": {
+        "action": "format_client_error",
+        "environment": "",
+        "error": {
+          "statusCode": 404,
+          "error": "Not Found",
+          "message": "missing",
+          "errorCode": "NOT_FOUND",
+          "graphqlModel": "LookupModel",
+          "targetEndpoint": "https://example.test/lookup",
+          "docsLink": "https://example.test/docs",
+          "guid": "guid-404"
+        }
+      },
+      "expected_output": "{\n  \"description\": \"missing\",\n  \"docsLink\": \"https://example.test/docs\",\n  \"error\": \"Not Found\",\n  \"errorCode\": \"NOT_FOUND\",\n  \"graphqlModel\": \"LookupModel\",\n  \"guid\": \"guid-404\",\n  \"statusCode\": 404,\n  \"targetEndpoint\": \"https://example.test/lookup\"\n}\n"
+    },
+    {
+      "input": {
+        "action": "format_client_error",
+        "environment": "development",
+        "error": {
+          "statusCode": 500,
+          "error": "Internal Server Error",
+          "message": "boom",
+          "description": "deep \"failure\" with \"two\" quotes",
+          "errorCode": "INTERNAL",
+          "guid": "guid-500"
+        }
+      },
+      "expected_output": "{\n  \"description\": \"deep 'failure' with 'two' quotes\",\n  \"error\": \"Internal Server Error\",\n  \"errorCode\": \"INTERNAL\",\n  \"guid\": \"guid-500\",\n  \"message\": \"boom\",\n  \"statusCode\": 500\n}\n"
+    }
+  ]
+}

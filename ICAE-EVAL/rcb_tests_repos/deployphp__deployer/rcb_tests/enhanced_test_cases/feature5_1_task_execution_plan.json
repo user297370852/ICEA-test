@@ -1,0 +1,125 @@
+{
+  "description": "Task plan edge cases: nested groups expanding recursively, before and after hooks combined around a single task, planning a plain task, a group whose members are also groups, and a missing requested task error.",
+  "cases": [
+    {
+      "input": {
+        "definitions": [
+          {
+            "name": "a"
+          },
+          {
+            "name": "b"
+          },
+          {
+            "name": "c"
+          },
+          {
+            "name": "inner",
+            "kind": "group",
+            "members": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "name": "outer",
+            "kind": "group",
+            "members": [
+              "inner",
+              "c"
+            ]
+          }
+        ],
+        "plan": "outer"
+      },
+      "expected_output": "tasks=a,b,c\ncount=3\n"
+    },
+    {
+      "input": {
+        "definitions": [
+          {
+            "name": "main"
+          }
+        ],
+        "plan": "main"
+      },
+      "expected_output": "tasks=main\ncount=1\n"
+    },
+    {
+      "input": {
+        "definitions": [
+          {
+            "name": "deploy"
+          },
+          {
+            "name": "notify"
+          },
+          {
+            "name": "cleanup"
+          }
+        ],
+        "before": [
+          {
+            "target": "deploy",
+            "task": "notify"
+          }
+        ],
+        "after": [
+          {
+            "target": "deploy",
+            "task": "cleanup"
+          }
+        ],
+        "plan": "deploy"
+      },
+      "expected_output": "tasks=notify,deploy,cleanup\ncount=3\n"
+    },
+    {
+      "input": {
+        "definitions": [
+          {
+            "name": "s1"
+          },
+          {
+            "name": "s2"
+          },
+          {
+            "name": "g1",
+            "kind": "group",
+            "members": [
+              "s1"
+            ]
+          },
+          {
+            "name": "g2",
+            "kind": "group",
+            "members": [
+              "s2"
+            ]
+          },
+          {
+            "name": "all",
+            "kind": "group",
+            "members": [
+              "g1",
+              "g2"
+            ]
+          }
+        ],
+        "plan": "all"
+      },
+      "expected_output": "tasks=s1,s2\ncount=2\n"
+    },
+    {
+      "input": {
+        "definitions": [
+          {
+            "name": "only"
+          }
+        ],
+        "plan": "missing"
+      },
+      "expected_output": "error=item_not_found\n"
+    }
+  ]
+}

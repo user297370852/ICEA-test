@@ -1,0 +1,83 @@
+{
+  "description": "Hierarchic scope matching. A request scope is granted when one of the granted scopes either equals it exactly, or is a dot-separated prefix of it (a broader scope such as 'a.b' covers any more specific 'a.b.c'); a granted scope can never satisfy a request that is broader than itself. The input names the matching strategy, a set of granted scopes, and a list of requested scopes; for each request the output reports whether it is allowed.",
+  "cases": [
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [],
+        "requests": [
+          "foo.bar.baz",
+          "foo.bar",
+          "foo"
+        ]
+      },
+      "expected_output": "request=foo.bar.baz allowed=false\nrequest=foo.bar allowed=false\nrequest=foo allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [
+          "foo.bar",
+          "bar.baz",
+          "baz.baz.1",
+          "baz.baz.2",
+          "baz.baz.3",
+          "baz.baz.baz"
+        ],
+        "requests": [
+          "foo.bar.baz",
+          "baz.baz.baz",
+          "foo.bar",
+          "foo",
+          "bar.baz",
+          "bar.baz.zad",
+          "bar",
+          "baz"
+        ]
+      },
+      "expected_output": "request=foo.bar.baz allowed=true\nrequest=baz.baz.baz allowed=true\nrequest=foo.bar allowed=true\nrequest=foo allowed=false\nrequest=bar.baz allowed=true\nrequest=bar.baz.zad allowed=true\nrequest=bar allowed=false\nrequest=baz allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [
+          "fosite.keys.create",
+          "fosite.keys.get",
+          "fosite.keys.delete",
+          "fosite.keys.update"
+        ],
+        "requests": [
+          "fosite.keys.delete",
+          "fosite.keys.get",
+          "fosite.keys.update"
+        ]
+      },
+      "expected_output": "request=fosite.keys.delete allowed=true\nrequest=fosite.keys.get allowed=true\nrequest=fosite.keys.update allowed=true\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [
+          "hydra",
+          "openid",
+          "offline"
+        ],
+        "requests": [
+          "foo.bar",
+          "foo",
+          "hydra",
+          "hydra.bar",
+          "openid",
+          "openid.baz.bar",
+          "offline",
+          "offline.baz.bar.baz"
+        ]
+      },
+      "expected_output": "request=foo.bar allowed=false\nrequest=foo allowed=false\nrequest=hydra allowed=true\nrequest=hydra.bar allowed=true\nrequest=openid allowed=true\nrequest=openid.baz.bar allowed=true\nrequest=offline allowed=true\nrequest=offline.baz.bar.baz allowed=true\n"
+    }
+  ]
+}

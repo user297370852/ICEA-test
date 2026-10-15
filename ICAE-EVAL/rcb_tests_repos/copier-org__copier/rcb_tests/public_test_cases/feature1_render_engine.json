@@ -1,0 +1,45 @@
+{
+  "description": "Rendering of a source template tree into a destination. Files whose name carries the template suffix have their contents expanded with the templating engine using the supplied named answers, and the suffix is stripped from the produced name. Files without the suffix are copied verbatim. Names of files and directories may themselves contain placeholders that are expanded into the produced path. When a plain file and a same-named file carrying the template suffix both exist, the suffixed (rendered) one takes precedence and the plain one is dropped. Output reports the count of produced files, the sorted produced paths, and the produced content of each file.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "README.txt": "Static line.\n",
+          "greeting.txt.tmpl": "Hello [[ audience ]]!\n"
+        },
+        "data": {
+          "audience": "world"
+        }
+      },
+      "expected_output": "produced=2\npath: README.txt\npath: greeting.txt\nfile: README.txt -> \"Static line.\\n\"\nfile: greeting.txt -> \"Hello world!\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "[[ pkg ]]/__init__.py.tmpl": "name = '[[ pkg ]]'\n",
+          "[[ title ]].txt": "verbatim content\n"
+        },
+        "data": {
+          "pkg": "acme",
+          "title": "NOTES"
+        }
+      },
+      "expected_output": "produced=2\npath: NOTES.txt\npath: acme/__init__.py\nfile: NOTES.txt -> \"verbatim content\\n\"\nfile: acme/__init__.py -> \"name = 'acme'\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "README.txt": "PLAIN\n",
+          "README.txt.tmpl": "Rendered for [[ project ]].\n"
+        },
+        "data": {
+          "project": "Demo"
+        }
+      },
+      "expected_output": "produced=1\npath: README.txt\nfile: README.txt -> \"Rendered for Demo.\\n\"\n"
+    }
+  ]
+}

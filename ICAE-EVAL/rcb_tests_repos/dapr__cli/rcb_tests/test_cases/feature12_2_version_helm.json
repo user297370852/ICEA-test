@@ -1,0 +1,33 @@
+{
+    "description": "Resolve the latest stable runtime release version from a chart index document (YAML). The first chart entry whose app version is a stable release (does not contain '-rc') is returned. An empty document, or a document whose entries are all release candidates, yields a neutral no-releases error. A body that is not valid YAML yields a neutral parse error.",
+    "cases": [
+        {
+            "input": {
+                "action": "version_helm",
+                "body": "apiVersion: v1\nentries:\n  dapr:\n  - apiVersion: v1\n    appVersion: 1.2.3-rc.1\n    name: dapr\n    version: 1.2.3-rc.1\n  - apiVersion: v1\n    appVersion: 1.2.2\n    name: dapr\n    version: 1.2.2      "
+            },
+            "expected_output": "version=1.2.2\n"
+        },
+        {
+            "input": {
+                "action": "version_helm",
+                "body": "["
+            },
+            "expected_output": "error=parse_error\n"
+        },
+        {
+            "input": {
+                "action": "version_helm",
+                "body": ""
+            },
+            "expected_output": "error=no_releases\n"
+        },
+        {
+            "input": {
+                "action": "version_helm",
+                "body": "apiVersion: v1\nentries:\n  dapr:\n  - apiVersion: v1\n    appVersion: 1.2.3-rc.1\n    name: dapr\n    version: 1.2.3-rc.1 "
+            },
+            "expected_output": "error=no_releases\n"
+        }
+    ]
+}

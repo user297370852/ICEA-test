@@ -1,0 +1,133 @@
+{
+    "description": "Reject invalid YAML load-test configs with a normalized error category and a domain reason: missing required global fields, missing mode-specific fields per stage, missing stage mode, and structurally malformed YAML.",
+    "cases": [
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "limits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing scenario\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing max-duration\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  max-iterations: 100\n  ignore-dropped: true\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing concurrency\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  ignore-dropped: true\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing max-iterations\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing ignore-dropped\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing stages\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 1h\n  mode: constant\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing rate at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 1h\n  mode: constant\n  rate: 6/s\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing distribution at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: ramp\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing start-rate at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: ramp\n  start-rate: 0\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing end-rate at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: staged\n  iteration-frequency: 1s\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing stages at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: staged\n  stages: 0s:0,10s:10\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing iteration-frequency at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: gaussian\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing volume at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: gaussian\n  volume: 100\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing repeat at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing stage mode at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "\ninvalid file content\n"
+            },
+            "expected_output": "error=invalid_config\nreason=malformed_yaml\n"
+        }
+    ]
+}

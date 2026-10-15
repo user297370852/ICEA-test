@@ -1,0 +1,61 @@
+{
+    "description": "Invoke a method on a locally running application through its sidecar over HTTP. The caller supplies a target application id, a method name, an HTTP verb, and a payload. The set of running applications is provided; if the target id is present, the request is routed to that application's service-invocation URL and the response body is returned. The routed path follows '/v<api>/invoke/<appId>/method/<method>'. If the target id is not among the running applications, a neutral not-found error is returned; if listing the running applications fails, a neutral list-failure error is returned. The same routing applies across verbs (GET/POST/PUT/DELETE).",
+    "cases": [
+        {
+            "input": {
+                "action": "invoke",
+                "app_id": "testapp",
+                "method": "test",
+                "verb": "GET",
+                "list_app_id": "testapp",
+                "expected_path": "/v1.0/invoke/testapp/method/test",
+                "server_resp": "successful invoke"
+            },
+            "expected_output": "path=/v1.0/invoke/testapp/method/test\nresponse=successful invoke\n"
+        },
+        {
+            "input": {
+                "action": "invoke",
+                "app_id": "testapp",
+                "method": "test",
+                "verb": "POST",
+                "list_app_id": "testapp",
+                "expected_path": "/v1.0/invoke/testapp/method/test",
+                "server_resp": "successful invoke"
+            },
+            "expected_output": "path=/v1.0/invoke/testapp/method/test\nresponse=\n"
+        },
+        {
+            "input": {
+                "action": "invoke",
+                "app_id": "testapp",
+                "method": "test",
+                "verb": "GET",
+                "list_app_id": "testapp",
+                "expected_path": "/v1.0/invoke/testapp/method/test",
+                "server_resp": ""
+            },
+            "expected_output": "path=/v1.0/invoke/testapp/method/test\nresponse=\n"
+        },
+        {
+            "input": {
+                "action": "invoke",
+                "app_id": "invalid",
+                "method": "test",
+                "verb": "GET",
+                "list_app_id": "testapp"
+            },
+            "expected_output": "error=app_not_found\n"
+        },
+        {
+            "input": {
+                "action": "invoke",
+                "app_id": "testapp",
+                "method": "test",
+                "verb": "GET",
+                "list_err": true
+            },
+            "expected_output": "error=list_failed\n"
+        }
+    ]
+}

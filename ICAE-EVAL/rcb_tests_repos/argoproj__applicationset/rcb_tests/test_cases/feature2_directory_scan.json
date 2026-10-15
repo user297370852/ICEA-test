@@ -1,0 +1,21 @@
+{
+    "description": "Scan a flat listing of candidate directory paths and keep only those matching a set of shell-style glob patterns, where a single star matches within one path segment and does not cross the path separator. For every retained path, emit a parameter map holding the full path under a path key and its final path segment under a path.basename key, considering the patterns and paths in their given order. If the directory listing cannot be obtained, the whole operation fails with a neutral error and no maps are produced. An empty listing yields zero maps.",
+    "cases": [
+        {
+            "input": {"action": "git_directories", "directories": ["*"], "apps": ["app1", "app2", "p1/app3"]},
+            "expected_output": "params=2\n#0\npath=app1\npath.basename=app1\n#1\npath=app2\npath.basename=app2\n"
+        },
+        {
+            "input": {"action": "git_directories", "directories": ["p1/*", "p1/*/*"], "apps": ["app1", "p1/app2", "p1/p2/app3", "p1/p2/p3/app4"]},
+            "expected_output": "params=2\n#0\npath=p1/app2\npath.basename=app2\n#1\npath=p1/p2/app3\npath.basename=app3\n"
+        },
+        {
+            "input": {"action": "git_directories", "directories": ["*"], "apps": []},
+            "expected_output": "params=0\n"
+        },
+        {
+            "input": {"action": "git_directories", "directories": ["*"], "apps": [], "apps_error": true},
+            "expected_output": "error=source_unavailable\n"
+        }
+    ]
+}

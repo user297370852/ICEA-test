@@ -1,0 +1,165 @@
+{
+  "description": "Several values of the same type coexist under distinct names and are selected by type and name. Covers a unicode name, a name whose payload comes from a provider-level default, many coexisting names requested in reverse, and a named key alongside an unnamed key of the same type resolved through a dependency.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "name": "naïve",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "name": "naïve"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A:naïve\ninvoke ok A:naïve=1\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "name": "foo"
+              }
+            ],
+            "value": 50
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "name": "foo"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A:foo\ninvoke ok A:foo=50\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "name": "n1",
+                "value": 11
+              },
+              {
+                "type": "A",
+                "name": "n2",
+                "value": 22
+              },
+              {
+                "type": "A",
+                "name": "n3",
+                "value": 33
+              },
+              {
+                "type": "A",
+                "name": "n4",
+                "value": 44
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "name": "n4"
+              },
+              {
+                "type": "A",
+                "name": "n3"
+              },
+              {
+                "type": "A",
+                "name": "n2"
+              },
+              {
+                "type": "A",
+                "name": "n1"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A:n1,A:n2,A:n3,A:n4\ninvoke ok A:n4=44 A:n3=33 A:n2=22 A:n1=11\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "name": "primary",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "B",
+                "value": 3
+              }
+            ],
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "B"
+              },
+              {
+                "type": "A"
+              },
+              {
+                "type": "A",
+                "name": "primary"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A:primary\nprovide ok keys=A\nprovide ok keys=B\ninvoke ok B=3 A=2 A:primary=1\n"
+    }
+  ]
+}

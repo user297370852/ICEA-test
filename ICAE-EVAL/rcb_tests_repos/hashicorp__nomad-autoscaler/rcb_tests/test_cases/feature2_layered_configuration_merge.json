@@ -1,0 +1,73 @@
+{
+    "description": "Later configuration layers override scalar values, nested endpoint fields merge field-by-field, and plugin declarations with the same name are replaced while distinct plugins are retained.",
+    "cases": [
+        {
+            "input": [
+                {
+                    "PluginDir": "/opt/nomad-autoscaler/plugins",
+                    "DefaultEvaluationInterval": 5000000000,
+                    "HTTP": {
+                        "BindAddress": "scaler.nomad"
+                    },
+                    "Nomad": {
+                        "Address": "http://nomad.systems:4646"
+                    },
+                    "APMs": [
+                        {
+                            "Name": "prometheus",
+                            "Driver": "prometheus",
+                            "Config": {
+                                "address": "http://prometheus.systems:9090"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "LogLevel": "trace",
+                    "LogJson": true,
+                    "PluginDir": "/var/lib/nomad-autoscaler/plugins",
+                    "DefaultEvaluationInterval": 10000000000,
+                    "HTTP": {
+                        "BindPort": 4646
+                    },
+                    "Nomad": {
+                        "Address": "https://nomad-new.systems:4646",
+                        "Region": "moon-base-1",
+                        "Namespace": "fra-mauro",
+                        "Token": "super-secret-tokeny-thing",
+                        "HTTPAuth": "admin:admin",
+                        "CACert": "/etc/nomad.d/ca.crt",
+                        "CAPath": "/etc/nomad.d/ca/",
+                        "ClientCert": "/etc/nomad.d/client.crt",
+                        "ClientKey": "/etc/nomad.d/client-key.crt",
+                        "TLSServerName": "cows-or-pets",
+                        "SkipVerify": true
+                    },
+                    "APMs": [
+                        {
+                            "Name": "influx-db",
+                            "Driver": "influx-db"
+                        },
+                        {
+                            "Name": "prometheus",
+                            "Driver": "prometheus",
+                            "Args": [
+                                "all-the-encryption"
+                            ],
+                            "Config": {
+                                "address": "http://prometheus-new.systems:9090"
+                            }
+                        }
+                    ],
+                    "Strategies": [
+                        {
+                            "Name": "target-value",
+                            "Driver": "target-value"
+                        }
+                    ]
+                }
+            ],
+            "expected_output": "log_json=true\nlog_level=trace\nplugin_dir=/var/lib/nomad-autoscaler/plugins\ndefault_evaluation_interval_ns=10000000000\nhttp_bind_address=scaler.nomad\nhttp_bind_port=4646\nnomad_address=https://nomad-new.systems:4646\nnomad_region=moon-base-1\nnomad_namespace=fra-mauro\nnomad_token=super-secret-tokeny-thing\nnomad_http_auth=admin:admin\nnomad_ca_cert=/etc/nomad.d/ca.crt\nnomad_ca_path=/etc/nomad.d/ca/\nnomad_client_cert=/etc/nomad.d/client.crt\nnomad_client_key=/etc/nomad.d/client-key.crt\nnomad_tls_server_name=cows-or-pets\nnomad_skip_verify=true\napm_plugins=influx-db:influx-db,nomad-apm:nomad-apm,prometheus:prometheus args=[all-the-encryption] config={address=http://prometheus-new.systems:9090}\ntarget_plugins=nomad-target:nomad-target\nstrategy_plugins=target-value:target-value\n"
+        }
+    ]
+}

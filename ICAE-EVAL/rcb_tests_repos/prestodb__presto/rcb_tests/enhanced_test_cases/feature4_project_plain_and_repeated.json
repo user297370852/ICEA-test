@@ -1,0 +1,198 @@
+{
+  "description": "Enhanced projection coverage for plain/repeated pages: empty range, full range, single/list reordered selections, negative-value rejection, large bigint values, RLE list/full projections, large RLE tail, and out-of-bounds range error.",
+  "cases": [
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "plain",
+          "values": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 0,
+          "size": 0
+        }
+      },
+      "expected_output": "operation=project\nvalues=[]\nposition_count=0\nresult_encoding=plain\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "plain",
+          "values": [
+            10,
+            20,
+            30
+          ]
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 0,
+          "size": 3
+        }
+      },
+      "expected_output": "operation=project\nvalues=[10, 20, 30]\nposition_count=3\nresult_encoding=plain\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "plain",
+          "values": [
+            7,
+            8,
+            9
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            2
+          ]
+        }
+      },
+      "expected_output": "operation=project\nvalues=[9]\nposition_count=1\nresult_encoding=plain\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "plain",
+          "values": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            4,
+            0,
+            2
+          ]
+        }
+      },
+      "expected_output": "operation=project\nvalues=[4, 0, 2]\nposition_count=3\nresult_encoding=plain\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "plain",
+          "values": [
+            1,
+            -2,
+            3
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            0,
+            1
+          ]
+        }
+      },
+      "expected_output": "error=negative_value\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "plain",
+          "values": [
+            9223372036854775807,
+            1000000000000
+          ]
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 0,
+          "size": 2
+        }
+      },
+      "expected_output": "operation=project\nvalues=[9223372036854775807, 1000000000000]\nposition_count=2\nresult_encoding=plain\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "rle",
+          "value": 42,
+          "position_count": 50
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            0,
+            10,
+            20
+          ]
+        }
+      },
+      "expected_output": "operation=project\nvalues=[42, 42, 42]\nposition_count=3\nresult_encoding=run_length\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "rle",
+          "value": 9,
+          "position_count": 3
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 0,
+          "size": 3
+        }
+      },
+      "expected_output": "operation=project\nvalues=[9, 9, 9]\nposition_count=3\nresult_encoding=run_length\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "rle",
+          "value": 1000000,
+          "position_count": 100000
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 99990,
+          "size": 10
+        }
+      },
+      "expected_output": "operation=project\nvalues=[1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000]\nposition_count=10\nresult_encoding=run_length\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "plain",
+          "values": [
+            1,
+            2,
+            3
+          ]
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 0,
+          "size": 5
+        }
+      },
+      "expected_output": "error=invalid_input\n"
+    }
+  ]
+}

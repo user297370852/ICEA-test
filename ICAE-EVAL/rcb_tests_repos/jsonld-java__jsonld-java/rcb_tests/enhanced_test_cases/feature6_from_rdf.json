@@ -1,0 +1,31 @@
+{
+  "description": "Enhanced RDF to JSON-LD (from_rdf) edge cases: single IRI-object triple, language-tagged plain literal, and native-typed coercion of integer and boolean lexical values. Predicate order follows first appearance; object order follows input order. Disjoint from native cases.",
+  "cases": [
+    {
+      "input": {
+        "options": {},
+        "nquads": "<http://example.com/s> <http://example.com/p> <http://example.com/o> .",
+        "algorithm": "from_rdf"
+      },
+      "expected_output": "[ {\n  \"@id\" : \"http://example.com/s\",\n  \"http://example.com/p\" : [ {\n    \"@id\" : \"http://example.com/o\"\n  } ]\n} ]\n"
+    },
+    {
+      "input": {
+        "options": {},
+        "nquads": "<http://example.com/s> <http://example.com/label> \"Bonjour\"@fr .",
+        "algorithm": "from_rdf"
+      },
+      "expected_output": "[ {\n  \"@id\" : \"http://example.com/s\",\n  \"http://example.com/label\" : [ {\n    \"@value\" : \"Bonjour\",\n    \"@language\" : \"fr\"\n  } ]\n} ]\n"
+    },
+    {
+      "input": {
+        "options": {
+          "useNativeTypes": true
+        },
+        "nquads": "<http://example.com/s> <http://example.com/prop> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n<http://example.com/s> <http://example.com/prop> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .",
+        "algorithm": "from_rdf"
+      },
+      "expected_output": "[ {\n  \"@id\" : \"http://example.com/s\",\n  \"http://example.com/prop\" : [ {\n    \"@value\" : 7\n  }, {\n    \"@value\" : true\n  } ]\n} ]\n"
+    }
+  ]
+}

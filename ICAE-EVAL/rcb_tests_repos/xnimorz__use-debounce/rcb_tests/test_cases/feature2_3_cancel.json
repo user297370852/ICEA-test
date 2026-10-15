@@ -1,0 +1,76 @@
+{
+    "description": "Cancelling a debounced value discards the pending update so the debounced value remains at its previous settled value even after time elapses. This holds both for an ordinary pending update and for a pending update that is also bounded by a maximum wait: a cancel removes the bounded update as well, so the debounced value never advances to the source value that was in flight.",
+    "cases": [
+        {
+            "input": {
+                "hook": "value",
+                "delay": 1000,
+                "initial": {
+                    "value": "Hello"
+                },
+                "steps": [
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Hello world"
+                        }
+                    },
+                    {
+                        "do": "observe"
+                    },
+                    {
+                        "do": "cancel"
+                    },
+                    {
+                        "do": "runAll"
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "value=Hello\nvalue=Hello\n"
+        },
+        {
+            "input": {
+                "hook": "value",
+                "delay": 500,
+                "options": {
+                    "maxWait": 600
+                },
+                "initial": {
+                    "value": "Hello"
+                },
+                "steps": [
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Wrong value"
+                        }
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 400
+                    },
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Right value"
+                        }
+                    },
+                    {
+                        "do": "cancel"
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 400
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "value=Hello\n"
+        }
+    ]
+}

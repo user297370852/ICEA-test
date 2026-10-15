@@ -1,0 +1,41 @@
+{
+    "description": "Build egress route config: add caller-identity request header only when incoming permissions enabled; add upstream-address response header only when requested; first route carries cluster + timeouts.",
+    "cases": [
+        {
+            "input": {
+                "op": "egress_routes",
+                "incomingPermissionsEnabled": true,
+                "serviceName": "client1",
+                "addUpstreamAddressHeader": false,
+                "clusters": [
+                    {
+                        "clusterName": "srv1",
+                        "routeDomain": "srv1",
+                        "handleInternalRedirect": true,
+                        "idleTimeout": "10s",
+                        "requestTimeout": "10s"
+                    }
+                ]
+            },
+            "expected_output": "requestHeaders=[x-service-name=client1]\nresponseHeaders=[]\nroute0.cluster=srv1\nroute0.idleTimeout=10s\nroute0.requestTimeout=10s\n"
+        },
+        {
+            "input": {
+                "op": "egress_routes",
+                "incomingPermissionsEnabled": false,
+                "serviceName": "client1",
+                "addUpstreamAddressHeader": true,
+                "clusters": [
+                    {
+                        "clusterName": "srv1",
+                        "routeDomain": "srv1",
+                        "handleInternalRedirect": true,
+                        "idleTimeout": "10s",
+                        "requestTimeout": "10s"
+                    }
+                ]
+            },
+            "expected_output": "requestHeaders=[]\nresponseHeaders=[x-envoy-upstream-remote-address=%UPSTREAM_REMOTE_ADDRESS%]\nroute0.cluster=srv1\nroute0.idleTimeout=10s\nroute0.requestTimeout=10s\n"
+        }
+    ]
+}

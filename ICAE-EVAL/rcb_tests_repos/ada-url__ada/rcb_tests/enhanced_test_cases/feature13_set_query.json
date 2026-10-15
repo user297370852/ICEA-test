@@ -1,0 +1,93 @@
+{
+  "description": "Query assignment and clearing: setting with leading question-mark handling, clearing to empty, and special characters in the query.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "search",
+            "value": "?a=1&b=2"
+          },
+          {
+            "op": "get",
+            "field": "search"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_search=ok\nsearch=?a=1&b=2\nhref=https://example.com/?a=1&b=2\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/?x=1",
+        "steps": [
+          {
+            "op": "set",
+            "field": "search",
+            "value": ""
+          },
+          {
+            "op": "get",
+            "field": "search"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_search=ok\nsearch=\nhref=https://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "search",
+            "value": "q=a b&r=c+d"
+          },
+          {
+            "op": "get",
+            "field": "search"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_search=ok\nsearch=?q=a%20b&r=c+d\nhref=https://example.com/?q=a%20b&r=c+d\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/#h",
+        "steps": [
+          {
+            "op": "set",
+            "field": "search",
+            "value": "k=v"
+          },
+          {
+            "op": "get",
+            "field": "search"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_search=ok\nsearch=?k=v\nhref=https://example.com/?k=v#h\n"
+    }
+  ]
+}

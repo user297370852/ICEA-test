@@ -1,0 +1,88 @@
+{
+  "description": "Boundary coverage for sized streaming reads: an exhausted empty source, a single chunk, byte-at-a-time reads, an over-large sized read clamped by exhaustion, and a sized read followed by a null read for the remainder.",
+  "cases": [
+    {
+      "input": {
+        "action": "stream_read",
+        "size": 0,
+        "chunks": [],
+        "reads": [
+          null
+        ]
+      },
+      "expected_output": "read=0|\n"
+    },
+    {
+      "input": {
+        "action": "stream_read",
+        "size": 0,
+        "chunks": [],
+        "reads": [
+          4,
+          null
+        ]
+      },
+      "expected_output": "read=0|\nread=0|\n"
+    },
+    {
+      "input": {
+        "action": "stream_read",
+        "size": 5,
+        "chunks": [
+          "hello"
+        ],
+        "reads": [
+          null
+        ]
+      },
+      "expected_output": "read=5|hello\n"
+    },
+    {
+      "input": {
+        "action": "stream_read",
+        "size": 3,
+        "chunks": [
+          "abc"
+        ],
+        "reads": [
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "expected_output": "read=1|a\nread=1|b\nread=1|c\nread=0|\n"
+    },
+    {
+      "input": {
+        "action": "stream_read",
+        "size": 6,
+        "chunks": [
+          "ab",
+          "cd",
+          "ef"
+        ],
+        "reads": [
+          100
+        ]
+      },
+      "expected_output": "read=6|abcdef\n"
+    },
+    {
+      "input": {
+        "action": "stream_read",
+        "size": 6,
+        "chunks": [
+          "ab",
+          "cd",
+          "ef"
+        ],
+        "reads": [
+          2,
+          null
+        ]
+      },
+      "expected_output": "read=2|ab\nread=4|cdef\n"
+    }
+  ]
+}

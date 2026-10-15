@@ -1,0 +1,156 @@
+{
+  "description": "Enhanced boundary/edge coverage for trigger condition firing (run_trigger, no oncePer). Covers: an empty condition list (no output lines), numeric comparison (>), boolean logical conjunction (&&), a fired condition that sends an empty template list, a bare 'true' literal expression, expressions whose evaluation yields a non-boolean value (int and string -> not fired rather than error), an empty when expression coalesced to false, and a multi-condition trigger that mixes fired/not-fired results emitted in condition order. Expected outputs are the raw adapter stdout captured from the reference implementation.",
+  "cases": [
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [],
+        "vars": {}
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "x > 5",
+            "send": [
+              "a"
+            ]
+          }
+        ],
+        "vars": {
+          "x": 10
+        }
+      },
+      "expected_output": "triggered=true templates=a oncePer=\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "a == 1 && b == 2",
+            "send": [
+              "x"
+            ]
+          }
+        ],
+        "vars": {
+          "a": 1,
+          "b": 2
+        }
+      },
+      "expected_output": "triggered=true templates=x oncePer=\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "true",
+            "send": []
+          }
+        ],
+        "vars": {}
+      },
+      "expected_output": "triggered=true templates= oncePer=\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "true",
+            "send": [
+              "x"
+            ]
+          }
+        ],
+        "vars": {}
+      },
+      "expected_output": "triggered=true templates=x oncePer=\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "x",
+            "send": [
+              "a"
+            ]
+          }
+        ],
+        "vars": {
+          "x": 5
+        }
+      },
+      "expected_output": "triggered=false templates=a oncePer=\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "x",
+            "send": [
+              "a"
+            ]
+          }
+        ],
+        "vars": {
+          "x": "hello"
+        }
+      },
+      "expected_output": "triggered=false templates=a oncePer=\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "",
+            "send": [
+              "a"
+            ]
+          }
+        ],
+        "vars": {}
+      },
+      "expected_output": "triggered=false templates=a oncePer=\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "a == 1",
+            "send": [
+              "t1"
+            ]
+          },
+          {
+            "when": "a == 2",
+            "send": [
+              "t2"
+            ]
+          },
+          {
+            "when": "b == 'yes'",
+            "send": [
+              "t3",
+              "t4"
+            ]
+          }
+        ],
+        "vars": {
+          "a": 1,
+          "b": "yes"
+        }
+      },
+      "expected_output": "triggered=true templates=t1 oncePer=\ntriggered=false templates=t2 oncePer=\ntriggered=true templates=t3,t4 oncePer=\n"
+    }
+  ]
+}

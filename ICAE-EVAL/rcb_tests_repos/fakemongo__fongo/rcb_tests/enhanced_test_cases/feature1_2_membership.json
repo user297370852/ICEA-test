@@ -1,0 +1,142 @@
+{
+  "description": "A document matcher evaluates set-membership conditions, covering boundary inputs: a candidate set matching either a scalar field or an array element, a candidate set matching only via an array element, a single-element contains-all set over array fields, a contains-all set with no entries, and a candidate set containing duplicate entries. Documents are returned in their original order.",
+  "cases": [
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$in": [
+              3,
+              9
+            ]
+          }
+        },
+        "documents": [
+          {
+            "a": 3
+          },
+          {
+            "a": [
+              1,
+              9
+            ]
+          },
+          {
+            "a": 5
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 3}\n{ \"a\" : [ 1 , 9]}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$in": [
+              7
+            ]
+          }
+        },
+        "documents": [
+          {
+            "a": [
+              7,
+              8
+            ]
+          },
+          {
+            "a": 8
+          },
+          {
+            "a": 7
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ 7 , 8]}\n{ \"a\" : 7}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$all": [
+              3
+            ]
+          }
+        },
+        "documents": [
+          {
+            "a": [
+              3,
+              4
+            ]
+          },
+          {
+            "a": [
+              1,
+              2
+            ]
+          },
+          {
+            "a": [
+              3
+            ]
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ 3 , 4]}\n{ \"a\" : [ 3]}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$all": []
+          }
+        },
+        "documents": [
+          {
+            "a": [
+              1
+            ]
+          },
+          {
+            "a": []
+          },
+          {
+            "b": 1
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ 1]}\n{ \"a\" : [ ]}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$in": [
+              1,
+              1,
+              2
+            ]
+          }
+        },
+        "documents": [
+          {
+            "a": 1
+          },
+          {
+            "a": 2
+          },
+          {
+            "a": 3
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 1}\n{ \"a\" : 2}\n"
+    }
+  ]
+}

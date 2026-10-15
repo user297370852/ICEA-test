@@ -1,0 +1,57 @@
+{
+  "description": "Store a token cache entry keyed by the combination of its API audience and its scope, then look it up by audience and scope. A lookup whose audience and scope both match the stored entry returns that entry's access token; any other audience/scope combination misses. This verifies that the cache key is derived from both audience and scope together.",
+  "cases": [
+    {
+      "input": {
+        "op": "cache_key",
+        "entry": {
+          "audience": "https://api.example.com/",
+          "scope": "openid profile",
+          "access_token": "AT-1",
+          "id_token": "id1",
+          "expires_in": 3600,
+          "exp": 2000000000
+        },
+        "lookups": [
+          {
+            "audience": "https://api.example.com/",
+            "scope": "openid profile"
+          },
+          {
+            "audience": "https://api.example.com/",
+            "scope": "openid profile email"
+          },
+          {
+            "audience": "default",
+            "scope": "openid profile"
+          }
+        ]
+      },
+      "expected_output": "lookup0=AT-1\nlookup1=miss\nlookup2=miss\n"
+    },
+    {
+      "input": {
+        "op": "cache_key",
+        "entry": {
+          "audience": "default",
+          "scope": "openid profile email",
+          "access_token": "AT-default",
+          "id_token": "id2",
+          "expires_in": 120,
+          "exp": 2000000000
+        },
+        "lookups": [
+          {
+            "audience": "default",
+            "scope": "openid profile email"
+          },
+          {
+            "audience": "default",
+            "scope": "openid"
+          }
+        ]
+      },
+      "expected_output": "lookup0=AT-default\nlookup1=miss\n"
+    }
+  ]
+}

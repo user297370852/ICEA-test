@@ -1,0 +1,82 @@
+{
+  "description": "Unsubscribe dispatch edge cases: among two events published by one service, unsubscribing by name only fires the single matching event's unsubscribe handler (the non-matching one is untouched); unsubscribing a name with no match produces no output; and a single argument is forwarded after the bus token.",
+  "cases": [
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "e1"
+            },
+            {
+              "name": "e2"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "unsubscribe",
+            "name": "e1",
+            "args": [
+              "z"
+            ]
+          }
+        ]
+      },
+      "expected_output": "e1 unsubscribe args=[bus,\"z\"]\n"
+    },
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "e1"
+            },
+            {
+              "name": "e2"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "unsubscribe",
+            "name": "missing",
+            "args": [
+              "z"
+            ]
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "dbtest"
+            }
+          ],
+          "service1": [
+            {
+              "name": "test"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "unsubscribe",
+            "name": "dbtest",
+            "args": [
+              "solo"
+            ]
+          }
+        ]
+      },
+      "expected_output": "dbtest unsubscribe args=[bus,\"solo\"]\n"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+    "description": "A reverse proxy forwards an incoming HTTP request to a single fixed upstream origin and relays the origin's response back to the client unchanged. The request method, path and query string must be delivered to the upstream exactly as received (routing fidelity), and the upstream's status code, Content-Type header and response body must be returned verbatim to the caller. Output reports the client-visible status, content type and body, plus the method, path and query string actually observed at the upstream.",
+    "cases": [
+        {
+            "input": {
+                "action": "proxy",
+                "request": {
+                    "method": "GET",
+                    "path": "/articles",
+                    "query": "page=2",
+                    "headers": {}
+                },
+                "upstream": {
+                    "status": 200,
+                    "headers": {
+                        "Content-Type": "text/plain; charset=utf-8"
+                    },
+                    "body": "Article listing body"
+                }
+            },
+            "expected_output": "status=200\ncontent_type=text/plain; charset=utf-8\nupstream_method=GET\nupstream_path=/articles\nupstream_query=page=2\nbody=Article listing body\n"
+        },
+        {
+            "input": {
+                "action": "proxy",
+                "request": {
+                    "method": "POST",
+                    "path": "/submit",
+                    "query": "id=7",
+                    "headers": {}
+                },
+                "upstream": {
+                    "status": 404,
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "body": "{\"error\":\"missing\"}"
+                }
+            },
+            "expected_output": "status=404\ncontent_type=application/json\nupstream_method=POST\nupstream_path=/submit\nupstream_query=id=7\nbody={\"error\":\"missing\"}\n"
+        }
+    ]
+}

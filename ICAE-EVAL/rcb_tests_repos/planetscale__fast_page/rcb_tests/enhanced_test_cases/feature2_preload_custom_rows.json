@@ -1,0 +1,30 @@
+{
+  "description": "Additional relationship preload case uses custom rows with present organization data to verify the preload remains a separate SQL query and records are returned correctly.",
+  "cases": [
+    {
+      "input": {
+        "mode": "optimized_sql",
+        "include_records": true,
+        "rows": [
+          {
+            "login": "u1",
+            "organization": "o1"
+          },
+          {
+            "login": "u2",
+            "organization": "o1"
+          },
+          {
+            "login": "u3",
+            "organization": "o2"
+          }
+        ],
+        "page_request": {
+          "relationship_loading": "preload_organization",
+          "limit": 2
+        }
+      },
+      "expected_output": "sql_count=3\nsql=SELECT \"users\".\"id\" FROM \"users\" LIMIT ?\nsql=SELECT \"users\".* FROM \"users\" WHERE \"users\".\"id\" IN (?, ?)\nsql=SELECT \"organizations\".* FROM \"organizations\" WHERE \"organizations\".\"id\" = ?\nrecords_count=2\nrecords_ids=1,2\nrecords_logins=u1,u2\n"
+    }
+  ]
+}

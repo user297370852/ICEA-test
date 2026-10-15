@@ -1,0 +1,64 @@
+{
+  "description": "Additional local apply cases for no-op batches, modifications, ignored missing deletes, and visible conflict writes.",
+  "cases": [
+    {
+      "description": "A no-op apply batch leaves existing files unchanged and reports no changes or new baseline entries.",
+      "input": {
+        "command": "local.apply",
+        "initial": [
+          {
+            "path": "keep.md",
+            "encoding": "plaintext",
+            "content": "keep"
+          }
+        ],
+        "writes": [],
+        "deletes": []
+      },
+      "expected_output": "changes=[]\nnew_baseline={}\nfiles={\"keep.md\":\"a2VlcA==\"}\n"
+    },
+    {
+      "description": "Writing an existing file reports MODIFIED and deleting a missing path does not create a removal change.",
+      "input": {
+        "command": "local.apply",
+        "initial": [
+          {
+            "path": "draft.md",
+            "encoding": "plaintext",
+            "content": "old"
+          }
+        ],
+        "writes": [
+          {
+            "path": "draft.md",
+            "encoding": "plaintext",
+            "content": "new"
+          }
+        ],
+        "deletes": [
+          "missing.md"
+        ]
+      },
+      "expected_output": "changes=[{\"path\":\"draft.md\",\"type\":\"MODIFIED\"},{\"path\":\"missing.md\",\"type\":\"REMOVED\"}]\nnew_baseline={\"draft.md\":\"413b56d00ded82c6e586db6e32280be31511f7ab\"}\nfiles={\"draft.md\":\"bmV3\"}\n"
+    },
+    {
+      "description": "A visible clashed remote file is materialized below the conflict area with baseline keyed to the original path.",
+      "input": {
+        "command": "local.apply",
+        "initial": [],
+        "writes": [
+          {
+            "path": "conflict.md",
+            "encoding": "plaintext",
+            "content": "remote copy"
+          }
+        ],
+        "deletes": [],
+        "clash_paths": [
+          "conflict.md"
+        ]
+      },
+      "expected_output": "changes=[{\"path\":\"_fit/conflict.md\",\"type\":\"ADDED\"}]\nnew_baseline={}\nfiles={\"_fit/conflict.md\":\"cmVtb3RlIGNvcHk=\"}\n"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+    "description": "Anchors (&name) and aliases (*name) are forbidden by default and rejected with a normalized error; when permitted they are resolved, and an optional maximum alias count guards against alias-expansion attacks by failing once the budget is exceeded. An extension-definition prefix marks anchor-defining keys at the document root.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "shape": "named",
+                "document": ".some-extension: &name Jamie\n\nname: *name",
+                "config": {
+                    "extensionDefinitionPrefix": "."
+                }
+            },
+            "expected_output": "error=forbidden_anchor_or_alias\ndetail=Parsing anchors and aliases is disabled.\nline=1\ncolumn=18"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "named",
+                "document": ".some-extension: &name Jamie\n\nname: *name",
+                "config": {
+                    "extensionDefinitionPrefix": ".",
+                    "anchorsAndAliases": "permitted"
+                }
+            },
+            "expected_output": "{\"name\":\"Jamie\"}"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "group",
+                "document": ".some-extension: &name Jamie\n\nmembers: [*name, *name]",
+                "config": {
+                    "extensionDefinitionPrefix": ".",
+                    "anchorsAndAliases": "permitted",
+                    "maxAliasCount": 1
+                }
+            },
+            "expected_output": "error=forbidden_anchor_or_alias\ndetail=Maximum number of aliases has been reached.\nline=3\ncolumn=18"
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+{
+    "description": "A caching layer sits in front of an origin and decides whether each response may be reused for later identical requests, based solely on the response's caching directives, status and size. A response is storable only when its directives mark it explicitly shareable AND give a positive freshness lifetime; directives that mark it private, omit a shareable marker, give a zero or absent lifetime, or explicitly forbid reuse make it non-storable. Redirect/informational/error or not-modified statuses and bodies larger than the configured limit are never stored. Each request reports a cache disposition signal: a freshly generated (and possibly stored) response, a reuse of a previously stored response, or a deliberate skip of the cache. When a stored response is reused, the original status code and any custom headers it carried are reproduced exactly. The origin numbers successive generated bodies so that a reused response is distinguishable from a regenerated one. Output, per request in the sequence, reports the request index, status code, cache disposition, any cookie header, a tracked custom header, and the body.",
+    "cases": [
+        {
+            "input": {
+                "action": "cache",
+                "upstream": {
+                    "cacheControl": "public, max-age=60",
+                    "bodyMode": "counter",
+                    "body": "Hello"
+                },
+                "requests": [
+                    {
+                        "url": "http://example.com"
+                    },
+                    {
+                        "url": "http://example.com"
+                    },
+                    {
+                        "url": "http://example.com"
+                    }
+                ]
+            },
+            "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello 1\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hello 1\nrequest=2\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hello 1\n"
+        },
+        {
+            "input": {
+                "action": "cache",
+                "upstream": {
+                    "cacheControl": "public, max-age=60",
+                    "bodyMode": "counter",
+                    "body": "Hello"
+                },
+                "requests": [
+                    {
+                        "method": "POST",
+                        "url": "http://example.com"
+                    },
+                    {
+                        "method": "POST",
+                        "url": "http://example.com"
+                    },
+                    {
+                        "method": "POST",
+                        "url": "http://example.com"
+                    }
+                ]
+            },
+            "expected_output": "request=0\nstatus=200\nx_cache=bypass\nset_cookie=-\nextra=-\nbody=Hello 1\nrequest=1\nstatus=200\nx_cache=bypass\nset_cookie=-\nextra=-\nbody=Hello 2\nrequest=2\nstatus=200\nx_cache=bypass\nset_cookie=-\nextra=-\nbody=Hello 3\n"
+        }
+    ]
+}

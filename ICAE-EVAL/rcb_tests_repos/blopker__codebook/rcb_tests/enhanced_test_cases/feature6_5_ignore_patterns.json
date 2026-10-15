@@ -1,0 +1,38 @@
+{
+  "description": "Enhanced ignore-pattern cases: a literal pattern that ignores one exact word while another misspelling is flagged, an anchored pattern matching letters-then-digits tokens, and a digit-run pattern that ignores an alphanumeric token while a plain misspelling is still flagged. Each reported misspelling is its UTF-8 start byte offset, end byte offset, and text, one per line, ordered by position. The request is {\"op\":\"spellcheck\",\"text\":<text>,\"lang\":\"text\",\"ignore_patterns\":[regexes...]}.",
+  "cases": [
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "ignore_patterns": [
+          "foobr"
+        ],
+        "text": "foobr keep but wronng flagged"
+      },
+      "expected_output": "15 21 wronng\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "ignore_patterns": [
+          "^[a-z]+\\d+$"
+        ],
+        "text": "tok123 and badzz word"
+      },
+      "expected_output": "11 16 badzz\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "ignore_patterns": [
+          "\\d{4,}"
+        ],
+        "text": "code abc1234 and badwrd"
+      },
+      "expected_output": "17 23 badwrd\n"
+    }
+  ]
+}

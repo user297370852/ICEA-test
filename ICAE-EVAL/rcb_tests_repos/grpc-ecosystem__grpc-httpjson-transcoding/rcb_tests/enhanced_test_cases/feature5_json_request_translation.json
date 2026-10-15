@@ -1,0 +1,119 @@
+{
+  "description": "Unary JSON-to-proto edge cases: empty objects, escaped/unicode strings, nested messages, scalar/numeric body targets, binding merges, and invalid-JSON rejection.",
+  "cases": [
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "{}"
+      },
+      "expected_output": "message[0]=\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "{ \"name\":\"x\" }"
+      },
+      "expected_output": "message[0]=\nname: \"x\"\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "{ \"theme\":\"\" }"
+      },
+      "expected_output": "message[0]=\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "{ \"name\":\"a\\\"b\", \"theme\":\"line1\\nline2\" }"
+      },
+      "expected_output": "message[0]=\nname: \"a\\\"b\"\ntheme: \"line1\\nline2\"\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "book",
+        "json": "{ \"authorInfo\": { \"bio\": { \"yearBorn\": 1900 } } }"
+      },
+      "expected_output": "message[0]=\nauthor_info {\n  bio {\n    year_born: 1900\n  }\n}\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "create_book_request",
+        "body_target": "book",
+        "json": "{}"
+      },
+      "expected_output": "message[0]=\nbook {\n}\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "create_book_request",
+        "body_target": "book",
+        "bindings": [
+          {
+            "field_path": [
+              "shelf"
+            ],
+            "value": "7"
+          }
+        ],
+        "json": "{ \"name\":\"b1\" }"
+      },
+      "expected_output": "message[0]=\nshelf: 7\nbook {\n  name: \"b1\"\n}\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "{ \"name\": 123 }"
+      },
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "   { \"name\":\"trim\" }   "
+      },
+      "expected_output": "message[0]=\nname: \"trim\"\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": ""
+      },
+      "expected_output": "message[0]=\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "null"
+      },
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "json": "{ \"name\":\"unicode\\u0041\" }"
+      },
+      "expected_output": "message[0]=\nname: \"unicodeA\"\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "list_shelves_response",
+        "json": "{ \"shelves\": [ { \"name\":\"1\" }, { \"name\":\"2\", \"theme\":\"t\" } ] }"
+      },
+      "expected_output": "message[0]=\nshelves {\n  name: \"1\"\n}\nshelves {\n  name: \"2\"\n  theme: \"t\"\n}\n--end--\nfinished=true\n"
+    }
+  ]
+}

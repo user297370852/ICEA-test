@@ -1,0 +1,82 @@
+{
+    "description": "Label-selector pod listing additional cases: a non-matching selector, several pods where only some match, and a multi-key selector requiring all pairs.",
+    "cases": [
+        {
+            "input": {
+                "action": "list_pods",
+                "pods": [
+                    {
+                        "name": "p1",
+                        "namespace": "ns",
+                        "labels": {
+                            "app": "a"
+                        }
+                    }
+                ],
+                "selector": {
+                    "app": "b"
+                }
+            },
+            "expected_output": "matched=0\n"
+        },
+        {
+            "input": {
+                "action": "list_pods",
+                "pods": [
+                    {
+                        "name": "p1",
+                        "namespace": "ns1",
+                        "labels": {
+                            "app": "web"
+                        }
+                    },
+                    {
+                        "name": "p2",
+                        "namespace": "ns2",
+                        "labels": {
+                            "app": "db"
+                        }
+                    },
+                    {
+                        "name": "p3",
+                        "namespace": "ns1",
+                        "labels": {
+                            "app": "web"
+                        }
+                    }
+                ],
+                "selector": {
+                    "app": "web"
+                }
+            },
+            "expected_output": "matched=2\npod=p1\tns1\npod=p3\tns1\n"
+        },
+        {
+            "input": {
+                "action": "list_pods",
+                "pods": [
+                    {
+                        "name": "p1",
+                        "namespace": "ns",
+                        "labels": {
+                            "app": "web",
+                            "tier": "front"
+                        }
+                    },
+                    {
+                        "name": "p2",
+                        "namespace": "ns",
+                        "labels": {
+                            "app": "web"
+                        }
+                    }
+                ],
+                "selector": {
+                    "app": "web",
+                    "tier": "front"
+                }
+            },
+            "expected_output": "matched=1\npod=p1\tns\n"
+        }
+    ]
+}

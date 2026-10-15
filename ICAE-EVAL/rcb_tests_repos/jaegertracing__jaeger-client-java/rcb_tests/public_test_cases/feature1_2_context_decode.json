@@ -1,0 +1,33 @@
+{
+    "description": "Parse a colon-separated lowercase-hex trace-context wire string back into its four numeric components. The string must contain exactly four colon-separated hex fields; an empty string and a string with the wrong number of fields are reported as distinct normalized errors.",
+    "cases": [
+        {
+            "input": {
+                "op": "context_decode",
+                "value": "ff:dd:cc:4"
+            },
+            "expected_output": "trace_id=255\nspan_id=221\nparent_id=204\nflags=4\n"
+        },
+        {
+            "input": {
+                "op": "context_decode",
+                "value": "fffffffffffffff6:fffffffffffffff6:fffffffffffffff6:81"
+            },
+            "expected_output": "trace_id=-10\nspan_id=-10\nparent_id=-10\nflags=-127\n"
+        },
+        {
+            "input": {
+                "op": "context_decode",
+                "value": "ff:ff:ff"
+            },
+            "expected_output": "error=malformed_tracer_state_string\nvalue=ff:ff:ff\n"
+        },
+        {
+            "input": {
+                "op": "context_decode",
+                "value": ""
+            },
+            "expected_output": "error=empty_tracer_state_string\n"
+        }
+    ]
+}

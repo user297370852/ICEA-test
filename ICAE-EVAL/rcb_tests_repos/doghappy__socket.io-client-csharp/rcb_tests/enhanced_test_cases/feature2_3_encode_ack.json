@@ -1,0 +1,78 @@
+{
+  "description": "Acknowledgement-reply encoding edge cases: empty argument arrays, named namespace without binary, protocol v3, multiple ordered binary attachments and large packet ids.",
+  "cases": [
+    {
+      "input": {
+        "op": "encode_ack",
+        "eio": 4,
+        "packet_id": 1,
+        "namespace": null,
+        "data": []
+      },
+      "expected_output": "frame=431[]\n"
+    },
+    {
+      "input": {
+        "op": "encode_ack",
+        "eio": 4,
+        "packet_id": 9,
+        "namespace": "/n",
+        "data": [
+          "ok",
+          42
+        ]
+      },
+      "expected_output": "frame=43/n,9[\"ok\",42]\n"
+    },
+    {
+      "input": {
+        "op": "encode_ack",
+        "eio": 3,
+        "packet_id": 2,
+        "namespace": "/test",
+        "data": [
+          true
+        ]
+      },
+      "expected_output": "frame=43/test,2[true]\n"
+    },
+    {
+      "input": {
+        "op": "encode_ack",
+        "eio": 4,
+        "packet_id": 3,
+        "namespace": "",
+        "data": [
+          {
+            "$bytes": [
+              10
+            ]
+          },
+          {
+            "$bytes": [
+              20,
+              30
+            ]
+          }
+        ]
+      },
+      "expected_output": "frame=462-3[{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1}]\nattachment=10\nattachment=20,30\n"
+    },
+    {
+      "input": {
+        "op": "encode_ack",
+        "eio": 4,
+        "packet_id": 100000,
+        "namespace": "/n",
+        "data": [
+          {
+            "$bytes": [
+              1
+            ]
+          }
+        ]
+      },
+      "expected_output": "frame=461-/n,100000[{\"_placeholder\":true,\"num\":0}]\nattachment=1\n"
+    }
+  ]
+}

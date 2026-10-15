@@ -1,0 +1,201 @@
+{
+    "description": "Client values and wire values are converted bidirectionally, including nested containers, binary data, timestamps, geographic points, references, and sentinel values.",
+    "cases": [
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "decode",
+                "wire": {
+                    "stringValue": "foobar"
+                }
+            },
+            "expected_output": "{\n    \"decoded\": \"foobar\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "decode",
+                "wire": {
+                    "arrayValue": {
+                        "values": [
+                            {
+                                "stringValue": "foo"
+                            },
+                            {
+                                "stringValue": "bar"
+                            }
+                        ]
+                    }
+                }
+            },
+            "expected_output": "{\n    \"decoded\": [\n        \"foo\",\n        \"bar\"\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "decode",
+                "wire": {
+                    "mapValue": {
+                        "fields": {
+                            "foo": {
+                                "stringValue": "bar"
+                            },
+                            "hello": {
+                                "stringValue": "world"
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "{\n    \"decoded\": {\n        \"foo\": \"bar\",\n        \"hello\": \"world\"\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "decode",
+                "wire": {
+                    "referenceValue": "projects/example_project/databases/(default)/documents/a/b"
+                }
+            },
+            "expected_output": "{\n    \"decoded\": {\n        \"type\": \"document_reference\",\n        \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n        \"path\": \"a/b\",\n        \"id\": \"b\",\n        \"parent\": \"projects/example_project/databases/(default)/documents/a\"\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "decode_integer_as_object",
+                "wire": {
+                    "integerValue": 15
+                }
+            },
+            "expected_output": "{\n    \"decoded\": 15\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "decode",
+                "wire": {
+                    "fooValue": 15
+                }
+            },
+            "expected_output": "error=error\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "encode",
+                "value": true
+            },
+            "expected_output": "{\n    \"wire\": {\n        \"booleanValue\": true\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "encode",
+                "value": [
+                    "a",
+                    "b"
+                ]
+            },
+            "expected_output": "{\n    \"wire\": {\n        \"arrayValue\": {\n            \"values\": [\n                {\n                    \"stringValue\": \"a\"\n                },\n                {\n                    \"stringValue\": \"b\"\n                }\n            ]\n        }\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "encode",
+                "value": {
+                    "a": "b",
+                    "c": "d"
+                }
+            },
+            "expected_output": "{\n    \"wire\": {\n        \"mapValue\": {\n            \"fields\": {\n                \"a\": {\n                    \"stringValue\": \"b\"\n                },\n                \"c\": {\n                    \"stringValue\": \"d\"\n                }\n            }\n        }\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "encode",
+                "value": {
+                    "kind": "bytes",
+                    "value": "hello world"
+                }
+            },
+            "expected_output": "{\n    \"wire\": {\n        \"bytesValue\": \"hello world\"\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "encode",
+                "value": {
+                    "kind": "timestamp",
+                    "seconds": 12345,
+                    "nanos": 10
+                }
+            },
+            "expected_output": "{\n    \"wire\": {\n        \"timestampValue\": {\n            \"seconds\": \"12345\",\n            \"nanos\": 10\n        }\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "encode",
+                "value": {
+                    "kind": "geo_point",
+                    "latitude": 100.01,
+                    "longitude": 100.25
+                }
+            },
+            "expected_output": "{\n    \"wire\": {\n        \"geoPointValue\": {\n            \"latitude\": 100.01,\n            \"longitude\": 100.25\n        }\n    }\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "document_field_paths",
+                "document": {
+                    "users": {
+                        "john": {
+                            "name": "John",
+                            "family": [
+                                "katelynn"
+                            ]
+                        },
+                        "david": {
+                            "name": "David"
+                        }
+                    }
+                }
+            },
+            "expected_output": "{\n    \"field_paths\": [\n        \"users.john.name\",\n        \"users.john.family\",\n        \"users.david.name\"\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "extract_sentinels",
+                "document": {
+                    "users": {
+                        "john": {
+                            "name": "John",
+                            "family": {
+                                "kind": "delete_field"
+                            }
+                        },
+                        "david": {
+                            "name": "David",
+                            "lastLogin": {
+                                "kind": "server_timestamp"
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "{\n    \"remaining_fields\": {\n        \"users\": {\n            \"john\": {\n                \"name\": \"John\"\n            },\n            \"david\": {\n                \"name\": \"David\"\n            }\n        }\n    },\n    \"server_timestamps\": [\n        \"users.david.lastLogin\"\n    ],\n    \"deletes\": [\n        \"users.john.family\"\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "value_mapping",
+                "operation": "encode",
+                "value": {
+                    "kind": "unsupported_object"
+                }
+            },
+            "expected_output": "error=error\n"
+        }
+    ]
+}

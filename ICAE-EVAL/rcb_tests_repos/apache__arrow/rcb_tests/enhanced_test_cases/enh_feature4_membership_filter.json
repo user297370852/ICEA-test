@@ -1,0 +1,172 @@
+{
+  "description": "Enhanced IN-set membership filters across string/int32/int64 columns: exercises zero matches, full matches with repeated values, duplicate candidate constants, negative and zero candidates, and partial overlap between column values and the candidate set.",
+  "cases": [
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "x",
+            "y",
+            "z"
+          ]
+        },
+        "condition": {
+          "node": "in",
+          "expr": {
+            "node": "field",
+            "name": "a"
+          },
+          "values": [
+            "a",
+            "b"
+          ],
+          "type": "string"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=0\nindices=[]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "a",
+            "a",
+            "b",
+            "b"
+          ]
+        },
+        "condition": {
+          "node": "in",
+          "expr": {
+            "node": "field",
+            "name": "a"
+          },
+          "values": [
+            "a",
+            "b"
+          ],
+          "type": "string"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=4\nindices=[0, 1, 2, 3]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "a": [
+            3,
+            1,
+            4,
+            1,
+            5,
+            9,
+            2,
+            6
+          ]
+        },
+        "condition": {
+          "node": "in",
+          "expr": {
+            "node": "field",
+            "name": "a"
+          },
+          "values": [
+            1,
+            1,
+            5
+          ],
+          "type": "int32"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=3\nindices=[1, 3, 4]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "int64"
+          }
+        ],
+        "columns": {
+          "a": [
+            -1,
+            0,
+            1,
+            2,
+            -1,
+            3
+          ]
+        },
+        "condition": {
+          "node": "in",
+          "expr": {
+            "node": "field",
+            "name": "a"
+          },
+          "values": [
+            -1,
+            2
+          ],
+          "type": "int64"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=3\nindices=[0, 3, 4]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "an",
+            "nd",
+            "xx",
+            "an"
+          ]
+        },
+        "condition": {
+          "node": "in",
+          "expr": {
+            "node": "field",
+            "name": "a"
+          },
+          "values": [
+            "an",
+            "qq",
+            "zz"
+          ],
+          "type": "string"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=2\nindices=[0, 3]\n"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+    "description": "Handle percent signs and percent-encoded sequences during parsing. A stray percent sign that is not part of a valid two-hex-digit escape is tolerated in the path and preserved verbatim in the serialized output, but the same malformed escape inside a host makes the URL invalid. Replacing the whole URL string is subject to the same rule, and an attempt to set a host containing a malformed escape is rejected.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://www.google.com/%X%",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=http://www.google.com/%X%\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://www.google%X%.com/"
+            },
+            "expected_output": "url=invalid\n"
+        }
+    ]
+}

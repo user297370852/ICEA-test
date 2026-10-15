@@ -1,0 +1,94 @@
+{
+  "description": "Construct an HTTP request from a method and an absolute requested URI, and observe the routing fields. The url is the resource path relative to the current handler (plus the original query); handlerPath is the root-relative path to the current handler. They can be inferred from one another, with a trailing slash added to a non-empty handler path. Changing the path moves a leading segment from url into handlerPath. Invalid combinations and malformed arguments are reported as neutral errors. The protocol version defaults to 1.1.",
+  "cases": [
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/foo/bar?q=1"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=foo/bar?q=1\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/foo/bar:42"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=foo/bar:42\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/foo/bar?q=1",
+        "handlerPath": "/foo/"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=bar?q=1\nhandlerPath=/foo/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/foo/bar?q=1",
+        "url": "bar?q=1"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=bar?q=1\nhandlerPath=/foo/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/foo/bar?q=1",
+        "handlerPath": "/foo"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=bar?q=1\nhandlerPath=/foo/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/foo/bar?q=1",
+        "protocolVersion": "1.0"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.0\nurl=foo/bar?q=1\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "https://test.example.com/static/dir/file.html",
+        "handlerPath": "/static/",
+        "url": "dir/file.html",
+        "changePath": "dir"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=file.html\nhandlerPath=/static/dir/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "https://test.example.com/static/dir/file.html",
+        "handlerPath": "/static/",
+        "url": "dir/file.html",
+        "changePath": "wrong"
+      },
+      "expected_output": "error=invalid_argument\nmessage=handlerPath \"/static/wrong/\" must be a prefix of requestedUri path \"/static/dir/file.html\"\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "/path"
+      },
+      "expected_output": "error=invalid_argument\nfield=requestedUri\nmessage=must be an absolute URL.\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "method": "",
+        "uri": "http://localhost/"
+      },
+      "expected_output": "error=invalid_argument\nfield=method\nmessage=cannot be empty.\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/test",
+        "url": "http://localhost/test"
+      },
+      "expected_output": "error=invalid_argument\nmessage=url \"http://localhost/test\" may contain only a path and query parameters.\n"
+    }
+  ]
+}

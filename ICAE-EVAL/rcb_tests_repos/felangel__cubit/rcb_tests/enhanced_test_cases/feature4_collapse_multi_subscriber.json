@@ -1,0 +1,100 @@
+{
+  "description": "Updates applied synchronously after a subscriber attaches, before delivery begins, collapse so the subscriber's first delivered value is the resulting latest value rather than any transient intermediate. This holds across many successive updates and a large seed, and when several subscribers attach at different points within the same synchronous turn while updates occur between attachments. Each subscriber observes completion when the container closes; the captured behavior records exactly which collapsed value each subscriber receives.",
+  "cases": [
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[5] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "subscribe",
+            "id": "b"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[2] done=true\nsubscriber=b values=[2] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 100,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[101] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "subscribe",
+            "id": "b"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[1] done=true\nsubscriber=b values=[1] done=true\n"
+    }
+  ]
+}

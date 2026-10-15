@@ -1,0 +1,35 @@
+{
+  "description": "Submit attributes to create a new member. The controller builds a record from the submitted attributes and asks the data store to persist it. On successful persistence the response is a redirect to the canonical URL of the newly created member and a success flash notice naming the resource. When persistence fails (the record reports validation errors) the controller re-renders the new-member view with a success status and sets no flash.",
+  "cases": [
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=build attrs={title=Hello}\nstore=save ok=true\nassign=article\nstatus=302\nredirect=http://test.host/articles/42\nflash.notice=Article was successfully created.\n"
+    },
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "data": {
+          "persist": false,
+          "errors": {
+            "title": "is blank"
+          }
+        }
+      },
+      "expected_output": "store=build attrs={title=Hello}\nstore=save ok=false\nassign=article\nstatus=200\nbody=New HTML\n"
+    }
+  ]
+}

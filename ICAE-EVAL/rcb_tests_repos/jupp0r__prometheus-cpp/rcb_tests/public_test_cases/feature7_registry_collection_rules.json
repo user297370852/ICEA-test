@@ -1,0 +1,55 @@
+{
+    "description": "A registry exposes registered metric families, removes them when requested, merges matching families in merge mode, and rejects name/type conflicts.",
+    "cases": [
+        {
+            "input": {
+                "feature": "registry",
+                "action": "collect_two_counters",
+                "name": "test",
+                "help": "a test",
+                "metrics": [
+                    {
+                        "labels": {
+                            "name": "counter1"
+                        }
+                    },
+                    {
+                        "labels": {
+                            "name": "counter2"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "family_count=1\nname=test\nhelp=a test\nmetric_count=2\nname=counter2\nname=counter1\n"
+        },
+        {
+            "input": {
+                "feature": "registry",
+                "action": "merge_same_counter_family",
+                "name": "counter",
+                "help": "Test Counter",
+                "metric_labels": {
+                    "name": "test_counter"
+                },
+                "repetitions": 4
+            },
+            "expected_output": "family_count=1\n"
+        },
+        {
+            "input": {
+                "feature": "registry",
+                "action": "reject_type_conflict",
+                "name": "same_name"
+            },
+            "expected_output": "error=metric_family_type_conflict\nname=same_name\n"
+        },
+        {
+            "input": {
+                "feature": "registry",
+                "action": "remove_and_readd",
+                "name": "name"
+            },
+            "expected_output": "removed=yes\nreadd=accepted\n"
+        }
+    ]
+}

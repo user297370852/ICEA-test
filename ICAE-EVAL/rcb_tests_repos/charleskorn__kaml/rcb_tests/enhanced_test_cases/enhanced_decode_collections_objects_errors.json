@@ -1,0 +1,132 @@
+{
+  "description": "Enhanced native-disjoint collection, object, naming, and error cases covering empty/flow collections, quoted map keys, boundary complex objects, nested validation paths, duplicate keys, empty documents, malformed YAML, and anchor extension failures.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "shape": "string-list",
+        "document": "[]"
+      },
+      "expected_output": "[]"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "int-list",
+        "document": "[1, 0x10, -0o7]"
+      },
+      "expected_output": "[1,16,-7]"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "string-map",
+        "document": "{}"
+      },
+      "expected_output": "{}"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "string-map",
+        "document": "\"key:with:colons\": \"value # literal\"\n\" spaced key \": \" spaced value \""
+      },
+      "expected_output": "{\"key:with:colons\":\"value # literal\",\" spaced key \":\" spaced value \"}"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "complex",
+        "document": "string: Edge\nbyte: -128\nshort: -32768\nint: -2147483648\nlong: -9223372036854775808\nfloat: -.inf\ndouble: .nan\nenum: Value2\nboolean: FALSE\nchar: Z"
+      },
+      "expected_output": "{\"string\":\"Edge\",\"byte\":-128,\"short\":-32768,\"int\":-2147483648,\"long\":-9223372036854775808,\"float\":-Infinity,\"double\":NaN,\"enum\":\"Value2\",\"boolean\":false,\"char\":\"Z\",\"nullable\":null}"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "people",
+        "document": "firstPerson:\n  name: Alex\nsecondPerson: {}"
+      },
+      "expected_output": "error=invalid_property_value\nproperty=secondPerson\nreason=Property 'name' is required but it is missing.\nline=3\ncolumn=15"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "people",
+        "document": "firstPerson:\n  name: Alex\n  extra: ignored\nsecondPerson:\n  name: Jamie",
+        "config": {
+          "strictMode": false
+        }
+      },
+      "expected_output": "{\"firstPerson\":{\"name\":\"Alex\"},\"secondPerson\":{\"name\":\"Jamie\"}}"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "naming",
+        "document": "serial-name: value",
+        "config": {
+          "namingStrategy": "kebab"
+        }
+      },
+      "expected_output": "{\"serialName\":\"value\"}"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "people",
+        "document": "FirstPerson:\n  name: Alex\nThirdPerson:\n  name: Pat",
+        "config": {
+          "namingStrategy": "pascal"
+        }
+      },
+      "expected_output": "error=invalid_property_value\nproperty=FirstPerson\nreason=Unknown property 'name'. Known properties are: Name\nline=2\ncolumn=3"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "string-map",
+        "document": "foo: one\nfoo: two"
+      },
+      "expected_output": "error=duplicate_key\nkey='foo'\noriginal_line=1\noriginal_column=1\nline=2\ncolumn=1"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "string",
+        "document": ""
+      },
+      "expected_output": "error=empty_document\ndetail=The YAML document is empty."
+    },
+    {
+      "input": {
+        "op": "parse",
+        "document": "foo: [1, 2"
+      },
+      "expected_output": "error=malformed_yaml\ndetail=while parsing a flow sequence\n at line 1, column 6:\n    foo: [1, 2\n         ^\nexpected ',' or ']', but got <stream end>\n at line 1, column 11:\n    foo: [1, 2\n              ^\nline=1\ncolumn=11"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "named",
+        "document": "name: *missing",
+        "config": {
+          "anchorsAndAliases": "permitted"
+        }
+      },
+      "expected_output": "error=unknown_anchor\nanchor=missing\nline=1\ncolumn=7"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "named",
+        "document": ".some-extension: Jamie\nname: Alex",
+        "config": {
+          "extensionDefinitionPrefix": ".",
+          "anchorsAndAliases": "permitted"
+        }
+      },
+      "expected_output": "error=no_anchor_for_extension\nkey=.some-extension\nline=1\ncolumn=1"
+    }
+  ]
+}

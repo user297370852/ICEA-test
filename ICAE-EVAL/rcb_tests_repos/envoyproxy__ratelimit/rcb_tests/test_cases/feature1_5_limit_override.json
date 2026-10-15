@@ -1,0 +1,116 @@
+{
+    "description": "A request may carry its own limit override consisting of a numeric allowance and a time unit. When the domain is known, the override's allowance and unit are returned in place of any configured limit, and the resolved fully-qualified accounting key is derived from the descriptor's key/value path so accounting stays stable when only the override numbers change. An override targeting an unknown domain still yields no limit.",
+    "cases": [
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "foo_domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  # Top level key/value with no default rate limit.\n  - key: key1\n    value: value1\n    descriptors:\n      # 2nd level key only with default rate limit.\n      - key: subkey1\n        rate_limit:\n          unit: second\n          requests_per_unit: 5\n\n      # 2nd level key/value with limit. Specific override at 2nd level.\n      - key: subkey1\n        value: subvalue1\n        rate_limit:\n          unit: second\n          requests_per_unit: 10\n\n  # Top level key only with default rate limit.\n  - key: key2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n\n  # Top level key/value with limit. Specific override at 1st level.\n  - key: key2\n    value: value2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 30\n\n  # First level override with no limit. This effectively whitelists the value.\n  - key: key2\n    value: value3\n\n  - key: key3\n    rate_limit:\n      unit: hour\n      requests_per_unit: 1\n\n  - key: key4\n    rate_limit:\n      unit: day\n      requests_per_unit: 1\n\n  - key: key5\n    value: value5\n    rate_limit:\n      unit: day\n      requests_per_unit: 15\n    descriptors:\n      - key: subkey5\n        value: subvalue5\n        rate_limit:\n          unit: day\n          requests_per_unit: 25\n\n  - key: key6\n    rate_limit:\n      unlimited: true\n\n  # Top level key only with default rate limit.\n\n  - key: key7\n    detailed_metric: true\n    rate_limit:\n      unit: minute\n      requests_per_unit: 70\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [],
+                    "override": {
+                        "requests_per_unit": 10,
+                        "unit": "DAY"
+                    }
+                }
+            },
+            "expected_output": "matched=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  # Top level key/value with no default rate limit.\n  - key: key1\n    value: value1\n    descriptors:\n      # 2nd level key only with default rate limit.\n      - key: subkey1\n        rate_limit:\n          unit: second\n          requests_per_unit: 5\n\n      # 2nd level key/value with limit. Specific override at 2nd level.\n      - key: subkey1\n        value: subvalue1\n        rate_limit:\n          unit: second\n          requests_per_unit: 10\n\n  # Top level key only with default rate limit.\n  - key: key2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n\n  # Top level key/value with limit. Specific override at 1st level.\n  - key: key2\n    value: value2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 30\n\n  # First level override with no limit. This effectively whitelists the value.\n  - key: key2\n    value: value3\n\n  - key: key3\n    rate_limit:\n      unit: hour\n      requests_per_unit: 1\n\n  - key: key4\n    rate_limit:\n      unit: day\n      requests_per_unit: 1\n\n  - key: key5\n    value: value5\n    rate_limit:\n      unit: day\n      requests_per_unit: 15\n    descriptors:\n      - key: subkey5\n        value: subvalue5\n        rate_limit:\n          unit: day\n          requests_per_unit: 25\n\n  - key: key6\n    rate_limit:\n      unlimited: true\n\n  # Top level key only with default rate limit.\n\n  - key: key7\n    detailed_metric: true\n    rate_limit:\n      unit: minute\n      requests_per_unit: 70\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "key1",
+                            "value": "value1"
+                        },
+                        {
+                            "key": "subkey1",
+                            "value": "something"
+                        }
+                    ],
+                    "override": {
+                        "requests_per_unit": 10,
+                        "unit": "DAY"
+                    }
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.key1_value1.subkey1_something\nrequests_per_unit=10\nunit=DAY\nunlimited=false\nshadow_mode=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  # Top level key/value with no default rate limit.\n  - key: key1\n    value: value1\n    descriptors:\n      # 2nd level key only with default rate limit.\n      - key: subkey1\n        rate_limit:\n          unit: second\n          requests_per_unit: 5\n\n      # 2nd level key/value with limit. Specific override at 2nd level.\n      - key: subkey1\n        value: subvalue1\n        rate_limit:\n          unit: second\n          requests_per_unit: 10\n\n  # Top level key only with default rate limit.\n  - key: key2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n\n  # Top level key/value with limit. Specific override at 1st level.\n  - key: key2\n    value: value2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 30\n\n  # First level override with no limit. This effectively whitelists the value.\n  - key: key2\n    value: value3\n\n  - key: key3\n    rate_limit:\n      unit: hour\n      requests_per_unit: 1\n\n  - key: key4\n    rate_limit:\n      unit: day\n      requests_per_unit: 1\n\n  - key: key5\n    value: value5\n    rate_limit:\n      unit: day\n      requests_per_unit: 15\n    descriptors:\n      - key: subkey5\n        value: subvalue5\n        rate_limit:\n          unit: day\n          requests_per_unit: 25\n\n  - key: key6\n    rate_limit:\n      unlimited: true\n\n  # Top level key only with default rate limit.\n\n  - key: key7\n    detailed_metric: true\n    rate_limit:\n      unit: minute\n      requests_per_unit: 70\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "key1",
+                            "value": "value1"
+                        },
+                        {
+                            "key": "subkey1",
+                            "value": "something"
+                        }
+                    ],
+                    "override": {
+                        "requests_per_unit": 42,
+                        "unit": "HOUR"
+                    }
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.key1_value1.subkey1_something\nrequests_per_unit=42\nunit=HOUR\nunlimited=false\nshadow_mode=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  # Top level key/value with no default rate limit.\n  - key: key1\n    value: value1\n    descriptors:\n      # 2nd level key only with default rate limit.\n      - key: subkey1\n        rate_limit:\n          unit: second\n          requests_per_unit: 5\n\n      # 2nd level key/value with limit. Specific override at 2nd level.\n      - key: subkey1\n        value: subvalue1\n        rate_limit:\n          unit: second\n          requests_per_unit: 10\n\n  # Top level key only with default rate limit.\n  - key: key2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n\n  # Top level key/value with limit. Specific override at 1st level.\n  - key: key2\n    value: value2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 30\n\n  # First level override with no limit. This effectively whitelists the value.\n  - key: key2\n    value: value3\n\n  - key: key3\n    rate_limit:\n      unit: hour\n      requests_per_unit: 1\n\n  - key: key4\n    rate_limit:\n      unit: day\n      requests_per_unit: 1\n\n  - key: key5\n    value: value5\n    rate_limit:\n      unit: day\n      requests_per_unit: 15\n    descriptors:\n      - key: subkey5\n        value: subvalue5\n        rate_limit:\n          unit: day\n          requests_per_unit: 25\n\n  - key: key6\n    rate_limit:\n      unlimited: true\n\n  # Top level key only with default rate limit.\n\n  - key: key7\n    detailed_metric: true\n    rate_limit:\n      unit: minute\n      requests_per_unit: 70\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "key1",
+                            "value": "value1"
+                        },
+                        {
+                            "key": "subkey1",
+                            "value": "something_else"
+                        }
+                    ],
+                    "override": {
+                        "requests_per_unit": 42,
+                        "unit": "HOUR"
+                    }
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.key1_value1.subkey1_something_else\nrequests_per_unit=42\nunit=HOUR\nunlimited=false\nshadow_mode=false\n"
+        }
+    ]
+}

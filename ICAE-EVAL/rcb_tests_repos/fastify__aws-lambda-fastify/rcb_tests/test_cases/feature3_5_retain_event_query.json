@@ -1,0 +1,58 @@
+{
+  "description": "Splitting comma-separated values for the handler must not mutate the original event's query parameters, which remain readable through request decoration regardless of the split toggle.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "probe": [
+          "awsLambdaEvent.queryStringParameters"
+        ],
+        "event": {
+          "version": "2.0",
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "foo": "qux,bar"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.awsLambdaEvent.queryStringParameters={\"foo\":\"qux,bar\"}\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"foo\":[\"qux\",\"bar\"]}\nheader.connection=keep-alive\nheader.content-length=21\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "options": {
+          "parseCommaSeparatedQueryParams": false
+        },
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "probe": [
+          "awsLambdaEvent.queryStringParameters"
+        ],
+        "event": {
+          "version": "2.0",
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "foo": "qux,bar"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.awsLambdaEvent.queryStringParameters={\"foo\":\"qux,bar\"}\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"foo\":\"qux,bar\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

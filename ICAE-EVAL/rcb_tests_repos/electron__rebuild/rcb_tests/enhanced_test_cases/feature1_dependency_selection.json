@@ -1,0 +1,166 @@
+{
+  "description": "Boundary and logical-path coverage for dependency-aware native module selection: trees with no native modules at all, optional-only natives, dev-only natives excluded, deep (>1 level) transitive native grandchildren under non-native parents, scoped short-name selection, manifest entries with no matching installed module, and selection under a non-default target runtime version.",
+  "cases": [
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "dependencies": {
+          "pure-js": "1"
+        },
+        "modules": [
+          {
+            "name": "pure-js"
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "optionalDependencies": {
+          "bcrypt": "1"
+        },
+        "modules": [
+          {
+            "name": "bcrypt",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=bcrypt\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "devDependencies": {
+          "ffi-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ffi-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "dependencies": {
+          "outer": "1"
+        },
+        "modules": [
+          {
+            "name": "outer",
+            "dependencies": {
+              "middle": "1"
+            },
+            "children": [
+              {
+                "name": "middle",
+                "dependencies": {
+                  "deepnative": "1"
+                },
+                "children": [
+                  {
+                    "name": "deepnative",
+                    "native": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=deepnative\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "dependencies": {
+          "@acme/widget": "1"
+        },
+        "modules": [
+          {
+            "name": "@acme/widget",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=widget\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "5.0.0",
+        "dependencies": {
+          "alpha": "1",
+          "beta": "1",
+          "gamma": "1"
+        },
+        "modules": [
+          {
+            "name": "alpha",
+            "native": true
+          },
+          {
+            "name": "beta",
+            "native": true
+          },
+          {
+            "name": "gamma"
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=70\nselected=alpha,beta\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "dependencies": {
+          "ghost": "1",
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=ref-napi\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "buildSubdir": "pkg-a",
+        "dependencies": {
+          "sqlite3": "1"
+        },
+        "devDependencies": {
+          "nan": "1"
+        },
+        "modules": [
+          {
+            "name": "sqlite3",
+            "native": true
+          },
+          {
+            "name": "nan",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=sqlite3\nskipped=0\n"
+    }
+  ]
+}

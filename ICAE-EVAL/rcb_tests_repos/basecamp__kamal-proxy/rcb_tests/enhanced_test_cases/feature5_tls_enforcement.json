@@ -1,0 +1,64 @@
+{
+  "description": "Enhanced transport-security edge cases: a plaintext request to a TLS-enabled service is always answered with a permanent redirect (301) to the secure scheme, and the redirect target preserves the original path and query string (with ampersands HTML-escaped) for methods that emit a redirect body, while methods that do not emit a body (HEAD, PUT) produce an empty body. Each registration reports success and each probe reports the response status with the body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "secure-app"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "secure.example.com"
+            ],
+            "target": "a",
+            "tls": true
+          },
+          {
+            "op": "request",
+            "url": "http://secure.example.com/a/b?x=1&y=2",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nstatus=301 target=<a href=\"https://secure.example.com/a/b?x=1&amp;y=2\">Moved Permanently</a>.\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "secure-app"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "secure.example.com"
+            ],
+            "target": "a",
+            "tls": true
+          },
+          {
+            "op": "request",
+            "url": "http://secure.example.com/p?q=1",
+            "method": "HEAD"
+          },
+          {
+            "op": "request",
+            "url": "http://secure.example.com/p?q=1",
+            "method": "PUT"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nstatus=301 target=\nstatus=301 target=\n"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+    "description": "Serialize a set of form fields into a multipart/form-data body using a caller-supplied boundary. The output reports the resulting content type (which embeds the boundary) followed by the encoded body. Each field becomes a boundary-delimited part with a Content-Disposition header; file-style fields may carry a filename, an explicit content type, and arbitrary extra headers; empty values are preserved.",
+    "cases": [
+        {
+            "input": {
+                "action": "multipart_encode",
+                "boundary": "this-is-a-boundary",
+                "fields": [
+                    {
+                        "name": "field",
+                        "value": "value"
+                    },
+                    {
+                        "name": "other_field",
+                        "value": "other_value"
+                    }
+                ]
+            },
+            "expected_output": "content_type=multipart/form-data; boundary=this-is-a-boundary\n--this-is-a-boundary\r\nContent-Disposition: form-data; name=\"field\"\r\n\r\nvalue\r\n--this-is-a-boundary\r\nContent-Disposition: form-data; name=\"other_field\"\r\n\r\nother_value\r\n--this-is-a-boundary--\r\n"
+        },
+        {
+            "input": {
+                "action": "multipart_encode",
+                "boundary": "this-is-a-boundary",
+                "fields": [
+                    {
+                        "name": "test",
+                        "filename": "filename",
+                        "content": "filecontent",
+                        "content_type": "application/json"
+                    }
+                ]
+            },
+            "expected_output": "content_type=multipart/form-data; boundary=this-is-a-boundary\n--this-is-a-boundary\r\nContent-Disposition: form-data; name=\"test\"; filename=\"filename\"\r\nContent-Type: application/json\r\n\r\nfilecontent\r\n--this-is-a-boundary--\r\n"
+        }
+    ]
+}

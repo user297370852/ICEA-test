@@ -1,0 +1,165 @@
+{
+    "description": "Report neutral numeric results for features outside the raster or inside cells with no valid values.",
+    "cases": [
+        {
+            "input": {
+                "features": [
+                    {
+                        "id": 1,
+                        "geometry": "POLYGON ((100 100, 200 100, 200 200, 100 100))"
+                    }
+                ],
+                "rasters": [
+                    {
+                        "data": [
+                            [
+                                1,
+                                2,
+                                3
+                            ],
+                            [
+                                1,
+                                2,
+                                2
+                            ],
+                            [
+                                3,
+                                3,
+                                3
+                            ]
+                        ],
+                        "dtype": "float32",
+                        "name": "value"
+                    }
+                ],
+                "statistics": [
+                    {
+                        "operation": "count",
+                        "raster": "value"
+                    },
+                    {
+                        "operation": "mean",
+                        "raster": "value"
+                    }
+                ],
+                "options": {
+                    "identifier": "id"
+                }
+            },
+            "expected_output": "id,value_count,value_mean\n\"1\",0,nan\n"
+        },
+        {
+            "input": {
+                "features": [
+                    {
+                        "id": 1,
+                        "geometry": "POLYGON ((0.5 0.5, 2.5 0.5, 2.5 2, 0.5 2, 0.5 0.5))"
+                    }
+                ],
+                "rasters": [
+                    {
+                        "data": [
+                            [
+                                NaN,
+                                NaN,
+                                NaN
+                            ],
+                            [
+                                NaN,
+                                NaN,
+                                NaN
+                            ],
+                            [
+                                NaN,
+                                NaN,
+                                NaN
+                            ],
+                            [
+                                NaN,
+                                NaN,
+                                NaN
+                            ]
+                        ],
+                        "dtype": "float32",
+                        "name": "metric"
+                    }
+                ],
+                "statistics": [
+                    {
+                        "operation": "count",
+                        "raster": "metric"
+                    },
+                    {
+                        "operation": "mean",
+                        "raster": "metric"
+                    },
+                    {
+                        "operation": "mode",
+                        "raster": "metric"
+                    }
+                ],
+                "options": {
+                    "identifier": "id"
+                }
+            },
+            "expected_output": "id,metric_count,metric_mean,metric_mode\n\"1\",0,nan,nan\n"
+        },
+        {
+            "input": {
+                "features": [
+                    {
+                        "id": 1,
+                        "geometry": "POLYGON ((0.5 0.5, 2.5 0.5, 2.5 2, 0.5 2, 0.5 0.5))"
+                    }
+                ],
+                "rasters": [
+                    {
+                        "data": [
+                            [
+                                -999,
+                                -999,
+                                -999
+                            ],
+                            [
+                                -999,
+                                -999,
+                                -999
+                            ],
+                            [
+                                -999,
+                                -999,
+                                -999
+                            ],
+                            [
+                                -999,
+                                -999,
+                                -999
+                            ]
+                        ],
+                        "dtype": "int32",
+                        "name": "metric",
+                        "nodata": -999
+                    }
+                ],
+                "statistics": [
+                    {
+                        "operation": "count",
+                        "raster": "metric"
+                    },
+                    {
+                        "operation": "mean",
+                        "raster": "metric"
+                    },
+                    {
+                        "operation": "mode",
+                        "raster": "metric"
+                    }
+                ],
+                "options": {
+                    "identifier": "id"
+                }
+            },
+            "expected_output": "id,metric_count,metric_mean,metric_mode\n\"1\",0,nan,-999\n"
+        }
+    ]
+}

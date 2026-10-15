@@ -1,0 +1,34 @@
+{
+  "description": "Enhanced coverage for password redaction with quoted values and command tag classification boundaries.",
+  "cases": [
+    {
+      "input": {
+        "operation": "connection_parse_error_message",
+        "connection_string": "host=host password='secret value' user=user",
+        "reason": "bad dsn"
+      },
+      "expected_output": "error=config_parse_failure\nmessage=cannot parse `host=host password=xxxxx user=user`: bad dsn\n"
+    },
+    {
+      "input": {
+        "operation": "command_tag_summary",
+        "tag": "UPDATE 0"
+      },
+      "expected_output": "rows_affected=0\ninsert=false\nupdate=true\ndelete=false\nselect=false\n"
+    },
+    {
+      "input": {
+        "operation": "command_tag_summary",
+        "tag": "DELETE 42"
+      },
+      "expected_output": "rows_affected=42\ninsert=false\nupdate=false\ndelete=true\nselect=false\n"
+    },
+    {
+      "input": {
+        "operation": "command_tag_summary",
+        "tag": "INSERT 123 9876543210"
+      },
+      "expected_output": "rows_affected=9876543210\ninsert=true\nupdate=false\ndelete=false\nselect=false\n"
+    }
+  ]
+}

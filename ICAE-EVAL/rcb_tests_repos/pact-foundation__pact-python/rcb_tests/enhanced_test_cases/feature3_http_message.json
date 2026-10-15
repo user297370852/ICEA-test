@@ -1,0 +1,44 @@
+{
+  "description": "Additional HTTP fragment coverage for matcher bodies, object queries, and non-success responses.",
+  "cases": [
+    {
+      "input": {
+        "message": "request",
+        "method": "PUT",
+        "path": "/users/42",
+        "body": {
+          "ids": {
+            "expectation": "array_items_similar",
+            "minimum": 2,
+            "value": {
+              "expectation": "same_type",
+              "value": 99
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "verbose": true
+        }
+      },
+      "expected_output": "json={\"body\":{\"ids\":{\"contents\":{\"contents\":99,\"json_class\":\"Pact::SomethingLike\"},\"json_class\":\"Pact::ArrayLike\",\"min\":2}},\"headers\":{\"Content-Type\":\"application/json\"},\"method\":\"PUT\",\"path\":\"/users/42\",\"query\":{\"verbose\":true}}\n"
+    },
+    {
+      "input": {
+        "message": "response",
+        "status": 404,
+        "body": {
+          "error": {
+            "expectation": "regex_match",
+            "regex": "not_found|gone",
+            "example": "not_found"
+          },
+          "retryable": false
+        }
+      },
+      "expected_output": "json={\"body\":{\"error\":{\"data\":{\"generate\":\"not_found\",\"matcher\":{\"json_class\":\"Regexp\",\"o\":0,\"s\":\"not_found|gone\"}},\"json_class\":\"Pact::Term\"},\"retryable\":false},\"status\":404}\n"
+    }
+  ]
+}

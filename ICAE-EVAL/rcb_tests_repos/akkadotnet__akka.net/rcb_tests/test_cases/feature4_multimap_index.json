@@ -1,0 +1,179 @@
+{
+    "description": "A key-to-set multimap. Adding a value reports whether it was new for that key; reading a key returns its set; removing a value reports whether it was present and drops the key when its set empties; a value can be purged across all keys; the union of all values and an emptiness flag are available; and the whole structure can be cleared.",
+    "cases": [
+        {
+            "input": {
+                "op": "index",
+                "commands": [
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 1
+                    },
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 1
+                    },
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 2
+                    },
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 3
+                    },
+                    {
+                        "action": "put",
+                        "key": "s2",
+                        "value": 4
+                    },
+                    {
+                        "action": "get",
+                        "key": "s1"
+                    },
+                    {
+                        "action": "get",
+                        "key": "s2"
+                    }
+                ]
+            },
+            "expected_output": "put s1 1 -> true\nput s1 1 -> false\nput s1 2 -> true\nput s1 3 -> true\nput s2 4 -> true\nget s1 -> 1,2,3\nget s2 -> 4\n"
+        },
+        {
+            "input": {
+                "op": "index",
+                "commands": [
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 1
+                    },
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 2
+                    },
+                    {
+                        "action": "put",
+                        "key": "s2",
+                        "value": 1
+                    },
+                    {
+                        "action": "put",
+                        "key": "s2",
+                        "value": 2
+                    },
+                    {
+                        "action": "remove",
+                        "key": "s1",
+                        "value": 1
+                    },
+                    {
+                        "action": "remove",
+                        "key": "s1",
+                        "value": 1
+                    },
+                    {
+                        "action": "get",
+                        "key": "s1"
+                    },
+                    {
+                        "action": "remove_key",
+                        "key": "s2"
+                    },
+                    {
+                        "action": "remove_key",
+                        "key": "s2"
+                    },
+                    {
+                        "action": "get",
+                        "key": "s2"
+                    }
+                ]
+            },
+            "expected_output": "put s1 1 -> true\nput s1 2 -> true\nput s2 1 -> true\nput s2 2 -> true\nremove s1 1 -> true\nremove s1 1 -> false\nget s1 -> 2\nremove_key s2 -> 1,2\nremove_key s2 -> \nget s2 -> \n"
+        },
+        {
+            "input": {
+                "op": "index",
+                "commands": [
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 1
+                    },
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 2
+                    },
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 3
+                    },
+                    {
+                        "action": "put",
+                        "key": "s2",
+                        "value": 1
+                    },
+                    {
+                        "action": "put",
+                        "key": "s2",
+                        "value": 2
+                    },
+                    {
+                        "action": "put",
+                        "key": "s3",
+                        "value": 2
+                    },
+                    {
+                        "action": "remove_value",
+                        "value": 1
+                    },
+                    {
+                        "action": "get",
+                        "key": "s1"
+                    },
+                    {
+                        "action": "get",
+                        "key": "s2"
+                    },
+                    {
+                        "action": "get",
+                        "key": "s3"
+                    },
+                    {
+                        "action": "values"
+                    }
+                ]
+            },
+            "expected_output": "put s1 1 -> true\nput s1 2 -> true\nput s1 3 -> true\nput s2 1 -> true\nput s2 2 -> true\nput s3 2 -> true\nremove_value 1\nget s1 -> 2,3\nget s2 -> 2\nget s3 -> 2\nvalues -> 2,3\n"
+        },
+        {
+            "input": {
+                "op": "index",
+                "commands": [
+                    {
+                        "action": "put",
+                        "key": "s1",
+                        "value": 1
+                    },
+                    {
+                        "action": "is_empty"
+                    },
+                    {
+                        "action": "clear"
+                    },
+                    {
+                        "action": "is_empty"
+                    }
+                ]
+            },
+            "expected_output": "put s1 1 -> true\nis_empty -> false\nclear\nis_empty -> true\n"
+        }
+    ]
+}

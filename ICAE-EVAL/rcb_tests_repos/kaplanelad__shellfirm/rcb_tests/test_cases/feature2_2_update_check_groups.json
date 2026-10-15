@@ -1,0 +1,77 @@
+{
+    "description": "Adding risk groups inserts their default checks without duplicating existing includes, while removing groups deletes their checks from the active configuration.",
+    "cases": [
+        {
+            "input": {
+                "feature": "update_groups",
+                "initial_yaml": "---\nchallenge: Math\nincludes:\n  - default-check\nversion: 0.2.2\nchecks:\n- from: default-check\n  test: default-check\n  method: Regex\n  enable: true\n  description: \"\"\n",
+                "available_checks": [
+                    {
+                        "group": "test-1",
+                        "pattern": "test-1",
+                        "method": "regex",
+                        "enabled": true,
+                        "description": ""
+                    },
+                    {
+                        "group": "test-2",
+                        "pattern": "test-2",
+                        "method": "regex",
+                        "enabled": true,
+                        "description": ""
+                    },
+                    {
+                        "group": "test-disabled",
+                        "pattern": "test-disabled",
+                        "method": "regex",
+                        "enabled": true,
+                        "description": ""
+                    }
+                ],
+                "add": [
+                    "test-1",
+                    "test-2"
+                ],
+                "remove": []
+            },
+            "expected_output": "challenge=Math\nincludes=default-check,test-1,test-2\ncheck_count=3\ncheck=default-check|Regex|true|Default|\ncheck=test-1|Regex|true|Default|\ncheck=test-2|Regex|true|Default|\n"
+        },
+        {
+            "input": {
+                "feature": "update_groups",
+                "initial_yaml": "---\nchallenge: Math\nincludes:\n  - default-check\nversion: 0.2.2\nchecks:\n- from: default-check\n  test: default-check\n  method: Regex\n  enable: true\n  description: \"\"\n",
+                "available_checks": [
+                    {
+                        "group": "test-1",
+                        "pattern": "test-1",
+                        "method": "regex",
+                        "enabled": true,
+                        "description": ""
+                    },
+                    {
+                        "group": "test-2",
+                        "pattern": "test-2",
+                        "method": "regex",
+                        "enabled": true,
+                        "description": ""
+                    },
+                    {
+                        "group": "test-disabled",
+                        "pattern": "test-disabled",
+                        "method": "regex",
+                        "enabled": true,
+                        "description": ""
+                    }
+                ],
+                "add": [
+                    "test-1",
+                    "test-2"
+                ],
+                "remove": [
+                    "test-1"
+                ]
+            },
+            "expected_output": "challenge=Math\nincludes=default-check,test-2\ncheck_count=2\ncheck=default-check|Regex|true|Default|\ncheck=test-2|Regex|true|Default|\n"
+        }
+    ]
+}

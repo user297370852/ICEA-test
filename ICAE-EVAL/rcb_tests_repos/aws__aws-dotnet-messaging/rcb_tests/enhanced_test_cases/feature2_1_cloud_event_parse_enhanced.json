@@ -1,0 +1,26 @@
+{
+  "description": "Edge coverage for parsing event envelopes (absent extension metadata, absent SQS metadata, absent named attribute, alternate field values).",
+  "cases": [
+    {
+      "input": {
+        "operation": "cloud_event_parse",
+        "json": "{\"id\":\"B999\",\"source\":\"/svc/x\",\"specversion\":\"1.0\",\"type\":\"order-info\",\"time\":\"2021-01-02T03:04:05\",\"data\":{\"name\":\"Ann\",\"city\":\"town\",\"merchandise\":\"hat\"}}"
+      },
+      "expected_output": "id=B999\nsource=/svc/x\nversion=1.0\ntype=order-info\ntime=2021-01-02T03:04:05\ndata_name=Ann\ndata_city=town\ndata_merchandise=hat\nsqs_group=\nsqs_dedup=\n"
+    },
+    {
+      "input": {
+        "operation": "cloud_event_parse",
+        "json": "{\"id\":\"C1\",\"source\":\"/svc/y\",\"specversion\":\"1.0\",\"type\":\"order-info\",\"time\":\"2022-06-15T12:00:00\",\"data\":{\"name\":\"Bo\",\"city\":\"c\",\"merchandise\":\"m\"},\"SQSMetadata\":{\"MessageDeduplicationId\":\"dd\",\"MessageGroupId\":\"gg\"},\"some-metadata\":\"present\"}"
+      },
+      "expected_output": "id=C1\nsource=/svc/y\nversion=1.0\ntype=order-info\ntime=2022-06-15T12:00:00\ndata_name=Bo\ndata_city=c\ndata_merchandise=m\nmetadata_some=present\nsqs_group=gg\nsqs_dedup=dd\n"
+    },
+    {
+      "input": {
+        "operation": "cloud_event_parse",
+        "json": "{\"id\":\"D2\",\"source\":\"/svc/z\",\"specversion\":\"1.0\",\"type\":\"order-info\",\"time\":\"1999-12-31T23:59:59\",\"data\":{\"name\":\"\",\"city\":\"\",\"merchandise\":\"\"},\"SQSMetadata\":{\"MessageGroupId\":\"only-group\",\"MessageAttributes\":{\"OtherAttr\":{\"StringValue\":\"x\"}}}}"
+      },
+      "expected_output": "id=D2\nsource=/svc/z\nversion=1.0\ntype=order-info\ntime=1999-12-31T23:59:59\ndata_name=\ndata_city=\ndata_merchandise=\nsqs_group=only-group\nsqs_dedup=\n"
+    }
+  ]
+}

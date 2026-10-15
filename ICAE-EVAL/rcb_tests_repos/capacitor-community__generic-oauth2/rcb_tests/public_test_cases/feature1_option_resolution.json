@@ -1,0 +1,30 @@
+{
+    "description": "Resolve a single configuration option value where a platform-specific override section may supersede the base value. Each request names the option key to resolve. When the override section contains that key, its value wins; when the override section does not contain the key, the base value is used. A scalar result is emitted as a plain value line, while a map result is emitted as a key-sorted object.",
+    "cases": [
+        {
+            "input": {
+                "action": "resolve_option",
+                "key": "appId",
+                "options": {
+                    "appId": "appId",
+                    "accessTokenEndpoint": "https://www.googleapis.com/oauth2/v4/token",
+                    "scope": "email profile",
+                    "pkceDisabled": false,
+                    "web": {"accessTokenEndpoint": "", "appId": "webAppId", "pkceDisabled": true}
+                }
+            },
+            "expected_output": "value=webAppId\n"
+        },
+        {
+            "input": {
+                "action": "resolve_option",
+                "key": "additionalParameters",
+                "options": {
+                    "additionalParameters": {"willbeoverwritten": "foobar"},
+                    "web": {"additionalParameters": {"resource": "resource_id", "emptyParam": null, " ": "test", "nonce": "fixednonce"}}
+                }
+            },
+            "expected_output": "value={\" \":\"test\",\"emptyParam\":null,\"nonce\":\"fixednonce\",\"resource\":\"resource_id\"}\n"
+        }
+    ]
+}

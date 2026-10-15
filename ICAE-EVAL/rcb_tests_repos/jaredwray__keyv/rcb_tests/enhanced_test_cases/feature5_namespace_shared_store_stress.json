@@ -1,0 +1,129 @@
+{
+  "description": "Additional namespace cases cover multiple shared namespaces using the same logical key, removing from one namespace while preserving another, and reads from a namespace that never contained the key.",
+  "cases": [
+    {
+      "input": {
+        "shared_store": true,
+        "steps": [
+          {
+            "action": "save",
+            "namespace": "alpha",
+            "key": "shared",
+            "value": "A"
+          },
+          {
+            "action": "save",
+            "namespace": "beta",
+            "key": "shared",
+            "value": "B"
+          },
+          {
+            "action": "save",
+            "namespace": "gamma",
+            "key": "shared",
+            "value": "C"
+          },
+          {
+            "action": "read",
+            "namespace": "alpha",
+            "key": "shared",
+            "label": "alpha_shared"
+          },
+          {
+            "action": "read",
+            "namespace": "beta",
+            "key": "shared",
+            "label": "beta_shared"
+          },
+          {
+            "action": "read",
+            "namespace": "gamma",
+            "key": "shared",
+            "label": "gamma_shared"
+          },
+          {
+            "action": "store_entries",
+            "namespace": "alpha",
+            "label": "shared_entries"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nsaved=true\nalpha_shared=A\nbeta_shared=B\ngamma_shared=C\nshared_entries=3\n"
+    },
+    {
+      "input": {
+        "shared_store": true,
+        "steps": [
+          {
+            "action": "save",
+            "namespace": "source",
+            "key": "same",
+            "value": "source-value"
+          },
+          {
+            "action": "remove",
+            "namespace": "empty",
+            "key": "same",
+            "label": "remove_empty"
+          },
+          {
+            "action": "read",
+            "namespace": "source",
+            "key": "same",
+            "label": "source_after"
+          },
+          {
+            "action": "read",
+            "namespace": "empty",
+            "key": "same",
+            "label": "empty_after"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nremove_empty=false\nsource_after=source-value\nempty_after=undefined\n"
+    },
+    {
+      "input": {
+        "shared_store": true,
+        "steps": [
+          {
+            "action": "save",
+            "namespace": "left",
+            "key": "item",
+            "value": "left-value"
+          },
+          {
+            "action": "save",
+            "namespace": "right",
+            "key": "item",
+            "value": "right-value"
+          },
+          {
+            "action": "remove",
+            "namespace": "right",
+            "key": "item",
+            "label": "removed_right"
+          },
+          {
+            "action": "read",
+            "namespace": "left",
+            "key": "item",
+            "label": "left_after"
+          },
+          {
+            "action": "read",
+            "namespace": "right",
+            "key": "item",
+            "label": "right_after"
+          },
+          {
+            "action": "store_entries",
+            "namespace": "left",
+            "label": "shared_entries"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nremoved_right=true\nleft_after=left-value\nright_after=undefined\nshared_entries=1\n"
+    }
+  ]
+}

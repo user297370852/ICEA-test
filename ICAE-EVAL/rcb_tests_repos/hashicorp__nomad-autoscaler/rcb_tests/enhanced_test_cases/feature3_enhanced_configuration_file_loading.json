@@ -1,0 +1,57 @@
+{
+  "description": "Enhanced configuration loading cases cover lexical filename merge order and additional ignored file names/extensions without duplicating native cases.",
+  "cases": [
+    {
+      "input": {
+        "path": "dir",
+        "files": [
+          {
+            "name": "20-last.hcl",
+            "content": "plugin_dir = \"/z-last/plugins\""
+          },
+          {
+            "name": "01-first.hcl",
+            "content": "plugin_dir = \"/a-first/plugins\"\ndefault_evaluation_interval = \"3s\""
+          },
+          {
+            "name": "10-middle.hcl",
+            "content": "default_evaluation_interval = \"7s\""
+          },
+          {
+            "name": "readme.md",
+            "content": "default_evaluation_interval = \"99s\""
+          }
+        ]
+      },
+      "expected_output": "default_evaluation_interval_ns=7000000000\nplugin_dir=/z-last/plugins\n"
+    },
+    {
+      "input": {
+        "path": "dir",
+        "files": [
+          {
+            "name": "valid.hcl",
+            "content": "plugin_dir = \"/json/plugins\""
+          },
+          {
+            "name": "valid.hcl~",
+            "content": "not-hcl"
+          },
+          {
+            "name": ".#valid.hcl",
+            "content": "not hcl"
+          },
+          {
+            "name": "#valid.hcl#",
+            "content": "not hcl"
+          },
+          {
+            "name": "valid.tmp",
+            "content": "not hcl"
+          }
+        ]
+      },
+      "expected_output": "default_evaluation_interval_ns=0\nplugin_dir=/json/plugins\n"
+    }
+  ]
+}

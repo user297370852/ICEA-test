@@ -1,0 +1,25 @@
+{
+  "feature": "database_call",
+  "description": "Synthetic database tracing edge coverage for template execution under an active parent and non-default SQL statements.",
+  "cases": [
+    {
+      "name": "jdbc_template_statement_is_child_of_named_active_caller",
+      "input": {
+        "feature": "database_call",
+        "executor": "jdbc_template",
+        "statement": "select 42",
+        "parent": "tx"
+      },
+      "expected_output": "spans=2\ndistinct_traces=1\nop=Execute component=java-jdbc span.kind=client http.status=- attrs=[db.statement=select 42;db.type=h2;db.user=SA] error=false error_log=- parent=tx\nop=tx component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=root\n"
+    },
+    {
+      "name": "raw_connection_preserves_complex_statement_text",
+      "input": {
+        "feature": "database_call",
+        "executor": "connection",
+        "statement": "select * from orders where amount >= 100"
+      },
+      "expected_output": "spans=1\ndistinct_traces=1\nop=Execute component=java-jdbc span.kind=client http.status=- attrs=[db.statement=select * from orders where amount >= 100;db.type=h2;db.user=SA] error=false error_log=- parent=root\n"
+    }
+  ]
+}

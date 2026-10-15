@@ -1,0 +1,29 @@
+{
+  "description": "Serialize a single grid cell to its XML fragment. The opening element always carries the cell reference (column label plus one-based row) and a style index. A null-valued cell is written as a self-closing element with no body. A numeric cell carries a numeric type marker and a value body. A formula cell (a string beginning with an equals sign, when formula escaping is disabled) is written with a string type marker and a formula body holding the expression without its leading equals sign. An array-formula cell (wrapped in braces with a leading equals sign) is written with a formula body marked as an array over its own reference. When formula escaping is enabled, or for an explicitly textual value, the content is emitted verbatim as an inline string. Inputs describe one cell plus its row and column position; the emitted fragment is the exact XML string.",
+  "cases": [
+    {
+      "input": {"op": "serialize_cell", "value": {"kind": "float", "v": 1.0}, "type": "float", "style": 1, "r_index": 1, "c_index": 1},
+      "expected_output": "<c r=\"B2\" s=\"1\" t=\"n\"><v>1.0</v></c>"
+    },
+    {
+      "input": {"op": "serialize_cell", "value": {"kind": "nil"}, "style": 1, "r_index": 1, "c_index": 1},
+      "expected_output": "<c r=\"B2\" s=\"1\" />"
+    },
+    {
+      "input": {"op": "serialize_cell", "value": {"kind": "string", "v": "=IF(2+2=4,4,5)"}, "escape_formulas": false, "r_index": 0, "c_index": 0},
+      "expected_output": "<c r=\"A1\" s=\"0\" t=\"str\"><f>IF(2+2=4,4,5)</f></c>"
+    },
+    {
+      "input": {"op": "serialize_cell", "value": {"kind": "string", "v": "=IF(2+2=4,4,5)"}, "escape_formulas": true, "r_index": 0, "c_index": 0},
+      "expected_output": "<c r=\"A1\" s=\"0\" t=\"inlineStr\"><is><t>=IF(2+2=4,4,5)</t></is></c>"
+    },
+    {
+      "input": {"op": "serialize_cell", "value": {"kind": "string", "v": "{=SUM(C2:C11*D2:D11)}"}, "escape_formulas": false, "r_index": 0, "c_index": 0},
+      "expected_output": "<c r=\"A1\" s=\"0\" t=\"str\"><f t=\"array\" ref=\"A1\">SUM(C2:C11*D2:D11)</f></c>"
+    },
+    {
+      "input": {"op": "serialize_cell", "value": {"kind": "string", "v": "-1"}, "type": "text", "escape_formulas": true, "r_index": 0, "c_index": 0},
+      "expected_output": "<c r=\"A1\" s=\"0\" t=\"inlineStr\"><is><t>-1</t></is></c>"
+    }
+  ]
+}

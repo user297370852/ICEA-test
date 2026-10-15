@@ -1,0 +1,82 @@
+{
+    "description": "After parsing, the full set of resolved arguments can be retrieved as a name-to-value mapping. The mapping includes typed fields, untyped fields, optional fields (with their none defaults), and collection fields, as well as arguments introduced under a renamed destination at configuration time.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "a",
+                        "type": "str"
+                    },
+                    {
+                        "name": "b",
+                        "default": 1
+                    },
+                    {
+                        "name": "c",
+                        "type": "bool",
+                        "default": true
+                    },
+                    {
+                        "name": "d",
+                        "type": "Tuple[str, ...]",
+                        "default": {
+                            "__tuple__": [
+                                "hi",
+                                "bob"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "e",
+                        "type": "Optional[int]",
+                        "default": null
+                    },
+                    {
+                        "name": "f",
+                        "type": "Set[int]",
+                        "default": {
+                            "__set__": [
+                                1
+                            ]
+                        }
+                    }
+                ],
+                "argv": [
+                    "--a",
+                    "hi"
+                ]
+            },
+            "expected_output": "a=str:hi\nb=int:1\nc=bool:True\nd=(str:hi, str:bob)\ne=none\nf={int:1}\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "a",
+                        "type": "str"
+                    },
+                    {
+                        "name": "b",
+                        "default": 1
+                    }
+                ],
+                "configure": [
+                    {
+                        "flags": [
+                            "-arg_name",
+                            "--long_arg_name"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "--a",
+                    "hi",
+                    "--long_arg_name",
+                    "arg"
+                ]
+            },
+            "expected_output": "a=str:hi\nb=int:1\nlong_arg_name=str:arg\n"
+        }
+    ]
+}

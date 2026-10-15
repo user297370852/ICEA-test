@@ -1,0 +1,13 @@
+{
+    "description": "Build the outbound HTTP request for a project-based SMS provider whose endpoint is selected by the recipient's region: recipients with no country code or the mainland country code route to the domestic send endpoint, while any other country code routes to the international send endpoint. The form parameters carry the application id, the signature credential, the project id (taken from the message data when present, otherwise from configuration), the recipient in '+'-prefixed universal form, and the template variables encoded as a JSON object. The provider's JSON reply carries a status: a success status means accepted, and any other status is surfaced as a normalized gateway error with the reply's code and message. The output reports the request method, endpoint URL, the sorted form parameters, and the outcome.",
+    "cases": [
+        {
+            "input": {"action": "gateway_send", "gateway": "submail", "config": {"app_id": "mock-app-id", "app_key": "mock-app-key", "project": "mock-project"}, "to": {"number": 18188888888}, "message": {"data": {"code": "123456", "time": "15"}}, "response": {"status": "success", "send_id": "093c0a7df143c087d6cba9cdf0cf3738", "fee": 1, "sms_credits": 14197}},
+            "expected_output": "method=POST\nurl=https://api.mysubmail.com/message/xsend.json\nparam.appid=mock-app-id\nparam.project=mock-project\nparam.signature=mock-app-key\nparam.to=18188888888\nparam.vars={\"code\":\"123456\",\"time\":\"15\"}\noutcome=sent\n"
+        },
+        {
+            "input": {"action": "gateway_send", "gateway": "submail", "config": {"app_id": "mock-app-id", "app_key": "mock-app-key", "project": "mock-project"}, "to": {"number": 18188888888, "idd_code": 1}, "message": {"data": {"code": "123456", "time": "15"}}, "response": {"status": "success", "send_id": "093c0a7df143c087d6cba9cdf0cf3738", "fee": 1, "sms_credits": 14197}},
+            "expected_output": "method=POST\nurl=https://api.mysubmail.com/internationalsms/xsend.json\nparam.appid=mock-app-id\nparam.project=mock-project\nparam.signature=mock-app-key\nparam.to=+118188888888\nparam.vars={\"code\":\"123456\",\"time\":\"15\"}\noutcome=sent\n"
+        }
+    ]
+}

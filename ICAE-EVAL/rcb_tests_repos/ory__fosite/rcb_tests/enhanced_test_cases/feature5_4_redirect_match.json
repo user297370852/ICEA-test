@@ -1,0 +1,50 @@
+{
+  "description": "Registered redirect-URI matching over additional boundary inputs: a loopback match on a differing port, an IPv6 loopback match on a differing port, selection among multiple registered URIs, a custom scheme exact match, a registered entry carrying a fragment, and a port-differing non-loopback-style comparison. For each check the output reports the resolved URI or a neutral mismatch error.",
+  "cases": [
+    {
+      "input": {
+        "op": "redirect_match",
+        "checks": [
+          {
+            "registered": [
+              "http://127.0.0.1/cb"
+            ],
+            "request": "http://127.0.0.1:1/cb"
+          },
+          {
+            "registered": [
+              "http://[::1]/path"
+            ],
+            "request": "http://[::1]:9999/path"
+          },
+          {
+            "registered": [
+              "https://a.com/cb",
+              "https://b.com/cb"
+            ],
+            "request": "https://b.com/cb"
+          },
+          {
+            "registered": [
+              "app://cb"
+            ],
+            "request": "app://cb"
+          },
+          {
+            "registered": [
+              "https://a.com/cb#frag"
+            ],
+            "request": "https://a.com/cb#frag"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1:8080/cb"
+            ],
+            "request": "http://127.0.0.1:9090/cb"
+          }
+        ]
+      },
+      "expected_output": "redirect_uri=http://127.0.0.1:1/cb\nredirect_uri=http://[::1]:9999/path\nredirect_uri=https://b.com/cb\nredirect_uri=app://cb\nerror=redirect_uri_mismatch\nredirect_uri=http://127.0.0.1:9090/cb\n"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "description": "Additional security-rule findings coverage on small targeted repositories: an empty repository yielding no findings, default permissions on a risky pull_request_target trigger, an injection from untrusted head_ref into a run step, and a self-hosted pull-request job.",
+  "cases": [
+    {
+      "input": {
+        "op": "findings",
+        "purl": "pkg:github/org/owner",
+        "files": {}
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "op": "findings",
+        "purl": "pkg:github/org/owner",
+        "files": {
+          ".github/workflows/risky.yml": "on:\n  pull_request_target:\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n"
+        }
+      },
+      "expected_output": "rule=default_permissions_on_risky_events level=warning purl=pkg:github/org/owner\n  path=.github/workflows/risky.yml\n"
+    },
+    {
+      "input": {
+        "op": "findings",
+        "purl": "pkg:github/org/owner",
+        "files": {
+          ".github/workflows/inj.yml": "on: push\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo ${{ github.head_ref }}\n"
+        }
+      },
+      "expected_output": "rule=injection level=warning purl=pkg:github/org/owner\n  path=.github/workflows/inj.yml line=6 job=build step=0 details=Sources: github.head_ref\n"
+    }
+  ]
+}

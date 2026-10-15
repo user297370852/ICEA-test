@@ -1,0 +1,76 @@
+{
+  "description": "Boundary coverage for structured-data redaction: arrays of objects, deep nesting, non-string values preserved, empty filter lists, and substring/case-insensitive matches.",
+  "cases": [
+    {
+      "input": {
+        "data": {
+          "list": [
+            {
+              "password": "x"
+            },
+            {
+              "safe": "y"
+            }
+          ]
+        },
+        "filters": [
+          "password"
+        ]
+      },
+      "expected_output": "data={\"list\":[{\"password\":\"[FILTERED]\"},{\"safe\":\"y\"}]}\n"
+    },
+    {
+      "input": {
+        "data": {
+          "AccessToken": "abc",
+          "nested": {
+            "deep": {
+              "my_secret": "s",
+              "ok": "v"
+            }
+          }
+        },
+        "filters": [
+          "token",
+          "secret"
+        ]
+      },
+      "expected_output": "data={\"AccessToken\":\"[FILTERED]\",\"nested\":{\"deep\":{\"my_secret\":\"[FILTERED]\",\"ok\":\"v\"}}}\n"
+    },
+    {
+      "input": {
+        "data": {
+          "a": 1,
+          "b": "keep",
+          "c": true
+        },
+        "filters": [
+          "zzz"
+        ]
+      },
+      "expected_output": "data={\"a\":1,\"b\":\"keep\",\"c\":true}\n"
+    },
+    {
+      "input": {
+        "data": {
+          "CreditCard": "4111",
+          "note": "buy"
+        },
+        "filters": []
+      },
+      "expected_output": "data={\"CreditCard\":\"4111\",\"note\":\"buy\"}\n"
+    },
+    {
+      "input": {
+        "data": {
+          "USER_PASSWORD": "p",
+          "userName": "bob"
+        },
+        "filters": [
+          "password"
+        ]
+      },
+      "expected_output": "data={\"USER_PASSWORD\":\"[FILTERED]\",\"userName\":\"bob\"}\n"
+    }
+  ]
+}

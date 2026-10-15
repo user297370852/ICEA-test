@@ -1,0 +1,95 @@
+{
+  "description": "Boundary coverage for a relationship carrying a built-in scope on the linked record. Scoped loads batch together like any other relationship and honor row caps the same way, raw-mode loads can coalesce with other raw-mode loads, and the scoped relationship only ever returns matching peers. The reported signals are the round-trip count, the owner-key set per round-trip, and the id set per owner, covering two raw loads sharing a round-trip, the minimum positive cap shared across owners, a scoped empty owner, and the scoped count.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "scope_target",
+        "ops": [
+          {
+            "project": 1,
+            "as": "awesomeMembers",
+            "options": {
+              "raw": true
+            }
+          },
+          {
+            "project": 2,
+            "as": "awesomeMembers",
+            "options": {
+              "raw": true
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2\nr0.op0=members=102,103\nr0.op1=members=105,107\n"
+    },
+    {
+      "input": {
+        "scenario": "scope_target",
+        "ops": [
+          {
+            "project": 1,
+            "as": "awesomeMembers",
+            "options": {
+              "limit": 1
+            }
+          },
+          {
+            "project": 2,
+            "as": "awesomeMembers",
+            "options": {
+              "limit": 1
+            }
+          },
+          {
+            "project": 3,
+            "as": "awesomeMembers",
+            "options": {
+              "limit": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2,3\nr0.op0=members=102\nr0.op1=members=105\nr0.op2=members=107\n"
+    },
+    {
+      "input": {
+        "scenario": "scope_target",
+        "ops": [
+          {
+            "project": 4,
+            "as": "awesomeMembers"
+          },
+          {
+            "project": 1,
+            "as": "awesomeMembers"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,4\nr0.op0=members=\nr0.op1=members=102,103\n"
+    },
+    {
+      "input": {
+        "scenario": "scope_target",
+        "ops": [
+          {
+            "project": 1,
+            "as": "awesomeMembers",
+            "kind": "count"
+          },
+          {
+            "project": 2,
+            "as": "awesomeMembers",
+            "kind": "count"
+          },
+          {
+            "project": 3,
+            "as": "awesomeMembers",
+            "kind": "count"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2,3\nr0.op0=count=2\nr0.op1=count=2\nr0.op2=count=3\n"
+    }
+  ]
+}

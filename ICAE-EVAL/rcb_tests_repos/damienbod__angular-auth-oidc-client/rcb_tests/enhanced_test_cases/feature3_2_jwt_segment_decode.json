@@ -1,0 +1,54 @@
+{
+  "op": "jwt_segment_decode",
+  "description": "Enhanced edge coverage for compact-token segment extraction, disjoint from the native suite: a four-part token (too many segments -> invalid -> empty object), a two-part token (too few segments -> invalid -> empty object), a structurally valid three-part token with an empty trailing signature segment (raw extraction yields an empty string), base64url-decoding a real JOSE header object, base64url-decoding a payload with multi-byte UTF-8 content (accented letters, a star glyph) so non-ASCII round-trips, and decoding a payload whose JSON carries a numeric and a boolean value.",
+  "cases": [
+    {
+      "input": {
+        "segment": "payload",
+        "token": "a.b.c.d",
+        "encoded": true
+      },
+      "expected_output": "value={}\n"
+    },
+    {
+      "input": {
+        "segment": "header",
+        "token": "a.b",
+        "encoded": true
+      },
+      "expected_output": "value={}\n"
+    },
+    {
+      "input": {
+        "segment": "signature",
+        "token": "a.b.",
+        "encoded": true
+      },
+      "expected_output": "value=\n"
+    },
+    {
+      "input": {
+        "segment": "header",
+        "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpZDEifQ.b.c",
+        "encoded": false
+      },
+      "expected_output": "value={\"alg\":\"RS256\",\"typ\":\"JWT\",\"kid\":\"kid1\"}\n"
+    },
+    {
+      "input": {
+        "segment": "payload",
+        "token": "a.eyJuYW1lIjoiw5xuw69jw7Zkw6kiLCJzdGFyIjoi4piFIiwiY2l0eSI6IlPDo28gUGF1bG8ifQ.c",
+        "encoded": false
+      },
+      "expected_output": "value={\"name\":\"Ünïcödé\",\"star\":\"★\",\"city\":\"São Paulo\"}\n"
+    },
+    {
+      "input": {
+        "segment": "payload",
+        "token": "a.eyJzdWIiOjEyMzQ1LCJhZG1pbiI6dHJ1ZX0.c",
+        "encoded": false
+      },
+      "expected_output": "value={\"sub\":12345,\"admin\":true}\n"
+    }
+  ]
+}

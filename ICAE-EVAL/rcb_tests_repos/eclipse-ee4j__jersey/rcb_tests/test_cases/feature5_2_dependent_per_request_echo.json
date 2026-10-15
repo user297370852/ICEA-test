@@ -1,0 +1,21 @@
+{
+    "description": "A request-scoped resource that is also a fully container-managed bean echoes the request context it was injected with: the full request URI, the `x` query parameter, and a per-instance counter that starts at 0 and never advances across separate requests. Input supplies the `x` query parameter; the response body has the form `<request-uri>: queryParam=<x> 0`. Output reports status, routed URL, and that body.",
+    "cases": [
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/dependent/per-request", "query": {"x": "alpha"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=alpha\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=alpha: queryParam=alpha 0"
+        },
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/dependent/per-request", "query": {"x": "AAA"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=AAA\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=AAA: queryParam=AAA 0"
+        },
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/dependent/per-request", "query": {"x": "$%^"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=%24%25%5E\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=%24%25%5E: queryParam=$%^ 0"
+        },
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/dependent/per-request", "query": {"x": "a b"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=a+b\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=a+b: queryParam=a b 0"
+        }
+    ]
+}

@@ -1,0 +1,225 @@
+{
+    "description": "Evaluate a smart-contract print-event predicate against a sequence of blocks. The predicate names a target contract identifier and a substring constraint. Only events published under the print topic are considered. A print event matches when its publishing contract identifier equals the predicate's contract identifier (or the predicate uses the wildcard '*' for the contract identifier) AND the human-readable decoding of the event's payload contains the predicate's substring (or the predicate uses the wildcard '*' for the substring, which matches any payload). A block is selected when it holds a transaction emitting at least one matching print event. The report states whether any block was selected, how many blocks were selected, and the identifiers of the matched transactions.",
+    "cases": [
+        {
+            "input": {
+                "predicate": {
+                    "scope": "print_event",
+                    "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                    "contains": "some-value"
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                                            "topic": "print",
+                                            "raw_value": "0x0d00000010616263736f6d652d76616c7565616263"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0x01\n"
+        },
+        {
+            "input": {
+                "predicate": {
+                    "scope": "print_event",
+                    "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                    "contains": "some-value"
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                                            "topic": "not-print",
+                                            "raw_value": "0x0d00000010616263736f6d652d76616c7565616263"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+        },
+        {
+            "input": {
+                "predicate": {
+                    "scope": "print_event",
+                    "contract_identifier": "wront-id",
+                    "contains": "some-value"
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                                            "topic": "print",
+                                            "raw_value": "0x0d00000010616263736f6d652d76616c7565616263"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+        },
+        {
+            "input": {
+                "predicate": {
+                    "scope": "print_event",
+                    "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                    "contains": "wrong-value"
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                                            "topic": "print",
+                                            "raw_value": "0x0d00000010616263736f6d652d76616c7565616263"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+        },
+        {
+            "input": {
+                "predicate": {
+                    "scope": "print_event",
+                    "contract_identifier": "*",
+                    "contains": "some-value"
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                                            "topic": "print",
+                                            "raw_value": "0x0d00000010616263736f6d652d76616c7565616263"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0x01\n"
+        },
+        {
+            "input": {
+                "predicate": {
+                    "scope": "print_event",
+                    "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                    "contains": "*"
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                                            "topic": "print",
+                                            "raw_value": "0x0d00000010616263736f6d652d76616c7565616263"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0x01\n"
+        },
+        {
+            "input": {
+                "predicate": {
+                    "scope": "print_event",
+                    "contract_identifier": "*",
+                    "contains": "*"
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "ST3AXH4EBHD63FCFPTZ8GR29TNTVWDYPGY0KDY5E5.loan-data",
+                                            "topic": "print",
+                                            "raw_value": "0x0d00000010616263736f6d652d76616c7565616263"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x02",
+                                "events": [
+                                    {
+                                        "type": "SmartContractEvent",
+                                        "data": {
+                                            "contract_identifier": "some-id",
+                                            "topic": "print",
+                                            "raw_value": "0x0d00000000"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=true\napply_block_count=2\nmatched_transactions=0x01,0x02\n"
+        }
+    ]
+}

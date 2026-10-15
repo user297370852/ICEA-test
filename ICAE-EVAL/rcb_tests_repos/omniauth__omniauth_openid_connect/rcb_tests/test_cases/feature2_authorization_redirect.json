@@ -1,0 +1,117 @@
+{
+    "description": "Builds an authorization redirect for sign-in, preserving protocol parameters and externally visible redirect metadata.",
+    "cases": [
+        {
+            "input": {
+                "flow": "authorization_request",
+                "options": {
+                    "issuer": "example.com",
+                    "client": {
+                        "host": "example.com"
+                    }
+                }
+            },
+            "expected_output": "status=302\nauthorization_url=https://example.com/authorize\nclient_id=1234\nresponse_type=code\nscope=openid\nstate=generated_32_hex\nnonce_length=32\n"
+        },
+        {
+            "input": {
+                "flow": "authorization_request",
+                "options": {
+                    "issuer": "example.com",
+                    "client": {
+                        "host": "example.com"
+                    }
+                },
+                "request_params": {
+                    "login_hint": "john.doe@example.com",
+                    "ui_locales": "en",
+                    "claims_locales": "es"
+                }
+            },
+            "expected_output": "status=302\nauthorization_url=https://example.com/authorize\nclient_id=1234\nresponse_type=code\nscope=openid\nlogin_hint=john.doe@example.com\nui_locales=en\nclaims_locales=es\nstate=generated_32_hex\nnonce_length=32\n"
+        },
+        {
+            "input": {
+                "flow": "authorization_request",
+                "options": {
+                    "discovery": true,
+                    "client": {
+                        "host": "example.com"
+                    }
+                },
+                "discovery": {
+                    "issuer": "https://example.com/",
+                    "authorization_endpoint": "https://example.com/authorization",
+                    "token_endpoint": "https://example.com/token",
+                    "userinfo_endpoint": "https://example.com/userinfo",
+                    "jwks_uri": "https://example.com/jwks",
+                    "end_session_endpoint": "https://example.com/logout",
+                    "jwks_json": "{\"keys\": [{\n    \"kty\": \"RSA\",\n    \"n\": \"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\",\n    \"e\": \"AQAB\",\n    \"alg\": \"RS256\",\n    \"kid\": \"1e9gdk7\"\n  }]\n}\n"
+                }
+            },
+            "expected_output": "status=302\nauthorization_url=https://example.com/authorization\nclient_id=1234\nresponse_type=code\nscope=openid\nstate=generated_32_hex\nnonce_length=32\n"
+        },
+        {
+            "input": {
+                "flow": "authorization_request",
+                "options": {
+                    "issuer": "example.com",
+                    "response_mode": "form_post",
+                    "response_type": "id_token",
+                    "client": {
+                        "host": "example.com"
+                    }
+                }
+            },
+            "expected_output": "status=302\nauthorization_url=https://example.com/authorize\nclient_id=1234\nresponse_type=id_token\nresponse_mode=form_post\nscope=openid\nstate=generated_32_hex\nnonce_length=32\n"
+        },
+        {
+            "input": {
+                "flow": "authorization_request",
+                "options": {
+                    "issuer": "example.com",
+                    "include_nonce": false,
+                    "client": {
+                        "host": "foobar.com"
+                    }
+                }
+            },
+            "expected_output": "status=302\nauthorization_url=https://foobar.com/authorize\nclient_id=1234\nresponse_type=code\nscope=openid\nstate=generated_32_hex\nnonce=absent\n"
+        },
+        {
+            "input": {
+                "flow": "authorization_request",
+                "options": {
+                    "issuer": "example.com",
+                    "state_value": 42,
+                    "client": {
+                        "host": "example.com"
+                    }
+                }
+            },
+            "expected_output": "status=302\nauthorization_url=https://example.com/authorize\nclient_id=1234\nresponse_type=code\nscope=openid\nstate=42\nnonce_length=32\n"
+        },
+        {
+            "input": {
+                "flow": "authorization_request",
+                "options": {
+                    "issuer": "example.com",
+                    "state_from_env": [
+                        "state",
+                        "client_id"
+                    ],
+                    "client": {
+                        "host": "example.com"
+                    }
+                },
+                "env": {
+                    "QUERY_STRING": {
+                        "state": "abc",
+                        "client_id": "123"
+                    }
+                }
+            },
+            "expected_output": "status=302\nauthorization_url=https://example.com/authorize\nclient_id=1234\nresponse_type=code\nscope=openid\nstate=abc123\nnonce_length=32\n"
+        }
+    ]
+}

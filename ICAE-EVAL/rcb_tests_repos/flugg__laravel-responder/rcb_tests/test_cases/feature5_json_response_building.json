@@ -1,0 +1,50 @@
+{
+    "description": "Build JSON HTTP responses that preserve response body data, HTTP status codes, selected headers, and optional body decorators.",
+    "cases": [
+        {
+            "input": {
+                "operation": "build_success_response",
+                "data": {
+                    "foo": 1
+                },
+                "status": 201,
+                "headers": {
+                    "x-trace": "abc"
+                },
+                "decorators": [
+                    "status",
+                    "success"
+                ]
+            },
+            "expected_output": "{\"status\":201,\"headers\":{\"x-trace\":\"abc\"},\"body\":{\"status\":201,\"success\":true,\"data\":{\"foo\":1}},\"content\":\"{\\\"status\\\":201,\\\"success\\\":true,\\\"data\\\":{\\\"foo\\\":1}}\"}\n"
+        },
+        {
+            "input": {
+                "operation": "build_error_response",
+                "code": "test_error",
+                "message": "A test error has occured.",
+                "data": {
+                    "foo": 1
+                },
+                "status": 404,
+                "headers": {
+                    "x-trace": "err"
+                },
+                "decorators": [
+                    "status",
+                    "success"
+                ]
+            },
+            "expected_output": "{\"status\":404,\"headers\":{\"x-trace\":\"err\"},\"body\":{\"status\":404,\"success\":false,\"error\":{\"code\":\"test_error\",\"message\":\"A test error has occured.\",\"foo\":1}},\"content\":\"{\\\"status\\\":404,\\\"success\\\":false,\\\"error\\\":{\\\"code\\\":\\\"test_error\\\",\\\"message\\\":\\\"A test error has occured.\\\",\\\"foo\\\":1}}\"}\n"
+        },
+        {
+            "input": {
+                "operation": "build_error_response",
+                "code": "missing_token",
+                "resolveMessage": true,
+                "status": 401
+            },
+            "expected_output": "{\"status\":401,\"headers\":{},\"body\":{\"error\":{\"code\":\"missing_token\",\"message\":\"Missing access token.\"}},\"content\":\"{\\\"error\\\":{\\\"code\\\":\\\"missing_token\\\",\\\"message\\\":\\\"Missing access token.\\\"}}\"}\n"
+        }
+    ]
+}

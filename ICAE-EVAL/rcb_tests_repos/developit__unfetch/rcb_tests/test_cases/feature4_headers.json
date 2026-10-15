@@ -1,0 +1,17 @@
+{
+    "description": "Query response headers case-insensitively. Header lookups ignore case for the field name. When the same field appears multiple times its values are joined with commas in arrival order. A present field with an empty value is still reported as present with an empty string. Looking up an absent field yields an empty value and a not-present result.",
+    "cases": [
+        {
+            "input": {"op": "headers", "request": {"url": "/foo"}, "transport": {"responseHeaders": "X-Foo: bar\nX-Foo:baz"}, "queries": ["x-foo", "x-missing"]},
+            "expected_output": "get[x-foo]=bar,baz\nhas[x-foo]=true\nget[x-missing]=\nhas[x-missing]=false"
+        },
+        {
+            "input": {"op": "headers", "request": {"url": "/foo"}, "transport": {"responseHeaders": "Server: \nX-Foo:baz"}, "queries": ["server", "X-foo"]},
+            "expected_output": "get[server]=\nhas[server]=true\nget[X-foo]=baz\nhas[X-foo]=true"
+        },
+        {
+            "input": {"op": "headers", "request": {"url": "/foo"}, "transport": {"responseHeaders": "Content-Type: text/html"}, "queries": ["content-type", "CONTENT-TYPE"]},
+            "expected_output": "get[content-type]=text/html\nhas[content-type]=true\nget[CONTENT-TYPE]=text/html\nhas[CONTENT-TYPE]=true"
+        }
+    ]
+}

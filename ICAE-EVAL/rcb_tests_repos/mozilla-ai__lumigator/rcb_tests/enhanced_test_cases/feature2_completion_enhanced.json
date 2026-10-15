@@ -1,0 +1,63 @@
+{
+  "description": "Additional completion coverage for single/vendor ordering, duplicate providers, case-normalized POST paths, and tab/newline-only prompts.",
+  "cases": [
+    {
+      "input": {
+        "feature": "completion_vendors",
+        "vendors": [
+          "anthropic"
+        ]
+      },
+      "expected_output": "http_method=GET\npath=/api/v1/completions\nstatus_code=200\ncount=1\nvendors=anthropic\n"
+    },
+    {
+      "input": {
+        "feature": "completion_vendors",
+        "vendors": [
+          "openai",
+          "openai",
+          "mistral",
+          "local"
+        ]
+      },
+      "expected_output": "http_method=GET\npath=/api/v1/completions\nstatus_code=200\ncount=4\nvendors=openai,openai,mistral,local\n"
+    },
+    {
+      "input": {
+        "feature": "text_completion",
+        "scenario": "success",
+        "vendors": [
+          "OpenAI",
+          "mistral"
+        ],
+        "vendor": "OpenAI",
+        "prompt": "Summarize this text with punctuation: hello, world!",
+        "completion_text": "Hello world summary."
+      },
+      "expected_output": "http_method=POST\npath=/api/v1/completions/openai/\nstatus_code=200\ntext=Hello world summary.\n"
+    },
+    {
+      "input": {
+        "feature": "text_completion",
+        "scenario": "empty_prompt",
+        "vendors": [
+          "openai",
+          "mistral"
+        ],
+        "vendor": "openai",
+        "prompt": "\t\n  "
+      },
+      "expected_output": "error=empty_prompt\n"
+    },
+    {
+      "input": {
+        "feature": "text_completion",
+        "scenario": "invalid_vendor",
+        "vendors": [],
+        "vendor": "openai",
+        "prompt": "non-empty"
+      },
+      "expected_output": "error=unsupported_vendor\n"
+    }
+  ]
+}

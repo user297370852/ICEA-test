@@ -1,0 +1,110 @@
+{
+  "description": "Feature 5 (schema parsing) coverage: additional atomic types (double/byte/short/float/date/timestamp/binary), nullable array/map, struct with nested array field, nested array-of-array, multi-field struct mixing complex types, and an unrecognised atomic name ('decimal') which the parser rejects with error=failure.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"double\""
+      },
+      "expected_output": "type_name=double\nsimple_string=double"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"byte\""
+      },
+      "expected_output": "type_name=byte\nsimple_string=byte"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"short\""
+      },
+      "expected_output": "type_name=short\nsimple_string=short"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"float\""
+      },
+      "expected_output": "type_name=float\nsimple_string=float"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"date\""
+      },
+      "expected_output": "type_name=date\nsimple_string=date"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"timestamp\""
+      },
+      "expected_output": "type_name=timestamp\nsimple_string=timestamp"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"binary\""
+      },
+      "expected_output": "type_name=binary\nsimple_string=binary"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "{\"type\":\"array\",\"elementType\":\"string\",\"containsNull\":true}"
+      },
+      "expected_output": "type_name=array\nsimple_string=array<string>\nelement_type=string\ncontains_null=true"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "{\"type\":\"array\",\"elementType\":\"long\",\"containsNull\":false}"
+      },
+      "expected_output": "type_name=array\nsimple_string=array<long>\nelement_type=long\ncontains_null=false"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "{\"type\":\"map\",\"keyType\":\"string\",\"valueType\":\"integer\",\"valueContainsNull\":true}"
+      },
+      "expected_output": "type_name=map\nsimple_string=map<string,integer>\nkey_type=string\nvalue_type=integer\nvalue_contains_null=true"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "{\"type\":\"map\",\"keyType\":\"integer\",\"valueType\":\"integer\",\"valueContainsNull\":false}"
+      },
+      "expected_output": "type_name=map\nsimple_string=map<integer,integer>\nkey_type=integer\nvalue_type=integer\nvalue_contains_null=false"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "{\"type\":\"struct\",\"fields\":[{\"name\":\"x\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}}]}"
+      },
+      "expected_output": "type_name=struct\nsimple_string=struct<x:integer>\nfield_count=1\nfield_name=x\nfield_type=integer\nfield_nullable=true"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "{\"type\":\"array\",\"elementType\":{\"type\":\"array\",\"elementType\":\"integer\",\"containsNull\":false},\"containsNull\":true}"
+      },
+      "expected_output": "type_name=array\nsimple_string=array<array<integer>>\nelement_type=array\ncontains_null=true"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "{\"type\":\"struct\",\"fields\":[{\"name\":\"a\",\"type\":\"integer\",\"nullable\":false,\"metadata\":{}},{\"name\":\"b\",\"type\":{\"type\":\"array\",\"elementType\":\"string\",\"containsNull\":true},\"nullable\":true,\"metadata\":{}},{\"name\":\"c\",\"type\":\"double\",\"nullable\":false,\"metadata\":{}}]}"
+      },
+      "expected_output": "type_name=struct\nsimple_string=struct<a:integer,b:array<string>,c:double>\nfield_count=3\nfield_name=a\nfield_type=integer\nfield_nullable=false\nfield_name=b\nfield_type=array\nfield_nullable=true\nfield_name=c\nfield_type=double\nfield_nullable=false"
+    },
+    {
+      "input": {
+        "op": "parse_type",
+        "schema": "\"decimal\""
+      },
+      "expected_output": "error=failure"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+    "description": "Build the provider authorization request URL from a fully resolved set of authorization options. The URL begins with the authorization base endpoint followed by a query string that always carries the client identifier, the response type and the state. Optional segments are appended only when present: a redirect target, a requested scope, any number of extra key/value parameters in the order supplied, and a PKCE challenge together with its challenge method. The whole URL is percent-encoded so spaces inside values appear as escape sequences. Parameter order is fixed and deterministic.",
+    "cases": [
+        {
+            "input": {
+                "action": "build_authorization_url",
+                "webOptions": {
+                    "authorizationBaseUrl": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+                    "appId": "webAppId",
+                    "responseType": "code",
+                    "redirectUrl": "https://oauth2.byteowls.com/authorize",
+                    "scope": "files.readwrite offline_access",
+                    "state": "STATE123",
+                    "additionalParameters": {"resource": "resource_id", "nonce": "NONCE1"},
+                    "pkceCodeChallenge": "CHAL",
+                    "pkceCodeChallengeMethod": "S256"
+                }
+            },
+            "expected_output": "url=https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=webAppId&response_type=code&redirect_uri=https://oauth2.byteowls.com/authorize&scope=files.readwrite%20offline_access&state=STATE123&resource=resource_id&nonce=NONCE1&code_challenge=CHAL&code_challenge_method=S256\n"
+        },
+        {
+            "input": {
+                "action": "build_authorization_url",
+                "webOptions": {
+                    "authorizationBaseUrl": "https://accounts.google.com/o/oauth2/auth",
+                    "appId": "webAppId",
+                    "responseType": "token",
+                    "state": "STATE123"
+                }
+            },
+            "expected_output": "url=https://accounts.google.com/o/oauth2/auth?client_id=webAppId&response_type=token&state=STATE123\n"
+        },
+        {
+            "input": {
+                "action": "build_authorization_url",
+                "webOptions": {
+                    "authorizationBaseUrl": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+                    "appId": "webAppId",
+                    "responseType": "code",
+                    "redirectUrl": "https://mycompany.server.com/oauth",
+                    "scope": "files.readwrite offline_access",
+                    "state": "STATE123"
+                }
+            },
+            "expected_output": "url=https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=webAppId&response_type=code&redirect_uri=https://mycompany.server.com/oauth&scope=files.readwrite%20offline_access&state=STATE123\n"
+        }
+    ]
+}

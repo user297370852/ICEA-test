@@ -1,0 +1,54 @@
+{
+  "description": "Enhanced boundary coverage for AOT publish resolution: build-parameter flag with internal whitespace stripped before matching, the flag embedded in a larger '/p:' parameter string, the build-parameter false overriding a manifest true, a capitalized manifest boolean accepted, a non-boolean manifest value defaulting to false, an unrelated build parameter falling through to an absent manifest property (false), and a build-parameter string containing both values where true wins.",
+  "cases": [
+    {
+      "input": {
+        "project_file": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+        "msbuild_parameters": "Publish Aot = True"
+      },
+      "expected_output": "publish_aot=true\n"
+    },
+    {
+      "input": {
+        "project_file": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+        "msbuild_parameters": "/p:PublishAot=true"
+      },
+      "expected_output": "publish_aot=true\n"
+    },
+    {
+      "input": {
+        "project_file": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <PublishAot>true</PublishAot>\n  </PropertyGroup>\n</Project>\n",
+        "msbuild_parameters": "publishaot=false"
+      },
+      "expected_output": "publish_aot=false\n"
+    },
+    {
+      "input": {
+        "project_file": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <PublishAot>True</PublishAot>\n  </PropertyGroup>\n</Project>\n",
+        "msbuild_parameters": null
+      },
+      "expected_output": "publish_aot=true\n"
+    },
+    {
+      "input": {
+        "project_file": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n    <PublishAot>yes</PublishAot>\n  </PropertyGroup>\n</Project>\n",
+        "msbuild_parameters": null
+      },
+      "expected_output": "publish_aot=false\n"
+    },
+    {
+      "input": {
+        "project_file": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+        "msbuild_parameters": "configuration=Release"
+      },
+      "expected_output": "publish_aot=false\n"
+    },
+    {
+      "input": {
+        "project_file": "<Project Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <TargetFramework>net8.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n",
+        "msbuild_parameters": "publishaot=false;publishaot=true"
+      },
+      "expected_output": "publish_aot=true\n"
+    }
+  ]
+}

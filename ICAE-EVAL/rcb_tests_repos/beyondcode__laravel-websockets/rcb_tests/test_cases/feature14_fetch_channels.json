@@ -1,0 +1,147 @@
+{
+    "description": "The channel-listing API returns a JSON document of currently occupied channels for an application. The request must be signed (HMAC of the canonical request string keyed by the application secret); an invalid signature yields a 401 error. With a valid signature: with no filter it lists every occupied channel mapped to an empty info object; a prefix filter limits the result to channel names starting with that prefix; requesting the user_count info field annotates each (presence) channel with its member count, but is only permitted when the request is restricted to presence channels (otherwise 400); when no channels are occupied the document is an empty channels object. The report prints the HTTP status code then the raw JSON body, or a normalized error with its status and message.",
+    "cases": [
+        {
+            "input": {
+                "action": "fetch_channels",
+                "setup": [],
+                "request": {
+                    "path": "/apps/1234/channels",
+                    "route_params": {
+                        "appId": "1234"
+                    },
+                    "sign_secret": "InvalidSecret"
+                }
+            },
+            "expected_output": "error=http_exception\nstatus=401\nmessage=Invalid auth signature provided.\n"
+        },
+        {
+            "input": {
+                "action": "fetch_channels",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "presence-channel",
+                        "user_id": 1
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channels",
+                    "route_params": {
+                        "appId": "1234"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "status=200\n{\"channels\":{\"presence-channel\":{}}}\n"
+        },
+        {
+            "input": {
+                "action": "fetch_channels",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "presence-global.1",
+                        "user_id": 1
+                    },
+                    {
+                        "socket_id": "2.2",
+                        "channel": "presence-global.1",
+                        "user_id": 2
+                    },
+                    {
+                        "socket_id": "3.3",
+                        "channel": "presence-global.2",
+                        "user_id": 3
+                    },
+                    {
+                        "socket_id": "4.4",
+                        "channel": "presence-notglobal.2",
+                        "user_id": 4
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channels",
+                    "route_params": {
+                        "appId": "1234"
+                    },
+                    "query": {
+                        "filter_by_prefix": "presence-global"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "status=200\n{\"channels\":{\"presence-global.1\":{},\"presence-global.2\":{}}}\n"
+        },
+        {
+            "input": {
+                "action": "fetch_channels",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "presence-global.1",
+                        "user_id": 1
+                    },
+                    {
+                        "socket_id": "2.2",
+                        "channel": "presence-global.1",
+                        "user_id": 2
+                    },
+                    {
+                        "socket_id": "3.3",
+                        "channel": "presence-global.2",
+                        "user_id": 3
+                    },
+                    {
+                        "socket_id": "4.4",
+                        "channel": "presence-notglobal.2",
+                        "user_id": 4
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channels",
+                    "route_params": {
+                        "appId": "1234"
+                    },
+                    "query": {
+                        "filter_by_prefix": "presence-global",
+                        "info": "user_count"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "status=200\n{\"channels\":{\"presence-global.1\":{\"user_count\":2},\"presence-global.2\":{\"user_count\":1}}}\n"
+        },
+        {
+            "input": {
+                "action": "fetch_channels",
+                "setup": [],
+                "request": {
+                    "path": "/apps/1234/channels",
+                    "route_params": {
+                        "appId": "1234"
+                    },
+                    "query": {
+                        "info": "user_count"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "error=http_exception\nstatus=400\nmessage=Request must be limited to presence channels in order to fetch user_count\n"
+        },
+        {
+            "input": {
+                "action": "fetch_channels",
+                "setup": [],
+                "request": {
+                    "path": "/apps/1234/channels",
+                    "route_params": {
+                        "appId": "1234"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "status=200\n{\"channels\":{}}\n"
+        }
+    ]
+}

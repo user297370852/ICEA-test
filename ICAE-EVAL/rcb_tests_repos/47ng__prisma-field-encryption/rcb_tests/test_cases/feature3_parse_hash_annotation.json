@@ -1,0 +1,32 @@
+{
+  "description": "Parse an inline hash annotation that may appear inside a schema field documentation string. The annotation names a single source field in parentheses and may carry an optional query string of options. When no hash annotation marker is present, or when the marker is present but the source-field name is missing, the result is a no-match. When a valid source field is named, the parse yields the source field name plus a hashing algorithm, an input encoding and an output encoding; each of these has a default value used when the corresponding option is omitted, and each can be overridden through the query string.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_hash"
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": "pre @encryption:hash post"
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " pre @encryption:hash(foo) post "
+      },
+      "expected_output": "sourceField=foo\nalgorithm=sha256\ninputEncoding=utf8\noutputEncoding=hex\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " pre @encryption:hash(foo)?algorithm=sha512&inputEncoding=base64&outputEncoding=base64 post"
+      },
+      "expected_output": "sourceField=foo\nalgorithm=sha512\ninputEncoding=base64\noutputEncoding=base64\n"
+    }
+  ]
+}

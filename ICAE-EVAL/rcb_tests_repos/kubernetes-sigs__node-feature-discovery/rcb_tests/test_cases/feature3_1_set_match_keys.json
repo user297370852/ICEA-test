@@ -1,0 +1,87 @@
+{
+    "description": "Evaluate a set of named match expressions (logical AND of all of them) against a set of present attribute names. The set matches only when every named expression matches; on success the matched attribute names are reported in sorted order. An empty expression set matches any input and reports an empty matched list. If any expression uses an operator that is not applicable to a bare name set, a neutral error is reported.",
+    "cases": [
+        {
+            "input": {
+                "action": "mes_keys",
+                "keys": []
+            },
+            "expected_output": "match=true\nmatched=\n"
+        },
+        {
+            "input": {
+                "action": "mes_keys",
+                "keys": []
+            },
+            "expected_output": "match=true\nmatched=\n"
+        },
+        {
+            "input": {
+                "action": "mes_keys",
+                "keys": [
+                    "foo"
+                ]
+            },
+            "expected_output": "match=true\nmatched=\n"
+        },
+        {
+            "input": {
+                "action": "mes_keys",
+                "keys": [
+                    "bar",
+                    "baz",
+                    "buzz"
+                ],
+                "expressions": {
+                    "foo": {
+                        "op": "DoesNotExist"
+                    },
+                    "bar": {
+                        "op": "Exists"
+                    }
+                }
+            },
+            "expected_output": "match=true\nmatched=bar,foo\n"
+        },
+        {
+            "input": {
+                "action": "mes_keys",
+                "keys": [
+                    "foo",
+                    "bar",
+                    "baz"
+                ],
+                "expressions": {
+                    "foo": {
+                        "op": "DoesNotExist"
+                    },
+                    "bar": {
+                        "op": "Exists"
+                    }
+                }
+            },
+            "expected_output": "match=false\n"
+        },
+        {
+            "input": {
+                "action": "mes_keys",
+                "keys": [
+                    "bar",
+                    "baz"
+                ],
+                "expressions": {
+                    "foo": {
+                        "op": "In",
+                        "value": [
+                            "bar"
+                        ]
+                    },
+                    "bar": {
+                        "op": "Exists"
+                    }
+                }
+            },
+            "expected_output": "error=operator_not_supported_for_keys\n"
+        }
+    ]
+}

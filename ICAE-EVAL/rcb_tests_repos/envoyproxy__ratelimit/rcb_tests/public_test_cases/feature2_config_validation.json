@@ -1,0 +1,39 @@
+{
+    "description": "Loading an invalid configuration is rejected with a categorized error instead of producing a usable configuration. Each category names a distinct structural or semantic problem in the supplied configuration text; the offending element (a domain, composite key, unit, configuration key, or value) is reported in separate fields where one applies.",
+    "cases": [
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "bad_limit_unit.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: foo\n      requests_per_unit: 5\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=invalid_unit\nunit=foo\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "empty_domain.yaml",
+                        "content": "descriptors:\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=empty_domain\n"
+        }
+    ]
+}

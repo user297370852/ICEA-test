@@ -1,0 +1,79 @@
+{
+  "description": "Type declaration mapping for awaitable results and scalar types: Task<int>/ValueTask<string> map to Promise<number>/Promise<string>, char maps to string in both parameter and return position, floating/decimal numerics map to number, and unrelated markers are correctly reported absent.",
+  "cases": [
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "test.dll",
+            "members": [
+              "[JSInvokable] public static Task<int> AsyNum () => default;"
+            ]
+          }
+        ],
+        "probes": [
+          "AsyNum: () => Promise<number>"
+        ]
+      },
+      "expected_output": "contains=AsyNum: () => Promise<number>\nvalue=true\n"
+    },
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "test.dll",
+            "members": [
+              "[JSInvokable] public static ValueTask<string> AsyStr () => default;"
+            ]
+          }
+        ],
+        "probes": [
+          "AsyStr: () => Promise<string>"
+        ]
+      },
+      "expected_output": "contains=AsyStr: () => Promise<string>\nvalue=true\n"
+    },
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "test.dll",
+            "members": [
+              "[JSInvokable] public static string Ret (char c) => default;"
+            ]
+          }
+        ],
+        "probes": [
+          "Ret: (c: string) => string"
+        ]
+      },
+      "expected_output": "contains=Ret: (c: string) => string\nvalue=true\n"
+    },
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "test.dll",
+            "members": [
+              "[JSInvokable] public static void Dec (decimal d, float f, double e) {}"
+            ]
+          }
+        ],
+        "probes": [
+          "Dec: (d: number, f: number, e: number) => void"
+        ]
+      },
+      "expected_output": "contains=Dec: (d: number, f: number, e: number) => void\nvalue=true\n"
+    },
+    {
+      "input": {
+        "assemblies": [],
+        "probes": [
+          "export interface Interop {}",
+          "nonexistent_marker"
+        ]
+      },
+      "expected_output": "contains=export interface Interop {}\nvalue=true\ncontains=nonexistent_marker\nvalue=false\n"
+    }
+  ]
+}

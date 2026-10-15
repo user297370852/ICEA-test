@@ -1,0 +1,448 @@
+{
+  "description": "Enhanced native-disjoint edge cases covering empty collections and strings, sparse/high vault indices, lifecycle singletons and larger client sets, alternate hash inputs, deterministic cryptographic boundary inputs, AEAD empty plaintext/AAD, X25519 alternate keys, and BIP39 passphrase/chain variations.",
+  "cases": [
+    {
+      "name": "vault_records_empty_vault_queries",
+      "input": {
+        "op": "vault_records",
+        "client": "empty-client",
+        "vault": "empty-vault",
+        "records": [],
+        "queries": [
+          0,
+          19,
+          20
+        ]
+      },
+      "expected_output": "operation=vault_records\nvault=empty-vault\nrecord_count=0\nrecord_index_0=absent\nrecord_index_19=absent\nrecord_index_20=absent\n"
+    },
+    {
+      "name": "vault_records_sparse_nonsequential_queries",
+      "input": {
+        "op": "vault_records",
+        "client": "sparse-client",
+        "vault": "deep/path/with spaces",
+        "records": [
+          {
+            "index": 2,
+            "value": "two value",
+            "hint": "hint two"
+          },
+          {
+            "index": 18,
+            "value": "eighteen value",
+            "hint": "hint eighteen"
+          },
+          {
+            "index": 11,
+            "value": "eleven value",
+            "hint": "hint eleven"
+          },
+          {
+            "index": 7,
+            "value": "seven value",
+            "hint": "hint seven"
+          }
+        ],
+        "queries": [
+          18,
+          0,
+          7,
+          11,
+          2,
+          19
+        ]
+      },
+      "expected_output": "operation=vault_records\nvault=deep/path/with spaces\nrecord_count=4\nhint=hint eleven\nhint=hint eighteen\nhint=hint seven\nhint=hint two\nrecord_index_18=present\nrecord_index_0=absent\nrecord_index_7=present\nrecord_index_11=present\nrecord_index_2=present\nrecord_index_19=absent\n"
+    },
+    {
+      "name": "vault_revoke_single_high_index",
+      "input": {
+        "op": "vault_revoke",
+        "client": "revoker",
+        "vault": "revocation-zone",
+        "records": [
+          {
+            "index": 19,
+            "value": "last secret",
+            "hint": "last hint"
+          }
+        ]
+      },
+      "expected_output": "operation=vault_revoke\nvault=revocation-zone\nrecords_written=1\nhints_before_gc=1\nrecord_index_19=absent\ngarbage_collected_vault=present\nhints_after_gc=0\nvault_after_gc=present\n"
+    },
+    {
+      "name": "vault_revoke_sparse_indices",
+      "input": {
+        "op": "vault_revoke",
+        "client": "revoker-sparse",
+        "vault": "revocation-zone",
+        "records": [
+          {
+            "index": 4,
+            "value": "delta",
+            "hint": "hd"
+          },
+          {
+            "index": 12,
+            "value": "mu",
+            "hint": "hm"
+          },
+          {
+            "index": 18,
+            "value": "sigma",
+            "hint": "hs"
+          }
+        ]
+      },
+      "expected_output": "operation=vault_revoke\nvault=revocation-zone\nrecords_written=3\nhints_before_gc=3\nrecord_index_4=absent\nrecord_index_12=absent\nrecord_index_18=absent\ngarbage_collected_vault=present\nhints_after_gc=0\nvault_after_gc=present\n"
+    },
+    {
+      "name": "store_empty_value",
+      "input": {
+        "op": "store",
+        "client": "store-empty",
+        "store": {
+          "key": "empty-payload",
+          "value": ""
+        }
+      },
+      "expected_output": "operation=store\nkey=empty-payload\nprevious=none\nread_value=\nafter_delete=none\n"
+    },
+    {
+      "name": "store_spaced_key_value",
+      "input": {
+        "op": "store",
+        "client": "store-spaces",
+        "store": {
+          "key": "key with spaces",
+          "value": "value with spaces and 123"
+        }
+      },
+      "expected_output": "operation=store\nkey=key with spaces\nprevious=none\nread_value=value with spaces and 123\nafter_delete=none\n"
+    },
+    {
+      "name": "snapshot_empty_vault",
+      "input": {
+        "op": "snapshot",
+        "client": "snap-empty-client",
+        "vault": "empty-vault",
+        "records": [],
+        "snapshot": {
+          "name": "snap-empty",
+          "key": "0123456789abcdef0123456789abcdef"
+        },
+        "queries": [
+          0,
+          5
+        ]
+      },
+      "expected_output": "operation=snapshot\nsnapshot=snap-empty\nhints_before_snapshot=0\nhints_after_restore=0\nrecord_index_0=absent\nrecord_index_5=absent\n"
+    },
+    {
+      "name": "snapshot_sparse_restore",
+      "input": {
+        "op": "snapshot",
+        "client": "snap-sparse-client",
+        "vault": "vault/sparse",
+        "records": [
+          {
+            "index": 3,
+            "value": "third",
+            "hint": "h3-sparse"
+          },
+          {
+            "index": 14,
+            "value": "fourteenth",
+            "hint": "h14-sparse"
+          },
+          {
+            "index": 19,
+            "value": "nineteenth",
+            "hint": "h19-sparse"
+          }
+        ],
+        "snapshot": {
+          "name": "snap-sparse",
+          "key": "fedcba98765432100123456789abcdef"
+        },
+        "queries": [
+          14,
+          13,
+          19,
+          3,
+          0
+        ]
+      },
+      "expected_output": "operation=snapshot\nsnapshot=snap-sparse\nhints_before_snapshot=3\nhints_after_restore=3\nhint=h19-sparse\nhint=h14-sparse\nhint=h3-sparse\nrecord_index_14=present\nrecord_index_13=absent\nrecord_index_19=present\nrecord_index_3=present\nrecord_index_0=absent\n"
+    },
+    {
+      "name": "multi_client_single_client",
+      "input": {
+        "op": "multi_client",
+        "vault": "solo-shared",
+        "clients": [
+          {
+            "name": "only-client",
+            "value": "solo-secret",
+            "hint": "solo-hint"
+          }
+        ]
+      },
+      "expected_output": "operation=multi_client\nclients=1\nvault=solo-shared\nclient=only-client record_count=1 hint=solo-hint\n"
+    },
+    {
+      "name": "multi_client_five_clients",
+      "input": {
+        "op": "multi_client",
+        "vault": "shared/five",
+        "clients": [
+          {
+            "name": "client-0",
+            "value": "value-0",
+            "hint": "hint-0"
+          },
+          {
+            "name": "client-1",
+            "value": "value-1",
+            "hint": "hint-1"
+          },
+          {
+            "name": "client-2",
+            "value": "value-2",
+            "hint": "hint-2"
+          },
+          {
+            "name": "client-3",
+            "value": "value-3",
+            "hint": "hint-3"
+          },
+          {
+            "name": "client-4",
+            "value": "value-4",
+            "hint": "hint-4"
+          }
+        ]
+      },
+      "expected_output": "operation=multi_client\nclients=5\nvault=shared/five\nclient=client-0 record_count=1 hint=hint-0\nclient=client-1 record_count=1 hint=hint-1\nclient=client-2 record_count=1 hint=hint-2\nclient=client-3 record_count=1 hint=hint-3\nclient=client-4 record_count=1 hint=hint-4\n"
+    },
+    {
+      "name": "client_targeting_single_client",
+      "input": {
+        "op": "client_targeting",
+        "clients": [
+          {
+            "name": "lonely"
+          }
+        ]
+      },
+      "expected_output": "operation=client_targeting\nclients_spawned=1\nswitched_to=lonely\nkilled_client=lonely\nreswitch_error=target_not_found\n"
+    },
+    {
+      "name": "client_targeting_five_clients",
+      "input": {
+        "op": "client_targeting",
+        "clients": [
+          {
+            "name": "alpha"
+          },
+          {
+            "name": "beta"
+          },
+          {
+            "name": "gamma"
+          },
+          {
+            "name": "delta"
+          },
+          {
+            "name": "epsilon"
+          }
+        ]
+      },
+      "expected_output": "operation=client_targeting\nclients_spawned=5\nswitched_to=epsilon\nkilled_client=epsilon\nreswitch_error=target_not_found\n"
+    },
+    {
+      "name": "hash_sha256_empty_message",
+      "input": {
+        "op": "hash",
+        "client": "hash-empty",
+        "algorithm": "sha-256",
+        "message": ""
+      },
+      "expected_output": "operation=hash\nalgorithm=sha-256\ndigest=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n"
+    },
+    {
+      "name": "hash_sha512_multiline_message",
+      "input": {
+        "op": "hash",
+        "client": "hash-multi",
+        "algorithm": "sha-512",
+        "message": "line1\nline2\nline3"
+      },
+      "expected_output": "operation=hash\nalgorithm=sha-512\ndigest=a2091a60da3e80fc06f82f2ea3fe2736b31c4e02bf8944936edc0a7c5b7470d2be45d0b520ec2dfe73e50623972ffc14294a65cf3bf4d4baa636a8b1836012d7\n"
+    },
+    {
+      "name": "hash_blake2b_symbols",
+      "input": {
+        "op": "hash",
+        "client": "hash-symbols",
+        "algorithm": "blake2b",
+        "message": "symbols !@#$%^&*() and 12345"
+      },
+      "expected_output": "operation=hash\nalgorithm=blake2b\ndigest=5ede7d445df2ba1218be9149db1b7461b22802ceda90841e731ebce6cf3b8124\n"
+    },
+    {
+      "name": "ed25519_empty_message_short_chain",
+      "input": {
+        "op": "ed25519",
+        "client": "ed-empty",
+        "vault": "keys-alt",
+        "seed_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "chain": [
+          0
+        ],
+        "message": ""
+      },
+      "expected_output": "operation=ed25519\nmessage=\npublic_key=635a26b23331b23c1044b745e6b2b6adf4cbfe74f4198f2371c980f2b9e13060\nsignature=e850d52d828ca268c7ea33ac7efd2f7aa9df8fffdc732cac8243393d0681afa2b758a7eca4bfa92b971ec36da7686034e12d9ca6ae5bce433e4a9d847e0f1b0a\n"
+    },
+    {
+      "name": "ed25519_longer_chain_alt_seed",
+      "input": {
+        "op": "ed25519",
+        "client": "ed-long",
+        "vault": "keys-alt",
+        "seed_hex": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
+        "chain": [
+          44,
+          4218,
+          0,
+          0,
+          9
+        ],
+        "message": "message with spaces"
+      },
+      "expected_output": "operation=ed25519\nmessage=message with spaces\npublic_key=5143a514f3d8a1d4b7d820a046f6599e317d2e878dc744291b67a6613dbfaf33\nsignature=9870c3b6974e25541e690fbbd39047c936f3910ecb444a9d3265eafd0c645dac47c0eba1fbb8f2589a127f3a6e57de927cb015692818e52c18aacfc7706b4805\n"
+    },
+    {
+      "name": "slip10_short_chain_alt_seed",
+      "input": {
+        "op": "slip10",
+        "client": "slip-short",
+        "vault": "keys-alt",
+        "seed_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "chain": [
+          0,
+          1
+        ]
+      },
+      "expected_output": "operation=slip10\nchain_code_full=30eaf96362d6177d01b25fdb777f10cd6ea786f45be040e8a321d8e80f8e6ef1\nchain_code_split=30eaf96362d6177d01b25fdb777f10cd6ea786f45be040e8a321d8e80f8e6ef1\n"
+    },
+    {
+      "name": "slip10_long_chain_alt_seed",
+      "input": {
+        "op": "slip10",
+        "client": "slip-long",
+        "vault": "keys-alt",
+        "seed_hex": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
+        "chain": [
+          44,
+          4218,
+          0,
+          0,
+          9,
+          27,
+          31
+        ]
+      },
+      "expected_output": "operation=slip10\nchain_code_full=2cd4a808e7acee5fd030d1d316207402ced35812ba1fe4a29eb3adcdb4ca3322\nchain_code_split=2cd4a808e7acee5fd030d1d316207402ced35812ba1fe4a29eb3adcdb4ca3322\n"
+    },
+    {
+      "name": "aead_aes_empty_plaintext",
+      "input": {
+        "op": "aead",
+        "client": "aead-empty",
+        "vault": "keys-alt",
+        "algorithm": "aes-256-gcm",
+        "key_hex": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "nonce_hex": "0102030405060708090a0b0c",
+        "plaintext": "",
+        "associated_data": "aad-empty"
+      },
+      "expected_output": "operation=aead\nalgorithm=aes-256-gcm\nciphertext=\ntag=452ebbb7c11a94a197b86953dbf80554\ndecrypted=\n"
+    },
+    {
+      "name": "aead_xchacha_empty_aad",
+      "input": {
+        "op": "aead",
+        "client": "aead-x",
+        "vault": "keys-alt",
+        "algorithm": "xchacha20-poly1305",
+        "key_hex": "1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100",
+        "nonce_hex": "000102030405060708090a0b0c0d0e0f1011121314151617",
+        "plaintext": "longer plaintext with spaces",
+        "associated_data": ""
+      },
+      "expected_output": "operation=aead\nalgorithm=xchacha20-poly1305\nciphertext=3944af922c2be65c578e2de8857494473941b3fcdd6bff50e7119062\ntag=37156fe3a0a405b2eb34c00e1d02eeb9\ndecrypted=longer plaintext with spaces\n"
+    },
+    {
+      "name": "x25519_alternate_keys_empty_message",
+      "input": {
+        "op": "x25519",
+        "client": "x-alt",
+        "vault": "keys-alt",
+        "sk1_hex": "0900000000000000000000000000000000000000000000000000000000000000",
+        "sk2_hex": "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742",
+        "message": ""
+      },
+      "expected_output": "operation=x25519\npublic_key_1=422c8e7a6227d7bca1350b3e2bb7279f7897b87bb6854b783c60e80311ae3079\npublic_key_2=0980081d6a9c895ba1638ba919a91179259a37f3355f85a4ca19452e3f220d4c\nmac_1_2=8a2fbbf8a8b96ff6fb1d984332910228e5c508ff1133b5182f399250705bee27\nmac_2_1=8a2fbbf8a8b96ff6fb1d984332910228e5c508ff1133b5182f399250705bee27\n"
+    },
+    {
+      "name": "x25519_alternate_keys_binding",
+      "input": {
+        "op": "x25519",
+        "client": "x-bind",
+        "vault": "keys-alt",
+        "sk1_hex": "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a",
+        "sk2_hex": "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb",
+        "message": "binding with spaces"
+      },
+      "expected_output": "operation=x25519\npublic_key_1=8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a\npublic_key_2=de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f\nmac_1_2=5e7574fd9a2bdbff332cd1f4749a1faed5cd4c1a04bd5f779ab8ce2610d23079\nmac_2_1=5e7574fd9a2bdbff332cd1f4749a1faed5cd4c1a04bd5f779ab8ce2610d23079\n"
+    },
+    {
+      "name": "bip39_empty_passphrase",
+      "input": {
+        "op": "bip39_recover",
+        "client": "bip-empty-pass",
+        "vault": "keys-alt",
+        "mnemonic": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+        "passphrase": "",
+        "chain": [
+          44,
+          0,
+          0
+        ],
+        "message": "recover empty passphrase"
+      },
+      "expected_output": "operation=bip39_recover\nmessage=recover empty passphrase\npublic_key=18eca38a633892cc349eb71a92d23e0c9ce8c887c73288c5025f52ea8de2e3d7\nsignature=086fa9da6b6ee756340af13bba4ca6b6218a801cb4301cd044af52b16c90defe9bf530ac8bc0ee57aaf9fc5e3671ba84d91a78ebf6d04310b3b20c8b15dbf904\n"
+    },
+    {
+      "name": "bip39_alternate_chain_message",
+      "input": {
+        "op": "bip39_recover",
+        "client": "bip-alt",
+        "vault": "keys-alt",
+        "mnemonic": "legal winner thank year wave sausage worth useful legal winner thank yellow",
+        "passphrase": "TREZOR",
+        "chain": [
+          44,
+          1,
+          7,
+          9
+        ],
+        "message": "alternate transfer"
+      },
+      "expected_output": "operation=bip39_recover\nmessage=alternate transfer\npublic_key=b9c21b4c22dd99c0376c7809db4d6ac3206a09647fb6e34608e07dd7ef6d7ec4\nsignature=436e2bb013a49aac8971476358677844b394ef19fccf649c35497b2ff973df1f2127e2d3f411ba3d240dccab2b4acaef8cfb0eacb361aeee0a958a158e6a5c01\n"
+    }
+  ]
+}

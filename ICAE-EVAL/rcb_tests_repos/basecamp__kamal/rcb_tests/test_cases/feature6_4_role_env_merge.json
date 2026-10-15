@@ -1,0 +1,19 @@
+{
+    "description": "Resolve environment variables for a role and render them as docker -e arguments. Deployment-level clear env applies to all roles; a role's own env merges over it, so a role can override a deployment value for a given key. role.env_value returns the resolved value for one key. role.env_args renders the full ordered list of -e KEY=\"value\" pairs; the output shows both an unredacted line (real values) and a redacted line (here identical, since none of these values are secret).",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": {"web": ["1.1.1.1", "1.1.1.2"], "workers": {"hosts": ["1.1.1.3", "1.1.1.4"], "cmd": "bin/jobs", "env": {"REDIS_URL": "redis://a/b", "WEB_CONCURRENCY": 4}}}, "env": {"REDIS_URL": "redis://x/y"}},
+                "role": "workers", "action": "role.env_value", "args": {"key": "REDIS_URL"}
+            },
+            "expected_output": "REDIS_URL=redis://a/b"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": {"web": ["1.1.1.1", "1.1.1.2"], "workers": {"hosts": ["1.1.1.3", "1.1.1.4"], "cmd": "bin/jobs", "env": {"REDIS_URL": "redis://a/b", "WEB_CONCURRENCY": 4}}}, "env": {"REDIS_URL": "redis://x/y"}},
+                "role": "workers", "action": "role.env_args"
+            },
+            "expected_output": "unredacted: -e REDIS_URL=\"redis://a/b\" -e WEB_CONCURRENCY=\"4\"\nredacted: -e REDIS_URL=\"redis://a/b\" -e WEB_CONCURRENCY=\"4\""
+        }
+    ]
+}

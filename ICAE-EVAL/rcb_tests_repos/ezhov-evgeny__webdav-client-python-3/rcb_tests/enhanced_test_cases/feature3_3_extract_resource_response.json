@@ -1,0 +1,37 @@
+{
+  "description": "Path-matched response selection edge cases: directory match, match beneath a server URL prefix, resource not found, and malformed XML.",
+  "cases": [
+    {
+      "input": {
+        "server": "localhost",
+        "path": "/photos/",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/photos/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype><d:collection/></d:resourcetype>\n                <d:getlastmodified>Tue, 02 Feb 2021 12:30:00 GMT</d:getlastmodified>\n                <d:displayname>photos</d:displayname>\n                <d:creationdate>2021-02-02T12:30:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "href=/photos/\ncreated=2021-02-02T12:30:00Z\nname=photos\nmodified=Tue, 02 Feb 2021 12:30:00 GMT\nsize=None\netag=None\ncontent_type=None\n"
+    },
+    {
+      "input": {
+        "server": "http://host.tld/webdav",
+        "path": "/docs/report.pdf",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/webdav/docs/report.pdf</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "href=/webdav/docs/report.pdf\ncreated=2024-01-01T00:00:00Z\nname=data.json\nmodified=Mon, 01 Jan 2024 00:00:00 GMT\nsize=1024\netag=etag-abc-123\ncontent_type=None\n"
+    },
+    {
+      "input": {
+        "server": "localhost",
+        "path": "/missing.txt",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/present.txt</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "error=remote_resource_not_found\npath=/missing.txt\n"
+    },
+    {
+      "input": {
+        "server": "srv",
+        "path": "/x",
+        "multistatus_xml": "not<xml>>"
+      },
+      "expected_output": "error=method_not_supported\noperation=is_dir\nserver=srv\n"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "description": "Enhanced boundary coverage for multipart part bodies. Two individual part parameters together produce a multipart payload; an explicit multipart-encoded method carrying a part map produces a multipart payload; and a map-of-parts parameter declared as a List rather than a Map is rejected with part_map_must_be_map. The adapter prints the issued request or a neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "POST",
+            "path": "p"
+          }
+        ],
+        "params": [
+          {
+            "kind": "part",
+            "key": "a",
+            "name": "p1"
+          },
+          {
+            "kind": "part",
+            "key": "b",
+            "name": "p2"
+          }
+        ],
+        "args": [
+          "1",
+          "2"
+        ]
+      },
+      "expected_output": "method=POST\nurl=http://localhost/p\nbody=multipart"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "POST",
+            "path": "p"
+          }
+        ],
+        "encoding": [
+          "multipart"
+        ],
+        "params": [
+          {
+            "kind": "partMap",
+            "name": "m",
+            "type": "Map<String, String>"
+          }
+        ],
+        "args": [
+          {
+            "a": "b"
+          }
+        ]
+      },
+      "expected_output": "method=POST\nurl=http://localhost/p\nbody=multipart"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "POST",
+            "path": "p"
+          }
+        ],
+        "suspend": false,
+        "params": [
+          {
+            "kind": "partMap",
+            "name": "m",
+            "type": "List<String>"
+          }
+        ]
+      },
+      "expected_output": "error=part_map_must_be_map"
+    }
+  ]
+}

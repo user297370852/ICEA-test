@@ -1,0 +1,98 @@
+{
+  "description": "Inject named values into a template string. Placeholders are written between the start delimiter '${' and the end delimiter '}', and the trimmed text between them is the lookup key; each placeholder is replaced by the value supplied for that key, while text outside placeholders is copied verbatim. A template with no placeholders is returned unchanged. Replacement values are not themselves re-scanned for placeholders. If referenced keys have no supplied value, a neutral key-not-found error naming the missing keys is reported; if a placeholder is opened but never closed, a neutral tag-not-closed error naming the missing delimiter is reported.",
+  "cases": [
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "$",
+        "replacements": {}
+      },
+      "expected_output": "$"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "}",
+        "replacements": {}
+      },
+      "expected_output": "}"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "${a}${b}",
+        "replacements": {
+          "a": "1",
+          "b": "2"
+        }
+      },
+      "expected_output": "12"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "prefix ${k} suffix",
+        "replacements": {
+          "k": "MID"
+        }
+      },
+      "expected_output": "prefix MID suffix"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "${ }",
+        "replacements": {
+          "": "Z"
+        }
+      },
+      "expected_output": "Z"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "${a b}",
+        "replacements": {
+          "a b": "spaced"
+        }
+      },
+      "expected_output": "spaced"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "${k}",
+        "replacements": {
+          "k": "${other}"
+        }
+      },
+      "expected_output": "${other}"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "${y}${x}",
+        "replacements": {}
+      },
+      "expected_output": "error=key_not_found\nkey=x,y\n"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "abc${def",
+        "replacements": {}
+      },
+      "expected_output": "error=tag_not_closed\ndelimiter=}\n"
+    },
+    {
+      "input": {
+        "action": "inject_template",
+        "template": "${k}${k}",
+        "replacements": {
+          "k": "v"
+        }
+      },
+      "expected_output": "vv"
+    }
+  ]
+}

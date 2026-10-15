@@ -1,0 +1,142 @@
+{
+  "description": "Verification failure categories beyond the native set: a wanted-but-not-invoked report for a different no-arg member under the default double name, a too-few-invocations failure expressed via a lower-bound (at_least) expectation, and exact-count too-few / too-many / never failures with non-native counts.",
+  "cases": [
+    {
+      "input": {
+        "double": "mock",
+        "script": [
+          {
+            "do": "verify",
+            "member": "number",
+            "mode": {
+              "times": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "error=wanted_but_not_invoked target=collaborator.number()\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 1
+          },
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "at_least": 3
+            }
+          }
+        ]
+      },
+      "expected_output": "error=too_few_invocations member=acceptNumber at_least=3\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 1
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 2
+          },
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "times": 5
+            }
+          }
+        ]
+      },
+      "expected_output": "error=too_few_invocations member=acceptNumber times=5\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 1
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 2
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 3
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 4
+          },
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "times": 2
+            }
+          }
+        ]
+      },
+      "expected_output": "error=too_many_invocations member=acceptNumber times=2\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 1
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 2
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 3
+          },
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "never": true
+            }
+          }
+        ]
+      },
+      "expected_output": "error=never_wanted_but_invoked member=acceptNumber never\n"
+    }
+  ]
+}

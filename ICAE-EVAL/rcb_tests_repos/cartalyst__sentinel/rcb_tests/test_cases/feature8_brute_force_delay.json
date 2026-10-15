@@ -1,0 +1,49 @@
+{
+    "description": "Brute-force delay computation from a window of recent failed attempts. Each attempt is given as how many seconds ago it occurred (all attempts already fall inside the lookback window). Thresholds are configured per source (global, ip, user) and may be a fixed integer or a tiered map. Fixed threshold: if the number of attempts in the window is at least the threshold, the lock lasts a full interval measured from the OLDEST attempt; otherwise zero. Tiered threshold {attempts: delay}: scanning tiers from highest attempt-count downward, the first tier whose attempt-count is below the current count selects that tier's delay, and the remaining lock is that delay measured from the MOST RECENT attempt (zero if it has already elapsed). Output reports the source type, attempts counted, whether the threshold was fixed or tiered, and the remaining delay in seconds.",
+    "cases": [
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": 5, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=global\nattempt_count=6\nthreshold_kind=fixed\ndelay_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": 200, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=global\nattempt_count=6\nthreshold_kind=fixed\ndelay_seconds=0\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": {"5": 3, "10": 10}, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=global\nattempt_count=6\nthreshold_kind=tiered\ndelay_seconds=3\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": {"5": 3, "10": 10}, "attempts": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=global\nattempt_count=11\nthreshold_kind=tiered\ndelay_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": {"5": 33, "10": 100}, "attempts": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]},
+            "expected_output": "type=global\nattempt_count=11\nthreshold_kind=tiered\ndelay_seconds=0\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "ip", "interval": 10, "thresholds": 5, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=ip\nattempt_count=6\nthreshold_kind=fixed\ndelay_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "ip", "interval": 10, "thresholds": {"5": 3, "10": 10}, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=ip\nattempt_count=6\nthreshold_kind=tiered\ndelay_seconds=3\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "ip", "interval": 10, "thresholds": {"5": 3, "10": 10}, "attempts": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=ip\nattempt_count=11\nthreshold_kind=tiered\ndelay_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "user", "interval": 10, "thresholds": 5, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=user\nattempt_count=6\nthreshold_kind=fixed\ndelay_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "user", "interval": 10, "thresholds": {"5": 3, "10": 10}, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=user\nattempt_count=6\nthreshold_kind=tiered\ndelay_seconds=3\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "user", "interval": 10, "thresholds": {"5": 3, "10": 10}, "attempts": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=user\nattempt_count=11\nthreshold_kind=tiered\ndelay_seconds=10\n"
+        }
+    ]
+}

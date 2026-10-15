@@ -1,0 +1,141 @@
+{
+  "description": "Enhanced batch processing: out-of-order numeric ids sorted ascending in output, a single-element batch, a batch where every sub-request errors, a batch mixing a notification (no response emitted) with value-returning calls, and a batch combining a parse-distinct error category (method-not-found) with a success.",
+  "cases": [
+    {
+      "description": "out-of-order numeric ids are emitted ascending",
+      "input": {
+        "transport": "raw",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "echo",
+            "params": [
+              "c"
+            ]
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "echo",
+            "params": [
+              "a"
+            ]
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "echo",
+            "params": [
+              "b"
+            ]
+          }
+        ]
+      },
+      "expected_output": "batch_size=3\n--\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"a\"\n--\njsonrpc=2.0\nid=2\noutcome=success\nresult=\"b\"\n--\njsonrpc=2.0\nid=3\noutcome=success\nresult=\"c\"\n"
+    },
+    {
+      "description": "single-element batch",
+      "input": {
+        "transport": "raw",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 7,
+            "method": "addInts",
+            "params": [
+              40,
+              2
+            ]
+          }
+        ]
+      },
+      "expected_output": "batch_size=1\n--\njsonrpc=2.0\nid=7\noutcome=success\nresult=42\n"
+    },
+    {
+      "description": "batch where every sub-request errors with a different category",
+      "input": {
+        "transport": "raw",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "noSuchMethod",
+            "params": []
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "addInts",
+            "params": [
+              1
+            ]
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "throwsUnmapped",
+            "params": []
+          }
+        ]
+      },
+      "expected_output": "batch_size=3\n--\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n--\njsonrpc=2.0\nid=2\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n--\njsonrpc=2.0\nid=3\noutcome=error\nerror_code=-32001\nerror_category=error_not_handled\n"
+    },
+    {
+      "description": "batch mixing a notification with value-returning calls; the notification yields a null-id placeholder entry",
+      "input": {
+        "transport": "raw",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "echo",
+            "params": [
+              "keep"
+            ]
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "echo",
+            "params": [
+              "dropped"
+            ]
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "overloadedMethod",
+            "params": [
+              4,
+              6
+            ]
+          }
+        ]
+      },
+      "expected_output": "batch_size=3\n--\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"overloaded:int,int:10\"\n--\njsonrpc=2.0\nid=2\noutcome=success\nresult=\"keep\"\n--\njsonrpc=null\nid=null\noutcome=success\nresult=null\n"
+    },
+    {
+      "description": "batch combining method-not-found with a success",
+      "input": {
+        "transport": "raw",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "ghost",
+            "params": []
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "custom.echo",
+            "params": [
+              "ok"
+            ]
+          }
+        ]
+      },
+      "expected_output": "batch_size=2\n--\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n--\njsonrpc=2.0\nid=2\noutcome=success\nresult=\"custom:ok\"\n"
+    }
+  ]
+}

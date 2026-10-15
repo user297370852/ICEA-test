@@ -1,0 +1,68 @@
+{
+    "description": "External absolute image URLs are rewritten through a configured image proxy while whitelisted hosts and local paths are preserved.",
+    "cases": [
+        {
+            "input": {
+                "html": "<p><img src=\"http://twitter.com/img.png\"></p>",
+                "proxy_endpoint": "https//assets.example.org",
+                "proxy_secret": "ssssh-secret",
+                "disabled": true
+            },
+            "expected_output": "<p><img src=\"http://twitter.com/img.png\"></p>\n"
+        },
+        {
+            "input": {
+                "html": "<p><img src=\"http://twitter.com/img.png\"></p>",
+                "proxy_endpoint": "https//assets.example.org",
+                "proxy_secret": "ssssh-secret"
+            },
+            "expected_output": "<p><img src=\"https//assets.example.org/a5ad43494e343b20d745586282be61ff530e6fa0/687474703a2f2f747769747465722e636f6d2f696d672e706e67\" data-canonical-src=\"http://twitter.com/img.png\"></p>\n"
+        },
+        {
+            "input": {
+                "html": "<p><img src=\"https://github.com/img.png\"></p>",
+                "proxy_endpoint": "https//assets.example.org",
+                "proxy_secret": "ssssh-secret"
+            },
+            "expected_output": "<p><img src=\"https://github.com/img.png\"></p>\n"
+        },
+        {
+            "input": {
+                "html": "<p><img src=\"https://notgithub.com/img.png\"></p>",
+                "proxy_endpoint": "https//assets.example.org",
+                "proxy_secret": "ssssh-secret"
+            },
+            "expected_output": "<p><img src=\"https//assets.example.org/5d4a96c69713f850520538e04cb9661035cfb534/68747470733a2f2f6e6f746769746875622e636f6d2f696d672e706e67\" data-canonical-src=\"https://notgithub.com/img.png\"></p>\n"
+        },
+        {
+            "input": {
+                "html": "<p><img src=\"/img.png\"></p>",
+                "proxy_endpoint": "https//assets.example.org",
+                "proxy_secret": "ssssh-secret"
+            },
+            "expected_output": "<p><img src=\"/img.png\"></p>\n"
+        },
+        {
+            "input": {
+                "html": "<p><img src=\"img.png\"></p>",
+                "proxy_endpoint": "https//assets.example.org",
+                "proxy_secret": "ssssh-secret"
+            },
+            "expected_output": "<p><img src=\"img.png\"></p>\n"
+        },
+        {
+            "input": {
+                "html": "<p><img></p>",
+                "proxy_endpoint": "https//assets.example.org",
+                "proxy_secret": "ssssh-secret"
+            },
+            "expected_output": "<p><img></p>\n"
+        },
+        {
+            "input": {
+                "html": ""
+            },
+            "expected_output": "error=missing_required_input\nfields=image_proxy_url,image_proxy_secret\n"
+        }
+    ]
+}

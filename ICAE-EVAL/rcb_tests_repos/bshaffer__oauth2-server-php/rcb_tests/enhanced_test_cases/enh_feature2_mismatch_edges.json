@@ -1,0 +1,39 @@
+{
+  "description": "Redirect mismatch boundaries reported as DIRECT errors. A multi-target client given a target matching none of its registrations is rejected with redirect_uri_mismatch. Under the default strict exact-match policy, a single-target client given a deeper sub-path of its registered host is also a direct mismatch (prefix is not enough when exact matching is required).",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID with Multiple Redirect Uris",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code",
+              "state": "xyz"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=redirect_uri_mismatch\nbody.error_description=The redirect URI provided is missing or does not match\nbody.error_uri=http://tools.ietf.org/html/rfc6749#section-3.1.2\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "redirect_uri": "http://brentertainment.com/cb",
+              "response_type": "code",
+              "state": "xyz"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=redirect_uri_mismatch\nbody.error_description=The redirect URI provided is missing or does not match\nbody.error_uri=http://tools.ietf.org/html/rfc6749#section-3.1.2\n"
+    }
+  ]
+}

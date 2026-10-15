@@ -1,0 +1,117 @@
+{
+  "description": "Boundary and special-character coverage for encoding application messages to compact JSON (female gender, zero/large/negative age, unicode and quote escaping, empty/missing fields).",
+  "cases": [
+    {
+      "input": {
+        "operation": "message_json_encode",
+        "person": {
+          "firstName": "Alice",
+          "lastName": "Wong",
+          "age": 0,
+          "gender": "Female",
+          "address": {
+            "unit": 0,
+            "street": "1st Ave",
+            "zipCode": "10000"
+          }
+        }
+      },
+      "expected_output": "json={\"FirstName\":\"Alice\",\"LastName\":\"Wong\",\"Age\":0,\"Gender\":\"Female\",\"Address\":{\"Unit\":0,\"Street\":\"1st Ave\",\"ZipCode\":\"10000\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_encode",
+        "person": {
+          "firstName": "Max",
+          "lastName": "Power",
+          "age": 2147483647,
+          "gender": "Male",
+          "address": {
+            "unit": 2147483647,
+            "street": "Big St",
+            "zipCode": "99999"
+          }
+        }
+      },
+      "expected_output": "json={\"FirstName\":\"Max\",\"LastName\":\"Power\",\"Age\":2147483647,\"Gender\":\"Male\",\"Address\":{\"Unit\":2147483647,\"Street\":\"Big St\",\"ZipCode\":\"99999\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_encode",
+        "person": {
+          "firstName": "Neg",
+          "lastName": "Ative",
+          "age": -5,
+          "gender": "Female",
+          "address": {
+            "unit": -1,
+            "street": "Down Rd",
+            "zipCode": "00000"
+          }
+        }
+      },
+      "expected_output": "json={\"FirstName\":\"Neg\",\"LastName\":\"Ative\",\"Age\":-5,\"Gender\":\"Female\",\"Address\":{\"Unit\":-1,\"Street\":\"Down Rd\",\"ZipCode\":\"00000\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_encode",
+        "person": {
+          "firstName": "He\"said",
+          "lastName": "O'Brien",
+          "age": 41,
+          "gender": "Male",
+          "address": {
+            "unit": 7,
+            "street": "C:\\Temp\\Path",
+            "zipCode": "Z1Z1Z1"
+          }
+        }
+      },
+      "expected_output": "json={\"FirstName\":\"He\\u0022said\",\"LastName\":\"O\\u0027Brien\",\"Age\":41,\"Gender\":\"Male\",\"Address\":{\"Unit\":7,\"Street\":\"C:\\\\Temp\\\\Path\",\"ZipCode\":\"Z1Z1Z1\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_encode",
+        "person": {
+          "firstName": "Éamonn",
+          "lastName": "张伟",
+          "age": 28,
+          "gender": "Female",
+          "address": {
+            "unit": 5,
+            "street": "中文街",
+            "zipCode": "ABCDE"
+          }
+        }
+      },
+      "expected_output": "json={\"FirstName\":\"\\u00C9amonn\",\"LastName\":\"\\u5F20\\u4F1F\",\"Age\":28,\"Gender\":\"Female\",\"Address\":{\"Unit\":5,\"Street\":\"\\u4E2D\\u6587\\u8857\",\"ZipCode\":\"ABCDE\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_encode",
+        "person": {
+          "firstName": "",
+          "lastName": "",
+          "age": 18,
+          "gender": "Male",
+          "address": {
+            "unit": 1,
+            "street": "",
+            "zipCode": ""
+          }
+        }
+      },
+      "expected_output": "json={\"FirstName\":\"\",\"LastName\":\"\",\"Age\":18,\"Gender\":\"Male\",\"Address\":{\"Unit\":1,\"Street\":\"\",\"ZipCode\":\"\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_encode",
+        "person": {
+          "age": 33,
+          "gender": "Female"
+        }
+      },
+      "expected_output": "json={\"FirstName\":null,\"LastName\":null,\"Age\":33,\"Gender\":\"Female\",\"Address\":{\"Unit\":0,\"Street\":null,\"ZipCode\":null}}\n"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+    "description": "Adding a user to a team by email attaches the member with the selected role, while missing users and duplicate members return normalized validation errors.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "add_team_member",
+                "roles": [
+                    {
+                        "key": "admin",
+                        "name": "Administrator",
+                        "permissions": [
+                            "foo"
+                        ]
+                    }
+                ],
+                "owner": {
+                    "name": "Primary Owner",
+                    "email": "owner@example.com",
+                    "password": "secret"
+                },
+                "team_name": "Product Team",
+                "member": {
+                    "name": "Invited Member",
+                    "email": "member@example.com",
+                    "password": "secret"
+                },
+                "role": "admin",
+                "check_permissions": [
+                    "foo",
+                    "bar"
+                ]
+            },
+            "expected_output": "member_count=1\nmember_email=member@example.com\nrole=admin\ncan_foo=yes\ncan_bar=no\n"
+        },
+        {
+            "input": {
+                "scenario": "add_team_member_missing",
+                "roles": [
+                    {
+                        "key": "admin",
+                        "name": "Administrator",
+                        "permissions": [
+                            "foo"
+                        ]
+                    }
+                ],
+                "owner": {
+                    "name": "Primary Owner",
+                    "email": "owner@example.com",
+                    "password": "secret"
+                },
+                "team_name": "Product Team",
+                "email": "missing@example.com",
+                "role": "admin"
+            },
+            "expected_output": "error=validation_failed\nfield=email\nmessage=We were unable to find a registered user with this email address.\n"
+        },
+        {
+            "input": {
+                "scenario": "add_team_member_duplicate",
+                "roles": [
+                    {
+                        "key": "admin",
+                        "name": "Administrator",
+                        "permissions": [
+                            "foo"
+                        ]
+                    }
+                ],
+                "owner": {
+                    "name": "Primary Owner",
+                    "email": "owner@example.com",
+                    "password": "secret"
+                },
+                "team_name": "Product Team",
+                "member": {
+                    "name": "Invited Member",
+                    "email": "member@example.com",
+                    "password": "secret"
+                },
+                "role": "admin"
+            },
+            "expected_output": "error=validation_failed\nfield=email\nmessage=This user already belongs to the team.\n"
+        }
+    ]
+}

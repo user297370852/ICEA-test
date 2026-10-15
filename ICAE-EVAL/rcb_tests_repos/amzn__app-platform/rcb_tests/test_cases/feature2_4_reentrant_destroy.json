@@ -1,0 +1,70 @@
+{
+    "description": "Teardown must be safe even when an exit callback triggers teardown of an already-tearing-down ancestor. Several children each register an exit callback that tears down the shared parent; tearing down the first child starts a chain reaction. When the dust settles, the parent and every child report as torn down without error or infinite recursion. The input builds the tree, attaches the re-entrant exit callbacks, and tears down the first child; the output reports the final liveness of the parent and every child.",
+    "cases": [
+        {
+            "input": {
+                "action": "scope",
+                "ops": [
+                    {
+                        "op": "create_root",
+                        "id": "r"
+                    },
+                    {
+                        "op": "build_child",
+                        "id": "a",
+                        "parent": "r",
+                        "name": "child-0"
+                    },
+                    {
+                        "op": "on_exit_destroy",
+                        "scope": "a",
+                        "target": "r"
+                    },
+                    {
+                        "op": "build_child",
+                        "id": "b",
+                        "parent": "r",
+                        "name": "child-1"
+                    },
+                    {
+                        "op": "on_exit_destroy",
+                        "scope": "b",
+                        "target": "r"
+                    },
+                    {
+                        "op": "build_child",
+                        "id": "c",
+                        "parent": "r",
+                        "name": "child-2"
+                    },
+                    {
+                        "op": "on_exit_destroy",
+                        "scope": "c",
+                        "target": "r"
+                    },
+                    {
+                        "op": "destroy_first_child",
+                        "scope": "r"
+                    },
+                    {
+                        "op": "is_destroyed",
+                        "scope": "r"
+                    },
+                    {
+                        "op": "is_destroyed",
+                        "scope": "a"
+                    },
+                    {
+                        "op": "is_destroyed",
+                        "scope": "b"
+                    },
+                    {
+                        "op": "is_destroyed",
+                        "scope": "c"
+                    }
+                ]
+            },
+            "expected_output": "destroyed[r]=true\ndestroyed[a]=true\ndestroyed[b]=true\ndestroyed[c]=true\n"
+        }
+    ]
+}

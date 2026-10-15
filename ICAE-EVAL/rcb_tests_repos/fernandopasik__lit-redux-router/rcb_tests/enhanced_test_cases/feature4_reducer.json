@@ -1,0 +1,125 @@
+{
+  "description": "Enhanced reducer edge cases: add-route active at insertion with parameter capture, set-active-route turning a previously-active parameterized route inactive, unrecognized action type leaving state unchanged with non-empty table, key-ordering of the output route table, navigate re-evaluating a multi-parameter route, navigate with absent state yielding initial table, and pass-through preserving pre-existing active flags.",
+  "cases": [
+    {
+      "input": {
+        "op": "reduce",
+        "state": {
+          "activeRoute": "/products/5",
+          "routes": {}
+        },
+        "action": {
+          "path": "/products/:id",
+          "type": "ADD_ROUTE"
+        }
+      },
+      "expected_output": "activeRoute=/products/5\nroute[/products/:id].active=true\nroute[/products/:id].param.id=5"
+    },
+    {
+      "input": {
+        "op": "reduce",
+        "state": {
+          "activeRoute": "/",
+          "routes": {
+            "/products/:id": {
+              "active": true,
+              "params": {
+                "id": "5"
+              }
+            }
+          }
+        },
+        "action": {
+          "path": "/about",
+          "type": "SET_ACTIVE_ROUTE"
+        }
+      },
+      "expected_output": "activeRoute=/about\nroute[/products/:id].active=false"
+    },
+    {
+      "input": {
+        "op": "reduce",
+        "state": {
+          "activeRoute": "/x",
+          "routes": {}
+        },
+        "action": {
+          "path": "/foo",
+          "type": "UNKNOWN"
+        }
+      },
+      "expected_output": "activeRoute=/x"
+    },
+    {
+      "input": {
+        "op": "reduce",
+        "state": {
+          "activeRoute": "/",
+          "routes": {
+            "/b": {
+              "active": false,
+              "params": {}
+            },
+            "/a": {
+              "active": false,
+              "params": {}
+            },
+            "/c": {
+              "active": false,
+              "params": {}
+            }
+          }
+        },
+        "action": {
+          "path": "/a",
+          "type": "SET_ACTIVE_ROUTE"
+        }
+      },
+      "expected_output": "activeRoute=/a\nroute[/a].active=true\nroute[/b].active=false\nroute[/c].active=false"
+    },
+    {
+      "input": {
+        "op": "reduce",
+        "state": {
+          "activeRoute": "/",
+          "routes": {
+            "/product/:id/:time": {
+              "active": false,
+              "params": {}
+            }
+          }
+        },
+        "action": {
+          "path": "/product/9/dec",
+          "type": "NAVIGATE"
+        }
+      },
+      "expected_output": "activeRoute=/product/9/dec\nroute[/product/:id/:time].active=true\nroute[/product/:id/:time].param.id=9\nroute[/product/:id/:time].param.time=dec"
+    },
+    {
+      "input": {
+        "op": "reduce",
+        "action": {
+          "path": "/home",
+          "type": "NAVIGATE"
+        }
+      },
+      "expected_output": "activeRoute=/home"
+    },
+    {
+      "input": {
+        "op": "reduce",
+        "state": {
+          "activeRoute": "/",
+          "routes": {
+            "/a": {
+              "active": true,
+              "params": {}
+            }
+          }
+        }
+      },
+      "expected_output": "activeRoute=/\nroute[/a].active=true"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+    "description": "Individual entities and entity properties are gated by target version. A proxy entity is only serialized for R14-class and later targets and disappears on older targets. A leader's annotation-offset property (group 213) is only written for R14-class and later targets.",
+    "cases": [
+        {
+            "input": {
+                "op": "write_entity",
+                "version": "R14",
+                "entity": {
+                    "type": "proxy"
+                }
+            },
+            "expected_output": "  0\nSECTION\n  2\nENTITIES\n  0\nACAD_PROXY_ENTITY\n  5\nA\n100\nAcDbEntity\n  8\n0\n100\nAcDbProxyEntity\n 90\n498\n 91\n500\n 92\n0\n 93\n0\n 94\n0\n  0\nENDSEC\n"
+        },
+        {
+            "input": {
+                "op": "write_entity",
+                "version": "R13",
+                "entity": {
+                    "type": "proxy"
+                }
+            },
+            "expected_output": "  0\nSECTION\n  2\nENTITIES\n  0\nENDSEC\n"
+        },
+        {
+            "input": {
+                "op": "entity_marker",
+                "version": "R14",
+                "entity": {
+                    "type": "leader"
+                },
+                "markers": [
+                    "213"
+                ]
+            },
+            "expected_output": "marker.213=present\n"
+        },
+        {
+            "input": {
+                "op": "entity_marker",
+                "version": "R13",
+                "entity": {
+                    "type": "leader"
+                },
+                "markers": [
+                    "213"
+                ]
+            },
+            "expected_output": "marker.213=absent\n"
+        }
+    ]
+}

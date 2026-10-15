@@ -1,0 +1,36 @@
+{
+  "description": "A linked coordinate reference system references a CRS by dereferenceable URI, optionally with a link type. It exposes a type marker indicating a linked system and carries the href, and the optional type, under dedicated property keys. When attached to a GeoJSON object it serializes as a nested object and is read back from that same shape. Construction rejects a null href as a missing required argument, an empty href as invalid, and an href that is not a dereferenceable URI as invalid; a relative reference is accepted. Two linked systems with the same href compare equal and share a hash code; different hrefs compare unequal.",
+  "cases": [
+    {
+      "input": {
+        "op": "make_crs",
+        "crs": {
+          "kind": "linked",
+          "href": "http://localhost"
+        }
+      },
+      "expected_output": "type=link\nprop.href=http://localhost\n"
+    },
+    {
+      "input": {
+        "op": "make_crs",
+        "crs": {
+          "kind": "linked",
+          "href": "http://localhost",
+          "type": "ogcwkt"
+        }
+      },
+      "expected_output": "type=link\nprop.href=http://localhost\nprop.type=ogcwkt\n"
+    },
+    {
+      "input": {
+        "op": "make_crs",
+        "crs": {
+          "kind": "linked",
+          "href": "http://not-a-valid-<>-url"
+        }
+      },
+      "expected_output": "error=argument_invalid\nparam=href\nreason=must_be_dereferenceable_uri\n"
+    }
+  ]
+}

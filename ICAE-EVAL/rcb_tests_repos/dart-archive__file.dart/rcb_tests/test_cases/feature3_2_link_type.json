@@ -1,0 +1,69 @@
+{
+  "description": "Determine the kind of entity at a path with link following controlled by a flag. With link-following enabled, a link to a file reports as a file; with following disabled, it reports as a link. A link whose target chain forms a loop reports as not-found when followed.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/foo"
+          },
+          {
+            "op": "create_link",
+            "path": "/bar",
+            "target": "/foo"
+          },
+          {
+            "op": "type",
+            "path": "/bar",
+            "follow_links": true
+          }
+        ]
+      },
+      "expected_output": "created_file=/foo\ncreated_link=/bar\nlink_target=/foo\ntype=file\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/foo"
+          },
+          {
+            "op": "create_link",
+            "path": "/bar",
+            "target": "/foo"
+          },
+          {
+            "op": "type",
+            "path": "/bar",
+            "follow_links": false
+          }
+        ]
+      },
+      "expected_output": "created_file=/foo\ncreated_link=/bar\nlink_target=/foo\ntype=link\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_link",
+            "path": "/foo",
+            "target": "/bar"
+          },
+          {
+            "op": "create_link",
+            "path": "/bar",
+            "target": "/foo"
+          },
+          {
+            "op": "type",
+            "path": "/foo",
+            "follow_links": true
+          }
+        ]
+      },
+      "expected_output": "created_link=/foo\nlink_target=/bar\ncreated_link=/bar\nlink_target=/foo\ntype=not_found\n"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+    "description": "Parse an offline install bundle's details document (JSON) and expose the extracted fields. A well-formed document with all required fields (runtime version, dashboard version, binary sub-directory, image sub-directory, image name, image file name) yields those values. A document with malformed JSON, a document missing or blanking any required field, or a missing file each yields a distinct neutral error category.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_bundle",
+                "content": "{\n\"daprd\": \"1.7.0\",\n\"dashboard\": \"0.10.0\",\n\"cli\": \"1.7.0\",\n\"daprBinarySubDir\": \"dist\",\n\"dockerImageSubDir\": \"docker\",\n\"daprImageName\": \"daprio/dapr:1.7.2\",\n\"daprImageFileName\": \"daprio-dapr-1.7.2.tar.gz\"\n}"
+            },
+            "expected_output": "runtime_version=1.7.0\ndashboard_version=0.10.0\nbinary_subdir=dist\nimage_subdir=docker\nimage_name=daprio/dapr:1.7.2\nimage_file_name=daprio-dapr-1.7.2.tar.gz\n"
+        },
+        {
+            "input": {
+                "action": "parse_bundle",
+                "content": "{\n\"daprd\": \"1.7.0\",\n\"dashboard\": \"0.10.0\",\n\"cli\": \"1.7.0\",\n\"daprImageName\": \"daprio/dapr:1.7.2\"\n\"daprImageFileName\": \"daprio-dapr-1.7.2.tar.gz\"\n}"
+            },
+            "expected_output": "error=malformed_details\n"
+        },
+        {
+            "input": {
+                "action": "parse_bundle",
+                "content": "{\n\"daprd\": \"\",\n\"dashboard\": \"\",\n\"cli\": \"1.7.0\",\n\"daprBinarySubDir\": \"dist\",\n\"dockerImageSubDir\": \"docker\",\n\"daprImageName\": \"daprio/dapr:1.7.2\",\n\"daprImageFileName\": \"daprio-dapr-1.7.2.tar.gz\"\n}"
+            },
+            "expected_output": "error=missing_required_fields\n"
+        },
+        {
+            "input": {
+                "action": "parse_bundle",
+                "file_missing": true
+            },
+            "expected_output": "error=file_not_found\n"
+        }
+    ]
+}

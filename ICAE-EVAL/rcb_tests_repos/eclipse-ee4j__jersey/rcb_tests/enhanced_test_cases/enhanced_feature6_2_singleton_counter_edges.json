@@ -1,0 +1,79 @@
+{
+  "description": "Edge cases for the shared application-scoped counter: reading before any set starts at 0 then increments; the value is shared across different path segments (set under one segment, read under another); hexadecimal (0x) and negative integer parsing via Integer.decode.",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter"
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=0\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=1"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter",
+            "method": "PUT",
+            "body": "50"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/zzz/counter"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/zzz/counter"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/singleton/zzz/counter\nbody=50\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/singleton/zzz/counter\nbody=51"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter",
+            "method": "PUT",
+            "body": "0x10"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=16"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter",
+            "method": "PUT",
+            "body": "-3"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha/counter"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=-3\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/singleton/alpha/counter\nbody=-2"
+    }
+  ]
+}

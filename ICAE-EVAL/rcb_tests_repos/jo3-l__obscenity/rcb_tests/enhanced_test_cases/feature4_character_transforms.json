@@ -1,0 +1,57 @@
+{
+  "description": "Enhanced transform coverage for multi-step pipelines, supplementary Unicode remaps, unchanged remap inputs, and invalid collapse-duplicates pipeline configuration handling.",
+  "cases": [
+    {
+      "input": {
+        "text": "A@$$---B",
+        "pipeline": [
+          "leet_speak",
+          "ascii_lowercase",
+          "skip_non_alphabetic"
+        ]
+      },
+      "expected_output": "{\"text\":\"aassb\",\"code_points\":[\"U+0061\",\"U+0061\",\"U+0073\",\"U+0073\",\"U+0062\"]}"
+    },
+    {
+      "input": {
+        "text": "boooook!!",
+        "pipeline": [
+          {
+            "type": "collapse_duplicates",
+            "default_threshold": 2
+          },
+          "skip_non_alphabetic"
+        ]
+      },
+      "expected_output": "error=operation_failed\nmessage=customThresholds is not iterable"
+    },
+    {
+      "input": {
+        "text": "🌉x🌉",
+        "pipeline": [
+          {
+            "type": "remap_characters",
+            "map": {
+              "z": "🌉"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"text\":\"zxz\",\"code_points\":[\"U+007A\",\"U+0078\",\"U+007A\"]}"
+    },
+    {
+      "input": {
+        "text": "whatever",
+        "pipeline": [
+          {
+            "type": "remap_characters",
+            "map": {
+              "a": "b"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"text\":\"whatever\",\"code_points\":[\"U+0077\",\"U+0068\",\"U+0061\",\"U+0074\",\"U+0065\",\"U+0076\",\"U+0065\",\"U+0072\"]}"
+    }
+  ]
+}

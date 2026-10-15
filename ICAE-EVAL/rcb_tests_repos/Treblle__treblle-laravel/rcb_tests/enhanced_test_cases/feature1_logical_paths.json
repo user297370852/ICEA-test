@@ -1,0 +1,45 @@
+{
+  "description": "Logical-path edge cases for redaction: multiple sensitive fields whose values are all null must remain null (nothing to redact, and null must not become a string), a numeric-looking single-character string value is still redacted by length, values containing JSON metacharacters are redacted by their character count while a non-sensitive field carrying the same metacharacters passes through unchanged, and multi-byte values are redacted by their underlying byte length while non-sensitive multi-byte values pass through unchanged. Key order is preserved. The output is the resulting payload serialized as a JSON object.",
+  "cases": [
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "password": null,
+          "secret": null,
+          "ssn": null
+        }
+      },
+      "expected_output": "{\"password\":null,\"secret\":null,\"ssn\":null}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "credit_score": "0"
+        }
+      },
+      "expected_output": "{\"credit_score\":\"*\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "secret": "a\"b\\c",
+          "note": "a\"b"
+        }
+      },
+      "expected_output": "{\"secret\":\"*****\",\"note\":\"a\\\"b\"}\n"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "data": {
+          "password": "café",
+          "city": "naïve"
+        }
+      },
+      "expected_output": "{\"password\":\"*****\",\"city\":\"na\\u00efve\"}\n"
+    }
+  ]
+}

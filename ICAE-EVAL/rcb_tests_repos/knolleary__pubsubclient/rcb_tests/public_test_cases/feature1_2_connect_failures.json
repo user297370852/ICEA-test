@@ -1,0 +1,38 @@
+{
+    "description": "Connection attempts that cannot complete report failure with a specific session state rather than a generic error. If the underlying transport refuses to open, the client reports a connect-failed state and transmits nothing. If the transport opens but the broker never answers, the client gives up after a fixed timeout window and reports a timeout state. If the broker answers with a non-zero CONNACK return code, the client reports failure and exposes that broker return code as the session state.",
+    "cases": [
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "allow_connect": false,
+                "steps": [
+                    {
+                        "op": "connect",
+                        "id": "client_test1"
+                    }
+                ]
+            },
+            "expected_output": "connect=0\nstate=-2\nsent=\n"
+        },
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 01"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1"
+                    }
+                ]
+            },
+            "expected_output": "connect=0\nstate=1\nsent=10 18 00 04 4d 51 54 54 04 02 00 0f 00 0c 63 6c 69 65 6e 74 5f 74 65 73 74 31\n"
+        }
+    ]
+}

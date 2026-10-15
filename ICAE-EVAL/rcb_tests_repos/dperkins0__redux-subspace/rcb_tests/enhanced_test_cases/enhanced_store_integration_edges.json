@@ -1,0 +1,241 @@
+{
+  "description": "Additional store integration edge cases covering custom trigger/update action names, repeated root dispatch overwrites, unnamespaced derived dispatch into a namespaced reducer branch, and nested routing into a namespaced child under an unnamespaced parent scope.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "store_integration",
+        "triggerType": "CUSTOM_TRIGGER",
+        "actionType": "CUSTOM_SET",
+        "reducer": {
+          "combine": {
+            "parent1": {
+              "combine": {
+                "child1": "leaf",
+                "child2": {
+                  "namespace": "childNamespace",
+                  "inner": "leaf"
+                }
+              }
+            },
+            "parent2": {
+              "namespace": "parentNamespace",
+              "inner": {
+                "combine": {
+                  "child1": "leaf",
+                  "child2": {
+                    "namespace": "childNamespace",
+                    "inner": "leaf"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "epic": {
+          "relay": {}
+        },
+        "dispatches": [
+          {
+            "path": [],
+            "action": {
+              "type": "CUSTOM_TRIGGER",
+              "value": "custom root"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"parent1\":{\"child1\":\"custom root\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n"
+    },
+    {
+      "input": {
+        "scenario": "store_integration",
+        "reducer": {
+          "combine": {
+            "parent1": {
+              "combine": {
+                "child1": "leaf",
+                "child2": {
+                  "namespace": "childNamespace",
+                  "inner": "leaf"
+                }
+              }
+            },
+            "parent2": {
+              "namespace": "parentNamespace",
+              "inner": {
+                "combine": {
+                  "child1": "leaf",
+                  "child2": {
+                    "namespace": "childNamespace",
+                    "inner": "leaf"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "epic": {
+          "relay": {}
+        },
+        "dispatches": [
+          {
+            "path": [],
+            "action": {
+              "type": "TEST_ACTION_TRIGGER",
+              "value": "first"
+            }
+          },
+          {
+            "path": [],
+            "action": {
+              "type": "TEST_ACTION_TRIGGER",
+              "value": "second"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"parent1\":{\"child1\":\"first\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n{\"parent1\":{\"child1\":\"second\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n"
+    },
+    {
+      "input": {
+        "scenario": "store_integration",
+        "reducer": {
+          "combine": {
+            "parent1": {
+              "combine": {
+                "child1": "leaf",
+                "child2": {
+                  "namespace": "childNamespace",
+                  "inner": "leaf"
+                }
+              }
+            },
+            "parent2": {
+              "namespace": "parentNamespace",
+              "inner": {
+                "combine": {
+                  "child1": "leaf",
+                  "child2": {
+                    "namespace": "childNamespace",
+                    "inner": "leaf"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "epic": {
+          "combine": [
+            {
+              "relay": {}
+            },
+            {
+              "scope": {
+                "selector": {
+                  "prop": "parent2"
+                },
+                "namespace": "parentNamespace",
+                "inner": {
+                  "relay": {}
+                }
+              }
+            }
+          ]
+        },
+        "dispatches": [
+          {
+            "path": [
+              {
+                "selector": {
+                  "prop": "parent2"
+                }
+              }
+            ],
+            "action": {
+              "type": "TEST_ACTION_TRIGGER",
+              "value": "plain parent2"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"parent1\":{\"child1\":\"plain parent2\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n"
+    },
+    {
+      "input": {
+        "scenario": "store_integration",
+        "reducer": {
+          "combine": {
+            "parent1": {
+              "combine": {
+                "child1": "leaf",
+                "child2": {
+                  "namespace": "childNamespace",
+                  "inner": "leaf"
+                }
+              }
+            },
+            "parent2": {
+              "namespace": "parentNamespace",
+              "inner": {
+                "combine": {
+                  "child1": "leaf",
+                  "child2": {
+                    "namespace": "childNamespace",
+                    "inner": "leaf"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "epic": {
+          "combine": [
+            {
+              "relay": {}
+            },
+            {
+              "scope": {
+                "selector": {
+                  "prop": "parent1"
+                },
+                "inner": {
+                  "scope": {
+                    "selector": {
+                      "prop": "child2"
+                    },
+                    "namespace": "childNamespace",
+                    "inner": {
+                      "relay": {}
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "dispatches": [
+          {
+            "path": [
+              {
+                "selector": {
+                  "prop": "parent1"
+                }
+              },
+              {
+                "selector": {
+                  "prop": "child2"
+                },
+                "namespace": "childNamespace"
+              }
+            ],
+            "action": {
+              "type": "TEST_ACTION_TRIGGER",
+              "value": "p1 child2 namespaced"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"parent1\":{\"child1\":\"initial value\",\"child2\":\"p1 child2 namespaced\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n"
+    }
+  ]
+}

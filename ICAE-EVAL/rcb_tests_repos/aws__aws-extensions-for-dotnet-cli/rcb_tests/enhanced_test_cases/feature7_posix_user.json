@@ -1,0 +1,157 @@
+{
+  "description": "Enhanced boundary coverage for POSIX effective-user resolution: the user-id probe failing by exit code, by not executing, and by emitting non-numeric output (each producing a user warning); the group-id probe failing by not executing and by non-numeric output (each producing a group warning); both probes failing so two diagnostics precede the user warning; and successful resolution of the root (0/0) and a high (65534) uid/gid pair.",
+  "cases": [
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": true,
+            "exit_code": -1,
+            "output": "",
+            "error": "boom"
+          },
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "500",
+            "error": ""
+          }
+        ]
+      },
+      "expected_output": "Error executing \"id -u\" - exit code -1 boom\nWarning: Unable to get effective user from \"id -u\"\nuser_resolved=false\n"
+    },
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": false,
+            "exit_code": 0,
+            "output": "",
+            "error": "not found"
+          },
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "1",
+            "error": ""
+          }
+        ]
+      },
+      "expected_output": "Error executing \"id -u\" not found\nWarning: Unable to get effective user from \"id -u\"\nuser_resolved=false\n"
+    },
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "abc",
+            "error": ""
+          },
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "1",
+            "error": ""
+          }
+        ]
+      },
+      "expected_output": "Error parsing output \"id -u\" (\"abc\")\nWarning: Unable to get effective user from \"id -u\"\nuser_resolved=false\n"
+    },
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "100",
+            "error": ""
+          },
+          {
+            "executed": false,
+            "exit_code": 0,
+            "output": "",
+            "error": "nope"
+          }
+        ]
+      },
+      "expected_output": "Error executing \"id -g\" nope\nWarning: Unable to get effective group from \"id -g\"\nuser_resolved=false\n"
+    },
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "100",
+            "error": ""
+          },
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "xyz",
+            "error": ""
+          }
+        ]
+      },
+      "expected_output": "Error parsing output \"id -g\" (\"xyz\")\nWarning: Unable to get effective group from \"id -g\"\nuser_resolved=false\n"
+    },
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": true,
+            "exit_code": 1,
+            "output": "",
+            "error": "e1"
+          },
+          {
+            "executed": true,
+            "exit_code": 2,
+            "output": "",
+            "error": "e2"
+          }
+        ]
+      },
+      "expected_output": "Error executing \"id -u\" - exit code 1 e1\nError executing \"id -g\" - exit code 2 e2\nWarning: Unable to get effective user from \"id -u\"\nuser_resolved=false\n"
+    },
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "0",
+            "error": ""
+          },
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "0",
+            "error": ""
+          }
+        ]
+      },
+      "expected_output": "user_id=0\ngroup_id=0\n"
+    },
+    {
+      "input": {
+        "id_results": [
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "65534",
+            "error": ""
+          },
+          {
+            "executed": true,
+            "exit_code": 0,
+            "output": "65534",
+            "error": ""
+          }
+        ]
+      },
+      "expected_output": "user_id=65534\ngroup_id=65534\n"
+    }
+  ]
+}

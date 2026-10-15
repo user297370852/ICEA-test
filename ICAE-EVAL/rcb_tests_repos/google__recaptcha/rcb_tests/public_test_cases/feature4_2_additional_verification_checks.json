@@ -1,0 +1,73 @@
+{
+    "description": "Apply optional hostname, mobile application package, action, and score constraints after the service reply is parsed.",
+    "cases": [
+        {
+            "input": {
+                "operation": "verify_token",
+                "secret": "secret",
+                "user_response_token": "response",
+                "expected_hostname": "host.name",
+                "service_response": {
+                    "success": true,
+                    "hostname": "host.NOTname"
+                }
+            },
+            "expected_output": "success=false\nerror_codes=[\"hostname-mismatch\"]\nhostname=host.NOTname\nchallenge_ts=null\napk_package_name=null\nscore=null\naction=null\n"
+        },
+        {
+            "input": {
+                "operation": "verify_token",
+                "secret": "secret",
+                "user_response_token": "response",
+                "expected_apk_package_name": "apk.name",
+                "service_response": {
+                    "success": true,
+                    "apk_package_name": "apk.NOTname"
+                }
+            },
+            "expected_output": "success=false\nerror_codes=[\"apk_package_name-mismatch\"]\nhostname=null\nchallenge_ts=null\napk_package_name=apk.NOTname\nscore=null\naction=null\n"
+        },
+        {
+            "input": {
+                "operation": "verify_token",
+                "secret": "secret",
+                "user_response_token": "response",
+                "expected_action": "action/name",
+                "service_response": {
+                    "success": true,
+                    "action": "action/NOTname"
+                }
+            },
+            "expected_output": "success=false\nerror_codes=[\"action-mismatch\"]\nhostname=null\nchallenge_ts=null\napk_package_name=null\nscore=null\naction=action/NOTname\n"
+        },
+        {
+            "input": {
+                "operation": "verify_token",
+                "secret": "secret",
+                "user_response_token": "response",
+                "score_threshold": "0.5",
+                "service_response": {
+                    "success": true,
+                    "score": "0.1"
+                }
+            },
+            "expected_output": "success=false\nerror_codes=[\"score-threshold-not-met\"]\nhostname=null\nchallenge_ts=null\napk_package_name=null\nscore=0.1\naction=null\n"
+        },
+        {
+            "input": {
+                "operation": "verify_token",
+                "secret": "secret",
+                "user_response_token": "response",
+                "score_threshold": "0.5",
+                "service_response": {
+                    "success": false,
+                    "error-codes": [
+                        "initial-error"
+                    ],
+                    "score": "0.1"
+                }
+            },
+            "expected_output": "success=false\nerror_codes=[\"initial-error\",\"score-threshold-not-met\"]\nhostname=null\nchallenge_ts=null\napk_package_name=null\nscore=0.1\naction=null\n"
+        }
+    ]
+}

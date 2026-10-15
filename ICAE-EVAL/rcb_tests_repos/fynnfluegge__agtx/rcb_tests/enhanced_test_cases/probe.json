@@ -1,0 +1,228 @@
+{
+  "description": "Synthetic enhanced native-disjoint edge cases across workflow manager adapter features.",
+  "cases": [
+    {
+      "input": {
+        "selection_text": " -1 ",
+        "agent_count": 3
+      },
+      "expected_output": "selection=invalid\nselected_index=none\n"
+    },
+    {
+      "input": {
+        "selection_text": "01",
+        "agent_count": 3
+      },
+      "expected_output": "selection=valid\nselected_index=0\ndisplay_number=1\n"
+    },
+    {
+      "input": {
+        "selection_text": " 3\n",
+        "agent_count": 3
+      },
+      "expected_output": "selection=valid\nselected_index=2\ndisplay_number=3\n"
+    },
+    {
+      "input": {
+        "color_text": "abcdef"
+      },
+      "expected_output": "color=valid\nred=171\ngreen=205\nblue=239\n"
+    },
+    {
+      "input": {
+        "color_text": "0000FF"
+      },
+      "expected_output": "color=valid\nred=0\ngreen=0\nblue=255\n"
+    },
+    {
+      "input": {
+        "color_text": "#12345g"
+      },
+      "expected_output": "color=invalid\n"
+    },
+    {
+      "input": {
+        "config_exists": true,
+        "migrated": false,
+        "database_exists": true
+      },
+      "expected_output": "action=config_exists\n"
+    },
+    {
+      "input": {
+        "config_exists": true,
+        "migrated": true,
+        "database_exists": false
+      },
+      "expected_output": "action=config_exists\n"
+    },
+    {
+      "input": {
+        "global_settings": {
+          "default_agent": "claude",
+          "base_branch": "main",
+          "phase_agents": {
+            "running": "codex",
+            "review": "gemini"
+          }
+        },
+        "project_settings": {
+          "default_agent": "opencode",
+          "phase_agents": {
+            "planning": "claude-plan"
+          }
+        },
+        "phase_queries": [
+          "planning",
+          "running",
+          "review",
+          "done"
+        ]
+      },
+      "expected_output": "default_agent=opencode\nbase_branch=main\ncopy_files=none\ninit_script=none\nphase:planning=claude-plan\nexplicit:planning=claude-plan\nphase:running=codex\nexplicit:running=codex\nphase:review=gemini\nexplicit:review=gemini\nphase:done=opencode\nexplicit:done=none\n"
+    },
+    {
+      "input": {
+        "status_texts": [
+          "Backlog",
+          " done ",
+          "running",
+          "DONE"
+        ]
+      },
+      "expected_output": "columns=backlog,planning,running,review,done\nparse:Backlog=invalid\nparse: done =invalid\nparse:running=running\nparse:DONE=invalid\n"
+    },
+    {
+      "input": {
+        "task_title": "",
+        "agent_name": "gemini",
+        "project_id": "project-empty-title",
+        "project_name": "edge project",
+        "project_path": "/tmp/edge project"
+      },
+      "expected_output": "task_id_present=true\ntask_title=\ntask_agent=gemini\ntask_project_id=project-empty-title\ntask_status=backlog\ntask_description=none\nproject_id_present=true\nproject_name=edge project\nproject_path=/tmp/edge project\nproject_remote=none\n"
+    },
+    {
+      "input": {
+        "board_tasks": [
+          {
+            "title": "Mystery",
+            "status": "not-a-status"
+          },
+          {
+            "title": "Plan",
+            "status": "planning"
+          },
+          {
+            "title": "Review",
+            "status": "review"
+          },
+          {
+            "title": "Done",
+            "status": "done"
+          }
+        ],
+        "selected_column": 4,
+        "selected_row": 0,
+        "moves": [
+          "left",
+          "left",
+          "up",
+          "right"
+        ]
+      },
+      "expected_output": "selected_column=3\nselected_row=0\ncolumn:0:backlog=Mystery\ncolumn:1:planning=Plan\ncolumn:2:running=empty\ncolumn:3:review=Review\ncolumn:4:done=Done\nselected_task=Review\nselected_status=review\n"
+    },
+    {
+      "input": {
+        "project_path": "/",
+        "task_slug": "root-task"
+      },
+      "expected_output": "worktree_path=/.agtx/worktrees/root-task\n"
+    },
+    {
+      "input": {
+        "worktree_initialization": {
+          "project_files": {
+            ".env": "A=1",
+            "config/settings.json": "{}"
+          },
+          "copy_files": ".env, config/settings.json",
+          "init_script": "printf ready > ready.txt",
+          "check_paths": [
+            ".env",
+            "config/settings.json",
+            "ready.txt"
+          ]
+        }
+      },
+      "expected_output": "warning_count=0\npath:.env=present\ncontent:.env=A=1\npath:config/settings.json=present\ncontent:config/settings.json={}\npath:ready.txt=present\ncontent:ready.txt=ready\n"
+    },
+    {
+      "input": {
+        "popup_lines": [
+          "line 0",
+          "line 1",
+          "line 2",
+          "line 3",
+          "line 4"
+        ],
+        "visible_height": 3,
+        "scroll_offset": 0
+      },
+      "expected_output": "start_line=2\ntotal_lines=5\nvisible_count=3\nvisible:0=line 2\nvisible:1=line 3\nvisible:2=line 4\n"
+    },
+    {
+      "input": {
+        "popup_lines": [
+          "line 0",
+          "line 1",
+          "line 2",
+          "line 3",
+          "line 4"
+        ],
+        "visible_height": 3,
+        "scroll_offset": -99
+      },
+      "expected_output": "start_line=0\ntotal_lines=5\nvisible_count=3\nvisible:0=line 0\nvisible:1=line 1\nvisible:2=line 2\n"
+    },
+    {
+      "input": {
+        "captured_lines": [
+          "line 1",
+          "",
+          ""
+        ]
+      },
+      "expected_output": "line_count=1\nline:0=line 1\n"
+    },
+    {
+      "input": {
+        "skill_directory": "agtx-review",
+        "agent_name": "claude"
+      },
+      "expected_output": "native_dir=.claude/commands|agtx\nfilename=review.md\ninvocation=/agtx:review\nreference=\n"
+    },
+    {
+      "input": {
+        "skill_directory": "agtx-review",
+        "agent_name": "opencode"
+      },
+      "expected_output": "native_dir=.opencode/commands|\nfilename=agtx-review.md\ninvocation=/agtx-review\nreference=\n"
+    },
+    {
+      "input": {
+        "canonical_command": "/agtx:review --fast",
+        "agent_name": "codex"
+      },
+      "expected_output": "transformed=$agtx-review --fast\n"
+    },
+    {
+      "input": {
+        "canonical_command": "/agtx:review --fast",
+        "agent_name": "opencode"
+      },
+      "expected_output": "transformed=/agtx-review --fast\n"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+    "description": "A document matcher selects documents based on structural properties of a field rather than its concrete value. The existence condition keeps documents in which the field is present (even when its value is null). The array-size condition keeps documents whose array field has exactly the given number of elements. The modulo condition keeps documents whose numeric field, divided by a given divisor, leaves a given remainder. Documents are returned in their original order; an absent field does not satisfy these positive conditions.",
+    "cases": [
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$exists": true
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "b": null
+                    },
+                    {
+                        "a": "hi"
+                    },
+                    {
+                        "b": "hi"
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" :  null }\n{ \"a\" : \"hi\"}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$size": 3
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    {
+                        "a": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$mod": [
+                            10,
+                            1
+                        ]
+                    }
+                },
+                "documents": [
+                    {
+                        "a": 1
+                    },
+                    {
+                        "a": null
+                    },
+                    {
+                        "a": 21
+                    },
+                    {
+                        "a": 22
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : 1}\n{ \"a\" : 21}\n"
+        }
+    ]
+}

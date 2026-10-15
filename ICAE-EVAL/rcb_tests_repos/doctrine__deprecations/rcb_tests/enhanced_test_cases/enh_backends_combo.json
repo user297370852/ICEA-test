@@ -1,0 +1,62 @@
+{
+  "description": "Backend-routing combinations: enabling both the error-trigger and PSR-logger backends together (one notice block per backend), the PSR backend deduplicating like the error backend, and a PSR notice suppressed by package silencing while still being counted.",
+  "cases": [
+    {
+      "input": {
+        "enable": [
+          "psr",
+          "trigger"
+        ],
+        "triggers": [
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/dual",
+            "message": "to both %s",
+            "args": [
+              "sinks"
+            ]
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=to both sinks\npackage=acme/orm\nlink=https://dep.example.com/orm/dual\nevent=deprecation_notice\nbackend=psr_logger\nmessage=to both sinks\npackage=acme/orm\nlink=https://dep.example.com/orm/dual\nunique_count=1\ncount[https://dep.example.com/orm/dual]=1\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "psr"
+        ],
+        "triggers": [
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/pd",
+            "message": "psr dup"
+          },
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/pd",
+            "message": "psr dup"
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=psr_logger\nmessage=psr dup\npackage=acme/orm\nlink=https://dep.example.com/orm/pd\nunique_count=2\ncount[https://dep.example.com/orm/pd]=2\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "psr"
+        ],
+        "ignore_packages": [
+          "acme/orm"
+        ],
+        "triggers": [
+          {
+            "package": "acme/orm",
+            "link": "https://dep.example.com/orm/psilent",
+            "message": "silenced"
+          }
+        ]
+      },
+      "expected_output": "unique_count=1\ncount[https://dep.example.com/orm/psilent]=1\n"
+    }
+  ]
+}

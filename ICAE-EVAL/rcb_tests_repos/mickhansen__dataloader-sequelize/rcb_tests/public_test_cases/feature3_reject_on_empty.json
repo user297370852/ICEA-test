@@ -1,0 +1,31 @@
+{
+    "description": "A load may request that an empty result be treated as an error rather than an empty collection. When such a load resolves to no linked records it is rejected with a neutral empty-result error category; an owner that does have linked records resolves normally; and the same empty owner loaded WITHOUT the reject flag resolves to an empty collection. All of these are issued concurrently and still share a single batched round-trip. The reported signals are the round-trip count and, per load, either the returned id set, an empty collection, or the empty-result error category.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "simple_string",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "members",
+                        "options": {
+                            "rejectOnEmpty": true
+                        }
+                    },
+                    {
+                        "project": 4,
+                        "as": "members",
+                        "options": {
+                            "rejectOnEmpty": true
+                        }
+                    },
+                    {
+                        "project": 4,
+                        "as": "members"
+                    }
+                ]
+            },
+            "expected_output": "queries=1\nbatch=1,4,4\nr0.op0=members=101,102,103,104\nr0.op1=error=empty_result\nr0.op2=members=\n"
+        }
+    ]
+}

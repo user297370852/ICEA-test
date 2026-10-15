@@ -1,0 +1,42 @@
+{
+    "description": "Use the state-reporting mode to observe that remaining burst capacity replenishes accurately over time for a quota built from a custom replenishment period and an explicit burst. Admissions decrease the reported remaining capacity to zero and then are rejected (reporting the wait time in nanoseconds). After advancing the virtual clock well beyond a full replenishment window, the reported remaining capacity is fully restored to the burst size and again decreases by one per admission down to zero before the next request is rejected.",
+    "cases": [
+        {
+            "input": {
+                "action": "simulate",
+                "middleware": "state",
+                "quota": {
+                    "with_period_ms": 90,
+                    "allow_burst": 2
+                },
+                "ops": [
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 120000
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    }
+                ]
+            },
+            "expected_output": "check allow remaining=1\ncheck allow remaining=0\ncheck deny wait_ns=90000000\nadvance now_ns=120000000000\ncheck allow remaining=2\ncheck allow remaining=1\ncheck allow remaining=0\ncheck deny wait_ns=90000000\n"
+        }
+    ]
+}

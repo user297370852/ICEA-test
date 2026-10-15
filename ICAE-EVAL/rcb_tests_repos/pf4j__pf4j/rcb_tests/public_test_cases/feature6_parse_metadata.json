@@ -1,0 +1,28 @@
+{
+    "description": "Parse a plugin's metadata key/value map into a normalized descriptor. The recognized keys are the plugin id, description, implementation class, version, provider, a comma-separated dependencies list, a version-requires expression, and a license. The descriptor echoes each field; an absent description normalizes to the empty string, an absent requires expression normalizes to the any-version wildcard, and the dependencies list is parsed into normalized coordinate tokens (identifier, an at-sign, the version-support expression which defaults to the wildcard, and a trailing question mark when optional).",
+    "cases": [
+        {
+            "input": {"action": "parse_metadata", "properties": {
+                "plugin.id": "alpha-plugin",
+                "plugin.class": "com.example.plugins.SamplePlugin",
+                "plugin.version": "0.0.1",
+                "plugin.description": "Sample plugin one",
+                "plugin.provider": "Acme Corp",
+                "plugin.dependencies": "beta-plugin,gamma-plugin@~1.0",
+                "plugin.requires": ">=1",
+                "plugin.license": "Apache-2.0"
+            }},
+            "expected_output": "id=alpha-plugin\ndescription=Sample plugin one\nclass=com.example.plugins.SamplePlugin\nversion=0.0.1\nprovider=Acme Corp\nrequires=>=1\nlicense=Apache-2.0\ndependencies=beta-plugin@*,gamma-plugin@~1.0\n"
+        },
+        {
+            "input": {"action": "parse_metadata", "properties": {
+                "plugin.id": "beta-plugin",
+                "plugin.class": "com.example.plugins.SamplePlugin",
+                "plugin.version": "0.0.1",
+                "plugin.provider": "Acme Corp",
+                "plugin.dependencies": ""
+            }},
+            "expected_output": "id=beta-plugin\ndescription=\nclass=com.example.plugins.SamplePlugin\nversion=0.0.1\nprovider=Acme Corp\nrequires=*\nlicense=\ndependencies=\n"
+        }
+    ]
+}

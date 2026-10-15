@@ -1,0 +1,64 @@
+{
+  "description": "Copy a file's content to a destination path, returning the destination path. If the destination already exists as a file, its content is overwritten by the source's content. Copying a non-existent source fails with a not-found category.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/a",
+            "text": "hi"
+          },
+          {
+            "op": "copy",
+            "from": "/a",
+            "to": "/b"
+          },
+          {
+            "op": "read",
+            "path": "/b"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=2\ncopied=/b\ntext=\"hi\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/a",
+            "text": "new"
+          },
+          {
+            "op": "write",
+            "path": "/b",
+            "text": "old"
+          },
+          {
+            "op": "copy",
+            "from": "/a",
+            "to": "/b"
+          },
+          {
+            "op": "read",
+            "path": "/b"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=3\nwrote_bytes=3\ncopied=/b\ntext=\"new\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "copy",
+            "from": "/nope",
+            "to": "/b"
+          }
+        ]
+      },
+      "expected_output": "error=no_such_file_or_directory\n"
+    }
+  ]
+}

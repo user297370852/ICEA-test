@@ -1,0 +1,66 @@
+{
+  "description": "Property-header round-trips over varied presence bitmaps: only a timestamp; only delivery_mode/priority octets at boundary values 0; a single textual property; an empty application_headers table; and a first-slot-only property exercising the high flag bit.",
+  "cases": [
+    {
+      "input": {
+        "op": "properties",
+        "properties": {
+          "timestamp": 0
+        }
+      },
+      "expected_output": "wire=00400000000000000000\ntimestamp=int:0"
+    },
+    {
+      "input": {
+        "op": "properties",
+        "properties": {
+          "delivery_mode": 2,
+          "priority": 0
+        }
+      },
+      "expected_output": "wire=18000200\ndelivery_mode=int:2\npriority=int:0"
+    },
+    {
+      "input": {
+        "op": "properties",
+        "properties": {
+          "content_type": "text/plain"
+        }
+      },
+      "expected_output": "wire=80000a746578742f706c61696e\ncontent_type=str:text/plain"
+    },
+    {
+      "input": {
+        "op": "properties",
+        "properties": {
+          "application_headers": {}
+        }
+      },
+      "expected_output": "wire=200000000000\napplication_headers=table:{}"
+    },
+    {
+      "input": {
+        "op": "properties",
+        "properties": {
+          "app_id": "only-last-slot"
+        }
+      },
+      "expected_output": "wire=00080e6f6e6c792d6c6173742d736c6f74\napp_id=str:only-last-slot"
+    },
+    {
+      "input": {
+        "op": "properties",
+        "properties": {
+          "application_headers": {
+            "n": -5,
+            "flag": true,
+            "s": "x"
+          },
+          "priority": 9,
+          "timestamp": 1000000000
+        }
+      },
+      "expected_output": "wire=284000000016016e49fffffffb04666c61677401017353000000017809000000003b9aca00\napplication_headers=table:{flag=bool:true,n=int:-5,s=str:x}\npriority=int:9\ntimestamp=int:1000000000"
+    }
+  ]
+}

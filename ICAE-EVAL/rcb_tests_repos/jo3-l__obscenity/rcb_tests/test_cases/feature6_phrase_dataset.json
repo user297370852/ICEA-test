@@ -1,0 +1,230 @@
+{
+  "description": "Phrase datasets collect patterns, whitelisted terms, and metadata; building assigns sequential pattern ids, merging appends other data, removal filters phrases, and payload lookup attaches phrase metadata.",
+  "cases": [
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "hi",
+              "bye"
+            ]
+          },
+          {
+            "patterns": [
+              "huh",
+              "huhu"
+            ]
+          }
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"hi\",\"code_points\":[\"U+0068\",\"U+0069\"]}]}},{\"id\":1,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"bye\",\"code_points\":[\"U+0062\",\"U+0079\",\"U+0065\"]}]}},{\"id\":2,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"huh\",\"code_points\":[\"U+0068\",\"U+0075\",\"U+0068\"]}]}},{\"id\":3,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"huhu\",\"code_points\":[\"U+0068\",\"U+0075\",\"U+0068\",\"U+0075\"]}]}}],\"whitelisted_terms\":[]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "hi",
+              "bye",
+              "yo"
+            ]
+          }
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"hi\",\"code_points\":[\"U+0068\",\"U+0069\"]}]}},{\"id\":1,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"bye\",\"code_points\":[\"U+0062\",\"U+0079\",\"U+0065\"]}]}},{\"id\":2,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"yo\",\"code_points\":[\"U+0079\",\"U+006F\"]}]}}],\"whitelisted_terms\":[]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [],
+            "whitelist": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ]
+          }
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[],\"whitelisted_terms\":[\"a\",\"b\",\"c\",\"d\"]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "hi",
+              "bye"
+            ],
+            "whitelist": [
+              "a"
+            ],
+            "metadata": "greetings"
+          },
+          {
+            "patterns": [
+              "morning",
+              "night"
+            ],
+            "whitelist": [
+              "b"
+            ],
+            "metadata": "times-of-day"
+          },
+          {
+            "patterns": [
+              "sad",
+              "happy"
+            ],
+            "whitelist": [
+              "c"
+            ],
+            "metadata": "emotions"
+          }
+        ],
+        "remove_metadata": [
+          "emotions",
+          "greetings"
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"morning\",\"code_points\":[\"U+006D\",\"U+006F\",\"U+0072\",\"U+006E\",\"U+0069\",\"U+006E\",\"U+0067\"]}]}},{\"id\":1,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"night\",\"code_points\":[\"U+006E\",\"U+0069\",\"U+0067\",\"U+0068\",\"U+0074\"]}]}}],\"whitelisted_terms\":[\"b\"]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "hmm."
+            ],
+            "metadata": "hmm metadata"
+          }
+        ],
+        "payloads": [
+          {
+            "term_id": 0,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          }
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"hmm.\",\"code_points\":[\"U+0068\",\"U+006D\",\"U+006D\",\"U+002E\"]}]}}],\"whitelisted_terms\":[],\"payloads\":[{\"term_id\":0,\"start_index\":0,\"end_index\":0,\"match_length\":0,\"phrase_metadata\":\"hmm metadata\"}]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "hi",
+              "bye"
+            ],
+            "metadata": "greetings"
+          },
+          {
+            "patterns": [
+              "sad",
+              "happy"
+            ],
+            "metadata": "emotion"
+          }
+        ],
+        "payloads": [
+          {
+            "term_id": 0,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          },
+          {
+            "term_id": 1,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          },
+          {
+            "term_id": 2,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          },
+          {
+            "term_id": 3,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          }
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"hi\",\"code_points\":[\"U+0068\",\"U+0069\"]}]}},{\"id\":1,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"bye\",\"code_points\":[\"U+0062\",\"U+0079\",\"U+0065\"]}]}},{\"id\":2,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"sad\",\"code_points\":[\"U+0073\",\"U+0061\",\"U+0064\"]}]}},{\"id\":3,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"happy\",\"code_points\":[\"U+0068\",\"U+0061\",\"U+0070\",\"U+0070\",\"U+0079\"]}]}}],\"whitelisted_terms\":[],\"payloads\":[{\"term_id\":0,\"start_index\":0,\"end_index\":0,\"match_length\":0,\"phrase_metadata\":\"greetings\"},{\"term_id\":1,\"start_index\":0,\"end_index\":0,\"match_length\":0,\"phrase_metadata\":\"greetings\"},{\"term_id\":2,\"start_index\":0,\"end_index\":0,\"match_length\":0,\"phrase_metadata\":\"emotion\"},{\"term_id\":3,\"start_index\":0,\"end_index\":0,\"match_length\":0,\"phrase_metadata\":\"emotion\"}]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "hi",
+              "bye"
+            ],
+            "metadata": "greetings"
+          },
+          {
+            "patterns": [
+              "sad",
+              "happy"
+            ],
+            "metadata": "emotion"
+          }
+        ],
+        "merge": {
+          "phrases": [
+            {
+              "patterns": [
+                ":D",
+                ":("
+              ],
+              "metadata": "emojis"
+            }
+          ]
+        },
+        "payloads": [
+          {
+            "term_id": 4,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          },
+          {
+            "term_id": 5,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          }
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"hi\",\"code_points\":[\"U+0068\",\"U+0069\"]}]}},{\"id\":1,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"bye\",\"code_points\":[\"U+0062\",\"U+0079\",\"U+0065\"]}]}},{\"id\":2,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"sad\",\"code_points\":[\"U+0073\",\"U+0061\",\"U+0064\"]}]}},{\"id\":3,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"happy\",\"code_points\":[\"U+0068\",\"U+0061\",\"U+0070\",\"U+0070\",\"U+0079\"]}]}},{\"id\":4,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\":D\",\"code_points\":[\"U+003A\",\"U+0044\"]}]}},{\"id\":5,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\":(\",\"code_points\":[\"U+003A\",\"U+0028\"]}]}}],\"whitelisted_terms\":[],\"payloads\":[{\"term_id\":4,\"start_index\":0,\"end_index\":0,\"match_length\":0,\"phrase_metadata\":\"emojis\"},{\"term_id\":5,\"start_index\":0,\"end_index\":0,\"match_length\":0,\"phrase_metadata\":\"emojis\"}]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "hmm."
+            ],
+            "metadata": "hmm metadata"
+          }
+        ],
+        "payloads": [
+          {
+            "term_id": 3,
+            "start_index": 0,
+            "end_index": 0,
+            "match_length": 0
+          }
+        ]
+      },
+      "expected_output": "error=unknown_pattern_id\nid=3"
+    }
+  ]
+}

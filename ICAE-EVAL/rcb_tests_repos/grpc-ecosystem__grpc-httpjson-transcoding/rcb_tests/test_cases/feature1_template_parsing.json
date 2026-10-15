@@ -1,0 +1,40 @@
+{
+    "description": "Parse HTTP-style path patterns into matchable segments, variables, and optional terminal action suffixes; malformed patterns are rejected.",
+    "cases": [
+        {
+            "input": {
+                "operation": "parse_template",
+                "template": "/shelves/{shelf}/books/{book}"
+            },
+            "expected_output": "valid=true\nsegments=shelves,*,books,*\nverb=\nvariables=shelf[1:2:single];book[3:4:single]\n"
+        },
+        {
+            "input": {
+                "operation": "parse_template",
+                "template": "/a/{b=c/**}/d/e"
+            },
+            "expected_output": "valid=true\nsegments=a,c,**,d,e\nverb=\nvariables=b[1:-3:multi]\n"
+        },
+        {
+            "input": {
+                "operation": "parse_template",
+                "template": "/a/{b=c/**/d}/e:verb"
+            },
+            "expected_output": "valid=true\nsegments=a,c,**,d,e\nverb=verb\nvariables=b[1:-3:multi]\n"
+        },
+        {
+            "input": {
+                "operation": "parse_template",
+                "template": "/a{x}"
+            },
+            "expected_output": "valid=false\n"
+        },
+        {
+            "input": {
+                "operation": "parse_template",
+                "template": "/a//b"
+            },
+            "expected_output": "valid=false\n"
+        }
+    ]
+}

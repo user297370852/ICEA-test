@@ -1,0 +1,247 @@
+{
+  "description": "Stats card edge cases not covered natively: possessive suffix when the name ends in 'x', an empty name, large values that get abbreviated, hiding a single stat (height 170) versus four stats (clamped to 150), hide_rank combined with hidden stats (no 150 clamp), hide_title together with hide_rank, show_icons combined with hiding stats, a custom line_height, and an unknown theme falling back to default.",
+  "cases": [
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Alex",
+          "totalStars": 1,
+          "totalCommits": 2,
+          "totalIssues": 3,
+          "totalPRs": 4,
+          "contributedTo": 5,
+          "rank": {
+            "level": "S",
+            "score": 5
+          }
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Alex' GitHub Stats\nheight=195\nicon_count=0\nrank_circle=present\nstat_commits=2\nstat_contribs=5\nstat_issues=3\nstat_prs=4\nstat_stars=1\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "",
+          "totalStars": 10,
+          "totalCommits": 20,
+          "totalIssues": 30,
+          "totalPRs": 40,
+          "contributedTo": 50,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader='s GitHub Stats\nheight=195\nicon_count=0\nrank_circle=present\nstat_commits=20\nstat_contribs=50\nstat_issues=30\nstat_prs=40\nstat_stars=10\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 12345,
+          "totalCommits": 67890,
+          "totalIssues": 1000,
+          "totalPRs": 2500,
+          "contributedTo": 9900000,
+          "rank": {
+            "level": "S+",
+            "score": 1
+          }
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Jane Doe's GitHub Stats\nheight=195\nicon_count=0\nrank_circle=present\nstat_commits=67.9k\nstat_contribs=9900k\nstat_issues=1k\nstat_prs=2.5k\nstat_stars=12.3k\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "hide": [
+            "stars"
+          ]
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Jane Doe's GitHub Stats\nheight=170\nicon_count=0\nrank_circle=present\nstat_commits=200\nstat_contribs=500\nstat_issues=300\nstat_prs=400\nstat_stars=<absent>\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "hide": [
+            "stars",
+            "commits",
+            "issues",
+            "prs"
+          ]
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Jane Doe's GitHub Stats\nheight=150\nicon_count=0\nrank_circle=present\nstat_commits=<absent>\nstat_contribs=500\nstat_issues=<absent>\nstat_prs=<absent>\nstat_stars=<absent>\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "hide_rank": true,
+          "hide": [
+            "stars",
+            "commits",
+            "issues",
+            "prs"
+          ]
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Jane Doe's GitHub Stats\nheight=95\nicon_count=0\nrank_circle=absent\nstat_commits=<absent>\nstat_contribs=500\nstat_issues=<absent>\nstat_prs=<absent>\nstat_stars=<absent>\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "hide_title": true,
+          "hide_rank": true
+        }
+      },
+      "expected_output": "body_transform=translate(0, -30)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=<none>\nheight=165\nicon_count=0\nrank_circle=absent\nstat_commits=200\nstat_contribs=500\nstat_issues=300\nstat_prs=400\nstat_stars=100\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "show_icons": true,
+          "hide": [
+            "issues",
+            "contribs"
+          ]
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Jane Doe's GitHub Stats\nheight=150\nicon_count=3\nrank_circle=present\nstat_commits=200\nstat_contribs=<absent>\nstat_issues=<absent>\nstat_prs=400\nstat_stars=100\nstars_label_x=25\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "line_height": 40
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Jane Doe's GitHub Stats\nheight=285\nicon_count=0\nrank_circle=present\nstat_commits=200\nstat_contribs=500\nstat_issues=300\nstat_prs=400\nstat_stars=100\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Max",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "theme": "no_such_theme"
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#FFFEFE\ncard_bg_stroke_opacity=1\nheader=Max' GitHub Stats\nheight=195\nicon_count=0\nrank_circle=present\nstat_commits=200\nstat_contribs=500\nstat_issues=300\nstat_prs=400\nstat_stars=100\nstars_label_x=<none>\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\nstyle_stat_fill=#333\n"
+    },
+    {
+      "input": {
+        "op": "stats_card",
+        "stats": {
+          "name": "Jane Doe",
+          "totalStars": 100,
+          "totalCommits": 200,
+          "totalIssues": 300,
+          "totalPRs": 400,
+          "contributedTo": 500,
+          "rank": {
+            "level": "A+",
+            "score": 40
+          }
+        },
+        "options": {
+          "hide_border": true,
+          "hide_rank": true,
+          "theme": "dark"
+        }
+      },
+      "expected_output": "body_transform=translate(0, 0)\ncard_bg_fill=#151515\ncard_bg_stroke_opacity=0\nheader=Jane Doe's GitHub Stats\nheight=195\nicon_count=0\nrank_circle=absent\nstat_commits=200\nstat_contribs=500\nstat_issues=300\nstat_prs=400\nstat_stars=100\nstars_label_x=<none>\nstyle_header_fill=#fff\nstyle_icon_fill=#79ff97\nstyle_stat_fill=#9f9f9f\n"
+    }
+  ]
+}

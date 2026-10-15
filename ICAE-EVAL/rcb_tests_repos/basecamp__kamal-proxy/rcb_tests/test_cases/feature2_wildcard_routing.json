@@ -1,0 +1,102 @@
+{
+    "description": "A service may be registered under a wildcard host pattern that matches any single-label subdomain of a base domain, or with an empty host set that makes it the catch-all for requests not matched by any other service. An exact host registration takes precedence over an overlapping wildcard registration. A wildcard pattern matches subdomains but not the bare base domain itself. Each probe reports the resulting response status and the backend-provided body.",
+    "cases": [
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "wildcard": {
+                        "body": "wildcard-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "sw",
+                        "hosts": [
+                            "*.example.com"
+                        ],
+                        "target": "wildcard"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://foo.example.com/",
+                        "method": "GET"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy sw ok\nstatus=200 target=wildcard-app\nstatus=404 target=Not Found\n"
+        },
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "wildcard": {
+                        "body": "wildcard-app"
+                    },
+                    "exact": {
+                        "body": "exact-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "sw",
+                        "hosts": [
+                            "*.example.com"
+                        ],
+                        "target": "wildcard"
+                    },
+                    {
+                        "op": "deploy",
+                        "name": "se",
+                        "hosts": [
+                            "api.example.com"
+                        ],
+                        "target": "exact"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://foo.example.com/",
+                        "method": "GET"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://api.example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy sw ok\ndeploy se ok\nstatus=200 target=wildcard-app\nstatus=200 target=exact-app\n"
+        },
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "catchall": {
+                        "body": "catchall-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "sc",
+                        "hosts": [],
+                        "target": "catchall"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://anything.test/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy sc ok\nstatus=200 target=catchall-app\n"
+        }
+    ]
+}

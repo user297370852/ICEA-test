@@ -1,0 +1,183 @@
+{
+  "description": "Apply a batch of write commands and then observe the resulting store state with ordinary follow-up reads, covering boundary inputs such as an empty batch read of an absent key, empty-string values, overwriting the same key, multiple pushes followed by exhausting reads, deeply nested batches, unicode payloads, and a single command pushing several values.",
+  "cases": [
+    {
+      "input": {
+        "action": "apply",
+        "batch": [],
+        "reads": [
+          [
+            "get",
+            "missing"
+          ]
+        ]
+      },
+      "expected_output": "nil\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "batch": [
+          [
+            "set",
+            "foo",
+            ""
+          ]
+        ],
+        "reads": [
+          [
+            "get",
+            "foo"
+          ]
+        ]
+      },
+      "expected_output": "str:\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "batch": [
+          [
+            "set",
+            "foo",
+            "a"
+          ],
+          [
+            "set",
+            "foo",
+            "b"
+          ]
+        ],
+        "reads": [
+          [
+            "get",
+            "foo"
+          ]
+        ]
+      },
+      "expected_output": "str:b\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "batch": [
+          [
+            "lpush",
+            "L",
+            "a"
+          ],
+          [
+            "lpush",
+            "L",
+            "b"
+          ],
+          [
+            "lpush",
+            "L",
+            "c"
+          ]
+        ],
+        "reads": [
+          [
+            "llen",
+            "L"
+          ],
+          [
+            "lpop",
+            "L"
+          ],
+          [
+            "lpop",
+            "L"
+          ],
+          [
+            "lpop",
+            "L"
+          ],
+          [
+            "lpop",
+            "L"
+          ]
+        ]
+      },
+      "expected_output": "int:3\nstr:c\nstr:b\nstr:a\nnil\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "batch": [
+          [
+            "set",
+            "a",
+            "1"
+          ],
+          {
+            "batch": [
+              [
+                "set",
+                "b",
+                "2"
+              ],
+              {
+                "batch": [
+                  [
+                    "set",
+                    "c",
+                    "3"
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "reads": [
+          [
+            "get",
+            "a"
+          ],
+          [
+            "get",
+            "b"
+          ],
+          [
+            "get",
+            "c"
+          ]
+        ]
+      },
+      "expected_output": "str:1\nstr:2\nstr:3\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "batch": [
+          [
+            "set",
+            "u",
+            "héllo-世界"
+          ]
+        ],
+        "reads": [
+          [
+            "get",
+            "u"
+          ]
+        ]
+      },
+      "expected_output": "str:héllo-世界\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "batch": [],
+        "reads": [
+          [
+            "llen",
+            "nope"
+          ]
+        ]
+      },
+      "expected_output": "int:0\n"
+    }
+  ]
+}

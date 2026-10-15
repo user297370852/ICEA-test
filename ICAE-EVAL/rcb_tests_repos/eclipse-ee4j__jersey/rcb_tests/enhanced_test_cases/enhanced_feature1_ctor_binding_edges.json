@@ -1,0 +1,142 @@
+{
+  "description": "Edge cases for constructor parameter binding: an unknown path segment hits the default branch (HTTP 400); echoing a bound value that was not supplied yields an empty body; empty/encoded query and matrix values; and the echoed selector ignores other request data that is present but not selected.",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/unknown"
+          }
+        ]
+      },
+      "expected_output": "status=400\nurl=http://localhost:9998/main/ctor-injected/unknown\nbody="
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/queryParam"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/ctor-injected/queryParam\nbody="
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/matrixParam"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/ctor-injected/matrixParam\nbody="
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/headerParam"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/ctor-injected/headerParam\nbody="
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/queryParam",
+            "query": {
+              "q": ""
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/ctor-injected/queryParam?q=\nbody="
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/queryParam",
+            "query": {
+              "q": "a b"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/ctor-injected/queryParam?q=a+b\nbody=a b"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/matrixParam",
+            "matrix": {
+              "m": "9999999999"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/ctor-injected/matrixParam;m=9999999999\nbody=9999999999"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/pathParam",
+            "query": {
+              "q": "x"
+            },
+            "matrix": {
+              "m": "y"
+            },
+            "headers": {
+              "Custom-Header": "z"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/ctor-injected/pathParam;m=y?q=x\nbody=pathParam"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/cdiParam",
+            "query": {
+              "q": "ignored"
+            },
+            "headers": {
+              "Custom-Header": "ignored"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/ctor-injected/cdiParam?q=ignored\nbody=cdi-produced"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "ctor-injected/headerParam",
+            "headers": {
+              "Custom-Header": "multi word value"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/ctor-injected/headerParam\nbody=multi word value"
+    }
+  ]
+}

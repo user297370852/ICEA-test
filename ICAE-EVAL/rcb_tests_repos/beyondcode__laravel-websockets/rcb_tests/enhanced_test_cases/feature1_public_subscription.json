@@ -1,0 +1,80 @@
+{
+  "description": "A client opens a subscription to an open channel by sending a subscribe control message naming the channel. The server registers the client and sends back exactly one acknowledgement event. The report can additionally show the resulting channel occupancy and subscriber count.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "100.1"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "solo-channel"
+              }
+            }
+          }
+        ],
+        "report": {
+          "connections": [
+            "a"
+          ],
+          "channels": [
+            "solo-channel"
+          ]
+        }
+      },
+      "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"solo-channel\"}\n[channel:solo-channel] occupied=true subscription_count=1\n"
+    },
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "100.1"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "alpha-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "beta-channel"
+              }
+            }
+          }
+        ],
+        "report": {
+          "connections": [
+            "a"
+          ],
+          "channels": [
+            "alpha-channel",
+            "beta-channel"
+          ]
+        }
+      },
+      "expected_output": "[a] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"alpha-channel\"}\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"beta-channel\"}\n[channel:alpha-channel] occupied=true subscription_count=1\n[channel:beta-channel] occupied=true subscription_count=1\n"
+    }
+  ]
+}

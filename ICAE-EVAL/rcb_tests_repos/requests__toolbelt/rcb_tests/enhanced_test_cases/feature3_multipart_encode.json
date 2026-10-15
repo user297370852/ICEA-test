@@ -1,0 +1,95 @@
+{
+  "description": "Boundary coverage for multipart serialization: a single simple field, a file-style field without an explicit content type, an empty file content, a unicode value, and several fields combined.",
+  "cases": [
+    {
+      "input": {
+        "action": "multipart_encode",
+        "boundary": "BND",
+        "fields": [
+          {
+            "name": "solo",
+            "value": "x"
+          }
+        ]
+      },
+      "expected_output": "content_type=multipart/form-data; boundary=BND\n--BND\r\nContent-Disposition: form-data; name=\"solo\"\r\n\r\nx\r\n--BND--\r\n"
+    },
+    {
+      "input": {
+        "action": "multipart_encode",
+        "boundary": "BND",
+        "fields": [
+          {
+            "name": "f",
+            "filename": "a.txt",
+            "content": "hello"
+          }
+        ]
+      },
+      "expected_output": "content_type=multipart/form-data; boundary=BND\n--BND\r\nContent-Disposition: form-data; name=\"f\"; filename=\"a.txt\"\r\n\r\nhello\r\n--BND--\r\n"
+    },
+    {
+      "input": {
+        "action": "multipart_encode",
+        "boundary": "BND",
+        "fields": [
+          {
+            "name": "f",
+            "filename": "empty.bin",
+            "content": ""
+          }
+        ]
+      },
+      "expected_output": "content_type=multipart/form-data; boundary=BND\n--BND\r\nContent-Disposition: form-data; name=\"f\"; filename=\"empty.bin\"\r\n\r\n\r\n--BND--\r\n"
+    },
+    {
+      "input": {
+        "action": "multipart_encode",
+        "boundary": "BND",
+        "fields": [
+          {
+            "name": "u",
+            "value": "café"
+          }
+        ]
+      },
+      "expected_output": "content_type=multipart/form-data; boundary=BND\n--BND\r\nContent-Disposition: form-data; name=\"u\"\r\n\r\ncafé\r\n--BND--\r\n"
+    },
+    {
+      "input": {
+        "action": "multipart_encode",
+        "boundary": "BND",
+        "fields": [
+          {
+            "name": "a",
+            "value": "1"
+          },
+          {
+            "name": "b",
+            "value": "2"
+          },
+          {
+            "name": "c",
+            "value": "3"
+          }
+        ]
+      },
+      "expected_output": "content_type=multipart/form-data; boundary=BND\n--BND\r\nContent-Disposition: form-data; name=\"a\"\r\n\r\n1\r\n--BND\r\nContent-Disposition: form-data; name=\"b\"\r\n\r\n2\r\n--BND\r\nContent-Disposition: form-data; name=\"c\"\r\n\r\n3\r\n--BND--\r\n"
+    },
+    {
+      "input": {
+        "action": "multipart_encode",
+        "boundary": "BND",
+        "fields": [
+          {
+            "name": "doc",
+            "filename": "d.json",
+            "content": "{}",
+            "content_type": "application/json"
+          }
+        ]
+      },
+      "expected_output": "content_type=multipart/form-data; boundary=BND\n--BND\r\nContent-Disposition: form-data; name=\"doc\"; filename=\"d.json\"\r\nContent-Type: application/json\r\n\r\n{}\r\n--BND--\r\n"
+    }
+  ]
+}

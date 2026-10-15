@@ -1,0 +1,39 @@
+{
+    "description": "Patches can also be declared in an external patches file referenced by the project. A valid file groups patches by package and resolves to a collection with the expected per-package counts. A file whose JSON parses but contains no patches key is rejected with a no_patches_found error; a file with malformed JSON is rejected with an invalid_json error. A file path that does not exist, or an unconfigured (empty) path, is silently ignored and adds nothing. The output reports either the normalized error category or the per-package counts and patched-package list.",
+    "cases": [
+        {
+            "input": {
+                "op": "resolve_file",
+                "patches_file_content": "{\"patches\":{\"test/package\":[{\"url\":\"https://drupal.org\",\"description\":\"Test patch\"},{\"url\":\"https://drupal.org/foo\",\"description\":\"Test patch\"}],\"test/package2\":[{\"url\":\"https://drupal.org/bar\",\"description\":\"Test patch\"},{\"url\":\"https://drupal.org/baz\",\"description\":\"Test patch\"}]}}"
+            },
+            "expected_output": "test/package patches=2\ntest/package2 patches=2\npatched_packages=test/package,test/package2\n"
+        },
+        {
+            "input": {
+                "op": "resolve_file",
+                "patches_file_content": "{}"
+            },
+            "expected_output": "error=no_patches_found\n"
+        },
+        {
+            "input": {
+                "op": "resolve_file",
+                "patches_file_content": "{\"patches\":{\"test/package\":[{\"url\":\"x\"}],}}"
+            },
+            "expected_output": "error=invalid_json\n"
+        },
+        {
+            "input": {
+                "op": "resolve_file",
+                "patches_file_missing": true
+            },
+            "expected_output": "patched_packages=\n"
+        },
+        {
+            "input": {
+                "op": "resolve_file"
+            },
+            "expected_output": "patched_packages=\n"
+        }
+    ]
+}

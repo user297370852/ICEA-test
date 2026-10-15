@@ -1,0 +1,21 @@
+{
+    "description": "Build a permission request through the configuration builder and validate required configuration. The builder needs two things before it can produce a request: the set of permissions to request and a runtime handler provider. The input declares how permissions are supplied (`unset` = not supplied, `vararg` = supplied as a first-plus-rest sequence, `list` = supplied as a single list) and whether a handler provider is attached. On a valid configuration the output confirms the request was built and that it conforms to the request abstraction. On an invalid configuration the output is a normalized error category: `missing_permissions` when no permissions were supplied, or `missing_runtime_handler` when permissions were supplied but no handler provider was attached. Permissions are validated before the handler.",
+    "cases": [
+        {
+            "input": {"op": "build_request", "permissions_mode": "unset", "provide_handler": true},
+            "expected_output": "error=missing_permissions\n"
+        },
+        {
+            "input": {"op": "build_request", "permissions_mode": "vararg", "permissions": ["android.permission.SEND_SMS"], "provide_handler": false},
+            "expected_output": "error=missing_runtime_handler\n"
+        },
+        {
+            "input": {"op": "build_request", "permissions_mode": "vararg", "permissions": ["android.permission.SEND_SMS"], "provide_handler": true},
+            "expected_output": "built=true\nrequest_is_permission_request=true\n"
+        },
+        {
+            "input": {"op": "build_request", "permissions_mode": "list", "permissions": ["android.permission.SEND_SMS"], "provide_handler": true},
+            "expected_output": "built=true\nrequest_is_permission_request=true\n"
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+{
+  "description": "Sound-level edge cases: a sound-level update delivered before a listen session is active (not listening) is ignored and not recorded, and a negative loudness delivered during an active session is forwarded and recorded.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "deliver",
+            "method": "sound",
+            "payload": 0.9
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlistening=false recognized=false available=true has_error=false last_recognized= last_status= last_level=0.0\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen",
+            "onSound": true
+          },
+          {
+            "do": "deliver",
+            "method": "sound",
+            "payload": -1.5
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nsound_level -1.5\nlistening=true recognized=false available=true has_error=false last_recognized= last_status=listening last_level=-1.5\n"
+    }
+  ]
+}

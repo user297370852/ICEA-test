@@ -1,0 +1,109 @@
+{
+  "description": "Enhanced host-ownership and conflict edge cases: a wildcard host is claimed exclusively just like an exact host so a second service cannot take it, the catch-all (empty host set) is likewise a single claimable slot, and a partially-overlapping multi-host registration is rejected wholesale with the original service retaining every one of its hosts and the new service claiming none. Each registration reports success or the normalized error category and each probe reports the response status with the backend body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "a"
+          },
+          "b": {
+            "body": "b"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "*.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "deploy",
+            "name": "s2",
+            "hosts": [
+              "*.example.com"
+            ],
+            "target": "b"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\ndeploy s2 error=host_in_use\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "a"
+          },
+          "b": {
+            "body": "b"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [],
+            "target": "a"
+          },
+          {
+            "op": "deploy",
+            "name": "s2",
+            "hosts": [],
+            "target": "b"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\ndeploy s2 error=host_in_use\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "a"
+          },
+          "b": {
+            "body": "b"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h1.example.com",
+              "h2.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "deploy",
+            "name": "s2",
+            "hosts": [
+              "h2.example.com",
+              "h3.example.com"
+            ],
+            "target": "b"
+          },
+          {
+            "op": "request",
+            "url": "http://h2.example.com/",
+            "method": "GET"
+          },
+          {
+            "op": "request",
+            "url": "http://h3.example.com/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\ndeploy s2 error=host_in_use\nstatus=200 target=a\nstatus=404 target=Not Found\n"
+    }
+  ]
+}

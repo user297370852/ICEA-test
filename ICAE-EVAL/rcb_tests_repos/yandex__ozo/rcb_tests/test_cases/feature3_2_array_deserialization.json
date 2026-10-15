@@ -1,0 +1,8 @@
+{
+    "description": "Deserialize a one-dimensional array from PostgreSQL binary array bytes into a sequence of elements. The request supplies the array's numeric type identifier, the element decoding mode, and the raw bytes laid out as the binary array header (dimension count, offset/flags word, element type identifier, then per-dimension length and lower bound) followed by each element as a 32-bit big-endian size and payload. The output reports the element count and then each element on its own indexed line. When the element mode tolerates missing values, a per-element size of -1 marks that element as absent and it is rendered as a null marker. An array whose dimension count is zero yields no elements.",
+    "cases": [
+        {"input": {"op": "deserialize_array", "oid": 1009, "as": "text", "bytes": [0,0,0,1, 0,0,0,0, 0,0,0,25, 0,0,0,3, 0,0,0,1, 0,0,0,4, 116,101,115,116, 0,0,0,3, 102,111,111, 0,0,0,3, 98,97,114]}, "expected_output": "size=3\n[0]=test\n[1]=foo\n[2]=bar\n"},
+        {"input": {"op": "deserialize_array", "oid": 1009, "as": "text_nullable", "bytes": [0,0,0,1, 0,0,0,0, 0,0,0,25, 0,0,0,3, 0,0,0,1, 255,255,255,255, 0,0,0,3, 102,111,111, 0,0,0,3, 98,97,114]}, "expected_output": "size=3\n[0]=<null>\n[1]=foo\n[2]=bar\n"},
+        {"input": {"op": "deserialize_array", "oid": 1009, "as": "text", "bytes": [0,0,0,0, 0,0,0,0, 0,0,0,25]}, "expected_output": "size=0\n"}
+    ]
+}

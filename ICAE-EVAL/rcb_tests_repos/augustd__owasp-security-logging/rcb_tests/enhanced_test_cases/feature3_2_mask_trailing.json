@@ -1,0 +1,49 @@
+{
+  "description": "Enhanced boundary coverage for trailing masking (keep a leading remainder, mask the last four-plus). Probes the length boundary of the underlying regex, which requires at least one leading value character before the final four: a two-character and a four-character value are too short to match and pass through unchanged, while a five-character value keeps exactly its first character and is then masked. Also covers two trailing-mask fields in the same message being handled independently.",
+  "cases": [
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "username=ab"
+      },
+      "expected_output": "masked=username=ab\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "username=abcd"
+      },
+      "expected_output": "masked=username=abcd\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "username=abcde"
+      },
+      "expected_output": "masked=username=a*****\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "username=user1 username=user2"
+      },
+      "expected_output": "masked=username=u***** username=u*****\n"
+    }
+  ]
+}

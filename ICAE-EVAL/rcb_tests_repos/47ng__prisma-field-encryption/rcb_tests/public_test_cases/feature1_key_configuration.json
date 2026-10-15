@@ -1,0 +1,29 @@
+{
+  "description": "Build an encryption/decryption keychain from a configuration. A configuration must supply an encryption key (a self-describing key string); when it is absent the operation is rejected with a neutral error category. When a valid encryption key is supplied the operation succeeds and reports the canonical (re-serialized) form of that encryption key, whether the encryption key itself is present in the resulting keychain (it always is, so it can both encrypt and decrypt), and the total number of distinct keys in the keychain. Additional decryption-only keys may be supplied to enlarge the keychain, with duplicates collapsed so the encryption key is never counted twice.",
+  "cases": [
+    {
+      "input": {
+        "op": "configure_keys"
+      },
+      "expected_output": "error=no_encryption_key\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM="
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=\nencryptionKeyInKeychain=true\nkeychainSize=1\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+        "decryptionKeys": [
+          "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM=",
+          "k1.aesgcm256.El9unG7WBAVRQdATOyMggE3XrLV2ZjTGKdajfmIeBPs="
+        ]
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=\nencryptionKeyInKeychain=true\nkeychainSize=3\n"
+    }
+  ]
+}

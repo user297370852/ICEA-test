@@ -1,0 +1,13 @@
+{
+    "description": "Serialize a session (identity address, access token, refresh token, and an absolute expiry instant) into a single delimited string using a symmetric cipher keyed by a secret, then deserialize it back. The serialized form has four delimiter-separated fields; the access and refresh tokens are encrypted while the identity and expiry are stored in the clear. When the same secret is used to decode, every field round-trips exactly. When a different secret is used to decode, the clear fields (identity, derived user, expiry) still round-trip but the encrypted tokens do not recover to their originals. The reported output gives the field count, the recovered identity and user, the recovered expiry as an absolute number, and either the recovered token value or a not-recovered marker for each token.",
+    "cases": [
+        {
+            "input": {"action": "session_encrypted_roundtrip", "secret": "0123456789abcdefghijklmnopqrstuv", "email": "user@domain.com", "access_token": "token1234", "refresh_token": "refresh4321", "expires_unix": 4102444800},
+            "expected_output": "field_count=4\nemail=user@domain.com\nuser=user\nexpires_unix=4102444800\naccess_token=token1234\nrefresh_token=refresh4321\n"
+        },
+        {
+            "input": {"action": "session_encrypted_roundtrip", "secret": "0123456789abcdefghijklmnopqrstuv", "decode_secret": "0000000000abcdefghijklmnopqrstuv", "email": "user@domain.com", "access_token": "token1234", "refresh_token": "refresh4321", "expires_unix": 4102444800},
+            "expected_output": "field_count=4\nemail=user@domain.com\nuser=user\nexpires_unix=4102444800\naccess_token=<not-recovered>\nrefresh_token=<not-recovered>\n"
+        }
+    ]
+}

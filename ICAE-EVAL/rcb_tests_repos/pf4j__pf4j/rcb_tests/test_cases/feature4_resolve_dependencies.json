@@ -1,0 +1,40 @@
+{
+    "description": "Resolve a set of plugin descriptors into a dependency-ordered load plan. Each plugin supplies an identifier, an optional own version, and a comma-separated list of dependency coordinates (identifier with optional version-support expression). The resolver reports: whether the dependency graph contains a cycle; the plugins listed in an order where every dependency precedes the plugin that needs it; any required dependency identifiers that are not present among the supplied plugins; and any dependencies whose present version does not satisfy the version-support expression required by a dependent. When a cycle is present no order can be produced. Each wrong-version entry names the dependency, the dependent that required it, the version actually present, and the required version-support expression.",
+    "cases": [
+        {
+            "input": {"action": "resolve_dependencies", "plugins": [
+                {"id": "p1", "dependencies": "p2"},
+                {"id": "p2", "version": "0.0.0"}
+            ]},
+            "expected_output": "cyclic=false\nsorted=p2,p1\nnotFound=\nwrongVersion=\n"
+        },
+        {
+            "input": {"action": "resolve_dependencies", "plugins": [
+                {"id": "p1", "dependencies": "p2, p3"}
+            ]},
+            "expected_output": "cyclic=false\nsorted=p2,p3,p1\nnotFound=p2,p3\nwrongVersion=\n"
+        },
+        {
+            "input": {"action": "resolve_dependencies", "plugins": [
+                {"id": "p1", "version": "0.0.0", "dependencies": "p2"},
+                {"id": "p2", "version": "0.0.0", "dependencies": "p3"},
+                {"id": "p3", "version": "0.0.0", "dependencies": "p1"}
+            ]},
+            "expected_output": "cyclic=true\nsorted=\nnotFound=\nwrongVersion=\n"
+        },
+        {
+            "input": {"action": "resolve_dependencies", "plugins": [
+                {"id": "p1", "dependencies": "p2@>=1.5.0 & <1.6.0"},
+                {"id": "p2", "version": "1.4.0"}
+            ]},
+            "expected_output": "cyclic=false\nsorted=p2,p1\nnotFound=\nwrongVersion=dependency=p2 dependent=p1 existing=1.4.0 required=>=1.5.0 & <1.6.0\n"
+        },
+        {
+            "input": {"action": "resolve_dependencies", "plugins": [
+                {"id": "p1", "dependencies": "p2@2.0.0"},
+                {"id": "p2", "version": "2.0.0"}
+            ]},
+            "expected_output": "cyclic=false\nsorted=p2,p1\nnotFound=\nwrongVersion=\n"
+        }
+    ]
+}

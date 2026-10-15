@@ -1,0 +1,105 @@
+{
+  "description": "A transform applied only to error outcomes rewrites each error code by adding a fixed constant, while successful items pass through unchanged. When the gathered stream reaches an error, the rewritten error code is reported.",
+  "cases": [
+    {
+      "input": {
+        "source": [
+          {
+            "err": 1
+          },
+          {
+            "err": 2
+          }
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "map_err",
+            "add": 10
+          }
+        ]
+      },
+      "expected_output": "error=11\n"
+    },
+    {
+      "input": {
+        "source": [
+          1,
+          2,
+          3
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "map_err",
+            "add": 5
+          }
+        ]
+      },
+      "expected_output": "item=1\nitem=2\nitem=3\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          {
+            "err": 1000
+          }
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "map_err",
+            "add": 1000000
+          }
+        ]
+      },
+      "expected_output": "error=1001000\n"
+    },
+    {
+      "input": {
+        "source": [
+          7,
+          8,
+          {
+            "err": 2
+          }
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "map_err",
+            "add": 3
+          }
+        ]
+      },
+      "expected_output": "error=5\n"
+    },
+    {
+      "input": {
+        "source": [
+          {
+            "err": 4
+          }
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "map_err",
+            "add": 0
+          }
+        ]
+      },
+      "expected_output": "error=4\n"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "description": "Provide read-only access to a bag of parameters: stored scalar or list values can be fetched by key, fetching an absent key yields null, and an existence check reports presence. The bag is immutable: any mutation attempt is rejected with a neutral error category. These cases exercise an empty bag, empty query lists, and absent keys.",
+  "cases": [
+    {
+      "input": {
+        "action": "param_bag",
+        "op": "read",
+        "params": {},
+        "get": [
+          "x"
+        ],
+        "has": [
+          "x"
+        ]
+      },
+      "expected_output": "{\"get\":{\"x\":null},\"has\":{\"x\":false}}\n"
+    },
+    {
+      "input": {
+        "action": "param_bag",
+        "op": "read",
+        "params": {
+          "alpha": "1"
+        },
+        "get": [
+          "alpha",
+          "beta"
+        ],
+        "has": [
+          "alpha",
+          "beta"
+        ]
+      },
+      "expected_output": "{\"get\":{\"alpha\":\"1\",\"beta\":null},\"has\":{\"alpha\":true,\"beta\":false}}\n"
+    },
+    {
+      "input": {
+        "action": "param_bag",
+        "op": "read",
+        "params": {
+          "a": "1",
+          "b": [
+            "2",
+            "3"
+          ]
+        },
+        "get": [],
+        "has": []
+      },
+      "expected_output": "{\"get\":[],\"has\":[]}\n"
+    },
+    {
+      "input": {
+        "action": "param_bag",
+        "op": "read",
+        "params": {
+          "only": [
+            "p",
+            "q",
+            "r"
+          ]
+        },
+        "get": [
+          "only"
+        ],
+        "has": [
+          "only"
+        ]
+      },
+      "expected_output": "{\"get\":{\"only\":[\"p\",\"q\",\"r\"]},\"has\":{\"only\":true}}\n"
+    },
+    {
+      "input": {
+        "action": "param_bag",
+        "op": "mutate",
+        "params": {}
+      },
+      "expected_output": "error=immutable_parameters\n"
+    },
+    {
+      "input": {
+        "action": "param_bag",
+        "op": "mutate",
+        "params": {
+          "x": "y",
+          "z": [
+            "1",
+            "2"
+          ]
+        }
+      },
+      "expected_output": "error=immutable_parameters\n"
+    }
+  ]
+}

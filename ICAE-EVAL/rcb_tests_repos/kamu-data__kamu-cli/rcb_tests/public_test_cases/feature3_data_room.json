@@ -1,0 +1,59 @@
+{
+  "description": "Upload a versioned file into a project's data room and read it back from the entry listing.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "vitafast",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "9"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          project { account { accountName } }\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/foo.txt",
+              "content": "aGVsbG8",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "public",
+              "description": "Plain text file",
+              "categories": [
+                "test-category"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2"
+              ],
+              "contentText": "hello",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest { entries {\n    totalCount\n    nodes {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest { contentType categories tags accessLevel version description } }\n    }\n  } } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          }
+        ]
+      },
+      "expected_output": "--- operation 1 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"uploadFile\": {\n            \"entry\": {\n              \"asVersionedFile\": {\n                \"latest\": {\n                  \"accessLevel\": \"public\",\n                  \"categories\": [\n                    \"test-category\"\n                  ],\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"contentHash\": \"f16203338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392\",\n                  \"contentType\": \"text/plain\",\n                  \"description\": \"Plain text file\",\n                  \"encryptionMetadata\": {\n                    \"accessControlConditions\": \"EM2\",\n                    \"chain\": \"EM5\",\n                    \"contractVersion\": \"EM9\",\n                    \"dataToEncryptHash\": \"EM1\",\n                    \"encryptedAt\": \"EM4\",\n                    \"encryptedBy\": \"EM3\",\n                    \"litNetwork\": \"EM7\",\n                    \"litSdkVersion\": \"EM6\",\n                    \"templateName\": \"EM8\"\n                  },\n                  \"tags\": [\n                    \"test-tag1\",\n                    \"test-tag2\"\n                  ],\n                  \"version\": 1\n                }\n              },\n              \"path\": \"/foo.txt\",\n              \"project\": {\n                \"account\": {\n                  \"accountName\": \"molecule.vitafast\"\n                }\n              },\n              \"ref\": \"<did-3>\"\n            },\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 2 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"latest\": {\n            \"entries\": {\n              \"nodes\": [\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/foo.txt\",\n                  \"ref\": \"<did-3>\"\n                }\n              ],\n              \"totalCount\": 1\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+    }
+  ]
+}

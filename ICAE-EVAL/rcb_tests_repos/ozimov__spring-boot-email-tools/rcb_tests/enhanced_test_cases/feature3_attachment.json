@@ -1,0 +1,46 @@
+{
+  "description": "Enhanced coverage for the named attachment: an empty payload is a valid zero-byte resource; auto-detection from a '.csv' file name (with no explicit media type) resolves to text/csv, distinct from the native case that overrides csv to text/plain; a multi-byte UTF-8 payload reports its byte length (not character length); an explicit application/json media type is honoured verbatim; and supplying only the data omits the name so the missing-field error reports 'attachmentName' (name validated before data).",
+  "cases": [
+    {
+      "input": {
+        "op": "attachment.build",
+        "attachmentName": "empty.txt",
+        "dataText": ""
+      },
+      "expected_output": "attachment_name=empty.txt\nresource_exists=true\nresource_size=0\ncontent_type=text/plain\n"
+    },
+    {
+      "input": {
+        "op": "attachment.build",
+        "attachmentName": "report.csv",
+        "dataText": "col1,col2\n1,2\n3,4"
+      },
+      "expected_output": "attachment_name=report.csv\nresource_exists=true\nresource_size=17\ncontent_type=text/csv\n"
+    },
+    {
+      "input": {
+        "op": "attachment.build",
+        "attachmentName": "u.txt",
+        "dataText": "héllo→λ",
+        "mediaType": "text/plain"
+      },
+      "expected_output": "attachment_name=u.txt\nresource_exists=true\nresource_size=11\ncontent_type=text/plain\n"
+    },
+    {
+      "input": {
+        "op": "attachment.build",
+        "attachmentName": "data.json",
+        "dataText": "{\"a\":1}",
+        "mediaType": "application/json"
+      },
+      "expected_output": "attachment_name=data.json\nresource_exists=true\nresource_size=7\ncontent_type=application/json\n"
+    },
+    {
+      "input": {
+        "op": "attachment.build",
+        "dataText": "x"
+      },
+      "expected_output": "error=missing_required_field\nfield=attachmentName\n"
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "description": "Declaring encrypted attributes registers them in the model's catalogue of encrypted attributes, while ordinary non-encrypted accessor names stay out of it. The catalogue can be queried both by direct membership and by a boolean predicate that accepts the attribute name. An alternate declaration keyword behaves identically to the primary one and registers its attribute the same way. Each transcript line reports one membership or predicate result keyed by the queried attribute name.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "aliased"
+              ],
+              "via": "alias",
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "encrypted_attributes_include",
+            "attr": "email"
+          },
+          {
+            "kind": "encrypted_attributes_include",
+            "attr": "salt"
+          },
+          {
+            "kind": "attr_encrypted",
+            "attr": "email"
+          },
+          {
+            "kind": "attr_encrypted",
+            "attr": "salt"
+          }
+        ]
+      },
+      "expected_output": "attr_encrypted[email]=true\nattr_encrypted[salt]=false\nencrypted_attributes_include[email]=true\nencrypted_attributes_include[salt]=false\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "aliased"
+              ],
+              "via": "alias",
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "encrypted_attributes_include",
+            "attr": "aliased"
+          }
+        ]
+      },
+      "expected_output": "encrypted_attributes_include[aliased]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email",
+                "without_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "storage_attr",
+            "attr": "email"
+          },
+          {
+            "kind": "storage_attr",
+            "attr": "without_encoding"
+          }
+        ]
+      },
+      "expected_output": "storage_attr[email]=encrypted_email\nstorage_attr[without_encoding]=encrypted_without_encoding\n"
+    }
+  ]
+}

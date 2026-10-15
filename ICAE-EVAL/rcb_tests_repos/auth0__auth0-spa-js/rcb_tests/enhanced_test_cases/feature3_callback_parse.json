@@ -1,0 +1,54 @@
+{
+  "description": "Edge cases for callback query parsing: empty query, empty values, missing and non-numeric expires_in, percent-encoded values, and literal plus signs.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_query",
+        "query": ""
+      },
+      "expected_output": "result={\"expires_in\":null}\n"
+    },
+    {
+      "input": {
+        "op": "parse_query",
+        "query": "code="
+      },
+      "expected_output": "result={\"code\":\"\",\"expires_in\":null}\n"
+    },
+    {
+      "input": {
+        "op": "parse_query",
+        "query": "code=ABC&expires_in=abc"
+      },
+      "expected_output": "result={\"code\":\"ABC\",\"expires_in\":null}\n"
+    },
+    {
+      "input": {
+        "op": "parse_query",
+        "query": "code=ABC&expires_in=3600xyz"
+      },
+      "expected_output": "result={\"code\":\"ABC\",\"expires_in\":3600}\n"
+    },
+    {
+      "input": {
+        "op": "parse_query",
+        "query": "redirect=https%3A%2F%2Fx.example.com%2Fcb&state=s1"
+      },
+      "expected_output": "result={\"redirect\":\"https://x.example.com/cb\",\"state\":\"s1\",\"expires_in\":null}\n"
+    },
+    {
+      "input": {
+        "op": "parse_query",
+        "query": "q=a+b&expires_in=120"
+      },
+      "expected_output": "result={\"q\":\"a+b\",\"expires_in\":120}\n"
+    },
+    {
+      "input": {
+        "op": "parse_query",
+        "query": "error=login_required&error_description=Login%20required"
+      },
+      "expected_output": "result={\"error\":\"login_required\",\"error_description\":\"Login required\",\"expires_in\":null}\n"
+    }
+  ]
+}

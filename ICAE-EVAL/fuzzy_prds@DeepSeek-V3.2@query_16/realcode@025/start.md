@@ -1,0 +1,17 @@
+## Product Requirement Document
+
+Hey team, we need a native interop utility library in Dart (the ffi package). Basically devs keep complaining that every time they need to talk to native code they end up writing the same allocation/cleanup boilerplate over and over, and then someone forgets to free memory on an error path and we get a leak. We want a clean solution for two main pain points: (1) string handling — converting text back and forth between Dart strings and native memory buffers, both for the UTF-8 stuff and the wide-char stuff Windows likes. Make sure edge cases like funky characters and embedded nulls work properly, similar to how we handled encoding boundaries in that auth module a while back. (2) resource lifetime management — we need scoped cleanup that works for sync code, async code, and when things blow up with an exception. There's also a reusable variant that some internal tooling relies on where the release callback might itself allocate things, so that needs to be handled cleanly. Oh and errors should come back in a portable, runtime-neutral format rather than whatever Dart happens to throw. The test harness reads JSON from stdin and writes plain-text key=value lines to stdout, so the I/O adapter needs to stay decoupled from the actual logic. Check the existing test files to understand the exact expected output shapes.
+
+---
+
+## Clarification
+
+This PRD is intentionally incomplete. A requirements oracle can answer questions about hidden implementation details — including exact feature specs, interface contracts, and test cases.
+
+**Oracle** — POST `http://127.0.0.1:50002/`
+```
+{"append_id":"5b3b6db753be455aa9bc850574c68cd1","task_id":"realcode@025","question":"..."}
+```
+Answer is in `data`. Budget shown in `status.remaining`.
+
+Features and test cases have been prepared. Ask before you code. Unasked questions become bugs.

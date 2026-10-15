@@ -1,0 +1,39 @@
+{
+    "description": "Compose nested filter groups and inject pre-built raw filter fragments. A group request wraps a set of inner conditions inside a single logical operator: \"all\" yields an AND group, \"any\" yields an OR group, and \"none\" yields a NOT group. Groups may be combined with each other and with top-level conditions, producing properly nested wire output. A raw fragment is inserted verbatim with no escaping, and raw fragments combine with ordinary conditions following the same conjunction/disjunction wrapping rules. Output reports the escaped wire filter and its unescaped readable form.",
+    "cases": [
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "group": "any",
+                        "terms": [
+                            {
+                                "field": "one",
+                                "match": "equals",
+                                "value": "one"
+                            },
+                            {
+                                "field": "two",
+                                "match": "equals",
+                                "value": "two"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "query=(|(one=\\6f\\6e\\65)(two=\\74\\77\\6f))\nunescaped=(|(one=one)(two=two))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "raw": "(field=value)"
+                    }
+                ]
+            },
+            "expected_output": "query=(field=value)\nunescaped=(field=value)\n"
+        }
+    ]
+}

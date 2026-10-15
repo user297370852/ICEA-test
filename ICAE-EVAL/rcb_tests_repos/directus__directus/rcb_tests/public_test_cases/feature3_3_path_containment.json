@@ -1,0 +1,39 @@
+{
+  "description": "The local filesystem backend confines every path to its configured root directory so that callers cannot escape it. A leading absolute separator is treated as relative to the root rather than the system root. Leading parent-directory segments that would climb above the root are neutralized (clamped to the root). Parent-directory segments that stay within the root are honored normally. Each case writes content to a potentially-dangerous path and then reads it back from the safe in-root location it actually resolved to, confirming the content round-trips and stayed inside the root.",
+  "cases": [
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "/dummy_file",
+            "content": "test-data"
+          },
+          {
+            "action": "get",
+            "location": "/dummy_file"
+          }
+        ]
+      },
+      "expected_output": "put=/dummy_file\ncontent=test-data\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "../../../dummy_file",
+            "content": "test-data"
+          },
+          {
+            "action": "get",
+            "location": "dummy_file"
+          }
+        ]
+      },
+      "expected_output": "put=../../../dummy_file\ncontent=test-data\n"
+    }
+  ]
+}

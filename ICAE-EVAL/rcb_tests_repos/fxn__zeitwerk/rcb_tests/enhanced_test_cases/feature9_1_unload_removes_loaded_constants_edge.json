@@ -1,0 +1,48 @@
+{
+  "description": "Unload removes deeply nested autovivified namespaces and multiple top-level constants, leaving every managed parent constant absent afterwards.",
+  "cases": [
+    {
+      "input": {
+        "operation": "unload_removes_loaded_constants",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "a.rb": "A = 1",
+          "b.rb": "B = 2",
+          "deep/nested/leaf.rb": "Deep::Nested::Leaf = 3"
+        },
+        "load": [
+          "A",
+          "B",
+          "Deep::Nested::Leaf"
+        ],
+        "check_absent": [
+          "A",
+          "B",
+          "Deep"
+        ]
+      },
+      "expected_output": "constant=A\navailable=no\nconstant=B\navailable=no\nconstant=Deep\navailable=no\n"
+    },
+    {
+      "input": {
+        "operation": "unload_removes_loaded_constants",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "admin.rb": "module Admin; end",
+          "admin/panel.rb": "class Admin::Panel; end"
+        },
+        "load": [
+          "Admin::Panel"
+        ],
+        "check_absent": [
+          "Admin"
+        ]
+      },
+      "expected_output": "constant=Admin\navailable=no\n"
+    }
+  ]
+}

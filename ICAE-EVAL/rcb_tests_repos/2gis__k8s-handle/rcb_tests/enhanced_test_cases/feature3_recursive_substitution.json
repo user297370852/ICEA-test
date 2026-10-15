@@ -1,0 +1,80 @@
+{
+  "description": "Boundary coverage for in-place recursive substitution: a bare integer, boolean and float passed alone are returned unchanged; an empty mapping and empty list are preserved; a top-level list mixes a file include with env placeholders; and nested structures exercise unset-variable-to-empty expansion in non-strict mode combined with literal separators. Output is the transformed structure as sorted JSON.",
+  "cases": [
+    {
+      "input": {
+        "op": "update_context",
+        "context": 123
+      },
+      "expected_output": "123"
+    },
+    {
+      "input": {
+        "op": "update_context",
+        "context": true
+      },
+      "expected_output": "true"
+    },
+    {
+      "input": {
+        "op": "update_context",
+        "context": 3.14
+      },
+      "expected_output": "3.14"
+    },
+    {
+      "input": {
+        "op": "update_context",
+        "context": {}
+      },
+      "expected_output": "{}"
+    },
+    {
+      "input": {
+        "op": "update_context",
+        "context": []
+      },
+      "expected_output": "[]"
+    },
+    {
+      "input": {
+        "op": "update_context",
+        "env": {
+          "HOST": "example.com"
+        },
+        "aux_files": {
+          "frag.yaml": "---\nnested:\n  key: val\n"
+        },
+        "context": [
+          "{{ file='frag.yaml' }}",
+          "prefix-{{ env='HOST' }}",
+          "{{ env='MISSING' }}suffix",
+          7,
+          false
+        ]
+      },
+      "expected_output": "[\n  {\n    \"nested\": {\n      \"key\": \"val\"\n    }\n  },\n  \"prefix-example.com\",\n  \"suffix\",\n  7,\n  false\n]"
+    },
+    {
+      "input": {
+        "op": "update_context",
+        "env": {
+          "SET_VAR": "X"
+        },
+        "context": {
+          "a": "{{ env='UNSET_A' }}/{{ env='SET_VAR' }}",
+          "b": [
+            1,
+            "{{ env='SET_VAR' }}",
+            {
+              "c": "{{ env='UNSET_B' }}-end"
+            }
+          ],
+          "d": 0,
+          "e": null
+        }
+      },
+      "expected_output": "{\n  \"a\": \"/X\",\n  \"b\": [\n    1,\n    \"X\",\n    {\n      \"c\": \"-end\"\n    }\n  ],\n  \"d\": 0,\n  \"e\": null\n}"
+    }
+  ]
+}

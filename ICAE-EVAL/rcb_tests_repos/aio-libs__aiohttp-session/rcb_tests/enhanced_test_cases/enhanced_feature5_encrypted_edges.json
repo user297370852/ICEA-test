@@ -1,0 +1,71 @@
+{
+  "description": "Additional token-authenticated cookie storage cases covering TTL boundary acceptance, raw corrupted token rejection, custom cookie attributes, and invalidation with a custom scope.",
+  "cases": [
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "encrypted",
+          "max_age": 1
+        },
+        "scenario": "read",
+        "now": 1000000001,
+        "incoming": {
+          "data": {
+            "edge": "ttl"
+          },
+          "cookie_time": 1000000000
+        }
+      },
+      "expected_output": "status=200\nloaded.new=false\nloaded.empty=false\nloaded.contents={\"edge\": \"ttl\"}\nset_cookie=absent\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "encrypted"
+        },
+        "scenario": "read",
+        "incoming": {
+          "mode": "raw",
+          "raw": "not-a-fernet-token"
+        }
+      },
+      "expected_output": "status=200\nloaded.new=true\nloaded.empty=true\nloaded.contents={}\nset_cookie=absent\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "encrypted",
+          "httponly": false,
+          "domain": "example.com",
+          "path": "/secure",
+          "max_age": 5
+        },
+        "scenario": "change",
+        "path": "/secure",
+        "now": 5
+      },
+      "expected_output": "status=200\nloaded.new=true\nloaded.empty=true\nloaded.contents={}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=false\ncookie.path=/secure\ncookie.domain=example.com\ncookie.max_age=5\ncookie.expires=Thu, 01-Jan-1970 00:00:10 GMT\npayload.created=5\npayload.session={\"c\": 3}\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "encrypted",
+          "domain": "example.com",
+          "path": "/secure"
+        },
+        "scenario": "invalidate",
+        "path": "/secure",
+        "incoming": {
+          "data": {
+            "kill": true
+          }
+        }
+      },
+      "expected_output": "status=200\nloaded.new=false\nloaded.empty=false\nloaded.contents={\"kill\": true}\nset_cookie=present\ncookie.cleared=true\ncookie.httponly=false\ncookie.path=/secure\ncookie.domain=example.com\ncookie.max_age=0\ncookie.expires=Thu, 01 Jan 1970 00:00:00 GMT\n"
+    }
+  ]
+}

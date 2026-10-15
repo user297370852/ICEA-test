@@ -1,0 +1,103 @@
+{
+  "description": "Boundary coverage for revision-string validation: empty/partial semver, leading zeros, stray characters, non-git revision prefixes, and git hashes that are non-hex, too short, or too long. Each malformed input must yield a usage-error exit code (2) and a language-neutral category plus domain reason.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": ""
+      },
+      "expected_output": "exit_code=2\ninput=\nerror=invalid_version\nreason=unexpected end of input while parsing major version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.2"
+      },
+      "expected_output": "exit_code=2\ninput=1.2\nerror=invalid_version\nreason=unexpected end of input while parsing minor version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.2.3.4"
+      },
+      "expected_output": "exit_code=2\ninput=1.2.3.4\nerror=invalid_version\nreason=unexpected character '.' after patch version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "01.0.0"
+      },
+      "expected_output": "exit_code=2\ninput=01.0.0\nerror=invalid_version\nreason=invalid leading zero in major version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.x"
+      },
+      "expected_output": "exit_code=2\ninput=1.0.x\nerror=invalid_version\nreason=unexpected character 'x' while parsing patch version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "v1.0.0"
+      },
+      "expected_output": "exit_code=2\ninput=v1.0.0\nerror=invalid_version\nreason=unexpected character 'v' while parsing major version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "abc.def.ghi"
+      },
+      "expected_output": "exit_code=2\ninput=abc.def.ghi\nerror=invalid_version\nreason=unexpected character 'a' while parsing major version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.1 "
+      },
+      "expected_output": "exit_code=2\ninput=1.0.1 \nerror=invalid_version\nreason=unexpected character ' ' after patch version number\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.1@svn:1234"
+      },
+      "expected_output": "exit_code=2\ninput=1.0.1@svn:1234\nerror=unknown_revision\nreason=unrecognized revision type, expected 'git:' prefix\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.1@hg:abcdef"
+      },
+      "expected_output": "exit_code=2\ninput=1.0.1@hg:abcdef\nerror=unknown_revision\nreason=unrecognized revision type, expected 'git:' prefix\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.1@git:"
+      },
+      "expected_output": "exit_code=2\ninput=1.0.1@git:\nerror=invalid_git_hash\nreason=unrecognized git hash, expected 40 hex digits\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.1@git:00112233445566778899aabbccddeeff001122zz"
+      },
+      "expected_output": "exit_code=2\ninput=1.0.1@git:00112233445566778899aabbccddeeff001122zz\nerror=invalid_git_hash\nreason=unrecognized git hash, expected 40 hex digits\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.1@git:zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+      },
+      "expected_output": "exit_code=2\ninput=1.0.1@git:zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\nerror=invalid_git_hash\nreason=unrecognized git hash, expected 40 hex digits\n"
+    },
+    {
+      "input": {
+        "scenario": "version validation",
+        "revision": "1.0.1@git:00112233445566778899aabbccddeeff00112233445566"
+      },
+      "expected_output": "exit_code=2\ninput=1.0.1@git:00112233445566778899aabbccddeeff00112233445566\nerror=invalid_git_hash\nreason=unrecognized git hash, expected 40 hex digits\n"
+    }
+  ]
+}

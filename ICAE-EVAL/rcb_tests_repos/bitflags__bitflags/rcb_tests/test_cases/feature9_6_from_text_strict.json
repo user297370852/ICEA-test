@@ -1,0 +1,101 @@
+{
+    "description": "Parse a flag value from bar-separated text accepting only flag names (and whitespace) — hex literals are rejected outright. Valid input combines the named flags; the empty string parses to the empty value. An unrecognized name yields an unrecognized-named-flag error and any hex token yields an invalid-hex-flag error.",
+    "cases": [
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": ""
+            },
+            "expected_output": "bits=0 hex=0x00 bin=00000000"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "A"
+            },
+            "expected_output": "bits=1 hex=0x01 bin=00000001"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": " A "
+            },
+            "expected_output": "bits=1 hex=0x01 bin=00000001"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "A | B | C"
+            },
+            "expected_output": "bits=7 hex=0x07 bin=00000111"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "A\n|\tB\r\n|   C "
+            },
+            "expected_output": "bits=7 hex=0x07 bin=00000111"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "A|B|C"
+            },
+            "expected_output": "bits=7 hex=0x07 bin=00000111"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "unicode",
+                "text": "一 | 二"
+            },
+            "expected_output": "bits=3 hex=0x03 bin=00000011"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "0x1"
+            },
+            "expected_output": "error=invalid_hex_flag"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "a"
+            },
+            "expected_output": "error=unrecognized_named_flag"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "A & B"
+            },
+            "expected_output": "error=unrecognized_named_flag"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "0xg"
+            },
+            "expected_output": "error=invalid_hex_flag"
+        },
+        {
+            "input": {
+                "op": "parse_named",
+                "set": "abc",
+                "text": "0xffffffffffff"
+            },
+            "expected_output": "error=invalid_hex_flag"
+        }
+    ]
+}

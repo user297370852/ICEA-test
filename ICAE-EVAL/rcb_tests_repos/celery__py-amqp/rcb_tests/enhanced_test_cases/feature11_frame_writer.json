@@ -1,0 +1,73 @@
+{
+  "description": "Outbound frame encoding variants: a method-only frame on a non-default channel; a method frame with no arguments; a content message with an empty body and no properties; and a content message whose string body uses an explicit content encoding.",
+  "cases": [
+    {
+      "input": {
+        "op": "frame_writer",
+        "frame_max": 512,
+        "type": 1,
+        "channel": 7,
+        "method_sig": [
+          10,
+          10
+        ],
+        "args_hex": "0102030405",
+        "content": null
+      },
+      "expected_output": "wire=01000700000009000a000a0102030405ce\nbytes_sent=1"
+    },
+    {
+      "input": {
+        "op": "frame_writer",
+        "frame_max": 512,
+        "type": 1,
+        "channel": 1,
+        "method_sig": [
+          20,
+          11
+        ],
+        "args_hex": "",
+        "content": null
+      },
+      "expected_output": "wire=010001000000040014000bce\nbytes_sent=1"
+    },
+    {
+      "input": {
+        "op": "frame_writer",
+        "frame_max": 512,
+        "type": 2,
+        "channel": 3,
+        "method_sig": [
+          60,
+          40
+        ],
+        "args_hex": "7878",
+        "content": {
+          "body_hex": "",
+          "properties": {}
+        }
+      },
+      "expected_output": "wire=02000300000000ce0200030000000e003c000000000000000000000000ce\nbytes_sent=1\ncontent_encoding=none"
+    },
+    {
+      "input": {
+        "op": "frame_writer",
+        "frame_max": 512,
+        "type": 2,
+        "channel": 1,
+        "method_sig": [
+          60,
+          40
+        ],
+        "args_hex": "7878",
+        "content": {
+          "body_str": "hi",
+          "properties": {
+            "content_encoding": "utf-8"
+          }
+        }
+      },
+      "expected_output": "wire=02000100000000ce02000100000014003c000000000000000000024000057574662d38ce030001000000026869ce\nbytes_sent=1\ncontent_encoding=utf-8"
+    }
+  ]
+}

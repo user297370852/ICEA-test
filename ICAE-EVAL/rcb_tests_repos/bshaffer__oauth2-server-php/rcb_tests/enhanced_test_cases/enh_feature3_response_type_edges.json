@@ -1,0 +1,55 @@
+{
+  "description": "Response-type validation boundaries reported via redirect. An empty-string response type and a case-mismatched 'CODE' (selectors are case-sensitive) both produce the same invalid_request / 'Invalid or missing response type' redirect, with the caller's state echoed. Requesting the implicit 'token' response type while implicit is disabled redirects with unsupported_response_type.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": false,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "state": "s"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.error=invalid_request\nquery.error_description=Invalid or missing response type\nquery.state=s\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": false,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "CODE",
+              "state": "s"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.error=invalid_request\nquery.error_description=Invalid or missing response type\nquery.state=s\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "token",
+              "state": "s"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.error=unsupported_response_type\nquery.error_description=implicit grant type not supported\nquery.state=s\n"
+    }
+  ]
+}

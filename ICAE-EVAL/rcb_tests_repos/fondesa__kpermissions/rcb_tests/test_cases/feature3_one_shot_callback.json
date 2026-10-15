@@ -1,0 +1,13 @@
+{
+    "description": "One-shot result callback on a permission request. A callback is registered on a request to receive a single result delivery; after the first delivery fires the callback, the callback auto-detaches so subsequent deliveries do not invoke it again. The input lists the sequence of result deliveries the request emits (each delivery is a list of permission statuses). The output reports the number of registered listeners right after registration, the number of listeners present immediately before each delivery, how many times the callback fired, the contents of each fired callback, and the number of listeners remaining at the end (which must be zero after the first delivery because the one-shot callback removes itself).",
+    "cases": [
+        {
+            "input": {"op": "one_shot_result", "deliveries": [[{"type": "granted", "permission": "android.permission.SEND_SMS"}, {"type": "permanently_denied", "permission": "android.permission.CALL_PHONE"}]]},
+            "expected_output": "listeners_after_register=1\ndelivery[0]_listeners_before=1\ncallbacks_fired=1\ncallback[0]=granted:android.permission.SEND_SMS,permanently_denied:android.permission.CALL_PHONE\nlisteners_remaining=0\n"
+        },
+        {
+            "input": {"op": "one_shot_result", "deliveries": [[{"type": "granted", "permission": "android.permission.SEND_SMS"}], [{"type": "granted", "permission": "android.permission.CALL_PHONE"}]]},
+            "expected_output": "listeners_after_register=1\ndelivery[0]_listeners_before=1\ndelivery[1]_listeners_before=0\ncallbacks_fired=1\ncallback[0]=granted:android.permission.SEND_SMS\nlisteners_remaining=0\n"
+        }
+    ]
+}

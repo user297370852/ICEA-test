@@ -1,0 +1,88 @@
+{
+  "description": "Resolves type tokens through space/paren truncation, uppercase nullable normalization, case-insensitive unknowns, and exercises default timestamp mappings plus custom override/passthrough behavior.",
+  "cases": [
+    {
+      "input": {
+        "request": "map_type_token",
+        "type_token": "integer extra",
+        "mappings": {
+          "integer": "number"
+        }
+      },
+      "expected_output": "type=number\n"
+    },
+    {
+      "input": {
+        "request": "map_type_token",
+        "type_token": "decimal(8,2)",
+        "mappings": {
+          "decimal": "number"
+        }
+      },
+      "expected_output": "type=number\n"
+    },
+    {
+      "input": {
+        "request": "map_type_token",
+        "type_token": "?B",
+        "mappings": {
+          "a": "1",
+          "b": "2"
+        }
+      },
+      "expected_output": "type=2 | null\n"
+    },
+    {
+      "input": {
+        "request": "map_type_token",
+        "type_token": "UNKNOWN",
+        "mappings": {}
+      },
+      "expected_output": "type=unknown\n"
+    },
+    {
+      "input": {
+        "request": "map_type_token",
+        "type_token": "A",
+        "mappings": {
+          "a": "string[]"
+        }
+      },
+      "expected_output": "type=string[]\n"
+    },
+    {
+      "input": {
+        "request": "timestamp_mappings",
+        "timestamps_as_date_objects": false
+      },
+      "expected_output": "date=string\nimmutable_date=string\ndatetime=string\nimmutable_datetime=string\nimmutable_custom_datetime=string\ntimestamp=string\n"
+    },
+    {
+      "input": {
+        "request": "custom_mappings",
+        "custom_mappings": {
+          "boolean": "0 | 1",
+          "point": "[number, number]"
+        },
+        "report_keys": [
+          "boolean",
+          "point",
+          "string"
+        ]
+      },
+      "expected_output": "boolean=0 | 1\npoint=[number, number]\nstring=string\n"
+    },
+    {
+      "input": {
+        "request": "custom_mappings",
+        "custom_mappings": {},
+        "report_keys": [
+          "integer",
+          "json",
+          "missingkey"
+        ]
+      },
+      "expected_output": "integer=number\njson=Record<string, unknown>\nmissingkey=\n"
+    }
+  ]
+}

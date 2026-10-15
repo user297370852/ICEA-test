@@ -1,0 +1,22 @@
+{
+  "description": "Inject an error into the workflow at the current step. A workflow that wraps its body in error-handling diverts into the recovery branch, where the thrown error becomes available and the recovery effects (e.g. emitting an error action carrying the error) can be asserted.",
+  "cases": [
+    {
+      "input": {
+        "mode": "unit",
+        "saga": {
+          "body": [ { "yield": { "take": "HELLO" } } ],
+          "catch": [ { "put": { "type": "ERROR", "payload": { "$var": "error" } } } ]
+        },
+        "steps": [
+          { "next": true },
+          { "throw": { "message": "My Error" } },
+          { "assert": { "put": { "type": "ERROR", "payload": { "$error": "My Error" } } } },
+          { "next": true },
+          { "assert": { "isDone": true } }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\n"
+    }
+  ]
+}

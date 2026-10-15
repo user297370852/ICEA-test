@@ -1,0 +1,19 @@
+{
+    "description": "Parse a URL-style connection string with multiple hosts into one primary endpoint and ordered fallback endpoints.",
+    "cases": [
+        {
+            "input": {
+                "operation": "parse_connection_settings",
+                "connection_string": "postgres://jack:secret@foo:1,bar:2,baz:3/mydb?sslmode=disable"
+            },
+            "expected_output": "status=ok\nhost=foo\nport=1\ndatabase=mydb\nuser=jack\npassword=secret\nconnect_timeout_seconds=0\ntls=disabled\nruntime_params={}\nvalidate_connect=false\nfallback.0.host=bar\nfallback.0.port=2\nfallback.0.tls=disabled\nfallback.1.host=baz\nfallback.1.port=3\nfallback.1.tls=disabled\nfallback_count=2\n"
+        },
+        {
+            "input": {
+                "operation": "parse_connection_settings",
+                "connection_string": "user=jack password=secret host=foo,bar,baz port=1,2,3 dbname=mydb sslmode=disable"
+            },
+            "expected_output": "status=ok\nhost=foo\nport=1\ndatabase=mydb\nuser=jack\npassword=secret\nconnect_timeout_seconds=0\ntls=disabled\nruntime_params={}\nvalidate_connect=false\nfallback.0.host=bar\nfallback.0.port=2\nfallback.0.tls=disabled\nfallback.1.host=baz\nfallback.1.port=3\nfallback.1.tls=disabled\nfallback_count=2\n"
+        }
+    ]
+}

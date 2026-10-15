@@ -1,0 +1,88 @@
+{
+    "description": "Renders the templates declared by a resolved configuration section into output files, returning each produced file's relative path and rendered content. Template items may be listed under a 'templates' key or, equivalently, under a 'kubectl' key; items may be nested inside arbitrarily deep 'group' wrappers and are flattened; and a template name that is a regular expression is expanded to every available template file whose name it matches. Each context variable is available to the template engine, an include placeholder resolves to a nested mapping rendered with its native text form, a value piped through the base64-encode filter is encoded, a literal piped through the base64-decode filter is decoded, a static-file include global splices in the indented contents of matching files, and a list-files global yields the sorted base names of matching files. Output lists files in sorted path order, each introduced by a '# file:' header.",
+    "cases": [
+        {
+            "input": {
+                "op": "render",
+                "section": "test_dirs",
+                "env": {
+                    "CUSTOM_ENV": "My value"
+                },
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n",
+                    "templates_tests/my_file.txt": "{{ hello world }}\nnew\nline\n",
+                    "templates_tests/my_file1.txt": "{{ hello world1 }}",
+                    "templates_tests/innerdir/template1.yaml.j2": "{{ my_file }}"
+                },
+                "templates_files": {
+                    "template1.yaml.j2": "{{ my_file }}",
+                    "template2.yaml.j2": "{{ my_env_var | b64encode }}\n",
+                    "template3.yaml.j2": "{{ 'TXkgdmFsdWU=' | b64decode }}\n",
+                    "template_include_file.yaml.j2": "test: |\n  {{ include_file('templates_tests/my_file*.txt') | indent(2) }}\n",
+                    "innerdir/template1.yaml.j2": "{{ my_file }}",
+                    "template_list_files.yaml.j2": "test: |\n  {% for f in list_files('templates_tests/innerdir') -%}\n  {{ f.split('/')[-1] }}:\n  {% endfor -%}\n  {% for f in list_files('templates_tests/my_file*.txt') -%}\n  {{ f.split('/')[-1] }}:\n  {% endfor -%}\n"
+                },
+                "config": "common:\n  my_var: my_value\n  my_file: \"{{ file='include.yaml' }}\"\n  my_env_var: \"{{ env='CUSTOM_ENV' }}\"\ntest_dirs:\n  dirs:\n    - dst: /tmp/test_directory1/\n  templates:\n    - template: template1.yaml.j2\n    - template: template2.yaml.j2\n    - template: template3.yaml.j2\n    - template: template_include_file.yaml.j2\n    - template: innerdir/template1.yaml.j2\n    - template: template_list_files.yaml.j2\n"
+            },
+            "expected_output": "# file: innerdir/template1.yaml\n{'ha_ha': 'included_var'}\n# file: template1.yaml\n{'ha_ha': 'included_var'}\n# file: template2.yaml\nTXkgdmFsdWU=\n# file: template3.yaml\nMy value\n# file: template_include_file.yaml\ntest: |\n  {{ hello world }}\n  new\n  line\n\n  {{ hello world1 }}\n# file: template_list_files.yaml\ntest: |\n  template1.yaml.j2:\n  my_file.txt:\n  my_file1.txt:\n  \n"
+        },
+        {
+            "input": {
+                "op": "render",
+                "section": "section_with_kubectl",
+                "env": {
+                    "CUSTOM_ENV": "My value"
+                },
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n"
+                },
+                "templates_files": {
+                    "template1.yaml.j2": "{{ my_file }}",
+                    "template2.yaml.j2": "{{ my_env_var | b64encode }}\n",
+                    "template3.yaml.j2": "{{ 'TXkgdmFsdWU=' | b64decode }}\n",
+                    "innerdir/template1.yaml.j2": "{{ my_file }}"
+                },
+                "config": "common:\n  my_file: \"{{ file='include.yaml' }}\"\n  my_env_var: \"{{ env='CUSTOM_ENV' }}\"\nsection_with_kubectl:\n  kubectl:\n    - template: template1.yaml.j2\n    - template: template2.yaml.j2\n    - template: template3.yaml.j2\n    - template: innerdir/template1.yaml.j2\n"
+            },
+            "expected_output": "# file: innerdir/template1.yaml\n{'ha_ha': 'included_var'}\n# file: template1.yaml\n{'ha_ha': 'included_var'}\n# file: template2.yaml\nTXkgdmFsdWU=\n# file: template3.yaml\nMy value\n"
+        },
+        {
+            "input": {
+                "op": "render",
+                "section": "test_groups",
+                "env": {
+                    "CUSTOM_ENV": "My value"
+                },
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n"
+                },
+                "templates_files": {
+                    "template1.yaml.j2": "{{ my_file }}",
+                    "template2.yaml.j2": "{{ my_env_var | b64encode }}\n",
+                    "template3.yaml.j2": "{{ 'TXkgdmFsdWU=' | b64decode }}\n"
+                },
+                "config": "common:\n  my_file: \"{{ file='include.yaml' }}\"\n  my_env_var: \"{{ env='CUSTOM_ENV' }}\"\ntest_groups:\n  templates:\n    - template: template1.yaml.j2\n    - group:\n        - group:\n            - template: template2.yaml.j2\n        - template: template3.yaml.j2\n"
+            },
+            "expected_output": "# file: template1.yaml\n{'ha_ha': 'included_var'}\n# file: template2.yaml\nTXkgdmFsdWU=\n# file: template3.yaml\nMy value\n"
+        },
+        {
+            "input": {
+                "op": "render",
+                "section": "templates_regex",
+                "env": {
+                    "CUSTOM_ENV": "My value"
+                },
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n"
+                },
+                "templates_files": {
+                    "template1.yaml.j2": "{{ my_file }}",
+                    "template2.yaml.j2": "{{ my_env_var | b64encode }}\n",
+                    "innerdir/template1.yaml.j2": "{{ my_file }}"
+                },
+                "config": "common:\n  my_file: \"{{ file='include.yaml' }}\"\n  my_env_var: \"{{ env='CUSTOM_ENV' }}\"\ntemplates_regex:\n  templates:\n    - template: innerdir/.*\\.j2\n    - template: template1.yaml.j2\n"
+            },
+            "expected_output": "# file: innerdir/template1.yaml\n{'ha_ha': 'included_var'}\n# file: template1.yaml\n{'ha_ha': 'included_var'}\n"
+        }
+    ]
+}

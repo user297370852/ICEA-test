@@ -1,0 +1,47 @@
+{
+  "description": "stop_and_discard dropping multiple buffered events of mixed kinds and still ending the block cleanly, including discarding after partially reading a stream and discarding a never-stream's buffered items.",
+  "cases": [
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b",
+          "c"
+        ],
+        "terminal": "complete",
+        "ops": [
+          "stop_and_discard"
+        ]
+      },
+      "expected_output": "ignored\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b"
+        ],
+        "terminal": "never",
+        "ops": [
+          "take_item",
+          "stop_and_discard"
+        ]
+      },
+      "expected_output": "item=a\nignored\n"
+    },
+    {
+      "input": {
+        "emissions": [
+          "a",
+          "b"
+        ],
+        "terminal": "error",
+        "errorLabel": "boom",
+        "ops": [
+          "stop_and_discard"
+        ]
+      },
+      "expected_output": "ignored\n"
+    }
+  ]
+}

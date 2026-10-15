@@ -1,0 +1,98 @@
+{
+    "description": "Filter a record batch with a compiled boolean condition built from several elementary comparisons combined with boolean conjunction and disjunction. The schema has two double-precision columns. The condition keeps a row when EITHER (the first column is below a constant AND the first column exceeds the second column) OR (the second column is below another constant). Filtering yields a selection vector of zero-based positions (an unsigned 32-bit index list) of surviving rows in ascending order. The adapter reports the operation, the selection index element type, the number of surviving rows, and the positions as an ordered index list.",
+    "cases": [
+        {
+            "input": {
+                "operation": "filter",
+                "schema": [
+                    {
+                        "name": "a",
+                        "type": "float64"
+                    },
+                    {
+                        "name": "b",
+                        "type": "float64"
+                    }
+                ],
+                "columns": {
+                    "a": [
+                        1.0,
+                        31.0,
+                        46.0,
+                        3.0,
+                        57.0,
+                        44.0,
+                        22.0
+                    ],
+                    "b": [
+                        5.0,
+                        45.0,
+                        36.0,
+                        73.0,
+                        83.0,
+                        23.0,
+                        76.0
+                    ]
+                },
+                "condition": {
+                    "node": "or",
+                    "args": [
+                        {
+                            "node": "and",
+                            "args": [
+                                {
+                                    "node": "function",
+                                    "name": "less_than",
+                                    "args": [
+                                        {
+                                            "node": "field",
+                                            "name": "a"
+                                        },
+                                        {
+                                            "node": "literal",
+                                            "type": "float64",
+                                            "value": 50.0
+                                        }
+                                    ],
+                                    "return": "bool"
+                                },
+                                {
+                                    "node": "function",
+                                    "name": "greater_than",
+                                    "args": [
+                                        {
+                                            "node": "field",
+                                            "name": "a"
+                                        },
+                                        {
+                                            "node": "field",
+                                            "name": "b"
+                                        }
+                                    ],
+                                    "return": "bool"
+                                }
+                            ]
+                        },
+                        {
+                            "node": "function",
+                            "name": "less_than",
+                            "args": [
+                                {
+                                    "node": "field",
+                                    "name": "b"
+                                },
+                                {
+                                    "node": "literal",
+                                    "type": "float64",
+                                    "value": 11.0
+                                }
+                            ],
+                            "return": "bool"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "op=filter\nselection_type=uint32\nlength=3\nindices=[0, 2, 5]\n"
+        }
+    ]
+}

@@ -1,0 +1,64 @@
+{
+  "description": "Unbounded iteration over empty, single, all-rejected, and mixed item lists preserving index event ordering.",
+  "cases": [
+    {
+      "input": {
+        "operation": "iterate_all",
+        "items": []
+      },
+      "expected_output": "aggregate_state=fulfilled\nevents=[]\n"
+    },
+    {
+      "input": {
+        "operation": "iterate_all",
+        "items": [
+          {
+            "state": "fulfilled",
+            "value": "solo"
+          }
+        ]
+      },
+      "expected_output": "aggregate_state=fulfilled\nevents=[\"fulfilled:0:solo\"]\n"
+    },
+    {
+      "input": {
+        "operation": "iterate_all",
+        "items": [
+          {
+            "state": "rejected",
+            "reason": "a"
+          },
+          {
+            "state": "rejected",
+            "reason": "b"
+          },
+          {
+            "state": "rejected",
+            "reason": "c"
+          }
+        ]
+      },
+      "expected_output": "aggregate_state=fulfilled\nevents=[\"rejected:0:a\",\"rejected:1:b\",\"rejected:2:c\"]\n"
+    },
+    {
+      "input": {
+        "operation": "iterate_all",
+        "items": [
+          {
+            "state": "rejected",
+            "reason": "x"
+          },
+          {
+            "state": "fulfilled",
+            "value": "y"
+          },
+          {
+            "state": "rejected",
+            "reason": "z"
+          }
+        ]
+      },
+      "expected_output": "aggregate_state=fulfilled\nevents=[\"rejected:0:x\",\"fulfilled:1:y\",\"rejected:2:z\"]\n"
+    }
+  ]
+}

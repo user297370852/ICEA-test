@@ -1,0 +1,159 @@
+{
+    "description": "Group arguments so at most one may be supplied. A single member is accepted and bound; supplying two members of the same group is rejected naming the conflicting pair; a group may be marked required so omitting all of its members is rejected listing the group's members; and the conflict detection applies even when members are concatenated into one short-option token.",
+    "cases": [
+        {
+            "input": {
+                "groups": [
+                    {
+                        "kind": "mutex",
+                        "title": "mutex",
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "--foo"
+                                ]
+                            },
+                            {
+                                "flags": [
+                                    "--bar"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "bar"
+                ]
+            },
+            "expected_output": "bar=null\nfoo=bar\n"
+        },
+        {
+            "input": {
+                "groups": [
+                    {
+                        "kind": "mutex",
+                        "title": "mutex",
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "--foo"
+                                ]
+                            },
+                            {
+                                "flags": [
+                                    "--bar"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "bar",
+                    "--bar",
+                    "baz"
+                ]
+            },
+            "expected_output": "error: argument --bar: not allowed with argument --foo\n"
+        },
+        {
+            "input": {
+                "groups": [
+                    {
+                        "kind": "mutex",
+                        "title": "mutex",
+                        "required": true,
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "--foo"
+                                ]
+                            },
+                            {
+                                "flags": [
+                                    "--bar"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "error: one of the arguments --foo --bar is required\n"
+        },
+        {
+            "input": {
+                "groups": [
+                    {
+                        "kind": "mutex",
+                        "title": "mutex",
+                        "required": true,
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "-a"
+                                ],
+                                "action": "store_true"
+                            },
+                            {
+                                "flags": [
+                                    "-b"
+                                ],
+                                "action": "store_true"
+                            }
+                        ]
+                    }
+                ],
+                "arguments": [
+                    {
+                        "flags": [
+                            "-c"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "-acfoo"
+                ]
+            },
+            "expected_output": "a=true\nb=false\nc=foo\n"
+        },
+        {
+            "input": {
+                "groups": [
+                    {
+                        "kind": "mutex",
+                        "title": "mutex",
+                        "required": true,
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "-a"
+                                ],
+                                "action": "store_true"
+                            },
+                            {
+                                "flags": [
+                                    "-b"
+                                ],
+                                "action": "store_true"
+                            }
+                        ]
+                    }
+                ],
+                "arguments": [
+                    {
+                        "flags": [
+                            "-c"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-acb"
+                ]
+            },
+            "expected_output": "error: argument -b: not allowed with argument -a\n"
+        }
+    ]
+}

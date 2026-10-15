@@ -1,0 +1,17 @@
+{
+  "description": "Serialize the per-sheet protection settings to their XML fragment. A set of independent boolean toggles governs what a viewer may do on a protected sheet: whether the sheet itself is protected, whether objects and scenarios are locked, whether formatting of cells, columns and rows is allowed, whether columns and rows may be inserted or deleted, whether hyperlinks may be inserted, whether locked and unlocked cells may be selected, and whether sorting, auto-filtering and pivot tables are permitted. Most permissions default to enabled while sheet protection and object/scenario locking and cell selection default to their off state. An optional clear-text password is accepted and stored only as a short hash digest, never echoed back verbatim. Each toggle accepts only a boolean-ish value; a non-boolean value is rejected and reported as a normalized error. The emitted fragment lists every toggle as 1 or 0, with the password hash appended when present.",
+  "cases": [
+    {
+      "input": {"op": "sheet_protection", "props": {}},
+      "expected_output": "<sheetProtection sheet=\"1\" objects=\"0\" scenarios=\"0\" formatCells=\"1\" formatColumns=\"1\" formatRows=\"1\" insertColumns=\"1\" insertRows=\"1\" insertHyperlinks=\"1\" deleteColumns=\"1\" deleteRows=\"1\" selectLockedCells=\"0\" sort=\"1\" autoFilter=\"1\" pivotTables=\"1\" selectUnlockedCells=\"0\" />"
+    },
+    {
+      "input": {"op": "sheet_protection", "props": {"objects": true, "scenarios": true, "select_locked_cells": true}, "password": "fish"},
+      "expected_output": "<sheetProtection sheet=\"1\" objects=\"1\" scenarios=\"1\" formatCells=\"1\" formatColumns=\"1\" formatRows=\"1\" insertColumns=\"1\" insertRows=\"1\" insertHyperlinks=\"1\" deleteColumns=\"1\" deleteRows=\"1\" selectLockedCells=\"1\" sort=\"1\" autoFilter=\"1\" pivotTables=\"1\" selectUnlockedCells=\"0\" password=\"CA3F\" />"
+    },
+    {
+      "input": {"op": "sheet_protection", "props": {"sheet": "A"}},
+      "expected_output": "error=argument"
+    }
+  ]
+}

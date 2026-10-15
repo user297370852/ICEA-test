@@ -1,0 +1,82 @@
+{
+  "description": "Edge coverage for variant selection: payload variant with distinct large fields, payload variant truncated after magic (mixed error with eof), endianness variant no-magic-match, numeric unit-enum matching Two, numeric unit-enum implicit Zero, byte-marker unit-enum matching Zero, pre-assert both-false falling through to OtherZero, both-true falling through, repr enum matching Zero and Two.",
+  "cases": [
+    {
+      "input": {
+        "feature": "enum_mixed",
+        "bytes": "02000100ff"
+      },
+      "expected_output": "status=ok\nvariant=Two\na=1\nb=255\n"
+    },
+    {
+      "input": {
+        "feature": "enum_mixed",
+        "bytes": "02"
+      },
+      "expected_output": "error=variant_errors\npos=0\nvariant_error_count=2\nvariant=Zero\nerror=bad_magic\npos=0\nvariant=Two\nerror=unexpected_eof\n"
+    },
+    {
+      "input": {
+        "feature": "enum_endianness",
+        "bytes": "0002"
+      },
+      "expected_output": "error=variant_errors\npos=0\nvariant_error_count=2\nvariant=OneBig\nerror=bad_magic\npos=0\nvariant=TwoLittle\nerror=bad_magic\npos=0\n"
+    },
+    {
+      "input": {
+        "feature": "unit_enum_magic",
+        "bytes": "0002",
+        "mode": "numeric"
+      },
+      "expected_output": "status=ok\nvariant=Two\n"
+    },
+    {
+      "input": {
+        "feature": "unit_enum_magic",
+        "bytes": "0000",
+        "mode": "numeric"
+      },
+      "expected_output": "status=ok\nvariant=Zero\n"
+    },
+    {
+      "input": {
+        "feature": "unit_enum_magic",
+        "bytes": "7a65726f",
+        "mode": "bytes"
+      },
+      "expected_output": "status=ok\nvariant=Zero\n"
+    },
+    {
+      "input": {
+        "feature": "unit_enum_pre_assert",
+        "bytes": "0000",
+        "allow_zero": false,
+        "forbid_zero": false
+      },
+      "expected_output": "status=ok\nvariant=OtherZero\n"
+    },
+    {
+      "input": {
+        "feature": "unit_enum_pre_assert",
+        "bytes": "0000",
+        "allow_zero": true,
+        "forbid_zero": true
+      },
+      "expected_output": "status=ok\nvariant=OtherZero\n"
+    },
+    {
+      "input": {
+        "feature": "unit_enum_repr",
+        "bytes": "0000"
+      },
+      "expected_output": "status=ok\nvariant=Zero\n"
+    },
+    {
+      "input": {
+        "feature": "unit_enum_repr",
+        "bytes": "0002"
+      },
+      "expected_output": "status=ok\nvariant=Two\n"
+    }
+  ]
+}

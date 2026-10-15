@@ -1,0 +1,179 @@
+{
+  "description": "Enhanced permission-management edge cases (disjoint from native): add is a no-op on an existing key even with a different value, removing every key yields the empty token, set followed by add/update, update on an absent key without the create flag is a no-op, remove of an absent key is a no-op, a second set fully replacing a prior set, update with the create flag inserting a true grant, and a no-action run yielding the empty token.",
+  "cases": [
+    {
+      "input": {
+        "op": "permissible",
+        "actions": [
+          {
+            "op": "add",
+            "args": [
+              "a",
+              false
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              "a",
+              true
+            ]
+          }
+        ]
+      },
+      "expected_output": "a=false\n"
+    },
+    {
+      "input": {
+        "op": "permissible",
+        "actions": [
+          {
+            "op": "add",
+            "args": [
+              "x"
+            ]
+          },
+          {
+            "op": "add",
+            "args": [
+              "y"
+            ]
+          },
+          {
+            "op": "remove",
+            "args": [
+              "x"
+            ]
+          },
+          {
+            "op": "remove",
+            "args": [
+              "y"
+            ]
+          }
+        ]
+      },
+      "expected_output": "permissions=empty\n"
+    },
+    {
+      "input": {
+        "op": "permissible",
+        "actions": [
+          {
+            "op": "set",
+            "args": {
+              "a": true,
+              "b": false
+            }
+          },
+          {
+            "op": "add",
+            "args": [
+              "c"
+            ]
+          },
+          {
+            "op": "update",
+            "args": [
+              "a",
+              false
+            ]
+          }
+        ]
+      },
+      "expected_output": "a=false\nb=false\nc=true\n"
+    },
+    {
+      "input": {
+        "op": "permissible",
+        "actions": [
+          {
+            "op": "add",
+            "args": [
+              "m"
+            ]
+          },
+          {
+            "op": "update",
+            "args": [
+              "n",
+              false
+            ]
+          },
+          {
+            "op": "update",
+            "args": [
+              "m",
+              false
+            ]
+          }
+        ]
+      },
+      "expected_output": "m=false\n"
+    },
+    {
+      "input": {
+        "op": "permissible",
+        "actions": [
+          {
+            "op": "add",
+            "args": [
+              "k"
+            ]
+          },
+          {
+            "op": "remove",
+            "args": [
+              "zzz"
+            ]
+          }
+        ]
+      },
+      "expected_output": "k=true\n"
+    },
+    {
+      "input": {
+        "op": "permissible",
+        "actions": [
+          {
+            "op": "set",
+            "args": {
+              "p": false
+            }
+          },
+          {
+            "op": "set",
+            "args": {
+              "q": true,
+              "r": false
+            }
+          }
+        ]
+      },
+      "expected_output": "q=true\nr=false\n"
+    },
+    {
+      "input": {
+        "op": "permissible",
+        "actions": [
+          {
+            "op": "update",
+            "args": [
+              "solo",
+              true,
+              true
+            ]
+          }
+        ]
+      },
+      "expected_output": "solo=true\n"
+    },
+    {
+      "input": {
+        "op": "permissible",
+        "actions": []
+      },
+      "expected_output": "permissions=empty\n"
+    }
+  ]
+}

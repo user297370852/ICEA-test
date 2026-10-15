@@ -1,0 +1,94 @@
+{
+  "description": "Guard an HTTP request so it only proceeds when all required features are active, exercised with several required features. When every required feature is active the guarded request passes through with a successful HTTP 200 outcome; when any required feature is missing or defined-but-inactive the request is rejected with an HTTP 400 outcome instead of reaching the handler.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "a",
+            "resolver": {
+              "type": "const",
+              "value": true
+            }
+          },
+          {
+            "op": "define",
+            "feature": "b",
+            "resolver": {
+              "type": "const",
+              "value": true
+            }
+          },
+          {
+            "op": "define",
+            "feature": "c",
+            "resolver": {
+              "type": "const",
+              "value": true
+            }
+          },
+          {
+            "op": "ensureActive",
+            "features": [
+              "a",
+              "b",
+              "c"
+            ]
+          }
+        ]
+      },
+      "expected_output": "middleware = passed status=200\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "a",
+            "resolver": {
+              "type": "const",
+              "value": true
+            }
+          },
+          {
+            "op": "define",
+            "feature": "b",
+            "resolver": {
+              "type": "const",
+              "value": true
+            }
+          },
+          {
+            "op": "ensureActive",
+            "features": [
+              "a",
+              "b",
+              "missing"
+            ]
+          }
+        ]
+      },
+      "expected_output": "middleware = blocked status=400\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "x",
+            "resolver": {
+              "type": "const",
+              "value": false
+            }
+          },
+          {
+            "op": "ensureActive",
+            "features": "x"
+          }
+        ]
+      },
+      "expected_output": "middleware = blocked status=400\n"
+    }
+  ]
+}

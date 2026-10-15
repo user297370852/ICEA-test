@@ -1,0 +1,35 @@
+{
+  "description": "Endpoint derivation boundary coverage: project segments are echoed verbatim into the store URL (leading zeros and the value 0 are preserved, not normalized), hosts may carry an explicit port and deep subdomains, and credential keys may contain punctuation other than ':' (public) / '@' (secret). Both schemes are preserved.",
+  "cases": [
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/007"
+      },
+      "expected_output": "store_url=https://sentry.io/api/007/store/\n"
+    },
+    {
+      "input": {
+        "dsn": "http://abc:def@sentry.io/0"
+      },
+      "expected_output": "store_url=http://sentry.io/api/0/store/\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@example.com:9000/42"
+      },
+      "expected_output": "store_url=https://example.com:9000/api/42/store/\n"
+    },
+    {
+      "input": {
+        "dsn": "https://pub:sec@o123.ingest.us.sentry.io/456789"
+      },
+      "expected_output": "store_url=https://o123.ingest.us.sentry.io/api/456789/store/\n"
+    },
+    {
+      "input": {
+        "dsn": "https://a.b-c:s3cr3t!#$@host.local/1"
+      },
+      "expected_output": "store_url=https://host.local/api/1/store/\n"
+    }
+  ]
+}

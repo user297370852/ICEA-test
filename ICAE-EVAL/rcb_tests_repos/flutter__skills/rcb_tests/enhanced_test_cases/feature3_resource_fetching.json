@@ -1,0 +1,59 @@
+{
+  "description": "Aggregate a list of source resources into a single buffer, failing fast on any problem, under boundary conditions: several local files aggregated in order, an empty resource list, a sequence where a valid local file precedes an insecure URL, and a sequence where a valid local file precedes a missing local file. The input carries the list of resources, whether a base directory is available, and the in-memory contents of any local files; the output is either the aggregated buffer or the normalized error.",
+  "cases": [
+    {
+      "input": {
+        "action": "fetch_resources",
+        "resources": [
+          "a.md",
+          "b.md",
+          "c.md"
+        ],
+        "has_config_dir": true,
+        "files": {
+          "a.md": "Alpha",
+          "b.md": "Beta",
+          "c.md": "Gamma"
+        }
+      },
+      "expected_output": "--- Raw content from a.md ---\nAlpha\n--- Raw content from b.md ---\nBeta\n--- Raw content from c.md ---\nGamma\n"
+    },
+    {
+      "input": {
+        "action": "fetch_resources",
+        "resources": [],
+        "has_config_dir": true,
+        "files": {}
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "fetch_resources",
+        "resources": [
+          "ok.md",
+          "http://example.com/bad"
+        ],
+        "has_config_dir": true,
+        "files": {
+          "ok.md": "Fine"
+        }
+      },
+      "expected_output": "error=insecure_url\nresource=ok.md,http://example.com/bad\n"
+    },
+    {
+      "input": {
+        "action": "fetch_resources",
+        "resources": [
+          "ok.md",
+          "gone.md"
+        ],
+        "has_config_dir": true,
+        "files": {
+          "ok.md": "Fine"
+        }
+      },
+      "expected_output": "error=local_file_not_found\nresource=ok.md,gone.md\n"
+    }
+  ]
+}

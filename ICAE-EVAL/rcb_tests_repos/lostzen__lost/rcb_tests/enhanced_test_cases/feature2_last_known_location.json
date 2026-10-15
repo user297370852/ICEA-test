@@ -1,0 +1,117 @@
+{
+  "description": "Enhanced last-known selection edge cases: freshness boundary (a fix exactly at the recent-update threshold is treated as neither fresh nor a returnable stale fix; one tick newer is fresh; one tick older is stale); all-stale tie resolved by most-recent; fresh fix beats a more-accurate stale fix; an unset accuracy (default 0.0) beats a larger explicit accuracy; and a single stale fix is still returned.",
+  "cases": [
+    {
+      "input": {
+        "command": "last_known_location",
+        "now": 100000000,
+        "fixes": [
+          {
+            "provider": "gps",
+            "accuracy": 5.0,
+            "time": 99940000
+          }
+        ]
+      },
+      "expected_output": "selected=none\n"
+    },
+    {
+      "input": {
+        "command": "last_known_location",
+        "now": 100000000,
+        "fixes": [
+          {
+            "provider": "gps",
+            "accuracy": 5.0,
+            "time": 99940001
+          }
+        ]
+      },
+      "expected_output": "selected=gps\naccuracy=5.0\n"
+    },
+    {
+      "input": {
+        "command": "last_known_location",
+        "now": 100000000,
+        "fixes": [
+          {
+            "provider": "gps",
+            "accuracy": 5.0,
+            "time": 99939999
+          }
+        ]
+      },
+      "expected_output": "selected=gps\naccuracy=5.0\n"
+    },
+    {
+      "input": {
+        "command": "last_known_location",
+        "now": 100000000,
+        "fixes": [
+          {
+            "provider": "gps",
+            "accuracy": 50.0,
+            "time": 90000000
+          },
+          {
+            "provider": "network",
+            "accuracy": 10.0,
+            "time": 95000000
+          }
+        ]
+      },
+      "expected_output": "selected=network\naccuracy=10.0\n"
+    },
+    {
+      "input": {
+        "command": "last_known_location",
+        "now": 100000000,
+        "fixes": [
+          {
+            "provider": "gps",
+            "accuracy": 5.0,
+            "time": 90000000
+          },
+          {
+            "provider": "network",
+            "accuracy": 500.0,
+            "time": 99990000
+          }
+        ]
+      },
+      "expected_output": "selected=network\naccuracy=500.0\n"
+    },
+    {
+      "input": {
+        "command": "last_known_location",
+        "now": 100000000,
+        "fixes": [
+          {
+            "provider": "gps",
+            "accuracy": 500.0,
+            "time": 100000000
+          },
+          {
+            "provider": "network",
+            "time": 100000000
+          }
+        ]
+      },
+      "expected_output": "selected=network\naccuracy=0.0\n"
+    },
+    {
+      "input": {
+        "command": "last_known_location",
+        "now": 100000000,
+        "fixes": [
+          {
+            "provider": "passive",
+            "accuracy": 5.0,
+            "time": 95000000
+          }
+        ]
+      },
+      "expected_output": "selected=passive\naccuracy=5.0\n"
+    }
+  ]
+}

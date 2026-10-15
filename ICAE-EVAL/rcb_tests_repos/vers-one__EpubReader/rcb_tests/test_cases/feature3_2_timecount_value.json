@@ -1,0 +1,31 @@
+{
+    "description": "Parse a media-overlay clock value written in timecount notation into a normalized timestamp. A timecount is a non-negative number, optionally fractional, followed by an optional metric unit: 'h' for hours, 'min' for minutes, 's' for seconds, or 'ms' for milliseconds; when no unit is given the number is interpreted as seconds. Surrounding whitespace is ignored. The numeric magnitude is converted to whole milliseconds (the fractional part beyond a millisecond is truncated, not rounded) and then broken down into hour, minute, second, and millisecond components, where the minute and second components wrap at 60 and the hour component absorbs the overflow. A value whose magnitude exceeds the maximum supported timecount, a negative number, an unrecognized or wrongly-cased unit, or a unit preceded by whitespace is rejected. On success the output reports the broken-down components plus a canonical h:mm:ss[.fff] rendering (the fractional part is shown only when non-zero); on failure it reports that the value is not valid.",
+    "cases": [
+        {"input": {"op": "parse_clock", "value": "3h"}, "expected_output": "valid=true\nhour=3\nminute=0\nsecond=0\nmillisecond=0\ntimestamp=3:00:00\n"},
+        {"input": {"op": "parse_clock", "value": "45min"}, "expected_output": "valid=true\nhour=0\nminute=45\nsecond=0\nmillisecond=0\ntimestamp=0:45:00\n"},
+        {"input": {"op": "parse_clock", "value": "30s"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=30\nmillisecond=0\ntimestamp=0:00:30\n"},
+        {"input": {"op": "parse_clock", "value": "5ms"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=0\nmillisecond=5\ntimestamp=0:00:00.005\n"},
+        {"input": {"op": "parse_clock", "value": "12"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=12\nmillisecond=0\ntimestamp=0:00:12\n"},
+        {"input": {"op": "parse_clock", "value": "3.2h"}, "expected_output": "valid=true\nhour=3\nminute=12\nsecond=0\nmillisecond=0\ntimestamp=3:12:00\n"},
+        {"input": {"op": "parse_clock", "value": "45.5min"}, "expected_output": "valid=true\nhour=0\nminute=45\nsecond=30\nmillisecond=0\ntimestamp=0:45:30\n"},
+        {"input": {"op": "parse_clock", "value": "30.1s"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=30\nmillisecond=100\ntimestamp=0:00:30.100\n"},
+        {"input": {"op": "parse_clock", "value": "12.467"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=12\nmillisecond=467\ntimestamp=0:00:12.467\n"},
+        {"input": {"op": "parse_clock", "value": "1.999"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=1\nmillisecond=999\ntimestamp=0:00:01.999\n"},
+        {"input": {"op": "parse_clock", "value": "1.9991"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=1\nmillisecond=999\ntimestamp=0:00:01.999\n"},
+        {"input": {"op": "parse_clock", "value": "300h"}, "expected_output": "valid=true\nhour=300\nminute=0\nsecond=0\nmillisecond=0\ntimestamp=300:00:00\n"},
+        {"input": {"op": "parse_clock", "value": "3.3333333h"}, "expected_output": "valid=true\nhour=3\nminute=19\nsecond=59\nmillisecond=999\ntimestamp=3:19:59.999\n"},
+        {"input": {"op": "parse_clock", "value": "130.151234min"}, "expected_output": "valid=true\nhour=2\nminute=10\nsecond=9\nmillisecond=74\ntimestamp=2:10:09.074\n"},
+        {"input": {"op": "parse_clock", "value": "3725.1234s"}, "expected_output": "valid=true\nhour=1\nminute=2\nsecond=5\nmillisecond=123\ntimestamp=1:02:05.123\n"},
+        {"input": {"op": "parse_clock", "value": "11531567.8ms"}, "expected_output": "valid=true\nhour=3\nminute=12\nsecond=11\nmillisecond=567\ntimestamp=3:12:11.567\n"},
+        {"input": {"op": "parse_clock", "value": " 10ms"}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=0\nmillisecond=10\ntimestamp=0:00:00.010\n"},
+        {"input": {"op": "parse_clock", "value": "10ms "}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=0\nmillisecond=10\ntimestamp=0:00:00.010\n"},
+        {"input": {"op": "parse_clock", "value": " 10ms "}, "expected_output": "valid=true\nhour=0\nminute=0\nsecond=0\nmillisecond=10\ntimestamp=0:00:00.010\n"},
+        {"input": {"op": "parse_clock", "value": "1m"}, "expected_output": "valid=false\n"},
+        {"input": {"op": "parse_clock", "value": "1H"}, "expected_output": "valid=false\n"},
+        {"input": {"op": "parse_clock", "value": "1 h"}, "expected_output": "valid=false\n"},
+        {"input": {"op": "parse_clock", "value": "ah"}, "expected_output": "valid=false\n"},
+        {"input": {"op": "parse_clock", "value": "-1h"}, "expected_output": "valid=false\n"},
+        {"input": {"op": "parse_clock", "value": "-1.5h"}, "expected_output": "valid=false\n"},
+        {"input": {"op": "parse_clock", "value": "7730941129200001ms"}, "expected_output": "valid=false\n"}
+    ]
+}

@@ -1,0 +1,120 @@
+{
+  "description": "Enhanced match-condition operators: empty match passes by default, less/contains/noEqu operators, source-tag mismatch gating, case-insensitive exact comparison, a failing noLess numeric boundary, and a referenced policy that fails on method mismatch while still echoing the reference.",
+  "cases": [
+    {
+      "input": {
+        "match": {},
+        "headers": {}
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "match": {
+          "httpHeaders": {
+            "age": {
+              "less": "20"
+            }
+          }
+        },
+        "headers": {
+          "age": "15"
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "match": {
+          "httpHeaders": {
+            "cookie": {
+              "contains": "abc"
+            }
+          }
+        },
+        "headers": {
+          "cookie": "xxabcyy"
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "match": {
+          "httpHeaders": {
+            "role": {
+              "noEqu": "admin"
+            }
+          }
+        },
+        "headers": {
+          "role": "user"
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "match": {
+          "httpHeaders": {
+            "age": {
+              "noLess": "20"
+            }
+          }
+        },
+        "headers": {
+          "age": "15"
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "match": {
+          "source": "svc",
+          "sourceTags": {
+            "t": "1"
+          }
+        },
+        "headers": {},
+        "source": {
+          "name": "svc",
+          "tags": {
+            "t": "2"
+          }
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "match": {
+          "httpHeaders": {
+            "x": {
+              "exact": "ABC",
+              "caseInsensitive": "true"
+            }
+          }
+        },
+        "headers": {
+          "x": "abc"
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "match": {
+          "refer": "m1"
+        },
+        "request": {
+          "method": "POST",
+          "url": "some/api"
+        },
+        "reference": "m1",
+        "policy": "\nmatches:\n  - apiPath:\n      contains: \"some/api\"\n    method: [GET]\n"
+      },
+      "expected_output": "matched=false\nreference=m1\n"
+    }
+  ]
+}

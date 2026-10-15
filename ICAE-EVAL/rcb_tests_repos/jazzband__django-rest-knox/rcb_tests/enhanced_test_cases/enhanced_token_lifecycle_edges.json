@@ -1,0 +1,127 @@
+{
+  "description": "Enhanced token lifecycle edge cases covering combined login settings, revocation boundaries, header parsing, expiry refresh boundaries, cleanup counts, session limits, and prefix validation.",
+  "cases": [
+    {
+      "description": "Login combines a short custom session lifetime with profile output and a non-midnight frozen timestamp.",
+      "input": {
+        "operation": "login",
+        "settings": {
+          "session_lifetime": {
+            "minutes": 30
+          },
+          "include_user_profile": true
+        },
+        "frozen_time": "2020-06-16T12:34:56"
+      },
+      "expected_output": "route=/api/login/\nlogin.status=200\nlogin.url=/api/login/\nlogin.expiry=\"2020-06-16T13:04:56Z\"\nlogin.token_present=true\nlogin.token_prefix=\nlogin.token_length=64\nlogin.user_fields=username\nlogin.user.username=john.doe\ntoken_count=1\nstored_token_keys_present=true\n"
+    },
+    {
+      "description": "Single-session logout with exactly one token revokes the only persisted session.",
+      "input": {
+        "operation": "logout",
+        "scope": "single",
+        "tokens_for_user": 1
+      },
+      "expected_output": "route=/api/logout/\nlogout.status=204\nlogout.url=/api/logout/\nlogout.body=null\nbefore.total_tokens=1\nafter.total_tokens=0\n"
+    },
+    {
+      "description": "All-sessions logout for one account preserves a single unrelated account token at the lower boundary.",
+      "input": {
+        "operation": "logout",
+        "scope": "all_for_user_with_other_user",
+        "tokens_for_user": 1
+      },
+      "expected_output": "route=/api/logoutall/\nlogout.status=204\nlogout.url=/api/logoutall/\nlogout.body=null\nbefore.user_tokens=1\nbefore.other_user_tokens=1\nafter.user_tokens=0\nafter.other_user_tokens=1\nafter.total_tokens=1\n"
+    },
+    {
+      "description": "A default-protected request rejects a wrong authorization scheme before accepting the same token with the default scheme.",
+      "input": {
+        "operation": "authenticated_request",
+        "header_prefixes": [
+          "Baerer",
+          "Token"
+        ]
+      },
+      "expected_output": "request1.status=401\nrequest1.url=/api/\nrequest1.detail=Authentication credentials were not provided.\nrequest2.status=200\nrequest2.url=/api/\nrequest2.body=User is authenticated.\n"
+    },
+    {
+      "description": "A non-configured authorization scheme with credentials is ignored rather than token-validated.",
+      "input": {
+        "operation": "header_parse",
+        "authorization": "Bearer abcdef"
+      },
+      "expected_output": "auth_result=none\n"
+    },
+    {
+      "description": "An authorization header containing only the scheme and trailing whitespace is still rejected as missing credentials.",
+      "input": {
+        "operation": "header_parse",
+        "authorization": "Token "
+      },
+      "expected_output": "error=missing_credentials\n"
+    },
+    {
+      "description": "An arbitrary sufficiently long but unknown token is rejected through the protected endpoint.",
+      "input": {
+        "operation": "invalid_token",
+        "token": "not-a-real-token-with-enough-length"
+      },
+      "expected_output": "route=/api/\nrequest.status=401\nrequest.url=/api/\nrequest.detail=Invalid token.\n"
+    },
+    {
+      "description": "Expired cleanup through the protected API removes multiple expired sessions without observing the signal.",
+      "input": {
+        "operation": "expired_cleanup",
+        "route": "api",
+        "expired_count": 3
+      },
+      "expected_output": "route=/api/\nrequest.status=401\nrequest.url=/api/\nrequest.detail=Invalid token.\ntokens_before=3\ntokens_after=0\n"
+    },
+    {
+      "description": "Automatic refresh at the minimum interval boundary still avoids rewriting expiry, and a later post-expiry check rejects the token.",
+      "input": {
+        "operation": "expiry_refresh",
+        "settings": {
+          "auto_extend_sessions": true
+        },
+        "original_time": "2018-07-25T00:00:00",
+        "checks": [
+          {
+            "at": {
+              "seconds": 60
+            }
+          },
+          {
+            "at": {
+              "hours": 10,
+              "seconds": 61
+            }
+          }
+        ]
+      },
+      "expected_output": "check1.status=200\ncheck1.url=/api/\ncheck1.body=User is authenticated.\ncheck1.stored_expiry=2018-07-25T10:00:00\ncheck2.status=401\ncheck2.url=/api/\ncheck2.detail=Invalid token.\ncheck2.stored_expiry=null\noriginal_expiry=2018-07-25T10:00:00\n"
+    },
+    {
+      "description": "A session limit of one can be filled by a first login despite expired tokens, then rejects the next login.",
+      "input": {
+        "operation": "token_limit",
+        "settings": {
+          "session_limit_per_account": 1
+        },
+        "valid_existing": 0,
+        "expired_existing": 2,
+        "login_attempts": 2,
+        "frozen_time": "2020-01-01T00:00:00"
+      },
+      "expected_output": "login1.status=200\nlogin1.url=/api/login/\nlogin1.expiry=\"2020-01-01T10:00:00Z\"\nlogin1.token_present=true\nlogin1.token_prefix=\nlogin1.token_length=64\nlogin2.status=403\nlogin2.url=/api/login/\nlogin2.error=Maximum amount of tokens allowed per user exceeded.\nvalid_tokens_after=1\ntotal_tokens_after=3\n"
+    },
+    {
+      "description": "A token prefix at the maximum supported length is accepted by configuration validation.",
+      "input": {
+        "operation": "prefix_validation",
+        "prefix": "abcdefghij"
+      },
+      "expected_output": "validation=accepted\n"
+    }
+  ]
+}

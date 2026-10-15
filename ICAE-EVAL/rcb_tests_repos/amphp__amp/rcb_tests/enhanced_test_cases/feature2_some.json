@@ -1,0 +1,115 @@
+{
+  "description": "Enhanced threshold-aggregate coverage: required equals count (exact threshold), all-fail with required=0 (never rejects), mixed partition with non-contiguous keys, rejection where the reasons collection is itself non-contiguous (object-keyed) because only some operations failed, large required exceeding count, and deeply negative required.",
+  "cases": [
+    {
+      "input": {
+        "op": "some",
+        "promises": [
+          {
+            "resolve": 1
+          },
+          {
+            "resolve": 2
+          }
+        ],
+        "required": 2
+      },
+      "expected_output": "status=fulfilled\nerrors=[]\nvalues=[1,2]\n"
+    },
+    {
+      "input": {
+        "op": "some",
+        "promises": [
+          {
+            "fail": "a"
+          },
+          {
+            "fail": "b"
+          }
+        ],
+        "required": 0
+      },
+      "expected_output": "status=fulfilled\nerrors=[\"a\",\"b\"]\nvalues=[]\n"
+    },
+    {
+      "input": {
+        "op": "some",
+        "promises": [
+          {
+            "resolve": 1
+          },
+          {
+            "fail": "b"
+          },
+          {
+            "resolve": 3
+          },
+          {
+            "fail": "d"
+          },
+          {
+            "resolve": 5
+          }
+        ]
+      },
+      "expected_output": "status=fulfilled\nerrors={\"1\":\"b\",\"3\":\"d\"}\nvalues={\"0\":1,\"2\":3,\"4\":5}\n"
+    },
+    {
+      "input": {
+        "op": "some",
+        "promises": [
+          {
+            "resolve": 1
+          },
+          {
+            "fail": "x"
+          },
+          {
+            "resolve": 3
+          }
+        ],
+        "required": 3
+      },
+      "expected_output": "status=rejected\nreason=multiple_failures\nreasons={\"1\":\"x\"}\n"
+    },
+    {
+      "input": {
+        "op": "some",
+        "promises": [
+          {
+            "resolve": 1
+          }
+        ],
+        "required": 3
+      },
+      "expected_output": "status=error\nerror=too_few_promises\n"
+    },
+    {
+      "input": {
+        "op": "some",
+        "promises": [
+          {
+            "fail": "x"
+          }
+        ],
+        "required": -5
+      },
+      "expected_output": "status=error\nerror=negative_required\n"
+    },
+    {
+      "input": {
+        "op": "some",
+        "promises": [
+          {
+            "fail": "a"
+          },
+          {
+            "resolve": 2
+          }
+        ],
+        "required": 2
+      },
+      "expected_output": "status=rejected\nreason=multiple_failures\nreasons=[\"a\"]\n"
+    }
+  ]
+}

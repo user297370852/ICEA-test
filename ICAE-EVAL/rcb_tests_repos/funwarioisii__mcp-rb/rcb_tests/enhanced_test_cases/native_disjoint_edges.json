@@ -1,0 +1,413 @@
+{
+  "description": "Enhanced native-disjoint edge cases for resource/template MIME metadata, empty catalogs, pagination boundaries, invalid definitions, template matching, and tool call/input validation gaps.",
+  "cases": [
+    {
+      "input": {
+        "setup": {
+          "resources": [
+            {
+              "uri": "/data.json",
+              "name": "json_data",
+              "description": "JSON payload",
+              "mime_type": "application/json",
+              "text": "json body"
+            }
+          ]
+        },
+        "request": {
+          "target": "resources",
+          "action": "list"
+        }
+      },
+      "expected_output": "{\n  \"resources\": [\n    {\n      \"uri\": \"/data.json\",\n      \"name\": \"json_data\",\n      \"description\": \"JSON payload\",\n      \"mimeType\": \"application/json\"\n    }\n  ]\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resources": [
+            {
+              "uri": "/data.json",
+              "name": "json_data",
+              "description": "JSON payload",
+              "mime_type": "application/json",
+              "text": "json body"
+            }
+          ]
+        },
+        "request": {
+          "target": "resources",
+          "action": "read",
+          "uri": "/data.json"
+        }
+      },
+      "expected_output": "{\n  \"contents\": [\n    {\n      \"uri\": \"/data.json\",\n      \"mimeType\": \"application/json\",\n      \"text\": \"json body\"\n    }\n  ]\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resource_templates": [
+            {
+              "uri_template": "/items/{id}",
+              "name": "item_template",
+              "description": "Vendor JSON item",
+              "mime_type": "application/vnd.example.item+json",
+              "text_format": "item {id}",
+              "behavior": "render_template_values"
+            }
+          ]
+        },
+        "request": {
+          "target": "resource_templates",
+          "action": "list"
+        }
+      },
+      "expected_output": "{\n  \"resourceTemplates\": [\n    {\n      \"uriTemplate\": \"/items/{id}\",\n      \"name\": \"item_template\",\n      \"description\": \"Vendor JSON item\",\n      \"mimeType\": \"application/vnd.example.item+json\"\n    }\n  ]\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resource_templates": [
+            {
+              "uri_template": "/items/{id}",
+              "name": "item_template",
+              "description": "Vendor JSON item",
+              "mime_type": "application/vnd.example.item+json",
+              "text_format": "item {id}",
+              "behavior": "render_template_values"
+            }
+          ]
+        },
+        "request": {
+          "target": "resources",
+          "action": "read",
+          "uri": "/items/42"
+        }
+      },
+      "expected_output": "{\n  \"contents\": [\n    {\n      \"uri\": \"/items/42\",\n      \"mimeType\": \"application/vnd.example.item+json\",\n      \"text\": \"item 42\"\n    }\n  ]\n}\n"
+    },
+    {
+      "input": {
+        "setup": {},
+        "request": {
+          "target": "resources",
+          "action": "list"
+        }
+      },
+      "expected_output": "{\n  \"resources\": []\n}\n"
+    },
+    {
+      "input": {
+        "setup": {},
+        "request": {
+          "target": "resource_templates",
+          "action": "list"
+        }
+      },
+      "expected_output": "{\n  \"resourceTemplates\": []\n}\n"
+    },
+    {
+      "input": {
+        "setup": {},
+        "request": {
+          "target": "tools",
+          "action": "list"
+        }
+      },
+      "expected_output": "{\n  \"tools\": []\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resources": [
+            {
+              "uri": "/r0",
+              "name": "r0",
+              "description": "",
+              "text": "zero"
+            },
+            {
+              "uri": "/r1",
+              "name": "r1",
+              "description": "",
+              "text": "one"
+            }
+          ]
+        },
+        "request": {
+          "target": "resources",
+          "action": "list",
+          "page_size": 2
+        }
+      },
+      "expected_output": "{\n  \"resources\": [\n    {\n      \"uri\": \"/r0\",\n      \"name\": \"r0\",\n      \"description\": \"\",\n      \"mimeType\": \"text/plain\"\n    },\n    {\n      \"uri\": \"/r1\",\n      \"name\": \"r1\",\n      \"description\": \"\",\n      \"mimeType\": \"text/plain\"\n    }\n  ]\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resources": [
+            {
+              "uri": "/r0",
+              "name": "r0",
+              "description": "",
+              "text": "zero"
+            },
+            {
+              "uri": "/r1",
+              "name": "r1",
+              "description": "",
+              "text": "one"
+            }
+          ]
+        },
+        "request": {
+          "target": "resources",
+          "action": "list",
+          "page_size": 2,
+          "cursor": "2"
+        }
+      },
+      "expected_output": "{\n  \"resources\": []\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resources": [
+            {
+              "uri": "/no-name",
+              "text": "x"
+            }
+          ]
+        },
+        "request": {
+          "target": "catalog",
+          "action": "build"
+        }
+      },
+      "expected_output": "{\n  \"error\": \"missing_display_name\"\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resources": [
+            {
+              "uri": "/no-handler",
+              "name": "no_handler",
+              "omit_handler": true
+            }
+          ]
+        },
+        "request": {
+          "target": "catalog",
+          "action": "build"
+        }
+      },
+      "expected_output": "{\n  \"error\": \"missing_handler\"\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "resource_templates": [
+            {
+              "uri_template": "/files/{path}/meta",
+              "name": "file_meta",
+              "description": "",
+              "text_format": "meta {path}",
+              "behavior": "render_template_values"
+            }
+          ]
+        },
+        "request": {
+          "target": "resources",
+          "action": "read",
+          "uri": "/files/a/b/meta"
+        }
+      },
+      "expected_output": "{\n  \"error\": \"resource_not_found\",\n  \"uri\": \"/files/a/b/meta\"\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "tools": [
+            {
+              "name": "",
+              "description": "Invalid empty-name tool",
+              "arguments": [],
+              "behavior": "constant_text",
+              "text": "x"
+            }
+          ]
+        },
+        "request": {
+          "target": "catalog",
+          "action": "build"
+        }
+      },
+      "expected_output": "{\n  \"error\": \"invalid_tool_name\"\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "tools": [
+            {
+              "name": "no_handler",
+              "description": "Missing executable handler",
+              "arguments": [],
+              "omit_handler": true
+            }
+          ]
+        },
+        "request": {
+          "target": "catalog",
+          "action": "build"
+        }
+      },
+      "expected_output": "{\n  \"error\": \"missing_handler\"\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "tools": [
+            {
+              "name": "greet",
+              "description": "Greet someone by name",
+              "arguments": [
+                {
+                  "name": "name",
+                  "required": true,
+                  "description": "Name to greet",
+                  "type": "string"
+                }
+              ],
+              "behavior": "greet_by_name"
+            }
+          ]
+        },
+        "request": {
+          "target": "tools",
+          "action": "call",
+          "name": "greet"
+        }
+      },
+      "expected_output": "{\n  \"error\": \"missing_required_parameter\",\n  \"path\": \"name\"\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "tools": [
+            {
+              "name": "repeat",
+              "description": "Repeat a value",
+              "arguments": [
+                {
+                  "name": "count",
+                  "required": true,
+                  "description": "Repeat count",
+                  "type": "integer"
+                }
+              ],
+              "behavior": "constant_text",
+              "text": "ok"
+            }
+          ]
+        },
+        "request": {
+          "target": "tools",
+          "action": "call",
+          "name": "repeat",
+          "arguments": {
+            "count": "5"
+          }
+        }
+      },
+      "expected_output": "{\n  \"error\": \"invalid_type\",\n  \"path\": \"count\",\n  \"expected\": \"integer\",\n  \"actual\": \"string\"\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "tools": [
+            {
+              "name": "sum_numbers",
+              "description": "Sum an array of numbers",
+              "arguments": [
+                {
+                  "name": "numbers",
+                  "required": false,
+                  "description": "Array of numbers to sum",
+                  "type": "array",
+                  "items": "integer"
+                }
+              ],
+              "behavior": "sum_numbers"
+            }
+          ]
+        },
+        "request": {
+          "target": "tools",
+          "action": "call",
+          "name": "sum_numbers",
+          "arguments": {
+            "numbers": [
+              -1,
+              2,
+              -3
+            ]
+          }
+        }
+      },
+      "expected_output": "{\n  \"content\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"-2\"\n    }\n  ],\n  \"isError\": false\n}\n"
+    },
+    {
+      "input": {
+        "setup": {
+          "tools": [
+            {
+              "name": "list_users",
+              "description": "List users with their details",
+              "arguments": [
+                {
+                  "name": "users",
+                  "required": false,
+                  "description": "",
+                  "type": "array",
+                  "items": "object",
+                  "properties": [
+                    {
+                      "name": "name",
+                      "required": true,
+                      "description": "User's name",
+                      "type": "string"
+                    },
+                    {
+                      "name": "age",
+                      "required": true,
+                      "description": "User's age",
+                      "type": "integer"
+                    }
+                  ]
+                }
+              ],
+              "behavior": "list_user_summaries"
+            }
+          ]
+        },
+        "request": {
+          "target": "tools",
+          "action": "call",
+          "name": "list_users",
+          "arguments": {
+            "users": [
+              {
+                "name": "Alice",
+                "age": 30
+              },
+              {
+                "name": "Bob"
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "{\n  \"error\": \"missing_required_parameter\",\n  \"path\": \"users[1].age\"\n}\n"
+    }
+  ]
+}

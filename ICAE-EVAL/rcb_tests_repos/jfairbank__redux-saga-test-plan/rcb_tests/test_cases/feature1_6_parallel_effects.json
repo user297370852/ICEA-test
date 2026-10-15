@@ -1,0 +1,29 @@
+{
+  "description": "Assert that a single step yields a group of effects to run in parallel. The group may be expressed by the workflow either as an explicit parallel-group instruction or as a plain array of effects; both are matched against an expected list of effects. A wrong member effect in the group reports unmet.",
+  "cases": [
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "body": [ { "yield": { "all": [ { "call": { "fn": "identity" } }, { "put": { "type": "FOO" } } ] } } ] },
+        "steps": [ { "next": true }, { "assert": { "all": [ { "call": { "fn": "identity" } }, { "put": { "type": "FOO" } } ] } } ]
+      },
+      "expected_output": "assertion 1 met\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "body": [ { "yield": { "all": [ { "call": { "fn": "identity" } }, { "put": { "type": "FOO" } } ] } } ] },
+        "steps": [ { "next": true }, { "assert": { "all": [ { "call": { "fn": "identity" } }, { "put": { "type": "BAR" } } ] } } ]
+      },
+      "expected_output": "assertion 1 unmet\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "body": [ { "yield": { "all": [ { "call": { "fn": "identity" } }, { "put": { "type": "FOO" } } ] } } ] },
+        "steps": [ { "next": true }, { "assert": { "all": [ { "call": { "fn": "double" } }, { "put": { "type": "FOO" } } ] } } ]
+      },
+      "expected_output": "assertion 1 unmet\n"
+    }
+  ]
+}

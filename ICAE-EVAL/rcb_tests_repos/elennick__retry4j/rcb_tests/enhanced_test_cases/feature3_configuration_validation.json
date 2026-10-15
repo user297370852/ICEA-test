@@ -1,0 +1,267 @@
+{
+  "description": "Enhanced coverage for policy validation: additional valid policies and normalized error categories.",
+  "cases": [
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 3
+          },
+          {
+            "delay": {
+              "amount": 1,
+              "unit": "seconds"
+            }
+          },
+          {
+            "backoff": "exponential"
+          }
+        ]
+      },
+      "expected_output": "config_valid=true\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 2
+          },
+          {
+            "delay": {
+              "amount": 500,
+              "unit": "millis"
+            }
+          },
+          {
+            "backoff": "fibonacci"
+          }
+        ]
+      },
+      "expected_output": "config_valid=true\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 5
+          },
+          {
+            "delay": {
+              "amount": 1,
+              "unit": "seconds"
+            }
+          },
+          {
+            "backoff": "random"
+          }
+        ]
+      },
+      "expected_output": "config_valid=true\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "retry_indefinitely": true
+          },
+          {
+            "backoff": "no_wait"
+          }
+        ]
+      },
+      "expected_output": "config_valid=true\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 3
+          },
+          {
+            "backoff": "no_wait"
+          },
+          {
+            "retry_on": "any_exception"
+          }
+        ]
+      },
+      "expected_output": "config_valid=true\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 2
+          },
+          {
+            "delay": {
+              "amount": 2,
+              "unit": "seconds"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=missing_backoff\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 1
+          },
+          {
+            "backoff": "fixed"
+          },
+          {
+            "backoff": "exponential"
+          },
+          {
+            "delay": {
+              "amount": 1,
+              "unit": "seconds"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=multiple_backoff_strategies\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 2
+          },
+          {
+            "backoff": "fibonacci"
+          }
+        ]
+      },
+      "expected_output": "error=missing_delay\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "delay": {
+              "amount": 1,
+              "unit": "millis"
+            }
+          },
+          {
+            "backoff": "fixed"
+          }
+        ]
+      },
+      "expected_output": "error=missing_max_tries\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "backoff": "no_wait"
+          },
+          {
+            "max_tries": 0
+          }
+        ]
+      },
+      "expected_output": "error=max_tries_less_than_one\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 1
+          },
+          {
+            "backoff": "fixed"
+          },
+          {
+            "delay": {
+              "amount": -5,
+              "unit": "millis"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=negative_delay\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 1
+          },
+          {
+            "delay": {
+              "amount": 1,
+              "unit": "seconds"
+            }
+          },
+          {
+            "backoff": "fixed"
+          },
+          {
+            "retry_on": "any_exception"
+          },
+          {
+            "retry_on": "specific_exceptions",
+            "exceptions": [
+              "io_error"
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=multiple_exception_strategies\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "retry_on": "any_exception"
+          },
+          {
+            "custom_exception_rule": "custom_value_positive"
+          },
+          {
+            "backoff": "no_wait"
+          },
+          {
+            "max_tries": 2
+          }
+        ]
+      },
+      "expected_output": "error=mixed_builtin_and_custom_exception_rules\n"
+    },
+    {
+      "input": {
+        "validation_enabled": true,
+        "settings": [
+          {
+            "max_tries": 2
+          },
+          {
+            "max_tries": 3
+          },
+          {
+            "backoff": "no_wait"
+          }
+        ]
+      },
+      "expected_output": "error=max_tries_already_specified\n"
+    }
+  ]
+}

@@ -1,0 +1,245 @@
+{
+  "description": "Directive-driven storability edge cases not in the native suite: no-store ignored (only no-cache blocks), redirect (301) bodies stored because status is in 2xx-3xx range, Vary:* forbids storage, s-max-age precedence with positive lifetime, Set-Cookie scrubbed on store vs passed through on bypass, body exactly at the size limit vs one byte over, 4xx/5xx never stored, and a custom header reproduced exactly on replay.",
+  "cases": [
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60, no-store",
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 1\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hi 1\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "status": 301,
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=301\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 1\nrequest=1\nstatus=301\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hi 1\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "status": 404,
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=404\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 1\nrequest=1\nstatus=404\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 2\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "status": 500,
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=500\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 1\nrequest=1\nstatus=500\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 2\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "vary": "*",
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 1\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 2\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, s-max-age=120",
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 1\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hi 1\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "setCookie": "sid=abc",
+          "bodyMode": "constant",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hi\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "private",
+          "setCookie": "sid=abc",
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=sid=abc\nextra=-\nbody=Hi 1\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=sid=abc\nextra=-\nbody=Hi 2\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "maxBodySize": 5,
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "constant",
+          "body": "Hello"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hello\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "maxBodySize": 5,
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "counter",
+          "body": "Hello!"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello! 1\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello! 2\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "status": 203,
+          "extraName": "X-Trace",
+          "extraValue": "t-99",
+          "bodyMode": "constant",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=203\nx_cache=miss\nset_cookie=-\nextra=t-99\nbody=Hi\nrequest=1\nstatus=203\nx_cache=hit\nset_cookie=-\nextra=t-99\nbody=Hi\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "status": 302,
+          "bodyMode": "counter",
+          "body": "Hi"
+        },
+        "requests": [
+          {
+            "url": "http://e.com"
+          },
+          {
+            "url": "http://e.com"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=302\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hi 1\nrequest=1\nstatus=302\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hi 1\n"
+    }
+  ]
+}

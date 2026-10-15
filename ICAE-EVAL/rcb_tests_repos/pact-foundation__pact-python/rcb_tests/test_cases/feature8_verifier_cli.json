@@ -1,0 +1,98 @@
+{
+    "description": "Validate provider verification command-line inputs and render the external verifier command, timeout, and exit code.",
+    "cases": [
+        {
+            "input": {
+                "args": []
+            },
+            "expected_output": "exit_code=2\nerror=missing_required_option\noption=--provider-base-url\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost"
+                ]
+            },
+            "expected_output": "exit_code=2\nerror=missing_required_option\noption=--pact-urls\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost",
+                    "--pact-urls=./pacts/consumer-provider.json"
+                ],
+                "file_exists": false,
+                "missing_path": "./pacts/consumer-provider.json"
+            },
+            "expected_output": "exit_code=1\nerror=missing_contract_file\npath=./pacts/consumer-provider.json\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost",
+                    "--pact-urls=./pacts/consumer-provider.json",
+                    "--provider-states-url=http://localhost/provider-state"
+                ]
+            },
+            "expected_output": "exit_code=1\nerror=incomplete_provider_state_configuration\nrequired=--provider-states-url,--provider-states-setup-url\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost",
+                    "--pact-urls=./pacts/consumer-provider.json"
+                ],
+                "return_code": 0
+            },
+            "expected_output": "exit_code=0\ncommand=[\"--provider-base-url=http://localhost\",\"--pact-urls=./pacts/consumer-provider.json\"]\ntimeout=30\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost",
+                    "--pact-urls=./pacts/consumer-provider.json"
+                ],
+                "return_code": 3
+            },
+            "expected_output": "exit_code=3\ncommand=[\"--provider-base-url=http://localhost\",\"--pact-urls=./pacts/consumer-provider.json\"]\ntimeout=30\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost",
+                    "--pact-urls=./pacts/consumer-provider.json"
+                ],
+                "return_code": 0,
+                "env": {
+                    "PACT_BROKER_PASSWORD": "pwd"
+                }
+            },
+            "expected_output": "exit_code=0\ncommand=[\"--provider-base-url=http://localhost\",\"--pact-urls=./pacts/consumer-provider.json\",\"--pact-broker-password=pwd\"]\ntimeout=30\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost",
+                    "--pact-urls=./pacts/consumer-provider.json",
+                    "--provider-states-url=http=//localhost/provider-states",
+                    "--provider-states-setup-url=http://localhost/provider-states/set",
+                    "--pact-broker-username=user",
+                    "--pact-broker-password=pass",
+                    "--timeout=60"
+                ],
+                "return_code": 0
+            },
+            "expected_output": "exit_code=0\ncommand=[\"--provider-base-url=http://localhost\",\"--pact-urls=./pacts/consumer-provider.json\",\"--provider-states-url=http=//localhost/provider-states\",\"--provider-states-setup-url=http://localhost/provider-states/set\",\"--pact-broker-username=user\",\"--pact-broker-password=pass\"]\ntimeout=60\n"
+        },
+        {
+            "input": {
+                "args": [
+                    "--provider-base-url=http://localhost",
+                    "--pact-urls=./pacts/consumer-provider.json"
+                ],
+                "timeout_expires": true
+            },
+            "expected_output": "exit_code=-1\ncommand=[\"--provider-base-url=http://localhost\",\"--pact-urls=./pacts/consumer-provider.json\"]\ntimeout=30\n"
+        }
+    ]
+}

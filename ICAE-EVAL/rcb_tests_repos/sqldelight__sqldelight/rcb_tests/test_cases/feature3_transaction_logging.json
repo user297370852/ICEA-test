@@ -1,0 +1,30 @@
+{
+    "description": "Running units of work as transactions through the logging decorator. Beginning a transaction emits a begin entry. A transaction that completes normally emits a commit entry after its body; a transaction whose body requests a rollback emits a rollback entry instead. Statements issued inside a transaction body are logged in place, between the begin entry and the eventual commit/rollback entry, using the same operation/SQL and bound-value logging as outside a transaction. Multiple transactions run in sequence produce their entries in execution order. All emitted log lines are written to standard output.",
+    "cases": [
+        {
+            "input": {
+                "commands": [
+                    {"op": "transaction", "rollback": false, "body": []},
+                    {"op": "transaction", "rollback": true, "body": []},
+                    {
+                        "op": "transaction",
+                        "rollback": false,
+                        "body": [
+                            {
+                                "op": "execute",
+                                "identifier": 2,
+                                "sql": "INSERT INTO test VALUES (?, ?);",
+                                "parameters": 2,
+                                "binders": [
+                                    {"bind": "long", "index": 1, "value": 1},
+                                    {"bind": "string", "index": 2, "value": "Alec"}
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "TRANSACTION BEGIN\nTRANSACTION COMMIT\nTRANSACTION BEGIN\nTRANSACTION ROLLBACK\nTRANSACTION BEGIN\nEXECUTE\n INSERT INTO test VALUES (?, ?);\n [1, Alec]\nTRANSACTION COMMIT\n"
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+{
+  "description": "A required request without a provider fails with a missing-dependency error naming an unsatisfied key. Covers several missing required keys at once, a missing named key among provided named keys, and a mixture of optional-absent and required-absent requests.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "B"
+              },
+              {
+                "type": "C"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "invoke error=missing_dependency key=B\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "name": "foo",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "name": "foo"
+              },
+              {
+                "type": "A",
+                "name": "bar"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A:foo\ninvoke error=missing_dependency key=A:bar\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "optional": true
+              },
+              {
+                "type": "B"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "invoke error=missing_dependency key=B\n"
+    }
+  ]
+}

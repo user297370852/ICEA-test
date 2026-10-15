@@ -1,0 +1,22 @@
+{
+    "description": "Read source text and report the atomic literals it produces, each rendered as a typed node 'Type(value)'. Integers accept '_' and ',' as digit-group separators and 0x/0b/0o radix prefixes; a trailing dot or exponent yields a floating-point number; the bare tokens NaN/Inf/-Inf are floating-point specials while their lowercase forms remain ordinary symbols. Double-quoted text becomes a string node, a 'b'-prefixed literal becomes a bytes node, a leading-colon token becomes a keyword node, and any other bare token becomes a symbol node. Each top-level form is rendered on its own line.",
+    "cases": [
+        {"input": {"op": "parse", "source": "(foo bar)"}, "expected_output": "Expression(Symbol(foo) Symbol(bar))"},
+        {"input": {"op": "parse", "source": "(foo \"bar\")"}, "expected_output": "Expression(Symbol(foo) String(bar))"},
+        {"input": {"op": "parse", "source": "(foo 2)"}, "expected_output": "Expression(Symbol(foo) Integer(2))"},
+        {"input": {"op": "parse", "source": "42 "}, "expected_output": "Integer(42)"},
+        {"input": {"op": "parse", "source": "(foo 2.)"}, "expected_output": "Expression(Symbol(foo) Float(2.0))"},
+        {"input": {"op": "parse", "source": "(foo -0.5)"}, "expected_output": "Expression(Symbol(foo) Float(-0.5))"},
+        {"input": {"op": "parse", "source": "1_000_000"}, "expected_output": "Integer(1000000)"},
+        {"input": {"op": "parse", "source": "1,000_000"}, "expected_output": "Integer(1000000)"},
+        {"input": {"op": "parse", "source": "0x_af"}, "expected_output": "Integer(175)"},
+        {"input": {"op": "parse", "source": "0b_010"}, "expected_output": "Integer(2)"},
+        {"input": {"op": "parse", "source": "NaN"}, "expected_output": "Float(nan)"},
+        {"input": {"op": "parse", "source": "Inf"}, "expected_output": "Float(inf)"},
+        {"input": {"op": "parse", "source": "-Inf"}, "expected_output": "Float(-inf)"},
+        {"input": {"op": "parse", "source": "nan"}, "expected_output": "Symbol(nan)"},
+        {"input": {"op": "parse", "source": "inf"}, "expected_output": "Symbol(inf)"},
+        {"input": {"op": "parse", "source": "b\"hello\""}, "expected_output": "Bytes(hello)"},
+        {"input": {"op": "parse", "source": ":kw"}, "expected_output": "Keyword(kw)"}
+    ]
+}

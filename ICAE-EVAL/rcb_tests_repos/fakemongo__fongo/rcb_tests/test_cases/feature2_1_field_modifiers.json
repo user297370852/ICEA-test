@@ -1,0 +1,176 @@
+{
+    "description": "An update engine applies a modifier specification to a document and returns the resulting document. A specification with no modifier operators replaces the whole document (the identifier is preserved). The set operator assigns a value at a (possibly nested, dotted) path, creating intermediate documents as needed. The unset operator removes a field at a path. The rename operator moves values from one path to another. The increment operator adds a numeric delta to a field, treating an absent field as zero and preserving the field's numeric kind. Numeric path components address array positions or create numbered sub-keys.",
+    "cases": [
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "_id": 1,
+                    "a": 5,
+                    "b": 1
+                },
+                "update": {
+                    "a": 1
+                }
+            },
+            "expected_output": "{ \"_id\" : 1 , \"a\" : 1}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "_id": 1,
+                    "a": 1,
+                    "b": 1
+                },
+                "update": {
+                    "$set": {
+                        "a": 5
+                    }
+                }
+            },
+            "expected_output": "{ \"_id\" : 1 , \"a\" : 5 , \"b\" : 1}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {},
+                "update": {
+                    "$set": {
+                        "a.b": 5
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : { \"b\" : 5}}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "_id": 1,
+                    "a": 1,
+                    "b": 1
+                },
+                "update": {
+                    "$unset": {
+                        "a": 1
+                    }
+                }
+            },
+            "expected_output": "{ \"_id\" : 1 , \"b\" : 1}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "_id": 1,
+                    "a": {
+                        "b": 1
+                    }
+                },
+                "update": {
+                    "$unset": {
+                        "a.b": 1
+                    }
+                }
+            },
+            "expected_output": "{ \"_id\" : 1 , \"a\" : { }}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "_id": 1,
+                    "a": {
+                        "b": 1
+                    },
+                    "x": 3,
+                    "h": {
+                        "i": 8
+                    }
+                },
+                "update": {
+                    "$rename": {
+                        "a.b": "a.c",
+                        "x": "y",
+                        "h.i": "u.r"
+                    }
+                }
+            },
+            "expected_output": "{ \"_id\" : 1 , \"a\" : { \"c\" : 1} , \"h\" : { } , \"u\" : { \"r\" : 8} , \"y\" : 3}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": 1
+                },
+                "update": {
+                    "$inc": {
+                        "a": 5
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : 6}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {},
+                "update": {
+                    "$inc": {
+                        "a": 5
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : 5}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": 3.1
+                },
+                "update": {
+                    "$inc": {
+                        "a": 5
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : 8.1}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        {
+                            "b": 1
+                        },
+                        {
+                            "b": 1
+                        }
+                    ]
+                },
+                "update": {
+                    "$inc": {
+                        "a.1.b": 1
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ { \"b\" : 1} , { \"b\" : 2}]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {},
+                "update": {
+                    "$inc": {
+                        "a.1": 1
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : { \"1\" : 1}}\n"
+        }
+    ]
+}

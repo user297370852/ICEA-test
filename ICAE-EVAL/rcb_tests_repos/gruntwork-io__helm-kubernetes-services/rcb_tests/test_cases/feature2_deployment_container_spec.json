@@ -1,0 +1,46 @@
+{
+    "description": "Render the primary workload pod container with the configured image, port, command, arguments, and host aliases.",
+    "cases": [
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_core",
+                "set": {}
+            },
+            "expected_output": "kind=Deployment\nname=release-linter\nreplicas=1\ncontainer_name=linter\nimage=nginx:stable\ncommand=\nargs=\nhost_aliases=0\nport_0_name=http\nport_0_number=80\nport_0_protocol=TCP\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_core",
+                "set": {
+                    "containerCommand[0]": "echo",
+                    "containerCommand[1]": "hello"
+                }
+            },
+            "expected_output": "kind=Deployment\nname=release-linter\nreplicas=1\ncontainer_name=linter\nimage=nginx:stable\ncommand=echo,hello\nargs=\nhost_aliases=0\nport_0_name=http\nport_0_number=80\nport_0_protocol=TCP\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_core",
+                "set": {
+                    "containerArgs[0]": "--debug",
+                    "containerArgs[1]": "--port=80"
+                }
+            },
+            "expected_output": "kind=Deployment\nname=release-linter\nreplicas=1\ncontainer_name=linter\nimage=nginx:stable\ncommand=\nargs=--debug,--port=80\nhost_aliases=0\nport_0_name=http\nport_0_number=80\nport_0_protocol=TCP\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_core",
+                "set": {
+                    "hostAliases[0].ip": "127.0.0.1",
+                    "hostAliases[0].hostnames[0]": "local.test"
+                }
+            },
+            "expected_output": "kind=Deployment\nname=release-linter\nreplicas=1\ncontainer_name=linter\nimage=nginx:stable\ncommand=\nargs=\nhost_aliases=1\nport_0_name=http\nport_0_number=80\nport_0_protocol=TCP\n"
+        }
+    ]
+}

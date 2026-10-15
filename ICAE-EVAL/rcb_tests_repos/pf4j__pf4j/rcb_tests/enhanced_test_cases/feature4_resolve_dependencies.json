@@ -1,0 +1,121 @@
+{
+  "description": "Resolve a set of plugin descriptors into a dependency-ordered load plan. Each plugin supplies an identifier, an optional own version, and a comma-separated list of dependency coordinates (identifier with optional version-support expression). The resolver reports: whether the dependency graph contains a cycle; the plugins listed in an order where every dependency precedes the plugin that needs it; any required dependency identifiers that are not present among the supplied plugins; and any dependencies whose present version does not satisfy the version-support expression required by a dependent. When a cycle is present no order can be produced. Each wrong-version entry names the dependency, the dependent that required it, the version actually present, and the required version-support expression.",
+  "cases": [
+    {
+      "input": {
+        "action": "resolve_dependencies",
+        "plugins": [
+          {
+            "id": "solo"
+          }
+        ]
+      },
+      "expected_output": "cyclic=false\nsorted=solo\nnotFound=\nwrongVersion=\n"
+    },
+    {
+      "input": {
+        "action": "resolve_dependencies",
+        "plugins": [
+          {
+            "id": "a",
+            "version": "0.0.0",
+            "dependencies": "a"
+          }
+        ]
+      },
+      "expected_output": "cyclic=true\nsorted=\nnotFound=\nwrongVersion=\n"
+    },
+    {
+      "input": {
+        "action": "resolve_dependencies",
+        "plugins": [
+          {
+            "id": "p1",
+            "dependencies": "p2?"
+          },
+          {
+            "id": "p2",
+            "version": "0.0.0"
+          }
+        ]
+      },
+      "expected_output": "cyclic=false\nsorted=p1,p2\nnotFound=\nwrongVersion=\n"
+    },
+    {
+      "input": {
+        "action": "resolve_dependencies",
+        "plugins": [
+          {
+            "id": "m1"
+          },
+          {
+            "id": "m2"
+          }
+        ]
+      },
+      "expected_output": "cyclic=false\nsorted=m1,m2\nnotFound=\nwrongVersion=\n"
+    },
+    {
+      "input": {
+        "action": "resolve_dependencies",
+        "plugins": [
+          {
+            "id": "p1",
+            "dependencies": "p2,p3"
+          },
+          {
+            "id": "p2",
+            "version": "0.0.0",
+            "dependencies": "p4"
+          },
+          {
+            "id": "p3",
+            "version": "0.0.0",
+            "dependencies": "p4"
+          },
+          {
+            "id": "p4",
+            "version": "0.0.0"
+          }
+        ]
+      },
+      "expected_output": "cyclic=false\nsorted=p4,p2,p3,p1\nnotFound=\nwrongVersion=\n"
+    },
+    {
+      "input": {
+        "action": "resolve_dependencies",
+        "plugins": [
+          {
+            "id": "p1",
+            "dependencies": "p2@>=2.0.0,p3@>=3.0.0"
+          },
+          {
+            "id": "p2",
+            "version": "1.0.0"
+          },
+          {
+            "id": "p3",
+            "version": "2.0.0"
+          }
+        ]
+      },
+      "expected_output": "cyclic=false\nsorted=p2,p3,p1\nnotFound=\nwrongVersion=dependency=p2 dependent=p1 existing=1.0.0 required=>=2.0.0 | dependency=p3 dependent=p1 existing=2.0.0 required=>=3.0.0\n"
+    },
+    {
+      "input": {
+        "action": "resolve_dependencies",
+        "plugins": [
+          {
+            "id": "a",
+            "dependencies": "b@1.0.0"
+          },
+          {
+            "id": "b",
+            "version": "1.0.0"
+          }
+        ]
+      },
+      "expected_output": "cyclic=false\nsorted=b,a\nnotFound=\nwrongVersion=\n"
+    }
+  ]
+}

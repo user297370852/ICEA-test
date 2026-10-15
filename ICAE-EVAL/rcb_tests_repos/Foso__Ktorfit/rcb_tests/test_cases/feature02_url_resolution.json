@@ -1,0 +1,29 @@
+{
+  "description": "Resolution of the final request URL. A method may carry a dynamic full-URL parameter that supplies the request target when the verb's static path is empty. When neither a non-empty static path nor a dynamic full-URL parameter is present the request cannot be addressed and generation is rejected. Declaring more than one dynamic full-URL parameter is also rejected. At runtime the resolved absolute URL combines the configured base address with the relative target, and a parameter whose value is itself an absolute URL overrides the base entirely. The adapter prints the issued request's method, resolved URL and body kind, or a neutral error category.",
+  "cases": [
+    {
+      "input": {"http": [{"verb": "GET", "path": ""}], "params": [{"kind": "url", "name": "url"}], "args": ["posts/9"]},
+      "expected_output": "method=GET\nurl=http://localhost/posts/9\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": ""}]},
+      "expected_output": "error=missing_url"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": ""}], "params": [{"kind": "url", "name": "url"}, {"kind": "url", "name": "url2"}], "args": ["a", "b"]},
+      "expected_output": "error=multiple_url_annotations"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "baseUrl": "http://www.example.com/"},
+      "expected_output": "method=GET\nurl=http://www.example.com/posts\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "baseUrl": "http://www.example.com", "checkUrl": false},
+      "expected_output": "method=GET\nurl=http://www.example.composts\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "http://www.example.com/posts"}], "baseUrl": "http://www.test.de/"},
+      "expected_output": "method=GET\nurl=http://www.example.com/posts\nbody=none"
+    }
+  ]
+}

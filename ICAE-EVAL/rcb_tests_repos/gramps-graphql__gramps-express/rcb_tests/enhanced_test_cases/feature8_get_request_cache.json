@@ -1,0 +1,58 @@
+{
+  "description": "GET cache behavior for 500 responses, cache lookups disabled with redis present, and 201 success edge.",
+  "cases": [
+    {
+      "input": {
+        "action": "connector_get_request_data",
+        "uri": "https://api.example.test/server-error",
+        "statusCode": 500,
+        "body": {
+          "error": "boom"
+        },
+        "redis": {}
+      },
+      "expected_output": "{\n  \"redisOps\": [\n    {\n      \"op\": \"get\"\n    }\n  ],\n  \"result\": {\n    \"error\": \"boom\"\n  }\n}\n"
+    },
+    {
+      "input": {
+        "action": "connector_get_request_data",
+        "uri": "https://api.example.test/items/9",
+        "statusCode": 200,
+        "body": {
+          "id": 9,
+          "name": "fresh"
+        },
+        "enableCache": false,
+        "redis": {
+          "cachedJson": "{\"id\":9,\"name\":\"cached\"}"
+        }
+      },
+      "expected_output": "{\n  \"redisOps\": [],\n  \"result\": {\n    \"id\": 9,\n    \"name\": \"fresh\"\n  }\n}\n"
+    },
+    {
+      "input": {
+        "action": "connector_get_request_data",
+        "uri": "https://api.example.test/created",
+        "statusCode": 201,
+        "body": {
+          "id": 100,
+          "created": true
+        },
+        "redis": {}
+      },
+      "expected_output": "{\n  \"redisOps\": [\n    {\n      \"op\": \"get\"\n    }\n  ],\n  \"result\": {\n    \"created\": true,\n    \"id\": 100\n  }\n}\n"
+    },
+    {
+      "input": {
+        "action": "connector_get_request_data",
+        "uri": "https://api.example.test/no-redis",
+        "statusCode": 200,
+        "body": {
+          "id": 5,
+          "name": "fresh"
+        }
+      },
+      "expected_output": "{\n  \"redisOps\": [],\n  \"result\": {\n    \"id\": 5,\n    \"name\": \"fresh\"\n  }\n}\n"
+    }
+  ]
+}

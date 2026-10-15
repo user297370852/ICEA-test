@@ -1,0 +1,154 @@
+{
+  "description": "Per-thread severity threshold boundary and override-lifecycle coverage: an entry whose level exactly equals the active threshold is recorded while one just below is dropped; a negative threshold admits negative levels down to the threshold; a very large threshold drops everything; installing, clearing, and re-installing an override on a thread changes acceptance step by step; and an entry emitted on another thread is judged against the default acceptance level, bypassing a high override held only by the emitting thread.",
+  "cases": [
+    {
+      "input": {
+        "actions": [
+          {
+            "thread_threshold": 3
+          },
+          {
+            "log": {
+              "level": 3,
+              "message": "eq",
+              "source": "svc"
+            }
+          },
+          {
+            "log": {
+              "level": 2,
+              "message": "below",
+              "source": "svc"
+            }
+          },
+          {
+            "log": {
+              "level": 4,
+              "message": "above",
+              "source": "svc"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=3 source=svc message=eq backtrace= env= valid_encoding=true\nprimary level=4 source=svc message=above backtrace= env= valid_encoding=true\nprimary total=2\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "thread_threshold": -5
+          },
+          {
+            "log": {
+              "level": -3,
+              "message": "in",
+              "source": "svc"
+            }
+          },
+          {
+            "log": {
+              "level": -6,
+              "message": "out",
+              "source": "svc"
+            }
+          },
+          {
+            "log": {
+              "level": -5,
+              "message": "edge",
+              "source": "svc"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=-3 source=svc message=in backtrace= env= valid_encoding=true\nprimary level=-5 source=svc message=edge backtrace= env= valid_encoding=true\nprimary total=2\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "thread_threshold": 1000
+          },
+          {
+            "log": {
+              "level": 5,
+              "message": "a",
+              "source": "svc"
+            }
+          },
+          {
+            "log": {
+              "level": 999,
+              "message": "b",
+              "source": "svc"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary total=0\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "thread_threshold": 5
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "drop1",
+              "source": "svc"
+            }
+          },
+          {
+            "thread_threshold": null
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "keep",
+              "source": "svc"
+            }
+          },
+          {
+            "thread_threshold": 2
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "drop2",
+              "source": "svc"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=svc message=keep backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "thread_threshold": 9
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "main",
+              "source": "svc",
+              "thread": "main"
+            }
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "other",
+              "source": "svc",
+              "thread": "other"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=svc message=other backtrace= env= valid_encoding=true\nprimary total=1\n"
+    }
+  ]
+}

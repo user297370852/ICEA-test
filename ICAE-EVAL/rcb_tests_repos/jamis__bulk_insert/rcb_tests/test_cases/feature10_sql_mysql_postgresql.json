@@ -1,0 +1,98 @@
+{
+    "description": "For MySQL-family and PostgreSQL-family engines, conflict skipping, conflict updating, and generated identifier returning are rendered using the database engine's native statement fragments.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "sql_preview",
+                "database_engine": "MySQL",
+                "skip_conflicts": true,
+                "rows": [
+                    [
+                        "Yo",
+                        15,
+                        false,
+                        null,
+                        null
+                    ]
+                ]
+            },
+            "expected_output": "database_engine=MySQL\nsql=INSERT IGNORE INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('Yo',15,0,NULL,NULL,'chartreuse')\n"
+        },
+        {
+            "input": {
+                "scenario": "sql_preview",
+                "database_engine": "Mysql2",
+                "skip_conflicts": true,
+                "update_on_conflict": true,
+                "rows": [
+                    [
+                        "Yo",
+                        15,
+                        false,
+                        null,
+                        null
+                    ]
+                ]
+            },
+            "expected_output": "database_engine=Mysql2\nsql=INSERT IGNORE INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('Yo',15,0,NULL,NULL,'chartreuse') ON DUPLICATE KEY UPDATE `greeting`=VALUES(`greeting`), `age`=VALUES(`age`), `happy`=VALUES(`happy`), `created_at`=VALUES(`created_at`), `updated_at`=VALUES(`updated_at`), `color`=VALUES(`color`)\n"
+        },
+        {
+            "input": {
+                "scenario": "sql_preview",
+                "database_engine": "PostgreSQL",
+                "skip_conflicts": true,
+                "return_generated_ids": true,
+                "rows": [
+                    [
+                        "Yo",
+                        15,
+                        false,
+                        null,
+                        null
+                    ]
+                ]
+            },
+            "expected_output": "database_engine=PostgreSQL\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('Yo',15,0,NULL,NULL,'chartreuse') ON CONFLICT DO NOTHING RETURNING id\n"
+        },
+        {
+            "input": {
+                "scenario": "sql_preview",
+                "database_engine": "PostgreSQL",
+                "update_on_conflict": [
+                    "greeting",
+                    "age",
+                    "happy"
+                ],
+                "return_generated_ids": true,
+                "rows": [
+                    [
+                        "Yo",
+                        15,
+                        false,
+                        null,
+                        null
+                    ]
+                ]
+            },
+            "expected_output": "database_engine=PostgreSQL\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('Yo',15,0,NULL,NULL,'chartreuse') ON CONFLICT(greeting, age, happy) DO UPDATE SET greeting=EXCLUDED.greeting, age=EXCLUDED.age, happy=EXCLUDED.happy, created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at, color=EXCLUDED.color RETURNING id\n"
+        },
+        {
+            "input": {
+                "scenario": "sql_preview",
+                "database_engine": "PostGIS",
+                "skip_conflicts": true,
+                "return_generated_ids": true,
+                "rows": [
+                    [
+                        "Yo",
+                        15,
+                        false,
+                        null,
+                        null
+                    ]
+                ]
+            },
+            "expected_output": "database_engine=PostGIS\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('Yo',15,0,NULL,NULL,'chartreuse') ON CONFLICT DO NOTHING RETURNING id\n"
+        }
+    ]
+}

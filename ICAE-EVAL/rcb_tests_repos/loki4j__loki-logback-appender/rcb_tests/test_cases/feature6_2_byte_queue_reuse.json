@@ -1,0 +1,77 @@
+{
+    "description": "Returns borrowed binary buffers to an internal reusable pool and reuses a pooled buffer for a later compatible batch.",
+    "cases": [
+        {
+            "input": {
+                "operation": "byte_queue",
+                "max_bytes": 10,
+                "operations": [
+                    {
+                        "action": "borrow"
+                    },
+                    {
+                        "action": "pool"
+                    },
+                    {
+                        "action": "offer",
+                        "batch_id": 0,
+                        "items": 1,
+                        "data": [
+                            0,
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    {
+                        "action": "offer",
+                        "batch_id": 1,
+                        "items": 1,
+                        "data": [
+                            4,
+                            5,
+                            6,
+                            7
+                        ]
+                    },
+                    {
+                        "action": "pool"
+                    },
+                    {
+                        "action": "borrow",
+                        "return": true
+                    },
+                    {
+                        "action": "pool"
+                    },
+                    {
+                        "action": "borrow",
+                        "return": true
+                    },
+                    {
+                        "action": "pool"
+                    },
+                    {
+                        "action": "offer",
+                        "batch_id": 2,
+                        "items": 1,
+                        "data": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7
+                        ]
+                    },
+                    {
+                        "action": "pool"
+                    }
+                ]
+            },
+            "expected_output": "borrow empty=true queued_bytes=0\npool_size=0\noffer batch_id=0 accepted=true queued_bytes=4\noffer batch_id=1 accepted=true queued_bytes=8\npool_size=0\nborrow batch_id=0 items=1 bytes=4 data=[0,1,2,3] queued_bytes=4\npool_size=1\nborrow batch_id=1 items=1 bytes=4 data=[4,5,6,7] queued_bytes=0\npool_size=1\noffer batch_id=2 accepted=true queued_bytes=8\npool_size=0\n"
+        }
+    ]
+}

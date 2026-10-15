@@ -1,0 +1,8 @@
+{
+    "description": "Flag-guarded included route groups: an entire group of routes can be mounted under a prefix and guarded by a single flag. When the flag matches, requests to a member route serve the primary view; when it does not match, they return not-found. A group mounted with required-state off serves its members when the flag is off. When the guard has a fallback group whose members mirror the primary routes, a non-matching flag serves the corresponding fallback for matching member paths and for members that exist only in the fallback group, while paths absent from both yield not-found.",
+    "cases": [
+        {"input": {"op": "route", "path": "/include/included-url", "flags": {"FLAGGED_URL": {"boolean": true}}}, "expected_output": "path=/include/included-url\nstatus=200\nbody=view\n"},
+        {"input": {"op": "route", "path": "/include/included-url", "flags": {"FLAGGED_URL": {"boolean": false}}}, "expected_output": "path=/include/included-url\nstatus=404\n"},
+        {"input": {"op": "route", "path": "/include-fallback-include/other-included-url", "flags": {"FLAGGED_URL": {"boolean": false}}}, "expected_output": "path=/include-fallback-include/other-included-url\nstatus=200\nbody=fallback\n"}
+    ]
+}

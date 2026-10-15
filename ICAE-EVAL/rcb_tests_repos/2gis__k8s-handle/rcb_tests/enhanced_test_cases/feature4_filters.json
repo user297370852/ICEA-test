@@ -1,0 +1,16 @@
+{
+  "description": "Additional value-transformation filter coverage: a sha256 hex digest of a different input, a base64 encode/decode round trip on distinct inputs, and a to-yaml serialization of a list of mappings with mixed scalar value types. Output is the rendered file content under a '# file:' header.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "section": "more_filters",
+        "templates_files": {
+          "out.yaml.j2": "enc: {{ raw | b64encode }}\ndec: {{ coded | b64decode }}\ndigest: {{ subject | hash_sha256 }}\nitems: {{ items | to_yaml() }}"
+        },
+        "config": "common:\n  k8s_namespace: ns\nmore_filters:\n  raw: k8s-handle\n  coded: aGVsbG8gd29ybGQ=\n  subject: hello\n  items:\n    - name: web\n      port: 80\n      enabled: true\n    - name: db\n      port: 5432\n      enabled: false\n  templates:\n    - template: out.yaml.j2\n"
+      },
+      "expected_output": "# file: out.yaml\nenc: azhzLWhhbmRsZQ==\ndec: hello world\ndigest: 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824\nitems: [{enabled: true, name: web, port: 80}, {enabled: false, name: db, port: 5432}]\n"
+    }
+  ]
+}

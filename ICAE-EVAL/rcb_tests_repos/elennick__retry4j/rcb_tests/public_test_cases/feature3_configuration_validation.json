@@ -1,0 +1,108 @@
+{
+    "description": "Validate policy construction rules and report either a valid policy or a normalized configuration error.",
+    "cases": [
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "error=missing_backoff\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    },
+                    {
+                        "backoff": "exponential"
+                    },
+                    {
+                        "backoff": "fibonacci"
+                    }
+                ]
+            },
+            "expected_output": "error=multiple_backoff_strategies\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "backoff": "no_wait"
+                    }
+                ]
+            },
+            "expected_output": "config_valid=true\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    },
+                    {
+                        "backoff": "exponential"
+                    },
+                    {
+                        "retry_on": "fail_any_exception"
+                    },
+                    {
+                        "retry_on": "specific_exceptions",
+                        "exceptions": [
+                            "connect_error"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "error=multiple_exception_strategies\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "backoff": "fixed"
+                    },
+                    {
+                        "retry_indefinitely": true
+                    },
+                    {
+                        "delay": {
+                            "amount": -1,
+                            "unit": "seconds"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "error=negative_delay\n"
+        }
+    ]
+}

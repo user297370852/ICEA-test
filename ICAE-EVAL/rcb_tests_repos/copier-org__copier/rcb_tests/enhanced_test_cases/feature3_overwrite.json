@@ -1,0 +1,83 @@
+{
+  "description": "Boundary coverage for overwrite/preservation: skip_if_exists glob pattern, a skip_if_exists pattern matching nothing, skip mode for a brand-new file that does not pre-exist, force overwrite of a nested pre-existing file, and skip mode preserving multiple pre-existing files while still creating new ones.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.log": "NEW\n",
+          "b.log": "NEW\n"
+        },
+        "dst_prefill": {
+          "a.log": "OLD\n",
+          "b.log": "OLD\n"
+        },
+        "skip_if_exists": [
+          "*.log"
+        ],
+        "force": true,
+        "data": {}
+      },
+      "expected_output": "produced=2\npath: a.log\npath: b.log\nfile: a.log -> \"OLD\\n\"\nfile: b.log -> \"OLD\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "NEW\n"
+        },
+        "dst_prefill": {
+          "a.txt": "OLD\n"
+        },
+        "skip_if_exists": [
+          "nomatch.txt"
+        ],
+        "force": true,
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: a.txt\nfile: a.txt -> \"NEW\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "fresh.txt": "FRESH\n"
+        },
+        "skip": true,
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: fresh.txt\nfile: fresh.txt -> \"FRESH\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "deep/nested/f.txt": "NEW\n"
+        },
+        "dst_prefill": {
+          "deep/nested/f.txt": "OLD\n"
+        },
+        "force": true,
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: deep/nested/f.txt\nfile: deep/nested/f.txt -> \"NEW\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "old1.txt": "NEW\n",
+          "old2.txt": "NEW\n",
+          "brand.txt": "BRAND\n"
+        },
+        "dst_prefill": {
+          "old1.txt": "KEEP1\n",
+          "old2.txt": "KEEP2\n"
+        },
+        "skip": true,
+        "data": {}
+      },
+      "expected_output": "produced=3\npath: brand.txt\npath: old1.txt\npath: old2.txt\nfile: brand.txt -> \"BRAND\\n\"\nfile: old1.txt -> \"KEEP1\\n\"\nfile: old2.txt -> \"KEEP2\\n\"\n"
+    }
+  ]
+}

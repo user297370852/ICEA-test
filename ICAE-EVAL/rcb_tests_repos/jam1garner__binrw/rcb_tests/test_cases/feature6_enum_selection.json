@@ -1,0 +1,88 @@
+{
+    "description": "Selects binary enum variants using markers, numeric representations, endianness overrides, and preconditions, returning variant data or normalized no-match errors.",
+    "cases": [
+        {
+            "input": {
+                "feature": "enum_mixed",
+                "bytes": "00"
+            },
+            "expected_output": "status=ok\nvariant=Zero\n"
+        },
+        {
+            "input": {
+                "feature": "enum_mixed",
+                "bytes": "0200030004"
+            },
+            "expected_output": "status=ok\nvariant=Two\na=3\nb=4\n"
+        },
+        {
+            "input": {
+                "feature": "enum_mixed",
+                "bytes": "01"
+            },
+            "expected_output": "error=variant_errors\npos=0\nvariant_error_count=2\nvariant=Zero\nerror=bad_magic\npos=0\nvariant=Two\nerror=bad_magic\npos=0\n"
+        },
+        {
+            "input": {
+                "feature": "enum_endianness",
+                "bytes": "0001"
+            },
+            "expected_output": "status=ok\nvariant=OneBig\n"
+        },
+        {
+            "input": {
+                "feature": "enum_endianness",
+                "bytes": "02000300"
+            },
+            "expected_output": "status=ok\nvariant=TwoLittle\na=3\n"
+        },
+        {
+            "input": {
+                "feature": "unit_enum_magic",
+                "bytes": "0001",
+                "mode": "numeric"
+            },
+            "expected_output": "status=ok\nvariant=One\n"
+        },
+        {
+            "input": {
+                "feature": "unit_enum_magic",
+                "bytes": "74776f30",
+                "mode": "bytes"
+            },
+            "expected_output": "status=ok\nvariant=Two\n"
+        },
+        {
+            "input": {
+                "feature": "unit_enum_pre_assert",
+                "bytes": "0000",
+                "allow_zero": true,
+                "forbid_zero": false
+            },
+            "expected_output": "status=ok\nvariant=Zero\n"
+        },
+        {
+            "input": {
+                "feature": "unit_enum_pre_assert",
+                "bytes": "0000",
+                "allow_zero": false,
+                "forbid_zero": true
+            },
+            "expected_output": "status=ok\nvariant=OtherZero\n"
+        },
+        {
+            "input": {
+                "feature": "unit_enum_repr",
+                "bytes": "ffff"
+            },
+            "expected_output": "status=ok\nvariant=Neg1\n"
+        },
+        {
+            "input": {
+                "feature": "unit_enum_repr",
+                "bytes": "0001"
+            },
+            "expected_output": "error=no_variant_match\npos=0\n"
+        }
+    ]
+}

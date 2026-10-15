@@ -1,0 +1,50 @@
+{
+    "description": "A client subscribes to several channels and then disconnects. On disconnect the server removes that client from every channel it had joined; channels left with no remaining subscribers are discarded entirely. The report queries those channels afterwards and shows each as absent (no longer tracked).",
+    "cases": [
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "1.1"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel-1"
+                            }
+                        }
+                    },
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel-2"
+                            }
+                        }
+                    },
+                    {
+                        "type": "close",
+                        "conn": "a"
+                    }
+                ],
+                "report": {
+                    "connections": [],
+                    "channels": [
+                        "test-channel-1",
+                        "test-channel-2"
+                    ]
+                }
+            },
+            "expected_output": "[channel:test-channel-1] absent\n[channel:test-channel-2] absent\n"
+        }
+    ]
+}

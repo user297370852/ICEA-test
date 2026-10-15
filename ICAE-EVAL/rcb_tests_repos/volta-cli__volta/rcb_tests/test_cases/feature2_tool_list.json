@@ -1,0 +1,114 @@
+{
+    "description": "Process a whole command line of tool selectors together with the name of the action being performed. Two ambiguous-misuse shapes are rejected before anything else: a single argument that is itself version-like (a bare version or a floating tag), and a two-argument line whose first argument is a bare name with no embedded @version followed by a version-like second argument; both are reported as neutral errors carrying the action and the offending values. Any other argument list is accepted: every argument is parsed as a tool selector and the resulting list is returned in a stable order in which node is pulled to the very front, then npm, then yarn, and all remaining package selectors keep their original relative order. Output reports either the error category with its fields, or the number of resolved selectors followed by one line per selector encoded as category:name:version_classification:version (name is empty for the built-in tools).",
+    "cases": [
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "1.2.3"
+                ]
+            },
+            "expected_output": "error=bare_version\naction=pin\nversion=1.2.3\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "potato",
+                    "1.2.3"
+                ]
+            },
+            "expected_output": "error=tool_space_version\naction=pin\nname=potato\nversion=1.2.3\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": []
+            },
+            "expected_output": "count=0\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "node"
+                ]
+            },
+            "expected_output": "count=1\nnode::default:<default>\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "10@latest"
+                ]
+            },
+            "expected_output": "count=1\npackage:10:tag_latest:latest\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "12",
+                    "node"
+                ]
+            },
+            "expected_output": "count=2\nnode::default:<default>\npackage:12:default:<default>\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "node@lts",
+                    "12"
+                ]
+            },
+            "expected_output": "count=2\nnode::tag_lts:lts\npackage:12:default:<default>\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "node",
+                    "12",
+                    "yarn"
+                ]
+            },
+            "expected_output": "count=3\nnode::default:<default>\nyarn::default:<default>\npackage:12:default:<default>\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "ember-cli@3",
+                    "yarn",
+                    "npm@5",
+                    "node@latest"
+                ]
+            },
+            "expected_output": "count=4\nnode::tag_latest:latest\nnpm::range:>= 5.0.0 < 6.0.0\nyarn::default:<default>\npackage:ember-cli:range:>= 3.0.0 < 4.0.0\n"
+        },
+        {
+            "input": {
+                "op": "tool_list",
+                "action": "pin",
+                "args": [
+                    "typescript@latest",
+                    "ember-cli@3",
+                    "node@lts",
+                    "mocha"
+                ]
+            },
+            "expected_output": "count=4\nnode::tag_lts:lts\npackage:typescript:tag_latest:latest\npackage:ember-cli:range:>= 3.0.0 < 4.0.0\npackage:mocha:default:<default>\n"
+        }
+    ]
+}

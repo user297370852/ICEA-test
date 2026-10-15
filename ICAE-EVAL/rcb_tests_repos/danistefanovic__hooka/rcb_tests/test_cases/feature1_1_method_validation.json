@@ -1,0 +1,15 @@
+{
+    "description": "Validate the HTTP method field of a webhook definition. A webhook is an object carrying a method, a relative path, and a shell command. The method must be either a single HTTP verb (one of GET, POST, PUT, DELETE, compared case-insensitively) or a non-empty list whose every element is such a verb. Any other value (an unknown verb, a list containing an unknown verb, an empty string, a number, null, an empty list, or a plain object) makes the whole definition invalid. The output reports whether the definition is accepted.",
+    "cases": [
+        {"input": {"feature": "validate", "hook": {"method": "GET", "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=true\n"},
+        {"input": {"feature": "validate", "hook": {"method": ["get", "Post", "PUT", "DELETE"], "path": "/hello", "command": "echo hello world"}}, "expected_output": "valid=true\n"},
+        {"input": {"feature": "validate", "hook": {"method": "NONSENSE", "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"},
+        {"input": {"feature": "validate", "hook": {"method": ["GET", "NONSENSE"], "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"},
+        {"input": {"feature": "validate", "hook": {"method": "", "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"},
+        {"input": {"feature": "validate", "hook": {"method": 0, "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"},
+        {"input": {"feature": "validate", "hook": {"method": 42, "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"},
+        {"input": {"feature": "validate", "hook": {"method": null, "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"},
+        {"input": {"feature": "validate", "hook": {"method": {}, "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"},
+        {"input": {"feature": "validate", "hook": {"method": [], "path": "/foo", "command": "echo bar"}}, "expected_output": "valid=false\n"}
+    ]
+}

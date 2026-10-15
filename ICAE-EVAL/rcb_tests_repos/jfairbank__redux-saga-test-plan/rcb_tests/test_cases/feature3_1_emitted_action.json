@@ -1,0 +1,34 @@
+{
+  "description": "Run the whole workflow to completion and assert that it emitted a given action at some point, regardless of ordering. Assertions can match the full action (type + payload), match only the action type, or be negated to assert an action was NOT emitted. A report of emitted actions exposes the wire-format of each emitted action.",
+  "cases": [
+    {
+      "input": {
+        "mode": "integration",
+        "saga": { "body": [ { "put": { "type": "READY", "payload": 42 } } ] },
+        "expect": [
+          { "put": { "type": "READY", "payload": 42 } },
+          { "putType": "READY" },
+          { "not.put": { "type": "FOO", "payload": 42 } },
+          { "not.put": { "type": "READY", "payload": 43 } },
+          { "not.putType": "FOO" }
+        ],
+        "report": ["put"]
+      },
+      "expected_output": "expectation 1 met\nexpectation 2 met\nexpectation 3 met\nexpectation 4 met\nexpectation 5 met\nput={\"payload\": 42, \"type\": \"READY\"}\n"
+    },
+    {
+      "input": {
+        "mode": "integration",
+        "saga": { "body": [ { "put": { "type": "READY", "payload": 42 } } ] },
+        "expect": [
+          { "put": { "type": "FOO", "payload": 42 } },
+          { "put": { "type": "READY", "payload": 43 } },
+          { "not.put": { "type": "READY", "payload": 42 } },
+          { "putType": "FOO" },
+          { "not.putType": "READY" }
+        ]
+      },
+      "expected_output": "expectation 1 unmet\nexpectation 2 unmet\nexpectation 3 unmet\nexpectation 4 unmet\nexpectation 5 unmet\n"
+    }
+  ]
+}

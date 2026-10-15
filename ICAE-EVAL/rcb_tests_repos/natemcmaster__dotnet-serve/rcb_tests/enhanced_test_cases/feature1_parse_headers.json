@@ -1,0 +1,104 @@
+{
+  "description": "Parse a list of raw HTTP header definition lines into a header-name to header-value map. Each line uses a colon to separate the name from the value; the value is taken from everything after the first colon, with surrounding whitespace trimmed. Header names are matched case-insensitively. The output reports the number of resulting entries followed by one 'name => value' line per entry in input order.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "X-Custom:"
+        ]
+      },
+      "expected_output": "count=1\nX-Custom => <null>\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "X-Custom:    "
+        ]
+      },
+      "expected_output": "count=1\nX-Custom => \n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "X-Forward: a:b:c"
+        ]
+      },
+      "expected_output": "count=1\nX-Forward => a:b:c\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          " X-Custom : value "
+        ]
+      },
+      "expected_output": "count=1\n X-Custom  => value\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": []
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "X-Greeting: 你好世界"
+        ]
+      },
+      "expected_output": "count=1\nX-Greeting => 你好世界\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "A: 1",
+          "B: 2",
+          "C: 3"
+        ]
+      },
+      "expected_output": "count=3\nA => 1\nB => 2\nC => 3\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "X-Note: a => b"
+        ]
+      },
+      "expected_output": "count=1\nX-Note => a => b\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "X-Tab:\t value \t"
+        ]
+      },
+      "expected_output": "count=1\nX-Tab => value\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          ": value"
+        ]
+      },
+      "expected_output": "count=1\n => value\n"
+    },
+    {
+      "input": {
+        "op": "parse_headers",
+        "headers": [
+          "X-Multi:   inner   spaces   "
+        ]
+      },
+      "expected_output": "count=1\nX-Multi => inner   spaces\n"
+    }
+  ]
+}

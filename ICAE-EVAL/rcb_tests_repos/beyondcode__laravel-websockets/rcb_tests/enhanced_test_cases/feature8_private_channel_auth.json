@@ -1,0 +1,55 @@
+{
+  "description": "A restricted (private) channel requires an authentication token on subscribe whose signature is the HMAC of the socket id and channel keyed by the application secret. A matching token is acknowledged; a non-matching token is rejected with a signature error carrying the protocol code and yields no acknowledgement.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "777.7"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "private-room",
+                "auth": "TestKey:f5c493379910a7e80f841ccee901b99c2b2cc58a40f0362b84551d53e214241b"
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"private-room\"}\n"
+    },
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "777.7"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "private-room",
+                "auth": "badtoken"
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "error=invalid_signature\ncode=4009\n[a] received 0\n"
+    }
+  ]
+}

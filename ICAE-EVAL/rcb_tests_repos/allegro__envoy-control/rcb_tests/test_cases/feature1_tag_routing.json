@@ -1,0 +1,21 @@
+{
+    "description": "Tag routing transformation. Given a service name, a set of raw instance tags, a blacklist of tag patterns, and per-service allowed tag-combination rules, produce the set of tags usable for routing. Tags matching any blacklist pattern (full-match regex) are discarded. For a service with no combination rules only surviving single tags are emitted. For a service configured with two-tag combinations, additional joined 'a,b' tags are emitted for every surviving tag pair that matches an allowed pair of patterns (tags within a joined value are in ascending order). For a service configured with three-tag combinations, the joined two- and three-tag values for matching pattern groups are also emitted. When every raw tag is filtered out, the special line 'tags=none' is emitted instead. Output is one 'tag=<value>' line per resulting tag, sorted ascending.",
+    "cases": [
+        {
+            "input": {"op": "tag_routing", "serviceName": "regular-service", "excludedTags": [".*id.*", "port:.*", "envoy"], "allowedCombinations": [], "tags": ["id:332", "hardware:c32", "stage:dev", "version:v0.9", "env12", "port:1244", "gport:1245", "envoy", "envoy-test"]},
+            "expected_output": "tag=env12\ntag=envoy-test\ntag=gport:1245\ntag=hardware:c32\ntag=stage:dev\ntag=version:v0.9\n"
+        },
+        {
+            "input": {"op": "tag_routing", "serviceName": "two-tags-allowed-service", "excludedTags": [".*id.*", "port:.*", "envoy"], "allowedCombinations": [{"serviceName": "two-tags-allowed-service", "tags": ["hardware:.*", "version:.*"]}, {"serviceName": "two-tags-allowed-service", "tags": ["stage:.*", "version:.*"]}, {"serviceName": "three-tags-allowed-service", "tags": ["stage:.*", "version:.*", "hardware:.*"]}], "tags": ["service-id:332", "hardware:c32", "stage:dev", "version:v0.9", "env12"]},
+            "expected_output": "tag=env12\ntag=hardware:c32\ntag=hardware:c32,version:v0.9\ntag=stage:dev\ntag=stage:dev,version:v0.9\ntag=version:v0.9\n"
+        },
+        {
+            "input": {"op": "tag_routing", "serviceName": "three-tags-allowed-service", "excludedTags": [".*id.*", "port:.*", "envoy"], "allowedCombinations": [{"serviceName": "two-tags-allowed-service", "tags": ["hardware:.*", "version:.*"]}, {"serviceName": "two-tags-allowed-service", "tags": ["stage:.*", "version:.*"]}, {"serviceName": "three-tags-allowed-service", "tags": ["stage:.*", "version:.*", "hardware:.*"]}], "tags": ["service-id:332", "hardware:c32", "stage:dev", "version:v0.9", "port:3200"]},
+            "expected_output": "tag=hardware:c32\ntag=hardware:c32,stage:dev\ntag=hardware:c32,stage:dev,version:v0.9\ntag=hardware:c32,version:v0.9\ntag=stage:dev\ntag=stage:dev,version:v0.9\ntag=version:v0.9\n"
+        },
+        {
+            "input": {"op": "tag_routing", "serviceName": "three-tags-allowed-service", "excludedTags": [".*id.*", "port:.*", "envoy"], "allowedCombinations": [{"serviceName": "two-tags-allowed-service", "tags": ["hardware:.*", "version:.*"]}, {"serviceName": "two-tags-allowed-service", "tags": ["stage:.*", "version:.*"]}, {"serviceName": "three-tags-allowed-service", "tags": ["stage:.*", "version:.*", "hardware:.*"]}], "tags": ["port:12344", "sid:3333"]},
+            "expected_output": "tags=none\n"
+        }
+    ]
+}

@@ -1,0 +1,74 @@
+{
+  "description": "Build the outbound HTTP request for an international form-encoded SMS provider. The account identifier is interpolated into the per-account messages endpoint path, and the request carries the recipient in universal form together with the configured sender and the message body. The provider's reply may indicate failure via an error status or a non-null error code, which is surfaced as a normalized gateway error. The output reports the request method, endpoint URL, the sorted form parameters, and the outcome.",
+  "cases": [
+    {
+      "input": {
+        "action": "gateway_send",
+        "gateway": "twilio",
+        "config": {
+          "account_sid": "acct-1",
+          "from": "sender-a",
+          "token": "tok"
+        },
+        "to": {
+          "number": 13800138000,
+          "idd_code": 1
+        },
+        "message": {
+          "content": "hi"
+        },
+        "response": {
+          "status": "queued",
+          "error_code": null
+        }
+      },
+      "expected_output": "method=POST\nurl=https://api.twilio.com/2010-04-01/Accounts/acct-1/Messages.json\nparam.Body=hi\nparam.From=sender-a\nparam.To=+113800138000\noutcome=sent\n"
+    },
+    {
+      "input": {
+        "action": "gateway_send",
+        "gateway": "twilio",
+        "config": {
+          "account_sid": "acct-2",
+          "from": "sender-b",
+          "token": "tok"
+        },
+        "to": {
+          "number": 18888888888
+        },
+        "message": {
+          "content": "no idd"
+        },
+        "response": {
+          "status": "queued",
+          "error_code": null
+        }
+      },
+      "expected_output": "method=POST\nurl=https://api.twilio.com/2010-04-01/Accounts/acct-2/Messages.json\nparam.Body=no idd\nparam.From=sender-b\nparam.To=18888888888\noutcome=sent\n"
+    },
+    {
+      "input": {
+        "action": "gateway_send",
+        "gateway": "twilio",
+        "config": {
+          "account_sid": "acct-3",
+          "from": "sender-c",
+          "token": "tok"
+        },
+        "to": {
+          "number": 13800138000,
+          "idd_code": 1
+        },
+        "message": {
+          "content": "bad"
+        },
+        "response": {
+          "status": "failed",
+          "message": "unreachable",
+          "error_code": 30003
+        }
+      },
+      "expected_output": "method=POST\nurl=https://api.twilio.com/2010-04-01/Accounts/acct-3/Messages.json\nparam.Body=bad\nparam.From=sender-c\nparam.To=+113800138000\noutcome=error\nerror_code=30003\nerror_message=unreachable\n"
+    }
+  ]
+}

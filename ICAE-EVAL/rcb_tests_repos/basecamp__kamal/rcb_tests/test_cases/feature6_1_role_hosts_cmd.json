@@ -1,0 +1,33 @@
+{
+    "description": "Resolve the host list and startup command for a named role from the deployment. When servers is a flat array, the single implicit role owns all hosts and has no startup command. When servers is a map, each named role may list hosts directly or under a hosts key and may define its own startup command. role.hosts returns the role's hosts one per line; role.cmd returns the role's startup command (empty when none).",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1", "1.1.1.2"], "env": {"REDIS_URL": "redis://x/y"}},
+                "role": "web", "action": "role.hosts"
+            },
+            "expected_output": "1.1.1.1\n1.1.1.2"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": {"web": ["1.1.1.1", "1.1.1.2"], "workers": {"hosts": ["1.1.1.3", "1.1.1.4"], "cmd": "bin/jobs", "env": {"REDIS_URL": "redis://a/b", "WEB_CONCURRENCY": 4}}}, "env": {"REDIS_URL": "redis://x/y"}},
+                "role": "workers", "action": "role.hosts"
+            },
+            "expected_output": "1.1.1.3\n1.1.1.4"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1", "1.1.1.2"], "env": {"REDIS_URL": "redis://x/y"}},
+                "role": "web", "action": "role.cmd"
+            },
+            "expected_output": "cmd="
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": {"web": ["1.1.1.1", "1.1.1.2"], "workers": {"hosts": ["1.1.1.3", "1.1.1.4"], "cmd": "bin/jobs", "env": {"REDIS_URL": "redis://a/b", "WEB_CONCURRENCY": 4}}}, "env": {"REDIS_URL": "redis://x/y"}},
+                "role": "workers", "action": "role.cmd"
+            },
+            "expected_output": "cmd=bin/jobs"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "description": "Apply defaulting and validation to a deployment specification. The spec describes two component groups (a primary data component and a monitor component), each with a container image and a desired replica count; the primary component also carries a metrics-exporter image and the monitor component carries a list of free-form configuration directives. Missing or non-positive values are filled with built-in defaults: an empty image becomes the default image, a replica count that is zero or negative becomes the default count, an empty exporter image becomes the default exporter image, and an empty configuration list for the monitor becomes the default directive list. Values that are explicitly provided are preserved untouched. The resource name is validated first: a name longer than the maximum permitted length is rejected and no defaulting is reported.",
+    "cases": [
+        {
+            "input": {"action": "validate", "name": "mycluster"},
+            "expected_output": "redis_image=redis:5.0-alpine\nredis_replicas=3\nredis_exporter_image=oliver006/redis_exporter:v0.33.0\nsentinel_image=redis:5.0-alpine\nsentinel_replicas=3\nsentinel_custom_config=down-after-milliseconds 5000|failover-timeout 10000\n"
+        },
+        {
+            "input": {"action": "validate", "name": "this-name-is-definitely-way-too-long-to-be-accepted-here"},
+            "expected_output": "error=name_too_long\nmax_length=48\n"
+        }
+    ]
+}

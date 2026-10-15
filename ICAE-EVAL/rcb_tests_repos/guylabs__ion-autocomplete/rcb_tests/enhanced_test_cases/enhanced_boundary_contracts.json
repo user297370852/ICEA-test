@@ -1,0 +1,154 @@
+{
+  "description": "Synthetic native-disjoint boundary coverage for the autocomplete black-box scenarios, using extra inert input metadata to ensure the adapter ignores unrelated JSON payload while preserving each observable UI/search/lifecycle contract.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "default_single_field",
+        "case_id": "enhanced_default_with_irrelevant_payload",
+        "unused_config": {
+          "placeholder": "ignored",
+          "cancelLabel": "ignored"
+        }
+      },
+      "expected_output": "outer_type=text\nouter_readonly=true\nouter_has_widget_class=true\nouter_placeholder=\nsearch_type=search\nsearch_has_widget_search_class=true\nsearch_placeholder=Click to enter a value...\nplaceholder_icon=search\ncancel_has_button_class=true\ncancel_has_clear_class=true\ncancel_label=Done\ncontainer_state=closed\n"
+    },
+    {
+      "input": {
+        "scenario": "custom_placeholder_and_cancel",
+        "case_id": "enhanced_custom_text_with_unicode_metadata",
+        "unused_text": "Ω≈ç√∫˜µ≤≥÷"
+      },
+      "expected_output": "outer_placeholder=placeholder value\nsearch_placeholder=placeholder value\ncancel_label=Cancel Button\n"
+    },
+    {
+      "input": {
+        "scenario": "value_projection",
+        "case_id": "enhanced_projection_with_nested_unused_payload",
+        "unused_payload": {
+          "emptyArray": [],
+          "nested": {
+            "missing": null
+          }
+        }
+      },
+      "expected_output": "primitive_value=no-object\nobject_key_value=value\nobject_without_key={\"key\":\"value\"}\nnested_key_value=value1\n"
+    },
+    {
+      "input": {
+        "scenario": "search_empty_query",
+        "case_id": "enhanced_empty_query_with_numeric_boundaries",
+        "unused_numbers": [
+          -1,
+          0,
+          1,
+          9007199254740991
+        ]
+      },
+      "expected_output": "provider_calls=1\nreceived_queries=[\"\"]\nsearch_items=[\"item\"]\n"
+    },
+    {
+      "input": {
+        "scenario": "search_valid_query_with_component",
+        "case_id": "enhanced_component_query_ignores_external_component_override",
+        "componentId": "should-not-override-attribute"
+      },
+      "expected_output": "provider_calls=1\nreceived=[{\"query\":\"asd\",\"componentId\":\"compId\"}]\nsearch_items=[\"asd\",\"compId\",\"item2\"]\n"
+    },
+    {
+      "input": {
+        "scenario": "search_promise_resolution",
+        "case_id": "enhanced_async_resolution_with_extra_large_payload",
+        "unused_items": [
+          "first",
+          "second",
+          "third",
+          "fourth",
+          "fifth"
+        ]
+      },
+      "expected_output": "provider_calls_before_resolution=1\nreceived_queries=[\"asd\"]\nitems_before_resolution=[]\nitems_after_resolution=[\"asd\",\"item2\"]\n"
+    },
+    {
+      "input": {
+        "scenario": "search_rejection_forwarded",
+        "case_id": "enhanced_async_rejection_with_unused_error_shape",
+        "unused_error": {
+          "message": "ignored failure metadata",
+          "code": 500
+        }
+      },
+      "expected_output": "provider_calls=1\nitems_before_rejection=[]\nrejection_callbacks=1\n"
+    },
+    {
+      "input": {
+        "scenario": "external_modal_control",
+        "case_id": "enhanced_external_control_ignores_requested_auto_open",
+        "autoOpen": true
+      },
+      "expected_output": "after_click_container_state=closed\nafter_external_open_state=open\nafter_external_close_state=closed\n"
+    },
+    {
+      "input": {
+        "scenario": "custom_modal_classes",
+        "case_id": "enhanced_custom_classes_with_unused_default_names",
+        "unused_classes": [
+          "ion-autocomplete-open",
+          "ion-autocomplete-close"
+        ]
+      },
+      "expected_output": "initial_has_custom_closed=true\ninitial_has_custom_open=false\ninitial_has_default_closed=false\ninitial_has_default_open=false\nafter_click_has_custom_closed=false\nafter_click_has_custom_open=true\nafter_click_has_default_closed=false\nafter_click_has_default_open=false\n"
+    },
+    {
+      "input": {
+        "scenario": "destroy_removes_modal",
+        "case_id": "enhanced_lifecycle_cleanup_with_repeated_destroy_hint",
+        "destroyAttempts": 2
+      },
+      "expected_output": "container_count_before_destroy=1\ncontainer_count_after_destroy=0\n"
+    },
+    {
+      "input": {
+        "scenario": "model_options_forwarding",
+        "case_id": "enhanced_debounce_forwarding_ignores_unused_zero_debounce",
+        "unusedDebounce": 0
+      },
+      "expected_output": "search_debounce_ms=1000\n"
+    },
+    {
+      "input": {
+        "scenario": "template_data",
+        "case_id": "enhanced_template_data_ignores_external_template_payload",
+        "templateData": {
+          "testData": "should-not-override-scope"
+        }
+      },
+      "expected_output": "template_visible=block\ntemplate_text=test-data\n"
+    },
+    {
+      "input": {
+        "scenario": "multiple_items_divider_visibility",
+        "case_id": "enhanced_multiple_divider_with_unused_empty_selection",
+        "selected": []
+      },
+      "expected_output": "initial_container_state=closed\nafter_click_container_state=open\ndivider_before_items=absent\ndivider_after_items=visible\n"
+    },
+    {
+      "input": {
+        "scenario": "multiple_cancel_closes",
+        "case_id": "enhanced_multiple_cancel_with_unused_preselected_values",
+        "selected": [
+          "value1",
+          "value2"
+        ]
+      },
+      "expected_output": "initial_container_state=closed\nafter_click_container_state=open\nafter_cancel_container_state=closed\n"
+    },
+    {
+      "input": {
+        "scenario": "unknown_boundary_scenario",
+        "case_id": "enhanced_unknown_scenario_reports_adapter_error"
+      },
+      "expected_output": "error=unknown_scenario\nscenario=unknown_boundary_scenario\n"
+    }
+  ]
+}

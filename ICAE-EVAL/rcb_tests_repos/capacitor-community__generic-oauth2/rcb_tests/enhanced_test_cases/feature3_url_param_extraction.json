@@ -1,0 +1,103 @@
+{
+  "description": "Enhanced boundary coverage for redirect URL parameter extraction. Exercises fragment-based parameters, the precedence rule where a query section is used even when a fragment is also present, percent-decoding of values, splitting on only the first equals sign, a value-less key decoding to the literal string 'undefined', an empty fragment yielding undefined, duplicate keys where the last value wins, multi-key sorted rendering, a fragment containing only an empty-key pair (undefined), a literal plus sign preserved (not turned into a space), encoded URL values, an empty value for a present key, surrounding whitespace being trimmed, and a leading ampersand producing an empty first pair that is discarded.",
+  "cases": [
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com/cb#code=ABC&state=S"
+      },
+      "expected_output": "params={\"code\":\"ABC\",\"state\":\"S\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com/cb?q=ignored#code=FROMHASH"
+      },
+      "expected_output": "params={\"q\":\"ignored\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?token=a%20b%20c"
+      },
+      "expected_output": "params={\"token\":\"a b c\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?data=a=b=c"
+      },
+      "expected_output": "params={\"data\":\"a\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?flag"
+      },
+      "expected_output": "params={\"flag\":\"undefined\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com/#"
+      },
+      "expected_output": "params=undefined\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?a=1&a=2"
+      },
+      "expected_output": "params={\"a\":\"2\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?zeta=3&alpha=1&mid=2"
+      },
+      "expected_output": "params={\"alpha\":\"1\",\"mid\":\"2\",\"zeta\":\"3\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com#=novalue"
+      },
+      "expected_output": "params=undefined\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?q=a+b"
+      },
+      "expected_output": "params={\"q\":\"a+b\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?redirect=https%3A%2F%2Fx.com"
+      },
+      "expected_output": "params={\"redirect\":\"https://x.com\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?key="
+      },
+      "expected_output": "params={\"key\":\"\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "  https://app.com?a=1  "
+      },
+      "expected_output": "params={\"a\":\"1\"}\n"
+    },
+    {
+      "input": {
+        "action": "extract_url_params",
+        "url": "https://app.com?&a=1"
+      },
+      "expected_output": "params={\"a\":\"1\"}\n"
+    }
+  ]
+}

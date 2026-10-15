@@ -1,0 +1,50 @@
+{
+  "description": "Share access grant edge coverage: non-cephx listed rule and malformed grant JSON both surface share_access_failed, plus a successful grant with distinct ids/namespaces.",
+  "cases": [
+    {
+      "input": {
+        "share_id": "011d21e2-fbc3-4e4a-9993-9ea223f73264",
+        "share_name": "pvc-test",
+        "secret_name": "manila-xxx",
+        "secret_namespace": "default",
+        "os_secret_namespace": "default",
+        "share_secret_namespace": "default",
+        "access_service": {
+          "grant_response": "{\"access\":{\"share_id\":\"011d21e2-fbc3-4e4a-9993-9ea223f73264\",\"access_type\":\"ip\",\"access_to\":\"0.0.0.0/0\",\"access_key\":\"\",\"access_level\":\"rw\",\"state\":\"new\",\"id\":\"a2f226a5-cee8-430b-8a03-78a59bd84ee8\"}}",
+          "list_response": "{\"access_list\":[{\"share_id\":\"011d21e2-fbc3-4e4a-9993-9ea223f73264\",\"access_type\":\"ip\",\"access_to\":\"pvc-test\",\"access_key\":\"KEYKEY\",\"access_level\":\"rw\",\"state\":\"available\",\"id\":\"a2f226a5-cee8-430b-8a03-78a59bd84ee8\"}]}"
+        }
+      },
+      "expected_output": "error=share_access_failed\n"
+    },
+    {
+      "input": {
+        "share_id": "abc",
+        "share_name": "pvc-abc",
+        "secret_name": "manila-abc",
+        "secret_namespace": "default",
+        "os_secret_namespace": "default",
+        "share_secret_namespace": "default",
+        "access_service": {
+          "grant_response": "{\"badjson",
+          "list_response": "{\"access_list\":[]}"
+        }
+      },
+      "expected_output": "error=share_access_failed\n"
+    },
+    {
+      "input": {
+        "share_id": "deadbeef-0000-1111-2222-333344445555",
+        "share_name": "pvc-other",
+        "secret_name": "manila-other",
+        "secret_namespace": "kube-system",
+        "os_secret_namespace": "ns-a",
+        "share_secret_namespace": "ns-b",
+        "access_service": {
+          "grant_response": "{\"access\":{\"share_id\":\"deadbeef-0000-1111-2222-333344445555\",\"access_type\":\"ip\",\"access_to\":\"0.0.0.0/0\",\"access_key\":\"\",\"access_level\":\"rw\",\"state\":\"new\",\"id\":\"11111111-2222-3333-4444-555555555555\"}}",
+          "list_response": "{\"access_list\":[{\"share_id\":\"deadbeef-0000-1111-2222-333344445555\",\"access_type\":\"cephx\",\"access_to\":\"pvc-other\",\"access_key\":\"QUJDREVGR0g=\",\"access_level\":\"rw\",\"state\":\"available\",\"id\":\"11111111-2222-3333-4444-555555555555\"}]}"
+        }
+      },
+      "expected_output": "http_requests=2\nrequest.0=POST /shares/deadbeef-0000-1111-2222-333344445555/action {\"allow_access\":{\"access_level\":\"rw\",\"access_to\":\"pvc-other\",\"access_type\":\"cephx\"}}\nrequest.1=POST /shares/deadbeef-0000-1111-2222-333344445555/action {\"access_list\":null}\naccess_id=11111111-2222-3333-4444-555555555555\nshare_id=deadbeef-0000-1111-2222-333344445555\naccess_type=cephx\naccess_to=pvc-other\naccess_level=rw\nstate=available\naccess_key=QUJDREVGR0g=\n"
+    }
+  ]
+}

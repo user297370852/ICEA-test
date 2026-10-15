@@ -1,0 +1,171 @@
+{
+  "description": "Boundary validation of operator/value-list arity and type rules: presence operators rejecting non-empty value lists, membership/regex operators with empty-string elements, single-bound and range numeric operators at integer extremes and overflow, the range operator at the equality boundary and over a negative interval, and an unrecognised operator.",
+  "cases": [
+    {
+      "input": {
+        "action": "validate",
+        "op": "",
+        "values": [
+          "1",
+          "2"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_must_be_empty\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "Exists",
+        "values": [
+          "1",
+          "2"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_must_be_empty\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "DoesNotExist",
+        "values": [
+          "x",
+          "y"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_must_be_empty\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "IsTrue",
+        "values": [
+          "a",
+          "b"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_must_be_empty\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "IsFalse",
+        "values": [
+          "1"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_must_be_empty\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "In",
+        "values": [
+          ""
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "InRegexp",
+        "values": [
+          ""
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "InRegexp",
+        "values": [
+          "[a-z]+",
+          "("
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_invalid_regexp\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "Gt",
+        "values": [
+          "9223372036854775807"
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "Gt",
+        "values": [
+          "9223372036854775808"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_not_integer\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "Lt",
+        "values": [
+          "0"
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "Lt",
+        "values": [
+          "+5"
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "GtLt",
+        "values": [
+          "5",
+          "5"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_out_of_order\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "GtLt",
+        "values": [
+          "-10",
+          "-5"
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "GtLt",
+        "values": [
+          "1.5",
+          "2.5"
+        ]
+      },
+      "expected_output": "valid=false\nreason=value_not_integer\n"
+    },
+    {
+      "input": {
+        "action": "validate",
+        "op": "Unrecognized",
+        "values": []
+      },
+      "expected_output": "valid=false\nreason=unknown_operator\n"
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "description": "Enhanced dictionary projection coverage: list/range valid selections staying dictionary-encoded, small selection from a large dictionary, single-index reuse, zero-valued dictionary, negative referenced value rejection, and negative unused entries with a list selection (plain fallback).",
+  "cases": [
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "dictionary",
+          "dictionary": [
+            10,
+            20,
+            30,
+            40
+          ],
+          "ids": [
+            0,
+            1,
+            2,
+            3,
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "expected_output": "operation=project\nvalues=[10, 20, 30, 40]\nposition_count=4\nresult_encoding=dictionary\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "dictionary",
+          "dictionary": [
+            5,
+            6,
+            7
+          ],
+          "ids": [
+            0,
+            1,
+            2,
+            0,
+            1,
+            2
+          ]
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 0,
+          "size": 6
+        }
+      },
+      "expected_output": "operation=project\nvalues=[5, 6, 7, 5, 6, 7]\nposition_count=6\nresult_encoding=dictionary\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "dictionary",
+          "dictionary": [
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109
+          ],
+          "ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            0,
+            5
+          ]
+        }
+      },
+      "expected_output": "operation=project\nvalues=[100, 105]\nposition_count=2\nresult_encoding=dictionary\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "dictionary",
+          "dictionary": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "ids": [
+            3,
+            3,
+            3,
+            3,
+            3
+          ]
+        },
+        "positions": {
+          "kind": "range",
+          "offset": 0,
+          "size": 5
+        }
+      },
+      "expected_output": "operation=project\nvalues=[3, 3, 3, 3, 3]\nposition_count=5\nresult_encoding=dictionary\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "dictionary",
+          "dictionary": [
+            0,
+            0,
+            0
+          ],
+          "ids": [
+            0,
+            1,
+            2
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "expected_output": "operation=project\nvalues=[0, 0, 0]\nposition_count=3\nresult_encoding=dictionary\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "dictionary",
+          "dictionary": [
+            -1,
+            5
+          ],
+          "ids": [
+            0,
+            1
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            0,
+            1
+          ]
+        }
+      },
+      "expected_output": "error=negative_value\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "block": {
+          "encoding": "dictionary",
+          "dictionary": [
+            -9,
+            1,
+            2,
+            3
+          ],
+          "ids": [
+            1,
+            2,
+            3,
+            1,
+            2,
+            3
+          ]
+        },
+        "positions": {
+          "kind": "list",
+          "values": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "expected_output": "operation=project\nvalues=[1, 2, 3]\nposition_count=3\nresult_encoding=plain\n"
+    }
+  ]
+}

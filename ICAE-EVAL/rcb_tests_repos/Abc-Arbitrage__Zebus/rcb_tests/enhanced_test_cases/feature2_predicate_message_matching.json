@@ -1,0 +1,113 @@
+{
+  "description": "Boundary coverage for predicate compilation against a three-member message. Exercises culture-invariant decimal rendering (dot separator, preserved scale, negatives), canonical lowercase GUID rendering, predicates longer than the member list (extra parts ignored), predicates shorter than the member list (partial constraint), and '#' short-circuiting.",
+  "cases": [
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "100.50.#",
+        "message": {
+          "number": "100.50",
+          "text": "toto",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=100.50.toto.00000000-0000-0000-0000-000000000000\nbinding_key=100.50.#\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "-5.#",
+        "message": {
+          "number": "-5",
+          "text": "toto",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=-5.toto.00000000-0000-0000-0000-000000000000\nbinding_key=-5.#\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "1.toto.aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        "message": {
+          "number": "1",
+          "text": "toto",
+          "identifier": "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"
+        }
+      },
+      "expected_output": "routing_key=1.toto.aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\nbinding_key=1.toto.aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "1.toto.00000000-0000-0000-0000-000000000000.extra",
+        "message": {
+          "number": "1",
+          "text": "toto",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=1.toto.00000000-0000-0000-0000-000000000000\nbinding_key=1.toto.00000000-0000-0000-0000-000000000000.extra\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "1",
+        "message": {
+          "number": "1",
+          "text": "toto",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=1.toto.00000000-0000-0000-0000-000000000000\nbinding_key=1\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "2",
+        "message": {
+          "number": "1",
+          "text": "toto",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=1.toto.00000000-0000-0000-0000-000000000000\nbinding_key=2\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "#",
+        "message": {
+          "number": "7",
+          "text": "abc",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=7.abc.00000000-0000-0000-0000-000000000000\nbinding_key=#\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": "1.toto.11111111-1111-1111-1111-111111111111",
+        "message": {
+          "number": "1",
+          "text": "toto",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=1.toto.00000000-0000-0000-0000-000000000000\nbinding_key=1.toto.11111111-1111-1111-1111-111111111111\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "predicate_match",
+        "binding_key": null,
+        "message": {
+          "number": "9",
+          "text": "z",
+          "identifier": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "routing_key=9.z.00000000-0000-0000-0000-000000000000\nbinding_key=#\nmatch=true\n"
+    }
+  ]
+}

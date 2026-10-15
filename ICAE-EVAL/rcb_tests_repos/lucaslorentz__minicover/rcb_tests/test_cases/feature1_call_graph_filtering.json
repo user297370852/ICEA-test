@@ -1,0 +1,37 @@
+{
+    "description": "Filters a directed call graph down to a whitelist of allowed node values. Nodes whose value is allowed are kept; nodes whose value is not allowed are spliced out, with their children re-attached to the removed node's parent. The result is rendered as a nested text form where `v[..]` lists a node's retained children and `*v` marks a back-reference to an already-visited node (a cycle). Children at each level are listed in ascending value order.",
+    "cases": [
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2], "2": [3], "3": [2]}, "root": 1, "allowed": [1, 2, 3]},
+            "expected_output": "1[2[3[*2]]]\n"
+        },
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2], "2": [3], "3": [2]}, "root": 1, "allowed": [1]},
+            "expected_output": "1\n"
+        },
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2], "2": [2]}, "root": 1, "allowed": [1, 2]},
+            "expected_output": "1[2[*2]]\n"
+        },
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2], "2": [2]}, "root": 1, "allowed": [1]},
+            "expected_output": "1\n"
+        },
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2, 3]}, "root": 1, "allowed": [2, 3]},
+            "expected_output": "2,3\n"
+        },
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2, 3], "2": [1, 7, 8], "3": [4, 5, 6], "4": [5], "5": [4], "6": [7, 8, 6, 3]}, "root": 1, "allowed": [1, 2, 3, 8]},
+            "expected_output": "1[2[*1,8],3[*3,*8]]\n"
+        },
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2, 3], "2": [4], "3": [4], "4": [5]}, "root": 1, "allowed": [1, 5]},
+            "expected_output": "1[5]\n"
+        },
+        {
+            "input": {"op": "filter_graph", "children": {"1": [2, 3], "2": [5], "3": [4], "4": [5], "5": [6]}, "root": 1, "allowed": [1, 2, 3, 6]},
+            "expected_output": "1[2[6],3[*6]]\n"
+        }
+    ]
+}

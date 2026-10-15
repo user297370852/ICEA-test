@@ -1,0 +1,53 @@
+{
+  "description": "Edge coverage for encoding event envelopes as JSON (custom id/source/version/type/time, special characters and unicode inside the embedded data string, boundary unit).",
+  "cases": [
+    {
+      "input": {
+        "operation": "cloud_event_json_encode",
+        "id": "evt-xyz",
+        "source": "/another/service",
+        "version": "1.0",
+        "messageTypeIdentifier": "customType",
+        "time": "2023-03-04T05:06:07+00:00",
+        "address": {
+          "unit": 99,
+          "street": "Maple Ave",
+          "zipCode": "12345"
+        }
+      },
+      "expected_output": "json={\"id\":\"evt-xyz\",\"source\":\"/another/service\",\"specversion\":\"1.0\",\"type\":\"customType\",\"time\":\"2023-03-04T05:06:07+00:00\",\"data\":\"{\\u0022Unit\\u0022:99,\\u0022Street\\u0022:\\u0022Maple Ave\\u0022,\\u0022ZipCode\\u0022:\\u002212345\\u0022}\"}\n"
+    },
+    {
+      "input": {
+        "operation": "cloud_event_json_encode",
+        "id": "quote-id",
+        "source": "/svc",
+        "version": "1.0",
+        "messageTypeIdentifier": "addressInfo",
+        "time": "2000-12-05T10:30:55+00:00",
+        "address": {
+          "unit": 1,
+          "street": "He said \"hi\"",
+          "zipCode": "00001"
+        }
+      },
+      "expected_output": "json={\"id\":\"quote-id\",\"source\":\"/svc\",\"specversion\":\"1.0\",\"type\":\"addressInfo\",\"time\":\"2000-12-05T10:30:55+00:00\",\"data\":\"{\\u0022Unit\\u0022:1,\\u0022Street\\u0022:\\u0022He said \\\\u0022hi\\\\u0022\\u0022,\\u0022ZipCode\\u0022:\\u002200001\\u0022}\"}\n"
+    },
+    {
+      "input": {
+        "operation": "cloud_event_json_encode",
+        "id": "uni-id",
+        "source": "/svc",
+        "version": "1.0",
+        "messageTypeIdentifier": "addressInfo",
+        "time": "2000-12-05T10:30:55+00:00",
+        "address": {
+          "unit": 0,
+          "street": "中文路",
+          "zipCode": "00001"
+        }
+      },
+      "expected_output": "json={\"id\":\"uni-id\",\"source\":\"/svc\",\"specversion\":\"1.0\",\"type\":\"addressInfo\",\"time\":\"2000-12-05T10:30:55+00:00\",\"data\":\"{\\u0022Unit\\u0022:0,\\u0022Street\\u0022:\\u0022\\\\u4E2D\\\\u6587\\\\u8DEF\\u0022,\\u0022ZipCode\\u0022:\\u002200001\\u0022}\"}\n"
+    }
+  ]
+}

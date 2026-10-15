@@ -1,0 +1,66 @@
+{
+  "description": "Boundary coverage for rejecting mutations on a value with no key: a lone removal on a keyless value, a lone set on a keyless value, attaching an observer to a keyless value (which still receives the default) before a rejected set, and a longer interleaving of rejected sets and removals. Every mutating attempt fails without touching the backing store and produces a normalized error line naming the operation and reason.",
+  "cases": [
+    {
+      "input": {
+        "key": null,
+        "default": "fallback",
+        "ops": [
+          {
+            "op": "remove"
+          }
+        ]
+      },
+      "expected_output": "error=unsupported_operation op=remove reason=null_key\n"
+    },
+    {
+      "input": {
+        "key": null,
+        "default": "fallback",
+        "ops": [
+          {
+            "op": "put",
+            "value": "x"
+          }
+        ]
+      },
+      "expected_output": "error=unsupported_operation op=put reason=null_key\n"
+    },
+    {
+      "input": {
+        "key": null,
+        "default": "fallback",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "x"
+          }
+        ]
+      },
+      "expected_output": "emit[0] fallback\nerror=unsupported_operation op=put reason=null_key\n"
+    },
+    {
+      "input": {
+        "key": null,
+        "default": "fallback",
+        "ops": [
+          {
+            "op": "put",
+            "value": "a"
+          },
+          {
+            "op": "remove"
+          },
+          {
+            "op": "put",
+            "value": "b"
+          }
+        ]
+      },
+      "expected_output": "error=unsupported_operation op=put reason=null_key\nerror=unsupported_operation op=remove reason=null_key\nerror=unsupported_operation op=put reason=null_key\n"
+    }
+  ]
+}

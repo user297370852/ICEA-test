@@ -1,0 +1,138 @@
+{
+  "description": "ENHANCED lookup-key construction edge cases: a bare partition value with a sort value supplied even though no sort key is declared (sort value dropped); a record object carrying non-key attributes that are dropped; a global index contributing both its partition and sort attributes from a record; a local index whose range attribute is absent from the record (nothing added); a date-typed sort key rendered ISO-8601 from a bare pair; a boolean partition value preserved; and a record missing the declared sort attribute (only partition emitted).",
+  "cases": [
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string"
+          }
+        },
+        "hashKey": "abc",
+        "rangeKey": "ignored"
+      },
+      "expected_output": "{\"id\":\"abc\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "id",
+          "rangeKey": "ts",
+          "schema": {
+            "id": "string",
+            "ts": "number",
+            "blob": "string"
+          }
+        },
+        "hashKey": {
+          "id": "abc",
+          "ts": 5,
+          "blob": "drop me"
+        }
+      },
+      "expected_output": "{\"id\":\"abc\",\"ts\":5}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "gh": "string",
+            "gr": "number"
+          },
+          "indexes": [
+            {
+              "hashKey": "gh",
+              "rangeKey": "gr",
+              "type": "global",
+              "name": "GIdx"
+            }
+          ]
+        },
+        "hashKey": {
+          "id": "abc",
+          "gh": "ghv",
+          "gr": 9
+        }
+      },
+      "expected_output": "{\"gh\":\"ghv\",\"gr\":9,\"id\":\"abc\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "lr": "string"
+          },
+          "indexes": [
+            {
+              "hashKey": "id",
+              "rangeKey": "lr",
+              "type": "local",
+              "name": "LIdx"
+            }
+          ]
+        },
+        "hashKey": {
+          "id": "abc"
+        }
+      },
+      "expected_output": "{\"id\":\"abc\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "id",
+          "rangeKey": "when",
+          "schema": {
+            "id": "string",
+            "when": "date"
+          }
+        },
+        "hashKey": "abc",
+        "rangeKey": {
+          "__date__": "2022-02-02T02:02:02.000Z"
+        }
+      },
+      "expected_output": "{\"id\":\"abc\",\"when\":\"2022-02-02T02:02:02.000Z\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "active",
+          "schema": {
+            "active": "boolean"
+          }
+        },
+        "hashKey": true
+      },
+      "expected_output": "{\"active\":true}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "id",
+          "rangeKey": "ts",
+          "schema": {
+            "id": "string",
+            "ts": "number"
+          }
+        },
+        "hashKey": {
+          "id": "abc"
+        }
+      },
+      "expected_output": "{\"id\":\"abc\"}\n"
+    }
+  ]
+}

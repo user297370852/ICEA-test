@@ -1,0 +1,19 @@
+{
+    "description": "Resolves a configuration section by overlaying it on the shared 'common' section and expanding string placeholders. A placeholder of the form file='<path>' is replaced by the parsed YAML content of that file (yielding a nested mapping), and a placeholder of the form env='<NAME>' is replaced by the value of that environment variable; literal text surrounding an env placeholder is preserved so placeholders can be concatenated with prefixes/suffixes or with each other. Section values override common values, while mappings present in both are merged recursively. The output is the fully resolved section as a sorted JSON object.",
+    "cases": [
+        {
+            "input": {
+                "op": "resolve",
+                "section": "test_dirs",
+                "env": {
+                    "CUSTOM_ENV": "My value"
+                },
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n"
+                },
+                "config": "common:\n  my_var: my_value\n  my_file: \"{{ file='include.yaml' }}\"\n  my_env_var: \"{{ env='CUSTOM_ENV' }}\"\ntest_dirs:\n  dirs:\n    - dst: /tmp/test_directory1/\n  templates:\n    - template: template1.yaml.j2\n"
+            },
+            "expected_output": "{\n  \"dirs\": [\n    {\n      \"dst\": \"/tmp/test_directory1/\"\n    }\n  ],\n  \"my_env_var\": \"My value\",\n  \"my_file\": {\n    \"ha_ha\": \"included_var\"\n  },\n  \"my_var\": \"my_value\",\n  \"templates\": [\n    {\n      \"template\": \"template1.yaml.j2\"\n    }\n  ]\n}"
+        }
+    ]
+}

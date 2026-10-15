@@ -1,0 +1,32 @@
+{
+    "description": "When the client is configured with an external payload sink (stream), an incoming PUBLISH still delivers the topic and payload length to the message handler, while the payload bytes are streamed out to the sink. In stream mode, payloads larger than the receive buffer are still delivered (topic and length) rather than dropped. Each case feeds inbound PUBLISH bytes and observes the delivered topic and length.",
+    "cases": [
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "stream": true,
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "inbound",
+                        "bytes": "30 0e 00 05 74 6f 70 69 63 70 61 79 6c 6f 61 64"
+                    },
+                    {
+                        "op": "loop"
+                    }
+                ]
+            },
+            "expected_output": "loop=1\nmessage topic=topic length=7\nsent=\n"
+        }
+    ]
+}

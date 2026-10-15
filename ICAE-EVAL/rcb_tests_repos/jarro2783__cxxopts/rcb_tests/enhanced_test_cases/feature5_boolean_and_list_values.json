@@ -1,0 +1,136 @@
+{
+  "description": "Enhanced boolean/list parsing: '=1'/'=0' truthy and falsy spellings, an absent boolean with no default rendering false (count 0), a boolean with an explicit default of true when absent, a single-element list, and an int list split from one comma-delimited token.",
+  "cases": [
+    {
+      "input": {
+        "program": "boolnum",
+        "options": [
+          {
+            "opts": "a",
+            "type": "bool"
+          },
+          {
+            "opts": "b",
+            "type": "bool"
+          }
+        ],
+        "argv": [
+          "--a=1",
+          "--b=0"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "a",
+            "type": "bool"
+          },
+          {
+            "q": "value",
+            "name": "b",
+            "type": "bool"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_option_syntax\nparam=--a=1"
+    },
+    {
+      "input": {
+        "program": "absent",
+        "options": [
+          {
+            "opts": "flag",
+            "type": "bool"
+          }
+        ],
+        "argv": [],
+        "queries": [
+          {
+            "q": "count",
+            "name": "flag"
+          },
+          {
+            "q": "value",
+            "name": "flag",
+            "type": "bool"
+          }
+        ]
+      },
+      "expected_output": "count[flag]=0\nvalue[flag]=false"
+    },
+    {
+      "input": {
+        "program": "deftrue",
+        "options": [
+          {
+            "opts": "on",
+            "type": "bool",
+            "default": "true"
+          }
+        ],
+        "argv": [],
+        "queries": [
+          {
+            "q": "count",
+            "name": "on"
+          },
+          {
+            "q": "value",
+            "name": "on",
+            "type": "bool"
+          }
+        ]
+      },
+      "expected_output": "count[on]=0\nvalue[on]=true"
+    },
+    {
+      "input": {
+        "program": "one",
+        "options": [
+          {
+            "opts": "list",
+            "type": "vec_int"
+          }
+        ],
+        "argv": [
+          "--list",
+          "42"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "list",
+            "type": "vec_int"
+          }
+        ]
+      },
+      "expected_output": "value[list]=[42]"
+    },
+    {
+      "input": {
+        "program": "split",
+        "options": [
+          {
+            "opts": "nums",
+            "type": "vec_int"
+          }
+        ],
+        "argv": [
+          "--nums",
+          "10,20,30,40"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "nums",
+            "type": "vec_int"
+          },
+          {
+            "q": "count",
+            "name": "nums"
+          }
+        ]
+      },
+      "expected_output": "value[nums]=[10,20,30,40]\ncount[nums]=1"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+    "description": "A reboot voter that decides per-request whether the worker must recycle based on errors seen while handling the request. A fresh voter abstains. Any unexpected error makes it vote to recycle; an error whose category is on the allow-list (including categories that are sub-types of an allowed category) does not. Input is the allow-list of tolerated error categories plus an ordered list of signals observed during the request; output reports the final decision.",
+    "cases": [
+        {"input": {"handler": "reboot", "op": "on_exception", "allowed": ["app"], "actions": []}, "expected_output": "should_reboot=false\n"},
+        {"input": {"handler": "reboot", "op": "on_exception", "allowed": ["app"], "actions": [{"type": "exception", "category": "runtime"}]}, "expected_output": "should_reboot=true\n"},
+        {"input": {"handler": "reboot", "op": "on_exception", "allowed": ["app"], "actions": [{"type": "exception", "category": "app"}]}, "expected_output": "should_reboot=false\n"},
+        {"input": {"handler": "reboot", "op": "on_exception", "allowed": ["app"], "actions": [{"type": "exception", "category": "app_child"}]}, "expected_output": "should_reboot=false\n"}
+    ]
+}

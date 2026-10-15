@@ -1,0 +1,67 @@
+{
+  "description": "Place search variants: minimal text search default price range, nearby search with type, rank_by distance conflicting with radius, valid distance ranking, and pagination tokens.",
+  "cases": [
+    {
+      "input": {
+        "action": "text_search_request",
+        "request": {
+          "query": "pizza"
+        }
+      },
+      "expected_output": "method=GET\nstatus=200\nurl=https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaasdf&maxprice=None&minprice=None&query=pizza\nresult_count=0\n"
+    },
+    {
+      "input": {
+        "action": "nearby_search_request",
+        "request": {
+          "location": [
+            1,
+            2
+          ],
+          "radius": 500,
+          "type": "cafe"
+        }
+      },
+      "expected_output": "method=GET\nstatus=200\nurl=https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaasdf&location=1%2C2&maxprice=None&minprice=None&radius=500&type=cafe\nresult_count=0\n"
+    },
+    {
+      "input": {
+        "action": "nearby_search_request",
+        "request": {
+          "location": [
+            1,
+            2
+          ],
+          "rank_by": "distance",
+          "radius": 500,
+          "keyword": "x"
+        }
+      },
+      "expected_output": "error=invalid_argument\n"
+    },
+    {
+      "input": {
+        "action": "nearby_search_request",
+        "request": {
+          "location": [
+            1,
+            2
+          ],
+          "rank_by": "distance",
+          "name": "foo"
+        }
+      },
+      "expected_output": "method=GET\nstatus=200\nurl=https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaasdf&location=1%2C2&maxprice=None&minprice=None&name=foo&rankby=distance\nresult_count=0\n"
+    },
+    {
+      "input": {
+        "action": "text_search_request",
+        "request": {
+          "query": "hotel",
+          "page_token": "TOK123"
+        }
+      },
+      "expected_output": "method=GET\nstatus=200\nurl=https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaasdf&maxprice=None&minprice=None&pagetoken=TOK123&query=hotel\nresult_count=0\n"
+    }
+  ]
+}

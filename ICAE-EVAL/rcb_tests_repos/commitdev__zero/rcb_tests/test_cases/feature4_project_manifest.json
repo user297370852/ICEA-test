@@ -1,0 +1,13 @@
+{
+    "description": "Parse a project manifest document (YAML) into a structured project description. The manifest declares a project name and a set of named modules; each module may declare a files block (a destination directory and a source repository) and an optional map of parameter key/value pairs. The output reports the project name, the number of modules, and one line per module (modules listed in ascending name order) giving the module name, its directory, its repository, and its parameters as comma-joined key=value pairs in ascending key order (empty when none).",
+    "cases": [
+        {
+            "input": {"action": "load_project_manifest", "manifest": "name: acme-app\nmodules:\n    infrastructure:\n        parameters:\n            repoName: infrastructure\n            region: us-east-1\n            accountId: 12345\n            productionHost: something.com\n        files:\n            dir: infrastructure\n            repo: https://github.com/acme/infrastructure\n    backend:\n        files:\n            dir: app-backend\n            repo: github.com/acme/app-backend\n"},
+            "expected_output": "name=acme-app\nmodule_count=2\nmodule=backend dir=app-backend repo=github.com/acme/app-backend params=\nmodule=infrastructure dir=infrastructure repo=https://github.com/acme/infrastructure params=accountId=12345,productionHost=something.com,region=us-east-1,repoName=infrastructure\n"
+        },
+        {
+            "input": {"action": "load_project_manifest", "manifest": "name: tiny\nmodules:\n    web:\n        files:\n            dir: web-app\n            repo: github.com/acme/web-app\n"},
+            "expected_output": "name=tiny\nmodule_count=1\nmodule=web dir=web-app repo=github.com/acme/web-app params=\n"
+        }
+    ]
+}

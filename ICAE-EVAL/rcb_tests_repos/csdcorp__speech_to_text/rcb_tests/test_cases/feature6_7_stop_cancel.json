@@ -1,0 +1,68 @@
+{
+    "description": "Stopping or cancelling does nothing when the coordinator was never initialized: the corresponding platform operation is not invoked. After a successful initialization and an active listening session, stopping invokes the platform stop operation, and cancelling invokes the platform cancel operation and leaves the session no longer listening. The output reports whether the platform operation was invoked, and a state snapshot where relevant.",
+    "cases": [
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "stop"
+                    }
+                ]
+            },
+            "expected_output": "stop invoked=false\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "cancel"
+                    }
+                ]
+            },
+            "expected_output": "cancel invoked=false\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize"
+                    },
+                    {
+                        "do": "listen"
+                    },
+                    {
+                        "do": "cancel"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\ncancel invoked=true\nlistening=false recognized=false available=true has_error=false last_recognized= last_status=listening last_level=0.0\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize"
+                    },
+                    {
+                        "do": "listen"
+                    },
+                    {
+                        "do": "stop"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nstop invoked=true\n"
+        }
+    ]
+}

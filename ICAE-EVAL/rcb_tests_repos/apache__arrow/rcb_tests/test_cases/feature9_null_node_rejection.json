@@ -1,0 +1,37 @@
+{
+    "description": "Reject expression-tree constructions in which a required child node is missing (supplied as a null). Whenever a node position that demands a sub-expression is given a null, the construction is refused rather than producing a malformed tree. This is checked across every position that takes a node: a field reference, the branches of an if/then/else, the operands of a boolean conjunction or disjunction, the subject of a membership test, an operand of a comparison function, the root expression of a projection, and the condition of a filter. The adapter reports a single normalized error category for each such construction.",
+    "cases": [
+        {
+            "input": {"operation": "project", "schema": [{"name": "x", "type": "int32"}], "columns": {"x": [1]}, "expression": null, "result_type": "int32"},
+            "expected_output": "error=null_node\n"
+        },
+        {
+            "input": {"operation": "filter", "schema": [{"name": "x", "type": "int32"}], "columns": {"x": [1]}, "condition": null},
+            "expected_output": "error=null_node\n"
+        },
+        {
+            "input": {"operation": "filter", "schema": [{"name": "x", "type": "int32"}], "columns": {"x": [1]}, "condition": {"node": "in", "expr": {"node": "field", "name": null}, "values": [1, 2, 3], "type": "int32"}},
+            "expected_output": "error=null_node\n"
+        },
+        {
+            "input": {"operation": "project", "schema": [{"name": "x", "type": "int32"}], "columns": {"x": [1]}, "expression": {"node": "if", "cond": {"node": "literal", "type": "bool", "value": true}, "then": null, "else": null, "type": "int32"}, "result_type": "int32"},
+            "expected_output": "error=null_node\n"
+        },
+        {
+            "input": {"operation": "filter", "schema": [{"name": "x", "type": "bool"}], "columns": {"x": [true]}, "condition": {"node": "and", "args": [{"node": "literal", "type": "bool", "value": true}, null]}},
+            "expected_output": "error=null_node\n"
+        },
+        {
+            "input": {"operation": "filter", "schema": [{"name": "x", "type": "bool"}], "columns": {"x": [true]}, "condition": {"node": "or", "args": [null, {"node": "literal", "type": "bool", "value": true}]}},
+            "expected_output": "error=null_node\n"
+        },
+        {
+            "input": {"operation": "filter", "schema": [{"name": "x", "type": "int32"}], "columns": {"x": [1]}, "condition": {"node": "in", "expr": null, "values": [1, 2, 3], "type": "int32"}},
+            "expected_output": "error=null_node\n"
+        },
+        {
+            "input": {"operation": "filter", "schema": [{"name": "x", "type": "bool"}], "columns": {"x": [true]}, "condition": {"node": "function", "name": "less_than", "args": [{"node": "literal", "type": "bool", "value": true}, null], "return": "bool"}},
+            "expected_output": "error=null_node\n"
+        }
+    ]
+}

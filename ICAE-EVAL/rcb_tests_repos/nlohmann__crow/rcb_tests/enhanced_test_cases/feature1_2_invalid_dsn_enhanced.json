@@ -1,0 +1,59 @@
+{
+  "description": "Connection-string validation boundary coverage: rejection extends to a case-mismatched scheme (HTTP), a near-miss scheme (httpss), an unsupported scheme (ftp), a non-numeric project, a project with trailing non-digits, a project followed by an extra path segment, a missing '@' host delimiter, a negative project, and a decimal project. Each is surfaced as the normalized error echoing the raw string.",
+  "cases": [
+    {
+      "input": {
+        "dsn": "HTTP://abc:def@sentry.io/123"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=HTTP://abc:def@sentry.io/123\n"
+    },
+    {
+      "input": {
+        "dsn": "httpss://abc:def@sentry.io/123"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=httpss://abc:def@sentry.io/123\n"
+    },
+    {
+      "input": {
+        "dsn": "ftp://abc:def@sentry.io/123"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=ftp://abc:def@sentry.io/123\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/abc"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=https://abc:def@sentry.io/abc\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123x"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=https://abc:def@sentry.io/123x\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123/store"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=https://abc:def@sentry.io/123/store\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def/123"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=https://abc:def/123\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/-5"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=https://abc:def@sentry.io/-5\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/1.5"
+      },
+      "expected_output": "error=invalid_dsn\ndsn=https://abc:def@sentry.io/1.5\n"
+    }
+  ]
+}

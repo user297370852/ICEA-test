@@ -1,0 +1,54 @@
+{
+  "description": "Enhanced per-message consume coverage: two independent per-message deliveries in one scenario each create their own root-trace consumer span (distinct trace labels), and a synchronous non-promise handler on a different topic still yields one well-formed process span.",
+  "cases": [
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "consume_message",
+            "topic": "topic-name-1",
+            "message": {
+              "value": "first",
+              "offset": "10"
+            },
+            "handler": {
+              "behavior": "resolve"
+            }
+          },
+          {
+            "action": "consume_message",
+            "topic": "topic-name-2",
+            "message": {
+              "value": "second",
+              "offset": "11"
+            },
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_message topic=topic-name-1 delivered=ok error=none\nconsume_message topic=topic-name-2 delivered=ok error=none\nspans=2\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\nspan 1 kind=consumer name=topic-name-2 trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-2\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "consume_message",
+            "topic": "orders",
+            "message": {
+              "value": "sync handler",
+              "offset": "7"
+            },
+            "handler": {
+              "behavior": "return_non_promise"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_message topic=orders delivered=ok error=none\nspans=1\nspan 0 kind=consumer name=orders trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=orders\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    }
+  ]
+}

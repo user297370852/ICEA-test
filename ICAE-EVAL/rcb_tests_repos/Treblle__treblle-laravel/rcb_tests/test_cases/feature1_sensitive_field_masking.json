@@ -1,0 +1,21 @@
+{
+    "description": "Redact sensitive values from a flat request payload (a map of field name to value). Any field whose name matches the configured set of sensitive field names has its value replaced by a run of asterisks whose length equals the length of the original value's string form; a sensitive field whose value is null is left as null (nothing to redact); fields whose names are not in the sensitive set are passed through unchanged. Key order is preserved. The output is the resulting payload serialized as a JSON object.",
+    "cases": [
+        {
+            "input": {"action": "mask", "data": {"cc": null, "otherValue": "something", "password": "1234"}},
+            "expected_output": "{\"cc\":null,\"otherValue\":\"something\",\"password\":\"****\"}\n"
+        },
+        {
+            "input": {"action": "mask", "data": {"username": "alice", "secret": "hunter2", "api_key": "abcdef", "note": "hello"}},
+            "expected_output": "{\"username\":\"alice\",\"secret\":\"*******\",\"api_key\":\"******\",\"note\":\"hello\"}\n"
+        },
+        {
+            "input": {"action": "mask", "data": {"ssn": null, "card_number": "4111111111111111", "email": "a@b.com"}},
+            "expected_output": "{\"ssn\":null,\"card_number\":\"****************\",\"email\":\"a@b.com\"}\n"
+        },
+        {
+            "input": {"action": "mask", "data": {"pwd": "letmein", "ccv": "123", "credit_score": "800", "display_name": "Bob"}},
+            "expected_output": "{\"pwd\":\"*******\",\"ccv\":\"***\",\"credit_score\":\"***\",\"display_name\":\"Bob\"}\n"
+        }
+    ]
+}

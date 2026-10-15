@@ -1,0 +1,26 @@
+{
+    "description": "Parse a WebDAV quota response into available byte count or a normalized error when quota is unsupported.",
+    "cases": [
+        {
+            "input": {
+                "server": "localhost",
+                "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:quota-used-bytes>697</d:quota-used-bytes>\n                <d:quota-available-bytes>10737417543</d:quota-available-bytes>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+            },
+            "expected_output": "available_bytes=10737417543\n"
+        },
+        {
+            "input": {
+                "server": "localhost",
+                "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+            },
+            "expected_output": "error=method_not_supported\noperation=free\nserver=localhost\n"
+        },
+        {
+            "input": {
+                "server": "localhost",
+                "multistatus_xml": "12321dadadasdasd<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+            },
+            "expected_output": "available_bytes=\n"
+        }
+    ]
+}

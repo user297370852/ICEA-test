@@ -1,0 +1,49 @@
+{
+  "description": "Failure containment boundaries: a single queued request, three queued requests (loop must stop after the first), an empty thrown message in debug mode, and a non-empty message leaking only in debug mode.",
+  "cases": [
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_error",
+        "requests": 1,
+        "responder": "throw",
+        "message": "boom",
+        "debug": false
+      },
+      "expected_output": "response_status=500\nerror_message_in_body=false\nworker_stopped=true\nevent=worker_start\nevent=worker_stop\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_error",
+        "requests": 3,
+        "responder": "throw",
+        "message": "secret detail",
+        "debug": false
+      },
+      "expected_output": "response_status=500\nerror_message_in_body=false\nworker_stopped=true\nevent=worker_start\nevent=worker_stop\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_error",
+        "requests": 2,
+        "responder": "throw",
+        "message": "",
+        "debug": true
+      },
+      "expected_output": "response_status=500\nerror_message_in_body=false\nworker_stopped=true\nevent=worker_start\nevent=worker_stop\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_error",
+        "requests": 2,
+        "responder": "throw",
+        "message": "stack trace here",
+        "debug": true
+      },
+      "expected_output": "response_status=500\nerror_message_in_body=true\nworker_stopped=true\nevent=worker_start\nevent=worker_stop\n"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "description": "Boundary coverage for catalog rendering: empty/default title fallback, HTML-special characters in title, combined dependency+abandoned states, __root__ alias with abandonment, and dependency anchors with non-default package names.",
+  "cases": [
+    {
+      "input": {
+        "action": "render_catalog",
+        "catalog_name": "",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        }
+      },
+      "expected_output": "title=Composer repository\npackage_anchor=present\ndependency_anchor=absent\nabandoned_notice=absent\nabandoned_detail=none\n"
+    },
+    {
+      "input": {
+        "action": "render_catalog",
+        "catalog_name": "My <Repo> & Co",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        }
+      },
+      "expected_output": "title=My <Repo> & Co\npackage_anchor=present\ndependency_anchor=absent\nabandoned_notice=absent\nabandoned_detail=none\n"
+    },
+    {
+      "input": {
+        "action": "render_catalog",
+        "catalog_name": "Repo",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        },
+        "requires": {
+          "dummytest": "*"
+        },
+        "abandoned": true
+      },
+      "expected_output": "title=Repo\npackage_anchor=present\ndependency_anchor=present\nabandoned_notice=present\nabandoned_detail=no_replacement\n"
+    },
+    {
+      "input": {
+        "action": "render_catalog",
+        "catalog_name": "Repo",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        },
+        "requires": {
+          "dummytest": ">=1.0"
+        },
+        "abandoned": "othervendor/othername"
+      },
+      "expected_output": "title=Repo\npackage_anchor=present\ndependency_anchor=present\nabandoned_notice=present\nabandoned_detail=replacement:othervendor/othername\n"
+    },
+    {
+      "input": {
+        "action": "render_catalog",
+        "catalog_name": "__root__",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        },
+        "abandoned": true
+      },
+      "expected_output": "title=A\npackage_anchor=present\ndependency_anchor=absent\nabandoned_notice=present\nabandoned_detail=no_replacement\n"
+    },
+    {
+      "input": {
+        "action": "render_catalog",
+        "catalog_name": "Repo",
+        "package": {
+          "name": "other/pkg",
+          "version": "2.0"
+        },
+        "requires": {
+          "foo": "*"
+        }
+      },
+      "expected_output": "title=Repo\npackage_anchor=present\ndependency_anchor=absent\nabandoned_notice=absent\nabandoned_detail=none\n"
+    }
+  ]
+}

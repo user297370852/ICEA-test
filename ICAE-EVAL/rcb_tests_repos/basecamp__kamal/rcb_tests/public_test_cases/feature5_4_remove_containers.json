@@ -1,0 +1,62 @@
+{
+    "description": "Generate docker commands that remove containers. remove_container targets one exact container name (service-role-[destination-]version) anchored with ^ and $, piping its id into docker container rm; a destination is inserted into the name. remove_containers prunes all stopped containers matching the service/role label filters; with a destination an extra destination filter is inserted.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "remove_container",
+                "args": {
+                    "version": "999"
+                }
+            },
+            "expected_output": "docker container ls --all --filter name=^app-web-999$ --quiet | xargs docker container rm"
+        },
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "remove_containers"
+            },
+            "expected_output": "docker container prune --force --filter label=service=app --filter label=role=web"
+        }
+    ]
+}

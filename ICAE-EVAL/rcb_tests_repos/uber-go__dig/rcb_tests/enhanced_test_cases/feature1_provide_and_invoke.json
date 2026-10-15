@@ -1,0 +1,276 @@
+{
+  "description": "Register providers and resolve values by type, covering boundary payload magnitudes (zero, negative, very large), deeper multi-level dependency chains, and diamond-shaped graphs where one value depends on two others that share a common ancestor. Also covers degenerate scenarios with no steps and a consumer that requests nothing.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\ninvoke ok A=0\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": -7
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\ninvoke ok A=-7\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": 9223372036854775807
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\ninvoke ok A=9223372036854775807\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": -9223372036854775808
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\ninvoke ok A=-9223372036854775808\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "B",
+                "value": 2
+              }
+            ],
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "C",
+                "value": 3
+              }
+            ],
+            "in": [
+              {
+                "type": "B"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "D",
+                "value": 4
+              }
+            ],
+            "in": [
+              {
+                "type": "C"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "E",
+                "value": 5
+              }
+            ],
+            "in": [
+              {
+                "type": "D"
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "E"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\nprovide ok keys=B\nprovide ok keys=C\nprovide ok keys=D\nprovide ok keys=E\ninvoke ok E=5\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "B",
+                "value": 2
+              }
+            ],
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "C",
+                "value": 3
+              }
+            ],
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "D",
+                "value": 4
+              }
+            ],
+            "in": [
+              {
+                "type": "B"
+              },
+              {
+                "type": "C"
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "D"
+              },
+              {
+                "type": "B"
+              },
+              {
+                "type": "C"
+              },
+              {
+                "type": "A"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\nprovide ok keys=B\nprovide ok keys=C\nprovide ok keys=D\ninvoke ok D=4 B=2 C=3 A=1\n"
+    },
+    {
+      "input": {
+        "steps": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "invoke",
+            "in": []
+          }
+        ]
+      },
+      "expected_output": "invoke ok \n"
+    }
+  ]
+}

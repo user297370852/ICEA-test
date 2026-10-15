@@ -1,0 +1,46 @@
+{
+  "description": "Adapter-level command validation (boundary inputs). The execution adapter reads one JSON command from stdin before any build stage runs. These synthetic cases exercise the adapter's input-validation boundaries that the native feature suite never probes: a malformed/empty JSON payload normalizes to `error=invalid_json`; a command object lacking the required `stage` key normalizes to `error=missing_stage`; an unrecognized stage name normalizes to `error=unknown_stage` echoing the offending stage; and an empty-string stage is treated as a non-null but unregistered stage (distinct from a missing one). All outputs are produced purely by the JSON/stdin adapter layer, independent of any build target.",
+  "cases": [
+    {
+      "input": "",
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": "this is not json",
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": "{\"stage\": \"debug_application\"",
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": {},
+      "expected_output": "error=missing_stage\n"
+    },
+    {
+      "input": {
+        "scenario": "build_succeeds"
+      },
+      "expected_output": "error=missing_stage\n"
+    },
+    {
+      "input": {
+        "stage": "unknown_xyz"
+      },
+      "expected_output": "error=unknown_stage\nstage=unknown_xyz\n"
+    },
+    {
+      "input": {
+        "stage": "bogus",
+        "scenario": "foo"
+      },
+      "expected_output": "error=unknown_stage\nstage=bogus\n"
+    },
+    {
+      "input": {
+        "stage": ""
+      },
+      "expected_output": "error=unknown_stage\nstage=\n"
+    }
+  ]
+}

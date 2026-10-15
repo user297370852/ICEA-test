@@ -1,0 +1,22 @@
+{
+    "description": "Project all properties of a bound vertex with a wildcard projection. The wildcard expands, in declaration order, to every property exposed for that vertex's label. Used over an edge pattern, the bound endpoint's properties are emitted once per matched edge.",
+    "cases": [
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+                    "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+                    "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+                    "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+                    "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+                ],
+                "query": "FROM GRAPH_TABLE (pg MATCH (a:Person) COLUMNS (a.*)) study ORDER BY study.id, study.name"
+            },
+            "expected_output": "0\tDaniel\n1\tTavneet\n2\tGabor\n3\tPeter\n4\tDavid\n"
+        }
+    ]
+}

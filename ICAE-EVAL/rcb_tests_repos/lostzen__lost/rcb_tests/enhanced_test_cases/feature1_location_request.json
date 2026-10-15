@@ -1,0 +1,135 @@
+{
+  "description": "Enhanced configuration edge cases: explicit low_power/no_power priorities; interval set equal to the fastest interval leaves it unchanged; raising the fastest interval above the interval; lowering then raising the interval (raising never re-raises the fastest interval); zero/negative/Long.MAX interval boundaries; negative displacement; an unsupported priority string; and an invalid priority that follows an already-applied valid one.",
+  "cases": [
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "priority": "low_power"
+          }
+        ]
+      },
+      "expected_output": "interval=3600000\nfastest_interval=600000\nsmallest_displacement=0.0\npriority=low_power\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "priority": "no_power"
+          }
+        ]
+      },
+      "expected_output": "interval=3600000\nfastest_interval=600000\nsmallest_displacement=0.0\npriority=no_power\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "interval": 600000
+          }
+        ]
+      },
+      "expected_output": "interval=600000\nfastest_interval=600000\nsmallest_displacement=0.0\npriority=balanced\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "interval": 1000
+          },
+          {
+            "fastest_interval": 900000
+          }
+        ]
+      },
+      "expected_output": "interval=1000\nfastest_interval=900000\nsmallest_displacement=0.0\npriority=balanced\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "interval": 1000
+          },
+          {
+            "interval": 5000
+          }
+        ]
+      },
+      "expected_output": "interval=5000\nfastest_interval=1000\nsmallest_displacement=0.0\npriority=balanced\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "interval": 0
+          }
+        ]
+      },
+      "expected_output": "interval=0\nfastest_interval=0\nsmallest_displacement=0.0\npriority=balanced\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "interval": -5000
+          }
+        ]
+      },
+      "expected_output": "interval=-5000\nfastest_interval=-5000\nsmallest_displacement=0.0\npriority=balanced\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "interval": 9223372036854775807
+          }
+        ]
+      },
+      "expected_output": "interval=9223372036854775807\nfastest_interval=600000\nsmallest_displacement=0.0\npriority=balanced\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "smallest_displacement": -10.0
+          }
+        ]
+      },
+      "expected_output": "interval=3600000\nfastest_interval=600000\nsmallest_displacement=-10.0\npriority=balanced\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "priority": "ultra"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_priority\npriority=-2147483648\n"
+    },
+    {
+      "input": {
+        "command": "configure_request",
+        "steps": [
+          {
+            "priority": "high"
+          },
+          {
+            "priority": 99
+          }
+        ]
+      },
+      "expected_output": "error=invalid_priority\npriority=99\n"
+    }
+  ]
+}

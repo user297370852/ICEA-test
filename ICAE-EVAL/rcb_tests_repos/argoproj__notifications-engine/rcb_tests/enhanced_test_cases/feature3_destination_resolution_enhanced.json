@@ -1,0 +1,75 @@
+{
+  "description": "Enhanced boundary/edge coverage for subscription destination resolution (get_destinations). Covers: a single subscription with multiple semicolon-joined recipients fanned out and sorted, two explicit-trigger subscriptions across different services sorted by service, a trigger-less subscription with an empty default-triggers list (produces no destinations), recipient ordering within a single trigger/service, a per-service default-trigger override applied to one service while the other falls back to the global defaults, and an empty annotation map (no output). Expected outputs are the raw adapter stdout captured from the reference implementation, ordered by trigger then service then recipient.",
+  "cases": [
+    {
+      "input": {
+        "action": "get_destinations",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.my-trigger.slack": "chan1;chan2"
+        },
+        "defaultTriggers": []
+      },
+      "expected_output": "trigger=my-trigger service=slack recipient=chan1\ntrigger=my-trigger service=slack recipient=chan2\n"
+    },
+    {
+      "input": {
+        "action": "get_destinations",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t1.slack": "a",
+          "notifications.argoproj.io/subscribe.t1.email": "b@x"
+        },
+        "defaultTriggers": []
+      },
+      "expected_output": "trigger=t1 service=email recipient=b@x\ntrigger=t1 service=slack recipient=a\n"
+    },
+    {
+      "input": {
+        "action": "get_destinations",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.slack": "c"
+        },
+        "defaultTriggers": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "get_destinations",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.slack": "zeta;alpha"
+        },
+        "defaultTriggers": []
+      },
+      "expected_output": "trigger=t service=slack recipient=alpha\ntrigger=t service=slack recipient=zeta\n"
+    },
+    {
+      "input": {
+        "action": "get_destinations",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.slack": "c",
+          "notifications.argoproj.io/subscribe.email": "e"
+        },
+        "defaultTriggers": [
+          "d1"
+        ],
+        "serviceDefaultTriggers": {
+          "slack": [
+            "s1",
+            "s2"
+          ]
+        }
+      },
+      "expected_output": "trigger=d1 service=email recipient=e\ntrigger=s1 service=slack recipient=c\ntrigger=s2 service=slack recipient=c\n"
+    },
+    {
+      "input": {
+        "action": "get_destinations",
+        "annotations": {},
+        "defaultTriggers": [
+          "d1"
+        ]
+      },
+      "expected_output": ""
+    }
+  ]
+}

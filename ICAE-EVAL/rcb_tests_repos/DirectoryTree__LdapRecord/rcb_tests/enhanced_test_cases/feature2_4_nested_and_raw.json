@@ -1,0 +1,119 @@
+{
+  "description": "Compose nested filter groups and inject pre-built raw fragments. A group wraps inner conditions under a single logical operator; a raw fragment is inserted verbatim. Output reports the escaped wire filter and its readable unescaped form.",
+  "cases": [
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "group": "all",
+            "terms": [
+              {
+                "field": "one",
+                "match": "equals",
+                "value": "one"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "query=(&(one=\\6f\\6e\\65))\nunescaped=(&(one=one))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "group": "none",
+            "terms": [
+              {
+                "field": "one",
+                "match": "equals",
+                "value": "one"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "query=(!(one=\\6f\\6e\\65))\nunescaped=(!(one=one))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "group": "any",
+            "terms": [
+              {
+                "field": "one",
+                "match": "equals",
+                "value": "one"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "query=(|(one=\\6f\\6e\\65))\nunescaped=(|(one=one))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "group": "all",
+            "terms": [
+              {
+                "field": "a",
+                "match": "equals",
+                "value": "1"
+              },
+              {
+                "group": "any",
+                "terms": [
+                  {
+                    "field": "b",
+                    "match": "equals",
+                    "value": "2"
+                  },
+                  {
+                    "field": "c",
+                    "match": "equals",
+                    "value": "3"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "query=(&(|(b=\\32)(c=\\33))(a=\\31))\nunescaped=(&(|(b=2)(c=3))(a=1))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "raw": "(x=*)"
+          }
+        ]
+      },
+      "expected_output": "query=(x=*)\nunescaped=(x=*)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "raw": "(team=red)"
+          },
+          {
+            "field": "foo",
+            "match": "equals",
+            "value": "bar"
+          }
+        ]
+      },
+      "expected_output": "query=(&(team=red)(foo=\\62\\61\\72))\nunescaped=(&(team=red)(foo=bar))\n"
+    }
+  ]
+}

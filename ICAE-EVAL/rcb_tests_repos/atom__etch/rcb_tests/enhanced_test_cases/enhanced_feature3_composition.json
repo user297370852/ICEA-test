@@ -1,0 +1,317 @@
+{
+  "description": "Feature 3.1/3.2/3.3/3.4 composition coverage: a child rendering its own private state, three-level nested composition, a child splicing several passed children, an in-place synchronous update of an updatable child plus sibling, a synchronous rebuild of a non-updatable child, and a synchronous replace when the child definition changes.",
+  "cases": [
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "Child": {
+            "state": {
+              "label": "hi"
+            },
+            "render": {
+              "el": "span",
+              "children": [
+                {
+                  "var": "label"
+                }
+              ]
+            }
+          }
+        },
+        "root": {
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "comp": "Child"
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1><span#n2>hi</span></div>\ntext=hi\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "Inner": {
+            "render": {
+              "el": "span",
+              "children": [
+                "leaf"
+              ]
+            }
+          },
+          "Mid": {
+            "render": {
+              "el": "div",
+              "children": [
+                {
+                  "comp": "Inner"
+                }
+              ]
+            }
+          }
+        },
+        "root": {
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "comp": "Mid"
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1><div#n2><span#n3>leaf</span></div></div>\ntext=leaf\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "Box": {
+            "render": {
+              "el": "div",
+              "children": [
+                {
+                  "var": "children"
+                }
+              ]
+            }
+          }
+        },
+        "root": {
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "comp": "Box",
+                "children": [
+                  {
+                    "el": "span",
+                    "children": [
+                      "A"
+                    ]
+                  },
+                  " ",
+                  {
+                    "el": "span",
+                    "children": [
+                      "B"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1><div#n2><span#n3>A</span> <span#n4>B</span></div></div>\ntext=A B\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "Child": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                {
+                  "var": "props.greeting"
+                },
+                " ",
+                {
+                  "var": "children"
+                }
+              ]
+            }
+          }
+        },
+        "root": {
+          "state": {
+            "greeting": "Hello",
+            "greeted": "World"
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "comp": "Child",
+                "props": {
+                  "greeting": {
+                    "var": "greeting"
+                  }
+                },
+                "children": [
+                  {
+                    "el": "span",
+                    "children": [
+                      {
+                        "var": "greeted"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "greeting": "Hi",
+              "greeted": "There"
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1><div#n2>Hello <span#n3>World</span></div></div>\ntext=Hello World\n== after ==\nelement=<div#n1><div#n2>Hi <span#n3>There</span></div></div>\ntext=Hi There\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "Child": {
+            "render": {
+              "el": "div",
+              "children": [
+                {
+                  "var": "props.greeting"
+                }
+              ]
+            }
+          }
+        },
+        "root": {
+          "state": {
+            "greeting": "Hello"
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "comp": "Child",
+                "props": {
+                  "greeting": {
+                    "var": "greeting"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "greeting": "Bye"
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1><div#n2>Hello</div></div>\ntext=Hello\n== after ==\nelement=<div#n1><div#n3>Bye</div></div>\ntext=Bye\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "A": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                "A"
+              ]
+            }
+          },
+          "B": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                "B"
+              ]
+            }
+          }
+        },
+        "root": {
+          "state": {
+            "condition": true
+          },
+          "render": {
+            "if": "condition",
+            "then": {
+              "el": "div",
+              "children": [
+                {
+                  "comp": "A"
+                }
+              ]
+            },
+            "else": {
+              "el": "div",
+              "children": [
+                {
+                  "comp": "B"
+                }
+              ]
+            }
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "condition": false
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1><div#n2>A</div></div>\ntext=A\n== after ==\nelement=<div#n1><div#n3>B</div></div>\ntext=B\n"
+    }
+  ]
+}

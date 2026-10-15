@@ -1,0 +1,124 @@
+{
+  "description": "Enhanced boundary coverage for fault-isolating signal collection. Covers falsy value outcomes (null, 0, empty string, false) rendered as JSON literals; structured object and array values; a throwing-first then succeeding-second ordering; an empty error message and a message containing spaces; a single error-only source; and numeric value outcomes (float, negative, large integer) preserving collection order.",
+  "cases": [
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "a",
+            "returns": null
+          },
+          {
+            "name": "b",
+            "returns": 0
+          },
+          {
+            "name": "c",
+            "returns": ""
+          },
+          {
+            "name": "d",
+            "returns": false
+          }
+        ]
+      },
+      "expected_output": "name=a outcome=value value=null\nname=b outcome=value value=0\nname=c outcome=value value=\"\"\nname=d outcome=value value=false"
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "obj",
+            "returns": {
+              "x": 1,
+              "y": [
+                2,
+                3
+              ]
+            }
+          },
+          {
+            "name": "arr",
+            "returns": [
+              1,
+              "two",
+              true,
+              null
+            ]
+          }
+        ]
+      },
+      "expected_output": "name=obj outcome=value value={\"x\":1,\"y\":[2,3]}\nname=arr outcome=value value=[1,\"two\",true,null]"
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "first",
+            "throws": "boom",
+            "as": "error"
+          },
+          {
+            "name": "second",
+            "returns": "ok"
+          }
+        ]
+      },
+      "expected_output": "name=first outcome=error message=boom\nname=second outcome=value value=\"ok\""
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "e1",
+            "throws": "",
+            "as": "string"
+          },
+          {
+            "name": "e2",
+            "throws": "msg with spaces",
+            "as": "error"
+          }
+        ]
+      },
+      "expected_output": "name=e1 outcome=error message=\nname=e2 outcome=error message=msg with spaces"
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "onlyError",
+            "throws": "single",
+            "as": "error"
+          }
+        ]
+      },
+      "expected_output": "name=onlyError outcome=error message=single"
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "num",
+            "returns": 3.14
+          },
+          {
+            "name": "neg",
+            "returns": -42
+          },
+          {
+            "name": "big",
+            "returns": 1000000
+          }
+        ]
+      },
+      "expected_output": "name=num outcome=value value=3.14\nname=neg outcome=value value=-42\nname=big outcome=value value=1000000"
+    }
+  ]
+}

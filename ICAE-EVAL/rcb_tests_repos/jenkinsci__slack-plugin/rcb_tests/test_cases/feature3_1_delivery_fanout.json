@@ -1,0 +1,25 @@
+{
+    "description": "Deliver a notification to one or more chat channels over HTTP and report transport-level outcomes. The target channel string may name several channels separated by commas/semicolons/spaces; the sender fires exactly one HTTP request per channel. Delivery is considered successful only when every request returns HTTP 200; any non-200 response (or an alternating-failure pattern across multiple channels) makes the overall delivery fail. An empty channel string yields a single request to an empty target that still succeeds on 200. The command is {\"op\":\"publish\",\"mode\":\"webhook\",\"team_domain\":<d>,\"token\":<t>,\"channel\":<c>,\"status\":<http status the transport returns>,\"fail_alternate\":<bool>} and the program prints `requests=<n>`, `delivered=<bool>`, and one `request_<i>_url=<url>` line per request.",
+    "cases": [
+        {
+            "input": {"op": "publish", "mode": "webhook", "base_url": "", "team_domain": "domain", "token": "token", "channel": "#room1", "status": 200},
+            "expected_output": "requests=1\ndelivered=true\nrequest_1_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\n"
+        },
+        {
+            "input": {"op": "publish", "mode": "webhook", "base_url": "", "team_domain": "domain", "token": "token", "channel": "#room1,#room2,#room3", "status": 200},
+            "expected_output": "requests=3\ndelivered=true\nrequest_1_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\nrequest_2_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\nrequest_3_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\n"
+        },
+        {
+            "input": {"op": "publish", "mode": "webhook", "base_url": "", "team_domain": "domain", "token": "token", "channel": "#room1", "status": 404},
+            "expected_output": "requests=1\ndelivered=false\nrequest_1_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\n"
+        },
+        {
+            "input": {"op": "publish", "mode": "webhook", "base_url": "", "team_domain": "domain", "token": "token", "channel": "#room1,#room2,#room3", "status": 200, "fail_alternate": true},
+            "expected_output": "requests=3\ndelivered=false\nrequest_1_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\nrequest_2_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\nrequest_3_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\n"
+        },
+        {
+            "input": {"op": "publish", "mode": "webhook", "base_url": "", "team_domain": "domain", "token": "token", "channel": "", "status": 200},
+            "expected_output": "requests=1\ndelivered=true\nrequest_1_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\n"
+        }
+    ]
+}

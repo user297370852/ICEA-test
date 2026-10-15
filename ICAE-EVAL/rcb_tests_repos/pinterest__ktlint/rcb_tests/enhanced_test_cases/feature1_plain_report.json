@@ -1,0 +1,271 @@
+{
+  "description": "Render a set of lint violations spanning several files using the default settings. Each violation carries a file path, a one-based line and column, a rule identifier and a human-readable message, plus a flag indicating whether it was already auto-corrected. The formatter emits one line per violation that was NOT auto-corrected, in the order received; already-corrected violations are silently omitted. Each emitted line is formatted as the file path, then the line and column separated by colons, then a colon and a space, then the message.",
+  "cases": [
+    {
+      "input": {
+        "action": "render",
+        "violations": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/a.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "rule-x",
+            "message": "fixed already",
+            "corrected": true
+          },
+          {
+            "file": "/a.kt",
+            "line": 5,
+            "col": 3,
+            "rule": "rule-y",
+            "message": "also fixed",
+            "corrected": true
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/Main.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "indent",
+            "message": "Unexpected indentation",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Main.kt:1:1: Unexpected indentation\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/Many.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r1",
+            "message": "first",
+            "corrected": false
+          },
+          {
+            "file": "/Many.kt",
+            "line": 2,
+            "col": 2,
+            "rule": "r2",
+            "message": "second",
+            "corrected": false
+          },
+          {
+            "file": "/Many.kt",
+            "line": 3,
+            "col": 3,
+            "rule": "r3",
+            "message": "third",
+            "corrected": false
+          },
+          {
+            "file": "/Many.kt",
+            "line": 4,
+            "col": 4,
+            "rule": "r4",
+            "message": "fourth",
+            "corrected": false
+          },
+          {
+            "file": "/Many.kt",
+            "line": 5,
+            "col": 5,
+            "rule": "r5",
+            "message": "fifth",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Many.kt:1:1: first\n/Many.kt:2:2: second\n/Many.kt:3:3: third\n/Many.kt:4:4: fourth\n/Many.kt:5:5: fifth\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/Big.kt",
+            "line": 1234,
+            "col": 9999,
+            "rule": "max-line-length",
+            "message": "Exceeds maximum line length",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Big.kt:1234:9999: Exceeds maximum line length\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/Unicode.kt",
+            "line": 7,
+            "col": 4,
+            "rule": "i18n",
+            "message": "缩进错误 naïve café résumé ✓ — done",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Unicode.kt:7:4: 缩进错误 naïve café résumé ✓ — done\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "NoDir.kt",
+            "line": 3,
+            "col": 2,
+            "rule": "no-dir",
+            "message": "file path without a separator",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "NoDir.kt:3:2: file path without a separator\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/src/main/kotlin/com/example/Deep.kt",
+            "line": 42,
+            "col": 8,
+            "rule": "naming",
+            "message": "Class name should match file",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/src/main/kotlin/com/example/Deep.kt:42:8: Class name should match file\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/Empty.kt",
+            "line": 9,
+            "col": 1,
+            "rule": "blank",
+            "message": "",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Empty.kt:9:1: \n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/Dup.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "same-rule",
+            "message": "expected ':' but found ';'",
+            "corrected": false
+          },
+          {
+            "file": "/Dup.kt",
+            "line": 2,
+            "col": 1,
+            "rule": "same-rule",
+            "message": "tab\there and \"quotes\" plus \\backslash",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Dup.kt:1:1: expected ':' but found ';'\n/Dup.kt:2:1: tab\there and \"quotes\" plus \\backslash\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "violations": [
+          {
+            "file": "/A.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "a-one",
+            "corrected": false
+          },
+          {
+            "file": "/B.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "b-one corrected",
+            "corrected": true
+          },
+          {
+            "file": "/A.kt",
+            "line": 2,
+            "col": 5,
+            "rule": "r",
+            "message": "a-two",
+            "corrected": false
+          },
+          {
+            "file": "/B.kt",
+            "line": 3,
+            "col": 7,
+            "rule": "r",
+            "message": "b-three",
+            "corrected": false
+          },
+          {
+            "file": "/A.kt",
+            "line": 4,
+            "col": 9,
+            "rule": "r",
+            "message": "a-four corrected",
+            "corrected": true
+          }
+        ]
+      },
+      "expected_output": "/A.kt:1:1: a-one\n/A.kt:2:5: a-two\n/B.kt:3:7: b-three\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": false
+        },
+        "violations": [
+          {
+            "file": "/FlagOff.kt",
+            "line": 6,
+            "col": 11,
+            "rule": "r",
+            "message": "coloring disabled",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/FlagOff.kt:6:11: coloring disabled\n"
+    }
+  ]
+}

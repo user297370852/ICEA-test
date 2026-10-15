@@ -1,0 +1,91 @@
+{
+    "description": "Remove package download sources whose hosts match configured stripping rules while preserving sources that remain allowed.",
+    "cases": [
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {}
+            },
+            "expected_output": "remaining_count=5\npackage=alpha dist=http://127.0.0.1/output/dist/alpha.zip source=./git-repo\npackage=beta dist=http://192.168.0.2/output/dist/beta.zip source=http://localhost/beta.git\npackage=gamma dist=http://192.168.0.1/output/dist/gamma.zip source=http://192.168.1.1/gamma.git\npackage=delta dist=http://example.org/output/dist/delta.zip source=http://source.example.org/delta.git\npackage=epsilon dist=http://[abcd::]/output/dist/epsilon.zip source=http://[::1]/epsilon.git\n"
+        },
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {
+                    "strip-hosts": true
+                }
+            },
+            "expected_output": "remaining_count=5\npackage=alpha dist=http://127.0.0.1/output/dist/alpha.zip source=null\npackage=beta dist=http://192.168.0.2/output/dist/beta.zip source=http://localhost/beta.git\npackage=gamma dist=http://192.168.0.1/output/dist/gamma.zip source=http://192.168.1.1/gamma.git\npackage=delta dist=http://example.org/output/dist/delta.zip source=http://source.example.org/delta.git\npackage=epsilon dist=http://[abcd::]/output/dist/epsilon.zip source=http://[::1]/epsilon.git\n"
+        },
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {
+                    "strip-hosts": [
+                        "/local"
+                    ]
+                }
+            },
+            "expected_output": "remaining_count=4\npackage=beta dist=http://192.168.0.2/output/dist/beta.zip source=null\npackage=gamma dist=http://192.168.0.1/output/dist/gamma.zip source=http://192.168.1.1/gamma.git\npackage=delta dist=http://example.org/output/dist/delta.zip source=http://source.example.org/delta.git\npackage=epsilon dist=http://[abcd::]/output/dist/epsilon.zip source=null\n"
+        },
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {
+                    "strip-hosts": [
+                        "/private"
+                    ]
+                }
+            },
+            "expected_output": "remaining_count=4\npackage=alpha dist=http://127.0.0.1/output/dist/alpha.zip source=null\npackage=beta dist=null source=http://localhost/beta.git\npackage=delta dist=http://example.org/output/dist/delta.zip source=http://source.example.org/delta.git\npackage=epsilon dist=http://[abcd::]/output/dist/epsilon.zip source=http://[::1]/epsilon.git\n"
+        },
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {
+                    "strip-hosts": [
+                        "192.168.0.0/24"
+                    ]
+                }
+            },
+            "expected_output": "remaining_count=5\npackage=alpha dist=http://127.0.0.1/output/dist/alpha.zip source=null\npackage=beta dist=null source=http://localhost/beta.git\npackage=gamma dist=null source=http://192.168.1.1/gamma.git\npackage=delta dist=http://example.org/output/dist/delta.zip source=http://source.example.org/delta.git\npackage=epsilon dist=http://[abcd::]/output/dist/epsilon.zip source=http://[::1]/epsilon.git\n"
+        },
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {
+                    "strip-hosts": [
+                        "abcd::"
+                    ]
+                }
+            },
+            "expected_output": "remaining_count=5\npackage=alpha dist=http://127.0.0.1/output/dist/alpha.zip source=null\npackage=beta dist=http://192.168.0.2/output/dist/beta.zip source=http://localhost/beta.git\npackage=gamma dist=http://192.168.0.1/output/dist/gamma.zip source=http://192.168.1.1/gamma.git\npackage=delta dist=http://example.org/output/dist/delta.zip source=http://source.example.org/delta.git\npackage=epsilon dist=null source=http://[::1]/epsilon.git\n"
+        },
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {
+                    "strip-hosts": [
+                        "example.org"
+                    ]
+                }
+            },
+            "expected_output": "remaining_count=4\npackage=alpha dist=http://127.0.0.1/output/dist/alpha.zip source=null\npackage=beta dist=http://192.168.0.2/output/dist/beta.zip source=http://localhost/beta.git\npackage=gamma dist=http://192.168.0.1/output/dist/gamma.zip source=http://192.168.1.1/gamma.git\npackage=epsilon dist=http://[abcd::]/output/dist/epsilon.zip source=http://[::1]/epsilon.git\n"
+        },
+        {
+            "input": {
+                "action": "clean_download_sources",
+                "config": {
+                    "strip-hosts": [
+                        "/private"
+                    ],
+                    "archive": {
+                        "directory": "dist",
+                        "prefix-url": "http://192.168.0.1"
+                    }
+                }
+            },
+            "expected_output": "remaining_count=5\npackage=alpha dist=http://127.0.0.1/output/dist/alpha.zip source=null\npackage=beta dist=null source=http://localhost/beta.git\npackage=gamma dist=http://192.168.0.1/output/dist/gamma.zip source=null\npackage=delta dist=http://example.org/output/dist/delta.zip source=http://source.example.org/delta.git\npackage=epsilon dist=http://[abcd::]/output/dist/epsilon.zip source=http://[::1]/epsilon.git\n"
+        }
+    ]
+}

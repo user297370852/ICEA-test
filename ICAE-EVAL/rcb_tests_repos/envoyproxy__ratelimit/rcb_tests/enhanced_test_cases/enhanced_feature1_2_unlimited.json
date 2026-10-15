@@ -1,0 +1,49 @@
+{
+  "description": "An unlimited descriptor resolves to a match flagged unlimited with a zero allowance and unspecified unit, both for a value-qualified unlimited entry and for a key-only unlimited default applied to an arbitrary request value.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: u\n    value: uv\n    rate_limit:\n      unlimited: true\n  - key: u2\n    rate_limit:\n      unlimited: true\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "u",
+              "value": "uv"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.u_uv\nrequests_per_unit=0\nunit=UNKNOWN\nunlimited=true\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: u\n    value: uv\n    rate_limit:\n      unlimited: true\n  - key: u2\n    rate_limit:\n      unlimited: true\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "u2",
+              "value": "anything"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.u2\nrequests_per_unit=0\nunit=UNKNOWN\nunlimited=true\nshadow_mode=false\n"
+    }
+  ]
+}

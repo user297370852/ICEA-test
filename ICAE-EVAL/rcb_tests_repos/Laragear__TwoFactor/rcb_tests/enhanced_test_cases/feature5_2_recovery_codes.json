@@ -1,0 +1,92 @@
+{
+  "description": "Consume recovery codes across structural edge cases: a set containing duplicate code values consumed more times than there are unused duplicates, an empty stored set against which a consumption is attempted, a set whose entries are all already used, a set where the same code value appears both used and unused, and a populated set against which no consumption is attempted.",
+  "cases": [
+    {
+      "input": {
+        "action": "consume_recovery",
+        "recovery_codes": [
+          {
+            "code": "AAA",
+            "used_at": null
+          },
+          {
+            "code": "AAA",
+            "used_at": null
+          },
+          {
+            "code": "BBB",
+            "used_at": null
+          }
+        ],
+        "consume": [
+          "AAA",
+          "AAA",
+          "AAA"
+        ]
+      },
+      "expected_output": "consume=AAA success=true\nconsume=AAA success=true\nconsume=AAA success=false\nunused=1\ncontains_unused=true\n"
+    },
+    {
+      "input": {
+        "action": "consume_recovery",
+        "recovery_codes": [],
+        "consume": [
+          "X"
+        ]
+      },
+      "expected_output": "consume=X success=false\nunused=0\ncontains_unused=false\n"
+    },
+    {
+      "input": {
+        "action": "consume_recovery",
+        "recovery_codes": [
+          {
+            "code": "AAA",
+            "used_at": "2020-01-01T00:00:00"
+          },
+          {
+            "code": "BBB",
+            "used_at": "2020-01-01T00:00:00"
+          }
+        ],
+        "consume": [
+          "AAA"
+        ]
+      },
+      "expected_output": "consume=AAA success=false\nunused=0\ncontains_unused=false\n"
+    },
+    {
+      "input": {
+        "action": "consume_recovery",
+        "recovery_codes": [
+          {
+            "code": "AAA",
+            "used_at": "2020-01-01T00:00:00"
+          },
+          {
+            "code": "AAA",
+            "used_at": null
+          }
+        ],
+        "consume": [
+          "AAA",
+          "AAA"
+        ]
+      },
+      "expected_output": "consume=AAA success=true\nconsume=AAA success=false\nunused=0\ncontains_unused=false\n"
+    },
+    {
+      "input": {
+        "action": "consume_recovery",
+        "recovery_codes": [
+          {
+            "code": "AAA",
+            "used_at": null
+          }
+        ],
+        "consume": []
+      },
+      "expected_output": "unused=1\ncontains_unused=true\n"
+    }
+  ]
+}

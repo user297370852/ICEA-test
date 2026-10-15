@@ -1,0 +1,87 @@
+{
+  "description": "Enhanced host-routing edge cases: the request host is matched after stripping an explicit port, host matching is case-sensitive so an upper-cased authority does not match a lower-case registration, and a host that was claimed and then removed reverts to a not-found response. Each registration reports success and each probe reports the response status with the backend body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "app"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "app.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "request",
+            "url": "http://app.example.com:8080/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nstatus=200 target=app\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "app"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "app.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "request",
+            "url": "http://APP.example.com/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nstatus=404 target=Not Found\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "app"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "remove",
+            "name": "s1"
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nremove s1 ok\nstatus=404 target=Not Found\n"
+    }
+  ]
+}

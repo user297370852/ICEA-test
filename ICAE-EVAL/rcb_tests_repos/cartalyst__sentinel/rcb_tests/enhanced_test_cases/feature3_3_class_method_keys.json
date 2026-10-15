@@ -1,0 +1,106 @@
+{
+  "description": "Enhanced class/method key edge cases (disjoint from native): a single-method Class@method key with no comma, a three-method expansion sharing a false value, the exact-key-beats-wildcard rule under the STRICT policy, and an all-vs-any query mixing a granted method with an absent one.",
+  "cases": [
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "strict",
+        "permissions": {
+          "Admin@create": true
+        },
+        "queries": [
+          {
+            "all": [
+              "Admin@create"
+            ]
+          },
+          {
+            "all": [
+              "Admin@delete"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=strict\nall[Admin@create]=true\nall[Admin@delete]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "Post@view,edit,delete": false
+        },
+        "queries": [
+          {
+            "all": [
+              "Post@view"
+            ]
+          },
+          {
+            "all": [
+              "Post@edit"
+            ]
+          },
+          {
+            "all": [
+              "Post@delete"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[Post@view]=false\nall[Post@edit]=false\nall[Post@delete]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "strict",
+        "permissions": {
+          "user.*": true,
+          "user.delete": false
+        },
+        "queries": [
+          {
+            "all": [
+              "user.*"
+            ]
+          },
+          {
+            "all": [
+              "user.create"
+            ]
+          },
+          {
+            "all": [
+              "user.delete"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=strict\nall[user.*]=true\nall[user.create]=true\nall[user.delete]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "Report@generate": true
+        },
+        "queries": [
+          {
+            "all": [
+              "Report@generate",
+              "Report@view"
+            ]
+          },
+          {
+            "any": [
+              "Report@generate",
+              "Report@view"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[Report@generate,Report@view]=false\nany[Report@generate,Report@view]=true\n"
+    }
+  ]
+}

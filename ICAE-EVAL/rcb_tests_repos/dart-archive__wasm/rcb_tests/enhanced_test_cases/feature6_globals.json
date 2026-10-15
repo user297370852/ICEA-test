@@ -1,0 +1,128 @@
+{
+  "description": "Global-variable boundaries: reading both globals, writing the mutable global to zero and to a negative value and observing the dependent function, and the two error paths (writing the const imported global, writing a float into an int32 global) in isolation.",
+  "cases": [
+    {
+      "input": {
+        "module": "0061736d010000000105016000017f020c0103656e7603626172037f000302010004040170000005030100010606017f0141250b071603066d656d6f727902000362617a000003666f6f03010a09010700230123006c0b0b0a0100410c0b0425000000",
+        "imports": [
+          {
+            "kind": "global",
+            "module": "env",
+            "name": "bar",
+            "value": 10
+          }
+        ],
+        "build": true,
+        "steps": [
+          {
+            "op": "write_global",
+            "name": "foo",
+            "value": 0
+          },
+          {
+            "op": "invoke",
+            "name": "baz",
+            "args": []
+          }
+        ]
+      },
+      "expected_output": "global[foo]=0\nresult[baz]=0\n"
+    },
+    {
+      "input": {
+        "module": "0061736d010000000105016000017f020c0103656e7603626172037f000302010004040170000005030100010606017f0141250b071603066d656d6f727902000362617a000003666f6f03010a09010700230123006c0b0b0a0100410c0b0425000000",
+        "imports": [
+          {
+            "kind": "global",
+            "module": "env",
+            "name": "bar",
+            "value": 10
+          }
+        ],
+        "build": true,
+        "steps": [
+          {
+            "op": "write_global",
+            "name": "foo",
+            "value": -3
+          },
+          {
+            "op": "invoke",
+            "name": "baz",
+            "args": []
+          }
+        ]
+      },
+      "expected_output": "global[foo]=-3\nresult[baz]=-30\n"
+    },
+    {
+      "input": {
+        "module": "0061736d010000000105016000017f020c0103656e7603626172037f000302010004040170000005030100010606017f0141250b071603066d656d6f727902000362617a000003666f6f03010a09010700230123006c0b0b0a0100410c0b0425000000",
+        "imports": [
+          {
+            "kind": "global",
+            "module": "env",
+            "name": "bar",
+            "value": 10
+          }
+        ],
+        "build": true,
+        "steps": [
+          {
+            "op": "read_global",
+            "name": "foo"
+          },
+          {
+            "op": "read_import_global",
+            "ref": "env::bar"
+          }
+        ]
+      },
+      "expected_output": "global[foo]=37\nglobal[env::bar]=10\n"
+    },
+    {
+      "input": {
+        "module": "0061736d010000000105016000017f020c0103656e7603626172037f000302010004040170000005030100010606017f0141250b071603066d656d6f727902000362617a000003666f6f03010a09010700230123006c0b0b0a0100410c0b0425000000",
+        "imports": [
+          {
+            "kind": "global",
+            "module": "env",
+            "name": "bar",
+            "value": 10
+          }
+        ],
+        "build": true,
+        "steps": [
+          {
+            "op": "write_import_global",
+            "ref": "env::bar",
+            "value": 5
+          }
+        ]
+      },
+      "expected_output": "error=const_global_write\n"
+    },
+    {
+      "input": {
+        "module": "0061736d010000000105016000017f020c0103656e7603626172037f000302010004040170000005030100010606017f0141250b071603066d656d6f727902000362617a000003666f6f03010a09010700230123006c0b0b0a0100410c0b0425000000",
+        "imports": [
+          {
+            "kind": "global",
+            "module": "env",
+            "name": "bar",
+            "value": 10
+          }
+        ],
+        "build": true,
+        "steps": [
+          {
+            "op": "write_global",
+            "name": "foo",
+            "value": 2.71828
+          }
+        ]
+      },
+      "expected_output": "error=bad_value_type\ntype=int32\n"
+    }
+  ]
+}

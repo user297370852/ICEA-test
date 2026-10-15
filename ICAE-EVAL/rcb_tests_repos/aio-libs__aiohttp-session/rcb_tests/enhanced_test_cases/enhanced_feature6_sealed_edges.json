@@ -1,0 +1,77 @@
+{
+  "description": "Additional sealed-box storage cases covering changed fresh sessions, custom scopes and httponly settings, invalidation with custom scope, and max-age configured save output.",
+  "cases": [
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "sealed"
+        },
+        "scenario": "change"
+      },
+      "expected_output": "status=200\nloaded.new=true\nloaded.empty=true\nloaded.contents={}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=true\ncookie.path=/\ncookie.domain=127.0.0.1\npayload.created=1000000000\npayload.session={\"c\": 3}\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "sealed",
+          "httponly": false,
+          "domain": "example.com",
+          "path": "/box"
+        },
+        "scenario": "change",
+        "path": "/box",
+        "incoming": {
+          "data": {
+            "nested": {
+              "a": 1
+            },
+            "list": [
+              1,
+              2
+            ]
+          },
+          "created": 77
+        }
+      },
+      "expected_output": "status=200\nloaded.new=false\nloaded.empty=false\nloaded.contents={\"list\": [1, 2], \"nested\": {\"a\": 1}}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=false\ncookie.path=/box\ncookie.domain=example.com\npayload.created=77\npayload.session={\"c\": 3, \"list\": [1, 2], \"nested\": {\"a\": 1}}\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "sealed",
+          "domain": "example.com",
+          "path": "/box"
+        },
+        "scenario": "invalidate",
+        "path": "/box",
+        "incoming": {
+          "data": {
+            "gone": "soon"
+          }
+        }
+      },
+      "expected_output": "status=200\nloaded.new=false\nloaded.empty=false\nloaded.contents={\"gone\": \"soon\"}\nset_cookie=present\ncookie.cleared=true\ncookie.httponly=false\ncookie.path=/box\ncookie.domain=example.com\ncookie.max_age=0\ncookie.expires=Thu, 01 Jan 1970 00:00:00 GMT\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "sealed",
+          "max_age": 2
+        },
+        "scenario": "change",
+        "now": 10,
+        "incoming": {
+          "data": {
+            "m": "n"
+          },
+          "created": 8
+        }
+      },
+      "expected_output": "status=200\nloaded.new=false\nloaded.empty=false\nloaded.contents={\"m\": \"n\"}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=true\ncookie.path=/\ncookie.domain=127.0.0.1\ncookie.max_age=2\ncookie.expires=Thu, 01-Jan-1970 00:00:12 GMT\npayload.created=8\npayload.session={\"c\": 3, \"m\": \"n\"}\n"
+    }
+  ]
+}

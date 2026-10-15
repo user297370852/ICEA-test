@@ -1,0 +1,101 @@
+{
+    "description": "Transform a value-carrying result by applying a projection function to its value. When the source result is successful, the projection runs on the carried value and the outcome is a successful result holding the projected value. When the source result is in any failure state (error, invalid, not-found, forbidden, unauthorized), the projection is skipped and the failure is propagated unchanged: the status is preserved, error messages and validation errors carry over, and no projected value is produced.",
+    "cases": [
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "success",
+                "value": 123
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=123\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "success",
+                "value": "Bar"
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=Bar\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "success",
+                "value": "Bar"
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=Bar\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "not_found"
+            },
+            "expected_output": "status=NotFound\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "not_found_message",
+                "errors": [
+                    "Some integer not found"
+                ]
+            },
+            "expected_output": "status=NotFound\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=Some integer not found\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "unauthorized"
+            },
+            "expected_output": "status=Unauthorized\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "forbidden"
+            },
+            "expected_output": "status=Forbidden\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "invalid",
+                "validation_errors": [
+                    {
+                        "error_message": "Validation Error 1"
+                    },
+                    {
+                        "error_message": "Validation Error 2"
+                    }
+                ]
+            },
+            "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=;message=Validation Error 1;code=;severity=Error|identifier=;message=Validation Error 2;code=;severity=Error\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "invalid",
+                "validation_errors": []
+            },
+            "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "error",
+                "errors": [
+                    "Error 1",
+                    "Error 2"
+                ]
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=Error 1|Error 2\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "typed_map",
+                "factory": "error_empty"
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        }
+    ]
+}

@@ -1,0 +1,47 @@
+{
+  "description": "Remote updates to protected or locally untracked paths are not written directly over the workspace; non-deletion conflicts are materialized in the conflict area and reported to the caller.",
+  "cases": [
+    {
+      "description": "A remote workspace-configuration file is saved into the conflict area, reported as a protected clash, and retained in remote state.",
+      "input": {
+        "command": "sync.run",
+        "remote_initial": [
+          {
+            "path": ".obsidian/app.json",
+            "content": "remote settings"
+          }
+        ],
+        "steps": [
+          {
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Change conflicts detected\"],[\"Synced with remote, unresolved conflicts written to _fit\"]]\nsuccess=true\nlocal_ops=[{\"path\":\"_fit/.obsidian/app.json\",\"type\":\"ADDED\"}]\nremote_ops=[]\nclashes=[{\"localState\":\"protected\",\"path\":\".obsidian/app.json\",\"remoteOp\":\"ADDED\"}]\nlocal_files={\"_fit/.obsidian/app.json\":{\"content\":\"cmVtb3RlIHNldHRpbmdz\",\"encoding\":\"base64\"}}\nremote_files={\".obsidian/app.json\":{\"content\":\"remote settings\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"initial-commit\",\"lastFetchedRemoteSha\":{\".obsidian/app.json\":\"db14b5062a2a893cb61947d6c10e76fbcddffd9a\"},\"localSha\":{}}\n"
+    },
+    {
+      "description": "A remote update to an existing untracked local file is saved into the conflict area instead of overwriting the local file.",
+      "input": {
+        "command": "sync.run",
+        "local_initial": [
+          {
+            "path": "secret.md",
+            "content": "local secret"
+          }
+        ],
+        "remote_initial": [
+          {
+            "path": "secret.md",
+            "content": "remote secret"
+          }
+        ],
+        "steps": [
+          {
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Change conflicts detected\"],[\"Synced with remote, unresolved conflicts written to _fit\"]]\nsuccess=true\nlocal_ops=[{\"path\":\"_fit/secret.md\",\"type\":\"ADDED\"}]\nremote_ops=[]\nclashes=[{\"localState\":\"ADDED\",\"path\":\"secret.md\",\"remoteOp\":\"ADDED\"}]\nlocal_files={\"_fit/secret.md\":{\"content\":\"cmVtb3RlIHNlY3JldA==\",\"encoding\":\"base64\"},\"secret.md\":{\"content\":\"local secret\",\"encoding\":\"plaintext\"}}\nremote_files={\"secret.md\":{\"content\":\"remote secret\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"initial-commit\",\"lastFetchedRemoteSha\":{\"secret.md\":\"28bc491b900cddbf3ed9538c378c9d72079d63bc\"},\"localSha\":{\"secret.md\":\"bd57b5f50c20d53da060e33b2f1a5487a3ef5f7b\"}}\n"
+    }
+  ]
+}

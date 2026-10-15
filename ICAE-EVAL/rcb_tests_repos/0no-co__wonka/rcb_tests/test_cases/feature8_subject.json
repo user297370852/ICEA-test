@@ -1,0 +1,17 @@
+{
+    "description": "A subject is a multicast hub that is both a source and an imperative emitter: callers push values into it and complete it, and every currently-subscribed consumer receives those values live, in subscription order. A consumer may subscribe or unsubscribe at any time; after unsubscribing it receives nothing more (not even completion). Consumers still subscribed when the hub completes receive a completion signal. Values pushed while no consumer is subscribed are dropped. The input is a program of operations (subscribe a named consumer, push a value, unsubscribe a named consumer, complete). Each delivered signal is rendered in real-time delivery order, prefixed with the receiving consumer's id. The cases cover a single consumer through completion, two consumers where one unsubscribes early, and consumers that join and leave at different times around interleaved pushes.",
+    "cases": [
+        {
+            "input": {"kind": "subject", "program": [{"op": "subscribe", "id": "A"}, {"op": "next", "value": 10}, {"op": "next", "value": 20}, {"op": "next", "value": 30}, {"op": "next", "value": 40}, {"op": "complete"}]},
+            "expected_output": "A value 10\nA value 20\nA value 30\nA value 40\nA end\n"
+        },
+        {
+            "input": {"kind": "subject", "program": [{"op": "subscribe", "id": "A"}, {"op": "subscribe", "id": "B"}, {"op": "next", "value": 10}, {"op": "next", "value": 20}, {"op": "next", "value": 30}, {"op": "unsubscribe", "id": "A"}, {"op": "next", "value": 40}, {"op": "next", "value": 50}, {"op": "complete"}]},
+            "expected_output": "A value 10\nB value 10\nA value 20\nB value 20\nA value 30\nB value 30\nB value 40\nB value 50\nB end\n"
+        },
+        {
+            "input": {"kind": "subject", "program": [{"op": "next", "value": 10}, {"op": "next", "value": 20}, {"op": "subscribe", "id": "A"}, {"op": "next", "value": 30}, {"op": "subscribe", "id": "B"}, {"op": "next", "value": 40}, {"op": "next", "value": 50}, {"op": "unsubscribe", "id": "B"}, {"op": "next", "value": 60}, {"op": "unsubscribe", "id": "A"}, {"op": "next", "value": 70}, {"op": "complete"}]},
+            "expected_output": "A value 30\nA value 40\nB value 40\nA value 50\nB value 50\nA value 60\n"
+        }
+    ]
+}

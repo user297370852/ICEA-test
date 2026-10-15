@@ -1,0 +1,27 @@
+{
+    "description": "Create an account and then attempt to delete it, where the backend reports that the account no longer exists at deletion time. The request supplies credentials and canned backend responses for account creation and account-info retrieval (so a signed-in user is established), plus a canned response for the account-removal endpoint that signals a user-not-found failure. The client translates the deletion failure into a normalized domain error and reports its category.",
+    "cases": [
+        {
+            "input": {
+                "action": "delete_account",
+                "email": "temp@example.com",
+                "password": "secret-pass",
+                "responses": {
+                    "register": {
+                        "status": 200,
+                        "body": {"idToken": "tok-del", "email": "temp@example.com", "refreshToken": "refresh-del", "localId": "uid-del"}
+                    },
+                    "account": {
+                        "status": 200,
+                        "body": {"users": [{"localId": "uid-del", "email": "temp@example.com", "createdAt": "1600000000000", "lastLoginAt": "1600000005000", "providerUserInfo": [{"providerId": "password"}]}]}
+                    },
+                    "remove": {
+                        "status": 400,
+                        "body": {"error": {"code": 400, "message": "USER_NOT_FOUND"}}
+                    }
+                }
+            },
+            "expected_output": "error=user-not-found\n"
+        }
+    ]
+}

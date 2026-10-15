@@ -1,0 +1,40 @@
+{
+    "description": "YAML text is classified as using reusable anchors only when at least one anchor definition and one alias reference are both present.",
+    "cases": [
+        {
+            "input": {
+                "feature": "yaml_alias_detection",
+                "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Test\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    AnchorOwner:\n      type: object\n      properties:\n        status:\n          type: string\n          enum: &status_values\n            - Active\n            - Inactive\n    AliasConsumer:\n      type: object\n      properties:\n        status:\n      type: string\n      enum: *status_values"
+            },
+            "expected_output": "contains_anchor_and_alias=true\n"
+        },
+        {
+            "input": {
+                "feature": "yaml_alias_detection",
+                "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Test\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    AnchorOwner:\n      type: object\n      properties:\n        status:\n          type: string\n          enum: &status_values\n            - Active\n            - Inactive"
+            },
+            "expected_output": "contains_anchor_and_alias=false\n"
+        },
+        {
+            "input": {
+                "feature": "yaml_alias_detection",
+                "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Test\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    AliasConsumer:\n      type: object\n      properties:\n        status:\n          type: string\n          enum: *status_values"
+            },
+            "expected_output": "contains_anchor_and_alias=false\n"
+        },
+        {
+            "input": {
+                "feature": "yaml_alias_detection",
+                "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Test\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    AnchorOwner:\n      type: object\n      properties:\n        status:\n          type: string\n          enum: &status_values\n            - Active\n            - Inactive\n    AliasConsumer:\n      type: object\n      properties:\n        status: {type: string, enum: *status_values}"
+            },
+            "expected_output": "contains_anchor_and_alias=true\n"
+        },
+        {
+            "input": {
+                "feature": "yaml_alias_detection",
+                "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Test\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    Simple:\n      type: object\n      properties:\n        status:\n          type: string\n          enum:\n            - Active\n            - Inactive"
+            },
+            "expected_output": "contains_anchor_and_alias=false\n"
+        }
+    ]
+}

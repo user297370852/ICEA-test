@@ -1,0 +1,76 @@
+{
+  "description": "Enhanced multipart cases covering empty parts, boolean/float field stringification, empty and high-byte files, and deterministic field/file sorting.",
+  "cases": [
+    {
+      "input": {
+        "op": "multipart",
+        "parts": []
+      },
+      "expected_output": "file_count=0\n"
+    },
+    {
+      "input": {
+        "op": "multipart",
+        "parts": [
+          {
+            "kind": "value",
+            "name": "bool",
+            "value": true
+          },
+          {
+            "kind": "value",
+            "name": "float",
+            "value": 3.5
+          },
+          {
+            "kind": "file",
+            "name": "empty",
+            "value": []
+          },
+          {
+            "kind": "file",
+            "name": "bytes",
+            "value": [
+              255,
+              128,
+              0
+            ]
+          }
+        ]
+      },
+      "expected_output": "field.bool=true\nfield.float=3.5\nfile_count=2\nfile.bytes.bytes=255,128,0\nfile.empty.bytes=\n"
+    },
+    {
+      "input": {
+        "op": "multipart",
+        "parts": [
+          {
+            "kind": "value",
+            "name": "z",
+            "value": "last"
+          },
+          {
+            "kind": "value",
+            "name": "a",
+            "value": "first"
+          },
+          {
+            "kind": "file",
+            "name": "bfile",
+            "value": [
+              2
+            ]
+          },
+          {
+            "kind": "file",
+            "name": "afile",
+            "value": [
+              1
+            ]
+          }
+        ]
+      },
+      "expected_output": "field.a=first\nfield.z=last\nfile_count=2\nfile.afile.bytes=1\nfile.bfile.bytes=2\n"
+    }
+  ]
+}

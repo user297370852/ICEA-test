@@ -1,0 +1,43 @@
+{
+  "description": "Additional local scan/read cases for empty workspaces, Unicode text reads, and invalid UTF-8 binary reads.",
+  "cases": [
+    {
+      "description": "Scanning an empty workspace returns an empty state object.",
+      "input": {
+        "command": "local.scan",
+        "files": []
+      },
+      "expected_output": "state={}\n"
+    },
+    {
+      "description": "Reading a Unicode text file preserves plaintext content and also exposes canonical base64.",
+      "input": {
+        "command": "local.read",
+        "path": "unicode.md",
+        "files": [
+          {
+            "path": "unicode.md",
+            "encoding": "plaintext",
+            "content": "Résumé 🚀\n第二行"
+          }
+        ]
+      },
+      "expected_output": "encoding=plaintext\ncontent=Résumé 🚀\n第二行\nbase64=UsOpc3Vtw6kg8J+agArnrKzkuozooYw=\n"
+    },
+    {
+      "description": "Reading invalid UTF-8 bytes without a null byte returns base64 content instead of text.",
+      "input": {
+        "command": "local.read",
+        "path": "bad.bin",
+        "files": [
+          {
+            "path": "bad.bin",
+            "encoding": "base64",
+            "content": "//79"
+          }
+        ]
+      },
+      "expected_output": "encoding=base64\ncontent=//79\nbase64=//79\n"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "description": "Boundary coverage for URL filtering: multiple filtered params, substring/case-insensitive key matches, URLs without query strings, empty filter lists, fragments, and non-URL text.",
+  "cases": [
+    {
+      "input": {
+        "url": "https://www.example.com/?token=abc&password=hunter2&keep=1",
+        "filters": [
+          "token",
+          "password"
+        ]
+      },
+      "expected_output": "url=https://www.example.com/?token=[FILTERED]&password=[FILTERED]&keep=1\n"
+    },
+    {
+      "input": {
+        "url": "https://www.example.com/?USERSECRET=topsecret",
+        "filters": [
+          "secret"
+        ]
+      },
+      "expected_output": "url=https://www.example.com/?USERSECRET=[FILTERED]\n"
+    },
+    {
+      "input": {
+        "url": "https://www.example.com/path/no/query",
+        "filters": [
+          "secret"
+        ]
+      },
+      "expected_output": "url=https://www.example.com/path/no/query\n"
+    },
+    {
+      "input": {
+        "url": "https://www.example.com/?a=1&b=2&c=3",
+        "filters": []
+      },
+      "expected_output": "url=https://www.example.com/?a=1&b=2&c=3\n"
+    },
+    {
+      "input": {
+        "url": "https://www.example.com/?api_key=KEY#section-secret",
+        "filters": [
+          "api_key"
+        ]
+      },
+      "expected_output": "url=https://www.example.com/?api_key=[FILTERED]\n"
+    },
+    {
+      "input": {
+        "url": "https://www.example.com/?Password=Secret&password=again",
+        "filters": [
+          "password"
+        ]
+      },
+      "expected_output": "url=https://www.example.com/?Password=[FILTERED]&password=[FILTERED]\n"
+    },
+    {
+      "input": {
+        "url": "not a url at all",
+        "filters": [
+          "secret"
+        ]
+      },
+      "expected_output": "url=not a url at all\n"
+    }
+  ]
+}

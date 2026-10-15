@@ -1,0 +1,170 @@
+{
+  "description": "Zero-based lists (top_of_list = 0) under reordering and deletion. Appended records run 0,1,2,...; relocating, removing and deleting keep the zero-based numbering contiguous.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id",
+          "top_of_list": 0
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "d",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "insert_at",
+            "ref": "d",
+            "position": 0
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[4, 1, 2, 3]\npositions=[0, 1, 2, 3]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id",
+          "top_of_list": 0
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "delete",
+            "ref": "a"
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[2, 3]\npositions=[0, 1]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id",
+          "top_of_list": 0
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "remove",
+            "ref": "b"
+          }
+        ],
+        "queries": [
+          {
+            "q": "position_of",
+            "ref": "a"
+          },
+          {
+            "q": "position_of",
+            "ref": "b"
+          },
+          {
+            "q": "position_of",
+            "ref": "c"
+          }
+        ]
+      },
+      "expected_output": "position=0\nposition=nil\nposition=1"
+    }
+  ]
+}

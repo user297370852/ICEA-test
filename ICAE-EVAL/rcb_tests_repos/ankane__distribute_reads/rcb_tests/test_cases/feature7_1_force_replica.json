@@ -1,0 +1,28 @@
+{
+    "description": "Forcing replica use for a scope routes its reads to the replica even when default-distribution mode is off; reads outside the scope still use the primary. SQL comment prefixes do not change routing.",
+    "cases": [
+        {
+            "input": {
+                "program": [
+                    {
+                        "op": "read",
+                        "prefix": "/*hi*/"
+                    },
+                    {
+                        "op": "scope",
+                        "options": {
+                            "replica": true
+                        },
+                        "body": [
+                            {
+                                "op": "read",
+                                "prefix": "/*hi*/"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "read=primary\nread=replica\n"
+        }
+    ]
+}

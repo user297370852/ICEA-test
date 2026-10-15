@@ -1,0 +1,197 @@
+{
+  "description": "Additional synthetic cases covering scope override interactions, multiple captures with persistent global enrichment, breadcrumb ordering without captures, and neutral adapter errors.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "capture_message",
+            "message": ""
+          }
+        ]
+      },
+      "expected_output": "captured_events=1\nevent[0].message=\nevent[0].level=INFO\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "configure_scope",
+            "set_level": "ERROR"
+          },
+          {
+            "op": "capture_message",
+            "message": "global level message"
+          },
+          {
+            "op": "capture_exception",
+            "message": "global level exception"
+          }
+        ]
+      },
+      "expected_output": "captured_events=2\nevent[0].message=global level message\nevent[0].level=ERROR\nevent[1].exception[0].type=RuntimeException\nevent[1].exception[0].value=global level exception\nevent[1].level=ERROR\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "configure_scope",
+            "set_tag": {
+              "key": "shared",
+              "value": "global"
+            }
+          },
+          {
+            "op": "capture_exception",
+            "message": "local overrides global tag",
+            "scope": {
+              "set_tag": {
+                "key": "shared",
+                "value": "local"
+              }
+            }
+          },
+          {
+            "op": "capture_exception",
+            "message": "global tag remains"
+          }
+        ]
+      },
+      "expected_output": "captured_events=2\nevent[0].exception[0].type=RuntimeException\nevent[0].exception[0].value=local overrides global tag\nevent[0].tag.shared=local\nevent[1].exception[0].type=RuntimeException\nevent[1].exception[0].value=global tag remains\nevent[1].tag.shared=global\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "configure_scope",
+            "tags": {
+              "zeta": "last",
+              "alpha": "first"
+            }
+          },
+          {
+            "op": "capture_message",
+            "message": "ordered tags"
+          }
+        ]
+      },
+      "expected_output": "captured_events=1\nevent[0].message=ordered tags\nevent[0].level=INFO\nevent[0].tag.alpha=first\nevent[0].tag.zeta=last\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "add_breadcrumb",
+            "message": "first"
+          },
+          {
+            "op": "add_breadcrumb",
+            "message": ""
+          },
+          {
+            "op": "add_breadcrumb",
+            "message": "third"
+          }
+        ]
+      },
+      "expected_output": "captured_events=0\nbreadcrumb[0].message=first\nbreadcrumb[1].message=\nbreadcrumb[2].message=third\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "configure_scope",
+            "set_user": {
+              "id": "u-42"
+            }
+          },
+          {
+            "op": "capture_exception",
+            "message": "partial user"
+          }
+        ]
+      },
+      "expected_output": "captured_events=1\nevent[0].exception[0].type=RuntimeException\nevent[0].exception[0].value=partial user\nevent[0].user.email=\nevent[0].user.id=u-42\nevent[0].user.ipAddress=\nevent[0].user.username=\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "configure_scope",
+            "set_contexts": [
+              {
+                "key": "decimal",
+                "type": "number",
+                "value": "3.5"
+              },
+              {
+                "key": "negative",
+                "type": "number",
+                "value": "-7"
+              },
+              {
+                "key": "scientific",
+                "type": "number",
+                "value": "1e3"
+              },
+              {
+                "key": "emptyList",
+                "type": "collection",
+                "value": []
+              }
+            ]
+          },
+          {
+            "op": "capture_exception",
+            "message": "numeric contexts"
+          }
+        ]
+      },
+      "expected_output": "captured_events=1\nevent[0].exception[0].type=RuntimeException\nevent[0].exception[0].value=numeric contexts\nevent[0].context.decimal={\"value\":3.5}\nevent[0].context.emptyList={\"value\":[]}\nevent[0].context.negative={\"value\":-7}\nevent[0].context.scientific={\"value\":1000.0}\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "configure_scope",
+            "set_level": "warning"
+          },
+          {
+            "op": "capture_exception",
+            "message": "case insensitive level"
+          }
+        ]
+      },
+      "expected_output": "captured_events=1\nevent[0].exception[0].type=RuntimeException\nevent[0].exception[0].value=case insensitive level\nevent[0].level=WARNING\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "capture_exception"
+          }
+        ]
+      },
+      "expected_output": "error=missing_field\nfield=message\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "configure_scope",
+            "set_contexts": [
+              {
+                "key": "bad",
+                "type": "object",
+                "value": {
+                  "nested": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=unknown_context_type\ntype=object\n"
+    }
+  ]
+}

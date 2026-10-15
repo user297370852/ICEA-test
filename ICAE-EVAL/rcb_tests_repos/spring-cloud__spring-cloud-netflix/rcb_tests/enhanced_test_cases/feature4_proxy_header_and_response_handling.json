@@ -1,0 +1,45 @@
+{
+  "description": "Additional proxy header and response coverage for empty inbound headers, lexicographic header output order, non-gzip response encodings, and non-200 gzipped statuses.",
+  "cases": [
+    {
+      "input": {
+        "mode": "request_headers",
+        "headers": {}
+      },
+      "expected_output": "header=Accept-Encoding values=[gzip]\n"
+    },
+    {
+      "input": {
+        "mode": "request_headers",
+        "headers": {
+          "Z-Trace": [
+            "z1"
+          ],
+          "A-Trace": [
+            "a1",
+            "a2"
+          ]
+        }
+      },
+      "expected_output": "header=A-Trace values=[a1, a2]\nheader=Accept-Encoding values=[gzip]\nheader=Z-Trace values=[z1]\n"
+    },
+    {
+      "input": {
+        "mode": "response_gzip",
+        "status": 204,
+        "headerName": "CONTENT-ENCODING",
+        "headerValue": "gzip"
+      },
+      "expected_output": "status=204\nresponse_gzipped=true\n"
+    },
+    {
+      "input": {
+        "mode": "response_gzip",
+        "status": 201,
+        "headerName": "Content-Encoding",
+        "headerValue": "br"
+      },
+      "expected_output": "status=201\nresponse_gzipped=false\n"
+    }
+  ]
+}

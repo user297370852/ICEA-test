@@ -1,0 +1,19 @@
+{
+    "description": "Watch the screen frame over time to mitigate the fact that the frame momentarily collapses to all-zero in some conditions. A 'watch' step starts monitoring; each 'tick' re-samples the current screen geometry; each 'get' reports the frame that would be exposed. Behavior: while the live frame is all-zero and no non-zero frame has ever been observed, get reports all zeros. Once any non-zero frame is observed it is remembered, and a later get that finds the live frame collapsed to all-zero returns the remembered non-zero frame instead. When the live frame is itself non-zero, get returns the live frame and updates the remembered value.",
+    "cases": [
+        {
+            "input": {"op": "screen_frame_watch", "steps": [
+                {"set": {"width": 640, "height": 480, "availWidth": 640, "availHeight": 480, "availLeft": 0, "availTop": 0}, "do": "watch"},
+                {"do": "get"},
+                {"set": {"width": 640, "height": 480, "availWidth": 600, "availHeight": 400, "availLeft": 10, "availTop": 30}, "do": "tick"},
+                {"set": {"width": 640, "height": 480, "availWidth": 640, "availHeight": 480, "availLeft": 0, "availTop": 0}, "do": "tick"},
+                {"do": "get"},
+                {"set": {"width": 640, "height": 480, "availWidth": 600, "availHeight": 400, "availLeft": 30, "availTop": 10}, "do": "tick"},
+                {"do": "get"},
+                {"set": {"width": 640, "height": 480, "availWidth": 640, "availHeight": 480, "availLeft": 0, "availTop": 0}, "do": "tick"},
+                {"do": "get"}
+            ]},
+            "expected_output": "frame=[0,0,0,0]\nframe=[30,30,50,10]\nframe=[10,10,70,30]\nframe=[10,10,70,30]"
+        }
+    ]
+}

@@ -1,0 +1,57 @@
+{
+  "description": "Idempotent-registration boundaries: two distinct observers each registered many times still enter once; many destroys still exit once; tallies tracked per observer.",
+  "cases": [
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "register_times",
+            "scope": "r",
+            "tracker": "t1",
+            "times": 5
+          },
+          {
+            "op": "register_times",
+            "scope": "r",
+            "tracker": "t2",
+            "times": 3
+          },
+          {
+            "op": "register_times",
+            "scope": "r",
+            "tracker": "t1",
+            "times": 4
+          },
+          {
+            "op": "tracker",
+            "tracker": "t1"
+          },
+          {
+            "op": "tracker",
+            "tracker": "t2"
+          },
+          {
+            "op": "destroy_times",
+            "scope": "r",
+            "times": 7
+          },
+          {
+            "op": "tracker",
+            "tracker": "t1"
+          },
+          {
+            "op": "tracker",
+            "tracker": "t2"
+          }
+        ]
+      },
+      "expected_output": "tracker[t1] enter=1 exit=0\ntracker[t2] enter=1 exit=0\ntracker[t1] enter=1 exit=1\ntracker[t2] enter=1 exit=1\n"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "description": "Additional suppression cases for local comments, inline comments, file-wide rules at EOF, case-insensitive globals, and negative queries.",
+  "cases": [
+    {
+      "input": {
+        "command": "check_suppressions",
+        "content": "void main() {\n  // ignore: local_rule, second_rule\n  final a = 1;\n  final b = 2; // ignore: inline_rule\n}\n// ignore_for_file: global_one, GLOBAL_TWO\n",
+        "global_rules": [
+          "global_one",
+          "global_two",
+          "local_rule",
+          "missing_rule"
+        ],
+        "line_rules": [
+          {
+            "rule": "local_rule",
+            "line": 3
+          },
+          {
+            "rule": "second_rule",
+            "line": 3
+          },
+          {
+            "rule": "inline_rule",
+            "line": 4
+          },
+          {
+            "rule": "inline_rule",
+            "line": 3
+          },
+          {
+            "rule": "global_two",
+            "line": 1
+          },
+          {
+            "rule": "missing_rule",
+            "line": 4
+          }
+        ]
+      },
+      "expected_output": "global:global_one=true\nglobal:global_two=true\nglobal:local_rule=false\nglobal:missing_rule=false\nline:3:local_rule=true\nline:3:second_rule=true\nline:4:inline_rule=true\nline:3:inline_rule=false\nline:1:global_two=true\nline:4:missing_rule=false\n"
+    }
+  ]
+}

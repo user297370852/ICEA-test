@@ -1,0 +1,48 @@
+{
+    "description": "Define feature flags by attaching a resolver that produces an initial value, then query whether a feature is active. A feature with no registered resolver is treated as inactive. A registered resolver makes the feature active unless the resolved value is exactly boolean false: every other value (including zero, an empty string, null, and structured values) counts as active. The inactive check is the logical inverse of the active check.",
+    "cases": [
+        {
+            "input": {"operations": [
+                {"op": "active", "feature": "foo"},
+                {"op": "inactive", "feature": "foo"}
+            ]},
+            "expected_output": "active foo = false\ninactive foo = true\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "on", "resolver": {"type": "const", "value": true}},
+                {"op": "define", "feature": "off", "resolver": {"type": "const", "value": false}},
+                {"op": "active", "feature": "on"},
+                {"op": "active", "feature": "off"}
+            ]},
+            "expected_output": "active on = true\nactive off = false\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "one", "resolver": {"type": "const", "value": 1}},
+                {"op": "define", "feature": "zero", "resolver": {"type": "const", "value": 0}},
+                {"op": "define", "feature": "nothing", "resolver": {"type": "const", "value": null}},
+                {"op": "define", "feature": "empty", "resolver": {"type": "const", "value": ""}},
+                {"op": "define", "feature": "off", "resolver": {"type": "const", "value": false}},
+                {"op": "define", "feature": "cfg", "resolver": {"type": "const", "value": {"color": "red"}}},
+                {"op": "active", "feature": "one"},
+                {"op": "active", "feature": "zero"},
+                {"op": "active", "feature": "nothing"},
+                {"op": "active", "feature": "empty"},
+                {"op": "active", "feature": "off"},
+                {"op": "active", "feature": "cfg"},
+                {"op": "inactive", "feature": "off"}
+            ]},
+            "expected_output": "active one = true\nactive zero = true\nactive nothing = true\nactive empty = true\nactive off = false\nactive cfg = true\ninactive off = true\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "greeting", "resolver": {"type": "shorthand", "value": "value"}},
+                {"op": "define", "feature": "cfg", "resolver": {"type": "const", "value": {"color": "red", "default": "api"}}},
+                {"op": "value", "feature": "greeting"},
+                {"op": "value", "feature": "cfg"}
+            ]},
+            "expected_output": "value greeting = \"value\"\nvalue cfg = {\"color\":\"red\",\"default\":\"api\"}\n"
+        }
+    ]
+}

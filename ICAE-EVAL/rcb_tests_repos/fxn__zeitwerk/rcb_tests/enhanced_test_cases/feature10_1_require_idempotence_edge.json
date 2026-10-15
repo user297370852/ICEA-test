@@ -1,0 +1,59 @@
+{
+  "description": "Require idempotence for a nested managed path and an interleaving where requiring first then accessing the constant still loads the file only once.",
+  "cases": [
+    {
+      "input": {
+        "operation": "require_interaction",
+        "roots": [
+          "."
+        ],
+        "load_paths": [
+          "."
+        ],
+        "files": {
+          "admin/user.rb": "class Admin::User; end"
+        },
+        "sequence": [
+          {
+            "action": "require",
+            "path": "admin/user"
+          },
+          {
+            "action": "require",
+            "path": "admin/user"
+          }
+        ]
+      },
+      "expected_output": "require=admin/user\nloaded=yes\nrequire=admin/user\nloaded=no\n"
+    },
+    {
+      "input": {
+        "operation": "require_interaction",
+        "roots": [
+          "."
+        ],
+        "load_paths": [
+          "."
+        ],
+        "files": {
+          "widget.rb": "class Widget; end"
+        },
+        "sequence": [
+          {
+            "action": "require",
+            "path": "widget"
+          },
+          {
+            "action": "access",
+            "constant": "Widget"
+          },
+          {
+            "action": "require",
+            "path": "widget"
+          }
+        ]
+      },
+      "expected_output": "require=widget\nloaded=yes\nconstant=Widget\nvalue=class\nrequire=widget\nloaded=no\n"
+    }
+  ]
+}

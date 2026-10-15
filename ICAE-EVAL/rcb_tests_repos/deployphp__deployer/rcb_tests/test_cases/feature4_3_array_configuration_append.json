@@ -1,0 +1,29 @@
+{
+  "description": "Appends configuration array values, creating missing arrays, extending arrays inherited from parents, and reporting a normalized error when an append targets a scalar value.",
+  "cases": [
+    {
+      "input": {"values": {"opt": ["foo", "bar"]}, "append": {"opt": ["baz"]}},
+      "expected_output": "opt=[\"foo\",\"bar\",\"baz\"]\n"
+    },
+    {
+      "input": {"values": {}, "append": {"opt": ["baz"]}},
+      "expected_output": "opt=[\"baz\"]\n"
+    },
+    {
+      "input": {"values": {"config": "option"}, "append": {"config": ["three"]}},
+      "expected_output": "error=config_value_not_array\nkey=config\n"
+    },
+    {
+      "input": {"parent": {"files": ["a", "b"]}, "append": {"files": ["c"]}},
+      "expected_output": "files=[\"a\",\"b\",\"c\"]\n"
+    },
+    {
+      "input": {"parent": {"files": {"computed_result": ["a", "b"]}}, "append": {"files": ["c"]}},
+      "expected_output": "files=[\"a\",\"b\",\"c\"]\n"
+    },
+    {
+      "input": {"parent": {"deploy_path": "path/{{name}}", "whoami": {"computed_result": "unused"}}, "values": {"name": "alpha"}, "persist": true},
+      "expected_output": "persist={\"deploy_path\":\"path/{{name}}\",\"name\":\"alpha\"}\n"
+    }
+  ]
+}

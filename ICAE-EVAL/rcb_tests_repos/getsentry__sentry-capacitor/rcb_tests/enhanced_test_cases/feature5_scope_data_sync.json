@@ -1,0 +1,128 @@
+{
+  "description": "Boundary/edge cases for scope sync: full default user keys, null user, mixed default+custom keys with non-string serialization, non-string tag values, plain/numeric/array extras, android context fallback for null, deeply nested ios context serialization, and non-android platforms using set_context.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "sync_user_identity",
+        "user": {
+          "id": "u1",
+          "email": "a@b.c",
+          "ip_address": "127.0.0.1",
+          "username": "bob"
+        }
+      },
+      "expected_output": "bridge_call=set_user\npayload={\"defaultUserKeys\":{\"email\":\"a@b.c\",\"id\":\"u1\",\"ip_address\":\"127.0.0.1\",\"username\":\"bob\"},\"otherUserKeys\":{}}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_user_identity",
+        "user": null
+      },
+      "expected_output": "bridge_call=set_user\npayload={\"defaultUserKeys\":null,\"otherUserKeys\":null}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_user_identity",
+        "user": {
+          "id": "u2",
+          "age": 42,
+          "vip": true
+        }
+      },
+      "expected_output": "bridge_call=set_user\npayload={\"defaultUserKeys\":{\"id\":\"u2\"},\"otherUserKeys\":{\"age\":\"42\",\"vip\":\"true\"}}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_tag",
+        "key": "k",
+        "value": true
+      },
+      "expected_output": "bridge_call=set_tag\npayload={\"key\":\"k\",\"value\":\"true\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_tag",
+        "key": "k",
+        "value": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected_output": "bridge_call=set_tag\npayload={\"key\":\"k\",\"value\":\"[1,2,3]\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_tag",
+        "key": "k",
+        "value": null
+      },
+      "expected_output": "bridge_call=set_tag\npayload={\"key\":\"k\",\"value\":\"null\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_extra",
+        "key": "k",
+        "value": "plain"
+      },
+      "expected_output": "bridge_call=set_extra\npayload={\"key\":\"k\",\"value\":\"plain\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_extra",
+        "key": "k",
+        "value": 42
+      },
+      "expected_output": "bridge_call=set_extra\npayload={\"key\":\"k\",\"value\":\"42\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_extra",
+        "key": "k",
+        "value": [
+          1,
+          {
+            "a": 2
+          }
+        ]
+      },
+      "expected_output": "bridge_call=set_extra\npayload={\"key\":\"k\",\"value\":\"[1,{\\\"a\\\":2}]\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_context",
+        "platform": "android",
+        "key": "k",
+        "value": null
+      },
+      "expected_output": "bridge_call=set_extra\npayload={\"key\":\"k\",\"value\":\"null\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_context",
+        "platform": "ios",
+        "key": "k",
+        "value": {
+          "nested": {
+            "deep": [
+              1,
+              2
+            ]
+          }
+        }
+      },
+      "expected_output": "bridge_call=set_context\npayload={\"key\":\"k\",\"value\":{\"nested\":\"{\\\"deep\\\":[1,2]}\"}}\n"
+    },
+    {
+      "input": {
+        "scenario": "sync_context",
+        "platform": "macos",
+        "key": "k",
+        "value": {
+          "a": "b"
+        }
+      },
+      "expected_output": "bridge_call=set_context\npayload={\"key\":\"k\",\"value\":{\"a\":\"b\"}}\n"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+    "description": "Snapshot version generation. A versioning component assigns opaque version identifiers for the cluster set and the endpoint set of a group, so connected consumers can detect changes. The same group with unchanged clusters and endpoints keeps the same cluster and endpoint versions; changing only the endpoints generates a new endpoint version while the cluster version is unchanged; changing the clusters generates a new cluster version and also a new endpoint version. Versions are tracked per group identity. Because the raw identifiers are random, the output abstracts them into stable labels: each distinct cluster-version value seen (in order) is labelled c0, c1, ...; each distinct endpoint-version value e0, e1, .... Each version step prints 'step=<n> clusters=<label> endpoints=<label>', so equality and inequality across steps is observable without leaking the random values.",
+    "cases": [
+        {
+            "input": {"op": "snapshot_versions", "steps": [{"action": "version", "group": {"kind": "all"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}]},
+            "expected_output": "step=0 clusters=c0 endpoints=e0\n"
+        },
+        {
+            "input": {"op": "snapshot_versions", "steps": [{"action": "version", "group": {"kind": "all"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}, {"action": "version", "group": {"kind": "all"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 2}]}]},
+            "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c0 endpoints=e1\n"
+        },
+        {
+            "input": {"op": "snapshot_versions", "steps": [{"action": "version", "group": {"kind": "all"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}, {"action": "version", "group": {"kind": "all"}, "clusters": ["service1", "service2"], "endpoints": [{"cluster": "service1", "instances": 1}]}]},
+            "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c1 endpoints=e1\n"
+        },
+        {
+            "input": {"op": "snapshot_versions", "steps": [{"action": "version", "group": {"kind": "all"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}, {"action": "retain", "groups": []}, {"action": "version", "group": {"kind": "all"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}]},
+            "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c1 endpoints=e1\n"
+        },
+        {
+            "input": {"op": "snapshot_versions", "steps": [{"action": "version", "group": {"kind": "path", "path": "/path"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}, {"action": "version", "group": {"kind": "path", "path": "/path"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}]},
+            "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c0 endpoints=e0\n"
+        },
+        {
+            "input": {"op": "snapshot_versions", "steps": [{"action": "version", "group": {"kind": "path", "path": "/path"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}, {"action": "version", "group": {"kind": "path", "path": "/other-path"}, "clusters": ["service1"], "endpoints": [{"cluster": "service1", "instances": 1}]}]},
+            "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c1 endpoints=e1\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "description": "A search may restrict matching to a chosen subset of document fields by naming them in a 'select' list. With no 'select' key, all indexed fields are searched. When 'select' names specific field(s), only matches found within those fields count, so a term present only in an unselected field yields no results. An explicitly empty 'select' list selects nothing and therefore returns no results. Selecting a field that is excluded from indexing, or a field name that does not belong to the document, also returns no results. Each search emits one line 'search=<comma-separated documentId:matchTerm entries>' (empty after '=' when there are no matches).",
+    "cases": [
+        {
+            "input": {"op": "index", "actions": [
+                {"action": "add", "doc": {"type": "book", "id": 0, "title": "Atomic Habits", "author": "James Clear", "publisher": "Penguin"}},
+                {"action": "search", "query": "atomic"},
+                {"action": "search", "query": "clear"},
+                {"action": "search", "query": "atomic", "select": ["title"]},
+                {"action": "search", "query": "clear", "select": ["title"]},
+                {"action": "search", "query": "atomic", "select": []},
+                {"action": "search", "query": "penguin", "select": ["publisher"]},
+                {"action": "search", "query": "atomic", "select": ["value"]}
+            ]},
+            "expected_output": "search=0:atom\nsearch=0:clear\nsearch=0:atom\nsearch=\nsearch=\nsearch=\nsearch=\n"
+        }
+    ]
+}

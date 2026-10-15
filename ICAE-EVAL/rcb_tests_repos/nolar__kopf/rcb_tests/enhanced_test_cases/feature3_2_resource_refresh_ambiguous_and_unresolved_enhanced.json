@@ -1,0 +1,112 @@
+{
+  "description": "Enhanced broad selector coverage for single non-core matches, core preference over multiple extension collisions, and simultaneous ambiguous plus unresolved warning categories.",
+  "cases": [
+    {
+      "input": {
+        "action": "refresh_resources",
+        "handler_mode": "watch_event",
+        "selector": {
+          "plural": "widgets"
+        },
+        "group": null,
+        "resources": [
+          {
+            "group": "example.com",
+            "version": "v1",
+            "plural": "widgets",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          }
+        ],
+        "report_warnings": true
+      },
+      "expected_output": "resources=example.com/v1/widgets\nwarnings=\n"
+    },
+    {
+      "input": {
+        "action": "refresh_resources",
+        "handler_mode": "watch_event",
+        "selector": {
+          "plural": "pods"
+        },
+        "group": null,
+        "resources": [
+          {
+            "group": "metrics.k8s.io",
+            "version": "v1beta1",
+            "plural": "pods",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          },
+          {
+            "group": "",
+            "version": "v1",
+            "plural": "pods",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          },
+          {
+            "group": "custom.io",
+            "version": "v1",
+            "plural": "pods",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          }
+        ],
+        "report_warnings": true
+      },
+      "expected_output": "resources=/v1/pods\nwarnings=\n"
+    },
+    {
+      "input": {
+        "action": "refresh_resources",
+        "handler_mode": "watch_event",
+        "selector": [
+          {
+            "plural": "things"
+          },
+          {
+            "plural": "missing"
+          }
+        ],
+        "group": null,
+        "resources": [
+          {
+            "group": "a.io",
+            "version": "v1",
+            "plural": "things",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          },
+          {
+            "group": "b.io",
+            "version": "v1",
+            "plural": "things",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          }
+        ],
+        "report_warnings": true
+      },
+      "expected_output": "resources=\nwarnings=ambiguous_resource,unresolved_resource\n"
+    }
+  ]
+}

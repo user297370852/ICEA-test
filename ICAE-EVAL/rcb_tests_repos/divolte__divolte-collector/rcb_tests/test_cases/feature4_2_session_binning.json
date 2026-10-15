@@ -1,0 +1,105 @@
+{
+  "description": "Session-binning file sink: events are routed to per-session-window files. Events from distinct windows land in separate files; an event whose session opened in an earlier window sticks to that window's file; once a window is no longer current a later event opens the next window's file; a lone event yields a single in-flight file.",
+  "cases": [
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "binning",
+        "records": [
+          {
+            "ts": 100
+          },
+          {
+            "ts": 1100
+          },
+          {
+            "ts": 2100
+          },
+          {
+            "ts": 3100
+          },
+          {
+            "ts": 4100
+          }
+        ]
+      },
+      "expected_output": "published_files=2\ninflight_files=3\npublished[0]=.avro|100\npublished[1]=.avro|1100\ninflight[0]=.avro.partial|2100\ninflight[1]=.avro.partial|3100\ninflight[2]=.avro.partial|4100\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "binning",
+        "records": [
+          {
+            "ts": 100
+          },
+          {
+            "ts": 1100
+          }
+        ],
+        "records2": [
+          {
+            "ts": 100
+          },
+          {
+            "ts": 1100
+          }
+        ]
+      },
+      "expected_output": "published_files=0\ninflight_files=2\ninflight[0]=.avro.partial|100,100\ninflight[1]=.avro.partial|1100,1100\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "binning",
+        "records": [
+          {
+            "ts": 100,
+            "session_start": 100
+          },
+          {
+            "ts": 1100,
+            "session_start": 1100
+          },
+          {
+            "ts": 2100,
+            "session_start": 2100
+          },
+          {
+            "ts": 3100,
+            "session_start": 3100
+          },
+          {
+            "ts": 3150,
+            "session_start": 100
+          },
+          {
+            "ts": 3160,
+            "session_start": 1100
+          },
+          {
+            "ts": 3170,
+            "session_start": 2100
+          },
+          {
+            "ts": 3180,
+            "session_start": 3100
+          }
+        ]
+      },
+      "expected_output": "published_files=1\ninflight_files=3\npublished[0]=.avro|100\ninflight[0]=.avro.partial|1100,3150,3160\ninflight[1]=.avro.partial|2100,3170\ninflight[2]=.avro.partial|3100,3180\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "binning",
+        "records": [
+          {
+            "ts": 100
+          }
+        ]
+      },
+      "expected_output": "published_files=0\ninflight_files=1\ninflight[0]=.avro.partial|100\n"
+    }
+  ]
+}

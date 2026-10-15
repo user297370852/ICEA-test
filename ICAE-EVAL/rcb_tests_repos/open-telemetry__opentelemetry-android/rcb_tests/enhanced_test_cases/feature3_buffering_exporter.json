@@ -1,0 +1,67 @@
+{
+  "description": "Additional buffering exporter cases covering mixed pending operations before delegate attachment and direct calls after delegate attachment.",
+  "cases": [
+    {
+      "input": {
+        "signal": "span",
+        "capacity": 3,
+        "operations": [
+          {
+            "op": "export",
+            "items": [
+              "a"
+            ]
+          },
+          {
+            "op": "flush"
+          },
+          {
+            "op": "export",
+            "items": [
+              "b",
+              "c"
+            ]
+          },
+          {
+            "op": "shutdown"
+          },
+          {
+            "op": "set_delegate"
+          },
+          {
+            "op": "export",
+            "items": [
+              "d"
+            ]
+          },
+          {
+            "op": "flush"
+          }
+        ]
+      },
+      "expected_output": "export_result=0:pending\nflush_result=1:pending\nexport_result=2:pending\nshutdown_result=3:pending\nexport_result=4:success\nflush_result=5:success\ndelegate_items=a,b,c,d\ndelegate_exports=2\ndelegate_flushes=2\ndelegate_shutdowns=1\n"
+    },
+    {
+      "input": {
+        "signal": "log",
+        "capacity": 2,
+        "operations": [
+          {
+            "op": "export",
+            "items": [
+              "x",
+              "y"
+            ]
+          },
+          {
+            "op": "set_delegate"
+          },
+          {
+            "op": "shutdown"
+          }
+        ]
+      },
+      "expected_output": "export_result=0:pending\nshutdown_result=1:success\ndelegate_items=x,y\ndelegate_exports=1\ndelegate_flushes=0\ndelegate_shutdowns=1\n"
+    }
+  ]
+}

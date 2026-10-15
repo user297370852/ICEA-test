@@ -1,0 +1,27 @@
+{
+  "description": "Outbound HTTP breadcrumb edge cases: 4xx status yields error level with query/fragment parsing, and empty bodies report zero body sizes.",
+  "cases": [
+    {
+      "input": {
+        "feature": "http_client_breadcrumb",
+        "method": "POST",
+        "url": "https://api.example.com/path?key=val&x=1#section",
+        "request_body": "payload-data",
+        "status": 404,
+        "response_body": "{\"error\":\"not found\"}"
+      },
+      "expected_output": "breadcrumb_count=1\nbreadcrumb_exists=true\nbreadcrumb_category=http\nbreadcrumb_level=error\nbreadcrumb_message=null\nbreadcrumb_metadata={\"url\":\"https://api.example.com/path\",\"http.request.method\":\"POST\",\"http.response.status_code\":404,\"http.query\":\"key=val&x=1\",\"http.fragment\":\"section\",\"http.request.body.size\":12,\"http.response.body.size\":21}\nrequest_body_after_breadcrumb=payload-data\nresponse_body_after_breadcrumb={\"error\":\"not found\"}\n"
+    },
+    {
+      "input": {
+        "feature": "http_client_breadcrumb",
+        "method": "DELETE",
+        "url": "https://example.org/items/1",
+        "request_body": "",
+        "status": 204,
+        "response_body": ""
+      },
+      "expected_output": "breadcrumb_count=1\nbreadcrumb_exists=true\nbreadcrumb_category=http\nbreadcrumb_level=info\nbreadcrumb_message=null\nbreadcrumb_metadata={\"url\":\"https://example.org/items/1\",\"http.request.method\":\"DELETE\",\"http.response.status_code\":204,\"http.query\":\"\",\"http.fragment\":\"\",\"http.request.body.size\":0,\"http.response.body.size\":0}\nrequest_body_after_breadcrumb=\nresponse_body_after_breadcrumb=\n"
+    }
+  ]
+}

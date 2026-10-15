@@ -1,0 +1,49 @@
+{
+  "description": "Socket transport edge cases: default URL parsing, non-200 statuses, and bodies with header blocks.",
+  "cases": [
+    {
+      "input": {
+        "operation": "socket_post_transport",
+        "secret": "secret",
+        "response": "response",
+        "remote_ip": "remoteip",
+        "client_version": "version",
+        "wire_reply": "HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"success\": true}",
+        "include_transport_signal": true
+      },
+      "expected_output": "connection={\"host\":\"ssl://www.google.com\",\"port\":443,\"timeout\":30}\nrequest_line=POST /recaptcha/api/siteverify HTTP/1.1\nhost_header=Host: www.google.com\nraw_reply={\"success\": true}\n"
+    },
+    {
+      "input": {
+        "operation": "socket_post_transport",
+        "secret": "secret",
+        "response": "response",
+        "remote_ip": "remoteip",
+        "client_version": "version",
+        "wire_reply": "HTTP/1.1 404 Not Found\n\nMISSING"
+      },
+      "expected_output": "raw_reply={\"success\": false, \"error-codes\": [\"bad-response\"]}\n"
+    },
+    {
+      "input": {
+        "operation": "socket_post_transport",
+        "secret": "secret",
+        "response": "response",
+        "remote_ip": "remoteip",
+        "client_version": "version",
+        "wire_reply": "HTTP/1.1 302 Found\n\n"
+      },
+      "expected_output": "raw_reply={\"success\": false, \"error-codes\": [\"bad-response\"]}\n"
+    },
+    {
+      "input": {
+        "operation": "socket_post_transport",
+        "secret": "secret",
+        "response": "response",
+        "wire_reply": "HTTP/1.1 200 OK\n\nOKBODY",
+        "include_transport_signal": true
+      },
+      "expected_output": "connection={\"host\":\"ssl://www.google.com\",\"port\":443,\"timeout\":30}\nrequest_line=POST /recaptcha/api/siteverify HTTP/1.1\nhost_header=Host: www.google.com\nraw_reply=OKBODY\n"
+    }
+  ]
+}

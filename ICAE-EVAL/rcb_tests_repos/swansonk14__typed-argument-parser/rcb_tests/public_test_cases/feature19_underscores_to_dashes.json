@@ -1,0 +1,76 @@
+{
+    "description": "When underscore-to-dash conversion is enabled, multi-word flag names are spelled with dashes on the command line instead of underscores, while the resolved attribute names keep their underscore form. This applies to annotated fields and to flags registered at configuration time.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "arg",
+                        "type": "int",
+                        "default": 10
+                    },
+                    {
+                        "name": "arg_u_ment",
+                        "type": "int",
+                        "default": 10
+                    },
+                    {
+                        "name": "arg_you_mean_",
+                        "type": "int",
+                        "default": 10
+                    }
+                ],
+                "init": {
+                    "underscores_to_dashes": true
+                },
+                "argv": [
+                    "--arg",
+                    "11",
+                    "--arg-u-ment",
+                    "12",
+                    "--arg-you-mean-",
+                    "13"
+                ]
+            },
+            "expected_output": "arg=int:11\narg_u_ment=int:12\narg_you_mean_=int:13\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo_arg",
+                        "type": "str",
+                        "default": "foo_arg"
+                    },
+                    {
+                        "name": "foo_arg_2",
+                        "type": "Optional[int]",
+                        "default": null
+                    }
+                ],
+                "configure": [
+                    {
+                        "flags": [
+                            "-f",
+                            "--foo-arg"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-f2",
+                            "--foo-arg-2"
+                        ]
+                    }
+                ],
+                "init": {
+                    "underscores_to_dashes": true
+                },
+                "argv": [
+                    "-f2",
+                    "2"
+                ]
+            },
+            "expected_output": "foo_arg=str:foo_arg\nfoo_arg_2=int:2\n"
+        }
+    ]
+}

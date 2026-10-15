@@ -1,0 +1,33 @@
+{
+  "description": "Apply export, flush, shutdown, and delegate-attachment operations to an in-memory telemetry exporter and report buffered item delivery plus operation result states.",
+  "cases": [
+    {
+      "input": {"signal": "span", "capacity": 5000, "operations": [{"op": "export", "items": ["span-1"]}, {"op": "set_delegate"}]},
+      "expected_output": "export_result=0:pending\ndelegate_items=span-1\ndelegate_exports=1\ndelegate_flushes=0\ndelegate_shutdowns=0\n"
+    },
+    {
+      "input": {"signal": "span", "capacity": 10, "operations": [{"op": "export", "items": ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9"]}, {"op": "export", "items": ["overflow"]}, {"op": "set_delegate"}]},
+      "expected_output": "export_result=0:pending\nexport_result=1:error:buffer_overflow\ndelegate_items=s0,s1,s2,s3,s4,s5,s6,s7,s8,s9\ndelegate_exports=1\ndelegate_flushes=0\ndelegate_shutdowns=0\n"
+    },
+    {
+      "input": {"signal": "span", "capacity": 5000, "operations": [{"op": "flush"}, {"op": "set_delegate"}]},
+      "expected_output": "flush_result=0:pending\ndelegate_items=\ndelegate_exports=0\ndelegate_flushes=1\ndelegate_shutdowns=0\n"
+    },
+    {
+      "input": {"signal": "span", "capacity": 5000, "operations": [{"op": "shutdown"}, {"op": "set_delegate"}]},
+      "expected_output": "shutdown_result=0:pending\ndelegate_items=\ndelegate_exports=0\ndelegate_flushes=0\ndelegate_shutdowns=1\n"
+    },
+    {
+      "input": {"signal": "span", "capacity": 5000, "operations": [{"op": "set_delegate"}, {"op": "flush"}, {"op": "shutdown"}, {"op": "export", "items": ["span-2"]}]},
+      "expected_output": "flush_result=0:success\nshutdown_result=1:success\nexport_result=2:success\ndelegate_items=span-2\ndelegate_exports=1\ndelegate_flushes=1\ndelegate_shutdowns=1\n"
+    },
+    {
+      "input": {"signal": "log", "capacity": 5000, "operations": [{"op": "export", "items": ["log-1"]}, {"op": "set_delegate"}, {"op": "flush"}]},
+      "expected_output": "export_result=0:pending\nflush_result=1:success\ndelegate_items=log-1\ndelegate_exports=1\ndelegate_flushes=1\ndelegate_shutdowns=0\n"
+    },
+    {
+      "input": {"signal": "log", "capacity": 10, "operations": [{"op": "export", "items": ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10"]}, {"op": "set_delegate"}]},
+      "expected_output": "export_result=0:pending\ndelegate_items=l0,l1,l2,l3,l4,l5,l6,l7,l8,l9\ndelegate_exports=1\ndelegate_flushes=0\ndelegate_shutdowns=0\n"
+    }
+  ]
+}

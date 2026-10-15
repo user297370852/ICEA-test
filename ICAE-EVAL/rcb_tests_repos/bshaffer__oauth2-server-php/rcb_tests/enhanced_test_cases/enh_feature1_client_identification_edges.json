@@ -1,0 +1,33 @@
+{
+  "description": "Boundary coverage for client identification: an empty-string client identifier is treated like no identifier at all (direct invalid_client / 'No client id supplied'), while a non-empty but unregistered identifier (here whitespace-only) is reported as an invalid client id. Both surface as direct, non-redirect client errors before any redirect can occur.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": false,
+            "request": {
+              "client_id": ""
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=invalid_client\nbody.error_description=No client id supplied\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": false,
+            "request": {
+              "client_id": "   "
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=invalid_client\nbody.error_description=The client id supplied is invalid\n"
+    }
+  ]
+}

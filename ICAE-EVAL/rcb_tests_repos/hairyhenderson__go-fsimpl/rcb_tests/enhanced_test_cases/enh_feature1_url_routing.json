@@ -1,0 +1,117 @@
+{
+  "description": "Boundary URL-routing cases: https with port, every git+ scheme variant, bare git scheme, deeper blob roots, ssh/vault/boltdb/consul/empty schemes that are unsupported, and additional malformed URLs.",
+  "cases": [
+    {
+      "input": {
+        "op": "route",
+        "url": "https://example.com:8443/a/b"
+      },
+      "expected_output": "backend=http\nhost=example.com:8443\npath=/a/b\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "http://example.com"
+      },
+      "expected_output": "backend=http\nhost=example.com\npath=\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "git+http://localhost/foo/bar.git//baz"
+      },
+      "expected_output": "backend=git\nrepo_scheme=http\nroot=/baz\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "git+https://localhost/foo/bar.git//sub/dir"
+      },
+      "expected_output": "backend=git\nrepo_scheme=https\nroot=/sub/dir\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "git+file:///srv/repo.git//inner"
+      },
+      "expected_output": "backend=git\nrepo_scheme=file\nroot=/inner\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "git://localhost:1234/foo/bar.git"
+      },
+      "expected_output": "backend=git\nrepo_scheme=git\nroot=/\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "s3://bucket/a/b/c"
+      },
+      "expected_output": "backend=blob\nscheme=s3\nroot=a/b/c\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "gs://bucket/deep/path"
+      },
+      "expected_output": "backend=blob\nscheme=gs\nroot=deep/path\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "azblob://container/x/y"
+      },
+      "expected_output": "backend=blob\nscheme=azblob\nroot=x/y\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "ssh://git@host/repo.git"
+      },
+      "expected_output": "error=unsupported_scheme\nscheme=ssh\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "vault://secret/data"
+      },
+      "expected_output": "error=unsupported_scheme\nscheme=vault\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "boltdb:///tmp/db#bucket"
+      },
+      "expected_output": "error=unsupported_scheme\nscheme=boltdb\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "consul://localhost:8500/key"
+      },
+      "expected_output": "error=unsupported_scheme\nscheme=consul\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "aws+sm:///secret"
+      },
+      "expected_output": "error=unsupported_scheme\nscheme=aws+sm\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "noscheme/relative/path"
+      },
+      "expected_output": "error=unsupported_scheme\nscheme=\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "url": "http://foo/%zz"
+      },
+      "expected_output": "error=invalid_url\n"
+    }
+  ]
+}

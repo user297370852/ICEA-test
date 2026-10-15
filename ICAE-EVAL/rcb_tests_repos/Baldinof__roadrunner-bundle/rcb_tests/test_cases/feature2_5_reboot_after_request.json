@@ -1,0 +1,7 @@
+{
+    "description": "After each handled request the worker consults its reboot voter. If the voter abstains, the application state is preserved across requests and no rebuild happens. If the voter votes to recycle, the worker rebuilds the application state and emits a kernel-rebooted event before continuing. Input is one queued request plus the per-request reboot votes; output reports how many rebuilds occurred and the ordered lifecycle events.",
+    "cases": [
+        {"input": {"handler": "worker", "op": "worker_reboot", "requests": 1, "responder": "ok", "reboot_per_call": [false]}, "expected_output": "reboots=0\nevent=worker_start\nevent=worker_stop\n"},
+        {"input": {"handler": "worker", "op": "worker_reboot", "requests": 1, "responder": "ok", "reboot_per_call": [true]}, "expected_output": "reboots=1\nevent=worker_start\nevent=kernel_rebooted\nevent=worker_stop\n"}
+    ]
+}

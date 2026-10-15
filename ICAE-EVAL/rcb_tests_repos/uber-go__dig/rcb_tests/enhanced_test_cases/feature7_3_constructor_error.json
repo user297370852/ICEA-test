@@ -1,0 +1,98 @@
+{
+  "description": "A provider may fail at construction time, but only when its value is actually needed. Covers a failing provider that is never requested (so no failure surfaces), a deeper transitive failure through a chain, and a failing provider requested optionally (which still fails because the provider exists).",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A"
+              }
+            ],
+            "fails": true
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "C"
+              }
+            ],
+            "fails": true
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "B",
+                "value": 2
+              }
+            ],
+            "in": [
+              {
+                "type": "C"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": 1
+              }
+            ],
+            "in": [
+              {
+                "type": "B"
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=C\nprovide ok keys=B\nprovide ok keys=A\ninvoke error=constructor_failed\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A"
+              }
+            ],
+            "fails": true
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\ninvoke error=constructor_failed\n"
+    }
+  ]
+}

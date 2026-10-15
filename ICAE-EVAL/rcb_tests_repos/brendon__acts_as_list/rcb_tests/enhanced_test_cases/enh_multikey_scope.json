@@ -1,0 +1,109 @@
+{
+  "description": "Composite scope partitioning by two keys (parent_id, parent_type). Records belong to the same sub-list only when BOTH keys match; each composite scope is numbered independently from the top.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": [
+            "parent_id",
+            "parent_type"
+          ]
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 1,
+              "parent_type": "X"
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 1,
+              "parent_type": "X"
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 1,
+              "parent_type": "Y"
+            }
+          },
+          {
+            "op": "create",
+            "ref": "d",
+            "attrs": {
+              "parent_id": 2,
+              "parent_type": "X"
+            }
+          },
+          {
+            "op": "create",
+            "ref": "e",
+            "attrs": {
+              "parent_id": 1,
+              "parent_type": "Y"
+            }
+          },
+          {
+            "op": "create",
+            "ref": "f",
+            "attrs": {
+              "parent_id": 1,
+              "parent_type": "X"
+            }
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 1,
+              "parent_type": "X"
+            },
+            "order": "position"
+          },
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 1,
+              "parent_type": "Y"
+            },
+            "order": "position"
+          },
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 2,
+              "parent_type": "X"
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 1,
+              "parent_type": "X"
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 1,
+              "parent_type": "Y"
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[1, 2, 6]\nids=[3, 5]\nids=[4]\npositions=[1, 2, 3]\npositions=[1, 2]"
+    }
+  ]
+}

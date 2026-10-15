@@ -1,0 +1,98 @@
+{
+  "description": "Boundary coverage for the name allow-list selector, focusing on the leading-character-removed comparison that the native suite never exercises. The equality check admits a candidate when a target equals the candidate name with its first character stripped (tolerating a leading path separator) and, symmetrically, when a target equals the candidate's name minus its first character. Also covers multi-name lists, multi-container batches in input order, and the all-mismatch path. Output lists each candidate as its name and whether it was admitted.",
+  "cases": [
+    {
+      "input": {
+        "action": "filter",
+        "mode": "names",
+        "names": [
+          "test"
+        ],
+        "containers": [
+          {
+            "name": "/test"
+          }
+        ]
+      },
+      "expected_output": "container=/test included=true\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "names",
+        "names": [
+          "est"
+        ],
+        "containers": [
+          {
+            "name": "test"
+          }
+        ]
+      },
+      "expected_output": "container=test included=true\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "names",
+        "names": [
+          "alpha",
+          "beta"
+        ],
+        "containers": [
+          {
+            "name": "alpha"
+          },
+          {
+            "name": "beta"
+          },
+          {
+            "name": "gamma"
+          },
+          {
+            "name": "/beta"
+          }
+        ]
+      },
+      "expected_output": "container=alpha included=true\ncontainer=beta included=true\ncontainer=gamma included=false\ncontainer=/beta included=true\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "names",
+        "names": [
+          "x",
+          "y",
+          "z"
+        ],
+        "containers": [
+          {
+            "name": "w"
+          }
+        ]
+      },
+      "expected_output": "container=w included=false\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "names",
+        "names": [
+          "svc"
+        ],
+        "containers": [
+          {
+            "name": "svc"
+          },
+          {
+            "name": "/svc"
+          },
+          {
+            "name": "service"
+          }
+        ]
+      },
+      "expected_output": "container=svc included=true\ncontainer=/svc included=true\ncontainer=service included=false\n"
+    }
+  ]
+}

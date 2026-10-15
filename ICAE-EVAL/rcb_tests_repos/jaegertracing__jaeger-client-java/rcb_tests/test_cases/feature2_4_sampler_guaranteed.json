@@ -1,0 +1,61 @@
+{
+    "description": "A guaranteed-throughput sampler combines a probabilistic sampler with a lower-bound rate limiter so that every operation is sampled at least once per interval. When the probabilistic sampler samples, its tags (type 'probabilistic') are reported; otherwise the lower-bound tags (type 'lowerbound') are reported. It can be reconfigured at runtime; an update returns whether anything actually changed.",
+    "cases": [
+        {
+            "input": {
+                "op": "sampler_guaranteed",
+                "rate": 0.0001,
+                "lower_bound": 1.0,
+                "id": 9223372036854775807
+            },
+            "expected_output": "sampled=true\nsampler_type=lowerbound\nsampler_param=0.00010\n"
+        },
+        {
+            "input": {
+                "op": "sampler_guaranteed",
+                "rate": 0.999,
+                "lower_bound": 1.0,
+                "id": 0
+            },
+            "expected_output": "sampled=true\nsampler_type=probabilistic\nsampler_param=0.999\n"
+        },
+        {
+            "input": {
+                "op": "sampler_guaranteed",
+                "rate": 0.001,
+                "lower_bound": 1,
+                "id": 9223372036854775807,
+                "updates": [
+                    {
+                        "rate": 0.001,
+                        "lower_bound": 1
+                    },
+                    {
+                        "rate": 0.002,
+                        "lower_bound": 1
+                    }
+                ]
+            },
+            "expected_output": "update=false\nupdate=true\nsampled=true\nsampler_type=lowerbound\nsampler_param=0.002\n"
+        },
+        {
+            "input": {
+                "op": "sampler_guaranteed",
+                "rate": 0.001,
+                "lower_bound": 1,
+                "id": 0,
+                "updates": [
+                    {
+                        "rate": 0.001,
+                        "lower_bound": 1
+                    },
+                    {
+                        "rate": 0.001,
+                        "lower_bound": 0
+                    }
+                ]
+            },
+            "expected_output": "update=false\nupdate=true\nsampled=true\nsampler_type=probabilistic\nsampler_param=0.001\n"
+        }
+    ]
+}

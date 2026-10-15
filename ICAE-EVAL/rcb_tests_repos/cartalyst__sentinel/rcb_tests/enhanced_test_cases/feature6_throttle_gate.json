@@ -1,0 +1,99 @@
+{
+  "description": "Enhanced throttle-gate edge cases (disjoint from native): a session check tripping on its IP source, a session check ignoring a positive GLOBAL delay (global is login-only) and being allowed, a login allowed when an IP delay is configured but no IP address is supplied (the IP source is not consulted), precedence where global wins over a larger ip/user, ip winning when global is clear, a fail re-running login checks and tripping global before logging, an IP delay of zero permitting a check, and user being the first positive source.",
+  "cases": [
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "check",
+        "ip": "10.0.0.1",
+        "delays": {
+          "ip": 7
+        }
+      },
+      "expected_output": "error=throttling\nthrottle_type=ip\ndelay_seconds=7\nunlock_in_seconds=7\n"
+    },
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "check",
+        "delays": {
+          "global": 10
+        }
+      },
+      "expected_output": "outcome=allowed\n"
+    },
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "login",
+        "delays": {
+          "global": 0,
+          "ip": 99,
+          "user": 0
+        }
+      },
+      "expected_output": "outcome=allowed\n"
+    },
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "login",
+        "ip": "1.2.3.4",
+        "delays": {
+          "global": 5,
+          "ip": 10,
+          "user": 20
+        }
+      },
+      "expected_output": "error=throttling\nthrottle_type=global\ndelay_seconds=5\nunlock_in_seconds=5\n"
+    },
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "login",
+        "ip": "1.2.3.4",
+        "delays": {
+          "global": 0,
+          "ip": 8,
+          "user": 3
+        }
+      },
+      "expected_output": "error=throttling\nthrottle_type=ip\ndelay_seconds=8\nunlock_in_seconds=8\n"
+    },
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "fail",
+        "ip": "1.2.3.4",
+        "delays": {
+          "global": 4
+        }
+      },
+      "expected_output": "error=throttling\nthrottle_type=global\ndelay_seconds=4\nunlock_in_seconds=4\n"
+    },
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "check",
+        "ip": "1.2.3.4",
+        "delays": {
+          "ip": 0
+        }
+      },
+      "expected_output": "outcome=allowed\n"
+    },
+    {
+      "input": {
+        "op": "throttle_gate",
+        "action": "login",
+        "ip": "1.2.3.4",
+        "delays": {
+          "global": 0,
+          "ip": 0,
+          "user": 15
+        }
+      },
+      "expected_output": "error=throttling\nthrottle_type=user\ndelay_seconds=15\nunlock_in_seconds=15\n"
+    }
+  ]
+}

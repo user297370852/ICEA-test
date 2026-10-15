@@ -1,0 +1,41 @@
+{
+    "description": "An update engine rejects invalid modifier specifications with a normalized error signal instead of a result document. Supplying two conflicting modifier operators that target the same field is reported as a conflicting-modifiers error. Using the positional placeholder against a path that cannot be resolved to an array element of the required shape is reported as an invalid-positional-path error.",
+    "cases": [
+        {
+            "input": {
+                "op": "update",
+                "document": {},
+                "update": {
+                    "$set": {
+                        "a": 5
+                    },
+                    "$inc": {
+                        "a": 3
+                    }
+                }
+            },
+            "expected_output": "error=conflicting_modifiers\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "b": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "update": {
+                    "$inc": {
+                        "b.$.c": 1
+                    }
+                },
+                "query": {
+                    "b": 2
+                }
+            },
+            "expected_output": "error=invalid_positional_path\n"
+        }
+    ]
+}

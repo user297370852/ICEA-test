@@ -1,0 +1,85 @@
+{
+  "description": "Boundary coverage for reading the line-hit array of a single file from a populated store: selecting one file from a multi-file snapshot, arrays mixing zeros and no-data (null) positions, querying a file whose recorded array is empty, and querying an unknown file (returns an empty array) when the store holds several files. The contract is identical across backends.",
+  "cases": [
+    {
+      "input": {
+        "op": "read_file_lines",
+        "backend": "redis",
+        "snapshot": {
+          "a.rb": [
+            1,
+            2
+          ],
+          "b.rb": [
+            3,
+            4,
+            5
+          ]
+        },
+        "file": "b.rb"
+      },
+      "expected_output": "file=b.rb\nlength=3\nlines=3,4,5"
+    },
+    {
+      "input": {
+        "op": "read_file_lines",
+        "backend": "file",
+        "snapshot": {
+          "m.rb": [
+            0,
+            null,
+            0,
+            5
+          ]
+        },
+        "file": "m.rb"
+      },
+      "expected_output": "file=m.rb\nlength=4\nlines=0,null,0,5"
+    },
+    {
+      "input": {
+        "op": "read_file_lines",
+        "backend": "file",
+        "snapshot": {
+          "only.rb": []
+        },
+        "file": "only.rb"
+      },
+      "expected_output": "file=only.rb\nlength=0\nlines="
+    },
+    {
+      "input": {
+        "op": "read_file_lines",
+        "backend": "file",
+        "snapshot": {
+          "a.rb": [
+            1
+          ],
+          "b.rb": [
+            2
+          ],
+          "c.rb": [
+            3
+          ]
+        },
+        "file": "missing.rb"
+      },
+      "expected_output": "file=missing.rb\nlength=0\nlines="
+    },
+    {
+      "input": {
+        "op": "read_file_lines",
+        "backend": "file",
+        "snapshot": {
+          "deep/nested/path/file.rb": [
+            7,
+            null,
+            8
+          ]
+        },
+        "file": "deep/nested/path/file.rb"
+      },
+      "expected_output": "file=deep/nested/path/file.rb\nlength=3\nlines=7,null,8"
+    }
+  ]
+}

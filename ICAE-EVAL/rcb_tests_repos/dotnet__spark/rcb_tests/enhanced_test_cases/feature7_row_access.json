@@ -1,0 +1,231 @@
+{
+  "description": "Feature 7 (typed row access) coverage: negative int and empty-string cell reads, by-name and by-index mixed access on a 3-column row, string column parsed as int (numeric string succeeds; non-numeric fails with invalid_format), int column read as string (type_mismatch), and out-of-range index / unknown name lookups which surface as error=failure.",
+  "cases": [
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "col1",
+            "type": "int"
+          },
+          {
+            "name": "col2",
+            "type": "string"
+          }
+        ],
+        "values": [
+          -5,
+          ""
+        ],
+        "access": [
+          {
+            "by": "index",
+            "index": 0,
+            "as": "int"
+          },
+          {
+            "by": "index",
+            "index": 1,
+            "as": "string"
+          }
+        ]
+      },
+      "expected_output": "size=2\nget=-5\nget="
+    },
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "col1",
+            "type": "int"
+          },
+          {
+            "name": "col2",
+            "type": "string"
+          },
+          {
+            "name": "col3",
+            "type": "int"
+          }
+        ],
+        "values": [
+          10,
+          "hi",
+          20
+        ],
+        "access": [
+          {
+            "by": "name",
+            "name": "col3",
+            "as": "int"
+          },
+          {
+            "by": "index",
+            "index": 1,
+            "as": "string"
+          }
+        ]
+      },
+      "expected_output": "size=3\nget=20\nget=hi"
+    },
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "col1",
+            "type": "string"
+          }
+        ],
+        "values": [
+          "123"
+        ],
+        "access": [
+          {
+            "by": "index",
+            "index": 0,
+            "as": "int"
+          }
+        ]
+      },
+      "expected_output": "size=1\nget=123"
+    },
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "c1",
+            "type": "int"
+          }
+        ],
+        "values": [
+          42
+        ],
+        "access": [
+          {
+            "by": "name",
+            "name": "c1",
+            "as": "int"
+          },
+          {
+            "by": "index",
+            "index": 0,
+            "as": "int"
+          }
+        ]
+      },
+      "expected_output": "size=1\nget=42\nget=42"
+    },
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "c1",
+            "type": "string"
+          }
+        ],
+        "values": [
+          "xyz"
+        ],
+        "access": [
+          {
+            "by": "index",
+            "index": 0,
+            "as": "int"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_format"
+    },
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "c1",
+            "type": "int"
+          },
+          {
+            "name": "c2",
+            "type": "string"
+          },
+          {
+            "name": "c3",
+            "type": "int"
+          }
+        ],
+        "values": [
+          7,
+          "q",
+          8
+        ],
+        "access": [
+          {
+            "by": "name",
+            "name": "c1",
+            "as": "string"
+          }
+        ]
+      },
+      "expected_output": "error=type_mismatch"
+    },
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "col1",
+            "type": "int"
+          },
+          {
+            "name": "col2",
+            "type": "string"
+          }
+        ],
+        "values": [
+          1,
+          "abc"
+        ],
+        "access": [
+          {
+            "by": "index",
+            "index": 5,
+            "as": "int"
+          }
+        ]
+      },
+      "expected_output": "error=failure"
+    },
+    {
+      "input": {
+        "op": "row",
+        "columns": [
+          {
+            "name": "col1",
+            "type": "int"
+          },
+          {
+            "name": "col2",
+            "type": "string"
+          }
+        ],
+        "values": [
+          1,
+          "abc"
+        ],
+        "access": [
+          {
+            "by": "name",
+            "name": "nope",
+            "as": "int"
+          }
+        ]
+      },
+      "expected_output": "error=failure"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+    "description": "Mutating an entity's own permission map through discrete operations, then reading back the final map as key=grant lines (in insertion order). Operations: add inserts a key with a grant (default true) but is a no-op if the key already exists; update changes an existing key's grant and, unless a create flag is passed, is a no-op when the key is absent (with the create flag it inserts the key); remove deletes a key if present; set replaces the entire map. The output lists every surviving key with its boolean grant, or the token empty when no keys remain.",
+    "cases": [
+        {
+            "input": {"op": "permissible", "actions": [{"op": "add", "args": ["test"]}, {"op": "add", "args": ["test1"]}]},
+            "expected_output": "test=true\ntest1=true\n"
+        },
+        {
+            "input": {"op": "permissible", "actions": [{"op": "add", "args": ["test"]}, {"op": "add", "args": ["test1"]}, {"op": "update", "args": ["test1", false]}]},
+            "expected_output": "test=true\ntest1=false\n"
+        },
+        {
+            "input": {"op": "permissible", "actions": [{"op": "add", "args": ["test1"]}, {"op": "update", "args": ["test2", false]}]},
+            "expected_output": "test1=true\n"
+        },
+        {
+            "input": {"op": "permissible", "actions": [{"op": "add", "args": ["test1"]}, {"op": "update", "args": ["test2", false, true]}]},
+            "expected_output": "test1=true\ntest2=false\n"
+        },
+        {
+            "input": {"op": "permissible", "actions": [{"op": "add", "args": ["test"]}, {"op": "add", "args": ["test1"]}, {"op": "remove", "args": ["test1"]}]},
+            "expected_output": "test=true\n"
+        },
+        {
+            "input": {"op": "permissible", "actions": [{"op": "set", "args": {"test": true}}]},
+            "expected_output": "test=true\n"
+        }
+    ]
+}

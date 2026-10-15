@@ -1,0 +1,102 @@
+{
+  "description": "Configuration-loader edge cases: non-numeric env values falling back to defaults, explicit DEBUG=false keeping info level, MAX_REQUEST_BODY override, bare-vs-prefixed precedence on X_SENDFILE_ENABLED, upstream command carrying its own arguments, and a prefixed read-timeout override.",
+  "cases": [
+    {
+      "input": {
+        "action": "config",
+        "args": [
+          "server",
+          "echo"
+        ],
+        "env": {
+          "TARGET_PORT": "notanumber",
+          "CACHE_SIZE": "abc",
+          "HTTP_READ_TIMEOUT": "xx"
+        }
+      },
+      "expected_output": "target_port=3000\nupstream_command=echo\ncache_size=67108864\nmax_request_body=0\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+    },
+    {
+      "input": {
+        "action": "config",
+        "args": [
+          "server",
+          "echo"
+        ],
+        "env": {
+          "DEBUG": "false"
+        }
+      },
+      "expected_output": "target_port=3000\nupstream_command=echo\ncache_size=67108864\nmax_request_body=0\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+    },
+    {
+      "input": {
+        "action": "config",
+        "args": [
+          "server",
+          "echo"
+        ],
+        "env": {
+          "MAX_REQUEST_BODY": "1048576"
+        }
+      },
+      "expected_output": "target_port=3000\nupstream_command=echo\ncache_size=67108864\nmax_request_body=1048576\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+    },
+    {
+      "input": {
+        "action": "config",
+        "args": [
+          "server",
+          "echo"
+        ],
+        "env": {
+          "X_SENDFILE_ENABLED": "true",
+          "THRUSTER_X_SENDFILE_ENABLED": "0"
+        }
+      },
+      "expected_output": "target_port=3000\nupstream_command=echo\ncache_size=67108864\nmax_request_body=0\nx_sendfile_enabled=false\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+    },
+    {
+      "input": {
+        "action": "config",
+        "args": [
+          "server",
+          "myapp",
+          "--port",
+          "9000"
+        ],
+        "env": {
+          "THRUSTER_HTTP_READ_TIMEOUT": "120"
+        }
+      },
+      "expected_output": "target_port=3000\nupstream_command=myapp\ncache_size=67108864\nmax_request_body=0\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=120\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+    },
+    {
+      "input": {
+        "action": "config",
+        "args": [
+          "server",
+          "rails"
+        ],
+        "env": {
+          "THRUSTER_TARGET_PORT": "8080",
+          "THRUSTER_CACHE_SIZE": "134217728"
+        }
+      },
+      "expected_output": "target_port=8080\nupstream_command=rails\ncache_size=134217728\nmax_request_body=0\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+    },
+    {
+      "input": {
+        "action": "config",
+        "args": [
+          "server",
+          "node"
+        ],
+        "env": {
+          "THRUSTER_DEBUG": "1"
+        }
+      },
+      "expected_output": "target_port=3000\nupstream_command=node\ncache_size=67108864\nmax_request_body=0\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=debug\n"
+    }
+  ]
+}

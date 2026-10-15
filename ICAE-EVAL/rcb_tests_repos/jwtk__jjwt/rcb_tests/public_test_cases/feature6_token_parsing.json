@@ -1,0 +1,55 @@
+{
+  "description": "Parse an arbitrary compact token without asserting its shape: recover the header algorithm and the body (claims or plaintext). Structurally invalid strings are rejected with a neutral error category and a reason (wrong number of separators, missing body), and a null input is rejected as an invalid argument.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse",
+        "token": "foo"
+      },
+      "expected_output": "error=malformed\nreason=period_count"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": "."
+      },
+      "expected_output": "error=malformed\nreason=period_count"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": ".."
+      },
+      "expected_output": "error=malformed\nreason=missing_body"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": "eyJhbGciOiJub25lIn0.SGVsbG8gd29ybGQh."
+      },
+      "expected_output": "alg=none\nbody=Hello world!"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": "eyJhbGciOiJub25lIn0.eyJzdWIiOiJKb2UifQ."
+      },
+      "expected_output": "alg=none\nsub=Joe"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJKb2UifQ.qs8rO_cGp7ctWsq-yGbVzJ-cjAhzdLh1jP0296AC9Ac",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA"
+      },
+      "expected_output": "alg=HS256\nsub=Joe"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": null
+      },
+      "expected_output": "error=illegal_argument"
+    }
+  ]
+}

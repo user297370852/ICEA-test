@@ -1,0 +1,81 @@
+{
+  "description": "Subnetting boundaries: large fan-out counts, same-prefix split, host-route children, splitting from /0, and try-mode invalid prefix rejection.",
+  "cases": [
+    {
+      "input": {
+        "network": "2001:db8::/48",
+        "new_prefix": 52,
+        "indices": [
+          0,
+          15
+        ]
+      },
+      "expected_output": "count=16\nsubnet[0]=2001:db8::/52\nsubnet[15]=2001:db8:0:f000::/52\n"
+    },
+    {
+      "input": {
+        "network": "2001:db8::/64",
+        "new_prefix": 66,
+        "indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "expected_output": "count=4\nsubnet[0]=2001:db8::/66\nsubnet[1]=2001:db8:0:0:4000::/66\nsubnet[2]=2001:db8:0:0:8000::/66\nsubnet[3]=2001:db8:0:0:c000::/66\n"
+    },
+    {
+      "input": {
+        "network": "2001:db8::/124",
+        "new_prefix": 128,
+        "indices": [
+          0,
+          15
+        ]
+      },
+      "expected_output": "count=16\nsubnet[0]=2001:db8::/128\nsubnet[15]=2001:db8::f/128\n"
+    },
+    {
+      "input": {
+        "network": "2001:db8::/64",
+        "new_prefix": 80,
+        "indices": [
+          0,
+          65535
+        ]
+      },
+      "expected_output": "count=65536\nsubnet[0]=2001:db8::/80\nsubnet[65535]=2001:db8:0:0:ffff::/80\n"
+    },
+    {
+      "input": {
+        "network": "2001:db8::/64",
+        "new_prefix": 64,
+        "try_mode": true,
+        "indices": [
+          0
+        ]
+      },
+      "expected_output": "subnetted=true\ncount=1\nsubnet[0]=2001:db8::/64\n"
+    },
+    {
+      "input": {
+        "network": "2001:db8::/64",
+        "new_prefix": 129,
+        "try_mode": true
+      },
+      "expected_output": "subnetted=false\ncount=null\n"
+    },
+    {
+      "input": {
+        "network": "2001:db8::/0",
+        "new_prefix": 4,
+        "indices": [
+          0,
+          15
+        ]
+      },
+      "expected_output": "count=16\nsubnet[0]=::/4\nsubnet[15]=f000::/4\n"
+    }
+  ]
+}

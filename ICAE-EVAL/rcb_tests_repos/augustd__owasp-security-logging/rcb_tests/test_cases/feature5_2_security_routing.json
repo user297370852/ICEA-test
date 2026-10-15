@@ -1,0 +1,37 @@
+{
+    "description": "Decide how a log event should be routed based on whether it carries a security-event marker (security success, failure or audit). The filter denies any event that has no marker. For events that do carry a security-event marker the decision depends on a configuration flag: in the default mode the filter returns a neutral (pass-through) decision so the rest of the chain still applies; in accept-all mode it returns an accept decision so the event is routed immediately regardless of other filters. The decision is reported as a neutral token.",
+    "cases": [
+        {
+            "input": {"op": "filter_security"},
+            "expected_output": "decision=DENY\n"
+        },
+        {
+            "input": {"op": "filter_security", "marker": "SECURITY SUCCESS"},
+            "expected_output": "decision=NEUTRAL\n"
+        },
+        {
+            "input": {"op": "filter_security", "marker": "SECURITY FAILURE"},
+            "expected_output": "decision=NEUTRAL\n"
+        },
+        {
+            "input": {"op": "filter_security", "marker": "SECURITY AUDIT"},
+            "expected_output": "decision=NEUTRAL\n"
+        },
+        {
+            "input": {"op": "filter_security", "accept_all": true},
+            "expected_output": "decision=DENY\n"
+        },
+        {
+            "input": {"op": "filter_security", "accept_all": true, "marker": "SECURITY SUCCESS"},
+            "expected_output": "decision=ACCEPT\n"
+        },
+        {
+            "input": {"op": "filter_security", "accept_all": true, "marker": "SECURITY FAILURE"},
+            "expected_output": "decision=ACCEPT\n"
+        },
+        {
+            "input": {"op": "filter_security", "accept_all": true, "marker": "SECURITY AUDIT"},
+            "expected_output": "decision=ACCEPT\n"
+        }
+    ]
+}

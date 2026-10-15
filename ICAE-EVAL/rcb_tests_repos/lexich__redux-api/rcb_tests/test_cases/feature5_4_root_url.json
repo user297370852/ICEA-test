@@ -1,0 +1,79 @@
+{
+  "description": "A configured root URL is prepended to each endpoint's relative path to form the final routed URL. Relative paths are joined to the root's path (collapsing duplicate slashes), an empty path resolves to the root itself, and unfilled optional placeholders are stripped before joining. This case routes several endpoints under one root and reports the resulting URLs reached by the transport.",
+  "cases": [
+    {
+      "input": {
+        "op": "route_urls",
+        "endpoints": {
+          "test1": "/url1/",
+          "test2": "url2",
+          "test3": "",
+          "test4": "/(:id)"
+        },
+        "fetch": {
+          "fixed": {
+            "msg": "hello"
+          }
+        },
+        "use": {
+          "rootUrl": "http://api.com/root"
+        },
+        "calls": [
+          {
+            "endpoint": "test1"
+          },
+          {
+            "endpoint": "test2"
+          },
+          {
+            "endpoint": "test3"
+          },
+          {
+            "endpoint": "test4",
+            "pathvars": {
+              "id": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "routed_url=http://api.com/root/url1/\nrouted_url=http://api.com/root/url2\nrouted_url=http://api.com/root/\nrouted_url=http://api.com/root/1\n"
+    },
+    {
+      "input": {
+        "op": "route_urls",
+        "endpoints": {
+          "test1": "/url1/",
+          "test2": "url2",
+          "test3": "",
+          "test4": "/(:id)"
+        },
+        "fetch": {
+          "fixed": {
+            "msg": "hello"
+          }
+        },
+        "use": {
+          "rootUrl": "http://api.ru/"
+        },
+        "calls": [
+          {
+            "endpoint": "test1"
+          },
+          {
+            "endpoint": "test2"
+          },
+          {
+            "endpoint": "test3"
+          },
+          {
+            "endpoint": "test4",
+            "pathvars": {
+              "id": 2
+            }
+          }
+        ]
+      },
+      "expected_output": "routed_url=http://api.ru/url1/\nrouted_url=http://api.ru/url2\nrouted_url=http://api.ru/\nrouted_url=http://api.ru/2\n"
+    }
+  ]
+}

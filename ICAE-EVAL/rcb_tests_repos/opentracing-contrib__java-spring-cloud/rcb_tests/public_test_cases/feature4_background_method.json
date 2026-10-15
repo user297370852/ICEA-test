@@ -1,0 +1,16 @@
+{
+  "feature": "background_method",
+  "description": "Background (asynchronous) method instrumentation: invocation produces a span tagged with the originating type and method; failures are recorded as an error.",
+  "cases": [
+    {
+      "name": "async_method_span_correlated_with_caller",
+      "input": {"feature": "background_method", "outcome": "success"},
+      "expected_output": "spans=3\ndistinct_traces=1\nop=bar component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=root\nop=inner-work component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=bar\nop=runJob component=async span.kind=- http.status=- attrs=[class=BackgroundJobs;method=runJob] error=false error_log=- parent=bar\n"
+    },
+    {
+      "name": "async_method_failure_recorded_as_error",
+      "input": {"feature": "background_method", "outcome": "error"},
+      "expected_output": "spans=1\ndistinct_traces=1\nop=failingJob component=async span.kind=- http.status=- attrs=[class=BackgroundJobs;method=failingJob] error=true error_log=error parent=root\n"
+    }
+  ]
+}

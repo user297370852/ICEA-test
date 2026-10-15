@@ -1,0 +1,59 @@
+{
+    "description": "File resource operations normalize file identifiers and upload metadata, construct the correct HTTP method and URL, include upload protocol headers for multipart uploads, and reject invalid identifiers or missing MIME types.",
+    "cases": [
+        {
+            "input": {
+                "operation": "metadata",
+                "metadata": {
+                    "mimeType": "image/jpeg",
+                    "displayName": "display name",
+                    "name": "filename"
+                }
+            },
+            "expected_output": "metadata={\"displayName\":\"display name\",\"mimeType\":\"image/jpeg\",\"name\":\"files/filename\"}\n"
+        },
+        {
+            "input": {
+                "operation": "metadata",
+                "metadata": {}
+            },
+            "expected_output": "error=missing_mime_type\n"
+        },
+        {
+            "input": {
+                "operation": "list",
+                "params": {
+                    "pageSize": 3,
+                    "pageToken": "abc"
+                }
+            },
+            "expected_output": "task=list\nmethod=GET\nurl=https://generativelanguage.googleapis.com/v1beta/files?pageSize=3&pageToken=abc\nresult={\"files\":[{\"uri\":\"https://yourfile.here/filename\"}]}\n"
+        },
+        {
+            "input": {
+                "operation": "get",
+                "name": "files/nameoffile"
+            },
+            "expected_output": "task=get\nmethod=GET\nurl=https://generativelanguage.googleapis.com/v1beta/files/nameoffile\nresult={\"uri\":\"https://yourfile.here/filename\"}\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "name": ""
+            },
+            "expected_output": "error=invalid_file_id\n"
+        },
+        {
+            "input": {
+                "operation": "upload",
+                "filePath": "./test-utils/cat.png",
+                "metadata": {
+                    "mimeType": "image/png",
+                    "name": "customname",
+                    "displayName": "mydisplayname"
+                }
+            },
+            "expected_output": "task=upload\nmethod=POST\nurl=https://generativelanguage.googleapis.com/upload/v1beta/files\nupload_protocol=multipart\nbody_has_mime=true\nbody_has_name=true\nbody_has_display_name=true\nresult={\"file\":{\"uri\":\"https://yourfile.here/filename\"}}\n"
+        }
+    ]
+}

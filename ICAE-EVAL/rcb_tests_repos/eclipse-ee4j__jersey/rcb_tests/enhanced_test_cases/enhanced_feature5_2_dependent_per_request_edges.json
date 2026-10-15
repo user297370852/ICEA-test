@@ -1,0 +1,65 @@
+{
+  "description": "Edge cases for the fully-managed per-request echo: missing x query parameter, empty x, encoded punctuation, and two requests in one sequence both reporting counter 0.",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/per-request"
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request\nbody=http://localhost:9998/main/jcdibean/dependent/per-request: queryParam=null 0"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/per-request",
+            "query": {
+              "x": ""
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=: queryParam= 0"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/per-request",
+            "query": {
+              "x": "100%"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=100%25\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=100%25: queryParam=100% 0"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/per-request",
+            "query": {
+              "x": "one"
+            }
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/per-request",
+            "query": {
+              "x": "two"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=one\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=one: queryParam=one 0\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/dependent/per-request?x=two\nbody=http://localhost:9998/main/jcdibean/dependent/per-request?x=two: queryParam=two 0"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "description": "Loading of the optional configuration file from the source tree. Engine-option keys (those carrying a leading-underscore marker) and answer-default keys are both returned, each preserving its native declared type: text stays text, integers stay integers, booleans stay booleans, and sequences stay sequences. A malformed configuration file is reported as an invalid-config-file error. Two configuration files present at once are reported as a multiple-config-files error. When no configuration file is present, no keys are returned.",
+  "cases": [
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "a_string: lorem ipsum\na_number: 12345\na_boolean: true\na_list:\n  - one\n  - two\n  - three\n"
+          }
+        ]
+      },
+      "expected_output": "keys=4\na_boolean=true\na_list=[\"one\", \"two\", \"three\"]\na_number=12345\na_string=\"lorem ipsum\"\n"
+    },
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "%343\n"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_config_file\n"
+    },
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "\n"
+          },
+          {
+            "name": "copier.yaml",
+            "content": "\n"
+          }
+        ]
+      },
+      "expected_output": "error=multiple_config_files\n"
+    }
+  ]
+}

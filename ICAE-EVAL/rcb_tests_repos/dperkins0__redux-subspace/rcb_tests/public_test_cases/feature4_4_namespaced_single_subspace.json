@@ -1,0 +1,9 @@
+{
+    "description": "When the root epic combines a plain relay epic with a relay epic scoped to a namespaced branch, the two react to namespace-tagged and untagged actions independently. Dispatching the trigger at the root only affects the unscoped branch; dispatching from the namespaced branch store routes the update into that namespaced branch via the scoped epic, leaving the unscoped branch untouched. Two full-state snapshots are emitted.",
+    "cases": [
+        {
+            "input": {"scenario": "store_integration", "reducer": {"combine": {"parent1": {"combine": {"child1": "leaf", "child2": {"namespace": "childNamespace", "inner": "leaf"}}}, "parent2": {"namespace": "parentNamespace", "inner": {"combine": {"child1": "leaf", "child2": {"namespace": "childNamespace", "inner": "leaf"}}}}}}, "epic": {"combine": [{"relay": {}}, {"scope": {"selector": {"prop": "parent2"}, "namespace": "parentNamespace", "inner": {"relay": {}}}}]}, "dispatches": [{"path": [], "action": {"type": "TEST_ACTION_TRIGGER", "value": "root value"}}, {"path": [{"selector": {"prop": "parent2"}, "namespace": "parentNamespace"}], "action": {"type": "TEST_ACTION_TRIGGER", "value": "parent value"}}]},
+            "expected_output": "{\"parent1\":{\"child1\":\"root value\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n{\"parent1\":{\"child1\":\"root value\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"parent value\",\"child2\":\"initial value\"}}\n"
+        }
+    ]
+}

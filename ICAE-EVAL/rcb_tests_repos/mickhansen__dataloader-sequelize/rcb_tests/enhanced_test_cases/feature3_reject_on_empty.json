@@ -1,0 +1,94 @@
+{
+  "description": "Boundary coverage for empty-result handling. A load may request that an empty result be treated as an error rather than an empty collection; an owner that has links resolves normally while an empty owner under the flag is rejected with the neutral empty-result category, and the same empty owner loaded without the flag resolves to an empty collection. All loads in the wave still share the round-trip structure dictated by their compatibility. The reported signals are the round-trip count and, per load, either the returned id set, an empty collection, or the empty-result error category.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 3,
+            "as": "members",
+            "options": {
+              "rejectOnEmpty": true
+            }
+          },
+          {
+            "project": 4,
+            "as": "members",
+            "options": {
+              "rejectOnEmpty": true
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=3,4\nr0.op0=members=107,108,109\nr0.op1=error=empty_result\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 4,
+            "as": "members",
+            "options": {
+              "rejectOnEmpty": true
+            }
+          },
+          {
+            "project": 4,
+            "as": "members"
+          },
+          {
+            "project": 1,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,4,4\nr0.op0=error=empty_result\nr0.op1=members=\nr0.op2=members=101,102,103,104\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 2,
+            "as": "members",
+            "options": {
+              "rejectOnEmpty": true
+            }
+          },
+          {
+            "project": 3,
+            "as": "members",
+            "options": {
+              "rejectOnEmpty": true
+            }
+          },
+          {
+            "project": 4,
+            "as": "members",
+            "options": {
+              "rejectOnEmpty": true
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=2,3,4\nr0.op0=members=104,105,106,107\nr0.op1=members=107,108,109\nr0.op2=error=empty_result\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 4,
+            "as": "members",
+            "options": {
+              "rejectOnEmpty": true
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=4\nr0.op0=error=empty_result\n"
+    }
+  ]
+}

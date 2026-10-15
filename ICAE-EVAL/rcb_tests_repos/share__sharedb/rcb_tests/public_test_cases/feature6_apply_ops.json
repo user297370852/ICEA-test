@@ -1,0 +1,68 @@
+{
+    "description": "Apply an ordered sequence of operations to a snapshot, each operation establishing the working version before it is applied so the document accumulates every change in order. A single sequence may create, then edit, then further edit a document. Errors short-circuit the sequence and surface as normalized categories: an unregistered snapshot type or create type yields type-not-recognized, and a payload the type refuses to apply yields a normalized not-applied category.",
+    "cases": [
+        {
+            "input": {
+                "action": "applyOps",
+                "snapshot": {
+                    "type": "json0",
+                    "data": {
+                        "title": "Wee Free Men"
+                    }
+                },
+                "ops": [
+                    {
+                        "v": 1,
+                        "op": [
+                            {
+                                "p": [
+                                    "title",
+                                    0
+                                ],
+                                "si": "The "
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "v=2\ntype=json0\ndata={\"title\":\"The Wee Free Men\"}\n"
+        },
+        {
+            "input": {
+                "action": "applyOps",
+                "snapshot": {
+                    "type": "json0",
+                    "data": {
+                        "title": "Wee Free Men"
+                    }
+                },
+                "ops": [
+                    {
+                        "v": 1,
+                        "op": [
+                            {
+                                "p": [
+                                    "title",
+                                    0
+                                ],
+                                "si": "The "
+                            }
+                        ]
+                    },
+                    {
+                        "v": 2,
+                        "op": [
+                            {
+                                "p": [
+                                    "author"
+                                ],
+                                "oi": "Terry Pratchett"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "v=3\ntype=json0\ndata={\"author\":\"Terry Pratchett\",\"title\":\"The Wee Free Men\"}\n"
+        }
+    ]
+}

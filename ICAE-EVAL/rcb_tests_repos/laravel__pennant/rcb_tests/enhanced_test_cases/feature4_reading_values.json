@@ -1,0 +1,82 @@
+{
+  "description": "Read concrete feature values rather than on/off state, including the whole-engine snapshot. The all-query on an engine with no defined features yields an empty result, and on a populated engine returns each defined feature mapped to its value in definition order. A feature activated with an explicit structured payload returns that payload verbatim.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "all"
+          }
+        ]
+      },
+      "expected_output": "all = []\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "a",
+            "resolver": {
+              "type": "const",
+              "value": true
+            }
+          },
+          {
+            "op": "define",
+            "feature": "b",
+            "resolver": {
+              "type": "const",
+              "value": 0
+            }
+          },
+          {
+            "op": "define",
+            "feature": "c",
+            "resolver": {
+              "type": "const",
+              "value": {
+                "x": [
+                  1,
+                  2
+                ]
+              }
+            }
+          },
+          {
+            "op": "all"
+          }
+        ]
+      },
+      "expected_output": "all = {\"a\":true,\"b\":0,\"c\":{\"x\":[1,2]}}\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "activate",
+            "feature": "special",
+            "scope": "alpha",
+            "value": {
+              "k": [
+                "v1",
+                "v2"
+              ]
+            }
+          },
+          {
+            "op": "value",
+            "feature": "special",
+            "scope": "alpha"
+          },
+          {
+            "op": "active",
+            "feature": "special",
+            "scope": "alpha"
+          }
+        ]
+      },
+      "expected_output": "value special = {\"k\":[\"v1\",\"v2\"]}\nactive special = true\n"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+    "description": "Creating a query job produces a job configuration with standard SQL, parameter mode, serialized parameters, dry-run settings, labels, timeout, job id or prefix, destination tables, and location where supplied.",
+    "cases": [
+        {
+            "input": {
+                "operation": "query_job_request",
+                "options": {
+                    "query": "SELECT @name AS name",
+                    "params": {
+                        "name": "Ada"
+                    },
+                    "types": {
+                        "name": "STRING"
+                    },
+                    "dryRun": true,
+                    "labels": {
+                        "purpose": "test"
+                    }
+                }
+            },
+            "expected_output": "{\n  \"configuration\": {\n    \"query\": {\n      \"useLegacySql\": false,\n      \"query\": \"SELECT @name AS name\",\n      \"types\": {\n        \"name\": \"STRING\"\n      },\n      \"parameterMode\": \"named\",\n      \"queryParameters\": [\n        {\n          \"parameterType\": {\n            \"type\": \"STRING\"\n          },\n          \"parameterValue\": {\n            \"value\": \"Ada\"\n          },\n          \"name\": \"name\"\n        }\n      ]\n    },\n    \"dryRun\": true,\n    \"labels\": {\n      \"purpose\": \"test\"\n    }\n  }\n}\n"
+        },
+        {
+            "input": {
+                "operation": "query_job_request",
+                "clientLocation": "EU",
+                "options": {
+                    "query": "SELECT ? AS value",
+                    "params": [
+                        1
+                    ],
+                    "types": [
+                        "INT64"
+                    ],
+                    "jobPrefix": "pre-",
+                    "jobTimeoutMs": 1000
+                }
+            },
+            "expected_output": "{\n  \"configuration\": {\n    \"query\": {\n      \"useLegacySql\": false,\n      \"query\": \"SELECT ? AS value\",\n      \"types\": [\n        \"INT64\"\n      ],\n      \"parameterMode\": \"positional\",\n      \"queryParameters\": [\n        {\n          \"parameterType\": {\n            \"type\": \"INT64\"\n          },\n          \"parameterValue\": {\n            \"value\": 1\n          }\n        }\n      ]\n    },\n    \"jobTimeoutMs\": 1000\n  },\n  \"jobPrefix\": \"pre-\"\n}\n"
+        }
+    ]
+}

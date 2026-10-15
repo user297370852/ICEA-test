@@ -1,0 +1,243 @@
+{
+    "description": "The header's status bracket reflects the thread's runtime condition. Holding the global lock yields a 'Has the GIL' marker. A native stack that is waiting to acquire the lock yields 'Waiting for the GIL'; one that is releasing it yields 'Dropping the GIL'. A native stack inside garbage collection, or the collection flag set while holding the lock, yields 'Garbage collecting'. Multiple active conditions are joined with commas inside the brackets.",
+    "cases": [
+        {
+            "input": {
+                "native": false,
+                "thread": {
+                    "tid": 1,
+                    "name": null,
+                    "holds_the_gil": true,
+                    "is_gc_collecting": false,
+                    "python_version": [
+                        3,
+                        8
+                    ],
+                    "python_frames": [
+                        {
+                            "filename": "file1.py",
+                            "function": "function1",
+                            "lineno": 1,
+                            "end_lineno": 1,
+                            "column": 0,
+                            "end_column": 0,
+                            "is_entry": true,
+                            "is_shim": false
+                        }
+                    ],
+                    "native_frames": []
+                }
+            },
+            "expected_output": "Traceback for thread 1 [Has the GIL] (most recent call last):\n    (Python) File \"file1.py\", line 1, in function1\n\n"
+        },
+        {
+            "input": {
+                "native": false,
+                "thread": {
+                    "tid": 1,
+                    "name": null,
+                    "holds_the_gil": false,
+                    "is_gc_collecting": false,
+                    "python_version": [
+                        3,
+                        8
+                    ],
+                    "python_frames": [
+                        {
+                            "filename": "file1.py",
+                            "function": "function1",
+                            "lineno": 1,
+                            "end_lineno": 1,
+                            "column": 0,
+                            "end_column": 0,
+                            "is_entry": true,
+                            "is_shim": false
+                        }
+                    ],
+                    "native_frames": [
+                        {
+                            "symbol": "native_function1",
+                            "file": "native_file1.c",
+                            "line": 1,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "PyEval_EvalFrameEx",
+                            "file": "Python/ceval.c",
+                            "line": 123,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "native_function2",
+                            "file": "native_file2.c",
+                            "line": 2,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "PyEval_EvalFrameEx",
+                            "file": "Python/ceval.c",
+                            "line": 123,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "native_function3",
+                            "file": "native_file3.c",
+                            "line": 3,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "take_gil",
+                            "file": "Python/gil.c",
+                            "line": 24,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "native_function4",
+                            "file": "native_file4.c",
+                            "line": 4,
+                            "library": "library.so"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "Traceback for thread 1 [Waiting for the GIL] (most recent call last):\n    (Python) File \"file1.py\", line 1, in function1\n\n"
+        },
+        {
+            "input": {
+                "native": false,
+                "thread": {
+                    "tid": 1,
+                    "name": null,
+                    "holds_the_gil": false,
+                    "is_gc_collecting": false,
+                    "python_version": [
+                        3,
+                        8
+                    ],
+                    "python_frames": [
+                        {
+                            "filename": "file1.py",
+                            "function": "function1",
+                            "lineno": 1,
+                            "end_lineno": 1,
+                            "column": 0,
+                            "end_column": 0,
+                            "is_entry": true,
+                            "is_shim": false
+                        }
+                    ],
+                    "native_frames": [
+                        {
+                            "symbol": "native_function1",
+                            "file": "native_file1.c",
+                            "line": 1,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "PyEval_EvalFrameEx",
+                            "file": "Python/ceval.c",
+                            "line": 123,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "native_function2",
+                            "file": "native_file2.c",
+                            "line": 2,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "PyEval_EvalFrameEx",
+                            "file": "Python/ceval.c",
+                            "line": 123,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "native_function3",
+                            "file": "native_file3.c",
+                            "line": 3,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "drop_gil",
+                            "file": "Python/gil.c",
+                            "line": 24,
+                            "library": "library.so"
+                        },
+                        {
+                            "symbol": "native_function4",
+                            "file": "native_file4.c",
+                            "line": 4,
+                            "library": "library.so"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "Traceback for thread 1 [Dropping the GIL] (most recent call last):\n    (Python) File \"file1.py\", line 1, in function1\n\n"
+        },
+        {
+            "input": {
+                "native": false,
+                "thread": {
+                    "tid": 1,
+                    "name": null,
+                    "holds_the_gil": false,
+                    "is_gc_collecting": -1,
+                    "python_version": [
+                        3,
+                        8
+                    ],
+                    "python_frames": [
+                        {
+                            "filename": "file1.py",
+                            "function": "function1",
+                            "lineno": 1,
+                            "end_lineno": 1,
+                            "column": 0,
+                            "end_column": 0,
+                            "is_entry": true,
+                            "is_shim": false
+                        }
+                    ],
+                    "native_frames": [
+                        {
+                            "symbol": "gc_collect",
+                            "file": "native_file1.c",
+                            "line": 1,
+                            "library": "library.so"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "Traceback for thread 1 [Garbage collecting] (most recent call last):\n    (Python) File \"file1.py\", line 1, in function1\n\n"
+        },
+        {
+            "input": {
+                "native": false,
+                "thread": {
+                    "tid": 1,
+                    "name": null,
+                    "holds_the_gil": true,
+                    "is_gc_collecting": true,
+                    "python_version": [
+                        3,
+                        8
+                    ],
+                    "python_frames": [
+                        {
+                            "filename": "file1.py",
+                            "function": "function1",
+                            "lineno": 1,
+                            "end_lineno": 1,
+                            "column": 0,
+                            "end_column": 0,
+                            "is_entry": true,
+                            "is_shim": false
+                        }
+                    ],
+                    "native_frames": []
+                }
+            },
+            "expected_output": "Traceback for thread 1 [Has the GIL,Garbage collecting] (most recent call last):\n    (Python) File \"file1.py\", line 1, in function1\n\n"
+        }
+    ]
+}

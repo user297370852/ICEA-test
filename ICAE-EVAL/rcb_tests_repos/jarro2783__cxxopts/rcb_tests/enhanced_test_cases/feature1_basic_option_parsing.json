@@ -1,0 +1,128 @@
+{
+  "description": "Enhanced basic option recognition: long-form '=' assignment, repeated short flag counting, shared counts across multiple long aliases, and bundled short flags where the final value-bearing short absorbs the remaining characters of the token.",
+  "cases": [
+    {
+      "input": {
+        "program": "eq",
+        "options": [
+          {
+            "opts": "value",
+            "type": "string"
+          }
+        ],
+        "argv": [
+          "--value=hello world"
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "value"
+          },
+          {
+            "q": "value",
+            "name": "value",
+            "type": "string"
+          },
+          {
+            "q": "contains",
+            "name": "value"
+          }
+        ]
+      },
+      "expected_output": "count[value]=1\nvalue[value]=hello world\ncontains[value]=true"
+    },
+    {
+      "input": {
+        "program": "repeat",
+        "options": [
+          {
+            "opts": "v,verbose"
+          }
+        ],
+        "argv": [
+          "-vvv"
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "v"
+          },
+          {
+            "q": "count",
+            "name": "verbose"
+          }
+        ]
+      },
+      "expected_output": "count[v]=3\ncount[verbose]=3"
+    },
+    {
+      "input": {
+        "program": "aliases",
+        "options": [
+          {
+            "opts": "a,alpha,first"
+          }
+        ],
+        "argv": [
+          "--alpha",
+          "-a",
+          "--first"
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "a"
+          },
+          {
+            "q": "count",
+            "name": "alpha"
+          },
+          {
+            "q": "count",
+            "name": "first"
+          }
+        ]
+      },
+      "expected_output": "count[a]=3\ncount[alpha]=3\ncount[first]=3"
+    },
+    {
+      "input": {
+        "program": "bundle",
+        "options": [
+          {
+            "opts": "x"
+          },
+          {
+            "opts": "y"
+          },
+          {
+            "opts": "z",
+            "type": "string"
+          }
+        ],
+        "argv": [
+          "-xyz123"
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "x"
+          },
+          {
+            "q": "count",
+            "name": "y"
+          },
+          {
+            "q": "value",
+            "name": "z",
+            "type": "string"
+          },
+          {
+            "q": "arguments"
+          }
+        ]
+      },
+      "expected_output": "count[x]=1\ncount[y]=1\nvalue[z]=123\narguments=3\narg[0]=x:true\narg[1]=y:true\narg[2]=z:123"
+    }
+  ]
+}

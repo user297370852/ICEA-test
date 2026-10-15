@@ -1,0 +1,60 @@
+{
+  "description": "Detect and report misspellings in additional content shapes: several distinct typos on a single line, a typo isolated only after stripping trailing punctuation, a typo located on a later line surrounded by clean lines (exercising one-based line numbering), and a single typo in a file with no trailing newline.",
+  "cases": [
+    {
+      "input": {
+        "files": {
+          "a.txt": "abandonned and abondon here\n"
+        },
+        "args": [
+          "a.txt"
+        ]
+      },
+      "expected_output": "a.txt:1: abandonned  ==> abandoned\na.txt:1: abondon  ==> abandon\ncount=2\n"
+    },
+    {
+      "input": {
+        "files": {
+          "a.txt": "Well, abandonned!\n"
+        },
+        "args": [
+          "a.txt"
+        ]
+      },
+      "expected_output": "a.txt:1: abandonned  ==> abandoned\ncount=1\n"
+    },
+    {
+      "input": {
+        "files": {
+          "a.txt": "clean first line\nstill clean\nabilty\nlast clean\n"
+        },
+        "args": [
+          "a.txt"
+        ]
+      },
+      "expected_output": "a.txt:3: abilty  ==> ability\ncount=1\n"
+    },
+    {
+      "input": {
+        "files": {
+          "a.txt": "abondon"
+        },
+        "args": [
+          "a.txt"
+        ]
+      },
+      "expected_output": "a.txt:1: abondon  ==> abandon\ncount=1\n"
+    },
+    {
+      "input": {
+        "files": {
+          "a.txt": "abandonned\nabondon\nabilty\nnaieve\n"
+        },
+        "args": [
+          "a.txt"
+        ]
+      },
+      "expected_output": "a.txt:1: abandonned  ==> abandoned\na.txt:2: abondon  ==> abandon\na.txt:3: abilty  ==> ability\na.txt:4: naieve  ==> naive\ncount=4\n"
+    }
+  ]
+}

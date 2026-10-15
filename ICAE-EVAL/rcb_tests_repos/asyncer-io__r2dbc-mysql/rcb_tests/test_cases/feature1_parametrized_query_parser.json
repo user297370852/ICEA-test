@@ -1,0 +1,110 @@
+{
+    "description": "Parse a textual SQL statement that may carry positional and named placeholders. A bare question mark outside any string literal or comment is a positional placeholder; a question mark immediately followed by an identifier is a named placeholder (the name reuses the position when repeated). Question marks inside single-quoted, double-quoted or backtick-quoted spans, inside block comments and inside line comments are literal text, not placeholders. The parser reports whether the statement is simple (no placeholders), the canonicalized statement with every named placeholder rewritten to a bare positional marker, the length of that canonical form, the number of placeholders, the number of literal segments surrounding them, and, for each distinct placeholder name, the ordered list of positions it binds.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "INSERT INTO `user` (`id`, `name`) VALUES (1, 'hello')"
+            },
+            "expected_output": "simple=true\nformatted_sql=INSERT INTO `user` (`id`, `name`) VALUES (1, 'hello')\nformatted_size=53\nparameters=0\npart_size=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "INSERT INTO `user` (`id`, `name`) VALUES (1, 'hello''world')"
+            },
+            "expected_output": "simple=true\nformatted_sql=INSERT INTO `user` (`id`, `name`) VALUES (1, 'hello''world')\nformatted_size=60\nparameters=0\npart_size=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "SELECT * FROM `user ? hello` WHERE `id` = '?' AND `name` /* ??? */ LIKE '?name' AND `good` = \"dsa?\" -- ??"
+            },
+            "expected_output": "simple=true\nformatted_sql=SELECT * FROM `user ? hello` WHERE `id` = '?' AND `name` /* ??? */ LIKE '?name' AND `good` = \"dsa?\" -- ??\nformatted_size=105\nparameters=0\npart_size=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "SELECT * FROM `user` WHERE (? = ?)"
+            },
+            "expected_output": "simple=false\nformatted_sql=SELECT * FROM `user` WHERE (? = ?)\nformatted_size=34\nparameters=2\npart_size=3\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "?"
+            },
+            "expected_output": "simple=false\nformatted_sql=?\nformatted_size=1\nparameters=1\npart_size=2\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "?name"
+            },
+            "expected_output": "simple=false\nformatted_sql=?\nformatted_size=1\nparameters=1\npart_size=2\nnamed name=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "?name SELECT"
+            },
+            "expected_output": "simple=false\nformatted_sql=? SELECT\nformatted_size=8\nparameters=1\npart_size=2\nnamed name=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "SELECT * FROM `user` WHERE `id` = ?id"
+            },
+            "expected_output": "simple=false\nformatted_sql=SELECT * FROM `user` WHERE `id` = ?\nformatted_size=35\nparameters=1\npart_size=2\nnamed id=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "INSERT INTO `user` VALUES (?, ?, ?, ?)"
+            },
+            "expected_output": "simple=false\nformatted_sql=INSERT INTO `user` VALUES (?, ?, ?, ?)\nformatted_size=38\nparameters=4\npart_size=5\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "INSERT INTO `user` VALUES (?a, ?b, ?c, ?d)"
+            },
+            "expected_output": "simple=false\nformatted_sql=INSERT INTO `user` VALUES (?, ?, ?, ?)\nformatted_size=38\nparameters=4\npart_size=5\nnamed a=0\nnamed b=1\nnamed c=2\nnamed d=3\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "INSERT INTO `user` VALUES (?a, ?a, ?a, ?a, ?a, ?a, ?a, ?a, ?a)"
+            },
+            "expected_output": "simple=false\nformatted_sql=INSERT INTO `user` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)\nformatted_size=53\nparameters=9\npart_size=10\nnamed a=[0, 1, 2, 3, 4, 5, 6, 7, 8]\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "UPDATE `user` SET `name` = ?n/"
+            },
+            "expected_output": "simple=false\nformatted_sql=UPDATE `user` SET `name` = ?/\nformatted_size=29\nparameters=1\npart_size=2\nnamed n=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "UPDATE `user` SET `name` = ?name, -- This is comment\n `good` = ?"
+            },
+            "expected_output": "simple=false\nformatted_sql=UPDATE `user` SET `name` = ?, -- This is comment\n `good` = ?\nformatted_size=60\nparameters=2\npart_size=3\nnamed name=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "INSERT INTO `user` (`id`, `name`, `age`) VALUE (?id, ?name, ?age) ON DUPLICATE KEY UPDATE `name` = ?name, `age` = ?age"
+            },
+            "expected_output": "simple=false\nformatted_sql=INSERT INTO `user` (`id`, `name`, `age`) VALUE (?, ?, ?) ON DUPLICATE KEY UPDATE `name` = ?, `age` = ?\nformatted_size=102\nparameters=5\npart_size=6\nnamed age=[2, 4]\nnamed id=0\nnamed name=[1, 3]\n"
+        },
+        {
+            "input": {
+                "action": "parse_query",
+                "sql": "UPDATE `user` SET `name` = 2-?"
+            },
+            "expected_output": "simple=false\nformatted_sql=UPDATE `user` SET `name` = 2-?\nformatted_size=30\nparameters=1\npart_size=2\n"
+        }
+    ]
+}

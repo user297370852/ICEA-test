@@ -1,0 +1,43 @@
+{
+    "description": "When two patches for the same package would collide, the collection keeps only the first and discards later duplicates. Two patches collide when they share the same source URL, or when they share the same content hash even if their URLs differ (for example one carries a URL fragment). The output shows the surviving patch count for the package and the descriptions that remain, demonstrating that the earliest-added patch wins.",
+    "cases": [
+        {
+            "input": {
+                "op": "collection_dedupe",
+                "add": [
+                    {
+                        "package": "some/package",
+                        "description": "patch1",
+                        "url": "https://example.com"
+                    },
+                    {
+                        "package": "some/package",
+                        "description": "patch2",
+                        "url": "https://example.com"
+                    }
+                ]
+            },
+            "expected_output": "some/package patches=1\nsome/package descriptions=patch1\n"
+        },
+        {
+            "input": {
+                "op": "collection_dedupe",
+                "add": [
+                    {
+                        "package": "some/package",
+                        "description": "patch1",
+                        "url": "https://example.com",
+                        "sha256": "asdf"
+                    },
+                    {
+                        "package": "some/package",
+                        "description": "patch2",
+                        "url": "https://example.com#something-different",
+                        "sha256": "asdf"
+                    }
+                ]
+            },
+            "expected_output": "some/package patches=1\nsome/package descriptions=patch1\n"
+        }
+    ]
+}

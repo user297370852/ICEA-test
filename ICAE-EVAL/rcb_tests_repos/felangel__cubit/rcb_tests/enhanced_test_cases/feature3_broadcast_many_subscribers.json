@@ -1,0 +1,70 @@
+{
+  "description": "The container is a broadcast source, so its broadcast capability can be queried repeatedly and always reports the same affirmative result, and an arbitrary number of independent subscribers may be attached simultaneously. Each broadcast query prints its capability line at the point the query occurs, and each subscriber attached before the container closes is independently delivered the current value and its own completion signal. Per-subscriber summaries appear after all inline lines, in attachment order.",
+  "cases": [
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "broadcast"
+          },
+          {
+            "op": "broadcast"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "broadcast=true\nbroadcast=true\n"
+    },
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "broadcast"
+          },
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "subscribe",
+            "id": "b"
+          },
+          {
+            "op": "subscribe",
+            "id": "c"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "broadcast=true\nsubscriber=a values=[0] done=true\nsubscriber=b values=[0] done=true\nsubscriber=c values=[0] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 7,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "subscribe",
+            "id": "b"
+          },
+          {
+            "op": "broadcast"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "broadcast=true\nsubscriber=a values=[7] done=true\nsubscriber=b values=[7] done=true\n"
+    }
+  ]
+}

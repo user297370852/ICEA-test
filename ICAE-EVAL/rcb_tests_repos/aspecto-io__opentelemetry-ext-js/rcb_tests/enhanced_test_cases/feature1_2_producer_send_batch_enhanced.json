@@ -1,0 +1,77 @@
+{
+  "description": "Enhanced multi-topic batch coverage: a batch spanning three distinct topics emits one span per message named by its own topic in declaration order, and a batch carrying a single topic group with three messages emits three same-named producer spans each on its own trace.",
+  "cases": [
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce_batch",
+            "topicMessages": [
+              {
+                "topic": "topic-a",
+                "messages": [
+                  {
+                    "value": "a1"
+                  }
+                ]
+              },
+              {
+                "topic": "topic-b",
+                "messages": [
+                  {
+                    "value": "b1"
+                  }
+                ]
+              },
+              {
+                "topic": "topic-c",
+                "messages": [
+                  {
+                    "value": "c1"
+                  }
+                ]
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          }
+        ]
+      },
+      "expected_output": "produce_batch topics=3 status=ok result_records=0\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\ninject msg=2 carries=span#2\nspans=3\nspan 0 kind=producer name=topic-a trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-a\n  messaging.destination_kind=topic\nspan 1 kind=producer name=topic-b trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-b\n  messaging.destination_kind=topic\nspan 2 kind=producer name=topic-c trace=t2 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-c\n  messaging.destination_kind=topic\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce_batch",
+            "topicMessages": [
+              {
+                "topic": "single-topic",
+                "messages": [
+                  {
+                    "value": "x1"
+                  },
+                  {
+                    "value": "x2"
+                  },
+                  {
+                    "value": "x3"
+                  }
+                ]
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          }
+        ]
+      },
+      "expected_output": "produce_batch topics=1 status=ok result_records=0\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\ninject msg=2 carries=span#2\nspans=3\nspan 0 kind=producer name=single-topic trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=single-topic\n  messaging.destination_kind=topic\nspan 1 kind=producer name=single-topic trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=single-topic\n  messaging.destination_kind=topic\nspan 2 kind=producer name=single-topic trace=t2 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=single-topic\n  messaging.destination_kind=topic\n"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "description": "Request deletion of an existing member identified by id. The controller looks the record up by id and asks it to delete itself, then redirects to the collection URL. On success the flash carries a notice naming the resource; on failure the flash carries an alert naming the resource. Either way the response is a redirect to the collection.",
+  "cases": [
+    {
+      "input": {
+        "action": "destroy",
+        "id": "42",
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=find id=42\nstore=destroy ok=true\nassign=article\nstatus=302\nredirect=http://test.host/articles\nflash.notice=Article was successfully destroyed.\n"
+    },
+    {
+      "input": {
+        "action": "destroy",
+        "id": "42",
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": false,
+          "errors": {
+            "base": "locked"
+          }
+        }
+      },
+      "expected_output": "store=find id=42\nstore=destroy ok=false\nassign=article\nstatus=302\nredirect=http://test.host/articles\nflash.alert=Article could not be destroyed.\n"
+    }
+  ]
+}

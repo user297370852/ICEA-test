@@ -1,0 +1,158 @@
+{
+    "description": "Response header management supports MIME type resolution, direct and bulk setting, appending repeated values, Vary de-duplication, case-insensitive reads, names listing, presence checks, removal, and location headers.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "set_body_type",
+                        "value": "html"
+                    },
+                    {
+                        "type": "set_body_type",
+                        "value": "txt"
+                    }
+                ],
+                "readHeaders": [
+                    "Content-Type"
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={\"content-type\":\"text/plain\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_Content-Type=text/plain\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "assign_header",
+                        "name": "name1",
+                        "value": "value1"
+                    },
+                    {
+                        "type": "assign_header_alias",
+                        "name": "name2",
+                        "value": "value2"
+                    },
+                    {
+                        "type": "assign_header",
+                        "values": {
+                            "name3": "value3",
+                            "num": 1,
+                            "bool": false
+                        }
+                    }
+                ],
+                "readHeaders": [
+                    "name1",
+                    "name2",
+                    "name3",
+                    "num",
+                    "bool"
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={\"bool\":false,\"name1\":\"value1\",\"name2\":\"value2\",\"name3\":\"value3\",\"num\":1}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_name1=value1\nread_name2=value2\nread_name3=value3\nread_num=1\nread_bool=false\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "add_header_value",
+                        "name": "Link",
+                        "value": "<http://localhost/>"
+                    },
+                    {
+                        "type": "add_header_value",
+                        "name": "Link",
+                        "value": "<http://localhost:80/>"
+                    }
+                ],
+                "readHeaders": [
+                    "Link"
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={\"link\":[\"<http://localhost/>\",\"<http://localhost:80/>\"]}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_Link=[\"<http://localhost/>\",\"<http://localhost:80/>\"]\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "add_header_value",
+                        "name": "Set-Cookie",
+                        "value": [
+                            "foo=bar",
+                            "fizz=buzz"
+                        ]
+                    }
+                ],
+                "readHeaders": [
+                    "Set-Cookie"
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={\"set-cookie\":[\"foo=bar\",\"fizz=buzz\"]}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_Set-Cookie=[\"foo=bar\",\"fizz=buzz\"]\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "add_vary_fields",
+                        "fields": [
+                            "value1",
+                            "value2"
+                        ]
+                    },
+                    {
+                        "type": "add_vary_fields",
+                        "fields": [
+                            "Value1",
+                            "VALUE2",
+                            "value3"
+                        ]
+                    }
+                ],
+                "readHeaders": [
+                    "Vary"
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={\"vary\":\"value1, value2, value3\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_Vary=value1, value2, value3\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "set_location_header",
+                        "value": "/a/nice/location"
+                    }
+                ],
+                "readHeaders": [
+                    "Location"
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={\"location\":\"/a/nice/location\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_Location=/a/nice/location\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "set_raw_header",
+                        "name": "NAME1",
+                        "value": "value1"
+                    },
+                    {
+                        "type": "remove_raw_header",
+                        "name": "name1"
+                    }
+                ],
+                "readHeaders": [
+                    "NAME1"
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_NAME1=absent\n"
+        }
+    ]
+}

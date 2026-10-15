@@ -1,0 +1,48 @@
+{
+  "description": "Tracks transaction state transitions and returns neutral error categories for nested, missing, inactive, and DDL-during-transaction operations.",
+  "cases": [
+    {
+      "input": {
+        "feature": "transaction_state",
+        "target": "transaction",
+        "actions": [
+          "begin",
+          "commit"
+        ]
+      },
+      "expected_output": "initial_state=initialized\nafter_begin=started\nafter_commit=committed\n"
+    },
+    {
+      "input": {
+        "feature": "transaction_state",
+        "target": "transaction",
+        "actions": [
+          "begin",
+          "begin"
+        ]
+      },
+      "expected_output": "initial_state=initialized\nafter_begin=started\nerror=nested_transaction\n"
+    },
+    {
+      "input": {
+        "feature": "transaction_state",
+        "target": "connection",
+        "actions": [
+          "commit"
+        ]
+      },
+      "expected_output": "error=no_transaction\n"
+    },
+    {
+      "input": {
+        "feature": "transaction_state",
+        "target": "connection",
+        "actions": [
+          "begin",
+          "ddl"
+        ]
+      },
+      "expected_output": "after_begin=active\nerror=ddl_during_transaction\n"
+    }
+  ]
+}

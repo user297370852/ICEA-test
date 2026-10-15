@@ -1,0 +1,133 @@
+{
+    "cases": [
+        {
+            "input": {
+                "agent": {
+                    "service_account_name": "foobar", 
+                    "config_map_name": "test", 
+                    "namespace": "test", 
+                    "service_account_path": "foobar", 
+                    "image_name": "test"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"status\":\"ok\",\"valid\":true}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "vault_auth_type": "kubernetes", 
+                    "vault_role": "test", 
+                    "vault_auth_path": "test", 
+                    "service_account_name": "foobar", 
+                    "namespace": "test", 
+                    "service_account_path": "foobar", 
+                    "image_name": "test", 
+                    "vault_address": "https://foobar.com:8200"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"status\":\"ok\",\"valid\":true}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "service_account_name": "foobar", 
+                    "config_map_name": "test", 
+                    "namespace": "", 
+                    "service_account_path": "foobar", 
+                    "image_name": "test"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"reason\":\"missing_namespace\",\"status\":\"invalid\",\"valid\":false}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "service_account_name": "foobar", 
+                    "config_map_name": "test", 
+                    "namespace": "test", 
+                    "service_account_path": "", 
+                    "image_name": "test"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"reason\":\"missing_service_account\",\"status\":\"invalid\",\"valid\":false}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "service_account_name": "foobar", 
+                    "config_map_name": "test", 
+                    "namespace": "test", 
+                    "service_account_path": "foobar", 
+                    "image_name": ""
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"reason\":\"missing_image\",\"status\":\"invalid\",\"valid\":false}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "vault_auth_type": "kubernetes", 
+                    "vault_auth_path": "test", 
+                    "vault_address": "https://foobar.com:8200", 
+                    "service_account_name": "foobar", 
+                    "namespace": "test", 
+                    "service_account_path": "foobar", 
+                    "image_name": "test"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"reason\":\"missing_role\",\"status\":\"invalid\",\"valid\":false}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "vault_auth_type": "kubernetes", 
+                    "vault_role": "test", 
+                    "vault_auth_path": "test", 
+                    "service_account_name": "foobar", 
+                    "namespace": "test", 
+                    "service_account_path": "foobar", 
+                    "image_name": "test"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"reason\":\"missing_address\",\"status\":\"invalid\",\"valid\":false}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "vault_auth_type": "kubernetes", 
+                    "vault_role": "test", 
+                    "vault_address": "https://foobar.com:8200", 
+                    "service_account_name": "foobar", 
+                    "namespace": "test", 
+                    "service_account_path": "foobar", 
+                    "image_name": "test"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"reason\":\"missing_auth_path\",\"status\":\"invalid\",\"valid\":false}\n"
+        }, 
+        {
+            "input": {
+                "agent": {
+                    "vault_role": "test", 
+                    "vault_auth_path": "test", 
+                    "vault_address": "https://foobar.com:8200", 
+                    "service_account_name": "foobar", 
+                    "namespace": "test", 
+                    "service_account_path": "foobar", 
+                    "image_name": "test"
+                }, 
+                "op": "validate"
+            }, 
+            "expected_output": "{\"reason\":\"missing_auth_type\",\"status\":\"invalid\",\"valid\":false}\n"
+        }
+    ], 
+    "description": "Validate an assembled agent configuration and report the first missing required field as a neutral category, or success when complete. Validity can be satisfied two ways: a config-map based agent (namespace, service account name+path, image) OR a server-backed agent (namespace, service account name+path, image, plus server role, address, auth path and auth type). Missing fields map to: missing_namespace, missing_service_account, missing_image, missing_role, missing_address, missing_auth_path, missing_auth_type."
+}

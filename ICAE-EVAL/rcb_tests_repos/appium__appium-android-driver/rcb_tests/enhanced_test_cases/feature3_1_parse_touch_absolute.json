@@ -1,0 +1,158 @@
+{
+  "description": "Edge cases for absolute-coordinate gesture resolution: a single positioned state, non-moveTo positioned states (tap, longPress) that also accumulate onto the running position, a wait inheriting the running position between press and moveTo, a state with a missing coordinate defaulting to 0, and a chain of relative moveTo accumulations including zero and negative offsets.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_touch",
+        "actions": [
+          {
+            "action": "press",
+            "options": {
+              "x": 10,
+              "y": 20
+            }
+          }
+        ]
+      },
+      "expected_output": "action=press x=10 y=20\n"
+    },
+    {
+      "input": {
+        "op": "parse_touch",
+        "actions": [
+          {
+            "action": "press",
+            "options": {
+              "x": 10,
+              "y": 20
+            }
+          },
+          {
+            "action": "tap",
+            "options": {
+              "x": 5,
+              "y": 5
+            }
+          },
+          {
+            "action": "release",
+            "options": {}
+          }
+        ]
+      },
+      "expected_output": "action=press x=10 y=20\naction=tap x=15 y=25\naction=release\n"
+    },
+    {
+      "input": {
+        "op": "parse_touch",
+        "actions": [
+          {
+            "action": "press",
+            "options": {
+              "x": 100,
+              "y": 100
+            }
+          },
+          {
+            "action": "longPress",
+            "options": {
+              "x": 1,
+              "y": 2
+            }
+          },
+          {
+            "action": "release",
+            "options": {}
+          }
+        ]
+      },
+      "expected_output": "action=press x=100 y=100\naction=longPress x=101 y=102\naction=release\n"
+    },
+    {
+      "input": {
+        "op": "parse_touch",
+        "actions": [
+          {
+            "action": "press",
+            "options": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "action": "wait",
+            "options": {
+              "ms": 1000
+            }
+          },
+          {
+            "action": "moveTo",
+            "options": {
+              "x": 30,
+              "y": 40
+            }
+          },
+          {
+            "action": "release",
+            "options": {}
+          }
+        ]
+      },
+      "expected_output": "action=press x=0 y=0\naction=wait x=0 y=0\naction=moveTo x=30 y=40\naction=release\n"
+    },
+    {
+      "input": {
+        "op": "parse_touch",
+        "actions": [
+          {
+            "action": "press",
+            "options": {
+              "y": 50
+            }
+          }
+        ]
+      },
+      "expected_output": "action=press x=0 y=50\n"
+    },
+    {
+      "input": {
+        "op": "parse_touch",
+        "actions": [
+          {
+            "action": "press",
+            "options": {
+              "x": 100,
+              "y": 100
+            }
+          },
+          {
+            "action": "moveTo",
+            "options": {
+              "x": 10,
+              "y": 0
+            }
+          },
+          {
+            "action": "moveTo",
+            "options": {
+              "x": 0,
+              "y": 10
+            }
+          },
+          {
+            "action": "moveTo",
+            "options": {
+              "x": -5,
+              "y": -5
+            }
+          },
+          {
+            "action": "release",
+            "options": {}
+          }
+        ]
+      },
+      "expected_output": "action=press x=100 y=100\naction=moveTo x=110 y=100\naction=moveTo x=110 y=110\naction=moveTo x=105 y=105\naction=release\n"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "description": "Boundary coverage for leading-edge-only action behavior: a zero-length quiet window, repeated triggers within a single active window where every trigger after the first is suppressed, and a fresh leading edge that occurs once the previous quiet window has fully elapsed.",
+  "cases": [
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 0,
+        "options": {
+          "leading": true,
+          "trailing": false
+        },
+        "steps": [
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 1000,
+        "options": {
+          "leading": true,
+          "trailing": false
+        },
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              "a"
+            ]
+          },
+          {
+            "do": "observe"
+          },
+          {
+            "do": "call",
+            "args": [
+              "b"
+            ]
+          },
+          {
+            "do": "observe"
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[\"a\"] tag=fn\ncalls=1\ncalls=1\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 500,
+        "options": {
+          "leading": true,
+          "trailing": false
+        },
+        "steps": [
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "advance",
+            "ms": 500
+          },
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "advance",
+            "ms": 500
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[] tag=fn\ncall#2 args=[] tag=fn\ncalls=2\n"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+    "description": "A single observer never receives the same value twice in a row. After the initial default emission, repeated set operations that write the same value still delegate every write to the store, but the observer only emits when the re-read value actually differs from the last value it emitted; consecutive identical writes produce no new emission, while each genuinely changed value is emitted once.",
+    "cases": [
+        {
+            "input": {
+                "key": "key",
+                "default": "default value",
+                "ops": [
+                    {
+                        "op": "observe"
+                    },
+                    {
+                        "op": "put",
+                        "value": "new value"
+                    },
+                    {
+                        "op": "put",
+                        "value": "new value"
+                    },
+                    {
+                        "op": "put",
+                        "value": "new value"
+                    },
+                    {
+                        "op": "put",
+                        "value": "another value 1"
+                    },
+                    {
+                        "op": "put",
+                        "value": "another value 2"
+                    },
+                    {
+                        "op": "put",
+                        "value": "another value 3"
+                    }
+                ]
+            },
+            "expected_output": "emit[0] default value\nstore write key=key value=new value\nput ok=true\nemit[0] new value\nstore write key=key value=new value\nput ok=true\nstore write key=key value=new value\nput ok=true\nstore write key=key value=another value 1\nput ok=true\nemit[0] another value 1\nstore write key=key value=another value 2\nput ok=true\nemit[0] another value 2\nstore write key=key value=another value 3\nput ok=true\nemit[0] another value 3\n"
+        }
+    ]
+}

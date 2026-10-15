@@ -1,0 +1,46 @@
+{
+  "description": "Multiple enabled match methods are reported in rule order while disabled checks are ignored across several commands.",
+  "cases": [
+    {
+      "input": {
+        "feature": "match_commands",
+        "checks": [
+          {
+            "group": "literal-danger",
+            "pattern": "rm",
+            "method": "contains",
+            "enabled": true,
+            "description": "literal rm detected"
+          },
+          {
+            "group": "privilege",
+            "pattern": "sudo",
+            "method": "starts_with",
+            "enabled": true,
+            "description": "starts with sudo"
+          },
+          {
+            "group": "force-flag",
+            "pattern": ".*--force$",
+            "method": "regex",
+            "enabled": true,
+            "description": "ends with force flag"
+          },
+          {
+            "group": "disabled-shadow",
+            "pattern": "rm",
+            "method": "contains",
+            "enabled": false,
+            "description": "disabled match must not appear"
+          }
+        ],
+        "commands": [
+          "sudo rm -rf /tmp/cache --force",
+          "echo rm later",
+          "please sudo do not start"
+        ]
+      },
+      "expected_output": "command[0]=sudo rm -rf /tmp/cache --force\nmatch_count=3\nmatch_group=literal-danger\nmatch_description=literal rm detected\nmatch_group=privilege\nmatch_description=starts with sudo\nmatch_group=force-flag\nmatch_description=ends with force flag\n---\ncommand[1]=echo rm later\nmatch_count=1\nmatch_group=literal-danger\nmatch_description=literal rm detected\n---\ncommand[2]=please sudo do not start\nmatch_count=0\n"
+    }
+  ]
+}

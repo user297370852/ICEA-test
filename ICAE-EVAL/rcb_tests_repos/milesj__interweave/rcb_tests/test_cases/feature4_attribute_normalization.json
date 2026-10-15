@@ -1,0 +1,47 @@
+{
+    "description": "Render allowed HTML attributes in normalized form and reject unsafe or unsupported attributes.",
+    "cases": [
+        {
+            "input": {
+                "operation": "render_markup",
+                "content": "<time datetime=\"2016-01-01\">Jan</time><td colspan=\"3\" rowspan=\"6\">Cell</td><div class=\"foo-bar\" alt=\"Foo\" disabled=\"disabled\">X</div>"
+            },
+            "expected_output": "<div><time dateTime=\"2016-01-01\">Jan</time>Cell<div class=\"foo-bar\" alt=\"Foo\" disabled=\"\">X</div></div>\n"
+        },
+        {
+            "input": {
+                "operation": "render_markup",
+                "content": "<div aria-live=\"off\" data-foo=\"bar\">X</div>"
+            },
+            "expected_output": "<div><div aria-live=\"off\" data-foo=\"bar\">X</div></div>\n"
+        },
+        {
+            "input": {
+                "operation": "render_markup",
+                "content": "<input readonly=\"true\" value=\"x\"/>"
+            },
+            "expected_output": "<div></div>\n"
+        },
+        {
+            "input": {
+                "operation": "render_markup",
+                "content": "<a href=\"javascript:alert();\">Bad</a>"
+            },
+            "expected_output": "<div><a>Bad</a></div>\n"
+        },
+        {
+            "input": {
+                "operation": "render_markup",
+                "content": "<div style=\"background-color: red; color: black; display: inline-block;\">Text</div>"
+            },
+            "expected_output": "<div><div style=\"background-color:red;color:black;display:inline-block\">Text</div></div>\n"
+        },
+        {
+            "input": {
+                "operation": "render_markup",
+                "content": "<div style=\"color: blue; background-image: url(&quot;foo.png&quot;); background: image(ltr &quot;arrow.png#xywh=0,0,16,16&quot;, red); border: image-set(&quot;cat.jpg&quot; 1x, &quot;dog.jpg&quot; 1x)\">Text</div>"
+            },
+            "expected_output": "<div><div style=\"color:blue\">Text</div></div>\n"
+        }
+    ]
+}

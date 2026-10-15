@@ -1,0 +1,57 @@
+{
+  "description": "Additional federation rule violations: multiple unsupported federation versions (v1.0/v3.0/v2.99), three federation links, missing interface key, renaming @key, and importing @interfaceObject from a version that predates it.",
+  "cases": [
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v3.0\", import: [\"@key\"])\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n}\n\ntype Query {\n  product(id: ID!): Product\n}\n"
+      },
+      "expected_output": "error=unsupported_federation_version\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v1.0\", import: [\"@key\"])\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n}\n\ntype Query {\n  product(id: ID!): Product\n}\n"
+      },
+      "expected_output": "error=unsupported_federation_version\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema\n@link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\"])\n@link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@shareable\"])\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n}\n\ntype Query {\n  product(id: ID!): Product\n}\n"
+      },
+      "expected_output": "error=multiple_federation_links\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\"])\n\ninterface Item @key(fields: \"id\") {\n  id: ID!\n  title: String!\n}\n\ntype Book implements Item {\n  id: ID!\n  title: String!\n  pages: Int!\n}\n\ntype Query {\n  book(id: ID!): Book\n}\n",
+        "abstractTypeResolvers": [
+          "Item"
+        ]
+      },
+      "expected_output": "error=missing_key\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\", { name: \"@tag\", as: \"@label\" }])\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n  name: String @label(name: \"public\")\n}\n\ntype Query {\n  product(id: ID!): Product\n}\n"
+      },
+      "expected_output": "error=unsupported_rename\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\", \"@interfaceObject\"])\n\ntype Media @key(fields: \"id\") @interfaceObject {\n  id: ID!\n}\n\ntype Query {\n  m: Media\n}\n"
+      },
+      "expected_output": "error=unsupported_link_import\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.99\", import: [\"@key\"])\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n}\n\ntype Query {\n  product(id: ID!): Product\n}\n"
+      },
+      "expected_output": "error=unsupported_federation_version\n"
+    }
+  ]
+}

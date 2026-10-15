@@ -1,0 +1,10 @@
+{
+    "description": "Ensure the device language and country match a requested target, performing the minimum device operations needed and rebooting only when something changed. When neither language nor country is requested, nothing happens. On platforms below API level 23, language and country are independent settings: only the ones that differ from the current value are written, and a reboot follows any change. On platforms at API level 23 and above the value is a single combined locale (lowercase-language + dash + uppercase-country): it is rewritten only if it differs, followed by a reboot. The output lists each device operation in order, or no_change when nothing was needed.",
+    "cases": [
+        {"input": {"op": "ensure_locale", "current": {"apiLevel": 18}}, "expected_output": "no_change=true\n"},
+        {"input": {"op": "ensure_locale", "language": "en", "country": "us", "current": {"apiLevel": 18, "language": "en", "country": "us"}}, "expected_output": "no_change=true\n"},
+        {"input": {"op": "ensure_locale", "language": "en", "country": "us", "current": {"apiLevel": 18, "language": "fr", "country": "FR"}}, "expected_output": "device_op=set_language value=en\ndevice_op=set_country value=us\ndevice_op=reboot\n"},
+        {"input": {"op": "ensure_locale", "language": "en", "country": "us", "current": {"apiLevel": 23, "locale": "en-US"}}, "expected_output": "no_change=true\n"},
+        {"input": {"op": "ensure_locale", "language": "en", "country": "us", "current": {"apiLevel": 23, "locale": "fr-FR"}}, "expected_output": "device_op=set_locale value=en-US\ndevice_op=reboot\n"}
+    ]
+}

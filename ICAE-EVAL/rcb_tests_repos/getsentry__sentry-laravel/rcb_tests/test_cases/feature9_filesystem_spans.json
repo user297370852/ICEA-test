@@ -1,0 +1,57 @@
+{
+    "description": "Instrumented filesystem operations create tracing spans with operation names, descriptions, and disk metadata.",
+    "cases": [
+        {
+            "input": {
+                "feature": "filesystem_observability",
+                "record_spans": true,
+                "record_breadcrumbs": false,
+                "operations": [
+                    {
+                        "action": "put",
+                        "path": "foo",
+                        "content": "bar"
+                    },
+                    {
+                        "action": "get",
+                        "path": "foo"
+                    },
+                    {
+                        "action": "assert_exists",
+                        "path": "foo",
+                        "content": "bar"
+                    },
+                    {
+                        "action": "delete",
+                        "path": "foo"
+                    },
+                    {
+                        "action": "delete",
+                        "path": [
+                            "foo",
+                            "bar"
+                        ]
+                    },
+                    {
+                        "action": "files"
+                    }
+                ]
+            },
+            "expected_output": "file_content=bar\nspan_count=7\nspan1_op=file.put\nspan1_description=foo (3 B)\nspan1_data={\"path\":\"foo\",\"options\":[],\"disk\":\"local\",\"driver\":\"local\"}\nspan2_op=file.get\nspan2_description=foo\nspan2_data={\"path\":\"foo\",\"disk\":\"local\",\"driver\":\"local\"}\nspan3_op=file.assertExists\nspan3_description=foo\nspan3_data={\"path\":\"foo\",\"disk\":\"local\",\"driver\":\"local\"}\nspan4_op=file.delete\nspan4_description=foo\nspan4_data={\"path\":\"foo\",\"disk\":\"local\",\"driver\":\"local\"}\nspan5_op=file.delete\nspan5_description=2 paths\nspan5_data={\"paths\":[\"foo\",\"bar\"],\"disk\":\"local\",\"driver\":\"local\"}\nspan6_op=file.files\nspan6_description=null\nspan6_data={\"directory\":null,\"recursive\":false,\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb_count=0\n"
+        },
+        {
+            "input": {
+                "feature": "filesystem_observability",
+                "record_spans": false,
+                "record_breadcrumbs": false,
+                "operations": [
+                    {
+                        "action": "exists",
+                        "path": "foo"
+                    }
+                ]
+            },
+            "expected_output": "file_exists=false\nspan_count=1\nbreadcrumb_count=0\n"
+        }
+    ]
+}

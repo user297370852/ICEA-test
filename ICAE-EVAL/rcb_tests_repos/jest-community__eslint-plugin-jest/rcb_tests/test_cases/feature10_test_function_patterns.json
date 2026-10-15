@@ -1,0 +1,73 @@
+{
+    "description": "Detects callback-style tests, returned values from tests, prefixed test names, and deprecated test APIs.",
+    "cases": [
+        {
+            "input": {
+                "source": "it(\"case\", done => { done() })",
+                "rules": {
+                    "no-test-callback": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-test-callback\nmessage0.text=Illegal usage of test callback\nmessage0.line=1\nmessage0.column=12\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => { return value })",
+                "rules": {
+                    "no-test-return-statement": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-test-return-statement\nmessage0.text=Jest tests should not return a value.\nmessage0.line=1\nmessage0.column=20\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\")",
+                "rules": {
+                    "prefer-todo": "error"
+                },
+                "fix": true
+            },
+            "expected_output": "output=it.todo(\"case\")\nmessages=1\nmessage0.rule=jest/prefer-todo\nmessage0.text=Prefer todo test case over unimplemented test case\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "fit(\"case\", () => {})",
+                "rules": {
+                    "no-test-prefixes": "error"
+                },
+                "fix": true
+            },
+            "expected_output": "output=it.only(\"case\", () => {})\nmessages=1\nmessage0.rule=jest/no-test-prefixes\nmessage0.text=Use \"it.only\" instead\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "test(\"case\", () => {})",
+                "rules": {
+                    "consistent-test-it": [
+                        "error",
+                        {
+                            "fn": "it"
+                        }
+                    ]
+                },
+                "fix": true
+            },
+            "expected_output": "output=it(\"case\", () => {})\nmessages=1\nmessage0.rule=jest/consistent-test-it\nmessage0.text=Prefer using 'it' instead of 'test'\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => {})",
+                "rules": {
+                    "consistent-test-it": [
+                        "error",
+                        {
+                            "fn": "test"
+                        }
+                    ]
+                },
+                "fix": true
+            },
+            "expected_output": "output=test(\"case\", () => {})\nmessages=1\nmessage0.rule=jest/consistent-test-it\nmessage0.text=Prefer using 'test' instead of 'it'\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+        }
+    ]
+}

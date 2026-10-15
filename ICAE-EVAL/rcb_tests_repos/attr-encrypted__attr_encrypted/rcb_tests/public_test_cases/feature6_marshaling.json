@@ -1,0 +1,42 @@
+{
+  "description": "An attribute can be configured to serialize its value before encryption, allowing non-string objects such as lists or maps to be stored. Assigning a structured value populates the backing storage with encrypted bytes and reading the attribute back recovers an equal structured value (not its string form). Each transcript line reports the recovered structured value and a storage-presence fact.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "with_marshaling"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "marshal": true
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "marshal_assign_read",
+            "attr": "with_marshaling",
+            "value": [
+              1,
+              2,
+              3
+            ]
+          }
+        ]
+      },
+      "expected_output": "marshal_read[with_marshaling]=[1, 2, 3]\nstored_present[with_marshaling]=true\n"
+    }
+  ]
+}

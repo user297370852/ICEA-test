@@ -1,0 +1,99 @@
+{
+    "description": "Query predicates and ordering expressions that refer to computed record fields are expanded into the underlying field operations before the query executes.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "inline_query",
+                "expression": "computed full text property",
+                "match": "Ada Lovelace",
+                "records": [
+                    {
+                        "first": "Ada",
+                        "last": "Lovelace"
+                    },
+                    {
+                        "first": "Grace",
+                        "last": "Hopper"
+                    }
+                ]
+            },
+            "expected_output": "query_expression=records.Where(p => (((p.First + \" \") + p.Last) == target))\nmatched=Ada Lovelace\n"
+        },
+        {
+            "input": {
+                "scenario": "inline_query",
+                "expression": "computed full text method with affixes",
+                "match": "Mr Ada Lovelace Jr.",
+                "records": [
+                    {
+                        "first": "Ada",
+                        "last": "Lovelace"
+                    },
+                    {
+                        "first": "Grace",
+                        "last": "Hopper"
+                    }
+                ]
+            },
+            "expected_output": "query_expression=records.Where(p => (((((\"Mr \" + p.First) + \" \") + p.Last) + \" Jr.\") == target))\nmatched=Ada Lovelace\n"
+        },
+        {
+            "input": {
+                "scenario": "inline_query",
+                "expression": "computed numeric text property",
+                "match": "0-100",
+                "records": [
+                    {
+                        "first": "Ada",
+                        "last": "Lovelace",
+                        "from": 0,
+                        "to": 100
+                    },
+                    {
+                        "first": "Grace",
+                        "last": "Hopper",
+                        "from": 5,
+                        "to": 9
+                    }
+                ]
+            },
+            "expected_output": "query_expression=records.Where(p => (((p.From.ToString() + \"-\") + p.To.ToString()) == target))\nmatched=Ada Lovelace\n"
+        },
+        {
+            "input": {
+                "scenario": "inline_query",
+                "expression": "computed boolean property",
+                "match": "unused",
+                "records": [
+                    {
+                        "first": "Ada",
+                        "last": "Lovelace"
+                    },
+                    {
+                        "first": "Grace",
+                        "last": "Hopper"
+                    }
+                ]
+            },
+            "expected_output": "query_expression=records.Where(p => True)\nmatched=Ada Lovelace|Grace Hopper\n"
+        },
+        {
+            "input": {
+                "scenario": "inline_query",
+                "expression": "computed ordering",
+                "match": "Ada Lovelace",
+                "records": [
+                    {
+                        "first": "Grace",
+                        "last": "Hopper"
+                    },
+                    {
+                        "first": "Ada",
+                        "last": "Lovelace"
+                    }
+                ]
+            },
+            "expected_output": "query_expression=records.Where(p => (((p.First + \" \") + p.Last) == target)).OrderBy(p => ((p.First + \" \") + p.Last))\nmatched=Ada Lovelace\n"
+        }
+    ]
+}

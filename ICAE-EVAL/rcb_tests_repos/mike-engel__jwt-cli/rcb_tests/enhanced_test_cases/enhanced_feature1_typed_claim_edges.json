@@ -1,0 +1,70 @@
+{
+  "description": "Encode tokens whose custom claims exercise type boundaries (negative integer, float, JSON null, empty string, boolean false), deep nested object/array paths, and a JSON-object claim that overrides an earlier -P claim of the same name, then decode to verify type fidelity is preserved.",
+  "cases": [
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "--no-iat",
+          "--exp",
+          "-S",
+          "sec",
+          "-P",
+          "neg=-5",
+          "-P",
+          "pi=3.14",
+          "-P",
+          "nul=null",
+          "-P",
+          "empty=",
+          "-P",
+          "flag=false"
+        ],
+        "decode_args": [
+          "decode",
+          "-S",
+          "sec"
+        ],
+        "report": [
+          "status",
+          "claim.neg",
+          "claim.pi",
+          "claim.nul",
+          "claim.empty",
+          "claim.flag",
+          "claim.iat.presence",
+          "claim.exp.presence"
+        ]
+      },
+      "expected_output": "status=valid\nclaim.neg=-5\nclaim.pi=3.14\nclaim.nul=null\nclaim.empty=\nclaim.flag=false\nclaim.iat=absent\nclaim.exp=present\n"
+    },
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "--no-iat",
+          "--exp",
+          "-S",
+          "sec",
+          "-P",
+          "this=fromP",
+          "{\"this\":\"fromJSON\",\"nested\":{\"a\":{\"b\":42}},\"list\":[3,1,2]}"
+        ],
+        "decode_args": [
+          "decode",
+          "-S",
+          "sec"
+        ],
+        "report": [
+          "status",
+          "claim.this",
+          "claim.nested.a.b",
+          "claim.list"
+        ]
+      },
+      "expected_output": "status=valid\nclaim.this=fromJSON\nclaim.nested.a.b=42\nclaim.list=[3,1,2]\n"
+    }
+  ]
+}

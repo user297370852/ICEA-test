@@ -1,0 +1,36 @@
+{
+    "description": "Account a request against its rate-limit policy and report the remaining quota. A policy grants a fixed number of allowed requests (its limit) per refresh window. Each accounted request decrements the remaining allowance by one. When the request is replayed within the same window the remaining count counts down from limit-minus-one toward zero. The output reports, for each replay, the configured limit and the remaining allowance after that request.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "enabled": true,
+                    "behindProxy": true,
+                    "policies": {
+                        "serviceA": {
+                            "limit": 2,
+                            "refreshInterval": 2,
+                            "types": [
+                                "ORIGIN",
+                                "URL",
+                                "USER"
+                            ]
+                        }
+                    },
+                    "routes": [
+                        {
+                            "id": "serviceA",
+                            "path": "/serviceA"
+                        }
+                    ]
+                },
+                "request": {
+                    "uri": "/serviceA",
+                    "remoteAddr": "10.0.0.100"
+                },
+                "runs": 2
+            },
+            "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=2 remaining=1\nrun=2 limit=2 remaining=0\n"
+        }
+    ]
+}

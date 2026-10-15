@@ -1,0 +1,17 @@
+{
+    "description": "Build the outbound HTTP request for a form-encoded SMS provider whose single-send endpoint takes an API key, the recipient's universal number, and the message text. A configured signature prefix is prepended to the text only when the text does not already begin with the signature-bracket character; text that already starts with that bracket is sent unchanged. The provider's JSON reply carries a numeric result code: a zero code means accepted, and any non-zero code is surfaced as a normalized gateway error carrying that code and the provider's message. The output reports the request method, endpoint URL, the sorted form parameters, and the outcome.",
+    "cases": [
+        {
+            "input": {"action": "gateway_send", "gateway": "yunpian", "config": {"api_key": "mock-api-key"}, "to": {"number": 18188888888}, "message": {"content": "【overtrue】This is a test message."}, "response": {"code": 0, "msg": "发送成功", "count": 1, "fee": 0.05, "unit": "RMB", "mobile": "18188888888", "sid": 3310228982}},
+            "expected_output": "method=POST\nurl=https://sms.yunpian.com/v2/sms/single_send.json\nparam.apikey=mock-api-key\nparam.mobile=18188888888\nparam.text=【overtrue】This is a test message.\noutcome=sent\n"
+        },
+        {
+            "input": {"action": "gateway_send", "gateway": "yunpian", "config": {"api_key": "mock-api-key", "signature": "【测试】"}, "to": {"number": 18188888888}, "message": {"content": "This is a 【test】 message."}, "response": {"code": 0, "msg": "ok"}},
+            "expected_output": "method=POST\nurl=https://sms.yunpian.com/v2/sms/single_send.json\nparam.apikey=mock-api-key\nparam.mobile=18188888888\nparam.text=【测试】This is a 【test】 message.\noutcome=sent\n"
+        },
+        {
+            "input": {"action": "gateway_send", "gateway": "yunpian", "config": {"api_key": "mock-api-key"}, "to": {"number": 18188888888}, "message": {"content": "【overtrue】This is a test message."}, "response": {"code": 100, "msg": "发送失败"}},
+            "expected_output": "method=POST\nurl=https://sms.yunpian.com/v2/sms/single_send.json\nparam.apikey=mock-api-key\nparam.mobile=18188888888\nparam.text=【overtrue】This is a test message.\noutcome=error\nerror_code=100\nerror_message=发送失败\n"
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+{
+  "description": "Boundary warnings: a clean document (no warnings), two distinct warnings across records (sorted by date then kind), and an open range on the day before 'now' that is still legitimately open (no warning).",
+  "cases": [
+    {
+      "input": {
+        "action": "warnings",
+        "now": "2000-03-05T12:00:00-0000",
+        "text": "2000-03-05\n    2h"
+      },
+      "expected_output": "warnings=0\n"
+    },
+    {
+      "input": {
+        "action": "warnings",
+        "now": "2000-03-10T12:00:00-0000",
+        "text": "2000-03-05\n    8:00 - ?\n\n2000-03-12\n    1h"
+      },
+      "expected_output": "warnings=2\nwarning[0].kind=unclosed_open_range\nwarning[0].date=2000-03-05\nwarning[1].kind=future_entry\nwarning[1].date=2000-03-12\n"
+    },
+    {
+      "input": {
+        "action": "warnings",
+        "now": "2000-03-05T12:00:00-0000",
+        "text": "2000-03-04\n    23:00 - ?"
+      },
+      "expected_output": "warnings=0\n"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+    "description": "Convert JSON-LD documents into RDF statements, including literal language tags, RDF type triples, RDF lists, typed literals, and decimal lexical values.",
+    "cases": [
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@id": "http://greggkellogg.net/foaf#me",
+                    "http://xmlns.com/foaf/0.1/name": "Gregg Kellogg"
+                },
+                "algorithm": "to_rdf",
+                "base": "http://json-ld.org/test-suite/tests/toRdf-0001-in.jsonld"
+            },
+            "expected_output": "<http://greggkellogg.net/foaf#me> <http://xmlns.com/foaf/0.1/name> \"Gregg Kellogg\" .\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "http://www.w3.org/2000/01/rdf-schema#label": {
+                        "@value": "A plain literal with a lang tag.",
+                        "@language": "en-us"
+                    }
+                },
+                "algorithm": "to_rdf",
+                "base": "http://json-ld.org/test-suite/tests/toRdf-0004-in.jsonld"
+            },
+            "expected_output": "_:b0 <http://www.w3.org/2000/01/rdf-schema#label> \"A plain literal with a lang tag.\"@en-us .\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@id": "http://greggkellogg.net/foaf#me",
+                    "@type": "http://xmlns.com/foaf/0.1/Person"
+                },
+                "algorithm": "to_rdf",
+                "base": "http://json-ld.org/test-suite/tests/toRdf-0007-in.jsonld"
+            },
+            "expected_output": "<http://greggkellogg.net/foaf#me> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@context": {
+                        "foaf": "http://xmlns.com/foaf/0.1/"
+                    },
+                    "@id": "http://greggkellogg.net/foaf#me",
+                    "foaf:knows": {
+                        "@list": [
+                            "Manu Sporny"
+                        ]
+                    }
+                },
+                "algorithm": "to_rdf",
+                "base": "http://json-ld.org/test-suite/tests/toRdf-0014-in.jsonld"
+            },
+            "expected_output": "<http://greggkellogg.net/foaf#me> <http://xmlns.com/foaf/0.1/knows> _:b0 .\n_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> \"Manu Sporny\" .\n_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@context": {
+                        "xsd": "http://www.w3.org/2001/XMLSchema#",
+                        "created": {
+                            "@id": "http://purl.org/dc/terms/created",
+                            "@type": "xsd:date"
+                        }
+                    },
+                    "@id": "http://greggkellogg.net/foaf#me",
+                    "created": "1957-02-27"
+                },
+                "algorithm": "to_rdf",
+                "base": "http://json-ld.org/test-suite/tests/toRdf-0020-in.jsonld"
+            },
+            "expected_output": "<http://greggkellogg.net/foaf#me> <http://purl.org/dc/terms/created> \"1957-02-27\"^^<http://www.w3.org/2001/XMLSchema#date> .\n"
+        },
+        {
+            "input": {
+                "algorithm": "decimal_literal",
+                "document": {
+                    "ex:id": {
+                        "@value": 6.5,
+                        "@type": "http://www.w3.org/2001/XMLSchema#decimal"
+                    }
+                }
+            },
+            "expected_output": "datatype=http://www.w3.org/2001/XMLSchema#decimal\nvalue=6.5\n"
+        }
+    ]
+}

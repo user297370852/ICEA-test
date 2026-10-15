@@ -1,0 +1,55 @@
+{
+    "description": "Build INSERT statements from target tables, options, column lists, row values, value expressions, suffixes, map-style assignments, and placeholder style.",
+    "cases": [
+        {
+            "input": {
+                "operation": "insert",
+                "scenario": "full_insert",
+                "clauses": {
+                    "target": "a",
+                    "options": [
+                        "DELAYED",
+                        "IGNORE"
+                    ],
+                    "columns": [
+                        "b",
+                        "c"
+                    ],
+                    "rows": [
+                        [
+                            1,
+                            2
+                        ],
+                        [
+                            3,
+                            {
+                                "expression": "? + 1",
+                                "args": [
+                                    4
+                                ]
+                            }
+                        ]
+                    ],
+                    "prefix": "WITH prefix AS ?",
+                    "suffix": "RETURNING ?"
+                }
+            },
+            "expected_output": "sql=WITH prefix AS ? INSERT DELAYED IGNORE INTO a (b,c) VALUES (?,?),(?,? + 1) RETURNING ?\nargs=[0,1,2,3,4,5]\n"
+        },
+        {
+            "input": {
+                "operation": "insert",
+                "scenario": "missing_target",
+                "clauses": {
+                    "target": "",
+                    "rows": [
+                        [
+                            1
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=missing_insert_target\n"
+        }
+    ]
+}

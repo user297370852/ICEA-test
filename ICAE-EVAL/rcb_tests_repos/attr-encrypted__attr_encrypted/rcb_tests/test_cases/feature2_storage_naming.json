@@ -1,0 +1,111 @@
+{
+  "description": "Declaring an encrypted attribute also generates a companion accessor for the backing storage attribute that physically holds the encrypted bytes. By default the storage name is the attribute name with a conventional fixed prefix. A caller may override that with a custom prefix and suffix pair, or by supplying an explicit storage-attribute name outright. Each transcript line reports whether a freshly built instance responds to a named generated accessor, or reports the resolved storage name for an attribute.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            },
+            {
+              "names": [
+                "ssn"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "attribute": "ssn_encrypted"
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "respond_to",
+            "method": "encrypted_email"
+          },
+          {
+            "kind": "respond_to",
+            "method": "crypted_password_test"
+          },
+          {
+            "kind": "respond_to",
+            "method": "ssn_encrypted"
+          }
+        ]
+      },
+      "expected_output": "respond_to[crypted_password_test]=true\nrespond_to[encrypted_email]=true\nrespond_to[ssn_encrypted]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            },
+            {
+              "names": [
+                "ssn"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "attribute": "ssn_encrypted"
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "storage_attr",
+            "attr": "email"
+          },
+          {
+            "kind": "storage_attr",
+            "attr": "password"
+          },
+          {
+            "kind": "storage_attr",
+            "attr": "ssn"
+          }
+        ]
+      },
+      "expected_output": "storage_attr[email]=encrypted_email\nstorage_attr[password]=crypted_password_test\nstorage_attr[ssn]=ssn_encrypted\n"
+    }
+  ]
+}

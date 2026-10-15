@@ -1,0 +1,101 @@
+{
+  "description": "Scope-policy boundaries. With a configured default scope, omitting the scope succeeds (the default is applied) and issues a code. Naming an unsupported scope is redirected with invalid_scope / 'An unsupported scope was requested'. Naming a supported subset of a multi-scope policy succeeds. With identity-connect enabled, a non-identity scope ('email') not in the supported set is likewise rejected as an unsupported scope.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code",
+              "state": "xyz"
+            }
+          }
+        ],
+        "scope_util": {
+          "default_scope": "defscope",
+          "supported_scopes": [
+            "defscope",
+            "other"
+          ]
+        }
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=xyz\nissued.identity_token=absent\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code",
+              "state": "xyz",
+              "scope": "nope"
+            }
+          }
+        ],
+        "scope_util": {
+          "default_scope": false,
+          "supported_scopes": [
+            "testscope"
+          ]
+        }
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.error=invalid_scope\nquery.error_description=An unsupported scope was requested\nquery.state=xyz\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code",
+              "state": "xyz",
+              "scope": "a"
+            }
+          }
+        ],
+        "scope_util": {
+          "default_scope": false,
+          "supported_scopes": [
+            "a",
+            "b",
+            "c"
+          ]
+        }
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=xyz\nissued.identity_token=absent\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code",
+              "state": "xyz",
+              "scope": "email"
+            }
+          }
+        ],
+        "config": {
+          "use_openid_connect": true,
+          "issuer": "bojanz"
+        }
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.error=invalid_scope\nquery.error_description=An unsupported scope was requested\nquery.state=xyz\n"
+    }
+  ]
+}

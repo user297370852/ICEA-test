@@ -1,0 +1,150 @@
+{
+  "description": "Byte cursor edge programs: peek that must not advance, skip+block combinations, NUL-terminated then fixed block, reading a whole buffer as fixed-length text, rewind and re-read, and end-of-stream transitions as bytes are consumed.",
+  "cases": [
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          222,
+          173,
+          190,
+          239
+        ],
+        "program": [
+          {
+            "peek": 2
+          },
+          "byte",
+          "byte",
+          "len",
+          "eos"
+        ]
+      },
+      "expected_output": "peek=dead\nbyte=de\nbyte=ad\nlen=2\neos=false\n"
+    },
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "program": [
+          "len",
+          {
+            "skip": 3
+          },
+          "len",
+          {
+            "block": 2
+          },
+          "eos"
+        ]
+      },
+      "expected_output": "len=8\nlen=5\nblock=0405\neos=false\n"
+    },
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          65,
+          66,
+          67,
+          0,
+          68,
+          69
+        ],
+        "program": [
+          "string",
+          {
+            "block": 2
+          },
+          "eos"
+        ]
+      },
+      "expected_output": "str=ABC\nblock=4445\neos=true\n"
+    },
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          72,
+          105,
+          33
+        ],
+        "program": [
+          {
+            "string": 3
+          },
+          "eos"
+        ]
+      },
+      "expected_output": "str=Hi!\neos=true\n"
+    },
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          10,
+          20,
+          30
+        ],
+        "program": [
+          "byte",
+          "byte",
+          "reset",
+          "len",
+          {
+            "block": 3
+          },
+          "eos"
+        ]
+      },
+      "expected_output": "byte=0a\nbyte=14\nlen=3\nblock=0a141e\neos=true\n"
+    },
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          171,
+          205,
+          239
+        ],
+        "program": [
+          {
+            "peek": 3
+          },
+          "len",
+          "byte",
+          "byte",
+          "byte",
+          "eos"
+        ]
+      },
+      "expected_output": "peek=abcdef\nlen=3\nbyte=ab\nbyte=cd\nbyte=ef\neos=true\n"
+    },
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          1,
+          2
+        ],
+        "program": [
+          "eos",
+          "byte",
+          "eos",
+          "byte",
+          "eos"
+        ]
+      },
+      "expected_output": "eos=false\nbyte=01\neos=false\nbyte=02\neos=true\n"
+    }
+  ]
+}

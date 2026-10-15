@@ -1,0 +1,31 @@
+{
+  "description": "Package-level definitions are validated before any output is produced. The generator reports: no package directory containing a definition file; a definition whose top-level content is not a map; a definition that yields no runnable tasks; a legacy-named definition file that must be renamed; a definition missing the required SDK list; and a task carrying unsupported extra options. Each report states the reason and, for schema errors, the location.",
+  "cases": [
+    {
+      "input": {
+        "files": {
+          "sub_pkg/.keep": ""
+        }
+      },
+      "expected_output": "error=user_exception\nmessage=No packages found.\ndetails=Each target package directory must contain a `mono_pkg.yaml` file.\n"
+    },
+    {
+      "input": {
+        "files": {
+          "sub_pkg/mono_pkg.yaml": "bob",
+          "sub_pkg/pubspec.yaml": "name: pkg_name\n"
+        }
+      },
+      "expected_output": "error=user_exception\nmessage=The contents of `sub_pkg/mono_pkg.yaml` must be a Map.\ndetails=\n"
+    },
+    {
+      "input": {
+        "files": {
+          "sub_pkg/mono_pkg.yaml": "# just a comment!\n",
+          "sub_pkg/pubspec.yaml": "name: pkg_name\n"
+        }
+      },
+      "expected_output": "error=user_exception\nmessage=No entries created. Check your nested `mono_pkg.yaml` files.\ndetails=\n"
+    }
+  ]
+}

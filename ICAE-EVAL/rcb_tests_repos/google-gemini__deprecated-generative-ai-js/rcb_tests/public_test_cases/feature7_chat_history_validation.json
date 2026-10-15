@@ -1,0 +1,87 @@
+{
+    "description": "Conversation history is accepted only when it begins with user content and every turn contains non-empty parts compatible with that role.",
+    "cases": [
+        {
+            "input": {
+                "history": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "text": "hi"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "history_valid=true\nturns=1\n"
+        },
+        {
+            "input": {
+                "history": [
+                    {
+                        "role": "model",
+                        "parts": [
+                            {
+                                "text": "hi"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "error=invalid_chat_history_first_role\nrole=model\n"
+        },
+        {
+            "input": {
+                "history": [
+                    {
+                        "role": "user",
+                        "parts": []
+                    }
+                ]
+            },
+            "expected_output": "error=empty_content_parts\n"
+        },
+        {
+            "input": {
+                "history": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "text": "hi"
+                            }
+                        ]
+                    },
+                    {
+                        "role": "model",
+                        "parts": [
+                            {
+                                "functionCall": {
+                                    "name": "greet",
+                                    "args": {
+                                        "name": "user"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "role": "function",
+                        "parts": [
+                            {
+                                "functionResponse": {
+                                    "name": "greet",
+                                    "response": {
+                                        "name": "user"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "history_valid=true\nturns=3\n"
+        }
+    ]
+}

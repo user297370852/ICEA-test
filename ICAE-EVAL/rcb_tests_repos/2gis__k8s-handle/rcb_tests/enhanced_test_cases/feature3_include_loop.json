@@ -1,0 +1,29 @@
+{
+  "description": "Additional cyclic-include detection: a file that includes itself directly, and a three-file cycle where the first includes the second, the second includes the third, and the third includes the first. Each aborts with 'error=include_loop' instead of recursing forever.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve",
+        "section": "self_loop",
+        "aux_files": {
+          "self.yaml": "---\nme: \"{{ file='self.yaml' }}\"\n"
+        },
+        "config": "common:\n  k8s_namespace: ns\nself_loop:\n  var: \"{{ file='self.yaml' }}\"\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "error=include_loop\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "tri_loop",
+        "aux_files": {
+          "a.yaml": "---\nstep: \"{{ file='b.yaml' }}\"\n",
+          "b.yaml": "---\nstep: \"{{ file='c.yaml' }}\"\n",
+          "c.yaml": "---\nstep: \"{{ file='a.yaml' }}\"\n"
+        },
+        "config": "common:\n  k8s_namespace: ns\ntri_loop:\n  var: \"{{ file='a.yaml' }}\"\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "error=include_loop\n"
+    }
+  ]
+}

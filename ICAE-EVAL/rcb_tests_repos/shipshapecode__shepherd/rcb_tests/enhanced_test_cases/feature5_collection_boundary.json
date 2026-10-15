@@ -1,0 +1,212 @@
+{
+  "description": "Boundary coverage for building and mutating a tour's step collection. Exercises lookups and queries against an empty collection, appending several steps after construction, removing an identifier that is not present, retrieving a step that was added without a title, looking up a missing identifier in a populated collection, removing every step in turn including the one currently shown, and appending a step that reuses an existing identifier. The collection size, lookups, current-step queries, and any automatic transitions are reported as they occur.",
+  "cases": [
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [],
+        "actions": [
+          {
+            "do": "count"
+          },
+          {
+            "do": "byId",
+            "id": "x"
+          },
+          {
+            "do": "isActive"
+          },
+          {
+            "do": "current"
+          }
+        ]
+      },
+      "expected_output": "count=0\nbyId x title=missing\nactive=false\ncurrent=none\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [],
+        "actions": [
+          {
+            "do": "addStep",
+            "step": {
+              "id": "a",
+              "title": "Alpha",
+              "text": "One"
+            }
+          },
+          {
+            "do": "addStep",
+            "step": {
+              "id": "b",
+              "title": "Beta",
+              "text": "Two"
+            }
+          },
+          {
+            "do": "count"
+          },
+          {
+            "do": "byId",
+            "id": "a"
+          },
+          {
+            "do": "byId",
+            "id": "b"
+          }
+        ]
+      },
+      "expected_output": "count=2\nbyId a title=Alpha\nbyId b title=Beta\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          }
+        ],
+        "actions": [
+          {
+            "do": "count"
+          },
+          {
+            "do": "removeStep",
+            "id": "zzz"
+          },
+          {
+            "do": "count"
+          }
+        ]
+      },
+      "expected_output": "count=2\ncount=2\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [],
+        "actions": [
+          {
+            "do": "addStep",
+            "step": {
+              "id": "x"
+            }
+          },
+          {
+            "do": "byId",
+            "id": "x"
+          },
+          {
+            "do": "count"
+          }
+        ]
+      },
+      "expected_output": "byId x title=undefined\ncount=1\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          }
+        ],
+        "actions": [
+          {
+            "do": "byId",
+            "id": "zzz"
+          }
+        ]
+      },
+      "expected_output": "byId zzz title=missing\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          }
+        ],
+        "actions": [
+          {
+            "do": "start"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "removeStep",
+            "id": "a"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "removeStep",
+            "id": "b"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "count"
+          }
+        ]
+      },
+      "expected_output": "show a previous=none\ncurrent=a\nshow b previous=none\ncurrent=b\ncancel\ninactive\ncurrent=none\ncount=0\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Alpha",
+            "text": "First"
+          }
+        ],
+        "actions": [
+          {
+            "do": "addStep",
+            "step": {
+              "id": "a",
+              "title": "Duplicate",
+              "text": "Again"
+            }
+          },
+          {
+            "do": "count"
+          },
+          {
+            "do": "byId",
+            "id": "a"
+          }
+        ]
+      },
+      "expected_output": "count=2\nbyId a title=Alpha\n"
+    }
+  ]
+}

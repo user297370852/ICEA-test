@@ -1,0 +1,35 @@
+{
+    "description": "Interpret a column-definition flag bitmap returned by the server, optionally combined with a collation identifier. Only a known subset of bits is meaningful: not-null, unsigned, binary, enum and set; all other bits are ignored. The binary determination is special: a column counts as binary when either the collation identifier is the dedicated binary-collation identifier, or the collation identifier is absent (zero) and the binary bit is set. The remaining predicates read their corresponding bit directly.",
+    "cases": [
+        {
+            "input": {
+                "action": "column_definition",
+                "bitmap": -1
+            },
+            "expected_output": "not_null=true\nunsigned=true\nbinary=true\nenum=true\nset=true\n"
+        },
+        {
+            "input": {
+                "action": "column_definition",
+                "bitmap": 0
+            },
+            "expected_output": "not_null=false\nunsigned=false\nbinary=false\nenum=false\nset=false\n"
+        },
+        {
+            "input": {
+                "action": "column_definition",
+                "bitmap": -1,
+                "collation_id": 63
+            },
+            "expected_output": "not_null=true\nunsigned=true\nbinary=true\nenum=true\nset=true\n"
+        },
+        {
+            "input": {
+                "action": "column_definition",
+                "bitmap": -1,
+                "collation_id": -64
+            },
+            "expected_output": "not_null=true\nunsigned=true\nbinary=false\nenum=true\nset=true\n"
+        }
+    ]
+}

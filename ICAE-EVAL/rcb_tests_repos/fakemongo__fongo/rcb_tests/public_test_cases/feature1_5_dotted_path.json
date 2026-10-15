@@ -1,0 +1,60 @@
+{
+    "description": "A document matcher resolves dotted field paths to reach into nested documents and arrays. A path component may be a sub-document key or a numeric array index. When a path traverses an array of sub-documents without an explicit index, the condition matches if any element along the way satisfies it. Comparison conditions also apply through dotted paths. Documents are returned in their original order; a path that cannot be resolved does not match.",
+    "cases": [
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a.b": 1
+                },
+                "documents": [
+                    {
+                        "a": 1
+                    },
+                    {
+                        "b": 1
+                    },
+                    {
+                        "a": {
+                            "b": 1
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : { \"b\" : 1}}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a.b": {
+                        "$gt": 2
+                    }
+                },
+                "documents": [
+                    {
+                        "a": [
+                            {
+                                "b": 1
+                            },
+                            {
+                                "b": 2
+                            }
+                        ]
+                    },
+                    {
+                        "a": [
+                            {
+                                "b": 2
+                            },
+                            {
+                                "b": 3
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : [ { \"b\" : 2} , { \"b\" : 3}]}\n"
+        }
+    ]
+}

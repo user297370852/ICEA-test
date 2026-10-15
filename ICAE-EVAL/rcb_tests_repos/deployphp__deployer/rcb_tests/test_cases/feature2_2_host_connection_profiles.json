@@ -1,0 +1,25 @@
+{
+  "description": "Builds host connection profiles from aliases and connection settings, deriving the hostname, user-qualified connection target, and remote transport arguments.",
+  "cases": [
+    {
+      "input": {"alias": "host", "values": {"hostname": "hostname", "remote_user": "remote_user", "port": 22, "config_file": "~/.ssh/config", "identity_file": "~/.ssh/id_rsa", "forward_agent": true, "ssh_multiplexing": true, "sshOptions": {"BatchMode": "yes", "Compression": "yes"}, "sshFlags": ["-A"]}},
+      "expected_output": "alias=host\nhostname=hostname\nconnection=remote_user@hostname\nremote_user=remote_user\nport=22\nconfig_file=~/.ssh/config\nidentity_file=~/.ssh/id_rsa\nforward_agent=true\nssh_multiplexing=true\nssh_arguments=-A -p 22 -F ~/.ssh/config -i ~/.ssh/id_rsa -o BatchMode=yes -o Compression=yes\n"
+    },
+    {
+      "input": {"alias": "host", "values": {"hostname": "host", "remote_user": "user", "forward_agent": true, "port": 2222}},
+      "expected_output": "alias=host\nhostname=host\nconnection=user@host\nremote_user=user\nport=2222\nforward_agent=true\nssh_arguments=-A -p 2222\n"
+    },
+    {
+      "input": {"alias": "host/alias", "values": {}},
+      "expected_output": "alias=host/alias\nhostname=host\nconnection=host\nssh_arguments=\n"
+    },
+    {
+      "input": {"alias": "host", "values": {"env": "new_value", "identity_file": "{{env}}"}},
+      "expected_output": "alias=host\nhostname=host\nconnection=host\nidentity_file=new_value\nssh_arguments=-i new_value\n"
+    },
+    {
+      "input": {"alias": "host", "parent_values": {"deploy_user": {"computed_result": "test_user"}}, "values": {"hostname": "host", "remote_user": "{{deploy_user}}", "port": 22}},
+      "expected_output": "alias=host\nhostname=host\nconnection=test_user@host\nremote_user=test_user\nport=22\nssh_arguments=-p 22\n"
+    }
+  ]
+}

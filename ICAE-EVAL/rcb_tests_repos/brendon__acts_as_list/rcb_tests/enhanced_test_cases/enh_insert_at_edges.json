@@ -1,0 +1,252 @@
+{
+  "description": "Edge cases for absolute relocation. Relocating an element to its current slot is a no-op; relocating the head to the tail slot rotates the run forward; relocating with a target past the end clamps to the last slot; and via insert_at_outcome a target below the top of the list is rejected with a neutral error.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5,
+              "position": 1
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5,
+              "position": 2
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5,
+              "position": 3
+            }
+          },
+          {
+            "op": "create",
+            "ref": "d",
+            "attrs": {
+              "parent_id": 5,
+              "position": 4
+            }
+          },
+          {
+            "op": "insert_at",
+            "ref": "c",
+            "position": 3
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[1, 2, 3, 4]\npositions=[1, 2, 3, 4]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5,
+              "position": 1
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5,
+              "position": 2
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5,
+              "position": 3
+            }
+          },
+          {
+            "op": "create",
+            "ref": "d",
+            "attrs": {
+              "parent_id": 5,
+              "position": 4
+            }
+          },
+          {
+            "op": "insert_at",
+            "ref": "a",
+            "position": 99
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[2, 3, 4, 1]\npositions=[1, 2, 3, 99]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5,
+              "position": 1
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5,
+              "position": 2
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5,
+              "position": 3
+            }
+          },
+          {
+            "op": "create",
+            "ref": "d",
+            "attrs": {
+              "parent_id": 5,
+              "position": 4
+            }
+          },
+          {
+            "op": "insert_at",
+            "ref": "d",
+            "position": 1
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[4, 1, 2, 3]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "pos",
+          "unique": true,
+          "positive": true
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a"
+          },
+          {
+            "op": "create",
+            "ref": "b"
+          },
+          {
+            "op": "create",
+            "ref": "c"
+          }
+        ],
+        "queries": [
+          {
+            "q": "insert_at_outcome",
+            "ref": "a",
+            "position": 0
+          }
+        ]
+      },
+      "expected_output": "error=position_below_top"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "pos",
+          "unique": true,
+          "positive": true
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a"
+          },
+          {
+            "op": "create",
+            "ref": "b"
+          },
+          {
+            "op": "create",
+            "ref": "c"
+          }
+        ],
+        "queries": [
+          {
+            "q": "insert_at_outcome",
+            "ref": "a",
+            "position": 3
+          }
+        ]
+      },
+      "expected_output": "position=3"
+    }
+  ]
+}

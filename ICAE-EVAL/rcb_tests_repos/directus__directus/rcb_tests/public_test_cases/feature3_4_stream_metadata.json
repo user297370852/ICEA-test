@@ -1,0 +1,44 @@
+{
+  "description": "Beyond reading whole-file string content, the local filesystem backend exposes the same data as a byte buffer and as a readable stream, and reports file metadata. Reading a file as a buffer yields the raw bytes (a binary buffer whose length equals the stored byte count). Reading a file as a stream yields the same content as a flowing sequence of chunks that, concatenated, reproduce the stored text. A file can also be written by piping the readable stream of another existing file into it, copying its content across. Requesting metadata for an existing file reports its size in bytes and a last-modified timestamp. Each case drives a fresh, empty root.",
+  "cases": [
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "foo",
+            "content": "test-data"
+          },
+          {
+            "action": "putStream",
+            "from": "foo",
+            "location": "bar"
+          },
+          {
+            "action": "get",
+            "location": "bar"
+          }
+        ]
+      },
+      "expected_output": "put=foo\nput_stream=bar\ncontent=test-data\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "foo",
+            "content": "test-data"
+          },
+          {
+            "action": "getStat",
+            "location": "foo"
+          }
+        ]
+      },
+      "expected_output": "put=foo\nsize=9 modified_is_date=true\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "description": "Path-segment substitution. A method parameter marked as a path variable replaces a named placeholder inside the relative path. A variant flag marks the supplied value as already URL-encoded so it is inserted verbatim. A path-variable parameter may not be nullable, and a placeholder-substitution parameter is only meaningful when the verb declares a non-empty relative path. The adapter prints the issued request's method, resolved URL and body kind, or a neutral error category.",
+  "cases": [
+    {
+      "input": {"http": [{"verb": "GET", "path": "user/{id}"}], "params": [{"kind": "path", "key": "id", "name": "id"}], "args": ["abc"]},
+      "expected_output": "method=GET\nurl=http://localhost/user/abc\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "user/{id}"}], "params": [{"kind": "path", "key": "id", "encoded": true, "name": "id"}], "args": ["a%20b"]},
+      "expected_output": "method=GET\nurl=http://localhost/user/a%20b\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "user/{id}"}], "params": [{"kind": "path", "key": "id", "name": "id", "type": "String?"}], "args": ["x"]},
+      "expected_output": "error=path_must_not_be_nullable"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": ""}], "params": [{"kind": "path", "key": "id", "name": "id"}], "args": ["x"]},
+      "expected_output": "error=missing_url\nerror=path_requires_relative_url"
+    }
+  ]
+}

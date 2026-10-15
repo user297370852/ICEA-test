@@ -1,0 +1,53 @@
+{
+  "description": "Enhanced selection predicate cases covering image-based matches, boolean composition, null/non-boolean results, and malformed functions.",
+  "cases": [
+    {
+      "input": {
+        "op": "filter_match",
+        "namespace": "prod",
+        "container": {
+          "name": "api",
+          "image": "123456789.dkr.ecr.us-east-1.amazonaws.com/team/api:v1"
+        },
+        "expression": "contains(container.image, '.dkr.ecr.') && contains(container.image, '.amazonaws.com')"
+      },
+      "expected_output": "namespace=prod\ncontainer=api\nexpression=contains(container.image, '.dkr.ecr.') && contains(container.image, '.amazonaws.com')\nmatch=true\n"
+    },
+    {
+      "input": {
+        "op": "filter_match",
+        "namespace": "prod",
+        "container": {
+          "name": "worker",
+          "image": "redis:7"
+        },
+        "expression": "container.name == 'api' || obj.metadata.namespace == 'prod'"
+      },
+      "expected_output": "namespace=prod\ncontainer=worker\nexpression=container.name == 'api' || obj.metadata.namespace == 'prod'\nmatch=true\n"
+    },
+    {
+      "input": {
+        "op": "filter_match",
+        "namespace": "dev",
+        "container": {
+          "name": "api",
+          "image": "nginx:1.25"
+        },
+        "expression": "obj.metadata.labels.team"
+      },
+      "expected_output": "namespace=dev\ncontainer=api\nexpression=obj.metadata.labels.team\nmatch=false\nreason=non_boolean_result\n"
+    },
+    {
+      "input": {
+        "op": "filter_match",
+        "namespace": "dev",
+        "container": {
+          "name": "api",
+          "image": "nginx:1.25"
+        },
+        "expression": "contains(container.image)"
+      },
+      "expected_output": "namespace=dev\ncontainer=api\nexpression=contains(container.image)\nmatch=false\nreason=evaluation_error\n"
+    }
+  ]
+}

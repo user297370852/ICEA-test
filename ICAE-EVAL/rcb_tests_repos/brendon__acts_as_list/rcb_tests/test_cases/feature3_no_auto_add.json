@@ -1,0 +1,73 @@
+{
+    "description": "A list can be configured so that newly created records are NOT automatically placed into the ordering. Under this configuration a created record has no position assigned (its position is empty) and it does not participate in the list, so it reports as not being in the list. A subsequent update of an unrelated attribute on such a record does not draw it into the ordering either: its position remains empty and it remains outside the list.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "column": "position",
+                    "scope": "parent_id",
+                    "add_new_at": null
+                },
+                "operations": [
+                    {
+                        "op": "create",
+                        "ref": "a",
+                        "attrs": {
+                            "parent_id": 20
+                        }
+                    },
+                    {
+                        "op": "create",
+                        "ref": "b",
+                        "attrs": {
+                            "parent_id": 20
+                        }
+                    }
+                ],
+                "queries": [
+                    {
+                        "q": "item_status",
+                        "ref": "a"
+                    },
+                    {
+                        "q": "item_status",
+                        "ref": "b"
+                    }
+                ]
+            },
+            "expected_output": "position=nil first=false last=false in_list=false\nposition=nil first=false last=false in_list=false"
+        },
+        {
+            "input": {
+                "config": {
+                    "column": "position",
+                    "scope": "parent_id",
+                    "add_new_at": null
+                },
+                "operations": [
+                    {
+                        "op": "create",
+                        "ref": "a",
+                        "attrs": {
+                            "parent_id": 20
+                        }
+                    },
+                    {
+                        "op": "update",
+                        "ref": "a",
+                        "attrs": {
+                            "state": 1
+                        }
+                    }
+                ],
+                "queries": [
+                    {
+                        "q": "item_status",
+                        "ref": "a"
+                    }
+                ]
+            },
+            "expected_output": "position=nil first=false last=false in_list=false"
+        }
+    ]
+}

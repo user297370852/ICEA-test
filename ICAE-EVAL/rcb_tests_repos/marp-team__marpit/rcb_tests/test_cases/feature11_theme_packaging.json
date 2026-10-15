@@ -1,0 +1,52 @@
+{
+    "description": "Package registered theme CSS into slide-ready CSS, rolling up imports, adding caller-supplied CSS, scoping printable rules, and ignoring invalid caller-supplied CSS snippets.",
+    "cases": [
+        {
+            "input": {
+                "stylesheets": [
+                    "/* @theme test1 */ strong { font-weight: bold; }",
+                    "/* @theme test2 */ @import \"test1\";"
+                ],
+                "checks": [
+                    {
+                        "kind": "pack",
+                        "name": "test2",
+                        "options": {
+                            "before": "b { font-weight: bold; }"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "size=2\nthemes=[\"test1\",\"test2\"]\ncheck_0=section {\n  width: 1280px;\n  height: 720px;\n\n  box-sizing: border-box;\n  overflow: hidden;\n  position: relative;\n\n  scroll-snap-align: center center;\n}section::after {\n  bottom: 0;\n  content: attr(data-marpit-pagination);\n  padding: inherit;\n  pointer-events: none;\n  position: absolute;\n  right: 0;\n}section:not([data-marpit-pagination])::after {\n  display: none;\n}/* Normalization */section h1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n} /* @theme test1 */ section strong { font-weight: bold; } section b { font-weight: bold; } /* @theme test2 */\nfinal_size=2\n"
+        },
+        {
+            "input": {
+                "stylesheets": [],
+                "checks": [
+                    {
+                        "kind": "pack",
+                        "options": {
+                            "before": "INVALID */"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "size=0\nthemes=[]\ncheck_0=section {\n  width: 1280px;\n  height: 720px;\n\n  box-sizing: border-box;\n  overflow: hidden;\n  position: relative;\n\n  scroll-snap-align: center center;\n}\n\nsection::after {\n  bottom: 0;\n  content: attr(data-marpit-pagination);\n  padding: inherit;\n  pointer-events: none;\n  position: absolute;\n  right: 0;\n}\n\nsection:not([data-marpit-pagination])::after {\n  display: none;\n}\n\n/* Normalization */\nsection h1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n}\nfinal_size=0\n"
+        },
+        {
+            "input": {
+                "stylesheets": [],
+                "checks": [
+                    {
+                        "kind": "pack",
+                        "options": {
+                            "before": "@media print { body { background: red; } }",
+                            "printable": true
+                        }
+                    }
+                ]
+            },
+            "expected_output": "size=0\nthemes=[]\ncheck_0=@page {\n  size: 1280px 720px;\n  margin: 0;\n}@media print {html, body {\n  background-color: #fff;\n  margin: 0;\n  page-break-inside: avoid;\n  break-inside: avoid-page;\n}\n  section {\n    page-break-before: always;\n    break-before: page;\n  }\n\n  section, section * {\n    -webkit-print-color-adjust: exact !important;\n    color-adjust: exact !important;\n  }\n\n  svg[data-marpit-svg] {\n    display: block;\n    height: 100vh;\n    width: 100vw;\n  }\n}\n\n@media print { section body { background: red; } }\n\nsection {\n  width: 1280px;\n  height: 720px;\n\n  box-sizing: border-box;\n  overflow: hidden;\n  position: relative;\n\n  scroll-snap-align: center center;\n}\n\nsection::after {\n  bottom: 0;\n  content: attr(data-marpit-pagination);\n  padding: inherit;\n  pointer-events: none;\n  position: absolute;\n  right: 0;\n}\n\nsection:not([data-marpit-pagination])::after {\n  display: none;\n}\n\n/* Normalization */\nsection h1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n}\nfinal_size=0\n"
+        }
+    ]
+}

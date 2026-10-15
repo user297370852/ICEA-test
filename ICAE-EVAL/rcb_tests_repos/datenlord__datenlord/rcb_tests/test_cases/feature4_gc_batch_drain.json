@@ -1,0 +1,13 @@
+{
+    "description": "Certain nodes are garbage-collected nodes: instead of holding workers directly, they hand out a lightweight handle that batches many short-lived tasks into a single background collector. Multiple tasks are enqueued per garbage-collected node; on shutdown the collector drains every enqueued task and each reports its marker. All tasks belonging to one garbage-collected node are drained together before moving to the next node.",
+    "cases": [
+        {
+            "input": {"action": "gc_batch_drain", "spawns": [{"node": "BlockFlush", "marker": 0, "count": 5}, {"node": "FuseRequest", "marker": 1, "count": 5}]},
+            "expected_output": "node=BlockFlush marker=0\nnode=BlockFlush marker=0\nnode=BlockFlush marker=0\nnode=BlockFlush marker=0\nnode=BlockFlush marker=0\nnode=FuseRequest marker=1\nnode=FuseRequest marker=1\nnode=FuseRequest marker=1\nnode=FuseRequest marker=1\nnode=FuseRequest marker=1\n"
+        },
+        {
+            "input": {"action": "gc_batch_drain", "spawns": [{"node": "BlockFlush", "marker": 0, "count": 3}]},
+            "expected_output": "node=BlockFlush marker=0\nnode=BlockFlush marker=0\nnode=BlockFlush marker=0\n"
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+{
+  "description": "Additional error-condition coverage: empty content, content lacking any OFX envelope, and a sign-on-only document with no account message blocks all yield parse_failed; empty and deep non-existent paths yield file_not_found; an unrecognized op yields unknown_op.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse",
+        "content": ""
+      },
+      "expected_output": "error=parse_failed\n"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "content": "random text with no ofx"
+      },
+      "expected_output": "error=parse_failed\n"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "content": "<OFX><SIGNONMSGSRSV1><SONRS><STATUS><CODE>0</CODE><SEVERITY>INFO</SEVERITY></STATUS><DTSERVER>20000101</DTSERVER><LANGUAGE>ENG</LANGUAGE></SONRS></SIGNONMSGSRSV1></OFX>"
+      },
+      "expected_output": "error=parse_failed\n"
+    },
+    {
+      "input": {
+        "op": "load_path",
+        "path": ""
+      },
+      "expected_output": "error=file_not_found\n"
+    },
+    {
+      "input": {
+        "op": "load_path",
+        "path": "/tmp/does/not/exist.ofx"
+      },
+      "expected_output": "error=file_not_found\n"
+    },
+    {
+      "input": {
+        "op": "foobar"
+      },
+      "expected_output": "error=unknown_op\n"
+    }
+  ]
+}

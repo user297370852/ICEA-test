@@ -1,0 +1,99 @@
+{
+    "description": "Given a subgraph SDL that violates a federation composition rule, the transformation fails and the failure is surfaced as a neutral, language-independent error category line rather than a schema. Distinct categories distinguish: importing the federation specification at a version that is not supported, declaring the federation import link more than once, importing a feature from a specification version that predates it, attempting to rename a directive that may not be renamed, an entity that fails to declare the key required by an interface it implements, and generic schema-construction or schema-validation failures.",
+    "cases": [
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema\n@link(url: \"https://specs.apollo.dev/federation/v99.99\",\n    import: [\"@key\"])\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    package: String\n    notes: String @tag(name: \"internal\")\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=unsupported_federation_version\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema\n@link(url: \"https://specs.apollo.dev/federation/v2.0\",\n    import: [\"@key\"])\n@link(url: \"https://specs.apollo.dev/federation/v2.1\",\n  import: [\"@composeDirective\"])\n@link(url: \"https://myspecs.dev/myDirective/v1.0\", import: [\"@myDirective\", { name: \"@anotherDirective\", as: \"@hello\" }])\n@composeDirective(name: \"@myDirective\")\n@composeDirective(name: \"@hello\")\n\ndirective @myDirective(foo: String!) on FIELD_DEFINITION\ndirective @hello on FIELD_DEFINITION\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    name: String! @hello\n    custom: String @myDirective(foo: \"bar\")\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=multiple_federation_links\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\"])\n\nschema @link(url: \"https://specs.apollo.dev/federation/v2.1\", import: [\"@tag\"]) {\n  query: Query\n}\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    name: String! @tag(name: \"example\")\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=multiple_federation_links\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema\n@link(url: \"https://specs.apollo.dev/federation/v2.0\",\n    import: [\"@key\", \"@shareable\", \"@provides\", \"@external\", \"@tag\", \"@extends\", \"@override\", \"@inaccessible\", \"@composeDirective\"])\n@link(url: \"https://myspecs.dev/myDirective/v1.0\", import: [\"@myDirective\", { name: \"@anotherDirective\", as: \"@hello\" }])\n@composeDirective(name: \"@myDirective\")\n@composeDirective(name: \"@hello\")\n\ndirective @myDirective(foo: String!) on FIELD_DEFINITION\ndirective @hello on FIELD_DEFINITION\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    name: String! @hello\n    custom: String @myDirective(foo: \"bar\")\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=unsupported_link_import\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.1\", import: [\"@key\", \"@interfaceObject\"])\n\ntype Product @key(fields: \"id\") @interfaceObject {\n    id: ID!\n    name: String!\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=unsupported_link_import\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@authenticated\", \"@key\", \"FieldSet\"])\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    name: String!\n    supplier: String\n}\n\ntype Query {\n    product(id: ID!): Product @authenticated\n}\n"
+            },
+            "expected_output": "error=unsupported_link_import\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\", \"@requiresScopes\", \"Scope\", \"FieldSet\"])\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    name: String!\n    supplier: String @requiresScopes(scopes: [[\"scopeA\"]])\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=unsupported_link_import\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\", \"@policy\", \"Policy\", \"FieldSet\"])\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    name: String!\n    supplier: String @policy(policies: [[\"policy\"]])\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=unsupported_link_import\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema\n@link(url: \"https://specs.apollo.dev/federation/v2.0\",\n    import: [\"@key\", \"@shareable\", \"@provides\", \"@external\", { name: \"@tag\", as: \"@mytag\" }, \"@extends\", \"@override\", \"@inaccessible\"])\n\ntype Product @key(fields: \"id\") @key(fields: \"sku package\") @key(fields: \"sku variation { id }\") {\n    id: ID!\n    sku: String\n    package: String\n    variation: ProductVariation\n    dimensions: ProductDimension\n    createdBy: User @provides(fields: \"totalProductsCreated\")\n    notes: String @mytag(name: \"internal\")\n}\n\ntype ProductVariation {\n    id: ID!\n}\n\ntype ProductDimension @shareable {\n    size: String\n    weight: Float\n    unit: String @inaccessible\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n\ntype User @key(fields: \"email\") {\n    email: ID!\n    name: String @shareable @override(from: \"users\")\n    totalProductsCreated: Int @external\n}\n"
+            },
+            "expected_output": "error=unsupported_rename\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema\n@link(url: \"https://specs.apollo.dev/federation/v2.0\",\n    import: [\"@key\", \"@shareable\", \"@provides\", \"@external\", \"@tag\", \"@extends\", \"@override\", { name: \"@inaccessible\", as: \"@unreachable\" }])\n\ntype Product @key(fields: \"id\") @key(fields: \"sku package\") @key(fields: \"sku variation { id }\") {\n    id: ID!\n    sku: String\n    package: String\n    variation: ProductVariation\n    dimensions: ProductDimension\n    createdBy: User @provides(fields: \"totalProductsCreated\")\n    notes: String @mytag(name: \"internal\")\n}\n\ntype ProductVariation {\n    id: ID!\n}\n\ntype ProductDimension @shareable {\n    size: String\n    weight: Float\n    unit: String @unreachable\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n\ntype User @key(fields: \"email\") {\n    email: ID!\n    name: String @shareable @override(from: \"users\")\n    totalProductsCreated: Int @external\n}\n"
+            },
+            "expected_output": "error=unsupported_rename\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\"])\n\ninterface Product @key(fields: \"id\") {\n  id: ID!\n  name: String!\n}\n\ntype Book implements Product {\n  id: ID!\n  name: String!\n  author: String!\n}\n\ntype Movie implements Product {\n  id: ID!\n  name: String!\n  director: String!\n}\n\ntype Query {\n    movie(id: ID!): Movie\n}\n",
+                "abstractTypeResolvers": [
+                    "Product"
+                ]
+            },
+            "expected_output": "error=missing_key\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.6\", import: [\n  \"@key\",\n  \"@override\"\n])\n\ntype Product @key(fields: \"id\") {\n    id: ID!\n    name: String! @override(from: \"old-product-service\", label: \"percent(5)\")\n}\n\ntype Query {\n    product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=schema_problem\n"
+        },
+        {
+            "input": {
+                "op": "service_sdl",
+                "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.1\", import: [\"@key\", \"@shareable\"])\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n  name: String!\n  position: Position\n}\n\ntype Position @shareable {\n  x: Float!\n  y: Float!\n}\n\nextend type Position @shareable {\n  z: Float!\n}\n\ntype Query {\n  product(id: ID!): Product\n}\n"
+            },
+            "expected_output": "error=invalid_schema\n"
+        }
+    ]
+}

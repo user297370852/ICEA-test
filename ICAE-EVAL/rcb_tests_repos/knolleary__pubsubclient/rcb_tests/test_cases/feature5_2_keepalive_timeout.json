@@ -1,0 +1,41 @@
+{
+    "description": "If a transmitted PINGREQ goes unanswered, the client detects the dead connection: at the next keepalive interval with a ping still outstanding, servicing the connection fails, the transport is closed and the session enters a timeout state. The case sends a ping, withholds any PINGRESP, advances past the next interval, services the connection (which now fails) and observes the timeout state.",
+    "cases": [
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "advance",
+                        "ms": 16000
+                    },
+                    {
+                        "op": "loop"
+                    },
+                    {
+                        "op": "advance",
+                        "ms": 16000
+                    },
+                    {
+                        "op": "loop"
+                    },
+                    {
+                        "op": "state"
+                    }
+                ]
+            },
+            "expected_output": "loop=1\nmessage=none\nsent=c0 00\nloop=0\nmessage=none\nsent=\nstate=-4\n"
+        }
+    ]
+}

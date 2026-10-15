@@ -1,0 +1,98 @@
+{
+  "description": "Subscribe dispatch edge cases: a name matching no published event produces no output at all; a single name published by two different services fires both handlers (once each, in service iteration order); subscribing with an empty argument vector passes only the bus token; and non-string extra arguments (number, boolean, null) are rendered in their JSON forms after the bus token.",
+  "cases": [
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "dbtest"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "subscribe",
+            "name": "nomatch",
+            "args": [
+              "x"
+            ]
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "evt"
+            }
+          ],
+          "s2": [
+            {
+              "name": "evt"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "subscribe",
+            "name": "evt",
+            "args": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected_output": "evt subscribe args=[bus,\"a\"]\nevt subscribe args=[bus,\"a\"]\n"
+    },
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "evt"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "subscribe",
+            "name": "evt",
+            "args": []
+          }
+        ]
+      },
+      "expected_output": "evt subscribe args=[bus]\n"
+    },
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "evt"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "subscribe",
+            "name": "evt",
+            "args": [
+              1,
+              true,
+              null
+            ]
+          }
+        ]
+      },
+      "expected_output": "evt subscribe args=[bus,1,true,null]\n"
+    }
+  ]
+}

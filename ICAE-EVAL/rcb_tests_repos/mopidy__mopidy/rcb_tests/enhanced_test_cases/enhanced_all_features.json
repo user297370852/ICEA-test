@@ -1,0 +1,341 @@
+{
+  "description": "Synthetic native-disjoint coverage for configuration value boundaries, source precedence, comment preservation, nested media models, immutable comparison/update behavior, references/queue items, locale decoding, and XDG directory resolution.",
+  "cases": [
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "port"
+        },
+        "value": "0",
+        "bytes": false
+      },
+      "expected_output": "0\n"
+    },
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "port"
+        },
+        "value": "-1",
+        "bytes": false
+      },
+      "expected_output": "error=invalid_value\n"
+    },
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "integer",
+          "choices": [
+            1,
+            3,
+            5
+          ]
+        },
+        "value": "3",
+        "bytes": false
+      },
+      "expected_output": "3\n"
+    },
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "integer",
+          "choices": [
+            1,
+            3,
+            5
+          ]
+        },
+        "value": "4",
+        "bytes": false
+      },
+      "expected_output": "error=invalid_value\n"
+    },
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "boolean"
+        },
+        "value": "0",
+        "bytes": false
+      },
+      "expected_output": "false\n"
+    },
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "list",
+          "optional": true
+        },
+        "value": "   "
+      },
+      "expected_output": "[]\n"
+    },
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "secret"
+        },
+        "action": "serialize",
+        "value": "s3cret",
+        "bytes": false,
+        "display": false
+      },
+      "expected_output": "s3cret\n"
+    },
+    {
+      "input": {
+        "operation": "config_value",
+        "schema": {
+          "type": "log_level"
+        },
+        "value": "verbose",
+        "bytes": false
+      },
+      "expected_output": "error=invalid_value\n"
+    },
+    {
+      "input": {
+        "operation": "config_load",
+        "defaults": [
+          "[core]\nsetting = default\nkeep = yes"
+        ],
+        "files": [
+          {
+            "kind": "file",
+            "content": "[core]\nsetting = file\nfile_only = true"
+          }
+        ],
+        "overrides": [
+          [
+            "core",
+            "setting",
+            "override"
+          ]
+        ]
+      },
+      "expected_output": "{\"core\": {\"file_only\": \"true\", \"keep\": \"yes\", \"setting\": \"override\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "config_load",
+        "files": [
+          {
+            "kind": "directory",
+            "entries": {
+              "10-second.conf": "[sec]\nvalue = second",
+              "00-first.conf": "[sec]\nvalue = first\nfirst = yes",
+              "ignored.txt": "[sec]\nvalue = ignored"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"sec\": {\"first\": \"yes\", \"value\": \"second\"}}\n"
+    },
+    {
+      "input": {
+        "operation": "config_comments",
+        "action": "preprocess",
+        "text": "# top\n[alpha] suffix only\nkey = value;not comment\nsemi = value ; real comment\n\n[beta]\n; tail"
+      },
+      "expected_output": "[__COMMENTS__]\n__HASH0__ = top\n[alpha]\n__SECTION1__ = suffix only\nkey = value;not comment\nsemi = value\n__INLINE2__ = real comment\n__BLANK3__ =\n[beta]\n__SEMICOLON4__ = tail\n"
+    },
+    {
+      "input": {
+        "operation": "config_comments",
+        "action": "postprocess",
+        "text": "[__COMMENTS__]\n__HASH0__ = top\n[alpha]\n__SECTION1__ = suffix only\nkey = value;not comment\nsemi = value\n__INLINE2__ = real comment\n__BLANK3__ =\n[beta]\n__SEMICOLON4__ = tail"
+      },
+      "expected_output": "# top\n[alpha] suffix only\nkey = value;not comment\nsemi = value ; real comment\n\n[beta]\n; tail\n"
+    },
+    {
+      "input": {
+        "operation": "model_serialize",
+        "object": {
+          "entity": "track",
+          "fields": {}
+        }
+      },
+      "expected_output": "{\"__model__\": \"Track\"}\n"
+    },
+    {
+      "input": {
+        "operation": "model_serialize",
+        "object": {
+          "entity": "image",
+          "fields": {
+            "uri": "http://example/image.jpg",
+            "width": 640,
+            "height": 480
+          }
+        }
+      },
+      "expected_output": "{\"__model__\": \"Image\", \"height\": 480, \"uri\": \"http://example/image.jpg\", \"width\": 640}\n"
+    },
+    {
+      "input": {
+        "operation": "model_json_roundtrip",
+        "object": {
+          "entity": "playlist",
+          "fields": {
+            "name": "Empty",
+            "tracks": [],
+            "uri": "playlist:empty"
+          }
+        }
+      },
+      "expected_output": "{\"encoded\": {\"__model__\": \"Playlist\", \"name\": \"Empty\", \"uri\": \"playlist:empty\"}, \"roundtrip_equal\": true}\n"
+    },
+    {
+      "input": {
+        "operation": "model_compare",
+        "left": {
+          "entity": "track",
+          "fields": {
+            "name": "A",
+            "uri": "track:1"
+          }
+        },
+        "right": {
+          "entity": "track",
+          "fields": {
+            "name": "B",
+            "uri": "track:1"
+          }
+        }
+      },
+      "expected_output": "{\"equal\": false}\n"
+    },
+    {
+      "input": {
+        "operation": "playlist_length",
+        "object": {
+          "entity": "playlist",
+          "fields": {
+            "tracks": []
+          }
+        }
+      },
+      "expected_output": "length=0\n"
+    },
+    {
+      "input": {
+        "operation": "model_replace",
+        "object": {
+          "entity": "album",
+          "fields": {
+            "name": "Old",
+            "uri": "album:old"
+          }
+        },
+        "replace": {
+          "artists": [
+            {
+              "entity": "artist",
+              "fields": {
+                "name": "New Artist",
+                "uri": "artist:new"
+              }
+            }
+          ],
+          "name": "New Album"
+        }
+      },
+      "expected_output": "{\"__model__\": \"Album\", \"artists\": [{\"__model__\": \"Artist\", \"name\": \"New Artist\", \"uri\": \"artist:new\"}], \"name\": \"New Album\", \"uri\": \"album:old\"}\n"
+    },
+    {
+      "input": {
+        "operation": "ref_factory",
+        "kind": "artist",
+        "uri": "artist:foo",
+        "name": "Artist Foo"
+      },
+      "expected_output": "{\"__model__\": \"Ref\", \"name\": \"Artist Foo\", \"type\": \"artist\", \"uri\": \"artist:foo\"}\n"
+    },
+    {
+      "input": {
+        "operation": "ref_factory",
+        "kind": "directory",
+        "uri": "file:///music",
+        "name": "Music Root"
+      },
+      "expected_output": "{\"__model__\": \"Ref\", \"name\": \"Music Root\", \"type\": \"directory\", \"uri\": \"file:///music\"}\n"
+    },
+    {
+      "input": {
+        "operation": "tl_track_iter",
+        "object": {
+          "entity": "queue_item",
+          "positional": true,
+          "fields": {
+            "tlid": 0,
+            "track": null
+          }
+        }
+      },
+      "expected_output": "{\"tlid\": 0, \"track\": null}\n"
+    },
+    {
+      "input": {
+        "operation": "locale_decode",
+        "encoding": "hex",
+        "value": "636166c3a9"
+      },
+      "expected_output": "café\n"
+    },
+    {
+      "input": {
+        "operation": "locale_decode",
+        "encoding": "hex",
+        "value": ""
+      },
+      "expected_output": "\n"
+    },
+    {
+      "input": {
+        "operation": "locale_decode",
+        "kind": "io_error",
+        "errno": 2,
+        "message_hex": "4e6f20737563682066696c65"
+      },
+      "expected_output": "[Errno 2] No such file\n"
+    },
+    {
+      "input": {
+        "operation": "xdg_dirs",
+        "env": {
+          "XDG_CACHE_HOME": "/cache",
+          "XDG_CONFIG_HOME": "/config",
+          "XDG_DATA_HOME": "/data"
+        },
+        "keys": [
+          "XDG_DATA_DIR",
+          "XDG_CONFIG_DIR",
+          "XDG_CACHE_DIR"
+        ]
+      },
+      "expected_output": "{\"XDG_CACHE_DIR\": \"/cache\", \"XDG_CONFIG_DIR\": \"/config\", \"XDG_DATA_DIR\": \"/data\"}\n"
+    },
+    {
+      "input": {
+        "operation": "xdg_dirs",
+        "env": {
+          "XDG_CONFIG_HOME": "/tmp/rcb_xdg_multi"
+        },
+        "keys": [
+          "XDG_DOWNLOAD_DIR",
+          "XDG_MUSIC_DIR"
+        ],
+        "user_dirs_content": "XDG_DOWNLOAD_DIR=\"$HOME/Downloads\"\nXDG_MUSIC_DIR=\"/srv/music\"\n"
+      },
+      "expected_output": "{\"XDG_DOWNLOAD_DIR\": \"/root/Downloads\", \"XDG_MUSIC_DIR\": \"/srv/music\"}\n"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+    "description": "Build a result that carries no value through its constructor and named factory methods, then observe its status, success flag, optional success message, correlation identifier, error messages and validation errors. The carried value is always absent. The plain constructor and the success factory (with or without a success message) report a successful status; the error factory reports an error status with the supplied messages, and a dedicated variant additionally attaches a correlation identifier; the invalid factory reports an invalid status carrying validation errors; the not-found, forbidden and unauthorized factories report their respective statuses.",
+    "cases": [
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "ctor"
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "error",
+                "errors": [
+                    "test1",
+                    "test2"
+                ]
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=test1|test2\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "invalid",
+                "validation_errors": [
+                    {
+                        "identifier": "name",
+                        "error_message": "Name is required"
+                    },
+                    {
+                        "identifier": "postalCode",
+                        "error_message": "PostalCode cannot exceed 10 characters"
+                    }
+                ]
+            },
+            "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=name;message=Name is required;code=;severity=Error|identifier=postalCode;message=PostalCode cannot exceed 10 characters;code=;severity=Error\n"
+        }
+    ]
+}

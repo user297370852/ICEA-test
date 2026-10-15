@@ -1,0 +1,15 @@
+{
+    "description": "Request a typed accessor on an attribute value whose actual decoded type differs from the requested one. Accessing a value as a type it does not hold is a contract violation and must be rejected rather than silently coerced. The output is a normalized error contract that names the error category together with the requested type and the actual type of the value, so callers can diagnose the mismatch without depending on any host-language runtime details.",
+    "cases": [
+        {"input": {"action": "dynamodb_access", "value": {"B": "AAEqQQ=="}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=Binary\n"},
+        {"input": {"action": "dynamodb_access", "value": {"BOOL": true}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=Boolean\n"},
+        {"input": {"action": "dynamodb_access", "value": {"BS": ["AAEqQQ==", "AAEqQQ=="]}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=BinarySet\n"},
+        {"input": {"action": "dynamodb_access", "value": {"L": [{"S": "Cookies"}]}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=List\n"},
+        {"input": {"action": "dynamodb_access", "value": {"M": {"Name": {"S": "Joe"}}}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=Map\n"},
+        {"input": {"action": "dynamodb_access", "value": {"N": "123.45"}, "as": "boolean"}, "expected_output": "error=incompatible_type\nrequested=Boolean\nactual=Number\n"},
+        {"input": {"action": "dynamodb_access", "value": {"NS": ["1234", "567.8"]}, "as": "boolean"}, "expected_output": "error=incompatible_type\nrequested=Boolean\nactual=NumberSet\n"},
+        {"input": {"action": "dynamodb_access", "value": {"NULL": true}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=Null\n"},
+        {"input": {"action": "dynamodb_access", "value": {"S": "Hello"}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=String\n"},
+        {"input": {"action": "dynamodb_access", "value": {"SS": ["Giraffe", "Zebra"]}, "as": "number"}, "expected_output": "error=incompatible_type\nrequested=Number\nactual=StringSet\n"}
+    ]
+}

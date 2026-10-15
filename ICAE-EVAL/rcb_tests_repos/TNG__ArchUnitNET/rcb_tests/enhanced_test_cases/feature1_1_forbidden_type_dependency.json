@@ -1,0 +1,133 @@
+{
+  "description": "Boundary and logical-path coverage for the direct-named dependency constraint. A rule selects one or more named classes from the fixed sample corpus and forbids them from depending, in any structural way, on one or more explicitly named target classes. These cases exercise multi-element scopes that mix violating and non-violating classes, scopes that span every class in the corpus, multiple forbidden targets at once, simultaneous violations across distinct scoped classes, and a self-referential scope/target pairing. The engine renders the quoted rule sentence followed by one tab-indented '<offending class> does depend on <forbidden class>' line per violation, or the single all-evaluations-passed line when nothing in scope has a forbidden dependency.",
+  "cases": [
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order",
+            "SampleApp.Domain.Customer"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Domain.Order\" or \"SampleApp.Domain.Customer\" should not depend on \"SampleApp.Infrastructure.Database\"\" failed:\n\tSampleApp.Domain.Order does depend on SampleApp.Infrastructure.Database\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Infrastructure.Database",
+            "SampleApp.Data.Repository",
+            "SampleApp.Domain.Customer",
+            "SampleApp.Domain.Order",
+            "SampleApp.Services.ReportService",
+            "SampleApp.Services.AuditService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Infrastructure.Database\" or \"SampleApp.Data.Repository\" or \"SampleApp.Domain.Customer\" or \"SampleApp.Domain.Order\" or \"SampleApp.Ser... should not depend on \"SampleApp.Infrastructure.Database\"\" failed:\n\tSampleApp.Domain.Order does depend on SampleApp.Infrastructure.Database\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Infrastructure.Database",
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Domain.Order\" should not depend on \"SampleApp.Infrastructure.Database\" or \"SampleApp.Data.Repository\"\" failed:\n\tSampleApp.Domain.Order does depend on SampleApp.Infrastructure.Database\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "All Evaluations passed"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Services.ReportService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Services.ReportService\" should not depend on \"SampleApp.Data.Repository\"\" failed:\n\tSampleApp.Services.ReportService does depend on SampleApp.Data.Repository\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order",
+            "SampleApp.Services.ReportService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Infrastructure.Database",
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Domain.Order\" or \"SampleApp.Services.ReportService\" should not depend on \"SampleApp.Infrastructure.Database\" or \"SampleApp.Data.Repository\"\" failed:\n\tSampleApp.Services.ReportService does depend on SampleApp.Data.Repository\n\tSampleApp.Domain.Order does depend on SampleApp.Infrastructure.Database\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "All Evaluations passed"
+    }
+  ]
+}

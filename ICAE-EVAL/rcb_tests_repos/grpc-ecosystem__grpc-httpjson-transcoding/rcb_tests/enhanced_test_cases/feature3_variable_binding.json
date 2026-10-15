@@ -1,0 +1,191 @@
+{
+  "description": "Binding extraction edge cases: percent-decoding of single vs multi segment captures, reserved-character handling, query merge ordering, system-parameter filtering, and duplicate field names.",
+  "cases": [
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "DELETE",
+            "template": "/a/{id}"
+          }
+        ],
+        "method": "DELETE",
+        "path": "/a/42",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=id=42\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x}/b"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/hello/b",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=hello\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/{x}"
+          }
+        ],
+        "method": "GET",
+        "path": "/a%2Fb",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=a/b\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/files/{path=**}"
+          }
+        ],
+        "method": "GET",
+        "path": "/files/a/b/c.txt",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=path=a/b/c.txt\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x}",
+            "body": "*"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/v",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=*\nbindings=x=v\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x}/b"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/p%20q/b",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=p q\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x}"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/v",
+        "query": "k1=v1&k2=v2"
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=v;k1=v1;k2=v2\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x}",
+            "system_params": [
+              "key"
+            ]
+          }
+        ],
+        "method": "GET",
+        "path": "/a/v",
+        "query": "key=abc&z=9"
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=v;z=9\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x=**}",
+            "body": ""
+          }
+        ],
+        "unescape": "all",
+        "method": "GET",
+        "path": "/a/p%2Fq/r",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=p/q/r\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x=*}/c"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/b%2Bc/c",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=b+c\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x}"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/v",
+        "query": "x=override"
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=v;x=override\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/{x}/{y}"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/1/2",
+        "query": "y=q"
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=1;y=2;y=q\n"
+    }
+  ]
+}

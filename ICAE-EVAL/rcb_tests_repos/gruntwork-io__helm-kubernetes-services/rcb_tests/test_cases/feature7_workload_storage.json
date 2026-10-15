@@ -1,0 +1,46 @@
+{
+    "description": "Render scratch storage, persistent storage, empty directory volumes, and termination grace-period settings into the workload pod.",
+    "cases": [
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_volumes",
+                "set": {
+                    "scratchPaths.scratch": "/mnt/scratch"
+                }
+            },
+            "expected_output": "mount_count=1\nvolume_count=1\ntermination_grace_period=null\nmount.scratch.path=/mnt/scratch\nvolume.scratch.type=emptyDir\nvolume.scratch.detail=Memory\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_volumes",
+                "set": {
+                    "persistentVolumes.data.mountPath": "/mnt/data",
+                    "persistentVolumes.data.claimName": "data-claim"
+                }
+            },
+            "expected_output": "mount_count=1\nvolume_count=1\ntermination_grace_period=null\nmount.data.path=/mnt/data\nvolume.data.type=persistentVolumeClaim\nvolume.data.detail=data-claim\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_volumes",
+                "set": {
+                    "emptyDirs.cache.mountPath": "/cache"
+                }
+            },
+            "expected_output": "mount_count=1\nvolume_count=1\ntermination_grace_period=null\nmount.cache.path=map[mountPath:/cache]\nvolume.cache.type=emptyDir\nvolume.cache.detail=\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_volumes",
+                "set": {
+                    "terminationGracePeriodSeconds": "99"
+                }
+            },
+            "expected_output": "mount_count=0\nvolume_count=0\ntermination_grace_period=99\n"
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+{
+  "description": "Listening edge cases: an empty-string locale identifier is still forwarded to the platform (distinct from an absent locale), partialResults disabled is accepted, and a listen failure thrown by the platform is normalized to a listen-failed error carrying the platform detail even when a locale was supplied.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen",
+            "localeId": ""
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen",
+            "partialResults": false
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {
+          "listen_throws": true
+        },
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen",
+            "localeId": "en_US"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten error=listen_failed details=Device Listen Failure\n"
+    }
+  ]
+}

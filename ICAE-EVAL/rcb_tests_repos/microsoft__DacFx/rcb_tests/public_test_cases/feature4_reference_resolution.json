@@ -1,0 +1,43 @@
+{
+    "description": "Resolve dependencies from referenced database projects and report that schema objects depending on referenced objects compile into the requesting project package.",
+    "cases": [
+        {
+            "input": {
+                "sql_files": {
+                    "View1.sql": "-- This view references Table1 which is created in the referenced project\nCREATE VIEW [dbo].[View1]\n  AS SELECT * FROM [Table1]\n"
+                },
+                "project_references": [
+                    {
+                        "path": "/external/ReferenceProj/ReferenceProj.sqlproj",
+                        "sql_files": {
+                            "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "exit_code=0\npackage_exists=true\ntables=\nviews=[dbo].[View1]\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+        },
+        {
+            "input": {
+                "sql_files": {
+                    "View1.sql": "-- This view references Table1 which is created in the referenced project\nCREATE VIEW [dbo].[View1]\n  AS SELECT * FROM [Table1]\n"
+                },
+                "nested_project_references": [
+                    {
+                        "path": "ReferenceProj/ReferenceProj.sqlproj",
+                        "sql_files": {
+                            "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n"
+                        }
+                    }
+                ],
+                "project_reference_paths": [
+                    "ReferenceProj/ReferenceProj.sqlproj"
+                ],
+                "remove_build": [
+                    "ReferenceProj/**/*.*"
+                ]
+            },
+            "expected_output": "exit_code=0\npackage_exists=true\ntables=\nviews=[dbo].[View1]\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+        }
+    ]
+}

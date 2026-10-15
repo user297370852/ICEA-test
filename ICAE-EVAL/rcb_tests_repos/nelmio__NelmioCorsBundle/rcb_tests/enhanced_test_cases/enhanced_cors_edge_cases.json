@@ -1,0 +1,271 @@
+{
+  "description": "Additional native-disjoint CORS policy edge cases covering credentials, wildcard request headers, max-age, rejected preflight methods, response status preservation, regex origins, missing Origin behavior, partial path-policy merges, host-restricted fallback, multi-provider merging, and priority ordering with negatives/ties.",
+  "cases": [
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "request",
+        "policy": {
+          "allowed_origins": [
+            "https://client.example"
+          ],
+          "allowed_headers": "*",
+          "allowed_methods": [
+            "PATCH",
+            "DELETE"
+          ],
+          "credentials": true,
+          "cache_seconds": 600
+        },
+        "request": {
+          "path": "/api/v1/resource?debug=1",
+          "method": "OPTIONS",
+          "headers": {
+            "Origin": "https://client.example",
+            "Access-Control-Request-Method": "PATCH",
+            "Access-Control-Request-Headers": "X-Api-Key, Content-Type"
+          }
+        }
+      },
+      "expected_output": "phase=request\nurl=/api/v1/resource\nmethod=OPTIONS\nresponse_created=yes\nstatus=200\nheader:Access-Control-Allow-Origin=https://client.example\nheader:Access-Control-Allow-Methods=PATCH, DELETE\nheader:Access-Control-Allow-Headers=X-Api-Key, Content-Type\nheader:Access-Control-Allow-Credentials=true\nheader:Access-Control-Expose-Headers=\nheader:Access-Control-Max-Age=600\nvary=Origin\nbody=\n"
+    },
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "request",
+        "policy": {
+          "allowed_origins": "*",
+          "allowed_methods": [
+            "GET"
+          ]
+        },
+        "request": {
+          "path": "/blocked",
+          "method": "OPTIONS",
+          "headers": {
+            "Origin": "https://client.example",
+            "Access-Control-Request-Method": "POST"
+          }
+        }
+      },
+      "expected_output": "phase=request\nurl=/blocked\nmethod=OPTIONS\nresponse_created=yes\nstatus=405\nheader:Access-Control-Allow-Origin=https://client.example\nheader:Access-Control-Allow-Methods=GET\nheader:Access-Control-Allow-Headers=\nheader:Access-Control-Allow-Credentials=\nheader:Access-Control-Expose-Headers=\nheader:Access-Control-Max-Age=\nvary=Origin\nbody=\n"
+    },
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "response",
+        "initial_status": 201,
+        "policy": {
+          "allowed_origins": [
+            "https://app.example"
+          ],
+          "allowed_methods": [
+            "GET"
+          ],
+          "credentials": true,
+          "exposed_headers": [
+            "X-Trace-Id",
+            "X-RateLimit-Remaining"
+          ]
+        },
+        "request": {
+          "path": "/items/42",
+          "method": "GET",
+          "headers": {
+            "Origin": "https://app.example"
+          }
+        }
+      },
+      "expected_output": "phase=response\nurl=/items/42\nmethod=GET\nresponse_created=yes\nstatus=201\nheader:Access-Control-Allow-Origin=https://app.example\nheader:Access-Control-Allow-Methods=\nheader:Access-Control-Allow-Headers=\nheader:Access-Control-Allow-Credentials=true\nheader:Access-Control-Expose-Headers=x-trace-id, x-ratelimit-remaining\nheader:Access-Control-Max-Age=\nvary=\nbody=\n"
+    },
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "response",
+        "policy": {
+          "allowed_origins": [
+            "^https://tenant-[0-9]+\\.example\\.com$"
+          ],
+          "origin_pattern_matching": true,
+          "allowed_methods": [
+            "POST"
+          ],
+          "exposed_headers": [
+            "X-Tenant"
+          ]
+        },
+        "request": {
+          "path": "/tenant",
+          "method": "POST",
+          "headers": {
+            "Origin": "https://tenant-42.example.com"
+          }
+        }
+      },
+      "expected_output": "phase=response\nurl=/tenant\nmethod=POST\nresponse_created=yes\nstatus=200\nheader:Access-Control-Allow-Origin=https://tenant-42.example.com\nheader:Access-Control-Allow-Methods=\nheader:Access-Control-Allow-Headers=\nheader:Access-Control-Allow-Credentials=\nheader:Access-Control-Expose-Headers=x-tenant\nheader:Access-Control-Max-Age=\nvary=\nbody=\n"
+    },
+    {
+      "input": {
+        "interaction": "cors_exchange",
+        "exchange": "response",
+        "policy": {
+          "allowed_origins": "*",
+          "allowed_methods": [
+            "GET"
+          ],
+          "exposed_headers": [
+            "X-Visible"
+          ]
+        },
+        "request": {
+          "path": "/local",
+          "method": "GET"
+        }
+      },
+      "expected_output": "phase=response\nurl=/local\nmethod=GET\nresponse_created=yes\nstatus=200\nheader:Access-Control-Allow-Origin=\nheader:Access-Control-Allow-Methods=\nheader:Access-Control-Allow-Headers=\nheader:Access-Control-Allow-Credentials=\nheader:Access-Control-Expose-Headers=\nheader:Access-Control-Max-Age=\nvary=\nbody=\n"
+    },
+    {
+      "input": {
+        "interaction": "configuration_match",
+        "defaults": {
+          "allowed_origins": [
+            "https://default.example"
+          ],
+          "allowed_headers": [
+            "x-default"
+          ],
+          "allowed_methods": [
+            "GET"
+          ],
+          "credentials": false,
+          "exposed_headers": [
+            "X-Default-Expose"
+          ],
+          "cache_seconds": 30
+        },
+        "path_policies": {
+          "^/partial": {
+            "allowed_methods": [
+              "PATCH"
+            ],
+            "cache_seconds": 90
+          }
+        },
+        "request": {
+          "path": "/partial/thing"
+        }
+      },
+      "expected_output": "allowed_origins=https://default.example\ncredentials=no\nallowed_headers=x-default\nallowed_methods=PATCH\nexposed_headers=X-Default-Expose\ncache_seconds=90\nhost_patterns=\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    },
+    {
+      "input": {
+        "interaction": "configuration_match",
+        "defaults": {
+          "allowed_origins": [
+            "https://default.example"
+          ],
+          "allowed_methods": [
+            "GET"
+          ]
+        },
+        "path_policies": {
+          "^/admin": {
+            "allowed_origins": [
+              "https://admin.example"
+            ],
+            "allowed_methods": [
+              "DELETE"
+            ],
+            "host_patterns": [
+              "^admin\\.example\\.com$"
+            ]
+          },
+          "^/admin/": {
+            "allowed_origins": [
+              "https://fallback.example"
+            ],
+            "allowed_methods": [
+              "POST"
+            ],
+            "credentials": true
+          }
+        },
+        "request": {
+          "path": "/admin/panel"
+        }
+      },
+      "expected_output": "allowed_origins=https://fallback.example\ncredentials=yes\nallowed_headers=\nallowed_methods=POST\nexposed_headers=\ncache_seconds=0\nhost_patterns=\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    },
+    {
+      "input": {
+        "interaction": "provider_merge",
+        "request": {
+          "path": "/merge"
+        },
+        "providers": [
+          {
+            "policy": {
+              "allowed_origins": [
+                "a"
+              ],
+              "credentials": true,
+              "allowed_methods": [
+                "GET"
+              ],
+              "allowed_headers": [
+                "x-a"
+              ],
+              "cache_seconds": 10
+            }
+          },
+          {
+            "policy": {
+              "allowed_headers": "*",
+              "exposed_headers": [
+                "X-One"
+              ],
+              "cache_seconds": 20
+            }
+          },
+          {
+            "policy": {
+              "credentials": false,
+              "allowed_methods": [
+                "POST",
+                "patch"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "allowed_origins=a\ncredentials=no\nallowed_headers=*\nallowed_methods=POST, PATCH\nexposed_headers=X-One\ncache_seconds=20\nhost_patterns=\norigin_pattern_matching=no\noverride_allow_origin=\n"
+    },
+    {
+      "input": {
+        "interaction": "provider_order",
+        "providers": [
+          {
+            "label": "late",
+            "priority": 100
+          },
+          {
+            "label": "early",
+            "priority": -20
+          },
+          {
+            "label": "tieA",
+            "priority": 0
+          },
+          {
+            "label": "tieB",
+            "priority": 0
+          },
+          {
+            "label": "ignored_unprioritized"
+          }
+        ]
+      },
+      "expected_output": "provider_count=5\nprovider_0=early\nprovider_1=path_configuration\nprovider_2=tieA\nprovider_3=tieB\nprovider_4=late\n"
+    }
+  ]
+}

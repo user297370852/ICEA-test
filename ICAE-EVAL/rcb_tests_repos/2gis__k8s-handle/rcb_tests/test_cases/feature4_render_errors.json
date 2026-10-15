@@ -1,0 +1,60 @@
+{
+    "description": "Reports rendering failures as neutral error categories. Asking the engine to render from a null context is rejected with 'error=none_context'. A section that resolves with no usable template items prints 'error=no_template_items'. Referencing a template file that does not exist (including a name that is an unmatchable/invalid pattern, which is then treated as a literal name) prints 'error=template_not_found' with the missing template name. Rendering a template that references an undefined variable under strict-undefined semantics prints 'error=undefined_variable' with the variable name.",
+    "cases": [
+        {
+            "input": {
+                "op": "render",
+                "raw_context": null,
+                "templates_files": {
+                    "template1.yaml.j2": "{{ x }}"
+                },
+                "config": "common: {}\n"
+            },
+            "expected_output": "error=none_context\n"
+        },
+        {
+            "input": {
+                "op": "render",
+                "section": "no_templates",
+                "templates_files": {
+                    "template1.yaml.j2": "{{ x }}"
+                },
+                "config": "common:\n  k8s_namespace: namespace\nno_templates:\n  templates:\n    - namespace: io\n"
+            },
+            "expected_output": "error=no_template_items\n"
+        },
+        {
+            "input": {
+                "op": "render",
+                "section": "not_existent_template",
+                "templates_files": {
+                    "template1.yaml.j2": "{{ x }}"
+                },
+                "config": "common:\n  k8s_namespace: namespace\nnot_existent_template:\n  templates:\n    - template: doesnotexist.yaml.j2\n"
+            },
+            "expected_output": "error=template_not_found\ntemplate=doesnotexist.yaml.j2\n"
+        },
+        {
+            "input": {
+                "op": "render",
+                "section": "templates_regex_invalid",
+                "templates_files": {
+                    "template1.yaml.j2": "{{ my_var }}"
+                },
+                "config": "common:\n  my_var: value\n  k8s_namespace: namespace\ntemplates_regex_invalid:\n  templates:\n    - template: '['\n    - template: template1.yaml.j2\n"
+            },
+            "expected_output": "error=template_not_found\ntemplate=[\n"
+        },
+        {
+            "input": {
+                "op": "render",
+                "section": "io_2709",
+                "templates_files": {
+                    "template4.yaml.j2": "kind: MyResource\nmetadata:\n  name: MyName\n{{ undefined_variable }}\n"
+                },
+                "config": "common:\n  k8s_namespace: namespace\nio_2709:\n  templates:\n  - template: template4.yaml.j2\n"
+            },
+            "expected_output": "error=undefined_variable\nvariable=undefined_variable\n"
+        }
+    ]
+}

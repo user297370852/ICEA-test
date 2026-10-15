@@ -1,0 +1,84 @@
+{
+  "description": "Extracting cache metadata from HTTP responses whose cache directives exercise boundary behaviour: a max-age of zero that falls back to the default one-week window, a no-cache directive that yields an immediate deadline, combinations of max-age and no-cache in both orders where the last applicable directive wins, an error status code carried through, and a response with no declared content length reported as absent.",
+  "cases": [
+    {
+      "input": {
+        "action": "http_response",
+        "now_millis": 1585387560000,
+        "status": 200,
+        "content_length": 16,
+        "headers": {
+          "etag": "e",
+          "content-type": "image/jpeg",
+          "cache-control": "max-age=0"
+        }
+      },
+      "expected_output": "statusCode=200\ncontentLength=16\neTag=e\nfileExtension=.jpg\nvalidTill_millis=1585992360000\n"
+    },
+    {
+      "input": {
+        "action": "http_response",
+        "now_millis": 1585387560000,
+        "status": 200,
+        "content_length": 16,
+        "headers": {
+          "content-type": "image/jpeg",
+          "cache-control": "no-cache"
+        }
+      },
+      "expected_output": "statusCode=200\ncontentLength=16\neTag=null\nfileExtension=.jpg\nvalidTill_millis=1585387560000\n"
+    },
+    {
+      "input": {
+        "action": "http_response",
+        "now_millis": 1585387560000,
+        "status": 200,
+        "content_length": 16,
+        "headers": {
+          "content-type": "image/jpeg",
+          "cache-control": "max-age=100, no-cache"
+        }
+      },
+      "expected_output": "statusCode=200\ncontentLength=16\neTag=null\nfileExtension=.jpg\nvalidTill_millis=1585387560000\n"
+    },
+    {
+      "input": {
+        "action": "http_response",
+        "now_millis": 1585387560000,
+        "status": 200,
+        "content_length": 16,
+        "headers": {
+          "content-type": "image/jpeg",
+          "cache-control": "no-cache, max-age=100"
+        }
+      },
+      "expected_output": "statusCode=200\ncontentLength=16\neTag=null\nfileExtension=.jpg\nvalidTill_millis=1585387660000\n"
+    },
+    {
+      "input": {
+        "action": "http_response",
+        "now_millis": 1585387560000,
+        "status": 404,
+        "content_length": 0,
+        "headers": {
+          "etag": "err",
+          "content-type": "image/png",
+          "cache-control": "max-age=60"
+        }
+      },
+      "expected_output": "statusCode=404\ncontentLength=0\neTag=err\nfileExtension=.png\nvalidTill_millis=1585387620000\n"
+    },
+    {
+      "input": {
+        "action": "http_response",
+        "now_millis": 1585387560000,
+        "status": 200,
+        "headers": {
+          "content-type": "image/jpeg",
+          "cache-control": "max-age=3600"
+        }
+      },
+      "expected_output": "statusCode=200\ncontentLength=null\neTag=null\nfileExtension=.jpg\nvalidTill_millis=1585391160000\n"
+    }
+  ]
+}

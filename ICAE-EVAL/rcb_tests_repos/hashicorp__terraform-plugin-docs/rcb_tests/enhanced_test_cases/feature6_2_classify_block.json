@@ -1,0 +1,108 @@
+{
+  "description": "Additional block classification cases: list/set nesting with positive min_items (which the label-derived classifier reports as role=none since no behavior word is emitted for non-single nesting), a mixed optional/computed single block, a deeply nested all-computed block (role=read_only), and a deprecated single block with a required child.",
+  "cases": [
+    {
+      "input": {
+        "op": "classify_block",
+        "block": {
+          "nesting_mode": "list",
+          "min_items": 2,
+          "block": {
+            "description": "b",
+            "attributes": {
+              "foo": {
+                "type": "string",
+                "optional": true,
+                "description": "a"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "role=none\n"
+    },
+    {
+      "input": {
+        "op": "classify_block",
+        "block": {
+          "nesting_mode": "single",
+          "block": {
+            "description": "b",
+            "attributes": {
+              "a": {
+                "type": "string",
+                "computed": true,
+                "description": "x"
+              },
+              "b": {
+                "type": "string",
+                "optional": true,
+                "description": "y"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "role=optional\n"
+    },
+    {
+      "input": {
+        "op": "classify_block",
+        "block": {
+          "nesting_mode": "set",
+          "min_items": 1,
+          "block": {
+            "description": "b"
+          }
+        }
+      },
+      "expected_output": "role=none\n"
+    },
+    {
+      "input": {
+        "op": "classify_block",
+        "block": {
+          "nesting_mode": "single",
+          "block": {
+            "description": "b",
+            "block_types": {
+              "sub": {
+                "nesting_mode": "single",
+                "block": {
+                  "attributes": {
+                    "foo": {
+                      "type": "string",
+                      "computed": true,
+                      "description": "a"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "role=read_only\n"
+    },
+    {
+      "input": {
+        "op": "classify_block",
+        "block": {
+          "nesting_mode": "single",
+          "block": {
+            "description": "b",
+            "deprecated": true,
+            "attributes": {
+              "foo": {
+                "type": "string",
+                "required": true,
+                "description": "a"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "role=optional\n"
+    }
+  ]
+}

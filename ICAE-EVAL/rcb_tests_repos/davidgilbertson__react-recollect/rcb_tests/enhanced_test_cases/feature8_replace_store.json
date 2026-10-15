@@ -1,0 +1,85 @@
+{
+  "description": "Wholesale replacement edge cases: replacing with an empty object clears the store; replacing multiple times reports each removal and addition in order; and after a replacement new nested writes and reads work against the fresh contents while the snapshot reflects only the latest replacement.",
+  "cases": [
+    {
+      "input": {
+        "init": {
+          "a": 1,
+          "b": 2
+        },
+        "ops": [
+          {
+            "op": "replace",
+            "value": {}
+          }
+        ]
+      },
+      "expected_output": "changes=[\"store.a\",\"store.b\"]\nsnapshot={}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "old": 1
+        },
+        "ops": [
+          {
+            "op": "replace",
+            "value": {
+              "a": {
+                "b": 1
+              }
+            }
+          },
+          {
+            "op": "set",
+            "path": [
+              "a",
+              "b"
+            ],
+            "value": 5
+          },
+          {
+            "op": "get",
+            "path": [
+              "a",
+              "b"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.a.b = 5\nchanges=[\"store.old\",\"store.a\",\"store.a.b\"]\nsnapshot={\"a\":{\"b\":5}}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "p": 1,
+          "q": 2
+        },
+        "ops": [
+          {
+            "op": "replace",
+            "value": {
+              "r": 3
+            }
+          },
+          {
+            "op": "replace",
+            "value": {
+              "s": {
+                "t": 4
+              }
+            }
+          },
+          {
+            "op": "get",
+            "path": [
+              "s",
+              "t"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.s.t = 4\nchanges=[\"store.p\",\"store.q\",\"store.r\",\"store.r\",\"store.s\"]\nsnapshot={\"s\":{\"t\":4}}\n"
+    }
+  ]
+}

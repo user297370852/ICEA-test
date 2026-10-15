@@ -1,0 +1,21 @@
+{
+  "description": "Filters an ordered host list by comma-separated label predicates, including matching every host and excluding hosts whose labels equal a given value.",
+  "cases": [
+    {
+      "input": {"hosts": [{"alias": "prod", "labels": {"stage": "prod"}}, {"alias": "prod/front", "labels": {"stage": "prod", "tier": "frontend"}}, {"alias": "beta", "labels": {"stage": "beta"}}], "selector": "stage=prod"},
+      "expected_output": "selected=prod,prod/front\ncount=2\n"
+    },
+    {
+      "input": {"hosts": [{"alias": "prod", "labels": {"stage": "prod"}}, {"alias": "prod/front", "labels": {"stage": "prod", "tier": "frontend"}}, {"alias": "beta", "labels": {"stage": "beta"}}], "selector": "stage=prod, tier=frontend"},
+      "expected_output": "selected=prod/front\ncount=1\n"
+    },
+    {
+      "input": {"hosts": [{"alias": "prod", "labels": {"stage": "prod"}}, {"alias": "prod/front", "labels": {"stage": "prod", "tier": "frontend"}}, {"alias": "beta", "labels": {"stage": "beta"}}], "selector": "all"},
+      "expected_output": "selected=prod,prod/front,beta\ncount=3\n"
+    },
+    {
+      "input": {"hosts": [{"alias": "prod", "labels": {"stage": "prod"}}, {"alias": "prod/front", "labels": {"stage": "prod", "tier": "frontend"}}, {"alias": "beta", "labels": {"stage": "beta"}}], "selector": "all, tier != frontend"},
+      "expected_output": "selected=prod,beta\ncount=2\n"
+    }
+  ]
+}

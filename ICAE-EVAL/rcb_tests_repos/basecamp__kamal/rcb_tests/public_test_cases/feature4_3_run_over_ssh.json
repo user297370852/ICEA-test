@@ -1,0 +1,70 @@
+{
+    "description": "Wrap an arbitrary shell command for remote execution over SSH. The wrapper always uses a TTY and addresses the host as user@host with the command single-quoted. The login user defaults to root but can be overridden. A configured proxy adds an SSH jump host (-J user@proxy); the jump user defaults to root unless the proxy value already embeds a user. User and proxy options combine independently.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "run_over_ssh",
+                "args": {
+                    "command": "ls",
+                    "host": "1.1.1.1"
+                }
+            },
+            "expected_output": "ssh -t root@1.1.1.1 'ls'"
+        },
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    },
+                    "ssh": {
+                        "proxy": "2.2.2.2"
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "run_over_ssh",
+                "args": {
+                    "command": "ls",
+                    "host": "1.1.1.1"
+                }
+            },
+            "expected_output": "ssh -J root@2.2.2.2 -t root@1.1.1.1 'ls'"
+        }
+    ]
+}

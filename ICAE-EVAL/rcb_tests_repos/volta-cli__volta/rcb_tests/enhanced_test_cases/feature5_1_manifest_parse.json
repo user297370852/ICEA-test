@@ -1,0 +1,33 @@
+{
+  "description": "Read a stored toolchain platform manifest and re-emit its canonical normalized form across boundary documents: a manifest carrying only a top-level yarn version, a node section with both runtime and npm but no yarn, a fully-populated manifest at the zero version, and a manifest whose version strings bear a leading v that must be stripped. Output is the canonical pretty-printed JSON with absent sections rendered as null.",
+  "cases": [
+    {
+      "input": {
+        "op": "manifest_parse",
+        "json": "{\"yarn\":\"2.0.0\"}"
+      },
+      "expected_output": "{\n  \"node\": null,\n  \"yarn\": \"2.0.0\"\n}\n"
+    },
+    {
+      "input": {
+        "op": "manifest_parse",
+        "json": "{\"node\":{\"runtime\":\"5.0.0\",\"npm\":\"6.0.0\"}}"
+      },
+      "expected_output": "{\n  \"node\": {\n    \"runtime\": \"5.0.0\",\n    \"npm\": \"6.0.0\"\n  },\n  \"yarn\": null\n}\n"
+    },
+    {
+      "input": {
+        "op": "manifest_parse",
+        "json": "{\"node\":{\"runtime\":\"0.0.0\",\"npm\":\"0.0.0\"},\"yarn\":\"0.0.0\"}"
+      },
+      "expected_output": "{\n  \"node\": {\n    \"runtime\": \"0.0.0\",\n    \"npm\": \"0.0.0\"\n  },\n  \"yarn\": \"0.0.0\"\n}\n"
+    },
+    {
+      "input": {
+        "op": "manifest_parse",
+        "json": "{\"node\":{\"runtime\":\"v3.4.5\",\"npm\":\"7.8.9\"},\"yarn\":\"v1.0.0\"}"
+      },
+      "expected_output": "{\n  \"node\": {\n    \"runtime\": \"3.4.5\",\n    \"npm\": \"7.8.9\"\n  },\n  \"yarn\": \"1.0.0\"\n}\n"
+    }
+  ]
+}

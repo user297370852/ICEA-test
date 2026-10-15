@@ -1,0 +1,71 @@
+{
+  "description": "Boundary coverage for flushing an action: flushing twice in a row only runs the single pending execution once, flushing after the quiet window has already produced the execution does nothing further, and flushing after the owning instance has been torn down produces no execution.",
+  "cases": [
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 500,
+        "steps": [
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "flush"
+          },
+          {
+            "do": "flush"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 500,
+        "steps": [
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "flush"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 500,
+        "steps": [
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "unmount"
+          },
+          {
+            "do": "flush"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[] tag=fn\ncalls=1\n"
+    }
+  ]
+}

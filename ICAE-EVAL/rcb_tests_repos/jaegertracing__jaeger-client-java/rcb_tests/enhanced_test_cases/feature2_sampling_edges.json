@@ -1,0 +1,66 @@
+{
+  "description": "Additional sampling coverage for probability endpoints, signed-id extremes, rate-limiting decimal configuration, and guaranteed-throughput updates that change only the lower-bound budget.",
+  "cases": [
+    {
+      "input": {
+        "op": "sampler_probabilistic",
+        "rate": 0.0,
+        "id": 0,
+        "operation": "zero-rate-zero-id"
+      },
+      "expected_output": "sampled=true\nsampler_type=probabilistic\nsampler_param=0.0\n"
+    },
+    {
+      "input": {
+        "op": "sampler_probabilistic",
+        "rate": 0.0,
+        "id": 1
+      },
+      "expected_output": "sampled=false\nsampler_type=probabilistic\nsampler_param=0.0\n"
+    },
+    {
+      "input": {
+        "op": "sampler_probabilistic",
+        "rate": 1.0,
+        "id": 9223372036854775807
+      },
+      "expected_output": "sampled=true\nsampler_type=probabilistic\nsampler_param=1.0\n"
+    },
+    {
+      "input": {
+        "op": "sampler_probabilistic",
+        "rate": 1.0,
+        "id": -9223372036854775808
+      },
+      "expected_output": "sampled=true\nsampler_type=probabilistic\nsampler_param=1.0\n"
+    },
+    {
+      "input": {
+        "op": "sampler_ratelimiting",
+        "max_traces_per_second": 0.5,
+        "id": -7,
+        "operation": "fractional-limit"
+      },
+      "expected_output": "sampled=true\nsampler_type=ratelimiting\nsampler_param=0.5\n"
+    },
+    {
+      "input": {
+        "op": "sampler_guaranteed",
+        "rate": 0.0,
+        "lower_bound": 1.0,
+        "id": 9223372036854775807,
+        "updates": [
+          {
+            "rate": 0.0,
+            "lower_bound": 1.0
+          },
+          {
+            "rate": 0.0,
+            "lower_bound": 2.0
+          }
+        ]
+      },
+      "expected_output": "update=false\nupdate=true\nsampled=true\nsampler_type=lowerbound\nsampler_param=0.0\n"
+    }
+  ]
+}

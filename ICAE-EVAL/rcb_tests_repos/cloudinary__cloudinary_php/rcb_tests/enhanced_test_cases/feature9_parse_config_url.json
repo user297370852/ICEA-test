@@ -1,0 +1,40 @@
+{
+  "description": "Enhanced coverage for connection-URL parsing: a credential-less URL with a secure_cname (implying private_cdn), a multi-segment secure_cname path (slash-escaped in the JSON), the empty-string URL error, a wrong-scheme error, and a plain cloud-name-only URL.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_config_url",
+        "url": "cloudinary://test321/my-cname"
+      },
+      "expected_output": "config={\"cloud\":{\"cloud_name\":\"test321\"},\"url\":{\"secure_cname\":\"my-cname\",\"private_cdn\":true}}\n"
+    },
+    {
+      "input": {
+        "op": "parse_config_url",
+        "url": "cloudinary://key:secret@cloudname/sub/extra"
+      },
+      "expected_output": "config={\"cloud\":{\"cloud_name\":\"cloudname\",\"api_key\":\"key\",\"api_secret\":\"secret\"},\"url\":{\"secure_cname\":\"sub\\/extra\",\"private_cdn\":true}}\n"
+    },
+    {
+      "input": {
+        "op": "parse_config_url",
+        "url": ""
+      },
+      "expected_output": "error=empty_config_url\n"
+    },
+    {
+      "input": {
+        "op": "parse_config_url",
+        "url": "http://key:secret@test123"
+      },
+      "expected_output": "error=invalid_config_url\n"
+    },
+    {
+      "input": {
+        "op": "parse_config_url",
+        "url": "cloudinary://abc123"
+      },
+      "expected_output": "config={\"cloud\":{\"cloud_name\":\"abc123\"}}\n"
+    }
+  ]
+}

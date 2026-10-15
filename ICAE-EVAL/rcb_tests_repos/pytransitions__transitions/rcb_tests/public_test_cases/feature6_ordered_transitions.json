@@ -1,0 +1,35 @@
+{
+    "description": "A helper wires up a chain of transitions that step linearly through a sequence of states under a single advancing trigger (default name `next_state`). By default it loops the last state back to the first. When no starting state is supplied at construction, an implicit placeholder starting state is created and included in the chain. The loop-back target can be configured to skip that placeholder. The chain can also be built from an explicit custom ordering with a custom trigger name, or requested directly at construction time. Each advance reports the resulting active state.",
+    "cases": [
+        {
+            "input": {
+                "machine": {"states": ["beginning", "middle", "end"]},
+                "commands": [
+                    {"op": "add_ordered_transitions"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "next_state"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "next_state"},
+                    {"op": "trigger", "name": "next_state"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "next_state"},
+                    {"op": "state"}
+                ]
+            },
+            "expected_output": "state=initial\ntrigger=next_state result=true state=beginning\nstate=beginning\ntrigger=next_state result=true state=middle\ntrigger=next_state result=true state=end\nstate=end\ntrigger=next_state result=true state=initial\nstate=initial\n"
+        },
+        {
+            "input": {
+                "machine": {"states": ["beginning", "middle", "end"], "initial": "beginning"},
+                "commands": [
+                    {"op": "add_ordered_transitions", "states": ["end", "beginning"], "trigger": "advance"},
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "state"}
+                ]
+            },
+            "expected_output": "trigger=advance result=true state=end\nstate=end\ntrigger=advance result=true state=beginning\nstate=beginning\n"
+        }
+    ]
+}

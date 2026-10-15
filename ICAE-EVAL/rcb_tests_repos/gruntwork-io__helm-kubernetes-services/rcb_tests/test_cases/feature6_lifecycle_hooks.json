@@ -1,0 +1,39 @@
+{
+    "description": "Render container lifecycle hooks from shutdown-delay settings or explicit hook command configuration.",
+    "cases": [
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_lifecycle",
+                "set": {
+                    "shutdownDelay": "0"
+                }
+            },
+            "expected_output": "lifecycle_present=false\npost_start_command=\npre_stop_command=\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_lifecycle",
+                "set": {
+                    "shutdownDelay": "7"
+                }
+            },
+            "expected_output": "lifecycle_present=true\npost_start_command=\npre_stop_command=sleep,7\n"
+        },
+        {
+            "input": {
+                "template": "deployment",
+                "output": "deployment_lifecycle",
+                "set": {
+                    "lifecycleHooks.enabled": "true",
+                    "lifecycleHooks.postStart.exec.command[0]": "echo",
+                    "lifecycleHooks.postStart.exec.command[1]": "started",
+                    "lifecycleHooks.preStop.exec.command[0]": "echo",
+                    "lifecycleHooks.preStop.exec.command[1]": "stopped"
+                }
+            },
+            "expected_output": "lifecycle_present=true\npost_start_command=echo,started\npre_stop_command=echo,stopped\n"
+        }
+    ]
+}

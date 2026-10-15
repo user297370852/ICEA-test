@@ -1,0 +1,54 @@
+{
+  "description": "Eager-load exclusion of an entire directory subtree keeps its constants lazy (signal stays unset until accessed) while non-excluded siblings load eagerly, and multiple excluded files each remain lazily available.",
+  "cases": [
+    {
+      "input": {
+        "operation": "eager_loading_exclusions",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "eager.rb": "Eager = true; $global_signals['eager'] = 'loaded'",
+          "lazy/thing.rb": "class Lazy::Thing; $global_signals['lazy'] = 'loaded'; end"
+        },
+        "exclude_from_eager_load": [
+          "lazy"
+        ],
+        "check_globals": [
+          "eager",
+          "lazy"
+        ],
+        "access": [
+          "Eager",
+          "Lazy::Thing"
+        ]
+      },
+      "expected_output": "signal=eager\nvalue=loaded\nsignal=lazy\nvalue=unset\nconstant=Eager\nvalue=true\nconstant=Lazy::Thing\nvalue=class\n"
+    },
+    {
+      "input": {
+        "operation": "eager_loading_exclusions",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "one.rb": "One = true; $global_signals['one'] = 'loaded'",
+          "two.rb": "Two = true; $global_signals['two'] = 'loaded'"
+        },
+        "exclude_from_eager_load": [
+          "one.rb",
+          "two.rb"
+        ],
+        "check_globals": [
+          "one",
+          "two"
+        ],
+        "access": [
+          "One",
+          "Two"
+        ]
+      },
+      "expected_output": "signal=one\nvalue=unset\nsignal=two\nvalue=unset\nconstant=One\nvalue=true\nconstant=Two\nvalue=true\n"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+    "description": "HTTP API payload version 1 events are translated into web requests and returned as gateway-compatible response fields for normal pages, HEAD requests, multiple cookies, binary image bodies, public static files, redirects, application errors, and login session follow-up.",
+    "cases": [
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "http_v1",
+                "scenario": "root"
+            },
+            "expected_output": "status=200\ncontent_type=text/html; charset=utf-8\ncache_control=max-age=0, private, must-revalidate\nbody_has_hello=true\nlogged_in=false\nbody_has_error_page=false\nbody_has_public_500=false\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "http_v1",
+                "scenario": "cookies"
+            },
+            "expected_output": "status=200\ncontent_type=text/html; charset=utf-8\ncache_control=max-age=0, private, must-revalidate\nset_cookie_multi=1=1; path=/|2=2; path=/\nbody_has_hello=true\nlogged_in=false\nbody_has_error_page=false\nbody_has_public_500=false\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "http_v1",
+                "scenario": "login"
+            },
+            "expected_output": "status=302\nlocation=https://myawesomelambda.example.com/\ncontent_type=text/html; charset=utf-8\ncache_control=no-cache\nsession_cookie_present=true\nbody_has_hello=false\nbody_has_error_page=false\nbody_has_public_500=false\nfollowup_status=200\nfollowup_logged_in=true\n"
+        }
+    ]
+}

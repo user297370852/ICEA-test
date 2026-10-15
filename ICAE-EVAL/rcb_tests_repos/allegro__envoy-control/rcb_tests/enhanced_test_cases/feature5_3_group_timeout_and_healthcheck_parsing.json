@@ -1,0 +1,37 @@
+{
+  "description": "Enhanced timeout/health-check parsing during grouping: incoming permissions enabled with fractional response timeout, integer idle timeout and a custom health-check path together; and a case with custom health-check path plus custom cluster name and both timeouts under XDS.",
+  "cases": [
+    {
+      "input": {
+        "op": "node_group",
+        "incomingPermissions": true,
+        "serviceDependencies": [
+          "*"
+        ],
+        "ads": true,
+        "incomingSettings": true,
+        "responseTimeout": "0.5s",
+        "idleTimeout": "60s",
+        "healthCheckPath": "/status/ping"
+      },
+      "expected_output": "type=AllServicesGroup\nmode=ADS\nserviceName=\ndeps=[*]\nincoming.permissionsEnabled=true\nincoming.endpoints=[/endpoint|PATH|methods=[]|clients=[client1]]\nincoming.healthCheck.path=/status/ping\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=0.500s\nincoming.timeout.idle=60s\n"
+    },
+    {
+      "input": {
+        "op": "node_group",
+        "incomingPermissions": true,
+        "serviceDependencies": [
+          "a",
+          "b"
+        ],
+        "ads": false,
+        "incomingSettings": true,
+        "responseTimeout": "120s",
+        "idleTimeout": "13.33s",
+        "healthCheckPath": "/hc",
+        "healthCheckClusterName": "custom_local_hc"
+      },
+      "expected_output": "type=AllServicesGroup\nmode=XDS\nserviceName=\ndeps=[a,b]\nincoming.permissionsEnabled=true\nincoming.endpoints=[/endpoint|PATH|methods=[]|clients=[client1]]\nincoming.healthCheck.path=/hc\nincoming.healthCheck.cluster=custom_local_hc\nincoming.timeout.response=120s\nincoming.timeout.idle=13.330s\n"
+    }
+  ]
+}

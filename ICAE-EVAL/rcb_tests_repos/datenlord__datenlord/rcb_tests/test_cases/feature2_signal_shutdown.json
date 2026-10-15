@@ -1,0 +1,13 @@
+{
+    "description": "Instead of an explicit shutdown call, a process-level termination signal initiates the graceful shutdown. After registering workers and arming the signal handler, a termination signal is raised. The handler reports the signal it observed and then drives the exact same dependency-ordered teardown, so every worker reports its marker in graph order following the signal line.",
+    "cases": [
+        {
+            "input": {"action": "signal_shutdown", "signal": "SIGTERM", "spawns": [{"node": "Metrics", "marker": 0}, {"node": "BlockFlush", "marker": 0}, {"node": "SchedulerExtender", "marker": 0}, {"node": "FuseRequest", "marker": 1}, {"node": "AsyncFuse", "marker": 2}, {"node": "Rpc", "marker": 3}, {"node": "WriteBack", "marker": 3}]},
+            "expected_output": "signal=SIGTERM\nnode=Metrics marker=0\nnode=BlockFlush marker=0\nnode=SchedulerExtender marker=0\nnode=FuseRequest marker=1\nnode=AsyncFuse marker=2\nnode=Rpc marker=3\nnode=WriteBack marker=3\n"
+        },
+        {
+            "input": {"action": "signal_shutdown", "signal": "SIGTERM", "spawns": [{"node": "Metrics", "marker": 0}, {"node": "Rpc", "marker": 3}]},
+            "expected_output": "signal=SIGTERM\nnode=Metrics marker=0\nnode=Rpc marker=3\n"
+        }
+    ]
+}

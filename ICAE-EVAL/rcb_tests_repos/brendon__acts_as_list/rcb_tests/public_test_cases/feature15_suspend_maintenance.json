@@ -1,0 +1,51 @@
+{
+    "description": "List maintenance can be suspended for the duration of a block of operations, so that the automatic position adjustments that normally keep the list contiguous are skipped while still persisting the raw changes. Within a suspended block, updating one element's position to collide with another does not shuffle the others, and deleting an element does not pull the trailing elements up. This is used for bulk operations where the caller will fix up positions itself.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "column": "position"
+                },
+                "operations": [
+                    {
+                        "op": "create",
+                        "ref": "a",
+                        "attrs": {
+                            "position": 1
+                        }
+                    },
+                    {
+                        "op": "create",
+                        "ref": "b",
+                        "attrs": {
+                            "position": 2
+                        }
+                    },
+                    {
+                        "op": "suspend_maintenance",
+                        "operations": [
+                            {
+                                "op": "update",
+                                "ref": "a",
+                                "attrs": {
+                                    "position": 2
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "queries": [
+                    {
+                        "q": "position_of",
+                        "ref": "a"
+                    },
+                    {
+                        "q": "position_of",
+                        "ref": "b"
+                    }
+                ]
+            },
+            "expected_output": "position=2\nposition=2"
+        }
+    ]
+}

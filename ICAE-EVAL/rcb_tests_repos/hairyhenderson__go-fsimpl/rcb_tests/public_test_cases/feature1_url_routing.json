@@ -1,0 +1,47 @@
+{
+    "description": "Resolve a source URL string to a backend category and the routing-relevant fields the router derives from it; reject malformed URLs and unknown schemes.",
+    "cases": [
+        {
+            "input": {
+                "op": "route",
+                "url": "file:///tmp"
+            },
+            "expected_output": "backend=file\n"
+        },
+        {
+            "input": {
+                "op": "route",
+                "url": "http://example.com/path"
+            },
+            "expected_output": "backend=http\nhost=example.com\npath=/path\n"
+        },
+        {
+            "input": {
+                "op": "route",
+                "url": "git+ssh://localhost:1234/foo/bar.git//baz#refs/tags/foo"
+            },
+            "expected_output": "backend=git\nrepo_scheme=ssh\nroot=/baz\n"
+        },
+        {
+            "input": {
+                "op": "route",
+                "url": "s3://foo/bar"
+            },
+            "expected_output": "backend=blob\nscheme=s3\nroot=bar\n"
+        },
+        {
+            "input": {
+                "op": "route",
+                "url": "unsupported://scheme"
+            },
+            "expected_output": "error=unsupported_scheme\nscheme=unsupported\n"
+        },
+        {
+            "input": {
+                "op": "route",
+                "url": "bad*:url//bogus"
+            },
+            "expected_output": "error=invalid_url\n"
+        }
+    ]
+}

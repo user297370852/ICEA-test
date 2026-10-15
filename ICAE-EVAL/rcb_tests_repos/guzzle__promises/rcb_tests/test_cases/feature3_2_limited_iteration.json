@@ -1,0 +1,53 @@
+{
+    "description": "Limited iterator processing caps concurrent pending work while preserving callback indexes and completion events.",
+    "cases": [
+        {
+            "input": {
+                "operation": "iterate_limited",
+                "concurrency": 2,
+                "values": [
+                    {
+                        "state": "fulfilled",
+                        "value": "a"
+                    },
+                    {
+                        "state": "fulfilled",
+                        "value": "b"
+                    },
+                    {
+                        "state": "fulfilled",
+                        "value": "c"
+                    },
+                    {
+                        "state": "fulfilled",
+                        "value": "d"
+                    }
+                ],
+                "resolution_order": [
+                    0,
+                    1,
+                    2,
+                    3
+                ]
+            },
+            "expected_output": "aggregate_state=fulfilled\nevents=[\"fulfilled:0:a\",\"fulfilled:1:b\",\"fulfilled:2:c\",\"fulfilled:3:d\"]\n"
+        },
+        {
+            "input": {
+                "operation": "iterate_limited_failfast",
+                "concurrency": 2,
+                "items": [
+                    {
+                        "state": "fulfilled",
+                        "value": "a"
+                    },
+                    {
+                        "state": "rejected",
+                        "reason": "b"
+                    }
+                ]
+            },
+            "expected_output": "result_state=rejected\nresult_reason=b\nevents=[\"fulfilled:0:a\"]\n"
+        }
+    ]
+}

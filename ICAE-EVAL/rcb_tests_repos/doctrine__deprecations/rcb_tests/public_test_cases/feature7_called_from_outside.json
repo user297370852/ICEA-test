@@ -1,0 +1,13 @@
+{
+    "description": "A deprecation can be declared so that it fires only when invoked from OUTSIDE the package that owns it (where the package is installed as a vendored dependency). The trigger call site lives inside the owning package; the decision depends on the immediate caller's location. When the caller is outside the package boundary the deprecation fires; when the caller is itself inside the package it is treated as an internal call and stays silent. The owning package, identifier and message of the guarded deprecation are fixed by the scenario: package 'acme/widgets', identifier 'https://deprecations.example.com/widgets/42', message 'oldWidget() is deprecated, use newWidget() instead.'. The 'location' field selects where the caller sits relative to the package: 'outside' (consumer code) or 'inside' (the package calling its own deprecated path).",
+    "cases": [
+        {
+            "input": {"enable": ["trigger"], "from_outside": "outside"},
+            "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=oldWidget() is deprecated, use newWidget() instead.\npackage=acme/widgets\nlink=https://deprecations.example.com/widgets/42\nunique_count=1\ncount[https://deprecations.example.com/widgets/42]=1\n"
+        },
+        {
+            "input": {"enable": ["trigger"], "from_outside": "inside"},
+            "expected_output": "unique_count=0\ntracked=(none)\n"
+        }
+    ]
+}

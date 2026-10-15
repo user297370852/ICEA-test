@@ -1,0 +1,53 @@
+{
+  "description": "Coverage for outbound bridge message derivation: preserving a non-default identifier/component/metadata while replacing the event with a raw nested JSON payload, encoding structured replacement data to compact JSON, and preserving an absent (null) metadata URL as an empty value.",
+  "cases": [
+    {
+      "input": {
+        "action": "replace_bridge_message",
+        "message": {
+          "id": "99",
+          "component": "form",
+          "event": "submit",
+          "metadata_url": "https://example.org/path",
+          "json_data": "{}"
+        },
+        "replacement_event": "result",
+        "replacement_json": "{\"ok\":true,\"items\":[1,2,3]}"
+      },
+      "expected_output": "id=99\ncomponent=form\nevent=result\nmetadata_url=https://example.org/path\njson_data={\"ok\":true,\"items\":[1,2,3]}\n"
+    },
+    {
+      "input": {
+        "action": "replace_bridge_message",
+        "message": {
+          "id": "7",
+          "component": "page",
+          "event": "connect",
+          "metadata_url": "https://a.com",
+          "json_data": "{}"
+        },
+        "replacement_event": "update",
+        "replacement_data": {
+          "title": "Foo",
+          "subtitle": "Bar"
+        }
+      },
+      "expected_output": "id=7\ncomponent=page\nevent=update\nmetadata_url=https://a.com\njson_data={\"title\":\"Foo\",\"subtitle\":\"Bar\"}\n"
+    },
+    {
+      "input": {
+        "action": "replace_bridge_message",
+        "message": {
+          "id": "1",
+          "component": "page",
+          "event": "connect",
+          "metadata_url": null,
+          "json_data": "{}"
+        },
+        "replacement_event": "disconnect",
+        "replacement_json": "{}"
+      },
+      "expected_output": "id=1\ncomponent=page\nevent=disconnect\nmetadata_url=\njson_data={}\n"
+    }
+  ]
+}

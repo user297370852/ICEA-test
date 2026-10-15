@@ -1,0 +1,99 @@
+{
+  "description": "A request may opt into tolerating a missing value. Covers an optional named request with no provider, mixtures of required-present and optional-absent requests in one consumer, several optional-absent requests at once, and an optional request whose value is actually provided through a provider default.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "name": "missing",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "invoke ok A:missing=nil\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A"
+              },
+              {
+                "type": "B",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\ninvoke ok A=3 B=nil\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "optional": true
+              },
+              {
+                "type": "B",
+                "optional": true
+              },
+              {
+                "type": "C",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "invoke ok A=nil B=nil C=nil\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A"
+              }
+            ],
+            "value": 42
+          },
+          {
+            "op": "invoke",
+            "in": [
+              {
+                "type": "A",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\ninvoke ok A=42\n"
+    }
+  ]
+}

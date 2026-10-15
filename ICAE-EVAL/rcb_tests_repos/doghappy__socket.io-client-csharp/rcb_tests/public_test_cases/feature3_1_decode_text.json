@@ -1,0 +1,101 @@
+{
+    "description": "Decode a single inbound text frame into a structured message. The numeric prefix selects the kind (heartbeat ping/pong, transport opened handshake, namespace connected/disconnected, event, acknowledgement, connect error). Optional namespace, acknowledgement id, event name and JSON argument payload are extracted from their wire positions; unrecognized or empty frames yield no message.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "2"
+                    }
+                ]
+            },
+            "expected_output": "type=ping\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "0{\"sid\":\"wOuAvDB9Jj6yE0VrAL8N\",\"upgrades\":[\"websocket\"],\"pingInterval\":25000,\"pingTimeout\":30000}"
+                    }
+                ]
+            },
+            "expected_output": "type=opened\nsid=wOuAvDB9Jj6yE0VrAL8N\nping_interval=25000\nping_timeout=30000\nupgrades=websocket\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "40{\"sid\":\"aMA_EmVTuzpgR16PAc4w\"}"
+                    }
+                ]
+            },
+            "expected_output": "type=connected\nsid=aMA_EmVTuzpgR16PAc4w\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "40/test,{\"sid\":\"aMA_EmVTuzpgR16PAc4w\"}"
+                    }
+                ]
+            },
+            "expected_output": "type=connected\nnamespace=/test\nsid=aMA_EmVTuzpgR16PAc4w\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "42/test,[\"hi\",\"V3: onAny\"]"
+                    }
+                ]
+            },
+            "expected_output": "type=event\nevent=hi\nnamespace=/test\ndata=[\"V3: onAny\"]\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "42/test,17[\"cool\"]"
+                    }
+                ]
+            },
+            "expected_output": "type=event\nevent=cool\nnamespace=/test\nid=17\ndata=[]\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "431[\"nice\"]"
+                    }
+                ]
+            },
+            "expected_output": "type=ack\nid=1\ndata=[\"nice\"]\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "44{\"message\":\"Authentication error2\"}"
+                    }
+                ]
+            },
+            "expected_output": "type=error\nerror_message=Authentication error2\n"
+        }
+    ]
+}

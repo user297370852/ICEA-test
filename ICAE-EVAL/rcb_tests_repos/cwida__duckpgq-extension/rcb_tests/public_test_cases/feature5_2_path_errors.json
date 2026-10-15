@@ -1,0 +1,22 @@
+{
+    "description": "Reject path patterns that are unsupported or unsafe. An unbounded quantifier under the default walk semantics is rejected because it could produce infinite results; path modes other than walk and the all-shortest qualifier are rejected as not implemented; and projecting a bare path variable that is not exposed as a column is rejected by the binder. Each failure is a neutral category plus the engine message.",
+    "cases": [
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+                    "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+                    "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+                    "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+                    "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+                ],
+                "query": "SELECT study.a_name, study.b_name FROM GRAPH_TABLE (pg MATCH (a:Person WHERE a.name = 'Peter')-[k:Knows]-> *(b:Person) COLUMNS (a.name as a_name, b.name as b_name)) study"
+            },
+            "expected_output": "error=constraint\nmessage=ALL unbounded with path mode WALK is not possible as this could lead to infinite results. Consider specifying an upper bound or path mode other than WALK\n"
+        }
+    ]
+}

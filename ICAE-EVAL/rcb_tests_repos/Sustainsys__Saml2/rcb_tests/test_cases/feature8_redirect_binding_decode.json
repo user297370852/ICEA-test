@@ -1,0 +1,47 @@
+{
+    "description": "Decode a front-channel redirect URL back into a SAML2 message. The message payload travels as a query parameter named exactly 'SAMLRequest' or 'SAMLResponse' whose value is the URL-safe base64 of the raw-deflate-compressed XML; an optional 'RelayState' parameter is carried verbatim. Decoding surfaces the destination (scheme, host and path of the URL, without query), the parameter name used, the relay state, and the inflated XML. Decoding is rejected with a neutral error category when neither message parameter is present (parameter not found), when both message parameters appear (duplicate message parameters), or when the relay-state parameter appears more than once (duplicate relay state).",
+    "cases": [
+        {
+            "input": {
+                "action": "redirect_decode",
+                "url": "https://idp.example.com/sso?SAMLRequest=s6nIzVHQtwMA&RelayState=xyz123"
+            },
+            "expected_output": "destination=https://idp.example.com/sso\nname=SAMLRequest\nrelayState=xyz123\nxml=<xml />\n"
+        },
+        {
+            "input": {
+                "action": "redirect_decode",
+                "url": "https://idp.example.com/sso?SAMLResponse=s6nIzVHQtwMA&RelayState=xyz123"
+            },
+            "expected_output": "destination=https://idp.example.com/sso\nname=SAMLResponse\nrelayState=xyz123\nxml=<xml />\n"
+        },
+        {
+            "input": {
+                "action": "redirect_decode",
+                "url": "https://idp.example.com/sso?Invalid=s6nIzVHQtwMA&RelayState=xyz123"
+            },
+            "expected_output": "error=message_parameter_not_found\n"
+        },
+        {
+            "input": {
+                "action": "redirect_decode",
+                "url": "https://idp.example.com/sso?SAMLResponse=x&SAMLRequest=s6nIzVHQtwMA&RelayState=xyz123"
+            },
+            "expected_output": "error=duplicate_message_parameters\n"
+        },
+        {
+            "input": {
+                "action": "redirect_decode",
+                "url": "https://idp.example.com/sso?SAMLRequest=x&SAMLRequest=s6nIzVHQtwMA&RelayState=xyz123"
+            },
+            "expected_output": "error=duplicate_message_parameters\n"
+        },
+        {
+            "input": {
+                "action": "redirect_decode",
+                "url": "https://idp.example.com/sso?RelayState=x&SAMLRequest=s6nIzVHQtwMA&RelayState=xyz123"
+            },
+            "expected_output": "error=duplicate_relay_state\n"
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+{
+  "description": "Additional reusable-action metadata coverage: JavaScript (node) run mode with no steps, missing description rendered empty, multiple inputs and outputs, composite steps that run shell instead of referencing an action, steps without ids, multiple supplied arguments, and a docker run configuration.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_action_metadata",
+        "yaml": "name: NodeAct\nauthor: Me\nruns:\n  using: node20\n  main: index.js\n"
+      },
+      "expected_output": "name=NodeAct\nauthor=Me\ndescription=\nruns_using=node20\n"
+    },
+    {
+      "input": {
+        "op": "parse_action_metadata",
+        "yaml": "name: NoDesc\nruns:\n  using: composite\n  steps:\n  - run: echo hi\n    shell: bash\n"
+      },
+      "expected_output": "name=NoDesc\nauthor=\ndescription=\nruns_using=composite\nstep id= uses= action= line.uses=0\n"
+    },
+    {
+      "input": {
+        "op": "parse_action_metadata",
+        "yaml": "name: Multi\nauthor: A\ndescription: D\ninputs:\n  a:\n    required: true\n    type: string\n  b:\n    required: false\n    type: boolean\noutputs:\n  x:\n    description: ex\n  y:\n    description: why\nruns:\n  using: composite\n  steps:\n  - uses: actions/checkout@v4\n    id: co\n  - uses: actions/setup-node@v4\n    id: sn\n    with:\n      node-version: '20'\n      cache: npm\n"
+      },
+      "expected_output": "name=Multi\nauthor=A\ndescription=D\ninput a required=true type=string\ninput b required=false type=boolean\noutput x description=ex\noutput y description=why\nruns_using=composite\nstep id=co uses=actions/checkout@v4 action=actions/checkout line.uses=19\nstep id=sn uses=actions/setup-node@v4 action=actions/setup-node line.uses=21\nwith node-version=20\nwith cache=npm\n"
+    },
+    {
+      "input": {
+        "op": "parse_action_metadata",
+        "yaml": "name: DockerAct\ndescription: d\nruns:\n  using: docker\n  image: Dockerfile\n  args:\n  - foo\n"
+      },
+      "expected_output": "name=DockerAct\nauthor=\ndescription=d\nruns_using=docker\n"
+    },
+    {
+      "input": {
+        "op": "parse_action_metadata",
+        "yaml": "name: StepNoId\nruns:\n  using: composite\n  steps:\n  - uses: actions/checkout@v4\n"
+      },
+      "expected_output": "name=StepNoId\nauthor=\ndescription=\nruns_using=composite\nstep id= uses=actions/checkout@v4 action=actions/checkout line.uses=5\n"
+    }
+  ]
+}

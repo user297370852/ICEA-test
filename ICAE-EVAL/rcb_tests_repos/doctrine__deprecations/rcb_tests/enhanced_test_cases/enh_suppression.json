@@ -1,0 +1,63 @@
+{
+  "description": "Selective-suppression boundaries: suppressing several identifiers at once while a non-suppressed one passes through, and silencing multiple packages so their deprecations are counted but emit no notice.",
+  "cases": [
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "ignore_links": [
+          "https://dep.example.com/s1",
+          "https://dep.example.com/s2"
+        ],
+        "triggers": [
+          {
+            "package": "acme/a",
+            "link": "https://dep.example.com/s1",
+            "message": "m1"
+          },
+          {
+            "package": "acme/b",
+            "link": "https://dep.example.com/s2",
+            "message": "m2"
+          },
+          {
+            "package": "acme/c",
+            "link": "https://dep.example.com/keep",
+            "message": "m3"
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=m3\npackage=acme/c\nlink=https://dep.example.com/keep\nunique_count=1\ncount[https://dep.example.com/keep]=1\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "ignore_packages": [
+          "acme/a",
+          "acme/b"
+        ],
+        "triggers": [
+          {
+            "package": "acme/a",
+            "link": "https://dep.example.com/pa",
+            "message": "m1"
+          },
+          {
+            "package": "acme/b",
+            "link": "https://dep.example.com/pb",
+            "message": "m2"
+          },
+          {
+            "package": "acme/c",
+            "link": "https://dep.example.com/pc",
+            "message": "m3"
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=m3\npackage=acme/c\nlink=https://dep.example.com/pc\nunique_count=3\ncount[https://dep.example.com/pa]=1\ncount[https://dep.example.com/pb]=1\ncount[https://dep.example.com/pc]=1\n"
+    }
+  ]
+}

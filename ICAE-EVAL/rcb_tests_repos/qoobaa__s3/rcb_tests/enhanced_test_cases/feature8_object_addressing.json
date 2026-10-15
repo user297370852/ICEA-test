@@ -1,0 +1,77 @@
+{
+  "description": "Enhanced: Object addressing - nested key in full_key, slash-preserving path in url, percent-encoding of '%' and space, reserved chars (+, =, &) left unescaped, non-ASCII (CJK) encoding, CNAME url with space in a multi-dotted bucket, and empty-key rejection under full_key. Disjoint from native cases.",
+  "cases": [
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "images",
+        "key": "a/b/c.txt",
+        "address_kind": "full_key"
+      },
+      "expected_output": "full_key=images/a/b/c.txt\n"
+    },
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "images",
+        "key": "path/to/file.txt",
+        "address_kind": "url"
+      },
+      "expected_output": "url=http://images.s3.amazonaws.com/path/to/file.txt\n"
+    },
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "images",
+        "key": "100% done.txt",
+        "address_kind": "url"
+      },
+      "expected_output": "url=http://images.s3.amazonaws.com/100%25%20done.txt\n"
+    },
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "images",
+        "key": "a+b=c&d.txt",
+        "address_kind": "url"
+      },
+      "expected_output": "url=http://images.s3.amazonaws.com/a+b=c&d.txt\n"
+    },
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "images",
+        "key": "日本.txt",
+        "address_kind": "url"
+      },
+      "expected_output": "url=http://images.s3.amazonaws.com/%E6%97%A5%E6%9C%AC.txt\n"
+    },
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "images.example.com",
+        "key": "a b/c.txt",
+        "address_kind": "cname_url"
+      },
+      "expected_output": "cname_url=http://images.example.com/a%20b/c.txt\n"
+    },
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "my.images",
+        "key": "file.png",
+        "address_kind": "cname_url"
+      },
+      "expected_output": "cname_url=http://my.images/file.png\n"
+    },
+    {
+      "input": {
+        "feature": "object_addressing",
+        "bucket_name": "images",
+        "key": "",
+        "address_kind": "full_key"
+      },
+      "expected_output": "error=invalid_object_key\nkey=\n"
+    }
+  ]
+}

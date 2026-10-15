@@ -1,0 +1,9 @@
+{
+    "description": "Before handling a request, the middleware recycles stale database connections so a long-lived worker never reuses a dead socket. It only inspects connections that have actually been initialized and are currently connected; for those it issues a lightweight liveness probe and closes the connection if the probe fails, leaving healthy connections untouched. Input describes whether the connection service was initialized, whether it reports connected, and whether the liveness probe succeeds; output reports whether a probe was attempted and whether the connection was closed.",
+    "cases": [
+        {"input": {"handler": "doctrine", "connection_present": false, "connected": false, "manager": "none"}, "expected_output": "ping_attempted=false\nconnection_closed=false\nreboot_forced=false\n"},
+        {"input": {"handler": "doctrine", "connection_present": true, "connected": false, "manager": "none"}, "expected_output": "ping_attempted=false\nconnection_closed=false\nreboot_forced=false\n"},
+        {"input": {"handler": "doctrine", "connection_present": true, "connected": true, "pingable": false, "manager": "none"}, "expected_output": "ping_attempted=true\nconnection_closed=true\nreboot_forced=false\n"},
+        {"input": {"handler": "doctrine", "connection_present": true, "connected": true, "pingable": true, "manager": "none"}, "expected_output": "ping_attempted=true\nconnection_closed=false\nreboot_forced=false\n"}
+    ]
+}

@@ -1,0 +1,98 @@
+{
+  "description": "Step registry matching: empty registry, duplicate capturing matchers each producing a match, plain-substring matchers all matching, anchored numeric capture with position, multi-arg capture, a near-miss that fails, non-ASCII literal match, and overlapping plain matchers.",
+  "cases": [
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [],
+        "query": "anything"
+      },
+      "expected_output": "matches=0\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "(\\d+) plus (\\d+)",
+          "(\\d+) plus (\\d+)"
+        ],
+        "query": "2 plus 3"
+      },
+      "expected_output": "matches=2\ndef[0] args=2\narg[0] value=2 position=0\narg[1] value=3 position=7\ndef[1] args=2\narg[0] value=2 position=0\narg[1] value=3 position=7\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "a",
+          "ab",
+          "abc"
+        ],
+        "query": "abc"
+      },
+      "expected_output": "matches=3\ndef[0] args=0\ndef[1] args=0\ndef[2] args=0\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "^I have (\\d+) items$"
+        ],
+        "query": "I have 7 items"
+      },
+      "expected_output": "matches=1\ndef[0] args=1\narg[0] value=7 position=7\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "the (\\w+) by (\\w+)"
+        ],
+        "query": "the cat by night"
+      },
+      "expected_output": "matches=1\ndef[0] args=2\narg[0] value=cat position=4\narg[1] value=night position=11\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "match the number (\\d+)"
+        ],
+        "query": "match the number twelve"
+      },
+      "expected_output": "matches=0\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "黄瓜は (\\w+) です"
+        ],
+        "query": "黄瓜は green です"
+      },
+      "expected_output": "matches=1\ndef[0] args=1\narg[0] value=green position=10\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "step",
+          "a step",
+          "the step here"
+        ],
+        "query": "a step"
+      },
+      "expected_output": "matches=2\ndef[0] args=0\ndef[1] args=0\n"
+    },
+    {
+      "input": {
+        "action": "step_match",
+        "definitions": [
+          "nothing here"
+        ],
+        "query": ""
+      },
+      "expected_output": "matches=0\n"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "description": "Shared namespace across three roots and across two levels of nesting, confirming constants contributed by each root under a common namespace all remain reachable.",
+  "cases": [
+    {
+      "input": {
+        "operation": "implicit_namespace_loading",
+        "roots": [
+          "r1",
+          "r2",
+          "r3"
+        ],
+        "files": {
+          "r1/admin/a.rb": "Admin::A = true",
+          "r2/admin/b.rb": "Admin::B = true",
+          "r3/admin/c.rb": "Admin::C = true"
+        },
+        "access": [
+          "Admin::A",
+          "Admin::B",
+          "Admin::C"
+        ]
+      },
+      "expected_output": "constant=Admin::A\nvalue=true\nconstant=Admin::B\nvalue=true\nconstant=Admin::C\nvalue=true\n"
+    },
+    {
+      "input": {
+        "operation": "implicit_namespace_loading",
+        "roots": [
+          "app/models",
+          "app/controllers"
+        ],
+        "files": {
+          "app/models/admin/billing/invoice.rb": "class Admin::Billing::Invoice; end",
+          "app/controllers/admin/billing/report.rb": "class Admin::Billing::Report; end"
+        },
+        "access": [
+          "Admin::Billing::Invoice",
+          "Admin::Billing::Report"
+        ]
+      },
+      "expected_output": "constant=Admin::Billing::Invoice\nvalue=class\nconstant=Admin::Billing::Report\nvalue=class\n"
+    }
+  ]
+}

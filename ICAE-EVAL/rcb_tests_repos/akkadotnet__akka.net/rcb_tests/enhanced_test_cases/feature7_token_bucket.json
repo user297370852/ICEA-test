@@ -1,0 +1,116 @@
+{
+  "description": "Token-bucket edge cases: refill scheduling that does not drift across repeated offers, a cost larger than capacity computing a multi-refill delay, a deeply negative starting clock, zero capacity with a zero cost, and a negative cost mid-stream rejected as a normalized error.",
+  "cases": [
+    {
+      "input": {
+        "op": "token_bucket",
+        "capacity": 5,
+        "rate": 3,
+        "steps": [
+          {
+            "offer": 5
+          },
+          {
+            "offer": 1
+          },
+          {
+            "set_time": 3,
+            "offer": 1
+          },
+          {
+            "set_time": 6,
+            "offer": 2
+          }
+        ]
+      },
+      "expected_output": "offer cost=5 delay=0\noffer cost=1 delay=3\noffer cost=1 delay=3\noffer cost=2 delay=6\n"
+    },
+    {
+      "input": {
+        "op": "token_bucket",
+        "capacity": 10,
+        "rate": 1,
+        "steps": [
+          {
+            "offer": 15
+          },
+          {
+            "offer": 15
+          }
+        ]
+      },
+      "expected_output": "offer cost=15 delay=5\noffer cost=15 delay=20\n"
+    },
+    {
+      "input": {
+        "op": "token_bucket",
+        "capacity": 10,
+        "rate": 5,
+        "steps": [
+          {
+            "set_time": -50,
+            "offer": 10
+          },
+          {
+            "offer": 1
+          }
+        ]
+      },
+      "expected_output": "offer cost=10 delay=0\noffer cost=1 delay=55\n"
+    },
+    {
+      "input": {
+        "op": "token_bucket",
+        "capacity": 0,
+        "rate": 1,
+        "steps": [
+          {
+            "offer": 0
+          },
+          {
+            "set_time": 5,
+            "offer": 0
+          }
+        ]
+      },
+      "expected_output": "offer cost=0 delay=0\noffer cost=0 delay=0\n"
+    },
+    {
+      "input": {
+        "op": "token_bucket",
+        "capacity": 3,
+        "rate": 2,
+        "steps": [
+          {
+            "offer": 3
+          },
+          {
+            "set_time": 1,
+            "offer": 1
+          },
+          {
+            "set_time": 2,
+            "offer": 1
+          }
+        ]
+      },
+      "expected_output": "offer cost=3 delay=0\noffer cost=1 delay=1\noffer cost=1 delay=2\n"
+    },
+    {
+      "input": {
+        "op": "token_bucket",
+        "capacity": 10,
+        "rate": 1,
+        "steps": [
+          {
+            "offer": 2
+          },
+          {
+            "offer": -3
+          }
+        ]
+      },
+      "expected_output": "error=negative_cost\nparam=cost\n"
+    }
+  ]
+}

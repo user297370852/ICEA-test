@@ -1,0 +1,90 @@
+{
+  "description": "Enhanced coverage for transport MIME assembly: multiple recipients per class are semicolon-joined onto the message; the two read-receipt headers are exercised independently (receiptTo alone and depositionNotificationTo alone) so each header's wiring is observable in isolation rather than only when both carry the same value; custom headers pass through with no receipt headers present; and an explicit replyTo combined with attachments yields a multipart message that omits the inline body line while keeping the supplied reply-to.",
+  "cases": [
+    {
+      "input": {
+        "op": "mime.assemble",
+        "from": "f@x.y",
+        "to": [
+          "t1@x.y",
+          "t2@x.y"
+        ],
+        "cc": [
+          "c1@x.y",
+          "c2@x.y"
+        ],
+        "bcc": [
+          "b1@x.y"
+        ],
+        "subject": "Multi",
+        "body": "hi"
+      },
+      "expected_output": "from=f@x.y\nreply_to=f@x.y\nto=t1@x.y;t2@x.y\ncc=c1@x.y;c2@x.y\nbcc=b1@x.y\nsubject=Multi\nmultipart=false\nbody=hi\nheader_return_receipt=\nheader_disposition_notification_to=\n"
+    },
+    {
+      "input": {
+        "op": "mime.assemble",
+        "from": "f@x.y",
+        "to": [
+          "t@x.y"
+        ],
+        "subject": "R",
+        "body": "b",
+        "receiptTo": "r@x.y"
+      },
+      "expected_output": "from=f@x.y\nreply_to=f@x.y\nto=t@x.y\ncc=\nbcc=\nsubject=R\nmultipart=false\nbody=b\nheader_return_receipt=\nheader_disposition_notification_to=r@x.y\n"
+    },
+    {
+      "input": {
+        "op": "mime.assemble",
+        "from": "f@x.y",
+        "to": [
+          "t@x.y"
+        ],
+        "subject": "D",
+        "body": "b",
+        "depositionNotificationTo": "d@x.y"
+      },
+      "expected_output": "from=f@x.y\nreply_to=f@x.y\nto=t@x.y\ncc=\nbcc=\nsubject=D\nmultipart=false\nbody=b\nheader_return_receipt=d@x.y\nheader_disposition_notification_to=\n"
+    },
+    {
+      "input": {
+        "op": "mime.assemble",
+        "from": "f@x.y",
+        "to": [
+          "t@x.y"
+        ],
+        "subject": "C",
+        "body": "b",
+        "customHeaders": {
+          "X-A": "1",
+          "X-B": "2"
+        }
+      },
+      "expected_output": "from=f@x.y\nreply_to=f@x.y\nto=t@x.y\ncc=\nbcc=\nsubject=C\nmultipart=false\nbody=b\nheader_return_receipt=\nheader_disposition_notification_to=\ncustom_header.X-A=1\ncustom_header.X-B=2\n"
+    },
+    {
+      "input": {
+        "op": "mime.assemble",
+        "from": "f@x.y",
+        "replyTo": "r@x.y",
+        "to": [
+          "t@x.y"
+        ],
+        "subject": "M",
+        "body": "x",
+        "attachments": [
+          {
+            "name": "a.csv",
+            "text": "1"
+          },
+          {
+            "name": "b.csv",
+            "text": "2"
+          }
+        ]
+      },
+      "expected_output": "from=f@x.y\nreply_to=r@x.y\nto=t@x.y\ncc=\nbcc=\nsubject=M\nmultipart=true\nheader_return_receipt=\nheader_disposition_notification_to=\n"
+    }
+  ]
+}

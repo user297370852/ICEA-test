@@ -1,0 +1,153 @@
+{
+    "description": "A metric family combines constant and per-sample labels, reports collected members, supports removal, and rejects conflicting label keys.",
+    "cases": [
+        {
+            "input": {
+                "feature": "family",
+                "action": "collect_counter_family",
+                "name": "total_requests",
+                "help": "Counts all requests",
+                "constant_labels": {
+                    "component": "test"
+                },
+                "metrics": [
+                    {
+                        "labels": {
+                            "status": "200"
+                        },
+                        "operations": []
+                    }
+                ],
+                "remove_indexes": []
+            },
+            "expected_output": "family_count=1\nname=total_requests\nhelp=Counts all requests\nmetric_count=1\nmetric=0\ncomponent=test\nstatus=200\ncounter_value=0\n"
+        },
+        {
+            "input": {
+                "feature": "family",
+                "action": "collect_counter_family",
+                "name": "total_requests",
+                "help": "Counts all requests",
+                "constant_labels": {},
+                "metrics": [
+                    {
+                        "labels": {},
+                        "operations": [
+                            {
+                                "action": "increment"
+                            }
+                        ]
+                    }
+                ],
+                "remove_indexes": []
+            },
+            "expected_output": "family_count=1\nname=total_requests\nhelp=Counts all requests\nmetric_count=1\nmetric=0\ncounter_value=1\n"
+        },
+        {
+            "input": {
+                "feature": "family",
+                "action": "collect_counter_family",
+                "name": "total_requests",
+                "help": "Counts all requests",
+                "constant_labels": {},
+                "metrics": [
+                    {
+                        "labels": {
+                            "name": "counter1"
+                        },
+                        "operations": []
+                    },
+                    {
+                        "labels": {
+                            "name": "counter2"
+                        },
+                        "operations": []
+                    }
+                ],
+                "remove_indexes": [
+                    0
+                ]
+            },
+            "expected_output": "family_count=1\nname=total_requests\nhelp=Counts all requests\nmetric_count=1\nmetric=0\nname=counter2\ncounter_value=0\n"
+        },
+        {
+            "input": {
+                "feature": "family",
+                "action": "collect_counter_family",
+                "name": "total_requests",
+                "help": "Counts all requests",
+                "constant_labels": {},
+                "metrics": [],
+                "remove_indexes": []
+            },
+            "expected_output": "family_count=0\n"
+        },
+        {
+            "input": {
+                "feature": "family",
+                "action": "has_counter",
+                "name": "total_rquests",
+                "help": "Counts all requests",
+                "constant_labels": {},
+                "metrics": [
+                    {
+                        "labels": {
+                            "name": "counter1"
+                        }
+                    }
+                ],
+                "query_labels": {
+                    "name": "counter1"
+                }
+            },
+            "expected_output": "exists=yes\n"
+        },
+        {
+            "input": {
+                "feature": "family",
+                "action": "has_counter",
+                "name": "total_rquests",
+                "help": "Counts all requests",
+                "constant_labels": {},
+                "metrics": [
+                    {
+                        "labels": {
+                            "name": "counter1"
+                        }
+                    }
+                ],
+                "query_labels": {
+                    "name": "couner2"
+                }
+            },
+            "expected_output": "exists=no\n"
+        },
+        {
+            "input": {
+                "feature": "family",
+                "action": "duplicate_labels",
+                "name": "total_requests",
+                "help": "Counts all requests",
+                "constant_labels": {
+                    "component": "test"
+                },
+                "metric_labels": {
+                    "component": "test"
+                }
+            },
+            "expected_output": "error=duplicate_label_name\n"
+        },
+        {
+            "input": {
+                "feature": "family",
+                "action": "collect_counter_family",
+                "name": "",
+                "help": "empty name",
+                "constant_labels": {},
+                "metrics": [],
+                "remove_indexes": []
+            },
+            "expected_output": "error=invalid_metric_family_definition\n"
+        }
+    ]
+}

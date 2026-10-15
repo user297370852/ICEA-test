@@ -1,0 +1,280 @@
+{
+  "description": "Boundary coverage for the publish/subscribe notifier. Exercises registering several callbacks under one key and firing without an extra argument, duplicate registrations under the same identifier, one-shot registrations that must drop themselves after a single firing, mixtures of persistent and one-shot callbacks, firing keys that have no callbacks, isolating callbacks across distinct keys, and forwarding empty-string and non-ASCII argument values. Each case is a sequence of operations and reports, for every fire, the key fired and the ordered identifiers that ran together with the value each received, or the empty marker when none ran.",
+  "cases": [
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h2"
+          },
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h3"
+          },
+          {
+            "op": "trigger",
+            "event": "go"
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1,h2,h3\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "A"
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1=A,h1=A\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "once",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "once",
+            "event": "go",
+            "id": "h2"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "X"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "Y"
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1=X\ntrigger go: h2=Y\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "once",
+            "event": "go",
+            "id": "h2"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "1"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "2"
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1=1,h2=1\ntrigger go: h1=2\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "trigger",
+            "event": "alpha"
+          },
+          {
+            "op": "trigger",
+            "event": "beta"
+          },
+          {
+            "op": "trigger",
+            "event": "gamma"
+          }
+        ]
+      },
+      "expected_output": "trigger alpha: (none)\ntrigger beta: (none)\ntrigger gamma: (none)\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "ping",
+            "id": "p1"
+          },
+          {
+            "op": "on",
+            "event": "pong",
+            "id": "q1"
+          },
+          {
+            "op": "trigger",
+            "event": "ping",
+            "arg": "P"
+          },
+          {
+            "op": "trigger",
+            "event": "pong",
+            "arg": "Q"
+          }
+        ]
+      },
+      "expected_output": "trigger ping: p1=P\ntrigger pong: q1=Q\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "trigger",
+            "event": "go"
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "once",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "trigger",
+            "event": "go"
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": ""
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1=\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "go",
+            "id": "h1"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "café→€"
+          }
+        ]
+      },
+      "expected_output": "trigger go: h1=café→€\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "",
+            "id": "h1"
+          },
+          {
+            "op": "trigger",
+            "event": "",
+            "arg": "Z"
+          }
+        ]
+      },
+      "expected_output": "trigger : h1=Z\n"
+    },
+    {
+      "input": {
+        "feature": "events",
+        "ops": [
+          {
+            "op": "on",
+            "event": "go",
+            "id": "a"
+          },
+          {
+            "op": "on",
+            "event": "go",
+            "id": "b"
+          },
+          {
+            "op": "once",
+            "event": "go",
+            "id": "c"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "m"
+          },
+          {
+            "op": "trigger",
+            "event": "go",
+            "arg": "n"
+          }
+        ]
+      },
+      "expected_output": "trigger go: a=m,b=m,c=m\ntrigger go: a=n,b=n\n"
+    }
+  ]
+}

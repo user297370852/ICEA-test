@@ -1,0 +1,45 @@
+{
+  "description": "Enhanced streaming-decode coverage disjoint from the native suite. Drives the incremental decoder over different header shapes: a single-block header with no encryption context, an explicitly empty {} context with framing, and a three-entry encryption context with a longer provider id. In every case the piecewise (byte-at-a-time) decode must reproduce the original byte sequence exactly.",
+  "cases": [
+    {
+      "input": {
+        "action": "streaming_decode",
+        "encryption_context": null,
+        "key_provider_id": "None",
+        "key_provider_info": "TestKeyID",
+        "encrypted_key_length": 32,
+        "content_type": "single_block",
+        "frame_length": 0
+      },
+      "expected_output": "serialized_length=113\nincremental_decode_stable=true\nversion=1\ncontent_type=single_block\nframe_length=0\nnonce_length=12\nencryption_context_length=0\nencrypted_key_blob_count=1\n"
+    },
+    {
+      "input": {
+        "action": "streaming_decode",
+        "encryption_context": {},
+        "key_provider_id": "None",
+        "key_provider_info": "TestKeyID",
+        "encrypted_key_length": 32,
+        "content_type": "frame",
+        "frame_length": 4096
+      },
+      "expected_output": "serialized_length=113\nincremental_decode_stable=true\nversion=1\ncontent_type=frame\nframe_length=4096\nnonce_length=12\nencryption_context_length=0\nencrypted_key_blob_count=1\n"
+    },
+    {
+      "input": {
+        "action": "streaming_decode",
+        "encryption_context": {
+          "A": "1",
+          "B": "2",
+          "C": "3"
+        },
+        "key_provider_id": "aws-kms",
+        "key_provider_info": "TestKeyID",
+        "encrypted_key_length": 32,
+        "content_type": "frame",
+        "frame_length": 512
+      },
+      "expected_output": "serialized_length=136\nincremental_decode_stable=true\nversion=1\ncontent_type=frame\nframe_length=512\nnonce_length=12\nencryption_context_length=20\nencrypted_key_blob_count=1\n"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+    "description": "When an origin response declares that it varies by one or more request header fields, the caching layer incorporates exactly those request header values into the cache key, so that clients sending different values for the named headers receive distinct stored variants while differences in unnamed headers are ignored. The origin echoes the negotiated header value into its body so each variant is observable. With multiple varying header fields, a stored variant is reused only when every named header matches. Output per request reports the request index, status code, cache disposition, cookie header, tracked custom header, and the negotiated body.",
+    "cases": [
+        {
+            "input": {
+                "action": "cache",
+                "upstream": {
+                    "cacheControl": "public, max-age=600",
+                    "vary": "Accept",
+                    "bodyMode": "echoAccept"
+                },
+                "requests": [
+                    {
+                        "url": "http://example.com",
+                        "headers": {
+                            "Accept": "application/json",
+                            "Other": "a"
+                        }
+                    },
+                    {
+                        "url": "http://example.com",
+                        "headers": {
+                            "Accept": "application/json",
+                            "Other": "b"
+                        }
+                    },
+                    {
+                        "url": "http://example.com",
+                        "headers": {
+                            "Accept": "text/plain",
+                            "Other": "a"
+                        }
+                    },
+                    {
+                        "url": "http://example.com",
+                        "headers": {
+                            "Accept": "text/plain",
+                            "Other": "a"
+                        }
+                    },
+                    {
+                        "url": "http://example.com",
+                        "headers": {
+                            "Accept": "application/json",
+                            "Other": "b"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=application/json\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=application/json\nrequest=2\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=text/plain\nrequest=3\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=text/plain\nrequest=4\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=application/json\n"
+        }
+    ]
+}

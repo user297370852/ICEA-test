@@ -1,0 +1,23 @@
+{
+  "description": "The common-multiplatform @CreateComponent factory must be public and must use the expect modifier: a private factory and a non-expect factory are each rejected, with renamed component and package.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.app\n\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\n\n@MergeComponent(AppScope::class)\ninterface AppGraph\n\n@MergeComponent.CreateComponent\nprivate expect fun createGraph(): AppGraph\n"
+        ],
+        "multiplatform": true
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Factory functions for components annotated with `@CreateComponent` must be public.\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.app\n\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent.CreateComponent\nimport kotlin.reflect.KClass\n\n@MergeComponent(AppScope::class)\ninterface AppGraph\n\n@CreateComponent\nfun KClass<AppGraph>.createGraph(): AppGraph\n"
+        ],
+        "multiplatform": true
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Only expect functions can be annotated with @MergeComponent.CreateComponent. In non-common Kotlin Multiplatform code use the generated `create` extension function on the class object: YourComponent.create(..).\n"
+    }
+  ]
+}

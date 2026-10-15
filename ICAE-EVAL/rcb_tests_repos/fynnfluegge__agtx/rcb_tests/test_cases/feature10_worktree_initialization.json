@@ -1,0 +1,71 @@
+{
+    "description": "Initialize an isolated workspace by copying configured files and running an optional setup command.",
+    "cases": [
+        {
+            "input": {
+                "worktree_initialization": {
+                    "project_files": {
+                        ".env": "KEY=value"
+                    },
+                    "copy_files": ".env",
+                    "init_script": "cat .env > verified.txt",
+                    "check_paths": [
+                        ".env",
+                        "verified.txt"
+                    ]
+                }
+            },
+            "expected_output": "warning_count=0\npath:.env=present\ncontent:.env=KEY=value\npath:verified.txt=present\ncontent:verified.txt=KEY=value\n"
+        },
+        {
+            "input": {
+                "worktree_initialization": {
+                    "project_files": {},
+                    "copy_files": ".nonexistent",
+                    "check_paths": [
+                        ".nonexistent"
+                    ]
+                }
+            },
+            "expected_output": "warning_count=1\nwarning=copy_files: '.nonexistent' not found in project root, skipping\npath:.nonexistent=absent\n"
+        },
+        {
+            "input": {
+                "worktree_initialization": {
+                    "project_files": {},
+                    "init_script": "exit 1",
+                    "check_paths": []
+                }
+            },
+            "expected_output": "warning_count=1\nwarning=init_script exited with exit status: 1: \n"
+        },
+        {
+            "input": {
+                "worktree_initialization": {
+                    "project_files": {
+                        "config/app.toml": "key = 1"
+                    },
+                    "copy_files": "config",
+                    "check_paths": [
+                        "config/app.toml"
+                    ]
+                }
+            },
+            "expected_output": "warning_count=0\npath:config/app.toml=present\ncontent:config/app.toml=key = 1\n"
+        },
+        {
+            "input": {
+                "worktree_initialization": {
+                    "project_files": {
+                        "web/.env.local": "NEXT_PUBLIC_KEY=123"
+                    },
+                    "copy_files": "web/.env.local",
+                    "check_paths": [
+                        "web/.env.local"
+                    ]
+                }
+            },
+            "expected_output": "warning_count=0\npath:web/.env.local=present\ncontent:web/.env.local=NEXT_PUBLIC_KEY=123\n"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "description": "Parse a reusable action's metadata document (YAML) describing its name, author, description, typed inputs, named outputs, and its run configuration. For composite-style actions the run configuration lists ordered steps, each of which may reference another action. The adapter emits the action name, author, description, each input with its required flag and type, each output with its description, the run mode, and per step the step id, the referenced action reference and its derived name, the one-based line of the reference, and any supplied arguments.",
+    "cases": [
+        {
+            "input": {
+                "op": "parse_action_metadata",
+                "yaml": "name: \"My GitHub Action\"\nauthor: \"John Doe\"\ndescription: \"Analyze git sha\"\n\ninputs:\n  git_sha:\n    required: true\n    type: string\n\noutputs:\n  response:\n    description: \"Response from the command executed\"\n\nruns:\n  using: \"composite\"\n  steps:\n  - uses: actions/checkout@v2\n    id: checkout\n    with:\n      ref: koi\n"
+            },
+            "expected_output": "name=My GitHub Action\nauthor=John Doe\ndescription=Analyze git sha\ninput git_sha required=true type=string\noutput response description=Response from the command executed\nruns_using=composite\nstep id=checkout uses=actions/checkout@v2 action=actions/checkout line.uses=17\nwith ref=koi\n"
+        }
+    ]
+}

@@ -1,0 +1,79 @@
+{
+    "description": "A configuration loader builds the runtime settings from process arguments and environment variables. The first positional argument is the upstream command to run; if it is missing, loading fails. Every tunable setting has a default that is overridden by an environment variable; a variable may be given either bare or with a fixed namespace prefix, and the prefixed form takes precedence over the bare form. A debug flag raises the log level. Output reports the resolved settings as neutral key/value lines, or a normalized error when the required upstream command is absent.",
+    "cases": [
+        {
+            "input": {
+                "action": "config",
+                "args": [
+                    "server",
+                    "echo",
+                    "hello"
+                ],
+                "env": {}
+            },
+            "expected_output": "target_port=3000\nupstream_command=echo\ncache_size=67108864\nmax_request_body=0\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+        },
+        {
+            "input": {
+                "action": "config",
+                "args": [
+                    "server",
+                    "echo",
+                    "hello"
+                ],
+                "env": {
+                    "TARGET_PORT": "4000",
+                    "CACHE_SIZE": "256",
+                    "HTTP_READ_TIMEOUT": "5",
+                    "X_SENDFILE_ENABLED": "0",
+                    "DEBUG": "1",
+                    "ACME_DIRECTORY": "https://acme-staging-v02.api.letsencrypt.org/directory"
+                }
+            },
+            "expected_output": "target_port=4000\nupstream_command=echo\ncache_size=256\nmax_request_body=0\nx_sendfile_enabled=false\nhttp_read_timeout_seconds=5\nacme_directory=https://acme-staging-v02.api.letsencrypt.org/directory\nlog_level=debug\n"
+        },
+        {
+            "input": {
+                "action": "config",
+                "args": [
+                    "server",
+                    "echo",
+                    "hello"
+                ],
+                "env": {
+                    "THRUSTER_TARGET_PORT": "4000",
+                    "THRUSTER_CACHE_SIZE": "256",
+                    "THRUSTER_HTTP_READ_TIMEOUT": "5",
+                    "THRUSTER_X_SENDFILE_ENABLED": "0",
+                    "THRUSTER_DEBUG": "1"
+                }
+            },
+            "expected_output": "target_port=4000\nupstream_command=echo\ncache_size=256\nmax_request_body=0\nx_sendfile_enabled=false\nhttp_read_timeout_seconds=5\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=debug\n"
+        },
+        {
+            "input": {
+                "action": "config",
+                "args": [
+                    "server",
+                    "echo",
+                    "hello"
+                ],
+                "env": {
+                    "TARGET_PORT": "3000",
+                    "THRUSTER_TARGET_PORT": "4000"
+                }
+            },
+            "expected_output": "target_port=4000\nupstream_command=echo\ncache_size=67108864\nmax_request_body=0\nx_sendfile_enabled=true\nhttp_read_timeout_seconds=30\nacme_directory=https://acme-v02.api.letsencrypt.org/directory\nlog_level=info\n"
+        },
+        {
+            "input": {
+                "action": "config",
+                "args": [
+                    "server"
+                ],
+                "env": {}
+            },
+            "expected_output": "error=missing_upstream_command\n"
+        }
+    ]
+}

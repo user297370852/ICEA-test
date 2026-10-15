@@ -1,0 +1,96 @@
+{
+  "description": "Positional dispatch: a request with an array of params is routed to the matching method by position; the result envelope echoes the request id (integer, string, or large integer), a void method yields a null result, and a request without an id (a notification) that succeeds produces no response at all.",
+  "cases": [
+    {
+      "description": "echo a string value positionally",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "hello"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"hello\"\n"
+    },
+    {
+      "description": "integer result from a two-argument call",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            2,
+            3
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=5\n"
+    },
+    {
+      "description": "string id is preserved in the response",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": "abc",
+          "method": "echo",
+          "params": [
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=\"abc\"\noutcome=success\nresult=\"hi\"\n"
+    },
+    {
+      "description": "large integer id is preserved",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1600000000000,
+          "method": "echo",
+          "params": [
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1600000000000\noutcome=success\nresult=\"hi\"\n"
+    },
+    {
+      "description": "void method returns a null result",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 7,
+          "method": "voidMethod",
+          "params": [
+            5
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=7\noutcome=success\nresult=null\n"
+    },
+    {
+      "description": "successful notification (null id) yields no response",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": null,
+          "method": "echo",
+          "params": [
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "no_response\n"
+    }
+  ]
+}

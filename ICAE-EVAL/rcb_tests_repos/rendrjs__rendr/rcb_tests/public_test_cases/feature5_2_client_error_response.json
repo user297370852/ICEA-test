@@ -1,0 +1,38 @@
+{
+    "description": "Normalize a transport-level failure into a compact response object before handing it to the caller-supplied error callback. The failure carries a raw response body, an HTTP status code, and response headers. The wrapped handler produces an object with two fields: the status code and the body. By default the body is the raw response text; when the response advertises a JSON content type, the body is parsed into a structured value instead. The reported result shows the status and the resulting body (a quoted raw string when left unparsed, a structured object when parsed).",
+    "cases": [
+        {
+            "input": {
+                "op": "client_sync_error",
+                "method": "read",
+                "id": 0,
+                "urlRoot": "/listings",
+                "headers": {
+                    "foo": "bar"
+                },
+                "xhr": {
+                    "responseText": "{\"foo\": \"bar\"}",
+                    "status": 418
+                }
+            },
+            "expected_output": "status=418\nbody=\"{\\\"foo\\\": \\\"bar\\\"}\"\n"
+        },
+        {
+            "input": {
+                "op": "client_sync_error",
+                "method": "read",
+                "id": 0,
+                "urlRoot": "/listings",
+                "headers": {
+                    "foo": "bar"
+                },
+                "xhr": {
+                    "responseText": "{\"foo\": \"bar\"}",
+                    "status": 418,
+                    "contentType": "application/json"
+                }
+            },
+            "expected_output": "status=418\nbody={\"foo\":\"bar\"}\n"
+        }
+    ]
+}

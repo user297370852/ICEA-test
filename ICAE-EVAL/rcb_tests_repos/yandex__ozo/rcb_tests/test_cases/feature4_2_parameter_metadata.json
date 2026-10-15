@@ -1,0 +1,11 @@
+{
+    "description": "Build a parameterized binary query carrying a single bound parameter and report the per-parameter wire metadata that the protocol requires for that parameter: its numeric type identifier, its wire format code, its serialized byte length, and its serialized bytes. Parameters are always sent in binary, so the format code is always 1. A present value reports its type's numeric identifier, the byte length of its binary form, and those bytes as space-separated uppercase hexadecimal. A typed null value reports the underlying type's identifier, a length of -1, and a null marker for the value. An untyped null reports a type identifier of 0, a length of -1, and a null marker. An array-typed value reports the array's own numeric type identifier.",
+    "cases": [
+        {"input": {"op": "bind_meta", "text": "", "param": {"type": "int2", "value": 0}}, "expected_output": "params_count=1\ntext=\noid=21\nformat=1\nlength=2\nvalue=00 00\n"},
+        {"input": {"op": "bind_meta", "text": "", "param": {"type": "text", "value": "std::string"}}, "expected_output": "params_count=1\ntext=\noid=25\nformat=1\nlength=11\nvalue=73 74 64 3A 3A 73 74 72 69 6E 67\n"},
+        {"input": {"op": "bind_meta", "text": "", "param": {"type": "bytea", "value": [1, 2, 3, 4]}}, "expected_output": "params_count=1\ntext=\noid=17\nformat=1\nlength=4\nvalue=01 02 03 04\n"},
+        {"input": {"op": "bind_meta", "text": "", "param": {"type": "int4", "null": true}}, "expected_output": "params_count=1\ntext=\noid=23\nformat=1\nlength=-1\nvalue=<null>\n"},
+        {"input": {"op": "bind_meta", "text": "", "param": {"type": "null"}}, "expected_output": "params_count=1\ntext=\noid=0\nformat=1\nlength=-1\nvalue=<null>\n"},
+        {"input": {"op": "bind_meta", "text": "", "param": {"type": "int4_array"}}, "expected_output": "params_count=1\ntext=\noid=1007\nformat=1\nlength=20\nvalue=00 00 00 01 00 00 00 00 00 00 00 17 00 00 00 00 00 00 00 00\n"}
+    ]
+}

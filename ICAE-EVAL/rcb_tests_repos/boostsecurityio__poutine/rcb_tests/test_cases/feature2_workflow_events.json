@@ -1,0 +1,110 @@
+{
+    "description": "Parse the trigger/event section of a CI workflow, supplied as YAML in any accepted shape: a single event name, a list of event names, or a mapping of event names to their configuration. Event configuration may include branch filters, scheduled cron expressions, referenced upstream workflows and their activity types, and (for reusable-workflow triggers) typed inputs, declared outputs, and required secrets. The adapter emits, per event, the event name followed by its filters, schedules, referenced workflows, activity types, inputs, outputs and secrets. Malformed event configuration is rejected with a neutral error category.",
+    "cases": [
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "push"
+            },
+            "expected_output": "event=push\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "[push, pull_request]"
+            },
+            "expected_output": "event=push\nevent=pull_request\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "push: {branches: main}"
+            },
+            "expected_output": "event=push\nbranch=main\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "push: {branches: {}}"
+            },
+            "expected_output": "error=invalid_events\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "push: {branches: [main]}"
+            },
+            "expected_output": "event=push\nbranch=main\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "schedule: [cron: \"s1\", cron: \"s2\"]"
+            },
+            "expected_output": "event=schedule\ncron=s1\ncron=s2\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "schedule: [error: \"s1\"]"
+            },
+            "expected_output": "error=invalid_events\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "schedule: \"* * * *\""
+            },
+            "expected_output": "error=invalid_events\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "workflow_run: {workflows: [\"w1\"], types: [requested]}"
+            },
+            "expected_output": "event=workflow_run\ntype=requested\nworkflow=w1\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "workflow_call: { inputs: [], }"
+            },
+            "expected_output": "error=invalid_events\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "workflow_call: { inputs: {name: []}, }"
+            },
+            "expected_output": "error=invalid_events\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "workflow_call: { outputs: [], }"
+            },
+            "expected_output": "error=invalid_events\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "workflow_call: { outputs: { name: asdf }, }"
+            },
+            "expected_output": "event=workflow_call\noutput name description= value=asdf\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "workflow_call: { outputs: { name: { name: {} } }, }"
+            },
+            "expected_output": "error=invalid_events\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_events",
+                "yaml": "workflow_call: {\n  inputs: {previousSteps: {type: string, required: true}},\n  outputs: {build: {description: build_id, value: \"${{ jobs.build.outputs.build }}\" }},\n  secrets: {BOARD_TOKEN: {required: true}}\n}"
+            },
+            "expected_output": "event=workflow_call\ninput previousSteps type=string required=true\noutput build description=build_id value=${{ jobs.build.outputs.build }}\nsecret BOARD_TOKEN required=true\n"
+        }
+    ]
+}

@@ -1,0 +1,43 @@
+{
+  "description": "Validation of the resolved configuration data. The source and destination locations are mandatory; omitting them is reported as missing-field errors. A source location (or extra search location) that does not exist is reported as a not-found error. Valid input echoes requested resolved fields, including the destination folder name.",
+  "cases": [
+    {
+      "input": {
+        "op": "check_paths",
+        "config": {},
+        "report": []
+      },
+      "expected_output": "error=invalid_config_data\nfield=dst_path reason=missing\nfield=src_path reason=missing\n"
+    },
+    {
+      "input": {
+        "op": "check_paths",
+        "config": {
+          "src_path": "./i_do_not_exist",
+          "dst_path": "@dst"
+        },
+        "report": []
+      },
+      "expected_output": "error=invalid_config_data\nfield=src_path reason=not_found\n"
+    },
+    {
+      "input": {
+        "op": "check_paths",
+        "config": {
+          "src_path": "@src_good",
+          "dst_path": "@dst",
+          "skip_if_exists": [
+            "skip_me"
+          ]
+        },
+        "report": [
+          "exclude",
+          "include",
+          "skip_if_exists",
+          "folder_name"
+        ]
+      },
+      "expected_output": "valid=true\nexclude=[\"copier.yaml\", \"copier.yml\", \"~*\", \"*.py[co]\", \"__pycache__\", \"__pycache__/*\", \".git\", \".git/*\", \".DS_Store\", \".svn\"]\ninclude=[]\nskip_if_exists=[\"skip_me\"]\nfolder_name=\"out_project\"\n"
+    }
+  ]
+}

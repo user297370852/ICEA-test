@@ -1,0 +1,211 @@
+{
+  "description": "Configured phrase patterns scan input text and report whether any non-whitelisted match exists, with each match showing term id, inclusive start and end indices, and match length.",
+  "cases": [
+    {
+      "input": {
+        "patterns": [
+          "WORLD"
+        ],
+        "text": "hello world"
+      },
+      "expected_output": "{\"has_match\":false,\"matches\":[]}"
+    },
+    {
+      "input": {
+        "patterns": [
+          "yO"
+        ],
+        "text": "hello yO yo"
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":0,\"start_index\":6,\"end_index\":7,\"match_length\":2}]}"
+    },
+    {
+      "input": {
+        "patterns": [
+          "cool 🌉"
+        ],
+        "text": "cool cool cool cool 🌉"
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":0,\"start_index\":15,\"end_index\":21,\"match_length\":6}]}"
+    },
+    {
+      "input": {
+        "patterns": [
+          "her"
+        ],
+        "text": "h he! her"
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":0,\"start_index\":6,\"end_index\":8,\"match_length\":3}]}"
+    },
+    {
+      "input": {
+        "patterns": [
+          "ass"
+        ],
+        "text": "🤣ass"
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":0,\"start_index\":2,\"end_index\":4,\"match_length\":3}]}"
+    },
+    {
+      "input": {
+        "patterns": [
+          "?hi?"
+        ],
+        "text": "my hie"
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":0,\"start_index\":2,\"end_index\":5,\"match_length\":4}]}"
+    },
+    {
+      "input": {
+        "patterns": [
+          "|no"
+        ],
+        "text": "yno"
+      },
+      "expected_output": "{\"has_match\":false,\"matches\":[]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 1,
+            "pattern": "penis"
+          }
+        ],
+        "text": "the pen is mightier than the penis",
+        "whitelist": [
+          "pen is"
+        ],
+        "blacklist_transforms": [
+          "skip_non_alphabetic"
+        ]
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":1,\"start_index\":29,\"end_index\":33,\"match_length\":5}]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 1,
+            "pattern": "bitch"
+          }
+        ],
+        "text": "a bitch",
+        "whitelist": [
+          "bit",
+          "itch"
+        ]
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":1,\"start_index\":2,\"end_index\":6,\"match_length\":5}]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 1,
+            "pattern": "something"
+          }
+        ],
+        "text": "s o m e t h i n  g",
+        "blacklist_transforms": [
+          "skip_spaces"
+        ]
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":1,\"start_index\":0,\"end_index\":17,\"match_length\":9}]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 1,
+            "pattern": "hbllo?"
+          }
+        ],
+        "text": "sup hallothere",
+        "blacklist_transforms": [
+          "change_a_to_b"
+        ]
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":1,\"start_index\":4,\"end_index\":9,\"match_length\":6}]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 1,
+            "pattern": "ass"
+          }
+        ],
+        "text": "a big ass",
+        "whitelist": [
+          "bss"
+        ],
+        "whitelist_transforms": [
+          "change_a_to_b"
+        ]
+      },
+      "expected_output": "{\"has_match\":false,\"matches\":[]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 0,
+            "pattern": "fuck"
+          },
+          {
+            "id": 1,
+            "pattern": "bitch"
+          }
+        ],
+        "text": "bitch fuck",
+        "sorted": true
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":1,\"start_index\":0,\"end_index\":4,\"match_length\":5},{\"term_id\":0,\"start_index\":6,\"end_index\":9,\"match_length\":4}]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 0,
+            "pattern": "hi"
+          },
+          {
+            "id": 1,
+            "pattern": "bye"
+          },
+          {
+            "id": 1,
+            "pattern": "yo"
+          }
+        ],
+        "text": "irrelevant"
+      },
+      "expected_output": "error=duplicate_term_id"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 10,
+            "pattern": ""
+          }
+        ],
+        "text": "irrelevant"
+      },
+      "expected_output": "error=empty_match_pattern"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 10,
+            "pattern": "[abc]"
+          }
+        ],
+        "text": "irrelevant"
+      },
+      "expected_output": "error=empty_match_pattern"
+    }
+  ]
+}

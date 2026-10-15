@@ -1,0 +1,19 @@
+{
+  "description": "Bookmark the current position under a name and later jump back to that exact bookmark, replaying the workflow up to that point so subsequent steps continue from there.",
+  "cases": [
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "body": [ { "yield": { "take": "HELLO" } }, { "yield": { "put": { "type": "ADD", "payload": 42 } } }, { "yield": { "call": { "fn": "identity", "args": [1] } } } ] },
+        "steps": [
+          { "next": true }, { "assert": { "take": "HELLO" } },
+          { "save": "afterTake" },
+          { "next": true }, { "assert": { "put": { "type": "ADD", "payload": 42 } } },
+          { "restore": "afterTake" },
+          { "next": true }, { "assert": { "put": { "type": "ADD", "payload": 42 } } }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\nassertion 3 met\n"
+    }
+  ]
+}

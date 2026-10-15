@@ -1,0 +1,260 @@
+{
+  "description": "Enhanced compound boolean filters (OR of an AND-pair with a single comparison): exercises an empty result, the case where only the disjunct branch (b below its constant) selects rows, and the case where every row survives through the conjunction branch.",
+  "cases": [
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          },
+          {
+            "name": "b",
+            "type": "float64"
+          }
+        ],
+        "columns": {
+          "a": [
+            60.0,
+            70.0,
+            80.0
+          ],
+          "b": [
+            50.0,
+            60.0,
+            70.0
+          ]
+        },
+        "condition": {
+          "node": "or",
+          "args": [
+            {
+              "node": "and",
+              "args": [
+                {
+                  "node": "function",
+                  "name": "less_than",
+                  "args": [
+                    {
+                      "node": "field",
+                      "name": "a"
+                    },
+                    {
+                      "node": "literal",
+                      "type": "float64",
+                      "value": 50.0
+                    }
+                  ],
+                  "return": "bool"
+                },
+                {
+                  "node": "function",
+                  "name": "greater_than",
+                  "args": [
+                    {
+                      "node": "field",
+                      "name": "a"
+                    },
+                    {
+                      "node": "field",
+                      "name": "b"
+                    }
+                  ],
+                  "return": "bool"
+                }
+              ]
+            },
+            {
+              "node": "function",
+              "name": "less_than",
+              "args": [
+                {
+                  "node": "field",
+                  "name": "b"
+                },
+                {
+                  "node": "literal",
+                  "type": "float64",
+                  "value": 11.0
+                }
+              ],
+              "return": "bool"
+            }
+          ]
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=0\nindices=[]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          },
+          {
+            "name": "b",
+            "type": "float64"
+          }
+        ],
+        "columns": {
+          "a": [
+            5.0,
+            6.0,
+            7.0
+          ],
+          "b": [
+            1.0,
+            2.0,
+            100.0
+          ]
+        },
+        "condition": {
+          "node": "or",
+          "args": [
+            {
+              "node": "and",
+              "args": [
+                {
+                  "node": "function",
+                  "name": "less_than",
+                  "args": [
+                    {
+                      "node": "field",
+                      "name": "a"
+                    },
+                    {
+                      "node": "literal",
+                      "type": "float64",
+                      "value": 50.0
+                    }
+                  ],
+                  "return": "bool"
+                },
+                {
+                  "node": "function",
+                  "name": "greater_than",
+                  "args": [
+                    {
+                      "node": "field",
+                      "name": "a"
+                    },
+                    {
+                      "node": "field",
+                      "name": "b"
+                    }
+                  ],
+                  "return": "bool"
+                }
+              ]
+            },
+            {
+              "node": "function",
+              "name": "less_than",
+              "args": [
+                {
+                  "node": "field",
+                  "name": "b"
+                },
+                {
+                  "node": "literal",
+                  "type": "float64",
+                  "value": 11.0
+                }
+              ],
+              "return": "bool"
+            }
+          ]
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=2\nindices=[0, 1]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          },
+          {
+            "name": "b",
+            "type": "float64"
+          }
+        ],
+        "columns": {
+          "a": [
+            10.0,
+            20.0,
+            30.0
+          ],
+          "b": [
+            1.0,
+            2.0,
+            3.0
+          ]
+        },
+        "condition": {
+          "node": "or",
+          "args": [
+            {
+              "node": "and",
+              "args": [
+                {
+                  "node": "function",
+                  "name": "less_than",
+                  "args": [
+                    {
+                      "node": "field",
+                      "name": "a"
+                    },
+                    {
+                      "node": "literal",
+                      "type": "float64",
+                      "value": 50.0
+                    }
+                  ],
+                  "return": "bool"
+                },
+                {
+                  "node": "function",
+                  "name": "greater_than",
+                  "args": [
+                    {
+                      "node": "field",
+                      "name": "a"
+                    },
+                    {
+                      "node": "field",
+                      "name": "b"
+                    }
+                  ],
+                  "return": "bool"
+                }
+              ]
+            },
+            {
+              "node": "function",
+              "name": "less_than",
+              "args": [
+                {
+                  "node": "field",
+                  "name": "b"
+                },
+                {
+                  "node": "literal",
+                  "type": "float64",
+                  "value": 11.0
+                }
+              ],
+              "return": "bool"
+            }
+          ]
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=3\nindices=[0, 1, 2]\n"
+    }
+  ]
+}

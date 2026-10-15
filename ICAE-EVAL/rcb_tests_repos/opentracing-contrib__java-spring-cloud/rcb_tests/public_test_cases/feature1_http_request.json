@@ -1,0 +1,16 @@
+{
+  "feature": "http_request",
+  "description": "HTTP server and client span instrumentation, including skip-pattern handling.",
+  "cases": [
+    {
+      "name": "instrumented_client_creates_client_and_server_spans",
+      "input": {"feature": "http_request", "caller": "rest_client", "path": "/hello"},
+      "expected_output": "spans=2\ndistinct_traces=1\nop=GET component=java-spring-rest-template span.kind=client http.status=200 attrs=[http.method=GET;http.url=http://localhost/hello] error=false error_log=- parent=root\nop=hello component=java-web-servlet span.kind=server http.status=200 attrs=[http.method=GET;http.url=http://localhost/hello] error=false error_log=- parent=GET\n"
+    },
+    {
+      "name": "skip_pattern_suppresses_server_span_only",
+      "input": {"feature": "http_request", "caller": "rest_client", "path": "/notTraced"},
+      "expected_output": "spans=1\ndistinct_traces=1\nop=GET component=java-spring-rest-template span.kind=client http.status=200 attrs=[http.method=GET;http.url=http://localhost/notTraced] error=false error_log=- parent=root\n"
+    }
+  ]
+}

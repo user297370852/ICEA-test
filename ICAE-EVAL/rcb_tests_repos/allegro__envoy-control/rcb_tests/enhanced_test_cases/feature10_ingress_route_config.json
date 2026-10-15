@@ -1,0 +1,96 @@
+{
+  "description": "Enhanced secured ingress route config: a minimal config (status off, no virtual cluster, no public admin, no secured paths, retries disabled) yielding only the catch-all local route; status virtual clusters with one enabled per-method retry but no admin access; and public admin access with two secured sub-paths and the default retry disabled.",
+  "cases": [
+    {
+      "input": {
+        "op": "ingress_routes",
+        "statusEnabled": false,
+        "createVirtualCluster": false,
+        "adminPublicAccess": false,
+        "adminToken": "",
+        "securedPaths": [],
+        "healthCheckPath": "",
+        "healthCheckCluster": "health_check_cluster",
+        "responseTimeout": "120s",
+        "idleTimeout": "100s",
+        "connectionIdleTimeout": "120s",
+        "defaultRetryPolicy": {
+          "enabled": false,
+          "retryOn": [],
+          "numRetries": 1
+        },
+        "perHttpMethod": {}
+      },
+      "expected_output": "routeConfigName=ingress_secured_routes\nvhost.name=secured_local_service\nvhost.domains=[*]\nvhost.virtualClusters=[]\nvhost.retryPolicy.retryOn=\nvhost.retryPolicy.numRetries=0\nroutes=1\nroute[0] prefix=/ method=[] cluster=local_service retry=false\n"
+    },
+    {
+      "input": {
+        "op": "ingress_routes",
+        "statusEnabled": true,
+        "createVirtualCluster": true,
+        "adminPublicAccess": false,
+        "adminToken": "",
+        "securedPaths": [],
+        "healthCheckPath": "",
+        "healthCheckCluster": "health_check_cluster",
+        "responseTimeout": "120s",
+        "idleTimeout": "100s",
+        "connectionIdleTimeout": "120s",
+        "defaultRetryPolicy": {
+          "enabled": true,
+          "retryOn": [
+            "reset",
+            "connection-failure"
+          ],
+          "numRetries": 2
+        },
+        "perHttpMethod": {
+          "GET": {
+            "enabled": true,
+            "retryOn": [
+              "connection-failure"
+            ],
+            "numRetries": 4
+          },
+          "POST": {
+            "enabled": false,
+            "retryOn": [],
+            "numRetries": 1
+          }
+        }
+      },
+      "expected_output": "routeConfigName=ingress_secured_routes\nvhost.name=secured_local_service\nvhost.domains=[*]\nvhost.virtualClusters=[status,endpoints]\nvhost.retryPolicy.retryOn=reset,connection-failure\nvhost.retryPolicy.numRetries=2\nroutes=2\nroute[0] prefix=/ method=[GET] cluster=local_service retry=true\nroute[1] prefix=/ method=[] cluster=local_service retry=false\n"
+    },
+    {
+      "input": {
+        "op": "ingress_routes",
+        "statusEnabled": true,
+        "createVirtualCluster": false,
+        "adminPublicAccess": true,
+        "adminToken": "secret",
+        "securedPaths": [
+          {
+            "pathPrefix": "/config_dump",
+            "method": "GET"
+          },
+          {
+            "pathPrefix": "/clusters",
+            "method": "POST"
+          }
+        ],
+        "healthCheckPath": "/status/ping",
+        "healthCheckCluster": "health_check_cluster",
+        "responseTimeout": "777s",
+        "idleTimeout": "61s",
+        "connectionIdleTimeout": "120s",
+        "defaultRetryPolicy": {
+          "enabled": false,
+          "retryOn": [],
+          "numRetries": 1
+        },
+        "perHttpMethod": {}
+      },
+      "expected_output": "routeConfigName=ingress_secured_routes\nvhost.name=secured_local_service\nvhost.domains=[*]\nvhost.virtualClusters=[]\nvhost.retryPolicy.retryOn=\nvhost.retryPolicy.numRetries=0\nroutes=10\nroute[0] prefix=/status/envoy/config_dump method=[GET] cluster=this_admin retry=false\nroute[1] prefix=/status/envoy/config_dump method=[GET] directResponse=401 retry=false\nroute[2] prefix=/status/envoy/clusters method=[POST] cluster=this_admin retry=false\nroute[3] prefix=/status/envoy/clusters method=[POST] directResponse=401 retry=false\nroute[4] prefix=/status/envoy/ method=[POST] cluster=this_admin retry=false\nroute[5] prefix=/status/envoy/ method=[POST] directResponse=401 retry=false\nroute[6] prefix=/status/envoy/ method=[] cluster=this_admin retry=false\nroute[7] prefix=/status/envoy method=[GET] redirect retry=false\nroute[8] prefix=/status/ping method=[GET] cluster=health_check_cluster retry=false\nroute[9] prefix=/ method=[] cluster=local_service retry=false\n"
+    }
+  ]
+}

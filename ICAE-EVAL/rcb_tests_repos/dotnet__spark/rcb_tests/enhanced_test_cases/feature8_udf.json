@@ -1,0 +1,133 @@
+{
+  "description": "Feature 8 (UDF apply/chain) coverage: reordered offsets (1,0), empty-string single arg, non-contiguous offsets selecting trailing columns, unsupported arity 4 rejected as invalid_argument, valid 2-stage chain with different inputs, and an invalid-order chain rejected as type_mismatch.",
+  "cases": [
+    {
+      "input": {
+        "op": "udf_apply",
+        "arity": 2,
+        "inputs": [
+          "x",
+          "y"
+        ],
+        "offsets": [
+          1,
+          0
+        ]
+      },
+      "expected_output": "result=yx"
+    },
+    {
+      "input": {
+        "op": "udf_apply",
+        "arity": 1,
+        "inputs": [
+          ""
+        ],
+        "offsets": [
+          0
+        ]
+      },
+      "expected_output": "result="
+    },
+    {
+      "input": {
+        "op": "udf_apply",
+        "arity": 3,
+        "inputs": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ],
+        "offsets": [
+          2,
+          3,
+          4
+        ]
+      },
+      "expected_output": "result=cde"
+    },
+    {
+      "input": {
+        "op": "udf_apply",
+        "arity": 2,
+        "inputs": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ],
+        "offsets": [
+          0,
+          3
+        ]
+      },
+      "expected_output": "result=ad"
+    },
+    {
+      "input": {
+        "op": "udf_apply",
+        "arity": 4,
+        "inputs": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ],
+        "offsets": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "expected_output": "error=invalid_argument"
+    },
+    {
+      "input": {
+        "op": "udf_chain",
+        "inputs": [
+          42,
+          "foo"
+        ],
+        "offsets": [
+          0,
+          1
+        ],
+        "order": "valid"
+      },
+      "expected_output": "level1=outer1:foo:42\nlevel2=outer2:outer1:foo:42"
+    },
+    {
+      "input": {
+        "op": "udf_chain",
+        "inputs": [
+          1,
+          "z"
+        ],
+        "offsets": [
+          0,
+          1
+        ],
+        "order": "valid"
+      },
+      "expected_output": "level1=outer1:z:1\nlevel2=outer2:outer1:z:1"
+    },
+    {
+      "input": {
+        "op": "udf_chain",
+        "inputs": [
+          7,
+          "bar"
+        ],
+        "offsets": [
+          0,
+          1
+        ],
+        "order": "invalid"
+      },
+      "expected_output": "error=type_mismatch"
+    }
+  ]
+}

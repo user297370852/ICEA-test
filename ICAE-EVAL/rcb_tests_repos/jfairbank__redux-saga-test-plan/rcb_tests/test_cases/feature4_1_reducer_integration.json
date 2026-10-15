@@ -1,0 +1,49 @@
+{
+  "description": "Run the whole workflow wired to a state reducer so that dispatched actions update the store and selectors observe the updated state. Assert intermediate emitted actions whose payloads come from state read before and after a dispatched action mutates it, and inspect the final store state. The reducer may be used with or without an explicitly supplied initial state.",
+  "cases": [
+    {
+      "input": {
+        "mode": "integration",
+        "saga": {
+          "body": [
+            { "yield": { "select": { "selector": "getAge" } }, "as": "before" },
+            { "put": { "type": "AGE_BEFORE", "payload": { "$var": "before" } } },
+            { "yield": { "take": "HAVE_BIRTHDAY" } },
+            { "yield": { "select": { "selector": "getAge" } }, "as": "after" },
+            { "put": { "type": "AGE_AFTER", "payload": { "$var": "after" } } }
+          ]
+        },
+        "reducer": "dog",
+        "dispatch": [ { "type": "HAVE_BIRTHDAY" } ],
+        "expect": [
+          { "put": { "type": "AGE_BEFORE", "payload": 11 } },
+          { "put": { "type": "AGE_AFTER", "payload": 12 } }
+        ],
+        "report": ["storeState"]
+      },
+      "expected_output": "expectation 1 met\nexpectation 2 met\nstoreState={\"age\": 12, \"name\": \"Tucker\"}\n"
+    },
+    {
+      "input": {
+        "mode": "integration",
+        "saga": {
+          "body": [
+            { "yield": { "select": { "selector": "getAge" } }, "as": "before" },
+            { "put": { "type": "AGE_BEFORE", "payload": { "$var": "before" } } },
+            { "yield": { "take": "HAVE_BIRTHDAY" } },
+            { "yield": { "select": { "selector": "getAge" } }, "as": "after" },
+            { "put": { "type": "AGE_AFTER", "payload": { "$var": "after" } } }
+          ]
+        },
+        "reducer": "dog",
+        "initialState": { "name": "Tucker", "age": 11 },
+        "dispatch": [ { "type": "HAVE_BIRTHDAY" } ],
+        "expect": [
+          { "put": { "type": "AGE_BEFORE", "payload": 11 } },
+          { "put": { "type": "AGE_AFTER", "payload": 11 } }
+        ]
+      },
+      "expected_output": "expectation 1 met\nexpectation 2 unmet\n"
+    }
+  ]
+}

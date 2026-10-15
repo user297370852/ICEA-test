@@ -1,0 +1,191 @@
+{
+  "description": "Enhanced SQL LIKE pattern projections: exercises prefix (spark%), suffix (%spark), exact match with no wildcard, the match-all single-percent pattern (including the empty string), and an infix (%ar%) pattern; output is a boolean column of lowercase truth values.",
+  "cases": [
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "spark",
+            "sparkle",
+            "park",
+            "SPARK",
+            ""
+          ]
+        },
+        "expression": {
+          "node": "function",
+          "name": "like",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "string",
+              "value": "spark%"
+            }
+          ],
+          "return": "bool"
+        },
+        "result_type": "bool"
+      },
+      "expected_output": "op=project\nresult_type=bool\nlength=5\nvalues=[true, true, false, false, false]\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "spark",
+            "bigspark",
+            "sparkle",
+            "park"
+          ]
+        },
+        "expression": {
+          "node": "function",
+          "name": "like",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "string",
+              "value": "%spark"
+            }
+          ],
+          "return": "bool"
+        },
+        "result_type": "bool"
+      },
+      "expected_output": "op=project\nresult_type=bool\nlength=4\nvalues=[true, true, false, false]\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "spark",
+            "sparks",
+            "park",
+            "spark"
+          ]
+        },
+        "expression": {
+          "node": "function",
+          "name": "like",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "string",
+              "value": "spark"
+            }
+          ],
+          "return": "bool"
+        },
+        "result_type": "bool"
+      },
+      "expected_output": "op=project\nresult_type=bool\nlength=4\nvalues=[true, false, false, true]\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "x",
+            "",
+            "abc"
+          ]
+        },
+        "expression": {
+          "node": "function",
+          "name": "like",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "string",
+              "value": "%"
+            }
+          ],
+          "return": "bool"
+        },
+        "result_type": "bool"
+      },
+      "expected_output": "op=project\nresult_type=bool\nlength=3\nvalues=[true, true, true]\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "string"
+          }
+        ],
+        "columns": {
+          "a": [
+            "car",
+            "cdr",
+            "bar",
+            "xyz",
+            "arc"
+          ]
+        },
+        "expression": {
+          "node": "function",
+          "name": "like",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "string",
+              "value": "%ar%"
+            }
+          ],
+          "return": "bool"
+        },
+        "result_type": "bool"
+      },
+      "expected_output": "op=project\nresult_type=bool\nlength=5\nvalues=[true, false, true, false, true]\n"
+    }
+  ]
+}

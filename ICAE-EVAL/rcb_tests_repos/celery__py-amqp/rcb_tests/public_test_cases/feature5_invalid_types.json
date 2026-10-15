@@ -1,0 +1,54 @@
+{
+    "description": "Reject malformed serialization requests. Parsing a stream whose format string carries an unknown type code, or serializing a table or array that contains a value of an unsupported type, must fail with a normalized frame-syntax error rather than producing partial output. The output is a neutral error line naming the error category, with a field indicating where the rejection occurred.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "format": "y",
+                "wire": "617364736164"
+            },
+            "expected_output": "error=frame_syntax\nwhere=decode"
+        },
+        {
+            "input": {
+                "op": "encode",
+                "format": "F",
+                "values": [
+                    {
+                        "t": "table",
+                        "v": {
+                            "foo": {
+                                "t": "unsupported"
+                            },
+                            "bar": {
+                                "t": "str",
+                                "v": "baz"
+                            },
+                            "nil": {
+                                "t": "none"
+                            },
+                            "array": {
+                                "t": "array",
+                                "v": [
+                                    {
+                                        "t": "int",
+                                        "v": 1
+                                    },
+                                    {
+                                        "t": "bool",
+                                        "v": true
+                                    },
+                                    {
+                                        "t": "str",
+                                        "v": "bar"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "error=frame_syntax\nwhere=encode_table"
+        }
+    ]
+}

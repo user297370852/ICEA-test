@@ -1,0 +1,73 @@
+{
+    "description": "Generate the SSH-wrapped interactive one-off command. Two variants: a fresh interactive container (docker run -it --rm) and an interactive exec into the existing container (docker exec -it). The docker command is single-quoted and wrapped in an ssh -t invocation to the target host.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "execute_in_new_container_over_ssh",
+                "args": {
+                    "command": [
+                        "bin/rails",
+                        "c"
+                    ],
+                    "host": "app-1"
+                }
+            },
+            "expected_output": "ssh -t root@app-1 'docker run -it --rm -e RAILS_MASTER_KEY=\"456\" dhh/app:999 bin/rails c'"
+        },
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "execute_in_existing_container_over_ssh",
+                "args": {
+                    "command": [
+                        "bin/rails",
+                        "c"
+                    ],
+                    "host": "app-1"
+                }
+            },
+            "expected_output": "ssh -t root@app-1 'docker exec -it app-web-999 bin/rails c'"
+        }
+    ]
+}

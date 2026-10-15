@@ -1,0 +1,54 @@
+{
+  "description": "Edge cases for the fully-managed shared counter: reading before any set starts at 0; the value is shared across path segments; negative and hexadecimal parsing.",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/singleton/alpha/counter"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/singleton/alpha/counter"
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter\nbody=0\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter\nbody=1"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/singleton/alpha/counter",
+            "method": "PUT",
+            "body": "50"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/singleton/zzz/counter"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/zzz/counter\nbody=50"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/singleton/alpha/counter",
+            "method": "PUT",
+            "body": "0x0A"
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/dependent/singleton/alpha/counter"
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter\nbody=10"
+    }
+  ]
+}

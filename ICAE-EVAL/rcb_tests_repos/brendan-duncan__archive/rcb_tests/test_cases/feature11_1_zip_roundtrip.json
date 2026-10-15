@@ -1,0 +1,99 @@
+{
+    "description": "Build an archive in memory from named entries with byte content, encode it to the zip format, then decode the encoded bytes back with checksum verification. Entries may opt out of compression (stored). Content of any byte shape is preserved, and non-ASCII entry names round-trip correctly. The output reports the decoded entry count and, per entry, the name, the uncompressed size, and the CRC-32 of the content.",
+    "cases": [
+        {
+            "input": {
+                "op": "zip_roundtrip",
+                "files": []
+            },
+            "expected_output": "files=0\n"
+        },
+        {
+            "input": {
+                "op": "zip_roundtrip",
+                "files": [
+                    {
+                        "name": "abc.txt",
+                        "content": [
+                            104,
+                            101,
+                            108,
+                            108,
+                            111,
+                            32,
+                            119,
+                            111,
+                            114,
+                            108,
+                            100
+                        ],
+                        "compress": false
+                    }
+                ]
+            },
+            "expected_output": "files=1\nname=abc.txt size=11 crc32=0d4a1185\n"
+        },
+        {
+            "input": {
+                "op": "zip_roundtrip",
+                "files": [
+                    {
+                        "name": "uint8list",
+                        "content": [
+                            0,
+                            0
+                        ]
+                    },
+                    {
+                        "name": "list_int",
+                        "content": [
+                            1,
+                            2
+                        ]
+                    },
+                    {
+                        "name": "float32list",
+                        "content": [
+                            0,
+                            0,
+                            64,
+                            64,
+                            0,
+                            0,
+                            128,
+                            64
+                        ]
+                    },
+                    {
+                        "name": "string",
+                        "content": [
+                            104,
+                            101,
+                            108,
+                            108,
+                            111
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "files=4\nname=uint8list size=2 crc32=41d912ff\nname=list_int size=2 crc32=b6cc4292\nname=float32list size=8 crc32=7fd65497\nname=string size=5 crc32=3610a686\n"
+        },
+        {
+            "input": {
+                "op": "zip_roundtrip",
+                "files": [
+                    {
+                        "name": "fileöäüÖÄÜß.txt",
+                        "content": [
+                            116,
+                            101,
+                            115,
+                            116
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "files=1\nname=fileöäüÖÄÜß.txt size=4 crc32=d87f7e0c\n"
+        }
+    ]
+}

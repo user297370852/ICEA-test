@@ -1,0 +1,117 @@
+{
+  "description": "Additional boundary and structural-variant coverage for parsing a single CI workflow job: plain-string runner targets, multi-label runners, combined runner/permission/env/container bodies with sorted line tracking, multiple and empty permission maps, multi-entry and nameless environment, reusable-workflow `uses` jobs, group-only structured runners, and several malformed bodies rejected as a neutral error.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {runs-on: ubuntu-latest}"
+      },
+      "expected_output": "id=build\nruns_on=ubuntu-latest\nline.runs_on=1\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {runs-on: [ubuntu-latest, self-hosted, linux]}"
+      },
+      "expected_output": "id=build\nruns_on=ubuntu-latest\nruns_on=self-hosted\nruns_on=linux\nline.runs_on=1\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {runs-on: { group: g1 }}"
+      },
+      "expected_output": "id=build\nruns_on=group:g1\nline.runs_on=1\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {runs-on: { group: g1, labels: [a, b] }}"
+      },
+      "expected_output": "id=build\nruns_on=group:g1\nruns_on=label:a\nruns_on=label:b\nline.runs_on=1\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {permissions: {}}"
+      },
+      "expected_output": "id=build\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {permissions: {contents: write, actions: read, id-token: write}}"
+      },
+      "expected_output": "id=build\npermission contents=write\npermission actions=read\npermission id-token=write\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {env: {A: '1', B: two}}"
+      },
+      "expected_output": "id=build\nenv A=1\nenv B=two\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "deploy: {runs-on: ubuntu-latest, permissions: {contents: read}, env: {NODE_ENV: prod}, container: {image: node:20}}"
+      },
+      "expected_output": "id=deploy\nruns_on=ubuntu-latest\npermission contents=read\nenv NODE_ENV=prod\ncontainer_image=node:20\nline.runs_on=1\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "call: {uses: ./.github/workflows/reusable.yml}"
+      },
+      "expected_output": "id=call\nuses=./.github/workflows/reusable.yml\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "call: {uses: org/repo/.github/workflows/wf.yml@v1}"
+      },
+      "expected_output": "id=call\nuses=org/repo/.github/workflows/wf.yml@v1\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {container: {image: ubuntu:latest, env: {X: y}}}"
+      },
+      "expected_output": "id=build\ncontainer_image=ubuntu:latest\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": ""
+      },
+      "expected_output": "error=invalid_job\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: foobar"
+      },
+      "expected_output": "error=invalid_job\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {runs-on: {}}"
+      },
+      "expected_output": "id=build\nline.runs_on=1\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {env: {A: {nested: 1}}}"
+      },
+      "expected_output": "id=build\nenv A=\nline.start=1\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_job",
+        "yaml": "build: {permissions: {contents: {}}}"
+      },
+      "expected_output": "id=build\npermission contents=\nline.start=1\n"
+    }
+  ]
+}

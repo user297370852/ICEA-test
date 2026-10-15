@@ -1,0 +1,106 @@
+{
+	"description": "Subscribe handlers to a shared event bus through the API provider and observe how many times they fire when events are emitted: a persistent subscription fires every emission, a one-shot subscription fires only once, and a removed handler does not fire.",
+	"cases": [
+		{
+			"input": {
+				"op": "event_api",
+				"ops": [
+					{
+						"action": "on",
+						"event": "event",
+						"handler": "rec"
+					},
+					{
+						"action": "emit",
+						"event": "event",
+						"args": [
+							"hello"
+						]
+					}
+				]
+			},
+			"expected_output": "invocations=1\narg=[\"hello\"]\n"
+		},
+		{
+			"input": {
+				"op": "event_api",
+				"ops": [
+					{
+						"action": "once",
+						"event": "event",
+						"handler": "rec"
+					},
+					{
+						"action": "emit",
+						"event": "event",
+						"args": [
+							"hello"
+						]
+					},
+					{
+						"action": "emit",
+						"event": "event",
+						"args": [
+							"world"
+						]
+					}
+				]
+			},
+			"expected_output": "invocations=1\narg=[\"hello\"]\n"
+		},
+		{
+			"input": {
+				"op": "event_api",
+				"ops": [
+					{
+						"action": "on",
+						"event": "event",
+						"handler": "rec"
+					},
+					{
+						"action": "removeListener",
+						"event": "event",
+						"handler": "rec"
+					},
+					{
+						"action": "emit",
+						"event": "event",
+						"args": [
+							"hello"
+						]
+					}
+				]
+			},
+			"expected_output": "invocations=0\n"
+		},
+		{
+			"input": {
+				"op": "event_api",
+				"ops": [
+					{
+						"action": "on",
+						"event": "event",
+						"handler": "rec"
+					},
+					{
+						"action": "on",
+						"event": "event",
+						"handler": "rec2"
+					},
+					{
+						"action": "removeAllListeners",
+						"event": "event"
+					},
+					{
+						"action": "emit",
+						"event": "event",
+						"args": [
+							"hello"
+						]
+					}
+				]
+			},
+			"expected_output": "invocations=0\n"
+		}
+	]
+}

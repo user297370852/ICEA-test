@@ -1,0 +1,134 @@
+{
+  "description": "Enhanced HTTP transport and status mapping: GET with named integer overload and string id, http_post success of a void/integer method, http_post notification (empty body), custom provider remapping an unmapped service error and an internal/error-not-handled category, and a custom-provider GET success remap.",
+  "cases": [
+    {
+      "description": "POST addInts success is 200",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 5,
+          "method": "addInts",
+          "params": [
+            20,
+            22
+          ]
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=5\noutcome=success\nresult=42\n"
+    },
+    {
+      "description": "POST voidMethod success is 200 with null result",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 6,
+          "method": "voidMethod",
+          "params": [
+            3
+          ]
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=6\noutcome=success\nresult=null\n"
+    },
+    {
+      "description": "POST notification yields empty body",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "method": "echo",
+          "params": [
+            "x"
+          ]
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\nbody=empty\n"
+    },
+    {
+      "description": "GET selecting the single-integer overload",
+      "input": {
+        "transport": "http_get",
+        "query": {
+          "method": "overloadedMethod",
+          "id": "3",
+          "params": "[7]"
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=3\noutcome=success\nresult=\"overloaded:int:7\"\n"
+    },
+    {
+      "description": "GET unknown method over HTTP is 404",
+      "input": {
+        "transport": "http_get",
+        "query": {
+          "method": "missing",
+          "id": "4",
+          "params": "[]"
+        }
+      },
+      "expected_output": "http_status=404\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=4\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n"
+    },
+    {
+      "description": "custom provider remaps an unmapped service error",
+      "input": {
+        "transport": "http_post",
+        "statusProvider": "custom",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "throwsUnmapped",
+          "params": []
+        }
+      },
+      "expected_output": "http_status=1006\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32001\nerror_category=error_not_handled\n"
+    },
+    {
+      "description": "custom provider remaps a parse error",
+      "input": {
+        "transport": "http_post",
+        "statusProvider": "custom",
+        "request_raw": "{oops"
+      },
+      "expected_output": "http_status=1002\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=\"null\"\noutcome=error\nerror_code=-32700\nerror_category=parse_error\nerror_message=JSON parse error\n"
+    },
+    {
+      "description": "custom provider remaps a batch containing an error",
+      "input": {
+        "transport": "http_post",
+        "statusProvider": "custom",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "throwsUnmapped",
+            "params": []
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "echo",
+            "params": [
+              "ok"
+            ]
+          }
+        ]
+      },
+      "expected_output": "http_status=1005\ncontent_type=application/json-rpc\nbatch_size=2\n--\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32001\nerror_category=error_not_handled\n--\njsonrpc=2.0\nid=2\noutcome=success\nresult=\"ok\"\n"
+    },
+    {
+      "description": "POST mapped custom-code service error is 500",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "throwsMapped",
+          "params": []
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=1234\nerror_category=custom\n"
+    }
+  ]
+}

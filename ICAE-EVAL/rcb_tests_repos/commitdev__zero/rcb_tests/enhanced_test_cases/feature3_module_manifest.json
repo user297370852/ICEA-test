@@ -1,0 +1,33 @@
+{
+  "description": "Enhanced edge coverage for parse_module_manifest: manifest with a name but zero parameters, multiple parameters mixing absent label / absent options / options-without-label (verifying empty values are not invented), a manifest with no name key at all (empty name), and a single parameter carrying three options to verify comma-join ordering is preserved in declaration order.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_module_manifest",
+        "manifest": "name: Empty module\n"
+      },
+      "expected_output": "name=Empty module\nparameter_count=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_module_manifest",
+        "manifest": "name: \"Multi param\"\nparameters:\n  - field: a\n  - field: b\n    label: B Label\n  - field: c\n    options:\n      - one\n"
+      },
+      "expected_output": "name=Multi param\nparameter_count=3\nparameter field=a label= options=\nparameter field=b label=B Label options=\nparameter field=c label= options=one\n"
+    },
+    {
+      "input": {
+        "action": "parse_module_manifest",
+        "manifest": "description: only desc\n"
+      },
+      "expected_output": "name=\nparameter_count=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_module_manifest",
+        "manifest": "name: \"Three options\"\nparameters:\n  - field: env\n    label: Environment\n    options:\n      - dev\n      - staging\n      - prod\n"
+      },
+      "expected_output": "name=Three options\nparameter_count=1\nparameter field=env label=Environment options=dev,staging,prod\n"
+    }
+  ]
+}

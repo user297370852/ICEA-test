@@ -1,0 +1,155 @@
+{
+  "description": "Reading components across IPv6 hosts, default-port dropping, embedded credentials, queries and fragments, and file URLs with a host.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://user:pw@[2001:db8::1]:8080/p?q=1#frag",
+        "steps": [
+          {
+            "op": "get",
+            "field": "hostname"
+          },
+          {
+            "op": "get",
+            "field": "host"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          },
+          {
+            "op": "get",
+            "field": "username"
+          },
+          {
+            "op": "get",
+            "field": "password"
+          },
+          {
+            "op": "get",
+            "field": "search"
+          },
+          {
+            "op": "get",
+            "field": "hash"
+          },
+          {
+            "op": "get",
+            "field": "host_type"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhostname=[2001:db8::1]\nhost=[2001:db8::1]:8080\nport=8080\nusername=user\npassword=pw\nsearch=?q=1\nhash=#frag\nhost_type=ipv6\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:443/path",
+        "steps": [
+          {
+            "op": "get",
+            "field": "port"
+          },
+          {
+            "op": "get",
+            "field": "host"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nport=\nhost=example.com\nhref=https://example.com/path\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "ftp://example.com:21/x",
+        "steps": [
+          {
+            "op": "get",
+            "field": "port"
+          },
+          {
+            "op": "get",
+            "field": "host"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nport=\nhost=example.com\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com",
+        "steps": [
+          {
+            "op": "get",
+            "field": "search"
+          },
+          {
+            "op": "get",
+            "field": "hash"
+          },
+          {
+            "op": "get",
+            "field": "username"
+          },
+          {
+            "op": "get",
+            "field": "password"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nsearch=\nhash=\nusername=\npassword=\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "file://localhost/etc/hosts",
+        "steps": [
+          {
+            "op": "get",
+            "field": "hostname"
+          },
+          {
+            "op": "get",
+            "field": "host"
+          },
+          {
+            "op": "get",
+            "field": "pathname"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhostname=\nhost=\npathname=/etc/hosts\nhref=file:///etc/hosts\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://a:b@host.example/",
+        "steps": [
+          {
+            "op": "get",
+            "field": "username"
+          },
+          {
+            "op": "get",
+            "field": "password"
+          },
+          {
+            "op": "get",
+            "field": "origin"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nusername=a\npassword=b\norigin=https://host.example\n"
+    }
+  ]
+}

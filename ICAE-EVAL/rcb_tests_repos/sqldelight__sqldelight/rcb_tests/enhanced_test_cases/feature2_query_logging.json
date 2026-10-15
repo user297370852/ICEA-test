@@ -1,0 +1,213 @@
+{
+  "description": "Issuing a read/query statement through the logging decorator. The forwarded query emits a single log entry naming the query operation followed by the SQL text. When no bound parameter values are supplied, no value entry is emitted. The log line is written to standard output.",
+  "cases": [
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT * FROM t WHERE id = ?",
+            "parameters": 1,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 10
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT * FROM t WHERE id = ?\n [10]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT * FROM t",
+            "parameters": 0,
+            "binders": []
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT * FROM t\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT 1",
+            "parameters": 0
+          },
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT * FROM a WHERE x = ?",
+            "parameters": 1,
+            "binders": [
+              {
+                "bind": "string",
+                "index": 1,
+                "value": "y"
+              }
+            ]
+          },
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT count(*) FROM b",
+            "parameters": 0
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT 1\nQUERY\n SELECT * FROM a WHERE x = ?\n [y]\nQUERY\n SELECT count(*) FROM b\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT * FROM t WHERE a=? AND b=? AND c=? AND d=?",
+            "parameters": 4,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 7
+              },
+              {
+                "bind": "string",
+                "index": 2,
+                "value": "Alec"
+              },
+              {
+                "bind": "double",
+                "index": 3,
+                "value": 2.5
+              },
+              {
+                "bind": "boolean",
+                "index": 4,
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT * FROM t WHERE a=? AND b=? AND c=? AND d=?\n [7, Alec, 2.5, false]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT * FROM t WHERE a=? AND b=?",
+            "parameters": 2,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": null
+              },
+              {
+                "bind": "string",
+                "index": 2,
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT * FROM t WHERE a=? AND b=?\n [null, null]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT * FROM élève WHERE n = '你好'",
+            "parameters": 0
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT * FROM élève WHERE n = '你好'\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT * FROM t WHERE id = ?",
+            "parameters": 1
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT * FROM t WHERE id = ?\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": null,
+            "sql": "SELECT * FROM sqlite_master",
+            "parameters": 0
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT * FROM sqlite_master\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT ?, ?, ?",
+            "parameters": 3,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 3,
+                "value": 30
+              },
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 10
+              },
+              {
+                "bind": "long",
+                "index": 2,
+                "value": 20
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT ?, ?, ?\n [30, 10, 20]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "query",
+            "identifier": 3,
+            "sql": "SELECT a,\n       b\nFROM t",
+            "parameters": 0
+          }
+        ]
+      },
+      "expected_output": "QUERY\n SELECT a,\n       b\nFROM t\n"
+    }
+  ]
+}

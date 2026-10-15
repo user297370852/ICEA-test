@@ -1,0 +1,25 @@
+{
+    "description": "Compute a placement for a floating element (such as a tooltip or popover) relative to a target rectangle, keeping it within the visible viewport. Inputs are the target rectangle (its left, top, width, height), the floating element's size (width, height), an optional margin (default 10), the current viewport (its inner width and height), and the platform identifier. The function tries candidate placements in order and returns the first that fits, otherwise a fallback. Candidate 1 (to the right): left = target.left + target.width + margin, top = target.top, type 'right'. Candidate 2 (to the left): left = target.left - margin - size.width, top = target.top, type 'left'. Candidate 3 (centered below): left = target.left + target.width/2 - size.width/2, top = target.top + target.height + margin, type 'bottom'. Fallback: same centered left, top = target.top + size.height - margin, type 'bottom'. A candidate fits when left >= 0, top >= 0, left + size.width does not exceed the viewport inner width plus a horizontal tolerance of 30% of size.width, and top + size.height does not exceed the viewport inner height plus a vertical tolerance of 30% of size.height. On the macOS platform only, the top of the right and left candidates is additionally raised by one and a half margins. The output is the chosen placement, an object with left, top and type, serialized as compact JSON followed by a trailing newline.",
+    "cases": [
+        {
+            "input": {"op": "position_for_rect", "platform": "win32", "viewport": {"innerWidth": 1024, "innerHeight": 768}, "target": {"left": 50, "top": 100, "width": 175, "height": 50}, "size": {"width": 200, "height": 150}},
+            "expected_output": "{\"left\":235,\"top\":100,\"type\":\"right\"}\n"
+        },
+        {
+            "input": {"op": "position_for_rect", "platform": "win32", "viewport": {"innerWidth": 575, "innerHeight": 768}, "target": {"left": 400, "top": 100, "width": 175, "height": 50}, "size": {"width": 200, "height": 150}},
+            "expected_output": "{\"left\":190,\"top\":100,\"type\":\"left\"}\n"
+        },
+        {
+            "input": {"op": "position_for_rect", "platform": "darwin", "viewport": {"innerWidth": 1024, "innerHeight": 768}, "target": {"left": 50, "top": 100, "width": 175, "height": 50}, "size": {"width": 200, "height": 150}},
+            "expected_output": "{\"left\":235,\"top\":85,\"type\":\"right\"}\n"
+        },
+        {
+            "input": {"op": "position_for_rect", "platform": "win32", "viewport": {"innerWidth": 600, "innerHeight": 768}, "target": {"left": 50, "top": 100, "width": 500, "height": 50}, "size": {"width": 200, "height": 150}},
+            "expected_output": "{\"left\":200,\"top\":160,\"type\":\"bottom\"}\n"
+        },
+        {
+            "input": {"op": "position_for_rect", "platform": "win32", "viewport": {"innerWidth": 800, "innerHeight": 600}, "target": {"left": 50, "top": 50, "width": 700, "height": 500}, "size": {"width": 200, "height": 200}},
+            "expected_output": "{\"left\":300,\"top\":240,\"type\":\"bottom\"}\n"
+        }
+    ]
+}

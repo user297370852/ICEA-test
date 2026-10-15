@@ -1,0 +1,77 @@
+{
+  "description": "Synthetic adapter edge cases covering pattern serialization with duplicates and singleton arrays plus neutral error categories for unknown modes and registries.",
+  "cases": [
+    {
+      "input": {
+        "mode": "serialize_pattern",
+        "pattern": [
+          "DUP",
+          "DUP",
+          "TAIL"
+        ]
+      },
+      "expected_output": "[DUP, DUP, TAIL]\n"
+    },
+    {
+      "input": {
+        "mode": "serialize_pattern",
+        "pattern": [
+          "ONLY"
+        ]
+      },
+      "expected_output": "[ONLY]\n"
+    },
+    {
+      "input": {
+        "mode": "mystery_mode"
+      },
+      "expected_output": "error=unknown_mode\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "call": {
+                  "fn": "doesNotExist"
+                }
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "next": true
+          }
+        ]
+      },
+      "expected_output": "error=unknown_function\ndetail=doesNotExist\n"
+    },
+    {
+      "input": {
+        "mode": "integration",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "select": {
+                  "selector": "missingSelector"
+                }
+              }
+            }
+          ]
+        },
+        "expect": [
+          {
+            "selectFn": {
+              "selector": "missingSelector"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=unknown_selector\ndetail=missingSelector\n"
+    }
+  ]
+}

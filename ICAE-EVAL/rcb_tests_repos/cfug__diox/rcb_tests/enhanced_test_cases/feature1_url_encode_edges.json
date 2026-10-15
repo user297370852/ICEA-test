@@ -1,0 +1,261 @@
+{
+  "description": "Boundary and special-constraint coverage for percent-encoding of nested data into application/x-www-form-urlencoded. Exercises empty maps, empty lists, explicit nulls, booleans/integers/floats as values, reserved-character escaping (space, &, =, +, /, ?, #), non-ASCII multi-byte text and emoji (astral plane), keys that themselves require escaping, deeply nested map flattening with bracket notation, lists of nested maps (indexed brackets), and mixing a per-parameter list-format wrapper with an unwrapped list under each global format.",
+  "cases": [
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {}
+      },
+      "expected_output": "\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "csv",
+        "data": {
+          "a": []
+        }
+      },
+      "expected_output": "a=\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multiCompatible",
+        "data": {
+          "a": []
+        }
+      },
+      "expected_output": "\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "a": null
+        }
+      },
+      "expected_output": "a\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "a": true,
+          "b": false
+        }
+      },
+      "expected_output": "a=true&b=false\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "csv",
+        "data": {
+          "n": 0,
+          "neg": -42,
+          "f": 3.5
+        }
+      },
+      "expected_output": "n=0&neg=-42&f=3.5\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "q": "a b&c=d+e/f?g#h"
+        }
+      },
+      "expected_output": "q=a+b%26c%3Dd%2Be%2Ff%3Fg%23h\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "emoji": "😀",
+          "key with space": "v"
+        }
+      },
+      "expected_output": "emoji=%F0%9F%98%80&key+with+space=v\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "a": "日本語テスト"
+        }
+      },
+      "expected_output": "a=%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%86%E3%82%B9%E3%83%88\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multiCompatible",
+        "data": {
+          "items": [
+            {
+              "id": 1
+            },
+            {
+              "id": 2
+            }
+          ]
+        }
+      },
+      "expected_output": "items%5B0%5D%5Bid%5D=1&items%5B1%5D%5Bid%5D=2\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "deep": {
+            "l1": {
+              "l2": {
+                "l3": {
+                  "l4": "v"
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "deep%5Bl1%5D%5Bl2%5D%5Bl3%5D%5Bl4%5D=v\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "tsv",
+        "data": {
+          "b": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "expected_output": "b=1%5Ct2%5Ct3\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "ssv",
+        "data": {
+          "b": [
+            "x",
+            "y",
+            "z"
+          ]
+        }
+      },
+      "expected_output": "b=x+y+z\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "pipes",
+        "data": {
+          "b": [
+            "one",
+            "two"
+          ]
+        }
+      },
+      "expected_output": "b=one%7Ctwo\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "csv",
+        "data": {
+          "single": [
+            "only"
+          ]
+        }
+      },
+      "expected_output": "single=only\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "single": [
+            "only"
+          ]
+        }
+      },
+      "expected_output": "single=only\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "csv",
+        "data": {
+          "tags": {
+            "@list": [
+              "x",
+              "y",
+              "z"
+            ],
+            "format": "pipes"
+          },
+          "plain": [
+            1,
+            2
+          ]
+        }
+      },
+      "expected_output": "tags=x%7Cy%7Cz&plain=1%2C2\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "w": {
+            "@list": [
+              "a",
+              "b"
+            ],
+            "format": "multiCompatible"
+          }
+        }
+      },
+      "expected_output": "w=a&w=b\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multiCompatible",
+        "data": {
+          "w": {
+            "@list": [
+              10,
+              20
+            ],
+            "format": "csv"
+          }
+        }
+      },
+      "expected_output": "w=10%2C20\n"
+    },
+    {
+      "input": {
+        "op": "url_encode",
+        "format": "multi",
+        "data": {
+          "a%b": "c&d",
+          "100%": "x"
+        }
+      },
+      "expected_output": "a%25b=c%26d&100%25=x\n"
+    }
+  ]
+}

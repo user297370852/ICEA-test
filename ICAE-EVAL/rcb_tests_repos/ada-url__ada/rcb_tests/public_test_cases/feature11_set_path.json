@@ -1,0 +1,45 @@
+{
+    "description": "Set the path of a parsed URL. The new path is reflected when read back, and re-serialization preserves any query already present. For schemes that are not special, a path that begins with two slashes is disambiguated from an authority by inserting a hidden marker segment in the serialization while the read-back path stays as given; giving the URL a hostname removes that marker. Setting a path keeps the URL internally consistent.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://www.google.com",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "pathname",
+                        "value": "/my-super-long-path"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_pathname=true\npathname=/my-super-long-path\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "non-spec:/",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "pathname",
+                        "value": "//p"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_pathname=true\npathname=//p\nhref=non-spec:/.//p\n"
+        }
+    ]
+}

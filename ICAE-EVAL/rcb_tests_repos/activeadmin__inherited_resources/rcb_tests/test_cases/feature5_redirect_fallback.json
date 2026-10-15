@@ -1,0 +1,40 @@
+{
+  "description": "Show how the post-write redirect target is resolved. By default a successful create redirects to the canonical URL of the created member. When the member (show) action is disabled for the controller, there is no member URL to redirect to, so the controller falls back to redirecting to the collection URL instead. The flash notice is unaffected.",
+  "cases": [
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=build attrs={title=Hello}\nstore=save ok=true\nassign=article\nstatus=302\nredirect=http://test.host/articles/42\nflash.notice=Article was successfully created.\n"
+    },
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "config": {
+          "disabled_actions": [
+            "show"
+          ]
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=build attrs={title=Hello}\nstore=save ok=true\nassign=article\nstatus=302\nredirect=http://test.host/articles\nflash.notice=Article was successfully created.\n"
+    }
+  ]
+}

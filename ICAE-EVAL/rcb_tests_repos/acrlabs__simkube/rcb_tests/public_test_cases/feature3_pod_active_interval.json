@@ -1,0 +1,13 @@
+{
+    "description": "Compute the active interval of a pod from its container statuses. The pod has an optional ordered list of init containers and a list of main containers; each container reports a state that is either running (with a start timestamp, in epoch seconds), finished (with start and end timestamps), or waiting (no timestamps). The pod's interval is derived as follows: the start is the EARLIEST start timestamp seen across all containers (init and main); the end is the LATEST finish timestamp, but only once EVERY main container has finished (if any main container is still running or waiting, the pod has no end yet). The result is one of three shapes: 'Empty' when no container has started, 'Running' with a start timestamp when started but not all main containers have finished, or 'Finished' with start and end timestamps when all main containers have finished.",
+    "cases": [
+        {
+            "input": {"action": "pod_lifecycle", "containers": []},
+            "expected_output": "state=Empty\n"
+        },
+        {
+            "input": {"action": "pod_lifecycle", "init_containers": [{"finished": [1234, 1239]}], "containers": [{"finished": [1239, 1240]}, {"finished": [1239, 1244]}]},
+            "expected_output": "state=Finished\nstart=1234\nend=1244\n"
+        }
+    ]
+}

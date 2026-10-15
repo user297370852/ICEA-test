@@ -1,0 +1,84 @@
+{
+  "description": "Additional mock service API coverage for custom endpoints, payload-rich registration, second-call failure, and verification failure on the first call.",
+  "cases": [
+    {
+      "input": {
+        "operation": "register_interaction",
+        "consumer": "Mobile",
+        "provider": "Inventory",
+        "host": "example.test",
+        "port": 8080,
+        "state": "inventory has special item",
+        "description_text": "a POST with nested JSON body",
+        "request": {
+          "method": "POST",
+          "path": "/items",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "query": {
+            "dry_run": "true"
+          },
+          "body": {
+            "sku": "A-1",
+            "quantity": 2
+          }
+        },
+        "response": {
+          "status": 201,
+          "headers": {
+            "Location": "/items/A-1"
+          },
+          "body": {
+            "ok": true
+          }
+        },
+        "statuses": [
+          200,
+          200
+        ]
+      },
+      "expected_output": "api=completed\ncalls=[{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"method\":\"DELETE\",\"url\":\"http://example.test:8080/interactions\"},{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"json\":{\"description\":\"a POST with nested JSON body\",\"provider_state\":\"inventory has special item\",\"request\":{\"body\":{\"quantity\":2,\"sku\":\"A-1\"},\"headers\":{\"Content-Type\":\"application/json\"},\"method\":\"POST\",\"path\":\"/items\",\"query\":{\"dry_run\":\"true\"}},\"response\":{\"body\":{\"ok\":true},\"headers\":{\"Location\":\"/items/A-1\"},\"status\":201}},\"method\":\"POST\",\"url\":\"http://example.test:8080/interactions\"}]\n"
+    },
+    {
+      "input": {
+        "operation": "register_interaction",
+        "state": "state",
+        "description_text": "desc",
+        "request": {
+          "method": "GET",
+          "path": "/after-delete"
+        },
+        "response": {
+          "status": 200
+        },
+        "statuses": [
+          200,
+          500
+        ],
+        "contents": [
+          "",
+          "post failed"
+        ]
+      },
+      "expected_output": "error=remote_interaction_failed\ndetail=post failed\noperation=register_interaction\ncalls=[{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"method\":\"DELETE\",\"url\":\"http://localhost:1234/interactions\"},{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"json\":{\"description\":\"desc\",\"provider_state\":\"state\",\"request\":{\"method\":\"GET\",\"path\":\"/after-delete\"},\"response\":{\"status\":200}},\"method\":\"POST\",\"url\":\"http://localhost:1234/interactions\"}]\n"
+    },
+    {
+      "input": {
+        "operation": "verify_interactions",
+        "consumer": "EdgeConsumer",
+        "provider": "EdgeProvider",
+        "host": "mock.local",
+        "port": 9999,
+        "pact_dir": "/tmp/contracts",
+        "statuses": [
+          500
+        ],
+        "contents": [
+          "verification failed"
+        ]
+      },
+      "expected_output": "error=remote_interaction_failed\ndetail=verification failed\noperation=verify_interactions\ncalls=[{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"method\":\"GET\",\"url\":\"http://mock.local:9999/interactions/verification\"}]\n"
+    }
+  ]
+}

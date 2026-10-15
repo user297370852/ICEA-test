@@ -1,0 +1,42 @@
+{
+  "description": "When multiple policy providers apply to a request, later providers override earlier providers key by key; omitted keys from later providers keep the earlier value.",
+  "cases": [
+    {
+      "input": {
+        "interaction": "provider_merge",
+        "request": {
+          "path": "/any"
+        },
+        "providers": [
+          {
+            "policy": {
+              "allowed_origins": [
+                "a"
+              ],
+              "exposed_headers": [
+                "c",
+                "d"
+              ],
+              "allowed_headers": [
+                "a",
+                "b"
+              ]
+            }
+          },
+          {
+            "policy": {
+              "allowed_origins": [
+                "c"
+              ],
+              "allowed_headers": [
+                "e"
+              ],
+              "override_allow_origin": "x"
+            }
+          }
+        ]
+      },
+      "expected_output": "allowed_origins=c\ncredentials=no\nallowed_headers=e\nallowed_methods=\nexposed_headers=c, d\ncache_seconds=0\nhost_patterns=\norigin_pattern_matching=no\noverride_allow_origin=x\n"
+    }
+  ]
+}

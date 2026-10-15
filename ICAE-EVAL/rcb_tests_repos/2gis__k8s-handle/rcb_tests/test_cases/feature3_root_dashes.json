@@ -1,0 +1,27 @@
+{
+    "description": "Validates that root-level variable names in a resolved section contain no dashes, because dashes are not legal identifiers for templating. Only top-level keys are checked; dashes nested inside mapping values are permitted. A section whose merged root keys include one or more dashed names is rejected with 'error=root_dashes' followed by the offending names in sorted order, while a section whose dashes appear only in nested values resolves successfully to a sorted JSON object.",
+    "cases": [
+        {
+            "input": {
+                "op": "resolve",
+                "section": "not_allowed",
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n"
+                },
+                "config": "common:\n  my_file: \"{{ file='include.yaml' }}\"\n  k8s_namespace: namespace\n  templates:\n    - template: template1.yaml.j2\nnot_allowed:\n  my-var: my_value\n  my-var-with-dashes: not allowed\n"
+            },
+            "expected_output": "error=root_dashes\nvars=my-var, my-var-with-dashes\n"
+        },
+        {
+            "input": {
+                "op": "resolve",
+                "section": "allowed",
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n"
+                },
+                "config": "common:\n  my_file: \"{{ file='include.yaml' }}\"\n  k8s_namespace: namespace\n  templates:\n    - template: template1.yaml.j2\nallowed:\n  var:\n    router:\n        my-nested-var: var\n        your: 2\n"
+            },
+            "expected_output": "{\n  \"k8s_namespace\": \"namespace\",\n  \"my_file\": {\n    \"ha_ha\": \"included_var\"\n  },\n  \"templates\": [\n    {\n      \"template\": \"template1.yaml.j2\"\n    }\n  ],\n  \"var\": {\n    \"router\": {\n      \"my-nested-var\": \"var\",\n      \"your\": 2\n    }\n  }\n}"
+        }
+    ]
+}

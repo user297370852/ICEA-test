@@ -1,0 +1,120 @@
+{
+    "description": "Set or clear the username and password credentials of a parsed URL. Assigning credentials makes them appear in the serialized authority; assigning an empty string clears that credential, and clearing both removes the credentials block (and its separators) from the serialization entirely.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://www.google.com",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "username",
+                        "value": "username"
+                    },
+                    {
+                        "op": "set",
+                        "field": "password",
+                        "value": "password"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_username=true\nset_password=true\nhref=https://username:password@www.google.com/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://me@example.net",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "username",
+                        "value": ""
+                    },
+                    {
+                        "op": "get",
+                        "field": "username"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_username=true\nusername=\nhref=http://example.net/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://user:pass@example.net",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "password",
+                        "value": ""
+                    },
+                    {
+                        "op": "get",
+                        "field": "password"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_password=true\npassword=\nhref=http://user@example.net/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://:pass@example.net",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "password",
+                        "value": ""
+                    },
+                    {
+                        "op": "get",
+                        "field": "username"
+                    },
+                    {
+                        "op": "get",
+                        "field": "password"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_password=true\nusername=\npassword=\nhref=http://example.net/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://username:password@host:8000/path?query#fragment",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "password",
+                        "value": "test"
+                    },
+                    {
+                        "op": "get",
+                        "field": "password"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_password=true\npassword=test\nhref=https://username:test@host:8000/path?query#fragment\n"
+        }
+    ]
+}

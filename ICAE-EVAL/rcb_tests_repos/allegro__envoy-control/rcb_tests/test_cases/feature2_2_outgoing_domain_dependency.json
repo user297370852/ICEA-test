@@ -1,0 +1,21 @@
+{
+    "description": "Outgoing domain dependency parsing. A request declares an outgoing dependency targeting an absolute URL. Only http and https schemes are accepted. The parser derives the host, the effective port (the explicit port if present, otherwise the scheme default), a cluster name formed by joining host and port and replacing dots and colons with underscores, and a route domain that includes the port only when it was given explicitly. Output reports the dependency type, the original domain, the host, port, cluster name, route domain, and redirect flag.",
+    "cases": [
+        {
+            "input": {"op": "outgoing_dependency", "domain": "http://domain"},
+            "expected_output": "type=domain\ndomain=http://domain\nhost=domain\nport=80\ncluster=domain_80\nrouteDomain=domain\nhandleInternalRedirect=false\n"
+        },
+        {
+            "input": {"op": "outgoing_dependency", "domain": "http://domain:1234"},
+            "expected_output": "type=domain\ndomain=http://domain:1234\nhost=domain\nport=1234\ncluster=domain_1234\nrouteDomain=domain:1234\nhandleInternalRedirect=false\n"
+        },
+        {
+            "input": {"op": "outgoing_dependency", "domain": "http://domain.pl"},
+            "expected_output": "type=domain\ndomain=http://domain.pl\nhost=domain.pl\nport=80\ncluster=domain_pl_80\nrouteDomain=domain.pl\nhandleInternalRedirect=false\n"
+        },
+        {
+            "input": {"op": "outgoing_dependency", "domain": "http://domain.pl:80"},
+            "expected_output": "type=domain\ndomain=http://domain.pl:80\nhost=domain.pl\nport=80\ncluster=domain_pl_80\nrouteDomain=domain.pl:80\nhandleInternalRedirect=false\n"
+        }
+    ]
+}

@@ -1,0 +1,47 @@
+{
+  "description": "Enhanced literal escaping and copy boundary coverage for empty text, dense quotes, zero/one copy rows, and gzip copy boundaries.",
+  "cases": [
+    {
+      "input": {
+        "operation": "escape_literal_text",
+        "text": ""
+      },
+      "expected_output": "escaped=\n"
+    },
+    {
+      "input": {
+        "operation": "escape_literal_text",
+        "text": "''already''"
+      },
+      "expected_output": "escaped=''''already''''\n"
+    },
+    {
+      "input": {
+        "operation": "copy_table_to_text",
+        "row_count": 0
+      },
+      "expected_output": "rows_affected=0\nbytes=0\nfirst_line=\nlast_line=\n"
+    },
+    {
+      "input": {
+        "operation": "copy_table_to_text",
+        "row_count": 1
+      },
+      "expected_output": "rows_affected=1\nbytes=63\nfirst_line=0\t1\t2\tabc\tefg\t2000-01-01\t{\"abc\":\"def\",\"foo\":\"bar\"}\t\\\\x6f6f6f6f\nlast_line=0\t1\t2\tabc\tefg\t2000-01-01\t{\"abc\":\"def\",\"foo\":\"bar\"}\t\\\\x6f6f6f6f\n"
+    },
+    {
+      "input": {
+        "operation": "copy_gzip_csv_into_table",
+        "row_count": 1
+      },
+      "expected_output": "rows_affected=1\nstored_row_count=1\nfirst_row=0|foo 0 bar\nlast_row=0|foo 0 bar\n"
+    },
+    {
+      "input": {
+        "operation": "copy_from_error_summary",
+        "copy_command": "COPY foo(missing) FROM STDIN WITH (FORMAT csv)"
+      },
+      "expected_output": "error=server_error\nsqlstate=42P01\nrows_affected=0\n"
+    }
+  ]
+}

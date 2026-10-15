@@ -1,0 +1,44 @@
+{
+    "description": "A middleware buffers the handler's response up to a configured maximum before forwarding it to the client. A response within the limit is forwarded with its status and body intact. A response whose content type marks it as an event stream switches to unbuffered pass-through once the handler writes its header, so its content is streamed regardless of the buffer limit. A redirect produced by the handler is forwarded with its redirect status and link body. A buffered response that exceeds the maximum is replaced with an internal-server-error response. Each case reports the response status and body.",
+    "cases": [
+        {
+            "input": {
+                "kind": "response_buffer_mw",
+                "max_mem_bytes": 1024,
+                "max_bytes": 1024,
+                "response_body": "hello body"
+            },
+            "expected_output": "status=200 body=hello body\n"
+        },
+        {
+            "input": {
+                "kind": "response_buffer_mw",
+                "max_mem_bytes": 4,
+                "max_bytes": 8,
+                "content_type": "text/event-stream",
+                "write_header_status": 200,
+                "response_body": "data: streaming payload that exceeds the buffer limit"
+            },
+            "expected_output": "status=200 body=data: streaming payload that exceeds the buffer limit\n"
+        },
+        {
+            "input": {
+                "kind": "response_buffer_mw",
+                "max_mem_bytes": 1024,
+                "max_bytes": 1024,
+                "redirect_url": "http://example.com/new",
+                "redirect_status": 302
+            },
+            "expected_output": "status=302 body=<a href=\"http://example.com/new\">Found</a>.\n"
+        },
+        {
+            "input": {
+                "kind": "response_buffer_mw",
+                "max_mem_bytes": 4,
+                "max_bytes": 8,
+                "response_body": "this response is too large to buffer"
+            },
+            "expected_output": "status=500 body=Internal Server Error\n"
+        }
+    ]
+}

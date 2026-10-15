@@ -1,0 +1,55 @@
+{
+  "description": "Boundary coverage for endpoint derivation: a different provider host derives a wholly different endpoint set; a partial override leaves the non-overridden endpoints host-derived; a host carrying an explicit port is propagated verbatim into every derived URL; and an explicit state flag combines with a custom host.",
+  "cases": [
+    {
+      "input": {
+        "op": "config",
+        "config": {
+          "domain": "tenant.us.auth0.com",
+          "clientID": "sample-client",
+          "clientSecret": "sample-secret",
+          "callbackURL": "/callback"
+        }
+      },
+      "expected_output": "expectedIssuer=https://tenant.us.auth0.com/\nauthorizationURL=https://tenant.us.auth0.com/authorize\ntokenURL=https://tenant.us.auth0.com/oauth/token\nuserInfoURL=https://tenant.us.auth0.com/userinfo\napiUrl=https://tenant.us.auth0.com/api\nstate=true\n"
+    },
+    {
+      "input": {
+        "op": "config",
+        "config": {
+          "domain": "login.example.com",
+          "clientID": "sample-client",
+          "clientSecret": "sample-secret",
+          "callbackURL": "/callback",
+          "tokenURL": "https://proxy.internal/oauth/token"
+        }
+      },
+      "expected_output": "expectedIssuer=https://login.example.com/\nauthorizationURL=https://login.example.com/authorize\ntokenURL=https://proxy.internal/oauth/token\nuserInfoURL=https://login.example.com/userinfo\napiUrl=https://login.example.com/api\nstate=true\n"
+    },
+    {
+      "input": {
+        "op": "config",
+        "config": {
+          "domain": "localhost:3000",
+          "clientID": "sample-client",
+          "clientSecret": "sample-secret",
+          "callbackURL": "/callback"
+        }
+      },
+      "expected_output": "expectedIssuer=https://localhost:3000/\nauthorizationURL=https://localhost:3000/authorize\ntokenURL=https://localhost:3000/oauth/token\nuserInfoURL=https://localhost:3000/userinfo\napiUrl=https://localhost:3000/api\nstate=true\n"
+    },
+    {
+      "input": {
+        "op": "config",
+        "config": {
+          "domain": "tenant.eu.auth0.com",
+          "clientID": "sample-client",
+          "clientSecret": "sample-secret",
+          "callbackURL": "/callback",
+          "state": false
+        }
+      },
+      "expected_output": "expectedIssuer=https://tenant.eu.auth0.com/\nauthorizationURL=https://tenant.eu.auth0.com/authorize\ntokenURL=https://tenant.eu.auth0.com/oauth/token\nuserInfoURL=https://tenant.eu.auth0.com/userinfo\napiUrl=https://tenant.eu.auth0.com/api\nstate=false\n"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+    "description": "A parent transfer derives its overall progress and overall status from its child chunks. Overall progress is the average of the child progress fractions. Overall status resolves to failed if any child failed, to not-found if any child reports not-found (and none failed), to complete only once every child has completed, and is otherwise undetermined. A per-chunk status event reports the newly-derived parent status only when it changes from the previously reported one. Events drive the chunks one at a time and the output records the derived value after each event.",
+    "cases": [
+        {
+            "input": {
+                "action": "chunk_aggregate",
+                "taskId": "PA",
+                "url": "https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP",
+                "chunks": 3,
+                "contentLength": 6207471,
+                "events": [
+                    {
+                        "type": "parentProgress"
+                    },
+                    {
+                        "type": "progress",
+                        "chunk": 0,
+                        "value": 0.5
+                    },
+                    {
+                        "type": "parentStatus"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 0,
+                        "value": "complete"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 2,
+                        "value": "complete"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 1,
+                        "value": "complete"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 0,
+                        "value": "failed"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 1,
+                        "value": "failed"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 2,
+                        "value": "failed"
+                    },
+                    {
+                        "type": "parentStatus"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 0,
+                        "value": "notFound"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 1,
+                        "value": "notFound"
+                    },
+                    {
+                        "type": "status",
+                        "chunk": 2,
+                        "value": "notFound"
+                    },
+                    {
+                        "type": "parentStatus"
+                    }
+                ]
+            },
+            "expected_output": "parent_progress=0.0\nparent_progress=0.16666666666666666\nparent_status=none\nstatus_change=none\nstatus_change=none\nstatus_change=complete\nstatus_change=failed\nstatus_change=none\nstatus_change=none\nparent_status=failed\nstatus_change=none\nstatus_change=none\nstatus_change=notFound\nparent_status=notFound\n"
+        }
+    ]
+}

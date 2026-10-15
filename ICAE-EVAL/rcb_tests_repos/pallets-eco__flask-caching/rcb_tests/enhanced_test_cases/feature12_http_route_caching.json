@@ -1,0 +1,79 @@
+{
+  "description": "HTTP route caching across many normal requests, bypass-every-request, and multiple forced refreshes.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "cache http route responses",
+        "route": "/r",
+        "cache_policy": "normal",
+        "requests": [
+          {
+            "label": "a",
+            "url": "/r"
+          },
+          {
+            "label": "b",
+            "url": "/r"
+          },
+          {
+            "label": "c",
+            "url": "/r"
+          }
+        ]
+      },
+      "expected_output": "request=a status=200 url=/r body=body-1\nrequest=b status=200 url=/r body=body-1\nrequest=c status=200 url=/r body=body-1\nhandler_calls=1\n"
+    },
+    {
+      "input": {
+        "scenario": "cache http route responses",
+        "route": "/r",
+        "cache_policy": "unless_true",
+        "requests": [
+          {
+            "label": "a",
+            "url": "/r"
+          },
+          {
+            "label": "b",
+            "url": "/r"
+          },
+          {
+            "label": "c",
+            "url": "/r"
+          }
+        ]
+      },
+      "expected_output": "request=a status=200 url=/r body=body-1\nrequest=b status=200 url=/r body=body-2\nrequest=c status=200 url=/r body=body-3\nhandler_calls=3\n"
+    },
+    {
+      "input": {
+        "scenario": "cache http route responses",
+        "route": "/r",
+        "cache_policy": "forced_update",
+        "requests": [
+          {
+            "label": "a",
+            "url": "/r",
+            "force": false
+          },
+          {
+            "label": "refresh1",
+            "url": "/r",
+            "force": true
+          },
+          {
+            "label": "again",
+            "url": "/r",
+            "force": false
+          },
+          {
+            "label": "refresh2",
+            "url": "/r",
+            "force": true
+          }
+        ]
+      },
+      "expected_output": "request=a status=200 url=/r body=body-1\nrequest=refresh1 status=200 url=/r body=body-2\nrequest=again status=200 url=/r body=body-2\nrequest=refresh2 status=200 url=/r body=body-3\nhandler_calls=3\n"
+    }
+  ]
+}

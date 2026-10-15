@@ -1,0 +1,109 @@
+{
+  "description": "A per-request override replaces the configured limit while the accounting key follows the descriptor path, exercised with a zero allowance, the maximum unsigned 32-bit allowance, an override applied to a path not present in the configuration under a known domain, and an override carrying an unrecognized unit name.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k\n    value: kv\n    rate_limit:\n      unit: second\n      requests_per_unit: 9\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "k",
+              "value": "kv"
+            }
+          ],
+          "override": {
+            "requests_per_unit": 0,
+            "unit": "SECOND"
+          }
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.k_kv\nrequests_per_unit=0\nunit=SECOND\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k\n    value: kv\n    rate_limit:\n      unit: second\n      requests_per_unit: 9\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "k",
+              "value": "kv"
+            }
+          ],
+          "override": {
+            "requests_per_unit": 4294967295,
+            "unit": "DAY"
+          }
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.k_kv\nrequests_per_unit=4294967295\nunit=DAY\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k\n    value: kv\n    rate_limit:\n      unit: second\n      requests_per_unit: 9\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "x",
+              "value": "y"
+            }
+          ],
+          "override": {
+            "requests_per_unit": 7,
+            "unit": "MINUTE"
+          }
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.x_y\nrequests_per_unit=7\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k\n    value: kv\n    rate_limit:\n      unit: second\n      requests_per_unit: 9\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "k",
+              "value": "kv"
+            }
+          ],
+          "override": {
+            "requests_per_unit": 5,
+            "unit": "UNKNOWN"
+          }
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.k_kv\nrequests_per_unit=5\nunit=UNKNOWN\nunlimited=false\nshadow_mode=false\n"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+    "description": "A rate limiter. The bucket holds up to capacity tokens and gains one token every rate ticks of a caller-supplied clock. Each offer of a cost returns how many ticks the caller must wait before that cost can be paid (0 if payable immediately). The bucket starts full, caps at capacity, supports costs larger than capacity, a cost of zero, zero capacity, and clocks that start negative or run very slowly. Invalid construction (negative capacity, non-positive rate) and a negative cost are rejected as normalized errors.",
+    "cases": [
+        {
+            "input": {
+                "op": "token_bucket",
+                "capacity": 10,
+                "rate": 1,
+                "steps": [
+                    {
+                        "offer": 1
+                    },
+                    {
+                        "offer": 1
+                    },
+                    {
+                        "offer": 1
+                    },
+                    {
+                        "offer": 7
+                    },
+                    {
+                        "offer": 3
+                    }
+                ]
+            },
+            "expected_output": "offer cost=1 delay=0\noffer cost=1 delay=0\noffer cost=1 delay=0\noffer cost=7 delay=0\noffer cost=3 delay=3\n"
+        },
+        {
+            "input": {
+                "op": "token_bucket",
+                "capacity": 10,
+                "rate": 2,
+                "steps": [
+                    {
+                        "offer": 5
+                    },
+                    {
+                        "offer": 20
+                    },
+                    {
+                        "set_time": 30,
+                        "offer": 1
+                    },
+                    {
+                        "set_time": 34,
+                        "offer": 1
+                    },
+                    {
+                        "offer": 1
+                    }
+                ]
+            },
+            "expected_output": "offer cost=5 delay=0\noffer cost=20 delay=30\noffer cost=1 delay=2\noffer cost=1 delay=0\noffer cost=1 delay=2\n"
+        },
+        {
+            "input": {
+                "op": "token_bucket",
+                "capacity": 0,
+                "rate": 2,
+                "steps": [
+                    {
+                        "offer": 10
+                    },
+                    {
+                        "set_time": 40,
+                        "offer": 10
+                    }
+                ]
+            },
+            "expected_output": "offer cost=10 delay=20\noffer cost=10 delay=20\n"
+        },
+        {
+            "input": {
+                "op": "token_bucket",
+                "capacity": 10,
+                "rate": 1,
+                "steps": [
+                    {
+                        "offer": 10
+                    },
+                    {
+                        "set_time": 100000,
+                        "offer": 20
+                    }
+                ]
+            },
+            "expected_output": "offer cost=10 delay=0\noffer cost=20 delay=10\n"
+        },
+        {
+            "input": {
+                "op": "token_bucket",
+                "capacity": -1,
+                "rate": 1,
+                "steps": []
+            },
+            "expected_output": "error=negative_capacity\nparam=capacity\n"
+        },
+        {
+            "input": {
+                "op": "token_bucket",
+                "capacity": 10,
+                "rate": 0,
+                "steps": []
+            },
+            "expected_output": "error=nonpositive_rate\nparam=rate\n"
+        },
+        {
+            "input": {
+                "op": "token_bucket",
+                "capacity": 10,
+                "rate": 1,
+                "steps": [
+                    {
+                        "offer": -1
+                    }
+                ]
+            },
+            "expected_output": "error=negative_cost\nparam=cost\n"
+        }
+    ]
+}

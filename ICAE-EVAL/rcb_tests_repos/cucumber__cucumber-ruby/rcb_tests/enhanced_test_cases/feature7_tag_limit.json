@@ -1,0 +1,51 @@
+{
+  "description": "Enhanced edge cases for per-tag occurrence limit: a limit equal to the actual count (not exceeded, so the run proceeds normally), and a zero limit on a present tag (exceeded, reported as a configuration error with every carrying location).",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--tags",
+          "@one:2"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nsteps total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Example line=4 status=passed\nscenario keyword=Scenario name=Another line=7 status=passed\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--tags",
+          "@three:0"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "error=tag_limit_exceeded\ntag=@three\nlimit=0\ncount=2\nlocation=features/test.feature:4\nlocation=features/test.feature:10\nresult=error\n"
+    }
+  ]
+}

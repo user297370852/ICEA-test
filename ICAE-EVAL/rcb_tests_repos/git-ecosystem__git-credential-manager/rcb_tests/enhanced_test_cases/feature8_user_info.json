@@ -1,0 +1,54 @@
+{
+  "description": "Enhanced: user-info extraction - no userinfo with path, empty username with password, username only (unset password), encoded characters in both fields, and multiple colons in the password.",
+  "cases": [
+    {
+      "input": {
+        "op": "user_info",
+        "uri": "https://example.com/some/path"
+      },
+      "expected_output": "present=false\n"
+    },
+    {
+      "input": {
+        "op": "user_info",
+        "uri": "https://:@example.com"
+      },
+      "expected_output": "present=true\nusername=\npassword=\n"
+    },
+    {
+      "input": {
+        "op": "user_info",
+        "uri": "https://onlyuser@example.com"
+      },
+      "expected_output": "present=true\nusername=onlyuser\npassword=<unset>\n"
+    },
+    {
+      "input": {
+        "op": "user_info",
+        "uri": "https://a%40b:p%3Aq@example.com"
+      },
+      "expected_output": "present=true\nusername=a@b\npassword=p:q\n"
+    },
+    {
+      "input": {
+        "op": "user_info",
+        "uri": "https://user:pa:ss:word@example.com"
+      },
+      "expected_output": "present=true\nusername=user\npassword=pa:ss:word\n"
+    },
+    {
+      "input": {
+        "op": "user_info",
+        "uri": "https://%E2%9C%93user:%E2%9C%93pass@example.com"
+      },
+      "expected_output": "present=true\nusername=✓user\npassword=✓pass\n"
+    },
+    {
+      "input": {
+        "op": "user_info",
+        "uri": "ssh://git@example.com"
+      },
+      "expected_output": "present=true\nusername=git\npassword=<unset>\n"
+    }
+  ]
+}

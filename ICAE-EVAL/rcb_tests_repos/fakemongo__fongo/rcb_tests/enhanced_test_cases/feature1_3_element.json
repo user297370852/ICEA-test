@@ -1,0 +1,78 @@
+{
+  "description": "A document matcher evaluates structural conditions, covering boundary inputs: an array-size condition for an empty array, an existence condition selecting documents in which the field is absent, and a single-element array-size condition where some documents hold the null value. Documents are returned in their original order.",
+  "cases": [
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$size": 0
+          }
+        },
+        "documents": [
+          {
+            "a": []
+          },
+          {
+            "a": [
+              1
+            ]
+          },
+          {
+            "a": null
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ ]}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$exists": false
+          }
+        },
+        "documents": [
+          {
+            "a": 1
+          },
+          {
+            "b": 2
+          },
+          {
+            "a": null
+          }
+        ]
+      },
+      "expected_output": "{ \"b\" : 2}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$size": 1
+          }
+        },
+        "documents": [
+          {
+            "a": [
+              1
+            ]
+          },
+          {
+            "a": [
+              1,
+              2
+            ]
+          },
+          {
+            "a": null
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ 1]}\n"
+    }
+  ]
+}

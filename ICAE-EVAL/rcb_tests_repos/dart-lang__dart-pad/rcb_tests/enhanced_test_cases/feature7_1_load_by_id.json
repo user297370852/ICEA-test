@@ -1,0 +1,20 @@
+{
+    "description": "Boundary coverage for load-by-identifier: a distinct unknown id surfaces content_not_found at status 404, and an over-quota response on an otherwise-unknown id still short-circuits to rate_limit_exceeded at status 403 with the requested URL preserved.",
+    "cases": [
+        {
+            "input": {
+                "action": "load_gist",
+                "id": "deadbeefcafe"
+            },
+            "expected_output": "request=https://api.github.com/gists/deadbeefcafe\nstatus=404\nerror=content_not_found\n"
+        },
+        {
+            "input": {
+                "action": "load_gist",
+                "id": "12345678901234567890123456789000",
+                "rate_limited": true
+            },
+            "expected_output": "request=https://api.github.com/gists/12345678901234567890123456789000\nstatus=403\nerror=rate_limit_exceeded\n"
+        }
+    ]
+}

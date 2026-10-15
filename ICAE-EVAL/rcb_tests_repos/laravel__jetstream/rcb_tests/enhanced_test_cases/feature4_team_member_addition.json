@@ -1,0 +1,99 @@
+{
+  "description": "Member addition role logic: a wildcard ('*') role grants every checked permission, a multi-permission role grants only listed permissions, and an unregistered role key fails validation on the role field.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "add_team_member",
+        "roles": [
+          {
+            "key": "super",
+            "name": "Super",
+            "permissions": [
+              "*"
+            ]
+          }
+        ],
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team_name": "T",
+        "member": {
+          "name": "M",
+          "email": "m@e.com",
+          "password": "secret"
+        },
+        "role": "super",
+        "check_permissions": [
+          "anything",
+          "other"
+        ]
+      },
+      "expected_output": "member_count=1\nmember_email=m@e.com\nrole=super\ncan_anything=yes\ncan_other=yes\n"
+    },
+    {
+      "input": {
+        "scenario": "add_team_member",
+        "roles": [
+          {
+            "key": "ed",
+            "name": "Ed",
+            "permissions": [
+              "read",
+              "write"
+            ]
+          }
+        ],
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team_name": "T",
+        "member": {
+          "name": "M",
+          "email": "m@e.com",
+          "password": "secret"
+        },
+        "role": "ed",
+        "check_permissions": [
+          "write",
+          "delete"
+        ]
+      },
+      "expected_output": "member_count=1\nmember_email=m@e.com\nrole=ed\ncan_write=yes\ncan_delete=no\n"
+    },
+    {
+      "input": {
+        "scenario": "add_team_member",
+        "roles": [
+          {
+            "key": "admin",
+            "name": "A",
+            "permissions": [
+              "foo"
+            ]
+          }
+        ],
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team_name": "T",
+        "member": {
+          "name": "M",
+          "email": "m@e.com",
+          "password": "secret"
+        },
+        "role": "ghost",
+        "check_permissions": [
+          "foo",
+          "bar"
+        ]
+      },
+      "expected_output": "error=validation_failed\nfield=role\nmessage=The role must be a valid role.\n"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+    "description": "Parse an LDAP search filter string into a node tree and reassemble it into canonical form. The output reports \"nodes=\", a JSON tree where each group node is {group: operator, nodes: [...]} and each leaf condition is {attribute, operator, value}, followed by \"assembled=\", the canonical filter rebuilt from that tree. Reassembly drops redundant surrounding parentheses and insignificant whitespace while preserving spaces inside values, and supports several sibling root nodes. A structurally invalid filter (unbalanced parentheses, an unclosed nested group, or a malformed condition) is reported as a single neutral error line \"error=parser_exception\".",
+    "cases": [
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(|(foo=bar)(:baz:~=zal))"
+            },
+            "expected_output": "nodes=[{\"group\":\"|\",\"nodes\":[{\"attribute\":\"foo\",\"operator\":\"=\",\"value\":\"bar\"},{\"attribute\":\":baz:\",\"operator\":\"~=\",\"value\":\"zal\"}]}]\nassembled=(|(foo=bar)(:baz:~=zal))\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(&(objectCategory=person)(objectClass=contact)(|(sn=Smith)(sn=Johnson)))"
+            },
+            "expected_output": "nodes=[{\"group\":\"&\",\"nodes\":[{\"attribute\":\"objectCategory\",\"operator\":\"=\",\"value\":\"person\"},{\"attribute\":\"objectClass\",\"operator\":\"=\",\"value\":\"contact\"},{\"group\":\"|\",\"nodes\":[{\"attribute\":\"sn\",\"operator\":\"=\",\"value\":\"Smith\"},{\"attribute\":\"sn\",\"operator\":\"=\",\"value\":\"Johnson\"}]}]}]\nassembled=(&(objectCategory=person)(objectClass=contact)(|(sn=Smith)(sn=Johnson)))\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(((|(foo=bar)(:baz:~=zal))))"
+            },
+            "expected_output": "nodes=[{\"group\":\"|\",\"nodes\":[{\"attribute\":\"foo\",\"operator\":\"=\",\"value\":\"bar\"},{\"attribute\":\":baz:\",\"operator\":\"~=\",\"value\":\"zal\"}]}]\nassembled=(|(foo=bar)(:baz:~=zal))\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "   (  |( foo=bar)( :baz:~=zal )   )   "
+            },
+            "expected_output": "nodes=[{\"group\":\"|\",\"nodes\":[{\"attribute\":\"foo\",\"operator\":\"=\",\"value\":\"bar\"},{\"attribute\":\":baz:\",\"operator\":\"~=\",\"value\":\"zal\"}]}]\nassembled=(|(foo=bar)(:baz:~=zal))\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(|(foo=bar baz zal))"
+            },
+            "expected_output": "nodes=[{\"group\":\"|\",\"nodes\":[{\"attribute\":\"foo\",\"operator\":\"=\",\"value\":\"bar baz zal\"}]}]\nassembled=(|(foo=bar baz zal))\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(cn=Steve)(sn=Bauman)"
+            },
+            "expected_output": "nodes=[{\"attribute\":\"cn\",\"operator\":\"=\",\"value\":\"Steve\"},{\"attribute\":\"sn\",\"operator\":\"=\",\"value\":\"Bauman\"}]\nassembled=(cn=Steve)(sn=Bauman)\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(foo=bar)"
+            },
+            "expected_output": "nodes=[{\"attribute\":\"foo\",\"operator\":\"=\",\"value\":\"bar\"}]\nassembled=(foo=bar)\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(|(foo=bar)(:baz:~=zal)))"
+            },
+            "expected_output": "error=parser_exception\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "((|(foo=bar)(:baz:~=zal))"
+            },
+            "expected_output": "error=parser_exception\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "((|(foo=bar):baz:~=zal))"
+            },
+            "expected_output": "error=parser_exception\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(foo=bar=baz)"
+            },
+            "expected_output": "error=parser_exception\n"
+        }
+    ]
+}

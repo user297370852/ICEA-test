@@ -1,0 +1,117 @@
+{
+  "description": "Cascading-teardown boundaries: destroying a mid-tree node cascades only to its subtree (siblings/ancestors stay alive), and a deep chain tears down fully.",
+  "cases": [
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "build_child",
+            "id": "a",
+            "parent": "r",
+            "name": "a"
+          },
+          {
+            "op": "build_child",
+            "id": "b",
+            "parent": "r",
+            "name": "b"
+          },
+          {
+            "op": "build_child",
+            "id": "a1",
+            "parent": "a",
+            "name": "a1"
+          },
+          {
+            "op": "build_child",
+            "id": "a2",
+            "parent": "a",
+            "name": "a2"
+          },
+          {
+            "op": "destroy",
+            "scope": "a"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "r"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "b"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "a"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "a1"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "a2"
+          }
+        ]
+      },
+      "expected_output": "destroyed[r]=false\ndestroyed[b]=false\ndestroyed[a]=true\ndestroyed[a1]=true\ndestroyed[a2]=true\n"
+    },
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "build_child",
+            "id": "a",
+            "parent": "r",
+            "name": "a"
+          },
+          {
+            "op": "build_child",
+            "id": "b",
+            "parent": "a",
+            "name": "b"
+          },
+          {
+            "op": "build_child",
+            "id": "c",
+            "parent": "b",
+            "name": "c"
+          },
+          {
+            "op": "destroy",
+            "scope": "r"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "r"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "a"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "b"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "c"
+          }
+        ]
+      },
+      "expected_output": "destroyed[r]=true\ndestroyed[a]=true\ndestroyed[b]=true\ndestroyed[c]=true\n"
+    }
+  ]
+}

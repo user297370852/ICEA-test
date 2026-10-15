@@ -1,0 +1,60 @@
+{
+  "description": "Derive MIME type and encoding from assorted content-type headers (uppercase charset, no charset, uppercase media type, parameter ordering) and observe rewriting under utf8 and ascii body encodings.",
+  "cases": [
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "text/plain; charset=UTF-8"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=utf-8\nheaders[content-length]=0\nheaders[content-type]=text/plain; charset=UTF-8\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "application/json"
+        }
+      },
+      "expected_output": "mimeType=application/json\nencoding=null\nheaders[content-length]=0\nheaders[content-type]=application/json\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "TEXT/HTML; charset=us-ascii"
+        }
+      },
+      "expected_output": "mimeType=text/html\nencoding=us-ascii\nheaders[content-length]=0\nheaders[content-type]=TEXT/HTML; charset=us-ascii\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "body": "hi",
+        "encoding": "utf8"
+      },
+      "expected_output": "mimeType=application/octet-stream\nencoding=utf-8\nheaders[content-length]=2\nheaders[content-type]=application/octet-stream; charset=utf-8\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "body": "hi",
+        "encoding": "ascii",
+        "headers": {
+          "content-type": "text/plain"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=us-ascii\nheaders[content-length]=2\nheaders[content-type]=text/plain; charset=us-ascii\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "image/png"
+        }
+      },
+      "expected_output": "mimeType=image/png\nencoding=null\nheaders[content-length]=0\nheaders[content-type]=image/png\n"
+    }
+  ]
+}

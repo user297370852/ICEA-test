@@ -1,0 +1,155 @@
+{
+  "description": "Synthetic native-disjoint edge coverage for the backport catalog: render indentation boundaries, exact pinned membership, version stripping edge semantics, empty/custom unversioned sets, and expansion for single/no-entry modules.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "indent": 0
+      },
+      "expected_output": "argparse               - https://pypi.org/project/argparse/ (2.3, 3.1)\nasyncio                - https://pypi.org/project/asyncio/ (!2, 3.3)\nconfigparser           - https://pypi.org/project/configparser/ (2.6, 3.0)\ncontextvars            - https://pypi.org/project/contextvars/ (!2, 3.5)\ndataclasses            - https://pypi.org/project/dataclasses/ (!2, 3.6)\nenum                   - https://pypi.org/project/enum34/ (2.4, 3.3)\nfaulthandler           - https://pypi.org/project/faulthandler/ (2.6, 3.0)\nimportlib              - https://pypi.org/project/importlib/ (2.3, 3.0)\nipaddress              - https://pypi.org/project/ipaddress/ (2.6, 3.2)\nmock                   - https://pypi.org/project/mock/ (!2, 3.6)\nstatistics             - https://pypi.org/project/statistics/ (2.6, 3.4)\ntyping                 - https://pypi.org/project/typing/ (2.7, 3.2)\ntyping_extensions==4.0 - https://pypi.org/project/typing-extensions/4.0.0/ (!2, 3.6)\ntyping_extensions==4.3 - https://pypi.org/project/typing-extensions/4.3.0/ (!2, 3.7)\ntyping_extensions      - https://pypi.org/project/typing-extensions/4.3.0/ (!2, 3.7)\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "indent": 8
+      },
+      "expected_output": "        argparse               - https://pypi.org/project/argparse/ (2.3, 3.1)\n        asyncio                - https://pypi.org/project/asyncio/ (!2, 3.3)\n        configparser           - https://pypi.org/project/configparser/ (2.6, 3.0)\n        contextvars            - https://pypi.org/project/contextvars/ (!2, 3.5)\n        dataclasses            - https://pypi.org/project/dataclasses/ (!2, 3.6)\n        enum                   - https://pypi.org/project/enum34/ (2.4, 3.3)\n        faulthandler           - https://pypi.org/project/faulthandler/ (2.6, 3.0)\n        importlib              - https://pypi.org/project/importlib/ (2.3, 3.0)\n        ipaddress              - https://pypi.org/project/ipaddress/ (2.6, 3.2)\n        mock                   - https://pypi.org/project/mock/ (!2, 3.6)\n        statistics             - https://pypi.org/project/statistics/ (2.6, 3.4)\n        typing                 - https://pypi.org/project/typing/ (2.7, 3.2)\n        typing_extensions==4.0 - https://pypi.org/project/typing-extensions/4.0.0/ (!2, 3.6)\n        typing_extensions==4.3 - https://pypi.org/project/typing-extensions/4.3.0/ (!2, 3.7)\n        typing_extensions      - https://pypi.org/project/typing-extensions/4.3.0/ (!2, 3.7)\n"
+    },
+    {
+      "input": {
+        "op": "is_backport",
+        "module": "typing_extensions==4.3"
+      },
+      "expected_output": "identifier=typing_extensions==4.3\nis_backport=true\n"
+    },
+    {
+      "input": {
+        "op": "is_backport",
+        "module": "typing_extensions==4.1"
+      },
+      "expected_output": "identifier=typing_extensions==4.1\nis_backport=false\n"
+    },
+    {
+      "input": {
+        "op": "is_backport",
+        "module": "Typing"
+      },
+      "expected_output": "identifier=Typing\nis_backport=false\n"
+    },
+    {
+      "input": {
+        "op": "is_backport",
+        "module": "typing==3.7"
+      },
+      "expected_output": "identifier=typing==3.7\nis_backport=false\n"
+    },
+    {
+      "input": {
+        "op": "strip_version",
+        "module": "pkg=="
+      },
+      "expected_output": "input=pkg==\nidentifier=pkg==\n"
+    },
+    {
+      "input": {
+        "op": "strip_version",
+        "module": "pkg==1.2==3"
+      },
+      "expected_output": "input=pkg==1.2==3\nidentifier=pkg\n"
+    },
+    {
+      "input": {
+        "op": "strip_version",
+        "module": "pkg-name==1.0"
+      },
+      "expected_output": "input=pkg-name==1.0\nidentifier=pkg-name==1.0\n"
+    },
+    {
+      "input": {
+        "op": "strip_version",
+        "module": "alpha.beta_gamma==2020.04rc1"
+      },
+      "expected_output": "input=alpha.beta_gamma==2020.04rc1\nidentifier=alpha.beta_gamma\n"
+    },
+    {
+      "input": {
+        "op": "strip_version",
+        "module": "==1.0"
+      },
+      "expected_output": "input===1.0\nidentifier===1.0\n"
+    },
+    {
+      "input": {
+        "op": "strip_version",
+        "module": "pkg=1.0"
+      },
+      "expected_output": "input=pkg=1.0\nidentifier=pkg=1.0\n"
+    },
+    {
+      "input": {
+        "op": "unversioned",
+        "modules": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "op": "unversioned",
+        "modules": [
+          "zeta==9",
+          "alpha",
+          "alpha==1",
+          "alpha==2",
+          "pkg.name==3",
+          "pkg.name",
+          "typing_extensions==4.3",
+          "typing_extensions==4.0",
+          "typing_extensions"
+        ]
+      },
+      "expected_output": "identifier=alpha\nidentifier=pkg.name\nidentifier=typing_extensions\nidentifier=zeta\n"
+    },
+    {
+      "input": {
+        "op": "unversioned",
+        "modules": [
+          "b==2",
+          "a==1",
+          "b",
+          "a",
+          "a==3",
+          "c.module==x"
+        ]
+      },
+      "expected_output": "identifier=a\nidentifier=b\nidentifier=c.module\n"
+    },
+    {
+      "input": {
+        "op": "expand",
+        "module": "argparse"
+      },
+      "expected_output": "entries=1\n[1]\nidentifier=argparse\nurl=https://pypi.org/project/argparse/\nversions=2.3, 3.1\n"
+    },
+    {
+      "input": {
+        "op": "expand",
+        "module": "asyncio"
+      },
+      "expected_output": "entries=1\n[1]\nidentifier=asyncio\nurl=https://pypi.org/project/asyncio/\nversions=!2, 3.3\n"
+    },
+    {
+      "input": {
+        "op": "expand",
+        "module": "typing_extensions==4.3"
+      },
+      "expected_output": "entries=0\n"
+    },
+    {
+      "input": {
+        "op": "expand",
+        "module": "not_a_backport"
+      },
+      "expected_output": "entries=0\n"
+    }
+  ]
+}

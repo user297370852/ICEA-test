@@ -1,0 +1,225 @@
+{
+  "description": "Enhanced boundary/edge coverage for notification message templating (format_notification). Covers: multiple templates applied in order (later body overrides), missing/absent variables rendering as '<no value>', deep (3-level) nested dotted path access, partial nested path miss, several sprig text helpers via the pipe operator (lower/trim/title/repeat/default), empty template body, non-string variable types (int/bool), an empty apply list, a missing template that is not first in the apply list, and a template parse failure caused by the disabled 'env' helper. Expected outputs are the raw adapter stdout captured from the reference implementation.",
+  "cases": [
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "a": {
+            "message": "AAA {{.x}}"
+          },
+          "b": {
+            "message": "BBB {{.x}}"
+          }
+        },
+        "apply": [
+          "a",
+          "b"
+        ],
+        "vars": {
+          "x": "1"
+        }
+      },
+      "expected_output": "message=BBB 1\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "val={{.missing}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {}
+      },
+      "expected_output": "message=val=<no value>\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "{{.a.b.c}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {
+          "a": {
+            "b": {
+              "c": "deep"
+            }
+          }
+        }
+      },
+      "expected_output": "message=deep\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "v={{.a.b}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {
+          "a": {
+            "x": "1"
+          }
+        }
+      },
+      "expected_output": "message=v=<no value>\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "{{.a | lower}}|{{.b | trim}}|{{.c | title}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {
+          "a": "HELLO",
+          "b": "  hi  ",
+          "c": "hello world"
+        }
+      },
+      "expected_output": "message=hello|hi|Hello World\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "{{.x | repeat 3}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {
+          "x": "ab"
+        }
+      },
+      "expected_output": "message=ababab\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "{{.x | default \"fallback\"}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {}
+      },
+      "expected_output": "message=fallback\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": ""
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {}
+      },
+      "expected_output": "message=\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "n={{.n}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {
+          "n": 42
+        }
+      },
+      "expected_output": "message=n=42\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "b={{.b}}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {
+          "b": true
+        }
+      },
+      "expected_output": "message=b=true\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "x"
+          }
+        },
+        "apply": [],
+        "vars": {}
+      },
+      "expected_output": "message=\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "a": {
+            "message": "x"
+          }
+        },
+        "apply": [
+          "a",
+          "z"
+        ],
+        "vars": {}
+      },
+      "expected_output": "error=unsupported_template\ntemplate=z\n"
+    },
+    {
+      "input": {
+        "action": "format_notification",
+        "templates": {
+          "s": {
+            "message": "{{ env \"X\" }}"
+          }
+        },
+        "apply": [
+          "s"
+        ],
+        "vars": {}
+      },
+      "expected_output": "error=template_parse\n"
+    }
+  ]
+}

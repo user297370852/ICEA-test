@@ -1,0 +1,149 @@
+{
+  "description": "Register a list of webhook definitions as routes, expanding any definition whose method is a list into one route per method and normalizing the verb casing of the emitted routes. Validation runs over every definition first; if any definition is invalid the whole operation fails with a neutral error category and no routes are emitted. The output is the ordered list of registered routes, each shown as the upper-case HTTP verb and the path, one route per line.",
+  "cases": [
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": "POST",
+            "path": "/foo",
+            "command": "echo bar"
+          }
+        ]
+      },
+      "expected_output": "POST /foo\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": "put",
+            "path": "/api",
+            "command": "echo bar"
+          }
+        ]
+      },
+      "expected_output": "PUT /api\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": [
+              "get",
+              "post"
+            ],
+            "path": "/hello",
+            "command": "echo bar"
+          }
+        ]
+      },
+      "expected_output": "GET /hello\nPOST /hello\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": "GET",
+            "path": "/a",
+            "command": "echo a"
+          },
+          {
+            "method": "DELETE",
+            "path": "/b",
+            "command": "echo b"
+          }
+        ]
+      },
+      "expected_output": "GET /a\nDELETE /b\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": [
+              "GET",
+              "GET"
+            ],
+            "path": "/dup",
+            "command": "echo d"
+          }
+        ]
+      },
+      "expected_output": "GET /dup\nGET /dup\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": "GET",
+            "path": "/ok",
+            "command": "echo ok"
+          },
+          {
+            "method": "NONSENSE",
+            "path": "/bad",
+            "command": "echo bad"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_hook\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": [
+              "GET",
+              "PATCH"
+            ],
+            "path": "/x",
+            "command": "echo x"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_hook\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": "GET",
+            "path": "/bad path",
+            "command": "echo x"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_hook\n"
+    },
+    {
+      "input": {
+        "feature": "register",
+        "hooks": [
+          {
+            "method": [
+              "POST",
+              "PUT"
+            ],
+            "path": "/m",
+            "command": "echo m"
+          },
+          {
+            "method": "GET",
+            "path": "/n",
+            "command": "echo n"
+          }
+        ]
+      },
+      "expected_output": "POST /m\nPUT /m\nGET /n\n"
+    }
+  ]
+}

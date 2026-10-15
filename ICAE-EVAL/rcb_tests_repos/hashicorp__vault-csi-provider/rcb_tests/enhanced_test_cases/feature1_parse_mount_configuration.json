@@ -1,0 +1,19 @@
+{
+  "description": "Additional mount parsing coverage for multiple ordered objects, permission extremes, false TLS flags, path/query preservation, and mixed secret arguments.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_mount_configuration",
+        "target_path": "/var/run/secrets",
+        "default_file_permission": 493,
+        "parameters": {
+          "roleName": "multi-role",
+          "vaultSkipTLSVerify": "FALSE",
+          "vaultAddress": "https://vault.service:8200",
+          "objects": "- objectName: \"alpha.txt\"\n  secretPath: \"/secret/data/alpha\"\n  secretKey: \"password\"\n  filePermission: 0000\n- objectName: \"beta.json\"\n  secretPath: \"v1/kv/beta?version=2\"\n  method: \"POST\"\n  secretArgs:\n    enabled: false\n    count: \"03\"\n  filePermission: 0777\n- objectName: \"gamma\"\n  secretPath: \"transit/decrypt/key\"\n  secretKey: \"plaintext\"\n  method: \"PUT\"\n  secretArgs:\n    ciphertext: \"vault:v1:abc\"\n"
+        }
+      },
+      "expected_output": "target_path=/var/run/secrets\nfile_permission_decimal=493\nrole=multi-role\nvault_address=https://vault.service:8200\nvault_namespace=\nauth_mount_path=\ntls_insecure=false\ntls_ca_cert=\ntls_ca_directory=\ntls_server_name=\ntls_client_cert=\ntls_client_key=\npod_name=\npod_uid=\npod_namespace=\npod_service_account=\naudience=\nsecrets_count=3\nsecret[0].object_name=alpha.txt\nsecret[0].secret_path=/secret/data/alpha\nsecret[0].secret_key=password\nsecret[0].method=\nsecret[0].file_permission_decimal=0\nsecret[0].args_json=null\nsecret[1].object_name=beta.json\nsecret[1].secret_path=v1/kv/beta?version=2\nsecret[1].secret_key=\nsecret[1].method=POST\nsecret[1].file_permission_decimal=511\nsecret[1].args_json={\"count\":\"03\",\"enabled\":false}\nsecret[2].object_name=gamma\nsecret[2].secret_path=transit/decrypt/key\nsecret[2].secret_key=plaintext\nsecret[2].method=PUT\nsecret[2].file_permission_decimal=0\nsecret[2].args_json={\"ciphertext\":\"vault:v1:abc\"}\n"
+    }
+  ]
+}

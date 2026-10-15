@@ -1,0 +1,63 @@
+{
+    "description": "A successful grant-code authorization redirects back to the target with a code query parameter present, echoes the caller's state value unchanged, strips any unknown extra request parameters from the outgoing redirect, and binds no identity assertion to the issued code when no identity scope was requested.",
+    "cases": [
+        {
+            "input": {
+                "steps": [
+                    {
+                        "action": "authorize",
+                        "is_authorized": true,
+                        "request": {
+                            "client_id": "Test Client ID",
+                            "redirect_uri": "http://adobe.com",
+                            "response_type": "code",
+                            "state": "xyz"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=xyz\nissued.identity_token=absent\n"
+        },
+        {
+            "input": {
+                "steps": [
+                    {
+                        "action": "authorize",
+                        "is_authorized": true,
+                        "request": {
+                            "client_id": "Test Client ID",
+                            "redirect_uri": "http://adobe.com",
+                            "response_type": "code",
+                            "state": "test"
+                        }
+                    }
+                ],
+                "config": {
+                    "allow_implicit": true
+                }
+            },
+            "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=test\nissued.identity_token=absent\n"
+        },
+        {
+            "input": {
+                "steps": [
+                    {
+                        "action": "authorize",
+                        "is_authorized": true,
+                        "request": {
+                            "client_id": "Test Client ID",
+                            "redirect_uri": "http://adobe.com",
+                            "response_type": "code",
+                            "state": "test",
+                            "fake": "something"
+                        }
+                    }
+                ],
+                "config": {
+                    "allow_implicit": true
+                }
+            },
+            "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=test\nissued.identity_token=absent\n"
+        }
+    ]
+}

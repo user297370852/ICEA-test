@@ -1,0 +1,119 @@
+{
+  "description": "Enhanced coverage for the email/password sign-in flow: a fully successful sign-in (credential verification followed by profile retrieval) that reports a signed-in session, plus several distinct backend failures each normalized to its own stable hyphenated error category, including a failure message that carries trailing detail after a space (only the leading code token is normalized).",
+  "cases": [
+    {
+      "input": {
+        "action": "sign_in",
+        "email": "ok@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "credential": {
+            "status": 200,
+            "body": {
+              "idToken": "tok-ok",
+              "email": "ok@example.com",
+              "refreshToken": "refresh-ok",
+              "localId": "uid-ok",
+              "registered": true
+            }
+          },
+          "account": {
+            "status": 200,
+            "body": {
+              "users": [
+                {
+                  "localId": "uid-ok",
+                  "email": "ok@example.com",
+                  "createdAt": "1600000000000",
+                  "lastLoginAt": "1600000005000",
+                  "providerUserInfo": [
+                    {
+                      "providerId": "password"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "signed_in=true\n"
+    },
+    {
+      "input": {
+        "action": "sign_in",
+        "email": "wrong@example.com",
+        "password": "bad",
+        "responses": {
+          "credential": {
+            "status": 400,
+            "body": {
+              "error": {
+                "code": 400,
+                "message": "INVALID_PASSWORD"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=invalid-password\n"
+    },
+    {
+      "input": {
+        "action": "sign_in",
+        "email": "disabled@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "credential": {
+            "status": 400,
+            "body": {
+              "error": {
+                "code": 400,
+                "message": "USER_DISABLED"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=user-disabled\n"
+    },
+    {
+      "input": {
+        "action": "sign_in",
+        "email": "throttled@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "credential": {
+            "status": 400,
+            "body": {
+              "error": {
+                "code": 400,
+                "message": "TOO_MANY_ATTEMPTS_TRY_LATER"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=too-many-attempts-try-later\n"
+    },
+    {
+      "input": {
+        "action": "sign_in",
+        "email": "detail@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "credential": {
+            "status": 400,
+            "body": {
+              "error": {
+                "code": 400,
+                "message": "INVALID_PASSWORD : The password is invalid or the user does not have a password."
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=invalid-password\n"
+    }
+  ]
+}

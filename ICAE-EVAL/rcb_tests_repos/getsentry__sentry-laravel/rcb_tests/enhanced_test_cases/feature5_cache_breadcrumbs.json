@@ -1,0 +1,62 @@
+{
+  "description": "Cache breadcrumb edge cases: longer mixed operation sequences keep only the last breadcrumb, forgetting a missing key emits nothing, and disabled caching stays silent.",
+  "cases": [
+    {
+      "input": {
+        "feature": "cache_breadcrumbs",
+        "enabled": true,
+        "operations": [
+          {
+            "action": "put",
+            "key": "a",
+            "value": "1"
+          },
+          {
+            "action": "get",
+            "key": "a"
+          },
+          {
+            "action": "get",
+            "key": "b"
+          },
+          {
+            "action": "forget",
+            "key": "a"
+          }
+        ]
+      },
+      "expected_output": "breadcrumb_count=4\nbreadcrumb_exists=true\nbreadcrumb_category=cache\nbreadcrumb_level=info\nbreadcrumb_message=Forgotten: a\nbreadcrumb_metadata=[]\n"
+    },
+    {
+      "input": {
+        "feature": "cache_breadcrumbs",
+        "enabled": true,
+        "operations": [
+          {
+            "action": "forget",
+            "key": "ghost"
+          }
+        ]
+      },
+      "expected_output": "breadcrumb_count=0\nbreadcrumb_exists=false\n"
+    },
+    {
+      "input": {
+        "feature": "cache_breadcrumbs",
+        "enabled": false,
+        "operations": [
+          {
+            "action": "put",
+            "key": "a",
+            "value": "1"
+          },
+          {
+            "action": "get",
+            "key": "a"
+          }
+        ]
+      },
+      "expected_output": "breadcrumb_count=0\nbreadcrumb_exists=false\n"
+    }
+  ]
+}

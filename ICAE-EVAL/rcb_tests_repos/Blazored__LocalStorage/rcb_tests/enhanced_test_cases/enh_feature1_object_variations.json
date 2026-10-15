@@ -1,0 +1,113 @@
+{
+  "description": "Structured-object round-trips with field variations: special characters and quotes in the name, non-ASCII characters, a null name, and large id values. The serialized JSON object preserves field order (Id then Name) and escapes as the serializer dictates.",
+  "cases": [
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "object",
+            "value": {
+              "Id": 7,
+              "Name": "O'Brien \"Jr\""
+            }
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "object"
+          }
+        ]
+      },
+      "expected_output": "value={\"Id\":7,\"Name\":\"O\\u0027Brien \\u0022Jr\\u0022\"}\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "object",
+            "value": {
+              "Id": 3,
+              "Name": "café déjà"
+            }
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "object"
+          }
+        ]
+      },
+      "expected_output": "value={\"Id\":3,\"Name\":\"caf\\u00E9 d\\u00E9j\\u00E0\"}\n"
+    },
+    {
+      "input": {
+        "mode": "async",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "object",
+            "value": {
+              "Id": 9
+            }
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "object"
+          }
+        ]
+      },
+      "expected_output": "value={\"Id\":9,\"Name\":null}\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "object",
+            "value": {
+              "Id": 2147483647,
+              "Name": "Max"
+            }
+          },
+          {
+            "op": "get_string",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "raw={\"Id\":2147483647,\"Name\":\"Max\"}\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "object",
+            "value": {
+              "Id": 0,
+              "Name": "a\\b/c"
+            }
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "object"
+          }
+        ]
+      },
+      "expected_output": "value={\"Id\":0,\"Name\":\"a\\\\b/c\"}\n"
+    }
+  ]
+}

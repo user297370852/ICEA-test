@@ -1,0 +1,93 @@
+{
+    "description": "Restrict an argument's accepted values to a fixed set or a numeric range, validating each operand after type conversion. A value within the allowed set/range is accepted and bound; a value outside it is rejected with a diagnostic that names the offending value and lists the allowed choices (a brace-enclosed enumeration for a set, or a brace-enclosed 'low..high' span for a range). The same validation applies to embedded values of a multi-value argument.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "choices": [
+                            "chocolate",
+                            "icecream",
+                            "froyo"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "icecream"
+                ]
+            },
+            "expected_output": "foo=icecream\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "choices": [
+                            "chocolate",
+                            "icecream",
+                            "froyo"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "pudding"
+                ]
+            },
+            "expected_output": "error: argument --foo: invalid choice: 'pudding' (choose from {chocolate,icecream,froyo})\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--port"
+                        ],
+                        "type": "int",
+                        "choices": {
+                            "range": [
+                                1025,
+                                65535
+                            ]
+                        }
+                    }
+                ],
+                "argv": [
+                    "--port",
+                    "3000"
+                ]
+            },
+            "expected_output": "port=3000\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--port"
+                        ],
+                        "type": "int",
+                        "choices": {
+                            "range": [
+                                1025,
+                                65535
+                            ]
+                        }
+                    }
+                ],
+                "argv": [
+                    "--port",
+                    "80"
+                ]
+            },
+            "expected_output": "error: argument --port: invalid choice: '80' (choose from {1025..65535})\n"
+        }
+    ]
+}

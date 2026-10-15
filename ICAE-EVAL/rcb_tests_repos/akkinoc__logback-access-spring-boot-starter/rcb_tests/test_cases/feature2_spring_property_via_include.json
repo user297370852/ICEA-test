@@ -1,0 +1,32 @@
+{
+  "description": "The same environment-sourced variable declarations are placed in a separate document that the main document pulls in by reference. Resolution, fallback, and rejection behave identically to the inline form, demonstrating that referenced documents participate fully in variable resolution. The engine reports each active output target with its resolved pattern and the number of rejected declarations.",
+  "cases": [
+    {
+      "input": {
+        "mode": "configure",
+        "entry": "main.xml",
+        "documents": {
+          "main.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration>\n    <include resource=\"logback-access-test-spring.property-as-include.included.xml\"/>\n</configuration>\n",
+          "logback-access-test-spring.property-as-include.included.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<included>\n    <springProperty\n            name=\"console_pattern_prefix\"\n            source=\"logback.access.test.console.pattern.prefix\"/>\n    <springProperty\n            name=\"console_pattern_body\"\n            source=\"logback.access.test.console.pattern.body\"\n            defaultValue=\"%h %l %u [%t] &quot;%r&quot; %s %b\"/>\n    <springProperty\n            name=\"console_pattern_suffix\"\n            source=\"logback.access.test.console.pattern.suffix\"\n            defaultValue=\";\"/>\n    <springProperty name=\"ignored_source_is_blank\" source=\"\"/>\n    <springProperty name=\"ignored_source_is_missing\"/>\n    <springProperty name=\"\" source=\"logback.access.test.ignored.name-is-blank\"/>\n    <springProperty source=\"logback.access.test.ignored.name-is-missing\"/>\n    <appender name=\"console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n        <encoder>\n            <pattern>${console_pattern_prefix}${console_pattern_body}${console_pattern_suffix}</pattern>\n        </encoder>\n    </appender>\n    <appender-ref ref=\"console\"/>\n</included>\n"
+        },
+        "properties": {
+          "logback.access.test.console.pattern.prefix": ">>>",
+          "logback.access.test.console.pattern.suffix": "<<<"
+        }
+      },
+      "expected_output": "appender=console pattern=>>>%h %l %u [%t] \"%r\" %s %b<<<\nerrors=4"
+    },
+    {
+      "input": {
+        "mode": "configure",
+        "entry": "main.xml",
+        "documents": {
+          "main.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration>\n    <include resource=\"logback-access-test-spring.property-as-include.included.xml\"/>\n</configuration>\n",
+          "logback-access-test-spring.property-as-include.included.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<included>\n    <springProperty\n            name=\"console_pattern_prefix\"\n            source=\"logback.access.test.console.pattern.prefix\"/>\n    <springProperty\n            name=\"console_pattern_body\"\n            source=\"logback.access.test.console.pattern.body\"\n            defaultValue=\"%h %l %u [%t] &quot;%r&quot; %s %b\"/>\n    <springProperty\n            name=\"console_pattern_suffix\"\n            source=\"logback.access.test.console.pattern.suffix\"\n            defaultValue=\";\"/>\n    <springProperty name=\"ignored_source_is_blank\" source=\"\"/>\n    <springProperty name=\"ignored_source_is_missing\"/>\n    <springProperty name=\"\" source=\"logback.access.test.ignored.name-is-blank\"/>\n    <springProperty source=\"logback.access.test.ignored.name-is-missing\"/>\n    <appender name=\"console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n        <encoder>\n            <pattern>${console_pattern_prefix}${console_pattern_body}${console_pattern_suffix}</pattern>\n        </encoder>\n    </appender>\n    <appender-ref ref=\"console\"/>\n</included>\n"
+        },
+        "properties": {}
+      },
+      "expected_output": "appender=console pattern=%h %l %u [%t] \"%r\" %s %b;\nerrors=4"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+    "description": "GraphQL execution errors and explicitly created domain errors are converted to structured domain error payloads with HTTP status, error code, description, and endpoint metadata.",
+    "cases": [
+        {
+            "input": {
+                "action": "wrap_query_error",
+                "message": "GraphQL syntax error",
+                "locations": [
+                    {
+                        "line": 2,
+                        "column": 3
+                    }
+                ]
+            },
+            "expected_output": "{\n  \"code\": \"GRAPHQL_ERROR\",\n  \"component\": null,\n  \"description\": \"GraphQL syntax error\",\n  \"docsLink\": null,\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"An internal server error occurred\",\n  \"statusCode\": 500,\n  \"targetEndpoint\": null\n}\n"
+        },
+        {
+            "input": {
+                "action": "create_domain_error",
+                "config": {}
+            },
+            "expected_output": "{\n  \"code\": \"BLUEMIX_GRAPHQL_ERROR\",\n  \"component\": null,\n  \"description\": null,\n  \"docsLink\": null,\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"An internal server error occurred\",\n  \"statusCode\": 500,\n  \"targetEndpoint\": null\n}\n"
+        },
+        {
+            "input": {
+                "action": "create_domain_error",
+                "config": {
+                    "statusCode": 418,
+                    "message": "short message",
+                    "description": "detailed description",
+                    "graphqlModel": "ExampleModel",
+                    "targetEndpoint": "https://api.example.test/endpoint",
+                    "docsLink": "https://example.test/docs"
+                }
+            },
+            "expected_output": "{\n  \"code\": \"BLUEMIX_GRAPHQL_ERROR\",\n  \"component\": \"ExampleModel\",\n  \"description\": \"detailed description\",\n  \"docsLink\": \"https://example.test/docs\",\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"short message\",\n  \"statusCode\": 418,\n  \"targetEndpoint\": \"https://api.example.test/endpoint\"\n}\n"
+        }
+    ]
+}

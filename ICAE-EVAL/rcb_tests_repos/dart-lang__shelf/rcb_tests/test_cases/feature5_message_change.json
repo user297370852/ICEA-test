@@ -1,0 +1,203 @@
+{
+  "description": "Create a copy of a message applying targeted changes. A header or context entry set to null is removed; set to an empty list is removed; set to a string or list replaces the value. New entries are added. Passing an empty change set returns the same underlying header and context instances. The body can be replaced with a new value.",
+  "cases": [
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          }
+        },
+        "change": {
+          "headers": {
+            "header1": null
+          },
+          "context": {
+            "context1": null
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheadersAll[content-length]=[\"0\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          }
+        },
+        "change": {
+          "headers": {
+            "header1": []
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheadersAll[content-length]=[\"0\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          }
+        },
+        "change": {
+          "headers": {
+            "header1": "new header value"
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheaders[header1]=new header value\nheadersAll[content-length]=[\"0\"]\nheadersAll[header1]=[\"new header value\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          }
+        },
+        "change": {
+          "headers": {
+            "header1": [
+              "new header value"
+            ]
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheaders[header1]=new header value\nheadersAll[content-length]=[\"0\"]\nheadersAll[header1]=[\"new header value\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          }
+        },
+        "change": {
+          "headers": {
+            "header1": [
+              "new header value",
+              "other value"
+            ]
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheaders[header1]=new header value,other value\nheadersAll[content-length]=[\"0\"]\nheadersAll[header1]=[\"new header value\",\"other value\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          }
+        },
+        "change": {
+          "headers": {
+            "a": "A",
+            "b": [
+              "B1",
+              "B2"
+            ]
+          }
+        }
+      },
+      "expected_output": "headers[a]=A\nheaders[b]=B1,B2\nheaders[content-length]=0\nheaders[header1]=header value 1\nheadersAll[a]=[\"A\"]\nheadersAll[b]=[\"B1\",\"B2\"]\nheadersAll[content-length]=[\"0\"]\nheadersAll[header1]=[\"header value 1\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          },
+          "context": {
+            "context1": "context value 1"
+          }
+        },
+        "change": {
+          "headers": {},
+          "context": {}
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheaders[header1]=header value 1\nheadersAll[content-length]=[\"0\"]\nheadersAll[header1]=[\"header value 1\"]\ncontext[context1]=context value 1\nheadersSame=true\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "context": {
+            "test": "test value"
+          }
+        },
+        "change": {
+          "context": {
+            "test2": "test2 value"
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheadersAll[content-length]=[\"0\"]\ncontext[test]=test value\ncontext[test2]=test2 value\nheadersSame=true\ncontextSame=false\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "context": {
+            "test": "test value"
+          }
+        },
+        "change": {
+          "context": {
+            "test": "new test value"
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheadersAll[content-length]=[\"0\"]\ncontext[test]=new test value\nheadersSame=true\ncontextSame=false\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "body": "Hello, world"
+        },
+        "change": {
+          "body": "Goodbye, world"
+        },
+        "readBody": true
+      },
+      "expected_output": "headers[content-length]=14\nheadersAll[content-length]=[\"14\"]\nheadersSame=false\ncontextSame=true\nbody=Goodbye, world\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "response",
+        "base": {
+          "headers": {
+            "header1": "header value 1"
+          }
+        },
+        "change": {
+          "headers": {
+            "header1": "new header value"
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheaders[header1]=new header value\nheadersAll[content-length]=[\"0\"]\nheadersAll[header1]=[\"new header value\"]\nheadersSame=false\ncontextSame=true\n"
+    }
+  ]
+}

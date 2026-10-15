@@ -1,0 +1,110 @@
+{
+  "description": "Boundary coverage for template-tree rendering: empty source tree, deeply nested placeholder paths, multi-placeholder names, .tmpl files containing no placeholder, Jinja filters in placeholders, empty file bodies, numeric/unicode substitution, and a deep directory whose every segment is a placeholder.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {},
+        "data": {}
+      },
+      "expected_output": "produced=0\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "[[ a ]]/[[ b ]]/[[ c ]].txt.tmpl": "deep [[ a ]] [[ b ]] [[ c ]]\n"
+        },
+        "data": {
+          "a": "x",
+          "b": "y",
+          "c": "z"
+        }
+      },
+      "expected_output": "produced=1\npath: x/y/z.txt\nfile: x/y/z.txt -> \"deep x y z\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "[[ first ]]_[[ second ]].txt": "two placeholders in one name\n"
+        },
+        "data": {
+          "first": "alpha",
+          "second": "beta"
+        }
+      },
+      "expected_output": "produced=1\npath: alpha_beta.txt\nfile: alpha_beta.txt -> \"two placeholders in one name\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "plain.txt.tmpl": "no placeholders here\n"
+        },
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: plain.txt\nfile: plain.txt -> \"no placeholders here\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "shout.txt.tmpl": "[[ name | upper ]]\n"
+        },
+        "data": {
+          "name": "quiet"
+        }
+      },
+      "expected_output": "produced=1\npath: shout.txt\nfile: shout.txt -> \"QUIET\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "empty.txt": "",
+          "empty.tmpl.tmpl": ""
+        },
+        "data": {}
+      },
+      "expected_output": "produced=2\npath: empty.tmpl\npath: empty.txt\nfile: empty.tmpl -> \"\"\nfile: empty.txt -> \"\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "num.txt.tmpl": "count=[[ n ]]\n"
+        },
+        "data": {
+          "n": 42
+        }
+      },
+      "expected_output": "produced=1\npath: num.txt\nfile: num.txt -> \"count=42\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "uni.txt.tmpl": "[[ greet ]] éàü 你好\n"
+        },
+        "data": {
+          "greet": "hi"
+        }
+      },
+      "expected_output": "produced=1\npath: uni.txt\nfile: uni.txt -> \"hi \\u00e9\\u00e0\\u00fc \\u4f60\\u597d\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "A\n",
+          "b.txt": "B\n",
+          "c.txt": "C\n",
+          "d.txt": "D\n"
+        },
+        "data": {}
+      },
+      "expected_output": "produced=4\npath: a.txt\npath: b.txt\npath: c.txt\npath: d.txt\nfile: a.txt -> \"A\\n\"\nfile: b.txt -> \"B\\n\"\nfile: c.txt -> \"C\\n\"\nfile: d.txt -> \"D\\n\"\n"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+    "description": "Decides whether a given apiVersion/kind pair is deprecated relative to a server version, using a deprecation table that maps each apiVersion and kind to a 'since' version and an optional 'until' version. The pair is not deprecated when the apiVersion or the kind is absent from the table, or when the server version is below 'since'. It is deprecated once the server version reaches or exceeds 'since', and also when an 'until' is set and the server version reaches or exceeds it (unsupported); an empty 'until' is ignored. Comparisons are semantic-version aware and boundary-inclusive. Each case prints the apiVersion, kind, server version, and a 'deprecated=' boolean.",
+    "cases": [
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.9.7",
+                "api_version": "test/v2",
+                "kind": "Deployment",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": "1.10.0"
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v2\nkind=Deployment\nserver_version=1.9.7\ndeprecated=false\n"
+        },
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.9.7",
+                "api_version": "test/v1",
+                "kind": "StatefulSet",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": "1.10.0"
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v1\nkind=StatefulSet\nserver_version=1.9.7\ndeprecated=false\n"
+        },
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.7.9",
+                "api_version": "test/v1",
+                "kind": "Deployment",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": "1.10.0"
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v1\nkind=Deployment\nserver_version=1.7.9\ndeprecated=false\n"
+        },
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.8.0",
+                "api_version": "test/v1",
+                "kind": "Deployment",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": "1.10.0"
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v1\nkind=Deployment\nserver_version=1.8.0\ndeprecated=true\n"
+        },
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.9.9",
+                "api_version": "test/v1",
+                "kind": "Deployment",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": "1.10.0"
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v1\nkind=Deployment\nserver_version=1.9.9\ndeprecated=true\n"
+        },
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.10.0",
+                "api_version": "test/v1",
+                "kind": "Deployment",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": "1.10.0"
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v1\nkind=Deployment\nserver_version=1.10.0\ndeprecated=true\n"
+        },
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.10.6",
+                "api_version": "test/v1",
+                "kind": "Deployment",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": "1.10.0"
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v1\nkind=Deployment\nserver_version=1.10.6\ndeprecated=true\n"
+        },
+        {
+            "input": {
+                "op": "check_deprecation",
+                "server_version": "1.10.6",
+                "api_version": "test/v1",
+                "kind": "Deployment",
+                "deprecations": {
+                    "test/v1": {
+                        "Deployment": {
+                            "since": "1.8.0",
+                            "until": ""
+                        }
+                    }
+                }
+            },
+            "expected_output": "api_version=test/v1\nkind=Deployment\nserver_version=1.10.6\ndeprecated=true\n"
+        }
+    ]
+}

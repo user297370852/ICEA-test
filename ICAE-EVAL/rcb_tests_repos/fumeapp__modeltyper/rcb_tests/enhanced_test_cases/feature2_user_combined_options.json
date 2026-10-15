@@ -1,0 +1,72 @@
+{
+  "description": "Combines multiple generation switches on the user model: no-relations with enums, plurals with optional relations, api-resources inside a global namespace, default-suffix fillable subset, JSON metadata without enums, and hidden-excluded with no relations.",
+  "cases": [
+    {
+      "input": {
+        "request": "generate_definitions",
+        "subject": "user",
+        "options": {
+          "no_relations": true,
+          "use_enums": true
+        }
+      },
+      "expected_output": "export interface User {\n  // columns\n  id: number\n  name: string\n  email: string\n  email_verified_at: string | null\n  password?: string\n  remember_token?: string | null\n  created_at: string | null\n  updated_at: string | null\n  // mutators\n  role_traditional: string\n  role_new: string\n  role_enum: RolesEnum\n  role_enum_traditional: RolesEnum\n}\n\nexport const enum Roles {\n  /** Can do anything */\n  ADMIN = 'admin',\n  /** Standard readonly */\n  USER = 'user',\n  /** Value that needs string escaping */\n  USERCLASS = 'App\\\\Models\\\\User',\n}\n\nexport type RolesEnum = `${Roles}`\n"
+    },
+    {
+      "input": {
+        "request": "generate_definitions",
+        "subject": "user",
+        "options": {
+          "plurals": true,
+          "optional_relations": true
+        }
+      },
+      "expected_output": "export interface User {\n  // columns\n  id: number\n  name: string\n  email: string\n  email_verified_at: string | null\n  password?: string\n  remember_token?: string | null\n  created_at: string | null\n  updated_at: string | null\n  // mutators\n  role_traditional: string\n  role_new: string\n  role_enum: Roles\n  role_enum_traditional: Roles\n  // relations\n  notifications?: DatabaseNotifications\n}\nexport type Users = User[]\n\nconst Roles = {\n  /** Can do anything */\n  ADMIN: 'admin',\n  /** Standard readonly */\n  USER: 'user',\n  /** Value that needs string escaping */\n  USERCLASS: 'App\\\\Models\\\\User',\n} as const;\n\nexport type Roles = typeof Roles[keyof typeof Roles]\n"
+    },
+    {
+      "input": {
+        "request": "generate_definitions",
+        "subject": "user",
+        "options": {
+          "api_resources": true,
+          "global": true
+        },
+        "config": {
+          "global_namespace": "App.Models"
+        }
+      },
+      "expected_output": "export {}\ndeclare global {\n  export namespace App.Models {\n\n    export interface User {\n      // columns\n      id: number\n      name: string\n      email: string\n      email_verified_at: string | null\n      password?: string\n      remember_token?: string | null\n      created_at: string | null\n      updated_at: string | null\n      // mutators\n      role_traditional: string\n      role_new: string\n      role_enum: Roles\n      role_enum_traditional: Roles\n      // relations\n      notifications: DatabaseNotification[]\n    }\n    export interface UserResult extends api.MetApiResults { data: User }\n    export interface UserMetApiData extends api.MetApiData { data: User }\n    export interface UserResponse extends api.MetApiResponse { data: UserMetApiData }\n\n    const Roles = {\n      /** Can do anything */\n      ADMIN: 'admin',\n      /** Standard readonly */\n      USER: 'user',\n      /** Value that needs string escaping */\n      USERCLASS: 'App\\\\Models\\\\User',\n    } as const;\n\n    export type Roles = typeof Roles[keyof typeof Roles]\n\n  }\n}\n"
+    },
+    {
+      "input": {
+        "request": "generate_definitions",
+        "subject": "user",
+        "options": {
+          "fillable_subset": true
+        }
+      },
+      "expected_output": "export interface User {\n  // columns\n  id: number\n  name: string\n  email: string\n  email_verified_at: string | null\n  password?: string\n  remember_token?: string | null\n  created_at: string | null\n  updated_at: string | null\n  // mutators\n  role_traditional: string\n  role_new: string\n  role_enum: Roles\n  role_enum_traditional: Roles\n  // relations\n  notifications: DatabaseNotification[]\n}\nexport type UserFillable = Pick<User, 'name' | 'email' | 'password' | 'role_traditional' | 'role_new'>\n\nconst Roles = {\n  /** Can do anything */\n  ADMIN: 'admin',\n  /** Standard readonly */\n  USER: 'user',\n  /** Value that needs string escaping */\n  USERCLASS: 'App\\\\Models\\\\User',\n} as const;\n\nexport type Roles = typeof Roles[keyof typeof Roles]\n"
+    },
+    {
+      "input": {
+        "request": "generate_definitions",
+        "subject": "user",
+        "options": {
+          "json": true
+        }
+      },
+      "expected_output": "{\n    \"interfaces\": {\n        \"User\": [\n            {\n                \"name\": \"id\",\n                \"type\": \"number\"\n            },\n            {\n                \"name\": \"name\",\n                \"type\": \"string\"\n            },\n            {\n                \"name\": \"email\",\n                \"type\": \"string\"\n            },\n            {\n                \"name\": \"email_verified_at\",\n                \"type\": \"string | null\"\n            },\n            {\n                \"name\": \"password?\",\n                \"type\": \"string\"\n            },\n            {\n                \"name\": \"remember_token?\",\n                \"type\": \"string | null\"\n            },\n            {\n                \"name\": \"created_at\",\n                \"type\": \"string | null\"\n            },\n            {\n                \"name\": \"updated_at\",\n                \"type\": \"string | null\"\n            },\n            {\n                \"name\": \"role_traditional\",\n                \"type\": \"string\"\n            },\n            {\n                \"name\": \"role_new\",\n                \"type\": \"string\"\n            },\n            {\n                \"name\": \"role_enum\",\n                \"type\": \"Roles\"\n            },\n            {\n                \"name\": \"role_enum_traditional\",\n                \"type\": \"Roles\"\n            }\n        ]\n    },\n    \"relations\": [\n        {\n            \"DatabaseNotification[]\": {\n                \"name\": \"notifications\",\n                \"type\": \"export type DatabaseNotification[] = Array<User>\"\n            }\n        }\n    ],\n    \"enums\": [\n        {\n            \"Roles\": {\n                \"name\": \"Roles\",\n                \"type\": \"const Roles = {\\n  \\/** Can do anything *\\/\\n  ADMIN: 'admin',\\n  \\/** Standard readonly *\\/\\n  USER: 'user',\\n  \\/** Value that needs string escaping *\\/\\n  USERCLASS: 'App\\\\\\\\Models\\\\\\\\User',\\n} as const;\\n\\nexport type Roles = typeof Roles[keyof typeof Roles]\\n\\n\"\n            }\n        },\n        {\n            \"Roles\": {\n                \"name\": \"Roles\",\n                \"type\": \"const Roles = {\\n  \\/** Can do anything *\\/\\n  ADMIN: 'admin',\\n  \\/** Standard readonly *\\/\\n  USER: 'user',\\n  \\/** Value that needs string escaping *\\/\\n  USERCLASS: 'App\\\\\\\\Models\\\\\\\\User',\\n} as const;\\n\\nexport type Roles = typeof Roles[keyof typeof Roles]\\n\\n\"\n            }\n        }\n    ]\n}\n"
+    },
+    {
+      "input": {
+        "request": "generate_definitions",
+        "subject": "user",
+        "options": {
+          "include_hidden": false,
+          "no_relations": true
+        }
+      },
+      "expected_output": "export interface User {\n  // columns\n  id: number\n  name: string\n  email: string\n  email_verified_at: string | null\n  created_at: string | null\n  updated_at: string | null\n  // mutators\n  role_traditional: string\n  role_new: string\n  role_enum: Roles\n  role_enum_traditional: Roles\n}\n\nconst Roles = {\n  /** Can do anything */\n  ADMIN: 'admin',\n  /** Standard readonly */\n  USER: 'user',\n  /** Value that needs string escaping */\n  USERCLASS: 'App\\\\Models\\\\User',\n} as const;\n\nexport type Roles = typeof Roles[keyof typeof Roles]\n"
+    }
+  ]
+}

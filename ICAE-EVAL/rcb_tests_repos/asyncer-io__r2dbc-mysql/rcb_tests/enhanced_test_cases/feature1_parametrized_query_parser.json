@@ -1,0 +1,103 @@
+{
+  "description": "Boundary and logical-path coverage for the parametrized SQL parser: an empty statement, escaped-empty-quote producing a real placeholder, terminated and unterminated block/line comments around question marks, positional markers followed by digits, named placeholders starting with underscore or a non-ASCII identifier character, adjacent placeholders, a placeholder right after a quoted span, a name repeated three times, and a carriage-return-terminated line comment.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": ""
+      },
+      "expected_output": "simple=true\nformatted_sql=\nformatted_size=0\nparameters=0\npart_size=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "''?"
+      },
+      "expected_output": "simple=false\nformatted_sql=''?\nformatted_size=3\nparameters=1\npart_size=2\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "/* ? */ SELECT ?"
+      },
+      "expected_output": "simple=false\nformatted_sql=/* ? */ SELECT ?\nformatted_size=16\nparameters=1\npart_size=2\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "/* unterminated ? comment"
+      },
+      "expected_output": "simple=true\nformatted_sql=/* unterminated ? comment\nformatted_size=25\nparameters=0\npart_size=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "'unterminated ? literal"
+      },
+      "expected_output": "simple=true\nformatted_sql='unterminated ? literal\nformatted_size=23\nparameters=0\npart_size=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "?1"
+      },
+      "expected_output": "simple=false\nformatted_sql=?1\nformatted_size=2\nparameters=1\npart_size=2\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "?_id"
+      },
+      "expected_output": "simple=false\nformatted_sql=?\nformatted_size=1\nparameters=1\npart_size=2\nnamed _id=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "SELECT ?名前 FROM t"
+      },
+      "expected_output": "simple=false\nformatted_sql=SELECT ? FROM t\nformatted_size=15\nparameters=1\npart_size=2\nnamed 名前=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "??"
+      },
+      "expected_output": "simple=false\nformatted_sql=??\nformatted_size=2\nparameters=2\npart_size=3\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "?a?b"
+      },
+      "expected_output": "simple=false\nformatted_sql=??\nformatted_size=2\nparameters=2\npart_size=3\nnamed a=0\nnamed b=1\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "`col`?"
+      },
+      "expected_output": "simple=false\nformatted_sql=`col`?\nformatted_size=6\nparameters=1\npart_size=2\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "VALUES (?x, ?x, ?x)"
+      },
+      "expected_output": "simple=false\nformatted_sql=VALUES (?, ?, ?)\nformatted_size=16\nparameters=3\npart_size=4\nnamed x=[0, 1, 2]\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "SELECT 1 -- c\r?"
+      },
+      "expected_output": "simple=false\nformatted_sql=SELECT 1 -- c\r?\nformatted_size=15\nparameters=1\npart_size=2\n"
+    },
+    {
+      "input": {
+        "action": "parse_query",
+        "sql": "?-?"
+      },
+      "expected_output": "simple=false\nformatted_sql=?-?\nformatted_size=3\nparameters=2\npart_size=3\n"
+    }
+  ]
+}

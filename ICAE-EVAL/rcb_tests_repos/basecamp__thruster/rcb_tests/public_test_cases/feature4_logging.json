@@ -1,0 +1,30 @@
+{
+    "description": "A logging middleware wraps the request handling and emits one structured record summarizing each completed request. The record captures the request path (without query string), HTTP method, final response status code, the client address (taken from the forwarded-for header when present), the user agent, the request and response Content-Type values, the request body length and the number of response bytes written, the raw query string, and the cache disposition reported downstream. Timing-related fields are excluded. Output renders the captured fields as neutral key/value lines.",
+    "cases": [
+        {
+            "input": {
+                "action": "logging",
+                "request": {
+                    "method": "POST",
+                    "path": "/somepath",
+                    "query": "q=ok",
+                    "body": "hello",
+                    "headers": {
+                        "X-Forwarded-For": "192.168.1.1",
+                        "User-Agent": "Robot/1",
+                        "Content-Type": "application/json"
+                    }
+                },
+                "response": {
+                    "status": 201,
+                    "headers": {
+                        "X-Cache": "miss",
+                        "Content-Type": "text/html"
+                    },
+                    "body": "goodbye\n"
+                }
+            },
+            "expected_output": "path=/somepath\nmethod=POST\nstatus=201\nremote_addr=192.168.1.1\nuser_agent=Robot/1\nreq_content_type=application/json\nresp_content_type=text/html\nreq_content_length=5\nresp_content_length=8\nquery=q=ok\ncache=miss\n"
+        }
+    ]
+}

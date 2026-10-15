@@ -1,0 +1,14 @@
+{
+    "description": "Reject a database project whose schema references an object that is not supplied by the project or its references, and report a normalized unresolved-reference diagnostic.",
+    "cases": [
+        {
+            "input": {
+                "sql_files": {
+                    "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n",
+                    "View2.sql": "-- This view references Table2 which does not exist\nCREATE VIEW [dbo].[View2]\n  AS SELECT * FROM [Table2]\n"
+                }
+            },
+            "expected_output": "exit_code=1\npackage_exists=false\ntables=\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=error_code=SQL71501;object=[dbo].[View2];referenced=[dbo].[Table2]\n"
+        }
+    ]
+}

@@ -1,0 +1,121 @@
+{
+  "description": "A replaying observable stream remembers the latest value it has seen for each value type and replays the remembered value(s) to every new subscriber the instant it attaches, in addition to forwarding live values. When several values share the same type only the most recent one is retained. A value sent while a subscriber is attached is delivered live; after detaching and re-attaching, the retained latest value is replayed again. While no subscriber is attached, values are still recorded but not delivered.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "send",
+            "value": "one"
+          },
+          {
+            "op": "send",
+            "value": "two"
+          },
+          {
+            "op": "send",
+            "value": "three"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "three\n"
+    },
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "one"
+          },
+          {
+            "op": "send",
+            "value": "two"
+          }
+        ]
+      },
+      "expected_output": "one\ntwo\n"
+    },
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "one"
+          },
+          {
+            "op": "unsubscribe"
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "two"
+          }
+        ]
+      },
+      "expected_output": "one\none\ntwo\n"
+    },
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "send",
+            "value": "one"
+          },
+          {
+            "op": "send",
+            "value": "two"
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "three"
+          },
+          {
+            "op": "unsubscribe"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "two\nthree\nthree\n"
+    },
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "世界"
+          }
+        ]
+      },
+      "expected_output": "世界\n"
+    }
+  ]
+}

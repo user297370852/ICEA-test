@@ -1,0 +1,114 @@
+{
+    "description": "Cached content operations normalize resource names, construct create/list/get/update/delete requests with pagination and expiration fields, and reject missing or conflicting expiration inputs.",
+    "cases": [
+        {
+            "input": {
+                "operation": "create",
+                "content": {
+                    "model": "models/gemini-1.5-pro-001",
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [
+                                {
+                                    "text": "some text"
+                                }
+                            ]
+                        }
+                    ],
+                    "ttlSeconds": 30,
+                    "systemInstruction": "talk like a cat",
+                    "tools": [
+                        {
+                            "functionDeclarations": [
+                                {
+                                    "name": "myFn"
+                                }
+                            ]
+                        }
+                    ],
+                    "toolConfig": {
+                        "functionCallingConfig": {}
+                    },
+                    "displayName": "a display name."
+                }
+            },
+            "expected_output": "task=create\nmethod=POST\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents\nbody={\"contents\":[{\"parts\":[{\"text\":\"some text\"}],\"role\":\"user\"}],\"displayName\":\"a display name.\",\"model\":\"models/gemini-1.5-pro-001\",\"systemInstruction\":{\"parts\":[{\"text\":\"talk like a cat\"}],\"role\":\"system\"},\"toolConfig\":{\"functionCallingConfig\":{}},\"tools\":[{\"functionDeclarations\":[{\"name\":\"myFn\"}]}],\"ttl\":\"30s\"}\nresult={\"name\":\"cachedContents/hash1234\"}\n"
+        },
+        {
+            "input": {
+                "operation": "create",
+                "content": {
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [
+                                {
+                                    "text": "some text"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=missing_model\n"
+        },
+        {
+            "input": {
+                "operation": "create",
+                "content": {
+                    "model": "models/gemini-1.5-pro-001",
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [
+                                {
+                                    "text": "some text"
+                                }
+                            ]
+                        }
+                    ],
+                    "ttlSeconds": 40,
+                    "expireTime": "2030-01-01T00:00:00.000Z"
+                }
+            },
+            "expected_output": "error=exclusive_expiration_fields\n"
+        },
+        {
+            "input": {
+                "operation": "list",
+                "params": {
+                    "pageSize": 3,
+                    "pageToken": "abc"
+                }
+            },
+            "expected_output": "task=list\nmethod=GET\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents?pageSize=3&pageToken=abc\nresult={\"cachedContents\":[{\"name\":\"cachedContents/hash1234\"}]}\n"
+        },
+        {
+            "input": {
+                "operation": "get",
+                "name": "hash1234"
+            },
+            "expected_output": "task=get\nmethod=GET\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents/hash1234\nresult={\"name\":\"cachedContents/hash1234\"}\n"
+        },
+        {
+            "input": {
+                "operation": "update",
+                "name": "cachedContents/hash1234",
+                "update": {
+                    "cachedContent": {
+                        "ttlSeconds": 30
+                    }
+                }
+            },
+            "expected_output": "task=update\nmethod=PATCH\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents/hash1234\nbody={\"ttl\":\"30s\"}\nresult={\"name\":\"cachedContents/hash1234\"}\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "name": ""
+            },
+            "expected_output": "error=invalid_cache_name\n"
+        }
+    ]
+}

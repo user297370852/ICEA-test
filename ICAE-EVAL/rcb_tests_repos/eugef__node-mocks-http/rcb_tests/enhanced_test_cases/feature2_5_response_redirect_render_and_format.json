@@ -1,0 +1,79 @@
+{
+  "description": "Additional redirect/render/format coverage for explicit temporary redirects, nested render data callbacks, accept quality matching, wildcard default matching, and request-unavailable default handlers.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "response_navigation_or_rendering",
+        "actions": [
+          {
+            "type": "redirect_to",
+            "args": [
+              307,
+              "https://example.com/new?x=1"
+            ]
+          }
+        ]
+      },
+      "expected_output": "status=307\nredirect_url=https://example.com/new?x=1\nrender_view=\nrender_data={}\nevents=[\"end\",\"finish\"]\n"
+    },
+    {
+      "input": {
+        "scenario": "response_navigation_or_rendering",
+        "actions": [
+          {
+            "type": "render_view",
+            "view": "pages/detail",
+            "data": {
+              "items": [
+                1,
+                2
+              ],
+              "meta": {
+                "empty": false
+              }
+            },
+            "callback": true
+          }
+        ]
+      },
+      "expected_output": "status=200\nredirect_url=\nrender_view=pages/detail\nrender_data={\"items\":[1,2],\"meta\":{\"empty\":false}}\nevents=[]\ncallback_error=null\ncallback_body=\n"
+    },
+    {
+      "input": {
+        "scenario": "response_content_selection",
+        "requestHeaders": {
+          "accept": "text/html;q=0.4, application/json;q=0.9"
+        },
+        "supported": [
+          "html",
+          "json",
+          "default"
+        ]
+      },
+      "expected_output": "status=200\ndata=\ncalled=[\"json\"]\n"
+    },
+    {
+      "input": {
+        "scenario": "response_content_selection",
+        "requestHeaders": {
+          "accept": "*/*"
+        },
+        "supported": [
+          "xml",
+          "html"
+        ]
+      },
+      "expected_output": "status=200\ndata=\ncalled=[\"xml\"]\n"
+    },
+    {
+      "input": {
+        "scenario": "response_content_selection",
+        "withRequest": false,
+        "supported": [
+          "default"
+        ]
+      },
+      "expected_output": "error=request_unavailable\n"
+    }
+  ]
+}

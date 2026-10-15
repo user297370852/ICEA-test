@@ -1,0 +1,47 @@
+{
+  "description": "Schema-analysis variants: BigInt id used as cursor with readonly and strict per-field encryption modes and a default-config hash (empty normalize list); String @id used as cursor; an explicit @encryption:cursor annotation pointing at a unique String field overriding the id; a self-referential relation (list and non-list connections to the same model); a hash annotation with multiple normalize options plus an algorithm override; and a plain model with no encrypted fields or connections.",
+  "cases": [
+    {
+      "input": {
+        "op": "analyse_schema",
+        "datamodel": "\nmodel Account {\n  id        BigInt  @id @default(autoincrement())\n  secret    String  /// @encrypted\n  ro        String? /// @encrypted?mode=readonly\n  st        String? /// @encrypted?mode=strict\n  secretHash String? /// @encryption:hash(secret)\n}\n"
+      },
+      "expected_output": "{\n  \"Account\": {\n    \"cursor\": \"id\",\n    \"fields\": {\n      \"secret\": {\n        \"encrypt\": true,\n        \"strictDecryption\": false,\n        \"hash\": {\n          \"targetField\": \"secretHash\",\n          \"algorithm\": \"sha256\",\n          \"inputEncoding\": \"utf8\",\n          \"outputEncoding\": \"hex\",\n          \"normalize\": []\n        }\n      },\n      \"ro\": {\n        \"encrypt\": false,\n        \"strictDecryption\": false\n      },\n      \"st\": {\n        \"encrypt\": true,\n        \"strictDecryption\": true\n      }\n    },\n    \"connections\": {}\n  }\n}\n"
+    },
+    {
+      "input": {
+        "op": "analyse_schema",
+        "datamodel": "\nmodel Doc {\n  slug    String @id\n  body    String /// @encrypted\n}\n"
+      },
+      "expected_output": "{\n  \"Doc\": {\n    \"cursor\": \"slug\",\n    \"fields\": {\n      \"body\": {\n        \"encrypt\": true,\n        \"strictDecryption\": false\n      }\n    },\n    \"connections\": {}\n  }\n}\n"
+    },
+    {
+      "input": {
+        "op": "analyse_schema",
+        "datamodel": "\nmodel Row {\n  id    Int    @id @default(autoincrement())\n  ref   String @unique /// @encryption:cursor\n  data  String /// @encrypted\n}\n"
+      },
+      "expected_output": "{\n  \"Row\": {\n    \"cursor\": \"ref\",\n    \"fields\": {\n      \"data\": {\n        \"encrypt\": true,\n        \"strictDecryption\": false\n      }\n    },\n    \"connections\": {}\n  }\n}\n"
+    },
+    {
+      "input": {
+        "op": "analyse_schema",
+        "datamodel": "\nmodel Node {\n  id       Int    @id @default(autoincrement())\n  label    String /// @encrypted\n  parent   Node?  @relation(\"tree\", fields: [parentId], references: [id])\n  parentId Int?\n  children Node[] @relation(\"tree\")\n}\n"
+      },
+      "expected_output": "{\n  \"Node\": {\n    \"cursor\": \"id\",\n    \"fields\": {\n      \"label\": {\n        \"encrypt\": true,\n        \"strictDecryption\": false\n      }\n    },\n    \"connections\": {\n      \"parent\": {\n        \"modelName\": \"Node\",\n        \"isList\": false\n      },\n      \"children\": {\n        \"modelName\": \"Node\",\n        \"isList\": true\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "input": {
+        "op": "analyse_schema",
+        "datamodel": "\nmodel Person {\n  id       Int     @id @default(autoincrement())\n  email    String  /// @encrypted\n  emailHash String? /// @encryption:hash(email)?normalize=lowercase&normalize=trim&algorithm=sha512\n}\n"
+      },
+      "expected_output": "{\n  \"Person\": {\n    \"cursor\": \"id\",\n    \"fields\": {\n      \"email\": {\n        \"encrypt\": true,\n        \"strictDecryption\": false,\n        \"hash\": {\n          \"targetField\": \"emailHash\",\n          \"algorithm\": \"sha512\",\n          \"inputEncoding\": \"utf8\",\n          \"outputEncoding\": \"hex\",\n          \"normalize\": [\n            \"lowercase\",\n            \"trim\"\n          ]\n        }\n      }\n    },\n    \"connections\": {}\n  }\n}\n"
+    },
+    {
+      "input": {
+        "op": "analyse_schema",
+        "datamodel": "\nmodel Plain {\n  id   Int    @id @default(autoincrement())\n  name String\n}\n"
+      },
+      "expected_output": "{\n  \"Plain\": {\n    \"cursor\": \"id\",\n    \"fields\": {},\n    \"connections\": {}\n  }\n}\n"
+    }
+  ]
+}

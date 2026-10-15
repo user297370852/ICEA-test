@@ -1,0 +1,62 @@
+{
+  "description": "ENHANCED expression text edge cases: parsing an empty-string input yields all four markers null; parsing an expression where the same verb's operands include a parenthesized function call with an internal comma (must NOT split inside parentheses); parsing with only REMOVE present; stringifying a verb whose value is a single clause string rather than a list; stringifying skips a verb mapped to an empty array but renders the populated one; and stringifying a verb mapped to null is skipped.",
+  "cases": [
+    {
+      "input": {
+        "op": "expr_parse",
+        "expression": ""
+      },
+      "expected_output": "{\"ADD\":null,\"DELETE\":null,\"REMOVE\":null,\"SET\":null}\n"
+    },
+    {
+      "input": {
+        "op": "expr_parse",
+        "expression": "SET #a = if_not_exists(#a, :z), #b = :b"
+      },
+      "expected_output": "{\"ADD\":null,\"DELETE\":null,\"REMOVE\":null,\"SET\":[\"#a = if_not_exists(#a, :z)\",\"#b = :b\"]}\n"
+    },
+    {
+      "input": {
+        "op": "expr_parse",
+        "expression": "REMOVE #foo, #bar"
+      },
+      "expected_output": "{\"ADD\":null,\"DELETE\":null,\"REMOVE\":[\"#foo\",\"#bar\"],\"SET\":null}\n"
+    },
+    {
+      "input": {
+        "op": "expr_stringify",
+        "expressions": {
+          "SET": "#a = :a"
+        }
+      },
+      "expected_output": "SET #a = :a\n"
+    },
+    {
+      "input": {
+        "op": "expr_stringify",
+        "expressions": {
+          "SET": [
+            "#a = :a"
+          ],
+          "ADD": [],
+          "REMOVE": [
+            "#b"
+          ]
+        }
+      },
+      "expected_output": "SET #a = :a REMOVE #b\n"
+    },
+    {
+      "input": {
+        "op": "expr_stringify",
+        "expressions": {
+          "SET": [
+            "#a = :a"
+          ],
+          "DELETE": null
+        }
+      },
+      "expected_output": "SET #a = :a\n"
+    }
+  ]
+}

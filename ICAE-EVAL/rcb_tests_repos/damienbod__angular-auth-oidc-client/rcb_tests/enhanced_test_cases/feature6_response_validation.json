@@ -1,0 +1,355 @@
+{
+  "op": "response_validation",
+  "description": "Enhanced edge coverage for the authorization-response validation pipeline, disjoint from the native suite. It exercises each required-claim individually missing (iss, aud, exp, iat) all surfacing as RequiredPropertyMissing; a totally absent nonce claim and a present-but-wrong nonce both surfacing as IncorrectNonce; a case-different issuer scheme yielding IssDoesNotMatchIssuer; a single-element audience array AND a multi-element audience array that still validate against the string client_id (the implementation's loose first-element match) both yielding Ok; the offset-tolerance path where an old iat still falls inside a larger allowed offset (Ok); and the 'id_token' (no access token) flow variants for StatesDoNotMatch, SignatureFailed, TokenExpired and a successful Ok with a distinct subject — confirming the access_token column stays empty in single-token flow. Also an at_hash mismatch on a distinct access token.",
+  "cases": [
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        },
+        "omit_claims": [
+          "iss"
+        ]
+      },
+      "expected_output": "result=RequiredPropertyMissing\nvalid=false\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        },
+        "omit_claims": [
+          "aud"
+        ]
+      },
+      "expected_output": "result=RequiredPropertyMissing\nvalid=false\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        },
+        "omit_claims": [
+          "exp"
+        ]
+      },
+      "expected_output": "result=RequiredPropertyMissing\nvalid=false\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        },
+        "omit_claims": [
+          "iat"
+        ]
+      },
+      "expected_output": "result=RequiredPropertyMissing\nvalid=false\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp"
+        }
+      },
+      "expected_output": "result=IncorrectNonce\nvalid=false\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "HTTPS://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=IssDoesNotMatchIssuer\nvalid=false\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": [
+            "singleapp"
+          ],
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=Ok\nvalid=true\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": [
+            "singleapp",
+            "extra"
+          ],
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=Ok\nvalid=true\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 100,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": true,
+        "signature": "correct",
+        "id_token_iat_ago": 50,
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=Ok\nvalid=true\naccess_token=AT\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "XYZ",
+        "id_token_present": true,
+        "include_at_hash": false,
+        "at_hash_override": "badhash",
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=IncorrectAtHash\nvalid=false\naccess_token=XYZ\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "NOPE",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": false,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=StatesDoNotMatch\nvalid=false\naccess_token=\nid_token=\ndecoded_sub=\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": false,
+        "signature": "wrong",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=SignatureFailed\nvalid=false\naccess_token=\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": false,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "WRONG"
+        }
+      },
+      "expected_output": "result=IncorrectNonce\nvalid=false\naccess_token=\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": false,
+        "signature": "correct",
+        "id_token_exp_in": -100,
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "s",
+          "aud": "singleapp",
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=TokenExpired\nvalid=false\naccess_token=\nid_token=present\ndecoded_sub=s\n"
+    },
+    {
+      "input": {
+        "client_id": "singleapp",
+        "response_type": "id_token",
+        "max_iat_offset_seconds": 10,
+        "issuer": "https://localhost:44363",
+        "local_state": "st",
+        "local_nonce": "nn",
+        "response_state": "st",
+        "access_token": "AT",
+        "id_token_present": true,
+        "include_at_hash": false,
+        "signature": "correct",
+        "id_token_claims": {
+          "iss": "https://localhost:44363",
+          "sub": "abc123",
+          "aud": "singleapp",
+          "nonce": "nn"
+        }
+      },
+      "expected_output": "result=Ok\nvalid=true\naccess_token=\nid_token=present\ndecoded_sub=abc123\n"
+    }
+  ]
+}

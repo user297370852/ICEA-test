@@ -1,0 +1,25 @@
+{
+  "description": "The root aggregation file may reference stages by name (to attach conditions or to request merging). Every referenced stage must exist in at least one package's definition; referencing a stage that no package declares is reported as a configuration error naming the offending stage.",
+  "cases": [
+    {
+      "input": {
+        "files": {
+          "mono_repo.yaml": "travis:\n  stages:\n    - name: bob\n      if: branch = master\n",
+          "sub_pkg/mono_pkg.yaml": "dart:\n - dev\n\nstages:\n  - analyze:\n    - dartanalyzer\n",
+          "sub_pkg/pubspec.yaml": "name: pkg_name\n"
+        }
+      },
+      "expected_output": "error=user_exception\nmessage=Error parsing mono_repo.yaml\ndetails=Stage `bob` was referenced in `mono_repo.yaml`, but it does not exist in any `mono_pkg.yaml` files.\n"
+    },
+    {
+      "input": {
+        "files": {
+          "mono_repo.yaml": "merge_stages:\n  - bob\n",
+          "sub_pkg/mono_pkg.yaml": "dart:\n - dev\n\nstages:\n  - analyze:\n    - dartanalyzer\n",
+          "sub_pkg/pubspec.yaml": "name: pkg_name\n"
+        }
+      },
+      "expected_output": "error=user_exception\nmessage=Error parsing mono_repo.yaml\ndetails=Stage `bob` was referenced in `mono_repo.yaml`, but it does not exist in any `mono_pkg.yaml` files.\n"
+    }
+  ]
+}

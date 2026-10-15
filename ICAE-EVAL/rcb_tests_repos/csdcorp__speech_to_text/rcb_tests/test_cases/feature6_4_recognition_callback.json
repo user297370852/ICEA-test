@@ -1,0 +1,58 @@
+{
+    "description": "While listening, each recognition payload delivered by the platform is parsed into a recognition result and handed to the registered result callback, and the coordinator remembers the most recently recognized phrase. Multiple deliveries invoke the callback once each in order, and the remembered phrase tracks the latest delivery. The output reports each callback invocation (recognized phrase and final flag) followed by a state snapshot whose remembered phrase reflects the last delivery.",
+    "cases": [
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize"
+                    },
+                    {
+                        "do": "listen",
+                        "onResult": true
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "recognition",
+                        "payload": "{\"alternates\":[{\"recognizedWords\":\"hello\",\"confidence\":0.85}],\"finalResult\":false}"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nresult recognized=hello final=false\nlistening=true recognized=true available=true has_error=false last_recognized=hello last_status=listening last_level=0.0\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize"
+                    },
+                    {
+                        "do": "listen",
+                        "onResult": true
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "recognition",
+                        "payload": "{\"alternates\":[{\"recognizedWords\":\"hello\",\"confidence\":0.85}],\"finalResult\":false}"
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "recognition",
+                        "payload": "{\"alternates\":[{\"recognizedWords\":\"hello there\",\"confidence\":0.62}],\"finalResult\":false}"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nresult recognized=hello final=false\nresult recognized=hello there final=false\nlistening=true recognized=true available=true has_error=false last_recognized=hello there last_status=listening last_level=0.0\n"
+        }
+    ]
+}

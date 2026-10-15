@@ -1,0 +1,39 @@
+{
+    "description": "When a namespace has its own source file and a matching directory, load the namespace file and keep its nested constants available.",
+    "cases": [
+        {
+            "input": {
+                "operation": "explicit_namespace_loading",
+                "roots": [
+                    "app/models"
+                ],
+                "files": {
+                    "app/models/hotel.rb": "class Hotel; X = 1; end",
+                    "app/models/hotel/pricing.rb": "class Hotel::Pricing; end"
+                },
+                "access": [
+                    "Hotel",
+                    "Hotel::X",
+                    "Hotel::Pricing"
+                ]
+            },
+            "expected_output": "constant=Hotel\nvalue=class\nconstant=Hotel::X\nvalue=1\nconstant=Hotel::Pricing\nvalue=class\n"
+        },
+        {
+            "input": {
+                "operation": "explicit_namespace_loading",
+                "roots": [
+                    "app/models"
+                ],
+                "files": {
+                    "app/models/hotel.rb": "class Hotel\n  def self.name; 'Other'; end\nend",
+                    "app/models/hotel/pricing.rb": "class Hotel::Pricing; end"
+                },
+                "access": [
+                    "Hotel::Pricing"
+                ]
+            },
+            "expected_output": "constant=Hotel::Pricing\nvalue=class\n"
+        }
+    ]
+}

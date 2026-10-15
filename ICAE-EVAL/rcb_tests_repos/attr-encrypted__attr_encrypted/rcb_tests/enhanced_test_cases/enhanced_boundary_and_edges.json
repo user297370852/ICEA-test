@@ -1,0 +1,470 @@
+{
+  "description": "Synthetic native-disjoint edge coverage for transparent attribute encryption: multi-attribute registration and storage naming, nil assignment passthrough, whitespace predicate presence, non-string coercion, Unicode encoding round-trips, nested marshaled structures, custom encryptor suffix handling, dynamic guard truthy encryption with IV/salt generation, inherited defaults with multiple subclass attributes, unencoded IV storage, and combined per-instance randomization facets.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email",
+                "token",
+                "backup_code"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "legacy"
+              ],
+              "via": "alias",
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "encrypted_attributes_include",
+            "attr": "backup_code"
+          },
+          {
+            "kind": "encrypted_attributes_include",
+            "attr": "legacy"
+          },
+          {
+            "kind": "attr_encrypted",
+            "attr": "token"
+          },
+          {
+            "kind": "attr_encrypted",
+            "attr": "missing"
+          },
+          {
+            "kind": "storage_attr",
+            "attr": "backup_code"
+          }
+        ]
+      },
+      "expected_output": "attr_encrypted[missing]=false\nattr_encrypted[token]=true\nencrypted_attributes_include[backup_code]=true\nencrypted_attributes_include[legacy]=true\nstorage_attr[backup_code]=encrypted_backup_code\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            },
+            {
+              "names": [
+                "ssn"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "attribute": "ssn_encrypted"
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "storage_attr",
+            "attr": "password"
+          },
+          {
+            "kind": "storage_attr",
+            "attr": "ssn"
+          },
+          {
+            "kind": "respond_to",
+            "method": "encrypted_password"
+          }
+        ]
+      },
+      "expected_output": "respond_to[encrypted_password]=false\nstorage_attr[password]=crypted_password_test\nstorage_attr[ssn]=ssn_encrypted\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "assign_read",
+            "attr": "email",
+            "value": null,
+            "report_stored": true,
+            "report_stored_equals_plain": true
+          },
+          {
+            "kind": "predicate_steps",
+            "attr": "email",
+            "steps": [
+              {
+                "assign": false
+              },
+              {
+                "assign": true,
+                "value": " "
+              },
+              {
+                "assign": true,
+                "value": null
+              },
+              {
+                "assign": true,
+                "value": "final@example.com"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "assign_read[email]=nil\npredicate[email][00]=false\npredicate[email][01]=true\npredicate[email][02]=false\npredicate[email][03]=true\nstored_equals_plain[email]=true\nstored_present[email]=false\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "class_roundtrip",
+            "attr": "email",
+            "value": 9876543210,
+            "with_salt": true,
+            "report_differs": true
+          },
+          {
+            "kind": "cast_consistency",
+            "attr": "email",
+            "value_a": true,
+            "value_b": "true"
+          }
+        ]
+      },
+      "expected_output": "cast_consistency[email]=true\ncast_decrypt[email]=true\nclass_roundtrip[email]=9876543210\nclass_roundtrip_differs[email]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "without_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "with_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "encode": true
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "encode_matches_packed",
+            "encoded_attr": "with_encoding",
+            "plain_attr": "without_encoding",
+            "value": "snowman-☃-π",
+            "with_salt": true
+          },
+          {
+            "kind": "decode_roundtrip",
+            "encoded_attr": "with_encoding",
+            "plain_attr": "without_encoding",
+            "value": "snowman-☃-π",
+            "with_salt": true
+          }
+        ]
+      },
+      "expected_output": "decode_matches_plain=true\ndecode_roundtrip=snowman-☃-π\nencode_matches_packed=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "with_marshaling"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "marshal": true
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "marshal_assign_read",
+            "attr": "with_marshaling",
+            "value": {
+              "user": "alice",
+              "roles": [
+                "admin",
+                "qa"
+              ],
+              "meta": {
+                "active": true,
+                "score": 42
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "marshal_read[with_marshaling]={\"user\"=>\"alice\", \"roles\"=>[\"admin\", \"qa\"], \"meta\"=>{\"active\"=>true, \"score\"=>42}}\nstored_present[with_marshaling]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "credit_card"
+              ],
+              "options": {
+                "encryptor": {
+                  "$silly": true
+                },
+                "encrypt_method": "silly_encrypt",
+                "decrypt_method": "silly_decrypt",
+                "some_arg": "XYZ"
+              }
+            }
+          ]
+        },
+        "ops": [
+          {
+            "kind": "custom_encrypt",
+            "attr": "credit_card",
+            "value": "abcXYZ",
+            "roundtrip": true
+          }
+        ]
+      },
+      "expected_output": "custom_encrypt[credit_card]=ZYXZYXcba\ncustom_roundtrip[credit_card]=abcXYZ\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "with_if_changed"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "if": {
+                  "$sym": "should_encrypt"
+                },
+                "mode": "per_attribute_iv_and_salt"
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            }
+          },
+          "instance_methods": {
+            "should_encrypt": true
+          }
+        },
+        "ops": [
+          {
+            "kind": "assign_read",
+            "attr": "with_if_changed",
+            "value": "encrypted_by_dynamic_guard",
+            "report_stored_equals_plain": true
+          },
+          {
+            "kind": "iv_present",
+            "attr": "with_if_changed",
+            "value": "encrypted_by_dynamic_guard"
+          },
+          {
+            "kind": "salt_present",
+            "attr": "with_if_changed",
+            "value": "encrypted_by_dynamic_guard"
+          }
+        ]
+      },
+      "expected_output": "assign_read[with_if_changed]=encrypted_by_dynamic_guard\niv_present[with_if_changed]=true\nsalt_present[with_if_changed]=true\nstored_equals_plain[with_if_changed]=false\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          },
+          "subclass": {
+            "attributes": [
+              {
+                "names": [
+                  "token"
+                ],
+                "options": {}
+              },
+              {
+                "names": [
+                  "audit_log"
+                ],
+                "options": {
+                  "attribute": "audit_ciphertext"
+                }
+              }
+            ]
+          }
+        },
+        "ops": [
+          {
+            "kind": "inherit_keys_match",
+            "added": [
+              "token",
+              "audit_log"
+            ]
+          },
+          {
+            "kind": "inherit_options_match"
+          }
+        ]
+      },
+      "expected_output": "inherit_keys_match=true\ninherit_options_match=true\ninherit_options_nonempty=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "raw_iv"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "encode_iv": false
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            }
+          }
+        },
+        "ops": [
+          {
+            "kind": "iv_present",
+            "attr": "raw_iv",
+            "value": "payload"
+          },
+          {
+            "kind": "iv_base64",
+            "attr": "raw_iv",
+            "value": "payload"
+          },
+          {
+            "kind": "algorithm",
+            "attr": "raw_iv"
+          }
+        ]
+      },
+      "expected_output": "algorithm[raw_iv]=aes-256-gcm\niv_base64[raw_iv]=false\niv_present[raw_iv]=true\n"
+    }
+  ]
+}

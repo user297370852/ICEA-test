@@ -1,0 +1,110 @@
+{
+  "description": "Boundary and logical-path coverage for the column-name resolver: an empty candidate set, a duplicate candidate, a case-insensitive fallback hit, a backtick-quoted target with one inner character forcing case-sensitive matching (hit and miss), a two-character backtick target that is NOT treated as quoted, an absent target, and a unicode case-folding match.",
+  "cases": [
+    {
+      "input": {
+        "action": "name_search",
+        "names": [],
+        "target": "x"
+      },
+      "expected_output": "sorted=\nindex=-1\nmatch=(none)\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "a",
+          "a"
+        ],
+        "target": "a"
+      },
+      "expected_output": "sorted=a a\nindex=0\nmatch=a\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "NAME"
+        ],
+        "target": "name"
+      },
+      "expected_output": "sorted=NAME\nindex=0\nmatch=NAME\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "A",
+          "a"
+        ],
+        "target": "`a`"
+      },
+      "expected_output": "sorted=A a\nindex=1\nmatch=a\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "A"
+        ],
+        "target": "`a`"
+      },
+      "expected_output": "sorted=A\nindex=-1\nmatch=(none)\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "x",
+          "``"
+        ],
+        "target": "``"
+      },
+      "expected_output": "sorted=`` x\nindex=0\nmatch=``\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "b",
+          "c"
+        ],
+        "target": "z"
+      },
+      "expected_output": "sorted=b c\nindex=-1\nmatch=(none)\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "ABC",
+          "abd"
+        ],
+        "target": "abc"
+      },
+      "expected_output": "sorted=ABC abd\nindex=0\nmatch=ABC\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "alpha",
+          "Alpha",
+          "ALPHA"
+        ],
+        "target": "`Alpha`"
+      },
+      "expected_output": "sorted=ALPHA Alpha alpha\nindex=1\nmatch=Alpha\n"
+    },
+    {
+      "input": {
+        "action": "name_search",
+        "names": [
+          "Σ"
+        ],
+        "target": "σ"
+      },
+      "expected_output": "sorted=Σ\nindex=0\nmatch=Σ\n"
+    }
+  ]
+}

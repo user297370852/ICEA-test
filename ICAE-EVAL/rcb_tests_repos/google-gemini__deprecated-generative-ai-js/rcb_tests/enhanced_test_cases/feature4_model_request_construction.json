@@ -1,0 +1,62 @@
+{
+  "description": "Additional model request construction cases for count-token URLs, non-streaming construction, reserved API key header, and HTTP errors without JSON messages.",
+  "cases": [
+    {
+      "input": {
+        "mode": "url",
+        "model": "models/gemini-pro",
+        "task": "COUNT_TOKENS",
+        "apiKey": "secret",
+        "stream": false,
+        "options": {}
+      },
+      "expected_output": "url=https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:countTokens\ncontains_api_key=false\n"
+    },
+    {
+      "input": {
+        "mode": "construct",
+        "model": "models/gemini-pro",
+        "task": "COUNT_TOKENS",
+        "apiKey": "key2",
+        "stream": false,
+        "body": "{\"a\":1}",
+        "options": {
+          "apiClient": "qa/client"
+        },
+        "customHeaders": {
+          "customerHeader": "v2"
+        }
+      },
+      "expected_output": "url=https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:countTokens\nmethod=POST\ncontent_type=application/json\napi_key_header=key2\nclient_header=qa/client genai-js/__PACKAGE_VERSION__\ncustomer_header=v2\nhas_abort_signal=false\n"
+    },
+    {
+      "input": {
+        "mode": "construct",
+        "model": "models/gemini-pro",
+        "task": "GENERATE_CONTENT",
+        "apiKey": "key",
+        "stream": false,
+        "body": "{}",
+        "options": {},
+        "customHeaders": {
+          "x-goog-api-key": "bad"
+        }
+      },
+      "expected_output": "error=reserved_header\nheader=x-goog-api-key\n"
+    },
+    {
+      "input": {
+        "mode": "fetch_error",
+        "model": "model-name",
+        "task": "GENERATE_CONTENT",
+        "apiKey": "key",
+        "stream": false,
+        "body": "",
+        "status": 404,
+        "statusText": "Not Found",
+        "errorMessage": "not here"
+      },
+      "expected_output": "error=http_error\nstatus=404\nstatus_text=Not Found\n"
+    }
+  ]
+}

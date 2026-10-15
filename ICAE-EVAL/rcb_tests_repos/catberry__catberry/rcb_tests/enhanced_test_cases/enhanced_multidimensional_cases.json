@@ -1,0 +1,574 @@
+{
+  "description": "Synthetic native-disjoint edge cases covering naming boundaries, URL slash/query routing, HTML tokenizer malformed and empty-attribute paths, cookie parsing/serialization duplicates and empty values, server API event/action composition, inline script escaping, and callback promise scalar/null/error results.",
+  "cases": [
+    {
+      "input": {
+        "op": "component_error_template_name",
+        "name": ""
+      },
+      "expected_output": "--error\n"
+    },
+    {
+      "input": {
+        "op": "component_error_template_name",
+        "name": "document--error"
+      },
+      "expected_output": "document--error--error\n"
+    },
+    {
+      "input": {
+        "op": "component_error_template_name",
+        "name": 123
+      },
+      "expected_output": "\n"
+    },
+    {
+      "input": {
+        "op": "component_camel_case_name",
+        "prefix": "pre-fix",
+        "name": "--multi__part.name 42"
+      },
+      "expected_output": "preFixMultiPartName42\n"
+    },
+    {
+      "input": {
+        "op": "component_camel_case_name",
+        "prefix": "0",
+        "name": "123-name"
+      },
+      "expected_output": "0123Name\n"
+    },
+    {
+      "input": {
+        "op": "component_camel_case_name",
+        "prefix": null,
+        "name": "---"
+      },
+      "expected_output": "-\n"
+    },
+    {
+      "input": {
+        "op": "component_original_name",
+        "tag": "HTML"
+      },
+      "expected_output": "document\n"
+    },
+    {
+      "input": {
+        "op": "component_original_name",
+        "tag": "HEAD"
+      },
+      "expected_output": "head\n"
+    },
+    {
+      "input": {
+        "op": "component_original_name",
+        "tag": "cat-Mixed-Name"
+      },
+      "expected_output": "mixed-name\n"
+    },
+    {
+      "input": {
+        "op": "component_original_name",
+        "tag": "DOG-SOME"
+      },
+      "expected_output": "dog-some\n"
+    },
+    {
+      "input": {
+        "op": "component_tag_name",
+        "name": "some-name"
+      },
+      "expected_output": "CAT-SOME-NAME\n"
+    },
+    {
+      "input": {
+        "op": "component_tag_name",
+        "name": "Head"
+      },
+      "expected_output": "CAT-HEAD\n"
+    },
+    {
+      "input": {
+        "op": "component_tag_name",
+        "name": ""
+      },
+      "expected_output": "CAT-\n"
+    },
+    {
+      "input": {
+        "op": "component_method_resolution",
+        "module": "default",
+        "prefix": "some",
+        "name": "another_entity"
+      },
+      "expected_output": "kind=immediate\nresult=hello:another_entity\n"
+    },
+    {
+      "input": {
+        "op": "component_method_resolution",
+        "module": "named",
+        "prefix": "other",
+        "name": "method-to-invoke"
+      },
+      "expected_output": "kind=deferred\nresult=undefined\n"
+    },
+    {
+      "input": {
+        "op": "trim_trailing_slash",
+        "uri": "/a/b//"
+      },
+      "expected_output": "/a/b/\n"
+    },
+    {
+      "input": {
+        "op": "trim_trailing_slash",
+        "uri": "/a/b/?q=1#frag"
+      },
+      "expected_output": "/a/b?q=1#frag\n"
+    },
+    {
+      "input": {
+        "op": "trim_trailing_slash",
+        "uri": "/a/b#frag"
+      },
+      "expected_output": "/a/b#frag\n"
+    },
+    {
+      "input": {
+        "op": "trim_trailing_slash",
+        "uri": 42
+      },
+      "expected_output": "\n"
+    },
+    {
+      "input": {
+        "op": "route_state",
+        "routes": [
+          "/files/:name[Store]?download=:flag[Store]"
+        ],
+        "uri": "/files/a%20b?download=true"
+      },
+      "expected_output": "{\"Store\":{\"flag\":\"true\",\"name\":\"a b\"}}\n"
+    },
+    {
+      "input": {
+        "op": "route_state",
+        "routes": [
+          "/item/:id[Store]?id=:id[Store]"
+        ],
+        "uri": "/item/path-id?id=query-id"
+      },
+      "expected_output": "{\"Store\":{\"id\":\"query-id\"}}\n"
+    },
+    {
+      "input": {
+        "op": "route_state",
+        "routes": [
+          "/one/:x[A]",
+          "/two/:y[B]"
+        ],
+        "uri": "/two/second?ignored=yes"
+      },
+      "expected_output": "{\"B\":{\"y\":\"second\"}}\n"
+    },
+    {
+      "input": {
+        "op": "route_state",
+        "routes": [
+          "/search?tag=:tag[Store]"
+        ],
+        "uri": "/search?tag=a&tag=b&tag="
+      },
+      "expected_output": "{\"Store\":{\"tag\":[\"a\",\"b\",\"\"]}}\n"
+    },
+    {
+      "input": {
+        "op": "route_state",
+        "routes": [
+          "/literal/:x[A]/end"
+        ],
+        "uri": "/literal//end"
+      },
+      "expected_output": "{\"A\":{\"x\":\"\"}}\n"
+    },
+    {
+      "input": {
+        "op": "tokenize_tag",
+        "html": "<input disabled checked=\"\">"
+      },
+      "expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"input\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"disabled\"\nAFTER_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"checked\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"\\\"\"\nTAG_CLOSE \">\"\n"
+    },
+    {
+      "input": {
+        "op": "tokenize_tag",
+        "html": "<svg:path data-id=abc.def xml:lang='en'>"
+      },
+      "expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"svg:path\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"data-id\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nATTRIBUTE_VALUE_UNQUOTED \"abc.def\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"xml:lang\"\nBEFORE_ATTRIBUTE_VALUE \"='\"\nATTRIBUTE_VALUE_SINGLE_QUOTED \"en\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"'\"\nTAG_CLOSE \">\"\n"
+    },
+    {
+      "input": {
+        "op": "tokenize_tag",
+        "html": "<tag a='' b=\"\" c=d/>"
+      },
+      "expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"='\"\nATTRIBUTE_VALUE_SINGLE_QUOTED \"\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"'\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"b\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"\\\"\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"c\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nATTRIBUTE_VALUE_UNQUOTED \"d/\"\nTAG_CLOSE \">\"\n"
+    },
+    {
+      "input": {
+        "op": "tokenize_tag",
+        "html": "<tag a=`bad`>"
+      },
+      "expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nILLEGAL \"`\"\n"
+    },
+    {
+      "input": {
+        "op": "tokenize_tag",
+        "html": "<tag a=<bad>"
+      },
+      "expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nILLEGAL \"<\"\n"
+    },
+    {
+      "input": {
+        "op": "cookie_get",
+        "cookieString": " spaced = bad; token=abc; empty=",
+        "key": "token"
+      },
+      "expected_output": "abc\n"
+    },
+    {
+      "input": {
+        "op": "cookie_get",
+        "cookieString": "a=1; repeated=first; repeated=second",
+        "key": "repeated"
+      },
+      "expected_output": "second\n"
+    },
+    {
+      "input": {
+        "op": "cookie_get",
+        "cookieString": "encoded=a%20b",
+        "key": "encoded"
+      },
+      "expected_output": "a%20b\n"
+    },
+    {
+      "input": {
+        "op": "cookie_get",
+        "cookieString": "a=1; b=two=equals",
+        "key": "b"
+      },
+      "expected_output": "two=equals\n"
+    },
+    {
+      "input": {
+        "op": "cookie_set",
+        "cookies": [
+          {
+            "key": "plain",
+            "value": "v"
+          }
+        ]
+      },
+      "expected_output": "plain=v\n"
+    },
+    {
+      "input": {
+        "op": "cookie_set",
+        "cookies": [
+          {
+            "key": "flags",
+            "value": "v",
+            "secure": false,
+            "httpOnly": false,
+            "path": "/"
+          }
+        ]
+      },
+      "expected_output": "flags=v; Path=/\n"
+    },
+    {
+      "input": {
+        "op": "cookie_set",
+        "cookies": [
+          {
+            "key": "exp",
+            "value": "v",
+            "expires": "1970-01-01T00:00:00.000Z"
+          }
+        ]
+      },
+      "expected_output": "exp=v; Expires=Thu, 01 Jan 1970 00:00:00 GMT\n"
+    },
+    {
+      "input": {
+        "op": "cookie_string",
+        "initString": "base=1",
+        "cookies": [
+          {
+            "key": "base",
+            "value": "2"
+          },
+          {
+            "key": "new",
+            "value": ""
+          }
+        ]
+      },
+      "expected_output": "base=1; base=2; new=\n"
+    },
+    {
+      "input": {
+        "op": "cookie_string",
+        "initString": null,
+        "cookies": [
+          {
+            "key": "only",
+            "value": "value"
+          }
+        ]
+      },
+      "expected_output": "nullonly=value\n"
+    },
+    {
+      "input": {
+        "op": "cookie_all",
+        "initString": "z=last; a=first",
+        "cookies": [
+          {
+            "key": "m",
+            "value": "mid"
+          }
+        ]
+      },
+      "expected_output": "{\"a\":\"first\",\"m\":\"mid\",\"z\":\"last\"}\n"
+    },
+    {
+      "input": {
+        "op": "cookie_all",
+        "initString": "dup=old; x=1",
+        "cookies": [
+          {
+            "key": "dup",
+            "value": "new"
+          }
+        ]
+      },
+      "expected_output": "{\"dup\":\"new\",\"x\":\"1\"}\n"
+    },
+    {
+      "input": {
+        "op": "cookie_all",
+        "initString": "",
+        "cookies": []
+      },
+      "expected_output": "{}\n"
+    },
+    {
+      "input": {
+        "op": "environment_flag",
+        "flag": "missingFlag"
+      },
+      "expected_output": "missingFlag=undefined\n"
+    },
+    {
+      "input": {
+        "op": "event_api",
+        "ops": [
+          {
+            "action": "on",
+            "event": "event",
+            "handler": "rec"
+          },
+          {
+            "action": "on",
+            "event": "event",
+            "handler": "rec2"
+          },
+          {
+            "action": "emit",
+            "event": "event",
+            "args": [
+              "x",
+              2,
+              {
+                "a": 1
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "invocations=2\narg=[\"x\",2,{\"a\":1}]\narg=[\"x\",2,{\"a\":1}]\n"
+    },
+    {
+      "input": {
+        "op": "event_api",
+        "ops": [
+          {
+            "action": "on",
+            "event": "a",
+            "handler": "rec"
+          },
+          {
+            "action": "emit",
+            "event": "b",
+            "args": [
+              "no"
+            ]
+          },
+          {
+            "action": "emit",
+            "event": "a",
+            "args": []
+          }
+        ]
+      },
+      "expected_output": "invocations=1\narg=[]\n"
+    },
+    {
+      "input": {
+        "op": "event_api",
+        "ops": [
+          {
+            "action": "once",
+            "event": "event",
+            "handler": "rec"
+          },
+          {
+            "action": "removeListener",
+            "event": "event",
+            "handler": "rec"
+          },
+          {
+            "action": "emit",
+            "event": "event",
+            "args": [
+              "gone"
+            ]
+          }
+        ]
+      },
+      "expected_output": "invocations=0\n"
+    },
+    {
+      "input": {
+        "op": "event_api",
+        "ops": [
+          {
+            "action": "removeAllListeners",
+            "event": null
+          }
+        ]
+      },
+      "expected_output": "error=invalid_event_name\n"
+    },
+    {
+      "input": {
+        "op": "event_api",
+        "ops": [
+          {
+            "action": "removeListener",
+            "event": "event",
+            "handler": "missing"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_event_handler\n"
+    },
+    {
+      "input": {
+        "op": "redirect_tracking",
+        "uris": [
+          "/only"
+        ]
+      },
+      "expected_output": "redirected_to=/only\n"
+    },
+    {
+      "input": {
+        "op": "redirect_tracking",
+        "uris": [
+          "/first",
+          "https://example.test/path?q=1#h",
+          ""
+        ]
+      },
+      "expected_output": "redirected_to=\n"
+    },
+    {
+      "input": {
+        "op": "inline_script",
+        "ops": [
+          {
+            "action": "redirect",
+            "uri": "/a'b\\c"
+          },
+          {
+            "action": "clear_fragment"
+          }
+        ]
+      },
+      "expected_output": "<script>window.location.assign('/a\\'b\\\\c');window.location.hash = '';</script>\n"
+    },
+    {
+      "input": {
+        "op": "inline_script",
+        "ops": [
+          {
+            "action": "set_cookie",
+            "cookie": {
+              "key": "danger",
+              "value": "</script><script>alert(1)</script>"
+            }
+          }
+        ]
+      },
+      "expected_output": "<script>window.document.cookie = 'danger=&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;';</script>\n"
+    },
+    {
+      "input": {
+        "op": "inline_script",
+        "ops": [
+          {
+            "action": "set_cookie",
+            "cookie": {
+              "key": "k",
+              "value": "v'\\x"
+            }
+          },
+          {
+            "action": "redirect",
+            "uri": "/final"
+          }
+        ]
+      },
+      "expected_output": "<script>window.document.cookie = 'k=v\\'\\\\x';window.location.assign('/final');</script>\n"
+    },
+    {
+      "input": {
+        "op": "callback_to_promise",
+        "callback": {
+          "result": 123
+        }
+      },
+      "expected_output": "resolved=123\n"
+    },
+    {
+      "input": {
+        "op": "callback_to_promise",
+        "callback": {
+          "result": null
+        }
+      },
+      "expected_output": "resolved=null\n"
+    },
+    {
+      "input": {
+        "op": "callback_to_promise",
+        "callback": {
+          "error": ""
+        }
+      },
+      "expected_output": "rejected=\n"
+    }
+  ]
+}

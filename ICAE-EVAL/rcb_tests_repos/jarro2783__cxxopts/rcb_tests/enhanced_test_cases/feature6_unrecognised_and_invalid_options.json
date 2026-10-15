@@ -1,0 +1,61 @@
+{
+  "description": "Enhanced unrecognised/invalid handling: an unknown short option aborting with no_such_option, a single-character long form rejected as invalid_option_syntax, and an allow-unrecognised run collecting an unknown long option followed by a known option that still parses.",
+  "cases": [
+    {
+      "input": {
+        "program": "unkshort",
+        "options": [
+          {
+            "opts": "a"
+          }
+        ],
+        "argv": [
+          "-q"
+        ],
+        "queries": []
+      },
+      "expected_output": "error=no_such_option\nparam=q"
+    },
+    {
+      "input": {
+        "program": "longsingle",
+        "options": [
+          {
+            "opts": "v"
+          }
+        ],
+        "argv": [
+          "--v"
+        ],
+        "queries": []
+      },
+      "expected_output": "error=invalid_option_syntax\nparam=--v"
+    },
+    {
+      "input": {
+        "program": "lenient",
+        "allow_unrecognised": true,
+        "options": [
+          {
+            "opts": "known"
+          }
+        ],
+        "argv": [
+          "--mystery",
+          "--known",
+          "--other"
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "known"
+          },
+          {
+            "q": "unmatched"
+          }
+        ]
+      },
+      "expected_output": "count[known]=1\nunmatched=2\nunmatched[0]=--mystery\nunmatched[1]=--other"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "description": "Reject malformed route-mapping strings. Before parsing, each string is trimmed of surrounding whitespace. A string is invalid when, after trimming, it does not contain exactly one unescaped '=' separator with a non-empty source on the left and a non-empty destination on the right: this covers strings with no separator, an empty side, only whitespace, or more than one unescaped separator. Parsing an invalid mapping aborts with an error; the output reports the error type name and its message.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "/a=x",
+          "/a=y"
+        ]
+      },
+      "expected_output": "error=ArgumentException\nmessage=An item with the same key has already been added. Key: /a\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "abc\\="
+        ]
+      },
+      "expected_output": "error=ArgumentException\nmessage=The format of the key-value pair is invalid. It must contain exactly one '=' separator. Make sure non-separator '=' characters are escaped ('\\=').\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "noequals"
+        ]
+      },
+      "expected_output": "error=ArgumentException\nmessage=The format of the key-value pair is invalid. It must contain exactly one '=' separator. Make sure non-separator '=' characters are escaped ('\\=').\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "a=b=c=d"
+        ]
+      },
+      "expected_output": "error=ArgumentException\nmessage=The format of the key-value pair is invalid. It must contain exactly one '=' separator. Make sure non-separator '=' characters are escaped ('\\=').\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "\t  \t"
+        ]
+      },
+      "expected_output": "error=ArgumentException\nmessage=The format of the key-value pair is invalid. It must contain exactly one '=' separator. Make sure non-separator '=' characters are escaped ('\\=').\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "/a=x",
+          "bad"
+        ]
+      },
+      "expected_output": "error=ArgumentException\nmessage=The format of the key-value pair is invalid. It must contain exactly one '=' separator. Make sure non-separator '=' characters are escaped ('\\=').\n"
+    }
+  ]
+}

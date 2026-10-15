@@ -1,0 +1,83 @@
+{
+    "description": "A token-bucket rate limiter starts full (balance = max). Each step may advance a virtual clock (microseconds and/or milliseconds) before charging a cost; the request is admitted only when the accumulated balance covers the cost. Credits refill at the configured rate but the balance is capped at the configured maximum.",
+    "cases": [
+        {
+            "input": {
+                "op": "rate_limiter",
+                "credits_per_second": 2.0,
+                "max_balance": 2.0,
+                "steps": [
+                    {
+                        "advance_micros": 100,
+                        "cost": 1.0
+                    },
+                    {
+                        "cost": 1.0
+                    },
+                    {
+                        "cost": 1.0
+                    },
+                    {
+                        "advance_millis": 250,
+                        "cost": 1.0
+                    },
+                    {
+                        "advance_millis": 500,
+                        "cost": 1.0
+                    },
+                    {
+                        "cost": 1.0
+                    },
+                    {
+                        "advance_millis": 5000,
+                        "cost": 1.0
+                    },
+                    {
+                        "cost": 1.0
+                    },
+                    {
+                        "cost": 1.0
+                    },
+                    {
+                        "cost": 1.0
+                    },
+                    {
+                        "cost": 1.0
+                    }
+                ]
+            },
+            "expected_output": "allow=true\nallow=true\nallow=false\nallow=false\nallow=true\nallow=false\nallow=true\nallow=true\nallow=false\nallow=false\nallow=false\n"
+        },
+        {
+            "input": {
+                "op": "rate_limiter",
+                "credits_per_second": 0.5,
+                "max_balance": 0.5,
+                "steps": [
+                    {
+                        "advance_micros": 100,
+                        "cost": 0.25
+                    },
+                    {
+                        "cost": 0.25
+                    },
+                    {
+                        "cost": 0.25
+                    },
+                    {
+                        "advance_millis": 250,
+                        "cost": 0.25
+                    },
+                    {
+                        "advance_millis": 500,
+                        "cost": 0.25
+                    },
+                    {
+                        "cost": 0.25
+                    }
+                ]
+            },
+            "expected_output": "allow=true\nallow=true\nallow=false\nallow=false\nallow=true\nallow=false\n"
+        }
+    ]
+}

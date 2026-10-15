@@ -1,0 +1,85 @@
+{
+  "description": "Boundary coverage for payload sanitization: default depth, depth limits of 1 and 2, null dropping inside objects vs arrays, and mixed primitive/array/object structures.",
+  "cases": [
+    {
+      "input": {
+        "data": {
+          "a": {
+            "b": {
+              "c": {
+                "d": {
+                  "e": "deep"
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "data={\"a\":{\"b\":{\"c\":{\"d\":{\"e\":\"deep\"}}}}}\n"
+    },
+    {
+      "input": {
+        "data": {
+          "keep": "x",
+          "drop": null,
+          "num": 7,
+          "flag": false
+        },
+        "maxDepth": 5
+      },
+      "expected_output": "data={\"flag\":false,\"keep\":\"x\",\"num\":7}\n"
+    },
+    {
+      "input": {
+        "data": [
+          "a",
+          [
+            "b",
+            [
+              "c",
+              [
+                "d",
+                "e"
+              ]
+            ]
+          ]
+        ],
+        "maxDepth": 2
+      },
+      "expected_output": "data=[\"a\",[\"[DEPTH]\",\"[DEPTH]\"]]\n"
+    },
+    {
+      "input": {
+        "data": {
+          "mixed": [
+            1,
+            {
+              "x": [
+                2,
+                3
+              ]
+            },
+            null
+          ]
+        },
+        "maxDepth": 8
+      },
+      "expected_output": "data={\"mixed\":[1,{\"x\":[2,3]},\"[object Null]\"]}\n"
+    },
+    {
+      "input": {
+        "data": {
+          "top": {
+            "arr": [
+              {
+                "deep": "v"
+              }
+            ]
+          }
+        },
+        "maxDepth": 1
+      },
+      "expected_output": "data={\"top\":\"[DEPTH]\"}\n"
+    }
+  ]
+}

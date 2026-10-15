@@ -1,0 +1,90 @@
+{
+    "description": "Surface user-facing parse errors as a neutral diagnostic line. Covers: a required optional that was not supplied; too few operands for required positionals (including fixed-count and one-or-more quantifiers); leftover tokens that match no argument reported as unrecognized; and, when automatic help is disabled, the help flag itself being reported as unrecognized.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "required": true
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "error: argument --foo is required\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo"
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "error: too few arguments\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "nargs": 3
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "error: too few arguments\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "a"
+                    },
+                    {
+                        "name": "b",
+                        "nargs": "+"
+                    }
+                ],
+                "argv": [
+                    "a"
+                ]
+            },
+            "expected_output": "error: too few arguments\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo"
+                    }
+                ],
+                "argv": [
+                    "alpha",
+                    "bravo",
+                    "charlie"
+                ]
+            },
+            "expected_output": "error: unrecognized arguments: 'bravo charlie'\n"
+        },
+        {
+            "input": {
+                "add_help": false,
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "-h"
+                ]
+            },
+            "expected_output": "error: unrecognized arguments: '-h'\n"
+        }
+    ]
+}

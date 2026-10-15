@@ -1,0 +1,16 @@
+{
+    "description": "Renders templates that exercise the engine's value-transformation filters and a dashed key lookup. A base64-encode filter encodes its input string, a base64-decode filter decodes its input, a sha256 filter returns the hex digest of its input, and a to-yaml filter serializes a structure (a list of mappings) to inline YAML. A separate template indexes a mapping by a region key to select the matching value. Output is the rendered file content under a '# file:' header.",
+    "cases": [
+        {
+            "input": {
+                "op": "render",
+                "section": "test_filters",
+                "templates_files": {
+                    "filters.yaml.j2": "b64encode: {{ to_base64 | b64encode }}\nb64decode: {{ from_base64 | b64decode }}\nsha256: {{ to_sha256 | hash_sha256 }}\naffinity: {{ affinity | to_yaml() }}"
+                },
+                "config": "common:\n  k8s_namespace: namespace\ntest_filters:\n  to_base64: hello world\n  from_base64: azhzLWhhbmRsZQ==\n  to_sha256: k8s-hanle\n  affinity:\n    - key: \"dedicated\"\n      operator: \"Equal\"\n      value: \"monitoring\"\n      effect: \"NoSchedule\"\n    - key: \"dedicated\"\n      operator: \"Equal\"\n      value:\n        hello: world\n      effect: \"NoSchedule\"\n  templates:\n    - template: filters.yaml.j2\n"
+            },
+            "expected_output": "# file: filters.yaml\nb64encode: aGVsbG8gd29ybGQ=\nb64decode: k8s-handle\nsha256: 8fae6dd899aace000fd494fd6d795e26e2c85bf8e59d4262ef56b03dc91e924c\naffinity: [{effect: NoSchedule, key: dedicated, operator: Equal, value: monitoring}, {effect: NoSchedule, key: dedicated, operator: Equal, value: {hello: world}}]\n"
+        }
+    ]
+}

@@ -1,0 +1,70 @@
+{
+  "description": "Additional builder coverage: verify size reconciliation at the default boundary, zero initial size with explicit positive max size, all duration and validation fields together, and additional validation error categories for negative retry and non-positive max size.",
+  "cases": [
+    {
+      "input": {
+        "op": "build-config",
+        "settings": {
+          "initialSize": 0,
+          "maxSize": 10,
+          "acquireRetry": 0,
+          "maxIdleTime": "PT0S",
+          "maxCreateConnectionTime": "PT0.25S",
+          "maxAcquireTime": "PT3S",
+          "maxLifeTime": "PT2H",
+          "backgroundEvictionInterval": "PT45S",
+          "validationDepth": "remote",
+          "validationQuery": "SELECT 1",
+          "name": "FullBuilder",
+          "registerJmx": true
+        }
+      },
+      "expected_output": "initialSize=0\nmaxSize=10\nacquireRetry=0\nmaxIdleTime=PT0S\nmaxCreateConnectionTime=PT0.25S\nmaxAcquireTime=PT3S\nmaxLifeTime=PT2H\nbackgroundEvictionInterval=PT45S\nvalidationDepth=REMOTE\nvalidationQuery=SELECT 1\nname=FullBuilder\nregisterJmx=true\n"
+    },
+    {
+      "input": {
+        "op": "build-config",
+        "settings": {
+          "initialSize": 10
+        }
+      },
+      "expected_output": "initialSize=10\nmaxSize=10\nacquireRetry=1\nmaxIdleTime=PT30M\nmaxCreateConnectionTime=PT-0.001S\nmaxAcquireTime=PT-0.001S\nmaxLifeTime=PT-0.001S\nbackgroundEvictionInterval=PT-0.001S\nvalidationDepth=LOCAL\nvalidationQuery=<none>\nname=<none>\nregisterJmx=false\n"
+    },
+    {
+      "input": {
+        "op": "build-config",
+        "settings": {
+          "maxSize": 10
+        }
+      },
+      "expected_output": "initialSize=10\nmaxSize=10\nacquireRetry=1\nmaxIdleTime=PT30M\nmaxCreateConnectionTime=PT-0.001S\nmaxAcquireTime=PT-0.001S\nmaxLifeTime=PT-0.001S\nbackgroundEvictionInterval=PT-0.001S\nvalidationDepth=LOCAL\nvalidationQuery=<none>\nname=<none>\nregisterJmx=false\n"
+    },
+    {
+      "input": {
+        "op": "build-config",
+        "settings": {
+          "initialSize": 0
+        }
+      },
+      "expected_output": "initialSize=0\nmaxSize=10\nacquireRetry=1\nmaxIdleTime=PT30M\nmaxCreateConnectionTime=PT-0.001S\nmaxAcquireTime=PT-0.001S\nmaxLifeTime=PT-0.001S\nbackgroundEvictionInterval=PT-0.001S\nvalidationDepth=LOCAL\nvalidationQuery=<none>\nname=<none>\nregisterJmx=false\n"
+    },
+    {
+      "input": {
+        "op": "build-config",
+        "settings": {
+          "maxSize": 0
+        }
+      },
+      "expected_output": "error=max_size_must_be_positive\n"
+    },
+    {
+      "input": {
+        "op": "build-config",
+        "settings": {
+          "acquireRetry": -1
+        }
+      },
+      "expected_output": "error=acquire_retry_must_be_non_negative\n"
+    }
+  ]
+}

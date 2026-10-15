@@ -1,0 +1,78 @@
+{
+  "description": "An update engine applies set and increment modifiers, covering boundary inputs: a negative increment delta, a deep set that creates several intermediate documents, a set that replaces a scalar with an embedded document, a zero-delta increment, and a set assigning a field its existing value. The resulting document is returned.",
+  "cases": [
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": 1
+        },
+        "update": {
+          "$inc": {
+            "a": -3
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : -2}\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "x": 1
+        },
+        "update": {
+          "$set": {
+            "a.b.c": 7
+          }
+        }
+      },
+      "expected_output": "{ \"x\" : 1 , \"a\" : { \"b\" : { \"c\" : 7}}}\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": 5
+        },
+        "update": {
+          "$set": {
+            "a": {
+              "k": "v"
+            }
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : { \"k\" : \"v\"}}\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": 2
+        },
+        "update": {
+          "$inc": {
+            "a": 0
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : 2}\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": 1,
+          "b": 2
+        },
+        "update": {
+          "$set": {
+            "a": 1
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : 1 , \"b\" : 2}\n"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+    "description": "A size-limited buffer accumulates bytes written to it or read through it up to a configured maximum. Content that stays within the maximum is preserved and can be replayed exactly. Content that exceeds the maximum yields a size-exceeded error. A maximum of zero means unlimited. The buffer keeps a bounded amount in memory and transparently spills the remainder to backing storage, so spilled content is still preserved exactly. Each case reports the preserved content or the normalized size-exceeded error.",
+    "cases": [
+        {
+            "input": {
+                "kind": "buffer",
+                "mode": "write",
+                "max_bytes": 20,
+                "max_mem_bytes": 20,
+                "data": "hello world"
+            },
+            "expected_output": "content=hello world\n"
+        },
+        {
+            "input": {
+                "kind": "buffer",
+                "mode": "write",
+                "max_bytes": 5,
+                "max_mem_bytes": 5,
+                "data": "too long data"
+            },
+            "expected_output": "error=maximum_size_exceeded\n"
+        },
+        {
+            "input": {
+                "kind": "buffer",
+                "mode": "read",
+                "max_bytes": 20,
+                "max_mem_bytes": 20,
+                "data": "read me back"
+            },
+            "expected_output": "content=read me back\n"
+        },
+        {
+            "input": {
+                "kind": "buffer",
+                "mode": "read",
+                "max_bytes": 4,
+                "max_mem_bytes": 4,
+                "data": "way too much data"
+            },
+            "expected_output": "error=maximum_size_exceeded\n"
+        },
+        {
+            "input": {
+                "kind": "buffer",
+                "mode": "write",
+                "max_bytes": 0,
+                "max_mem_bytes": 4,
+                "data": "unlimited content beyond memory window"
+            },
+            "expected_output": "content=unlimited content beyond memory window\n"
+        },
+        {
+            "input": {
+                "kind": "buffer",
+                "mode": "read",
+                "max_bytes": 0,
+                "max_mem_bytes": 4,
+                "data": "spilled to disk content"
+            },
+            "expected_output": "content=spilled to disk content\n"
+        }
+    ]
+}

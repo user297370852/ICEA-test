@@ -1,0 +1,89 @@
+{
+    "description": "Loads may carry a per-request filter on the linked record's attributes. Only loads whose filter (and any row cap) match can be batched together; loads with different filters are routed into separate round-trips. Each owner then receives only its linked records that satisfy that load's filter, capped if a limit was supplied. The reported signals are the number of round-trips, the owner-key set folded into each round-trip, and the filtered (and capped) id set returned to each owner.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "simple_string",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "members",
+                        "options": {
+                            "where": {
+                                "awesome": true
+                            }
+                        }
+                    },
+                    {
+                        "project": 2,
+                        "as": "members",
+                        "options": {
+                            "where": {
+                                "awesome": false
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "queries=2\nbatch=1\nbatch=2\nr0.op0=members=102,103\nr0.op1=members=104,106\n"
+        },
+        {
+            "input": {
+                "scenario": "simple_string",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "members",
+                        "options": {
+                            "where": {
+                                "awesome": true
+                            },
+                            "limit": 1
+                        }
+                    },
+                    {
+                        "project": 2,
+                        "as": "members",
+                        "options": {
+                            "where": {
+                                "awesome": true
+                            },
+                            "limit": 1
+                        }
+                    },
+                    {
+                        "project": 2,
+                        "as": "members",
+                        "options": {
+                            "where": {
+                                "awesome": false
+                            },
+                            "limit": 2
+                        }
+                    },
+                    {
+                        "project": 3,
+                        "as": "members",
+                        "options": {
+                            "where": {
+                                "awesome": true
+                            },
+                            "limit": 2
+                        }
+                    },
+                    {
+                        "project": 3,
+                        "as": "members",
+                        "options": {
+                            "where": {
+                                "awesome": true
+                            },
+                            "limit": 2
+                        }
+                    }
+                ]
+            },
+            "expected_output": "queries=3\nbatch=1,2\nbatch=2\nbatch=3\nr0.op0=members=102\nr0.op1=members=105\nr0.op2=members=104,106\nr0.op3=members=107,108\nr0.op4=members=107,108\n"
+        }
+    ]
+}

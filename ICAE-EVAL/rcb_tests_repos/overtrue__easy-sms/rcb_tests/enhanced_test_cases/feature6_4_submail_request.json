@@ -1,0 +1,113 @@
+{
+  "description": "Build the outbound HTTP request for a project-based SMS provider whose endpoint is selected by the recipient's region: recipients with no country code or the mainland country code route to the domestic send endpoint, while any other country code routes to the international send endpoint. The form parameters carry the application id, the signature credential, the project id (taken from the message data when present, otherwise from configuration), the recipient in universal form, and the template variables encoded as a JSON object. The provider's JSON reply carries a status: a success status means accepted, and any other status is surfaced as a normalized gateway error with the reply's code and message. The output reports the request method, endpoint URL, the sorted form parameters, and the outcome.",
+  "cases": [
+    {
+      "input": {
+        "action": "gateway_send",
+        "gateway": "submail",
+        "config": {
+          "app_id": "mock-app-id",
+          "app_key": "mock-app-key",
+          "project": "mock-project"
+        },
+        "to": {
+          "number": 18188888888,
+          "idd_code": 86
+        },
+        "message": {
+          "data": {
+            "code": "111",
+            "time": "5"
+          }
+        },
+        "response": {
+          "status": "success",
+          "send_id": "x",
+          "fee": 1,
+          "sms_credits": 100
+        }
+      },
+      "expected_output": "method=POST\nurl=https://api.mysubmail.com/message/xsend.json\nparam.appid=mock-app-id\nparam.project=mock-project\nparam.signature=mock-app-key\nparam.to=+8618188888888\nparam.vars={\"code\":\"111\",\"time\":\"5\"}\noutcome=sent\n"
+    },
+    {
+      "input": {
+        "action": "gateway_send",
+        "gateway": "submail",
+        "config": {
+          "app_id": "mock-app-id",
+          "app_key": "mock-app-key",
+          "project": "mock-project"
+        },
+        "to": {
+          "number": 18188888888
+        },
+        "message": {
+          "data": {
+            "project": "data-proj",
+            "code": "222"
+          }
+        },
+        "response": {
+          "status": "success",
+          "send_id": "x",
+          "fee": 1,
+          "sms_credits": 100
+        }
+      },
+      "expected_output": "method=POST\nurl=https://api.mysubmail.com/message/xsend.json\nparam.appid=mock-app-id\nparam.project=data-proj\nparam.signature=mock-app-key\nparam.to=18188888888\nparam.vars={\"project\":\"data-proj\",\"code\":\"222\"}\noutcome=sent\n"
+    },
+    {
+      "input": {
+        "action": "gateway_send",
+        "gateway": "submail",
+        "config": {
+          "app_id": "mock-app-id",
+          "app_key": "mock-app-key",
+          "project": "mock-project"
+        },
+        "to": {
+          "number": 18188888888,
+          "idd_code": 852
+        },
+        "message": {
+          "data": {
+            "code": "333"
+          }
+        },
+        "response": {
+          "status": "success",
+          "send_id": "x",
+          "fee": 1,
+          "sms_credits": 100
+        }
+      },
+      "expected_output": "method=POST\nurl=https://api.mysubmail.com/internationalsms/xsend.json\nparam.appid=mock-app-id\nparam.project=mock-project\nparam.signature=mock-app-key\nparam.to=+85218188888888\nparam.vars={\"code\":\"333\"}\noutcome=sent\n"
+    },
+    {
+      "input": {
+        "action": "gateway_send",
+        "gateway": "submail",
+        "config": {
+          "app_id": "mock-app-id",
+          "app_key": "mock-app-key",
+          "project": "mock-project"
+        },
+        "to": {
+          "number": 18188888888,
+          "idd_code": 1
+        },
+        "message": {
+          "data": {
+            "code": "444"
+          }
+        },
+        "response": {
+          "status": "error",
+          "code": 200,
+          "msg": "系统错误"
+        }
+      },
+      "expected_output": "method=POST\nurl=https://api.mysubmail.com/internationalsms/xsend.json\nparam.appid=mock-app-id\nparam.project=mock-project\nparam.signature=mock-app-key\nparam.to=+118188888888\nparam.vars={\"code\":\"444\"}\noutcome=error\nerror_code=200\nerror_message=系统错误\n"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "description": "Enhanced: Header normalization covering additional allow-listed headers (content-md5, cache-control, content-length, copy-source family), range boundaries (100-200 and 0-0), and a mix where every field is dropped. Disjoint from native cases.",
+  "cases": [
+    {
+      "input": {
+        "feature": "headers",
+        "headers": {
+          "content_md5": "abc",
+          "cache_control": "max-age=1",
+          "expires": "e",
+          "content_length": "5"
+        }
+      },
+      "expected_output": "cache-control=max-age=1\ncontent-length=5\n"
+    },
+    {
+      "input": {
+        "feature": "headers",
+        "headers": {
+          "x_amz_copy_source": "b/k",
+          "x_amz_metadata_directive": "COPY",
+          "x_amz_copy_source_if_match": "e"
+        }
+      },
+      "expected_output": "x-amz-copy-source=b/k\nx-amz-copy-source-if-match=e\nx-amz-metadata-directive=COPY\n"
+    },
+    {
+      "input": {
+        "feature": "headers",
+        "headers": {
+          "range": {
+            "range": [
+              100,
+              200
+            ]
+          }
+        }
+      },
+      "expected_output": "range=bytes=100-200\n"
+    },
+    {
+      "input": {
+        "feature": "headers",
+        "headers": {
+          "range": {
+            "range": [
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "expected_output": "range=bytes=0-0\n"
+    },
+    {
+      "input": {
+        "feature": "headers",
+        "headers": {
+          "foo": "bar",
+          "accept": "text/*"
+        }
+      },
+      "expected_output": "headers=\n"
+    }
+  ]
+}

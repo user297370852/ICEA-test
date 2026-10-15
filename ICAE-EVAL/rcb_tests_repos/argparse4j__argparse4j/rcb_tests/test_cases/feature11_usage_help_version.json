@@ -1,0 +1,166 @@
+{
+    "description": "Render the parser's self-documentation as text. Covers the one-line usage summary (auto-generated from the declared optionals, required optionals, mutually-exclusive groups and positionals, and an overridable usage template with program-name substitution), the full help body (program usage, description, an optional-arguments section including the auto-added help entry, named argument groups and mutually-exclusive groups, optional rendering of each argument's default value, and a subcommand listing with aliases), and the version string with program-name substitution.",
+    "cases": [
+        {
+            "input": {
+                "action": "usage",
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ],
+                        "required": true
+                    },
+                    {
+                        "name": "file"
+                    }
+                ],
+                "groups": [
+                    {
+                        "kind": "mutex",
+                        "title": "mutex",
+                        "required": true,
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "-c"
+                                ],
+                                "required": true
+                            },
+                            {
+                                "flags": [
+                                    "-d"
+                                ],
+                                "required": true
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "usage: app [-h] [-a A] -b B (-c C | -d D) file\n"
+        },
+        {
+            "input": {
+                "action": "usage",
+                "usage": "<${prog}> [OPTIONS] ${prog}FILES"
+            },
+            "expected_output": "usage: <app> [OPTIONS] appFILES\n"
+        },
+        {
+            "input": {
+                "action": "help",
+                "description": "This is a parser.",
+                "epilog": "This is epilog."
+            },
+            "expected_output": "usage: app [-h]\n\nThis is a parser.\n\noptional arguments:\n  -h, --help             show this help message and exit\n\nThis is epilog.\n"
+        },
+        {
+            "input": {
+                "action": "help",
+                "default_help": true,
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "default": "alpha"
+                    }
+                ]
+            },
+            "expected_output": "usage: app [-h] [--foo FOO]\n\noptional arguments:\n  -h, --help             show this help message and exit\n  --foo FOO              (default: alpha)\n"
+        },
+        {
+            "input": {
+                "action": "help",
+                "description": "This is a parser.",
+                "epilog": "This is epilog.",
+                "groups": [
+                    {
+                        "kind": "group",
+                        "title": "group1",
+                        "description": "group1 description",
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "--foo"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "usage: app [-h] [--foo FOO]\n\nThis is a parser.\n\noptional arguments:\n  -h, --help             show this help message and exit\n\ngroup1:\n  group1 description\n\n  --foo FOO\n\nThis is epilog.\n"
+        },
+        {
+            "input": {
+                "action": "help",
+                "description": "This is a parser.",
+                "epilog": "This is epilog.",
+                "groups": [
+                    {
+                        "kind": "mutex",
+                        "title": "group1",
+                        "description": "group1 description",
+                        "arguments": [
+                            {
+                                "flags": [
+                                    "--foo"
+                                ]
+                            },
+                            {
+                                "flags": [
+                                    "--bar"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "usage: app [-h] [--foo FOO | --bar BAR]\n\nThis is a parser.\n\noptional arguments:\n  -h, --help             show this help message and exit\n\ngroup1:\n  group1 description\n\n  --foo FOO\n  --bar BAR\n\nThis is epilog.\n"
+        },
+        {
+            "input": {
+                "action": "help",
+                "subparsers": {
+                    "title": "mysubcommands",
+                    "description": "valid subcommands",
+                    "help": "subcommand help",
+                    "parsers": [
+                        {
+                            "name": "clone",
+                            "help": "clone help"
+                        },
+                        {
+                            "name": "checkout",
+                            "aliases": [
+                                "co"
+                            ],
+                            "help": "checkout help"
+                        },
+                        {
+                            "name": "remove",
+                            "aliases": [
+                                "rm",
+                                "del"
+                            ],
+                            "help": "remove help"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "usage: app [-h] {clone,checkout,co,remove,rm,del} ...\n\noptional arguments:\n  -h, --help             show this help message and exit\n\nmysubcommands:\n  valid subcommands\n\n  {clone,checkout,co,remove,rm,del}\n                         subcommand help\n    clone                clone help\n    checkout (co)        checkout help\n    remove (rm,del)      remove help\n"
+        },
+        {
+            "input": {
+                "action": "version",
+                "version": "${prog} version 7.8.7 (Dreamliner)"
+            },
+            "expected_output": "app version 7.8.7 (Dreamliner)\n"
+        }
+    ]
+}

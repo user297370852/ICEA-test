@@ -1,0 +1,21 @@
+{
+  "description": "Database query span edge cases: non-SELECT statements keep the raw SQL description with mysql endpoint metadata, and in-memory sqlite reports null endpoints for an aggregate query.",
+  "cases": [
+    {
+      "input": {
+        "feature": "database_spans",
+        "connection": "mysql",
+        "query": "UPDATE users SET name = 'x' WHERE id = 1"
+      },
+      "expected_output": "span_count=2\nspan_op=db.sql.query\nspan_description=UPDATE users SET name = 'x' WHERE id = 1\nserver_address=host-mysql\nserver_port=3306\n"
+    },
+    {
+      "input": {
+        "feature": "database_spans",
+        "connection": "sqlite",
+        "query": "SELECT count(*) FROM t"
+      },
+      "expected_output": "span_count=2\nspan_op=db.sql.query\nspan_description=SELECT count(*) FROM t\nserver_address=null\nserver_port=null\n"
+    }
+  ]
+}

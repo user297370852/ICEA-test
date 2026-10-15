@@ -1,0 +1,53 @@
+{
+    "description": "Input validation and error reporting as neutral categories. The tool rejects invalid configurations and impossible requests, reporting a normalised error category rather than completing. Categories covered: the scripts configuration must be an object (not a string/array), the skip configuration must be an object, a custom changelog header must not itself look like a release-section heading, a release with no manifest and tag-fallback disabled has no version source, and a manual release request given without a release-type value is incomplete. A run that completes successfully reports no error. Input describes a run designed to trigger (or not) a specific condition; output reports a single neutral error-category line.",
+    "cases": [
+        {
+            "input": {
+                "kind": "error",
+                "packageVersion": "1.0.0",
+                "toolConfig": {
+                    "scripts": "echo hello"
+                },
+                "ops": [
+                    {
+                        "commit": "feat: first commit"
+                    }
+                ],
+                "args": []
+            },
+            "expected_output": "error=invalid_scripts\n"
+        },
+        {
+            "input": {
+                "kind": "error",
+                "packageVersion": "1.0.0",
+                "toolConfig": {
+                    "skip": true
+                },
+                "ops": [
+                    {
+                        "commit": "feat: first commit"
+                    }
+                ],
+                "args": []
+            },
+            "expected_output": "error=invalid_skip\n"
+        },
+        {
+            "input": {
+                "kind": "error",
+                "packageVersion": "1.0.0",
+                "changelogSeed": "",
+                "ops": [
+                    {
+                        "commit": "feat: first commit"
+                    }
+                ],
+                "args": [
+                    "--changelogHeader=## 3.0.2"
+                ]
+            },
+            "expected_output": "error=invalid_changelog_header\n"
+        }
+    ]
+}

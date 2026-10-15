@@ -1,0 +1,110 @@
+{
+    "description": "Serialize transformed resources without a data wrapper. A single record's fields appear directly at the top level. A list of records appears as an array under the supplied resource key, or under a default data key when no resource key is given. Nested included relationships are merged in flat, keyed by the relationship name and not wrapped. Records are transformed first (year normalized to integer, private underscore-prefixed fields dropped). A relationship marked as a default include is emitted even when not explicitly requested. Attached metadata is emitted under a separate top-level meta key.",
+    "cases": [
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "array",
+                "resource": "item",
+                "resource_key": "book",
+                "includes": "author",
+                "data": {
+                    "title": "Foo",
+                    "year": "1991",
+                    "_author": {
+                        "name": "Dave"
+                    }
+                }
+            },
+            "expected_output": "{\"title\":\"Foo\",\"year\":1991,\"author\":{\"name\":\"Dave\"}}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "array",
+                "resource": "item",
+                "resource_key": "book",
+                "includes": "author",
+                "meta": {
+                    "foo": "bar"
+                },
+                "data": {
+                    "title": "Foo",
+                    "year": "1991",
+                    "_author": {
+                        "name": "Dave"
+                    }
+                }
+            },
+            "expected_output": "{\"title\":\"Foo\",\"year\":1991,\"author\":{\"name\":\"Dave\"},\"meta\":{\"foo\":\"bar\"}}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "array",
+                "resource": "collection",
+                "resource_key": "books",
+                "includes": "author",
+                "data": [
+                    {
+                        "title": "Foo",
+                        "year": "1991",
+                        "_author": {
+                            "name": "Dave"
+                        }
+                    },
+                    {
+                        "title": "Bar",
+                        "year": "1997",
+                        "_author": {
+                            "name": "Bob"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{\"books\":[{\"title\":\"Foo\",\"year\":1991,\"author\":{\"name\":\"Dave\"}},{\"title\":\"Bar\",\"year\":1997,\"author\":{\"name\":\"Bob\"}}]}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "array",
+                "resource": "collection",
+                "includes": "author",
+                "data": [
+                    {
+                        "title": "Foo",
+                        "year": "1991",
+                        "_author": {
+                            "name": "Dave"
+                        }
+                    },
+                    {
+                        "title": "Bar",
+                        "year": "1997",
+                        "_author": {
+                            "name": "Bob"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{\"data\":[{\"title\":\"Foo\",\"year\":1991,\"author\":{\"name\":\"Dave\"}},{\"title\":\"Bar\",\"year\":1997,\"author\":{\"name\":\"Bob\"}}]}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "array",
+                "resource": "item",
+                "default_includes": [
+                    "author"
+                ],
+                "data": {
+                    "a": "b",
+                    "_author": {
+                        "c": "d"
+                    }
+                }
+            },
+            "expected_output": "{\"a\":\"b\",\"author\":{\"c\":\"d\"}}\n"
+        }
+    ]
+}

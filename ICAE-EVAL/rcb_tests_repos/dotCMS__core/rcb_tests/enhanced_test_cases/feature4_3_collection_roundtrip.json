@@ -1,0 +1,67 @@
+{
+  "description": "Round-trip a portlet collection through its own XML representation by rendering it via the collection's serialization entry point and rebuilding a fresh collection via the collection builder's parse entry point, then report the rebuilt collection as a deterministic dump giving the portlet count and, per portlet in order, its identifier, class, parameter count, and each parameter as a sorted name/value line. These cases exercise boundary inputs: an empty collection, a record with no initialization parameters, several records, and parameter values containing characters with XML significance.",
+  "cases": [
+    {
+      "input": {
+        "op": "from_xml_roundtrip",
+        "target": "portlet_list",
+        "portlets": []
+      },
+      "expected_output": "portlets=0\n"
+    },
+    {
+      "input": {
+        "op": "from_xml_roundtrip",
+        "target": "portlet_list",
+        "portlets": [
+          {
+            "portlet_id": "noparams",
+            "portlet_class": "com.dotcms.NoParams",
+            "init_params": {}
+          }
+        ]
+      },
+      "expected_output": "portlets=1\n[0] id=noparams\n[0] class=com.dotcms.NoParams\n[0] init_count=0\n"
+    },
+    {
+      "input": {
+        "op": "from_xml_roundtrip",
+        "target": "portlet_list",
+        "portlets": [
+          {
+            "portlet_id": "alpha",
+            "portlet_class": "com.dotcms.Alpha",
+            "init_params": {
+              "a": "1"
+            }
+          },
+          {
+            "portlet_id": "beta",
+            "portlet_class": "com.dotcms.Beta",
+            "init_params": {
+              "b": "2",
+              "c": "3"
+            }
+          }
+        ]
+      },
+      "expected_output": "portlets=2\n[0] id=alpha\n[0] class=com.dotcms.Alpha\n[0] init_count=1\n[0] init.a=1\n[1] id=beta\n[1] class=com.dotcms.Beta\n[1] init_count=2\n[1] init.b=2\n[1] init.c=3\n"
+    },
+    {
+      "input": {
+        "op": "from_xml_roundtrip",
+        "target": "portlet_list",
+        "portlets": [
+          {
+            "portlet_id": "markup",
+            "portlet_class": "com.dotcms.Markup",
+            "init_params": {
+              "expr": "a < b & c > d"
+            }
+          }
+        ]
+      },
+      "expected_output": "portlets=1\n[0] id=markup\n[0] class=com.dotcms.Markup\n[0] init_count=1\n[0] init.expr=a < b & c > d\n"
+    }
+  ]
+}

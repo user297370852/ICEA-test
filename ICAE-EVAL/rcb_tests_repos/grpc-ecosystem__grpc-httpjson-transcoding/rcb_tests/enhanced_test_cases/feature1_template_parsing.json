@@ -1,0 +1,131 @@
+{
+  "description": "Boundary and malformed path-pattern parsing: root-only, bare wildcards, nested multi-segment variables, duplicate fields, empty/relative templates, and invalid colon-suffix forms.",
+  "cases": [
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/*"
+      },
+      "expected_output": "valid=true\nsegments=*\nverb=\nvariables=\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/**"
+      },
+      "expected_output": "valid=true\nsegments=**\nverb=\nvariables=\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/a/b/c"
+      },
+      "expected_output": "valid=true\nsegments=a,b,c\nverb=\nvariables=\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/a/{b}/c:verb"
+      },
+      "expected_output": "valid=true\nsegments=a,*,c\nverb=verb\nvariables=b[1:2:single]\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/{x=*}"
+      },
+      "expected_output": "valid=true\nsegments=*\nverb=\nvariables=x[0:1:single]\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/{x=**}"
+      },
+      "expected_output": "valid=true\nsegments=**\nverb=\nvariables=x[0:-1:multi]\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/v1/{name=projects/*/instances/*}"
+      },
+      "expected_output": "valid=true\nsegments=v1,projects,*,instances,*\nverb=\nvariables=name[1:5:single]\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/a/**/b"
+      },
+      "expected_output": "valid=true\nsegments=a,**,b\nverb=\nvariables=\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/{x}/{y}/{z}"
+      },
+      "expected_output": "valid=true\nsegments=*,*,*\nverb=\nvariables=x[0:1:single];y[1:2:single];z[2:3:single]\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": ""
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "a/b"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/a/{x}/{x}"
+      },
+      "expected_output": "valid=true\nsegments=a,*,*\nverb=\nvariables=x[1:2:single];x[2:3:single]\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/a/{=*}"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/a/}b"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/:verb"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/a/b:"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "operation": "parse_template",
+        "template": "/foo/{x=bar/**}:list"
+      },
+      "expected_output": "valid=true\nsegments=foo,bar,**\nverb=list\nvariables=x[1:-2:multi]\n"
+    }
+  ]
+}

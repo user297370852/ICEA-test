@@ -1,0 +1,252 @@
+{
+  "description": "Enhanced null-node rejection coverage: a null comparison operand inside a projection function, a null if-condition and a null else-branch in a projection, a null comparison operand in a filter condition, a null nested inside an OR/AND chain, and null condition / null projection-expression positions of a filter-then-project pipeline.",
+  "cases": [
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "x",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "x": [
+            1
+          ]
+        },
+        "expression": {
+          "node": "function",
+          "name": "add",
+          "args": [
+            {
+              "node": "field",
+              "name": "x"
+            },
+            null
+          ],
+          "return": "int32"
+        },
+        "result_type": "int32"
+      },
+      "expected_output": "error=null_node\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "x",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "x": [
+            1
+          ]
+        },
+        "expression": {
+          "node": "if",
+          "cond": null,
+          "then": {
+            "node": "field",
+            "name": "x"
+          },
+          "else": {
+            "node": "field",
+            "name": "x"
+          },
+          "type": "int32"
+        },
+        "result_type": "int32"
+      },
+      "expected_output": "error=null_node\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "x",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "x": [
+            1
+          ]
+        },
+        "expression": {
+          "node": "if",
+          "cond": {
+            "node": "literal",
+            "type": "bool",
+            "value": true
+          },
+          "then": {
+            "node": "field",
+            "name": "x"
+          },
+          "else": null,
+          "type": "int32"
+        },
+        "result_type": "int32"
+      },
+      "expected_output": "error=null_node\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "x",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "x": [
+            1
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "greater_than",
+          "args": [
+            null,
+            {
+              "node": "field",
+              "name": "x"
+            }
+          ],
+          "return": "bool"
+        }
+      },
+      "expected_output": "error=null_node\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "x",
+            "type": "bool"
+          }
+        ],
+        "columns": {
+          "x": [
+            true
+          ]
+        },
+        "condition": {
+          "node": "or",
+          "args": [
+            {
+              "node": "and",
+              "args": [
+                {
+                  "node": "literal",
+                  "type": "bool",
+                  "value": true
+                },
+                null
+              ]
+            },
+            {
+              "node": "literal",
+              "type": "bool",
+              "value": false
+            }
+          ]
+        }
+      },
+      "expected_output": "error=null_node\n"
+    },
+    {
+      "input": {
+        "operation": "filter_project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "int32"
+          },
+          {
+            "name": "b",
+            "type": "int32"
+          },
+          {
+            "name": "c",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "a": [
+            10
+          ],
+          "b": [
+            5
+          ],
+          "c": [
+            1
+          ]
+        },
+        "condition": null,
+        "expression": {
+          "node": "field",
+          "name": "c"
+        },
+        "result_type": "int32",
+        "selection_mode": "UINT32"
+      },
+      "expected_output": "error=null_node\n"
+    },
+    {
+      "input": {
+        "operation": "filter_project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "int32"
+          },
+          {
+            "name": "b",
+            "type": "int32"
+          },
+          {
+            "name": "c",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "a": [
+            10
+          ],
+          "b": [
+            5
+          ],
+          "c": [
+            1
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "greater_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "bool"
+        },
+        "expression": null,
+        "result_type": "int32",
+        "selection_mode": "UINT32"
+      },
+      "expected_output": "error=null_node\n"
+    }
+  ]
+}

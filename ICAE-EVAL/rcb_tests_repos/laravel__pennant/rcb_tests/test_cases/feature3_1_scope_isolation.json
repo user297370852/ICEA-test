@@ -1,0 +1,31 @@
+{
+    "description": "Evaluate a feature against a specific scope (the entity a flag is being checked for, such as an account, a string identifier like an email address, a number, or a domain object). A resolver may inspect the scope to decide the value. Values stored for one scope do not leak to another, so a feature can be active for one scope and inactive for another. A scope object may also declare its own stable string identifier, in which case two scopes that map to the same identifier are treated as the same scope.",
+    "cases": [
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "scopeIdEquals", "id": 1}},
+                {"op": "active", "feature": "foo"},
+                {"op": "active", "feature": "foo", "scope": {"user": 1}},
+                {"op": "active", "feature": "foo", "scope": {"user": 2}}
+            ]},
+            "expected_output": "active foo = false\nactive foo = true\nactive foo = false\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "activate", "feature": "foo", "scope": "tim@laravel.com"},
+                {"op": "active", "feature": "foo", "scope": "james@laravel.com"},
+                {"op": "active", "feature": "foo", "scope": "tim@laravel.com"}
+            ]},
+            "expected_output": "active foo = false\nactive foo = true\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "activate", "feature": "bar", "scope": {"scopeable": "tim@laravel.com"}},
+                {"op": "active", "feature": "bar", "scope": "james@laravel.com"},
+                {"op": "active", "feature": "bar", "scope": "tim@laravel.com"},
+                {"op": "active", "feature": "bar", "scope": {"scopeable": "tim@laravel.com"}}
+            ]},
+            "expected_output": "active bar = false\nactive bar = true\nactive bar = true\n"
+        }
+    ]
+}

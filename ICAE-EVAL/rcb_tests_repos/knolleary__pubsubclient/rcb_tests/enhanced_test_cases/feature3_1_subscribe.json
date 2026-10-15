@@ -1,0 +1,79 @@
+{
+  "description": "A subscribe on a live session transmits a SUBSCRIBE packet carrying an incrementing packet identifier, the topic filter and a requested maximum QoS byte. These cases exercise an explicitly requested QoS of zero, an empty topic filter and consecutive subscribes that advance the packet identifier.",
+  "cases": [
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "subscribe",
+            "topic": "topic",
+            "qos": 0
+          }
+        ]
+      },
+      "expected_output": "subscribe=1\nsent=82 0a 00 02 00 05 74 6f 70 69 63 00\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "subscribe",
+            "topic": ""
+          }
+        ]
+      },
+      "expected_output": "subscribe=1\nsent=82 05 00 02 00 00 00\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "subscribe",
+            "topic": "alpha"
+          },
+          {
+            "op": "subscribe",
+            "topic": "beta"
+          }
+        ]
+      },
+      "expected_output": "subscribe=1\nsent=82 0a 00 02 00 05 61 6c 70 68 61 00\nsubscribe=1\nsent=82 09 00 03 00 04 62 65 74 61 00\n"
+    }
+  ]
+}

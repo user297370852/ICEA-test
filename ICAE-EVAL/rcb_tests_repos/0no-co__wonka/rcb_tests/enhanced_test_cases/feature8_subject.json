@@ -1,0 +1,144 @@
+{
+  "description": "subject edge cases: values pushed before any subscriber are dropped; completing with no subscribers; a late subscriber misses earlier values; unsubscribe then the hub completes (no end for the one who left); and three subscribers fanned out with one leaving mid-stream.",
+  "cases": [
+    {
+      "input": {
+        "kind": "subject",
+        "program": [
+          {
+            "op": "next",
+            "value": 1
+          },
+          {
+            "op": "next",
+            "value": 2
+          },
+          {
+            "op": "subscribe",
+            "id": "A"
+          },
+          {
+            "op": "next",
+            "value": 3
+          },
+          {
+            "op": "complete"
+          }
+        ]
+      },
+      "expected_output": "A value 3\nA end\n"
+    },
+    {
+      "input": {
+        "kind": "subject",
+        "program": [
+          {
+            "op": "next",
+            "value": 1
+          },
+          {
+            "op": "complete"
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "kind": "subject",
+        "program": [
+          {
+            "op": "subscribe",
+            "id": "A"
+          },
+          {
+            "op": "next",
+            "value": 10
+          },
+          {
+            "op": "subscribe",
+            "id": "B"
+          },
+          {
+            "op": "next",
+            "value": 20
+          },
+          {
+            "op": "complete"
+          }
+        ]
+      },
+      "expected_output": "A value 10\nA value 20\nB value 20\nA end\nB end\n"
+    },
+    {
+      "input": {
+        "kind": "subject",
+        "program": [
+          {
+            "op": "subscribe",
+            "id": "A"
+          },
+          {
+            "op": "subscribe",
+            "id": "B"
+          },
+          {
+            "op": "next",
+            "value": 1
+          },
+          {
+            "op": "unsubscribe",
+            "id": "A"
+          },
+          {
+            "op": "unsubscribe",
+            "id": "B"
+          },
+          {
+            "op": "next",
+            "value": 2
+          },
+          {
+            "op": "complete"
+          }
+        ]
+      },
+      "expected_output": "A value 1\nB value 1\n"
+    },
+    {
+      "input": {
+        "kind": "subject",
+        "program": [
+          {
+            "op": "subscribe",
+            "id": "A"
+          },
+          {
+            "op": "subscribe",
+            "id": "B"
+          },
+          {
+            "op": "subscribe",
+            "id": "C"
+          },
+          {
+            "op": "next",
+            "value": 100
+          },
+          {
+            "op": "unsubscribe",
+            "id": "B"
+          },
+          {
+            "op": "next",
+            "value": 200
+          },
+          {
+            "op": "complete"
+          }
+        ]
+      },
+      "expected_output": "A value 100\nB value 100\nC value 100\nA value 200\nC value 200\nA end\nC end\n"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "description": "Enhanced edge coverage for resolve_parameter: command producing multiple embedded newlines (all stripped), command precedence over a static value when both are supplied, multiple injected context env vars referenced in one command, a static value containing '=' and ',' characters passed through verbatim, a single trailing-newline command output, and a command producing empty output.",
+  "cases": [
+    {
+      "input": {
+        "action": "resolve_parameter",
+        "field": "multiline",
+        "execute": "printf 'a\\nb\\nc'"
+      },
+      "expected_output": "value=abc\n"
+    },
+    {
+      "input": {
+        "action": "resolve_parameter",
+        "field": "combo",
+        "execute": "echo override",
+        "value": "static-loses"
+      },
+      "expected_output": "value=override\n"
+    },
+    {
+      "input": {
+        "action": "resolve_parameter",
+        "field": "twoenv",
+        "execute": "echo $FIRST-$SECOND",
+        "project_params": {
+          "FIRST": "hello",
+          "SECOND": "world"
+        }
+      },
+      "expected_output": "value=hello-world\n"
+    },
+    {
+      "input": {
+        "action": "resolve_parameter",
+        "field": "special",
+        "value": "a=b,c=d"
+      },
+      "expected_output": "value=a=b,c=d\n"
+    },
+    {
+      "input": {
+        "action": "resolve_parameter",
+        "field": "trailing",
+        "execute": "echo trailing-newline"
+      },
+      "expected_output": "value=trailing-newline\n"
+    },
+    {
+      "input": {
+        "action": "resolve_parameter",
+        "field": "empty-out",
+        "execute": "printf ''"
+      },
+      "expected_output": "value=\n"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "description": "Parse a single portlet's XML wire document back into a portlet record and report the reconstructed state as a deterministic dump giving the identifier, class, parameter count, and each parameter as a sorted name/value line. These cases exercise inputs with a single parameter, several parameters supplied out of sorted order, and values carrying XML-escaped characters.",
+  "cases": [
+    {
+      "input": {
+        "op": "from_xml",
+        "target": "portlet",
+        "payload": "<portlet><portlet-name>single</portlet-name><portlet-class>com.dotcms.Single</portlet-class><init-param><name>only</name><value>/ext/one</value></init-param></portlet>"
+      },
+      "expected_output": "id=single\nclass=com.dotcms.Single\ninit_count=1\ninit.only=/ext/one\n"
+    },
+    {
+      "input": {
+        "op": "from_xml",
+        "target": "portlet",
+        "payload": "<portlet><portlet-name>sorting</portlet-name><portlet-class>com.dotcms.Sort</portlet-class><init-param><name>zeta</name><value>z</value></init-param><init-param><name>alpha</name><value>a</value></init-param><init-param><name>mu</name><value>m</value></init-param></portlet>"
+      },
+      "expected_output": "id=sorting\nclass=com.dotcms.Sort\ninit_count=3\ninit.alpha=a\ninit.mu=m\ninit.zeta=z\n"
+    },
+    {
+      "input": {
+        "op": "from_xml",
+        "target": "portlet",
+        "payload": "<portlet><portlet-name>escaped</portlet-name><portlet-class>com.dotcms.Escaped</portlet-class><init-param><name>expr</name><value>a &lt; b &amp; c &gt; d</value></init-param></portlet>"
+      },
+      "expected_output": "id=escaped\nclass=com.dotcms.Escaped\ninit_count=1\ninit.expr=a < b & c > d\n"
+    }
+  ]
+}

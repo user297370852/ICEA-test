@@ -1,0 +1,36 @@
+{
+    "description": "An incoming request is routed to a backend by matching the request host against the set of services registered in the router. Each service is registered under one or more exact hostnames. When the incoming host matches a registered service the request is forwarded to that service's backend and the backend's response status and body are returned to the client. When the incoming host matches no registered service the router returns a not-found response. Each registration is reported as succeeding, and each probe reports the resulting response status together with the backend-provided body.",
+    "cases": [
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "primary": {
+                        "body": "primary-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "app.example.com"
+                        ],
+                        "target": "primary"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://app.example.com/",
+                        "method": "GET"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://unknown.example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\nstatus=200 target=primary-app\nstatus=404 target=Not Found\n"
+        }
+    ]
+}

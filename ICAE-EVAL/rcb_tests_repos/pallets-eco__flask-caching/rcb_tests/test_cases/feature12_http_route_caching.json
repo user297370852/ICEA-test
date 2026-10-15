@@ -1,0 +1,71 @@
+{
+    "description": "Caches HTTP route responses with framework-observable status, URL, body reuse, bypass, and forced-refresh behavior.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "cache http route responses",
+                "route": "/resource",
+                "cache_policy": "normal",
+                "requests": [
+                    {
+                        "label": "first",
+                        "url": "/resource"
+                    },
+                    {
+                        "label": "second",
+                        "url": "/resource"
+                    }
+                ]
+            },
+            "expected_output": "request=first status=200 url=/resource body=body-1\nrequest=second status=200 url=/resource body=body-1\nhandler_calls=1\n"
+        },
+        {
+            "input": {
+                "scenario": "cache http route responses",
+                "route": "/resource",
+                "cache_policy": "unless_true",
+                "requests": [
+                    {
+                        "label": "first",
+                        "url": "/resource"
+                    },
+                    {
+                        "label": "second",
+                        "url": "/resource"
+                    }
+                ]
+            },
+            "expected_output": "request=first status=200 url=/resource body=body-1\nrequest=second status=200 url=/resource body=body-2\nhandler_calls=2\n"
+        },
+        {
+            "input": {
+                "scenario": "cache http route responses",
+                "route": "/resource",
+                "cache_policy": "forced_update",
+                "requests": [
+                    {
+                        "label": "first",
+                        "url": "/resource",
+                        "force": false
+                    },
+                    {
+                        "label": "second",
+                        "url": "/resource",
+                        "force": false
+                    },
+                    {
+                        "label": "refresh",
+                        "url": "/resource",
+                        "force": true
+                    },
+                    {
+                        "label": "after_refresh",
+                        "url": "/resource",
+                        "force": false
+                    }
+                ]
+            },
+            "expected_output": "request=first status=200 url=/resource body=body-1\nrequest=second status=200 url=/resource body=body-1\nrequest=refresh status=200 url=/resource body=body-2\nrequest=after_refresh status=200 url=/resource body=body-2\nhandler_calls=2\n"
+        }
+    ]
+}

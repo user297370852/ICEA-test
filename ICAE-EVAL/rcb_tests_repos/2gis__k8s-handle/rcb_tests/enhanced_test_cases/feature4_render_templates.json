@@ -1,0 +1,30 @@
+{
+  "description": "Additional template-rendering coverage: a 'kubectl' list whose items are flattened out of nested 'group' wrappers, and a regular-expression template name that expands to every matching template file in a subdirectory. Output lists produced files in sorted path order under '# file:' headers.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "section": "kube_groups",
+        "templates_files": {
+          "alpha.yaml.j2": "value: {{ greeting }}\n",
+          "beta.yaml.j2": "encoded: {{ greeting | b64encode }}\n"
+        },
+        "config": "common:\n  k8s_namespace: ns\n  greeting: hi\nkube_groups:\n  kubectl:\n    - template: alpha.yaml.j2\n    - group:\n        - group:\n            - template: beta.yaml.j2\n"
+      },
+      "expected_output": "# file: alpha.yaml\nvalue: hi\n# file: beta.yaml\nencoded: aGk=\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "section": "regex_dir",
+        "templates_files": {
+          "sub/a.yaml.j2": "first\n",
+          "sub/b.yaml.j2": "second\n",
+          "other.yaml.j2": "ignored\n"
+        },
+        "config": "common:\n  k8s_namespace: ns\nregex_dir:\n  templates:\n    - template: sub/.*\\.j2\n"
+      },
+      "expected_output": "# file: sub/a.yaml\nfirst\n# file: sub/b.yaml\nsecond\n"
+    }
+  ]
+}

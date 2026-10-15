@@ -1,0 +1,53 @@
+{
+  "description": "Additional structural-error coverage for section loading: a differently malformed YAML document, a whitespace-only document that parses to empty (empty_config), a section name absent from a multi-section document, a section that declares only a 'dirs' list but neither 'templates' nor 'kubectl', an empty section name against a richer config, and the reserved shared section name when the shared block itself carries templates. Each prints a single 'error=<category>' line.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve",
+        "section": "service",
+        "config": "common: {\n"
+      },
+      "expected_output": "error=invalid_yaml\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "service",
+        "config": "   \n   \n   \n"
+      },
+      "expected_output": "error=empty_config\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "frontend",
+        "config": "common:\n  k8s_namespace: ns\nbackend:\n  templates:\n    - template: backend.yaml.j2\ndatabase:\n  templates:\n    - template: db.yaml.j2\n"
+      },
+      "expected_output": "error=section_not_found\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "only_dirs",
+        "config": "common:\n  k8s_namespace: ns\nonly_dirs:\n  dirs:\n    - dst: /tmp/output/\n  some_var: 42\n"
+      },
+      "expected_output": "error=missing_templates\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "",
+        "config": "common:\n  k8s_namespace: ns\nweb:\n  templates:\n    - template: web.yaml.j2\n"
+      },
+      "expected_output": "error=empty_section\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "common",
+        "config": "common:\n  k8s_namespace: ns\n  templates:\n    - template: shared.yaml.j2\n"
+      },
+      "expected_output": "error=reserved_section\n"
+    }
+  ]
+}

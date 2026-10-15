@@ -1,0 +1,72 @@
+{
+    "description": "Streaming location updates to a listener while honoring the request. A single incoming fix is delivered. Updates arriving sooner than the fastest interval, or closer than the smallest displacement, are dropped. When both sources stream simultaneously only the more accurate fix is delivered.",
+    "cases": [
+        {
+            "input": {
+                "command": "stream_updates",
+                "request": {
+                    "priority": "high"
+                },
+                "fixes": [
+                    {
+                        "provider": "gps",
+                        "lat": 0.0,
+                        "lng": 0.0
+                    }
+                ]
+            },
+            "expected_output": "reported=1\n1 provider=gps lat=0.0 lng=0.0\n"
+        },
+        {
+            "input": {
+                "command": "stream_updates",
+                "request": {
+                    "priority": "high",
+                    "fastest_interval": 5000
+                },
+                "fixes": [
+                    {
+                        "provider": "gps",
+                        "lat": 0.0,
+                        "lng": 0.0,
+                        "time": 1000
+                    },
+                    {
+                        "provider": "gps",
+                        "lat": 1.0,
+                        "lng": 1.0,
+                        "time": 2000
+                    }
+                ]
+            },
+            "expected_output": "reported=1\n1 provider=gps lat=0.0 lng=0.0\n"
+        },
+        {
+            "input": {
+                "command": "stream_updates",
+                "request": {
+                    "priority": "high",
+                    "fastest_interval": 0,
+                    "smallest_displacement": 0.0
+                },
+                "fixes": [
+                    {
+                        "provider": "gps",
+                        "lat": 0.0,
+                        "lng": 0.0,
+                        "time": 1000,
+                        "accuracy": 10.0
+                    },
+                    {
+                        "provider": "network",
+                        "lat": 0.0,
+                        "lng": 0.0,
+                        "time": 1001,
+                        "accuracy": 20.0
+                    }
+                ]
+            },
+            "expected_output": "reported=1\n1 provider=gps lat=0.0 lng=0.0\n"
+        }
+    ]
+}

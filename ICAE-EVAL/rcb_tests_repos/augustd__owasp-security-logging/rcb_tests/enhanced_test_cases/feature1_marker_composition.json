@@ -1,0 +1,80 @@
+{
+  "description": "Enhanced boundary coverage for composite marker construction and containment. Exercises duplicate child markers collapsing to one (set semantics), the full four-level information-classification stack, a single non-security event marker, the complete security-event triple, and substring/false-positive probes (e.g. probing 'SECRET' against a 'TOPSECRET' composite or the bare 'TOP' prefix) to confirm containment is exact-name matching, not substring matching.",
+  "cases": [
+    {
+      "input": {
+        "op": "markers",
+        "markers": [
+          "CONFIDENTIAL",
+          "CONFIDENTIAL"
+        ],
+        "probes": [
+          "CONFIDENTIAL",
+          "SECRET"
+        ]
+      },
+      "expected_output": "name=CONFIDENTIAL\ncontains[CONFIDENTIAL]=true\ncontains[SECRET]=false\n"
+    },
+    {
+      "input": {
+        "op": "markers",
+        "markers": [
+          "RESTRICTED",
+          "CONFIDENTIAL",
+          "SECRET",
+          "TOPSECRET"
+        ],
+        "probes": [
+          "RESTRICTED",
+          "TOPSECRET",
+          "SECURITY AUDIT"
+        ]
+      },
+      "expected_output": "name=RESTRICTEDCONFIDENTIALSECRETTOPSECRET\ncontains[RESTRICTED]=true\ncontains[TOPSECRET]=true\ncontains[SECURITY AUDIT]=false\n"
+    },
+    {
+      "input": {
+        "op": "markers",
+        "markers": [
+          "EVENT SUCCESS"
+        ],
+        "probes": [
+          "EVENT SUCCESS",
+          "EVENT FAILURE"
+        ]
+      },
+      "expected_output": "name=EVENT SUCCESS\ncontains[EVENT SUCCESS]=true\ncontains[EVENT FAILURE]=false\n"
+    },
+    {
+      "input": {
+        "op": "markers",
+        "markers": [
+          "SECURITY SUCCESS",
+          "SECURITY FAILURE",
+          "SECURITY AUDIT"
+        ],
+        "probes": [
+          "SECURITY SUCCESS",
+          "SECURITY FAILURE",
+          "SECURITY AUDIT",
+          "CONFIDENTIAL"
+        ]
+      },
+      "expected_output": "name=SECURITY SUCCESSSECURITY FAILURESECURITY AUDIT\ncontains[SECURITY SUCCESS]=true\ncontains[SECURITY FAILURE]=true\ncontains[SECURITY AUDIT]=true\ncontains[CONFIDENTIAL]=false\n"
+    },
+    {
+      "input": {
+        "op": "markers",
+        "markers": [
+          "TOPSECRET"
+        ],
+        "probes": [
+          "TOPSECRET",
+          "SECRET",
+          "TOP"
+        ]
+      },
+      "expected_output": "name=TOPSECRET\ncontains[TOPSECRET]=true\ncontains[SECRET]=false\ncontains[TOP]=false\n"
+    }
+  ]
+}

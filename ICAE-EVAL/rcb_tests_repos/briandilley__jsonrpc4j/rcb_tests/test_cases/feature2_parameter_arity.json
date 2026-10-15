@@ -1,0 +1,83 @@
+{
+  "description": "Parameter arity validation for positional calls: supplying too few or too many positional arguments is rejected with the method-parameters-invalid error, unless the server is configured to allow missing (allowLessParams) or extra (allowExtraParams) arguments, in which case the call proceeds.",
+  "cases": [
+    {
+      "description": "too few positional arguments is rejected",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            1
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n"
+    },
+    {
+      "description": "too many positional arguments is rejected",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n"
+    },
+    {
+      "description": "extra argument accepted when extras are allowed",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "a",
+            "b"
+          ]
+        },
+        "allowExtraParams": true
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"a\"\n"
+    },
+    {
+      "description": "missing argument accepted when fewer are allowed",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": []
+        },
+        "allowLessParams": true
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=null\n"
+    },
+    {
+      "description": "exact arity still succeeds with extras allowed",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "a"
+          ]
+        },
+        "allowExtraParams": true
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"a\"\n"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+    "description": "Token-count inputs are wrapped as a generation-style request and may inherit model-level context such as system instruction, tools, and cached content references.",
+    "cases": [
+        {
+            "input": {
+                "request": "some text content",
+                "modelDefaults": {
+                    "model": "gemini-1.5-flash"
+                }
+            },
+            "expected_output": "request={\"generateContentRequest\":{\"contents\":[{\"parts\":[{\"text\":\"some text content\"}],\"role\":\"user\"}],\"model\":\"gemini-1.5-flash\"}}\n"
+        },
+        {
+            "input": {
+                "request": "some text content",
+                "modelDefaults": {
+                    "model": "gemini-1.5-flash",
+                    "systemInstruction": "hello",
+                    "tools": [
+                        {
+                            "codeExecution": {}
+                        }
+                    ],
+                    "cachedContent": {
+                        "name": "mycache",
+                        "contents": []
+                    }
+                }
+            },
+            "expected_output": "request={\"generateContentRequest\":{\"cachedContent\":\"mycache\",\"contents\":[{\"parts\":[{\"text\":\"some text content\"}],\"role\":\"user\"}],\"model\":\"gemini-1.5-flash\",\"systemInstruction\":\"hello\",\"tools\":[{\"codeExecution\":{}}]}}\n"
+        },
+        {
+            "input": {
+                "request": {
+                    "contents": [
+                        {
+                            "role": "user",
+                            "parts": [
+                                {
+                                    "text": "some text content"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "modelDefaults": {
+                    "model": "gemini-1.5-flash",
+                    "systemInstruction": "hello",
+                    "tools": [
+                        {
+                            "codeExecution": {}
+                        }
+                    ],
+                    "cachedContent": {
+                        "name": "mycache",
+                        "contents": []
+                    }
+                }
+            },
+            "expected_output": "request={\"generateContentRequest\":{\"cachedContent\":\"mycache\",\"contents\":[{\"parts\":[{\"text\":\"some text content\"}],\"role\":\"user\"}],\"model\":\"gemini-1.5-flash\",\"systemInstruction\":\"hello\",\"tools\":[{\"codeExecution\":{}}]}}\n"
+        }
+    ]
+}

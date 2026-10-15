@@ -1,0 +1,51 @@
+{
+  "description": "Enhanced health-gating edge cases: a backend whose health endpoint returns a client-error status (404) is treated as unhealthy and the registration fails with a target-unhealthy error, and likewise a backend returning a server-error status (500) fails to activate within the bounded deploy window. No routing change takes effect on failure. Each registration reports success or the normalized error category.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "bad": {
+            "body": "nf",
+            "status": 404
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "bad",
+            "deploy_timeout_ms": 200
+          }
+        ]
+      },
+      "expected_output": "deploy s1 error=target_unhealthy\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "bad": {
+            "body": "err",
+            "status": 500
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "bad",
+            "deploy_timeout_ms": 200
+          }
+        ]
+      },
+      "expected_output": "deploy s1 error=target_unhealthy\n"
+    }
+  ]
+}

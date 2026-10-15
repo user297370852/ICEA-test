@@ -1,0 +1,61 @@
+{
+  "description": "Boundary and logical-path coverage for decoding kernel network socket tables: empty socket bodies, extreme port values, the unspecified address, connection-state codes outside the listen/established pair, multi-socket tables, and the IPv6 address family.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_net_tcp",
+        "kind": "tcp",
+        "table": "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n"
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "op": "parse_net_tcp",
+        "kind": "tcp",
+        "table": "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n   0: 00000000:0000 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n"
+      },
+      "expected_output": "kind=tcp ip=0.0.0.0 port=0 state=listen\n"
+    },
+    {
+      "input": {
+        "op": "parse_net_tcp",
+        "kind": "tcp",
+        "table": "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n   0: 0100007F:FFFF 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n"
+      },
+      "expected_output": "kind=tcp ip=127.0.0.1 port=65535 state=listen\n"
+    },
+    {
+      "input": {
+        "op": "parse_net_tcp",
+        "kind": "tcp",
+        "table": "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n   0: 0F02000A:0050 00000000:0000 01 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n"
+      },
+      "expected_output": "kind=tcp ip=10.0.2.15 port=80 state=established\n"
+    },
+    {
+      "input": {
+        "op": "parse_net_tcp",
+        "kind": "tcp",
+        "table": "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n   0: 0100007F:0035 00000000:0000 06 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n"
+      },
+      "expected_output": "kind=tcp ip=127.0.0.1 port=53 state=0x6\n"
+    },
+    {
+      "input": {
+        "op": "parse_net_tcp",
+        "kind": "tcp",
+        "table": "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n   0: 0200000A:1F90 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n   1: 0F02000A:0050 00000000:0000 01 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n"
+      },
+      "expected_output": "kind=tcp ip=10.0.0.2 port=8080 state=listen\nkind=tcp ip=10.0.2.15 port=80 state=established\n"
+    },
+    {
+      "input": {
+        "op": "parse_net_tcp",
+        "kind": "tcp6",
+        "table": "  sl  local_address                         remote_address                        st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n   0: 00000000000000000000000001000000:1F90 00000000000000000000000000000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n"
+      },
+      "expected_output": "kind=tcp6 ip=::1 port=8080 state=listen\n"
+    }
+  ]
+}

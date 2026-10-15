@@ -1,0 +1,33 @@
+{
+  "description": "Scenario-independence for non-branching stages. Four stages — debug_application (Feature 1), native_embedding (Feature 2), dotnet_module (Feature 4.3), and native_module (Feature 4.4) — do not read the `scenario` selector at all. Supplying an arbitrary `scenario` value must therefore produce byte-for-byte the same artifact report as the canonical command. These synthetic cases pin that idempotence/robustness property (an unexpected extra field is ignored, not an error), which the native suite never verifies because it only sends the bare commands.",
+  "cases": [
+    {
+      "input": {
+        "stage": "debug_application",
+        "scenario": "ignored"
+      },
+      "expected_output": "artifact=vm_snapshot_data\npresent=true\nartifact=isolate_snapshot_data\npresent=true\nartifact=kernel_blob.bin\npresent=true\n"
+    },
+    {
+      "input": {
+        "stage": "native_embedding",
+        "scenario": "ignored"
+      },
+      "expected_output": "artifact=include/flutter.h\npresent=true\nartifact=libembedding_cpp.a\npresent=true\n"
+    },
+    {
+      "input": {
+        "stage": "dotnet_module",
+        "scenario": "build_succeeds"
+      },
+      "expected_output": "artifact=res/flutter_assets\npresent=true\nartifact=lib/libflutter_engine.so\npresent=true\nartifact=lib/libflutter_tizen.so\npresent=true\nartifact=res/icudtl.dat\npresent=true\nartifact=lib/libapp.so\npresent=true\nartifact=src/GeneratedPluginRegistrant.cs\npresent=true\nartifact=lib/libflutter_plugins.so\npresent=true\n"
+    },
+    {
+      "input": {
+        "stage": "native_module",
+        "scenario": "no_profile"
+      },
+      "expected_output": "artifact=res/flutter_assets\npresent=true\nartifact=lib/libflutter_engine.so\npresent=true\nartifact=lib/libflutter_tizen_common.so\npresent=true\nartifact=res/icudtl.dat\npresent=true\nartifact=lib/libapp.so\npresent=true\nartifact=inc/generated_plugin_registrant.h\npresent=true\nartifact=lib/libflutter_plugins.so\npresent=true\nartifact=inc/flutter.h\npresent=true\nartifact=Release/libembedding_cpp.a\npresent=true\n"
+    }
+  ]
+}

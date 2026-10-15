@@ -1,0 +1,97 @@
+{
+    "description": "Enhanced batching/encoding cases covering multiple flushes, quote/tab JSON escaping, and oversized first event dropping.",
+    "cases": [
+        {
+            "input": {
+                "operation": "append_batching",
+                "batch_max_items": 2,
+                "batch_timeout_ms": 1000,
+                "events": [
+                    {
+                        "timestamp_ms": 200,
+                        "level": "INFO",
+                        "logger": "edge.App",
+                        "thread": "t1",
+                        "message": "first batch info"
+                    },
+                    {
+                        "timestamp_ms": 201,
+                        "level": "WARN",
+                        "logger": "edge.App",
+                        "thread": "t2",
+                        "message": "first batch warn"
+                    },
+                    {
+                        "timestamp_ms": 202,
+                        "level": "ERROR",
+                        "logger": "edge.App",
+                        "thread": "t3",
+                        "message": "second batch error"
+                    },
+                    {
+                        "timestamp_ms": 203,
+                        "level": "ERROR",
+                        "logger": "edge.App",
+                        "thread": "t4",
+                        "message": "second batch error 2"
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "operation": "json_escape_batch",
+                "test_label": "quotesTabs",
+                "events": [
+                    {
+                        "timestamp_ms": 300,
+                        "level": "INFO",
+                        "logger": "TestApp",
+                        "thread": "main",
+                        "message": "quote \" and slash \\ and tab\tend"
+                    },
+                    {
+                        "timestamp_ms": 301,
+                        "level": "WARN",
+                        "logger": "TestApp",
+                        "thread": "worker",
+                        "message": "unicode 雪 and emoji 🏁"
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "operation": "drop_large_event",
+                "batch_max_items": 2,
+                "batch_max_bytes": 160,
+                "events": [
+                    {
+                        "timestamp_ms": 400,
+                        "level": "INFO",
+                        "logger": "TestApp",
+                        "thread": "main",
+                        "message": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                    },
+                    {
+                        "timestamp_ms": 401,
+                        "level": "INFO",
+                        "logger": "edge.App",
+                        "thread": "t1",
+                        "message": "kept after drop"
+                    },
+                    {
+                        "timestamp_ms": 402,
+                        "level": "WARN",
+                        "logger": "edge.App",
+                        "thread": "t2",
+                        "message": "also kept"
+                    }
+                ]
+            },
+            "expected_output": ""
+        }
+    ]
+}

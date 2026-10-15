@@ -1,0 +1,35 @@
+{
+    "description": "Measure template conditional-expression complexity and report conditions whose cost exceeds the configured maximum.",
+    "cases": [
+        {
+            "input": {
+                "action": "lint",
+                "check": "template_condition_complexity",
+                "source": "\n@Component({\n  template: `\n    <div *ngIf=\"a === '1' || (b === '2' && c.d !== e)\">\n      Enter your card details\n    </div>\n  `\n})\nclass CheckoutView {}\n"
+            },
+            "expected_output": "check=template_condition_complexity\nfailure_count=0\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "template_condition_complexity",
+                "config": {
+                    "max_cost": 4
+                },
+                "source": "\n@Component({\n  template: `\n    <div *ngIf=\"a === '3' || (b === '3' && c.d !== '1' && e.f !== '6' && q !== g)\">\n      Enter your card details\n    </div>\n  `\n})\nclass CheckoutView {}\n"
+            },
+            "expected_output": "check=template_condition_complexity\nfailure_count=1\nfailure_index=0\nmessage=The condition complexity (cost '5') exceeded the defined limit (cost '4'). The conditional expression should be moved into the component.\nstart_line=3\nstart_character=9\nend_line=3\nend_character=82\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "template_condition_complexity",
+                "config": {
+                    "max_cost": 5
+                },
+                "source": "\n@Component({\n  template: `\n    <div *ngIf=\"a === '3' || (b === '3' && c.d !== '1' && e.f !== '6' && q !== g)\">\n      Enter your card details\n    </div>\n  `\n})\nclass CheckoutView {}\n"
+            },
+            "expected_output": "check=template_condition_complexity\nfailure_count=0\n"
+        }
+    ]
+}

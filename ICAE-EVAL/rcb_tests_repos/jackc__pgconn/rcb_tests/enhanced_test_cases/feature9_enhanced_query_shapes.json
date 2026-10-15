@@ -1,0 +1,46 @@
+{
+  "description": "Enhanced query coverage for zero-row results, multi-column result serialization, parameter metadata, and first-statement server errors.",
+  "cases": [
+    {
+      "input": {
+        "operation": "simple_query_results",
+        "sql": "select 1 where false"
+      },
+      "expected_output": "result_count=1\nresult.0.command_tag=SELECT 0\nresult.0.row_count=0\n"
+    },
+    {
+      "input": {
+        "operation": "simple_query_results",
+        "sql": "select 1 as a, 2 as b union all select 3, 4 order by a"
+      },
+      "expected_output": "result_count=1\nresult.0.command_tag=SELECT 2\nresult.0.row_count=2\nresult.0.row.0=1|2\nresult.0.row.1=3|4\n"
+    },
+    {
+      "input": {
+        "operation": "parameterized_query_results",
+        "sql": "select $1::text as left_value, $2::int as right_value",
+        "parameters": [
+          "alpha",
+          "42"
+        ]
+      },
+      "expected_output": "fields=left_value,right_value\ncommand_tag=SELECT 1\nrow_count=1\nrow.0=alpha|42\n"
+    },
+    {
+      "input": {
+        "operation": "prepared_query_results",
+        "statement_name": "ps_two_fields",
+        "sql": "select 7::int as seven, 'eight'::text as eight",
+        "parameters": []
+      },
+      "expected_output": "prepared_param_count=0\nprepared_field_count=2\nfields=seven,eight\ncommand_tag=SELECT 1\nrow_count=1\nrow.0=7|eight\n"
+    },
+    {
+      "input": {
+        "operation": "query_error_summary",
+        "sql": "select * from definitely_missing_table"
+      },
+      "expected_output": "error=server_error\nsqlstate=42P01\nresult_count=0\n"
+    }
+  ]
+}

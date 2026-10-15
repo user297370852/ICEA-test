@@ -1,0 +1,117 @@
+{
+  "description": "Additional MCR tag metadata cases covering multiple tag-group blocks, non-default architecture/OS metadata, plain Dockerfile paths, source links with branch names, documented versus undocumented shared tags, and duplicated-platform ordering on a different platform.",
+  "cases": [
+    {
+      "input": {
+        "action": "mcr_tags",
+        "repo": "multi",
+        "generate_github_links": false,
+        "template": "$(McrTagsYmlRepo:multi)\n$(McrTagsYmlTagGroup:linuxTag)\n$(McrTagsYmlTagGroup:winTag)\n",
+        "images": [
+          {
+            "platforms": [
+              {
+                "dockerfile_dir": "8.0/runtime/bookworm/arm64",
+                "architecture": "ARM64",
+                "os": "Linux",
+                "os_version": "bookworm-slim",
+                "tags": [
+                  "linuxTag",
+                  "linuxAlias"
+                ]
+              },
+              {
+                "dockerfile_dir": "8.0/runtime/windowsservercore-ltsc2022",
+                "architecture": "AMD64",
+                "os": "Windows",
+                "os_version": "windowsservercore-ltsc2022",
+                "tags": [
+                  "winTag"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "repos:\n- repoName: public/multi\n  customTablePivots: true\n  tagGroups:\n  - tags: [ linuxTag, linuxAlias ]\n    architecture: arm64\n    os: linux\n    osVersion: Debian 12\n    dockerfile: 8.0/runtime/bookworm/arm64/Dockerfile\n  - tags: [ winTag ]\n    architecture: amd64\n    os: windows\n    osVersion: Windows Server Core 2022\n    dockerfile: 8.0/runtime/windowsservercore-ltsc2022/Dockerfile\n"
+    },
+    {
+      "input": {
+        "action": "mcr_tags",
+        "repo": "sdk",
+        "generate_github_links": true,
+        "source_repo_url": "https://example.com/dotnet/docker-tools",
+        "source_branch": "release/8.0",
+        "template": "$(McrTagsYmlRepo:sdk)\n$(McrTagsYmlTagGroup:sdk-arm)\n",
+        "images": [
+          {
+            "platforms": [
+              {
+                "dockerfile_dir": "8.0/sdk/alpine3.18/arm32v7",
+                "architecture": "ARM",
+                "os": "Linux",
+                "os_version": "alpine3.18",
+                "tags": [
+                  "sdk-arm"
+                ]
+              }
+            ],
+            "shared_tags": {
+              "8.0-alpine": {
+                "doc_type": "PlatformDocumented"
+              },
+              "hidden": {
+                "doc_type": "Undocumented"
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "repos:\n- repoName: public/sdk\n  customTablePivots: true\n  tagGroups:\n  - tags: [ sdk-arm, 8.0-alpine ]\n    architecture: arm32\n    os: linux\n    osVersion: Alpine 3.18\n    dockerfile: https://example.com/dotnet/docker-tools/blob/release/8.0/8.0/sdk/alpine3.18/arm32v7/Dockerfile\n"
+    },
+    {
+      "input": {
+        "action": "mcr_tags",
+        "repo": "runtime",
+        "generate_github_links": true,
+        "source_repo_url": "https://example.com/org/runtime",
+        "source_branch": "main",
+        "template": "$(McrTagsYmlRepo:runtime)\n$(McrTagsYmlTagGroup:base-a)\n",
+        "images": [
+          {
+            "platforms": [
+              {
+                "dockerfile_dir": "9.0/runtime/noble/arm64",
+                "architecture": "ARM64",
+                "os": "Linux",
+                "os_version": "noble",
+                "tags": [
+                  "base-z",
+                  "base-a"
+                ]
+              }
+            ],
+            "shared_tags": {
+              "noble": {},
+              "latest": {}
+            }
+          },
+          {
+            "platforms": [
+              {
+                "dockerfile_dir": "9.0/runtime/noble/arm64",
+                "architecture": "ARM64",
+                "os": "Linux",
+                "os_version": "noble"
+              }
+            ],
+            "shared_tags": {
+              "9.0": {}
+            }
+          }
+        ]
+      },
+      "expected_output": "repos:\n- repoName: public/runtime\n  customTablePivots: true\n  tagGroups:\n  - tags: [ base-z, base-a, 9.0, noble, latest ]\n    architecture: arm64\n    os: linux\n    osVersion: Ubuntu 24.04\n    dockerfile: https://example.com/org/runtime/blob/main/9.0/runtime/noble/arm64/Dockerfile\n"
+    }
+  ]
+}

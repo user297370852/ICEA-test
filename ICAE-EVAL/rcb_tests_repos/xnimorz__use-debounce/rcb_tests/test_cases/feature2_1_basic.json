@@ -1,0 +1,86 @@
+{
+    "description": "A debounced value mirrors a source value but only after the source has stopped changing for the configured delay. On the first render the debounced value equals the initial source value immediately. When the source value changes, the debounced value does not update until the quiet period elapses; while it is pending it keeps showing the previous debounced value. If the source changes several times during the quiet period, the debounced value eventually settles on the most recent source value.",
+    "cases": [
+        {
+            "input": {
+                "hook": "value",
+                "delay": 1000,
+                "initial": {
+                    "value": "Hello world"
+                },
+                "steps": [
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "value=Hello world\n"
+        },
+        {
+            "input": {
+                "hook": "value",
+                "delay": 1000,
+                "initial": {
+                    "value": "Hello"
+                },
+                "steps": [
+                    {
+                        "do": "observe"
+                    },
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Hello world"
+                        }
+                    },
+                    {
+                        "do": "observe"
+                    },
+                    {
+                        "do": "runAll"
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "value=Hello\nvalue=Hello\nvalue=Hello world\n"
+        },
+        {
+            "input": {
+                "hook": "value",
+                "delay": 1000,
+                "initial": {
+                    "value": "Hello"
+                },
+                "steps": [
+                    {
+                        "do": "observe"
+                    },
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Wrong value"
+                        }
+                    },
+                    {
+                        "do": "setProps",
+                        "props": {
+                            "value": "Right value"
+                        }
+                    },
+                    {
+                        "do": "observe"
+                    },
+                    {
+                        "do": "runAll"
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "value=Hello\nvalue=Hello\nvalue=Right value\n"
+        }
+    ]
+}

@@ -1,0 +1,118 @@
+{
+    "description": "Serialize a composite value (a field table or an array) and then parse it back, reporting the recovered value so the encoder and decoder can be checked as inverses. Tables map string keys to typed values; arrays hold an ordered sequence of typed values. Element types covered include strings, signed integers (including values beyond the 32-bit range, which must promote to a wider integer code), booleans, doubles, fixed-point decimals, timestamps, and nested tables/arrays, plus a void/null element. The output renders each recovered top-level value with an explicit type tag; table keys are reported in sorted order.",
+    "cases": [
+        {
+            "input": {
+                "op": "roundtrip",
+                "format": "F",
+                "values": [
+                    {
+                        "t": "table",
+                        "v": {
+                            "foo": {
+                                "t": "int",
+                                "v": 32
+                            },
+                            "bar": {
+                                "t": "str",
+                                "v": "baz"
+                            },
+                            "nil": {
+                                "t": "none"
+                            },
+                            "array": {
+                                "t": "array",
+                                "v": [
+                                    {
+                                        "t": "int",
+                                        "v": 1
+                                    },
+                                    {
+                                        "t": "bool",
+                                        "v": true
+                                    },
+                                    {
+                                        "t": "str",
+                                        "v": "bar"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "table:{array=array:[int:1,bool:true,str:bar],bar=str:baz,foo=int:32,nil=none}"
+        },
+        {
+            "input": {
+                "op": "roundtrip",
+                "format": "A",
+                "values": [
+                    {
+                        "t": "array",
+                        "v": [
+                            {
+                                "t": "str",
+                                "v": "A"
+                            },
+                            {
+                                "t": "int",
+                                "v": 1
+                            },
+                            {
+                                "t": "bool",
+                                "v": true
+                            },
+                            {
+                                "t": "float",
+                                "v": 33.3
+                            },
+                            {
+                                "t": "decimal",
+                                "v": "55.5"
+                            },
+                            {
+                                "t": "decimal",
+                                "v": "-3.4"
+                            },
+                            {
+                                "t": "datetime",
+                                "v": "2015-03-13T10:23:00"
+                            },
+                            {
+                                "t": "table",
+                                "v": {
+                                    "quick": {
+                                        "t": "str",
+                                        "v": "fox"
+                                    },
+                                    "amount": {
+                                        "t": "int",
+                                        "v": 1
+                                    }
+                                }
+                            },
+                            {
+                                "t": "array",
+                                "v": [
+                                    {
+                                        "t": "int",
+                                        "v": 3
+                                    },
+                                    {
+                                        "t": "str",
+                                        "v": "hens"
+                                    }
+                                ]
+                            },
+                            {
+                                "t": "none"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "array:[str:A,int:1,bool:true,float:33.3,decimal:55.5,decimal:-3.4,datetime:2015-03-13T10:23:00,table:{amount=int:1,quick=str:fox},array:[int:3,str:hens],none]"
+        }
+    ]
+}

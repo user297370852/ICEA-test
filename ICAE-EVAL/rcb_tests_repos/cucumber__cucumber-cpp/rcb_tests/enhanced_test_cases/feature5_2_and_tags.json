@@ -1,0 +1,103 @@
+{
+  "description": "Conjunctive tag matching: single quoted disjunctive group, multi-group conjunction requiring all, whitespace-only expression (matches all), empty candidate list, and groups with internal disjunction over several candidates.",
+  "cases": [
+    {
+      "input": {
+        "action": "tag_and",
+        "expression": "\"@a,@b\"",
+        "queries": [
+          [
+            "a"
+          ],
+          [
+            "b"
+          ],
+          [
+            "a",
+            "b"
+          ],
+          [
+            "c"
+          ]
+        ]
+      },
+      "expected_output": "query=a matched=true\nquery=b matched=true\nquery=a,b matched=true\nquery=c matched=false\n"
+    },
+    {
+      "input": {
+        "action": "tag_and",
+        "expression": "\"@a\",\"@b\",\"@c\"",
+        "queries": [
+          [
+            "a",
+            "b",
+            "c"
+          ],
+          [
+            "a",
+            "b"
+          ],
+          [
+            "a",
+            "c"
+          ],
+          [
+            "b",
+            "c"
+          ]
+        ]
+      },
+      "expected_output": "query=a,b,c matched=true\nquery=a,b matched=false\nquery=a,c matched=false\nquery=b,c matched=false\n"
+    },
+    {
+      "input": {
+        "action": "tag_and",
+        "expression": "   ",
+        "queries": [
+          [
+            "x"
+          ],
+          []
+        ]
+      },
+      "expected_output": "query=x matched=true\nquery= matched=true\n"
+    },
+    {
+      "input": {
+        "action": "tag_and",
+        "expression": "\"@a\"",
+        "queries": [
+          []
+        ]
+      },
+      "expected_output": "query= matched=false\n"
+    },
+    {
+      "input": {
+        "action": "tag_and",
+        "expression": "\"@a,@b\", \"@c,@d\"",
+        "queries": [
+          [
+            "a",
+            "c"
+          ],
+          [
+            "b",
+            "d"
+          ],
+          [
+            "a"
+          ],
+          [
+            "c"
+          ],
+          [
+            "a",
+            "b"
+          ]
+        ]
+      },
+      "expected_output": "query=a,c matched=true\nquery=b,d matched=true\nquery=a matched=false\nquery=c matched=false\nquery=a,b matched=false\n"
+    }
+  ]
+}

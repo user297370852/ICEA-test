@@ -1,0 +1,59 @@
+{
+  "description": "Host-import argument recording edge cases: querying import_call before any invoke reports 'none'; and repeating the invoke leaves the recorded arguments at the fixed values the module passes.",
+  "cases": [
+    {
+      "input": {
+        "module": "0061736d0100000001090260027e7e00600000020e0103656e76067265706f72740000030201010405017001010105030100020608017f01418088040b071802066d656d6f727902000b7265706f7274537475666600010a10010e0042fb0042c8031080808080000b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "report",
+            "behavior": "echo_args",
+            "arity": 2
+          }
+        ],
+        "build": true,
+        "steps": [
+          {
+            "op": "import_call",
+            "ref": "env::report"
+          }
+        ]
+      },
+      "expected_output": "import_call[env::report]=none\n"
+    },
+    {
+      "input": {
+        "module": "0061736d0100000001090260027e7e00600000020e0103656e76067265706f72740000030201010405017001010105030100020608017f01418088040b071802066d656d6f727902000b7265706f7274537475666600010a10010e0042fb0042c8031080808080000b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "report",
+            "behavior": "echo_args",
+            "arity": 2
+          }
+        ],
+        "build": true,
+        "steps": [
+          {
+            "op": "invoke",
+            "name": "reportStuff",
+            "args": []
+          },
+          {
+            "op": "invoke",
+            "name": "reportStuff",
+            "args": []
+          },
+          {
+            "op": "import_call",
+            "ref": "env::report"
+          }
+        ]
+      },
+      "expected_output": "result[reportStuff]=void\nresult[reportStuff]=void\nimport_call[env::report]=123,456\n"
+    }
+  ]
+}

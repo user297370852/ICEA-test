@@ -1,0 +1,19 @@
+{
+    "description": "Generate docker commands that execute a one-off command against the application. Two variants: a fresh ephemeral container (docker run --rm) that injects the configured environment and uses the absolute image, then appends the command; and an existing container (docker exec) addressed by container name. The interactive variants are not requested here.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "execute_in_new_container", "args": {"command": ["bin/rails", "db:setup"]}
+            },
+            "expected_output": "docker run --rm -e RAILS_MASTER_KEY=\"456\" dhh/app:999 bin/rails db:setup"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "execute_in_existing_container", "args": {"command": ["bin/rails", "db:setup"]}
+            },
+            "expected_output": "docker exec app-web-999 bin/rails db:setup"
+        }
+    ]
+}

@@ -1,0 +1,50 @@
+{
+  "description": "Enhanced boundary coverage for minimum warmup on first borrow: min==max==1 saturation (the second borrow cannot be satisfied and fails), a zero minimum that allocates lazily one-at-a-time, a small min==max==2 warmup, an asymmetric min<max warmup, and a larger min==max==8 warmup.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "pool_warmup_minimum",
+        "reuse_order": "lru",
+        "min": 1,
+        "max": 1
+      },
+      "expected_output": "constructor.allocated=0\nafter_first.allocated=1\nafter_first.idle=0\nerror=operation_failed\n"
+    },
+    {
+      "input": {
+        "scenario": "pool_warmup_minimum",
+        "reuse_order": "lru",
+        "min": 0,
+        "max": 5
+      },
+      "expected_output": "constructor.allocated=0\nafter_first.allocated=1\nafter_first.idle=0\nafter_second.allocated=2\nafter_second.idle=0\nallocation_count=2\n"
+    },
+    {
+      "input": {
+        "scenario": "pool_warmup_minimum",
+        "reuse_order": "mru",
+        "min": 2,
+        "max": 2
+      },
+      "expected_output": "constructor.allocated=0\nafter_first.allocated=2\nafter_first.idle=1\nafter_second.allocated=2\nafter_second.idle=0\nallocation_count=2\n"
+    },
+    {
+      "input": {
+        "scenario": "pool_warmup_minimum",
+        "reuse_order": "lru",
+        "min": 5,
+        "max": 10
+      },
+      "expected_output": "constructor.allocated=0\nafter_first.allocated=5\nafter_first.idle=4\nafter_second.allocated=5\nafter_second.idle=3\nallocation_count=5\n"
+    },
+    {
+      "input": {
+        "scenario": "pool_warmup_minimum",
+        "reuse_order": "lru",
+        "min": 8,
+        "max": 8
+      },
+      "expected_output": "constructor.allocated=0\nafter_first.allocated=8\nafter_first.idle=7\nafter_second.allocated=8\nafter_second.idle=6\nallocation_count=8\n"
+    }
+  ]
+}

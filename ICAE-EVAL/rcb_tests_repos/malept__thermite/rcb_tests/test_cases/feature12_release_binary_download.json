@@ -1,0 +1,202 @@
+{
+    "description": "Downloads prebuilt binary archives from repository releases according to cargo-version or latest-release selection, with neutral handling for absent and failing downloads.",
+    "cases": [
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": false
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-4.5.6.tar.gz"
+                }
+            },
+            "expected_output": "downloaded=false\n"
+        },
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": true
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-4.5.6.tar.gz",
+                    "http": [
+                        {
+                            "kind": "body",
+                            "body": "tarball"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "downloaded=true\nhttp_get=https://example.invalid/project/releases/download/v4.5.6/project-4.5.6.tar.gz\ndebug=Unpacking GitHub release from Cargo version: project-4.5.6.tar.gz\nunpack=called\n"
+        },
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": true,
+                        "release_tag_format": "VER_%s"
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-4.5.6.tar.gz",
+                    "http": [
+                        {
+                            "kind": "body",
+                            "body": "tarball"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "downloaded=true\nhttp_get=https://example.invalid/project/releases/download/VER_4.5.6/project-4.5.6.tar.gz\ndebug=Unpacking GitHub release from Cargo version: project-4.5.6.tar.gz\nunpack=called\n"
+        },
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": true
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-4.5.6.tar.gz",
+                    "http": [
+                        {
+                            "kind": "client_error"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "downloaded=false\nhttp_get=https://example.invalid/project/releases/download/v4.5.6/project-4.5.6.tar.gz\n"
+        },
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": true
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-4.5.6.tar.gz",
+                    "http": [
+                        {
+                            "kind": "server_error"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=server_response_error\ndownloaded=false\nhttp_get=https://example.invalid/project/releases/download/v4.5.6/project-4.5.6.tar.gz\n"
+        },
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": true,
+                        "release_selection": "latest",
+                        "release_tag_pattern": "v(.*)-rust"
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-latest.tar.gz",
+                    "http": [
+                        {
+                            "kind": "text",
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<feed><entry><title>v0.1.12-rust</title></entry><entry><title>v0.1.11-rust</title></entry></feed>\n"
+                        },
+                        {
+                            "kind": "body",
+                            "body": "tarball"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "downloaded=true\nhttp_get=https://example.invalid/project/releases.atom\nhttp_get=https://example.invalid/project/releases/download/v0.1.12-rust/project-latest.tar.gz\ndebug=Unpacking GitHub release: project-latest.tar.gz\nunpack=called\n"
+        },
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": true,
+                        "release_selection": "latest"
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-latest.tar.gz",
+                    "http": [
+                        {
+                            "kind": "text",
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<feed><entry><title>v0.1.12-rust</title></entry><entry><title>v0.1.11-rust</title></entry></feed>\n"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "downloaded=false\nhttp_get=https://example.invalid/project/releases.atom\n"
+        },
+        {
+            "input": {
+                "command": "github_release_binary",
+                "data": {
+                    "options": {
+                        "release_downloads_enabled": true,
+                        "release_selection": "latest",
+                        "release_tag_pattern": "v(.*)-rust"
+                    },
+                    "manifest": {
+                        "package": {
+                            "version": "4.5.6",
+                            "repository": "https://example.invalid/project"
+                        }
+                    },
+                    "tarball_filename": "project-latest.tar.gz",
+                    "http": [
+                        {
+                            "kind": "text",
+                            "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<feed><entry><title>v0.1.12-rust</title></entry><entry><title>v0.1.11-rust</title></entry></feed>\n"
+                        },
+                        {
+                            "kind": "client_error"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "downloaded=true\nhttp_get=https://example.invalid/project/releases.atom\nhttp_get=https://example.invalid/project/releases/download/v0.1.12-rust/project-latest.tar.gz\nhttp_get=https://example.invalid/project/releases/download/v0.1.11-rust/project-latest.tar.gz\ndebug=Unpacking GitHub release: project-latest.tar.gz\nunpack=called\n"
+        }
+    ]
+}

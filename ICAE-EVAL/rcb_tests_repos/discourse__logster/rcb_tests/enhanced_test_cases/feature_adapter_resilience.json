@@ -1,0 +1,42 @@
+{
+  "description": "Execution-adapter resilience and tolerance of irregular commands: action entries that match none of the known verbs are silently ignored while valid log entries interleaved among them are still recorded in order; a command whose top-level value is not an object (a bare JSON scalar) is tolerated and records nothing with a zero count; and a command object lacking an actions key records nothing with a zero count.",
+  "cases": [
+    {
+      "input": {
+        "actions": [
+          {
+            "unknown_action": true
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "survives",
+              "source": "x"
+            }
+          },
+          {
+            "noop": 1
+          },
+          {
+            "log": {
+              "level": 2,
+              "message": "second",
+              "source": "y"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=x message=survives backtrace= env= valid_encoding=true\nprimary level=2 source=y message=second backtrace= env= valid_encoding=true\nprimary total=2\n"
+    },
+    {
+      "input": "bare-scalar-command",
+      "expected_output": "primary total=0\n"
+    },
+    {
+      "input": {
+        "some_other_key": 1
+      },
+      "expected_output": "primary total=0\n"
+    }
+  ]
+}

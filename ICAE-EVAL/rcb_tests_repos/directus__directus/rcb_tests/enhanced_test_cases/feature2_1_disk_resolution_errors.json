@@ -1,0 +1,63 @@
+{
+  "description": "The storage manager resolves a named disk from a configuration object into a usable storage backend. Resolution fails fast with a normalized error when the configuration is incomplete or references an unknown backend kind. The request supplies the manager configuration and asks the manager to resolve a disk, and the normalized failure is reported.",
+  "cases": [
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "main",
+          "disks": {}
+        },
+        "steps": [
+          {
+            "action": "disk"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_config\ncode=E_INVALID_CONFIG\nstatus=500\ndetail=Make sure to define config for main disk\n"
+    },
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "store",
+          "disks": {
+            "store": {
+              "config": {
+                "root": ""
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "disk"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_config\ncode=E_INVALID_CONFIG\nstatus=500\ndetail=Make sure to define driver for store disk\n"
+    },
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "store",
+          "disks": {
+            "store": {
+              "driver": "azure",
+              "config": {
+                "root": ""
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "disk"
+          }
+        ]
+      },
+      "expected_output": "error=driver_not_supported\nstatus=400\ndriver=azure\ndetail=Driver azure is not supported\n"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "description": "Mutating a value nested inside the container does not by itself mark the container as modified; only an explicit 'mark modified' signal does. The creation timestamp is preserved across such updates.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "init": {
+          "identity": "test_identity",
+          "data": {
+            "session": {
+              "a": {
+                "key": "value"
+              }
+            },
+            "created": 999990000
+          },
+          "new": false
+        },
+        "actions": [
+          {
+            "do": "mutate_nested",
+            "key": "a",
+            "subkey": "key2",
+            "value": "val2"
+          },
+          {
+            "do": "changed"
+          }
+        ]
+      },
+      "expected_output": "state new=false changed=false empty=false len=1 identity=\"test_identity\" created=999990000 contents={\"a\": {\"key\": \"value\"}}\nstate new=false changed=false empty=false len=1 identity=\"test_identity\" created=999990000 contents={\"a\": {\"key\": \"value\", \"key2\": \"val2\"}}\nstate new=false changed=true empty=false len=1 identity=\"test_identity\" created=999990000 contents={\"a\": {\"key\": \"value\", \"key2\": \"val2\"}}\n"
+    }
+  ]
+}

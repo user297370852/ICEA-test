@@ -1,0 +1,445 @@
+{
+    "description": "An update engine appends to array fields. The push operator adds one element to the end of an array, creating the array when absent. With an each-modifier it appends several elements at once; a slice-modifier then trims the array to a maximum length (keeping the first N for a non-negative N, the last N for a negative N, or empty for zero); a position-modifier inserts the new elements at a given index instead of the end; a sort-modifier reorders the array (by a sub-field ascending/descending, or the whole elements). The push-all operator appends a list of elements. The add-to-set operator appends only values not already present (optionally each of several). Push and increment may be combined in one specification.",
+    "cases": [
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": 2
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {},
+                "update": {
+                    "$push": {
+                        "a": 2
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 2]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                2,
+                                3
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        2
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                2,
+                                3
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                2,
+                                3
+                            ],
+                            "$slice": 2
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        4
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                2,
+                                3
+                            ],
+                            "$slice": 2
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 4]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                2,
+                                3
+                            ],
+                            "$slice": 0
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ ]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                0
+                            ],
+                            "$slice": -2
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 3 , 0]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                0
+                            ],
+                            "$position": 0
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 0 , 1 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                0
+                            ],
+                            "$position": 1
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 0]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$each": [
+                                0
+                            ],
+                            "$position": 1
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 0 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$slice": 2,
+                            "$position": 1,
+                            "$each": [
+                                0
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 0]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$pushAll": {
+                        "a": [
+                            2,
+                            3
+                        ]
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {},
+                "update": {
+                    "$pushAll": {
+                        "a": [
+                            2,
+                            3
+                        ]
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$addToSet": {
+                        "a": 2
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        2
+                    ]
+                },
+                "update": {
+                    "$addToSet": {
+                        "a": 2
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1
+                    ]
+                },
+                "update": {
+                    "$addToSet": {
+                        "a": {
+                            "$each": [
+                                2,
+                                3
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        1,
+                        2
+                    ]
+                },
+                "update": {
+                    "$addToSet": {
+                        "a": {
+                            "$each": [
+                                2,
+                                3
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "_id": 1
+                },
+                "update": {
+                    "$push": {
+                        "n": {
+                            "_id": 2,
+                            "u": 3
+                        }
+                    },
+                    "$inc": {
+                        "c": 4
+                    }
+                }
+            },
+            "expected_output": "{ \"_id\" : 1 , \"n\" : [ { \"_id\" : 2 , \"u\" : 3}] , \"c\" : 4}\n"
+        },
+        {
+            "input": {
+                "op": "update",
+                "document": {
+                    "a": [
+                        {
+                            "a": 0
+                        },
+                        {
+                            "a": 2
+                        },
+                        {
+                            "b": 0
+                        },
+                        {
+                            "a": 1,
+                            "b": 2
+                        },
+                        0.5,
+                        0,
+                        null,
+                        {
+                            "$minKey": 1
+                        },
+                        {
+                            "$maxKey": 1
+                        },
+                        {
+                            "$numberLong": "1"
+                        },
+                        false,
+                        true,
+                        {
+                            "$date": 1000
+                        },
+                        {
+                            "$regex": "\\s*"
+                        },
+                        {
+                            "$oid": "4f39d78d4b90b2f2f1530841"
+                        },
+                        [],
+                        ""
+                    ]
+                },
+                "update": {
+                    "$push": {
+                        "a": {
+                            "$sort": {
+                                "a": 1
+                            },
+                            "$each": []
+                        }
+                    }
+                }
+            },
+            "expected_output": "{ \"a\" : [ { \"$minKey\" : 1} ,  null  , 0 , 0.5 , 1 , \"\" , { \"b\" : 0} , [ ] , { \"$oid\" : \"4f39d78d4b90b2f2f1530841\"} , false , true , { \"$date\" : \"1970-01-01T00:00:01.000Z\"} , { \"$regex\" : \"\\\\s*\"} , { \"$maxKey\" : 1} , { \"a\" : 0} , { \"a\" : 1 , \"b\" : 2} , { \"a\" : 2}]}\n"
+        }
+    ]
+}

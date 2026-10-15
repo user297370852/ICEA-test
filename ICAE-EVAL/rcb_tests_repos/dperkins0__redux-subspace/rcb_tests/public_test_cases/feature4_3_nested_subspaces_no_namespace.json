@@ -1,0 +1,9 @@
+{
+    "description": "Derived stores can be nested without namespaces: a branch store is selected from the root, then a deeper child store is selected from that branch by picking its first child slice. Dispatching the trigger from the root, then the branch store, then the nested child store, routes each update progressively deeper within the same top-level branch. Three full-state snapshots are emitted, one after each dispatch.",
+    "cases": [
+        {
+            "input": {"scenario": "store_integration", "reducer": {"combine": {"parent1": {"combine": {"child1": "leaf", "child2": {"namespace": "childNamespace", "inner": "leaf"}}}, "parent2": {"namespace": "parentNamespace", "inner": {"combine": {"child1": "leaf", "child2": {"namespace": "childNamespace", "inner": "leaf"}}}}}}, "epic": {"relay": {}}, "dispatches": [{"path": [], "action": {"type": "TEST_ACTION_TRIGGER", "value": "root value"}}, {"path": [{"selector": {"prop": "parent1"}}], "action": {"type": "TEST_ACTION_TRIGGER", "value": "parent value"}}, {"path": [{"selector": {"prop": "parent1"}}, {"selector": {"prop": "child1"}}], "action": {"type": "TEST_ACTION_TRIGGER", "value": "child value"}}]},
+            "expected_output": "{\"parent1\":{\"child1\":\"root value\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n{\"parent1\":{\"child1\":\"parent value\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n{\"parent1\":{\"child1\":\"child value\",\"child2\":\"initial value\"},\"parent2\":{\"child1\":\"initial value\",\"child2\":\"initial value\"}}\n"
+        }
+    ]
+}

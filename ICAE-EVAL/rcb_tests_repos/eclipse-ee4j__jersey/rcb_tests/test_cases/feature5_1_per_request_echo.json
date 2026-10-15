@@ -1,0 +1,21 @@
+{
+    "description": "A request-scoped resource echoes the request context it was injected with: the full request URI, the `x` query parameter, and a per-instance counter that starts at 0. Because the resource is recreated for every request, the counter never advances beyond 0 across separate requests. Input supplies the `x` query parameter; the response body has the form `<request-uri>: queryParam=<x> 0`. Special characters in `x` appear decoded in the body but percent-encoded in the routed URL. Output reports status, routed URL, and that body.",
+    "cases": [
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/per-request", "query": {"x": "alpha"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=alpha\nbody=http://localhost:9998/main/jcdibean/per-request?x=alpha: queryParam=alpha 0"
+        },
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/per-request", "query": {"x": "AAA"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=AAA\nbody=http://localhost:9998/main/jcdibean/per-request?x=AAA: queryParam=AAA 0"
+        },
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/per-request", "query": {"x": "$%^"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=%24%25%5E\nbody=http://localhost:9998/main/jcdibean/per-request?x=%24%25%5E: queryParam=$%^ 0"
+        },
+        {
+            "input": {"requests": [{"app": "main", "path": "jcdibean/per-request", "query": {"x": "a b"}}]},
+            "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=a+b\nbody=http://localhost:9998/main/jcdibean/per-request?x=a+b: queryParam=a b 0"
+        }
+    ]
+}

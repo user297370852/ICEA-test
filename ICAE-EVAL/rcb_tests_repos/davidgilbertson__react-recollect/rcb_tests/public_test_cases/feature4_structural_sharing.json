@@ -1,0 +1,43 @@
+{
+  "description": "Updates apply structural sharing: when a nested property changes, only the objects along the path from the root to the changed property are rebuilt, while every object not on that path keeps its original reference. An identity probe captures the reference at a location before the mutation and compares it with the reference at the same location afterwards; it reports the location as preserved when the reference is unchanged and replaced when it was rebuilt. Objects on the changed path (the changed node's ancestors) are reported as replaced, and untouched sibling sub-trees are reported as preserved.",
+  "cases": [
+    {
+      "input": {
+        "init": {
+          "a": {
+            "x": 1
+          },
+          "b": {
+            "y": 2
+          },
+          "list": [
+            1,
+            2
+          ]
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "a",
+              "x"
+            ],
+            "value": 99
+          }
+        ],
+        "identity": [
+          [
+            "a"
+          ],
+          [
+            "b"
+          ],
+          [
+            "list"
+          ]
+        ]
+      },
+      "expected_output": "changes=[\"store.a.x\"]\nidentity store.a = replaced\nidentity store.b = preserved\nidentity store.list = preserved\nsnapshot={\"a\":{\"x\":99},\"b\":{\"y\":2},\"list\":[1,2]}\n"
+    }
+  ]
+}

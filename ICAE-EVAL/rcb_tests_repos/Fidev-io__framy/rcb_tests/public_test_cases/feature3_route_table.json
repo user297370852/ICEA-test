@@ -1,0 +1,24 @@
+{
+    "description": "Generate the route-table factory function for the gallery. The output is an `onGenerateRoute` function whose route map always contains four fixed built-in routes (typography, colors, app bar, button pages); for every object whose category marks it as a widget, an additional route keyed by `'/<WidgetName>'` mapping to a `Framy<WidgetName>CustomPage()` is inserted. Unknown route names fall back to the typography page, and every route is wrapped in a page-route builder around a shared layout template.",
+    "cases": [
+        {
+            "input": {
+                "target": "routing",
+                "objects": []
+            },
+            "expected_output": "Route onGenerateRoute(RouteSettings settings) {\n  final routes = {\n    '/typography': FramyFontsPage(),\n    '/colors': FramyColorsPage(),\n    '/appbar': FramyAppBarPage(),\n    '/button': FramyButtonPage(),\n    \n  };\n  final page = routes[settings.name] ?? FramyFontsPage();\n  return PageRouteBuilder<dynamic>(\n    pageBuilder: (_, __, ___) => FramyLayoutTemplate(child: page),\n    settings: settings,\n  );\n}\n"
+        },
+        {
+            "input": {
+                "target": "routing",
+                "objects": [
+                    {
+                        "name": "MyCustomWidget",
+                        "category": "widget"
+                    }
+                ]
+            },
+            "expected_output": "Route onGenerateRoute(RouteSettings settings) {\n  final routes = {\n    '/typography': FramyFontsPage(),\n    '/colors': FramyColorsPage(),\n    '/appbar': FramyAppBarPage(),\n    '/button': FramyButtonPage(),\n    '/MyCustomWidget': FramyMyCustomWidgetCustomPage(),\n  };\n  final page = routes[settings.name] ?? FramyFontsPage();\n  return PageRouteBuilder<dynamic>(\n    pageBuilder: (_, __, ___) => FramyLayoutTemplate(child: page),\n    settings: settings,\n  );\n}\n"
+        }
+    ]
+}

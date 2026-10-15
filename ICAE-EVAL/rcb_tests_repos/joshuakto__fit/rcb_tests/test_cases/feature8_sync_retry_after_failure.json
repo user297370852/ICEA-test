@@ -1,0 +1,36 @@
+{
+  "description": "A failed synchronization leaves cached state and remote files unchanged; the next successful synchronization uploads all accumulated local changes from the unchanged baseline.",
+  "cases": [
+    {
+      "description": "A network failure on the first synchronization does not mark local changes as synced, so a later retry uploads both accumulated files.",
+      "input": {
+        "command": "sync.run",
+        "steps": [
+          {
+            "localSet": [
+              {
+                "path": "fileA.md",
+                "content": "Content of file A"
+              }
+            ],
+            "remoteFailure": {
+              "type": "network",
+              "message": "Could not reach remote API"
+            },
+            "sync": true
+          },
+          {
+            "localSet": [
+              {
+                "path": "fileB.md",
+                "content": "Content of file B"
+              }
+            ],
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"]]\nsuccess=false\nerror_message=Could not reach remote API. Please check your internet connection.\nstep=1\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"],[\"Sync successful\"]]\nsuccess=true\nlocal_ops=[]\nremote_ops=[{\"path\":\"fileA.md\",\"type\":\"ADDED\"},{\"path\":\"fileB.md\",\"type\":\"ADDED\"}]\nclashes=[]\nlocal_files={\"fileA.md\":{\"content\":\"Content of file A\",\"encoding\":\"plaintext\"},\"fileB.md\":{\"content\":\"Content of file B\",\"encoding\":\"plaintext\"}}\nremote_files={\"fileA.md\":{\"content\":\"Content of file A\",\"encoding\":\"plaintext\"},\"fileB.md\":{\"content\":\"Content of file B\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"b86a9aba597a30fd17d6e13c4893f32890ebb062\",\"lastFetchedRemoteSha\":{\"fileA.md\":\"b1745ccb0ebf92d8141e3f2969db2760c72523dd\",\"fileB.md\":\"26294f3aff9abaccd5dc7c1954f5aa170eeb4aa6\"},\"localSha\":{\"fileA.md\":\"c6bb8c90633a9971e4c4ca55b445922198e1c57d\",\"fileB.md\":\"acc5b1ab5649b944c2108e0067b5dea0cf8b8b37\"}}\n"
+    }
+  ]
+}

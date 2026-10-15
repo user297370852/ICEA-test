@@ -1,0 +1,164 @@
+{
+  "description": "Enhanced coverage for caused_by chain matching and specific-exception inheritance.",
+  "cases": [
+    {
+      "input": {
+        "policy": {
+          "max_tries": 1,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "caused_by",
+          "exceptions": [
+            "io_error"
+          ]
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "wrapper_error",
+              "cause": {
+                "throw": "io_error"
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=1\nlast_exception=wrapper_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 1,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "caused_by",
+          "exceptions": [
+            "argument_error"
+          ]
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "wrapper_error",
+              "cause": {
+                "throw": "io_error"
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "error=unexpected_exception\nexception=wrapper_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "specific_exceptions",
+          "exceptions": [
+            "io_error"
+          ]
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "file_not_found"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=file_not_found\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "specific_exceptions",
+          "exceptions": [
+            "custom_error"
+          ]
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "custom_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=2\nlast_exception=custom_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 1,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "specific_exceptions",
+          "exceptions": [
+            "argument_error"
+          ]
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "io_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=unexpected_exception\nexception=io_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "specific_exceptions",
+          "exceptions": [
+            "general_error"
+          ]
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "runtime_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=2\nlast_exception=runtime_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 1,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "caused_by",
+          "exceptions": [
+            "argument_error"
+          ]
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "wrapper_error",
+              "cause": {
+                "throw": "runtime_error",
+                "cause": {
+                  "throw": "argument_error"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=1\nlast_exception=wrapper_error\n"
+    }
+  ]
+}

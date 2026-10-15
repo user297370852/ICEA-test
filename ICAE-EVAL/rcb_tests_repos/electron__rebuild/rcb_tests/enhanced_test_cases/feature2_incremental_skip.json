@@ -1,0 +1,79 @@
+{
+  "description": "Boundary coverage for ABI-stamp incremental skipping: a runtime upgrade whose target ABI happens to equal the previously stamped ABI (different version string, same ABI number) skips every module; an exact-version rematch across a mixed tree (top-level, scoped, and nested transitive natives) skips all of them; and an upgrade whose ABI genuinely differs forces a full rebuild with zero skips.",
+  "cases": [
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "4.0.0",
+        "builtForRuntimeVersion": "3.0.0",
+        "dependencies": {
+          "ref-napi": "1",
+          "farmhash": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          },
+          {
+            "name": "farmhash",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=64\nselected=farmhash,ref-napi\nskipped=2\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "9.0.0",
+        "builtForRuntimeVersion": "9.0.0",
+        "dependencies": {
+          "alpha": "1",
+          "@acme/widget": "1",
+          "level": "1"
+        },
+        "modules": [
+          {
+            "name": "alpha",
+            "native": true
+          },
+          {
+            "name": "@acme/widget",
+            "native": true
+          },
+          {
+            "name": "level",
+            "dependencies": {
+              "leveldown": "1"
+            },
+            "children": [
+              {
+                "name": "leveldown",
+                "native": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=80\nselected=alpha,leveldown,widget\nskipped=3\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "8.0.0",
+        "builtForRuntimeVersion": "7.0.0",
+        "dependencies": {
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=76\nselected=ref-napi\nskipped=0\n"
+    }
+  ]
+}

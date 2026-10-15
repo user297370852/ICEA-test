@@ -1,0 +1,21 @@
+{
+    "description": "Classify a single permission status into the full set of category predicates. The input is a status object with a category type and the permission identifier it relates to; the output reports, for that one status, the boolean result of each independent predicate: whether it counts as granted, as denied (any denied sub-kind), as permanently denied, as needing a rationale, and as still requiring a runtime request. Exactly one of granted / denied / request-required is true for any status, and the two denied sub-kinds (permanently denied vs. should-show-rationale) are mutually exclusive within the denied category.",
+    "cases": [
+        {
+            "input": {"op": "classify_status", "status": {"type": "granted", "permission": "android.permission.SEND_SMS"}},
+            "expected_output": "permission=android.permission.SEND_SMS\ngranted=true\ndenied=false\npermanently_denied=false\nshould_show_rationale=false\nrequest_required=false\n"
+        },
+        {
+            "input": {"op": "classify_status", "status": {"type": "permanently_denied", "permission": "android.permission.SEND_SMS"}},
+            "expected_output": "permission=android.permission.SEND_SMS\ngranted=false\ndenied=true\npermanently_denied=true\nshould_show_rationale=false\nrequest_required=false\n"
+        },
+        {
+            "input": {"op": "classify_status", "status": {"type": "should_show_rationale", "permission": "android.permission.SEND_SMS"}},
+            "expected_output": "permission=android.permission.SEND_SMS\ngranted=false\ndenied=true\npermanently_denied=false\nshould_show_rationale=true\nrequest_required=false\n"
+        },
+        {
+            "input": {"op": "classify_status", "status": {"type": "request_required", "permission": "android.permission.SEND_SMS"}},
+            "expected_output": "permission=android.permission.SEND_SMS\ngranted=false\ndenied=false\npermanently_denied=false\nshould_show_rationale=false\nrequest_required=true\n"
+        }
+    ]
+}

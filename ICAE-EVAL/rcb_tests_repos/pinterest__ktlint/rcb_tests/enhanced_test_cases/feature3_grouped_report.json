@@ -1,0 +1,204 @@
+{
+  "description": "Render lint violations with grouping-by-file enabled. Violations that were NOT auto-corrected are collected per file and emitted as a group: a header line containing the file path, followed by one indented line per violation. Each indented line shows the line and column separated by a colon, then a space and the message. Files whose violations were all auto-corrected produce no output at all. Groups appear in the order their files were first seen.",
+  "cases": [
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": [
+          {
+            "file": "/solo.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "only one",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/solo.kt\n  1:1 only one\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": [
+          {
+            "file": "/keep.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "kept",
+            "corrected": false
+          },
+          {
+            "file": "/gone.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "all corrected",
+            "corrected": true
+          },
+          {
+            "file": "/gone.kt",
+            "line": 2,
+            "col": 2,
+            "rule": "r",
+            "message": "also corrected",
+            "corrected": true
+          }
+        ]
+      },
+      "expected_output": "/keep.kt\n  1:1 kept\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": [
+          {
+            "file": "/A.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "a-one",
+            "corrected": false
+          },
+          {
+            "file": "/B.kt",
+            "line": 5,
+            "col": 5,
+            "rule": "r",
+            "message": "b-one",
+            "corrected": false
+          },
+          {
+            "file": "/A.kt",
+            "line": 2,
+            "col": 2,
+            "rule": "r",
+            "message": "a-two",
+            "corrected": false
+          },
+          {
+            "file": "/B.kt",
+            "line": 6,
+            "col": 6,
+            "rule": "r",
+            "message": "b-two",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/A.kt\n  1:1 a-one\n  2:2 a-two\n/B.kt\n  5:5 b-one\n  6:6 b-two\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": [
+          {
+            "file": "/Many.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "one",
+            "corrected": false
+          },
+          {
+            "file": "/Many.kt",
+            "line": 22,
+            "col": 333,
+            "rule": "r",
+            "message": "two multi-digit",
+            "corrected": false
+          },
+          {
+            "file": "/Many.kt",
+            "line": 4,
+            "col": 5,
+            "rule": "r",
+            "message": "three",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Many.kt\n  1:1 one\n  22:333 two multi-digit\n  4:5 three\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": [
+          {
+            "file": "/Uni.kt",
+            "line": 3,
+            "col": 2,
+            "rule": "r",
+            "message": "缩进 naïve café ✓",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/Uni.kt\n  3:2 缩进 naïve café ✓\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": [
+          {
+            "file": "/src/main/kotlin/Deep.kt",
+            "line": 9,
+            "col": 4,
+            "rule": "r",
+            "message": "nested grouped",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "/src/main/kotlin/Deep.kt\n  9:4 nested grouped\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "group_by_file": true
+        },
+        "violations": [
+          {
+            "file": "NoDir.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "header without slash",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "NoDir.kt\n  1:1 header without slash\n"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+    "description": "Validate an account record before it is stored. An account requires a present external id, a present access token, and a present login; the external id and the access token must each be unique across all stored accounts. When a conflicting account already exists, it is supplied separately. The result reports whether the record is valid; when invalid, each offending field is reported together with a normalized failure category (a missing required value versus a duplicate of an existing value).",
+    "cases": [
+        {"input": {"action": "account_validation", "attributes": {"github_id": null, "access_token": "tok", "github_login": "andrew"}}, "expected_output": "valid=false\nfield=github_id error=blank\n"},
+        {"input": {"action": "account_validation", "attributes": {"github_id": 5, "access_token": null, "github_login": "andrew"}}, "expected_output": "valid=false\nfield=access_token error=blank\n"},
+        {"input": {"action": "account_validation", "attributes": {"github_id": 5, "access_token": "tok", "github_login": null}}, "expected_output": "valid=false\nfield=github_login error=blank\n"},
+        {"input": {"action": "account_validation", "existing": {"github_id": 7, "access_token": "dup", "github_login": "seed"}, "attributes": {"github_id": 7, "access_token": "other", "github_login": "andrew"}}, "expected_output": "valid=false\nfield=github_id error=taken\n"},
+        {"input": {"action": "account_validation", "existing": {"github_id": 7, "access_token": "dup", "github_login": "seed"}, "attributes": {"github_id": 8, "access_token": "dup", "github_login": "andrew"}}, "expected_output": "valid=false\nfield=access_token error=taken\n"},
+        {"input": {"action": "account_validation", "attributes": {"github_id": 5, "access_token": "tok", "github_login": "andrew"}}, "expected_output": "valid=true\n"}
+    ]
+}

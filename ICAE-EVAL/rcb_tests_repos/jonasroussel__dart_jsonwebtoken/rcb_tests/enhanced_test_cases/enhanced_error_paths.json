@@ -1,0 +1,78 @@
+{
+  "description": "Normalized error coverage for malformed compact tokens, invalid signatures/wrong secrets, and unsupported array/bool payload types.",
+  "cases": [
+    {
+      "input": {
+        "op": "verify",
+        "token": "not-a-jwt",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        }
+      },
+      "expected_output": "error=invalid_token\nreason=token_does_not_use_jws_compact_serialization\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.@@@.NGVtp-VylRDt194QX0dDtpO6npY0je5nJvmF5w9MsS4",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        }
+      },
+      "expected_output": "error=invalid_token\nreason=invalid_signature\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.NGVtp-VylRDt194QX0dDtpO6npY0je5nJvmF5w9MsSA",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        }
+      },
+      "expected_output": "error=invalid_token\nreason=invalid_signature\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.NGVtp-VylRDt194QX0dDtpO6npY0je5nJvmF5w9MsS4",
+        "key": {
+          "kind": "secret",
+          "secret": "wrong secret"
+        }
+      },
+      "expected_output": "error=invalid_token\nreason=invalid_signature\n"
+    },
+    {
+      "input": {
+        "op": "sign",
+        "algorithm": "HS256",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "payload": [
+          "array",
+          "payload"
+        ],
+        "no_iat": true
+      },
+      "expected_output": "error=invalid_payload_type\n"
+    },
+    {
+      "input": {
+        "op": "sign",
+        "algorithm": "HS256",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "payload": false,
+        "no_iat": true
+      },
+      "expected_output": "error=invalid_payload_type\n"
+    }
+  ]
+}

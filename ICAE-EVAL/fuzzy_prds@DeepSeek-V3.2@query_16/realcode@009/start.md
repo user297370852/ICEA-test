@@ -1,0 +1,17 @@
+## Product Requirement Document
+
+Hey team, we need a small to-do list core library built out — basically the same pattern we used for that notes feature a while back, where we kept the data layer totally separate from how it gets called. The idea is developers should be able to create individual to-do items, manage a whole list of them, and save/load that list without writing the same glue code everywhere. Items need a label and some kind of done/not-done flag. We also need to be able to flip that flag back and forth, pull out just the finished ones, and persist the whole thing so it survives app restarts. The entry point should read a command in and print results out — but critically the business logic itself shouldn't care about that I/O stuff at all, keep those concerns apart like we always do. One thing I keep seeing go wrong on other projects is when the storage piece is hardcoded in — make sure that's swappable. Also the default state for a new item when you don't say whether it's done or not should be obvious but let's make sure it's explicit. Output format for each operation needs to match what the test harness expects exactly. Malformed inputs shouldn't blow up the whole thing either. Should be compact, not over-engineered. Reach out if anything's unclear!
+
+---
+
+## Clarification
+
+This PRD is intentionally incomplete. A requirements oracle can answer questions about hidden implementation details — including exact feature specs, interface contracts, and test cases.
+
+**Oracle** — POST `http://127.0.0.1:50002/`
+```
+{"append_id":"5b3b6db753be455aa9bc850574c68cd1","task_id":"realcode@009","question":"..."}
+```
+Answer is in `data`. Budget shown in `status.remaining`.
+
+Features and test cases have been prepared. Ask before you code. Unasked questions become bugs.

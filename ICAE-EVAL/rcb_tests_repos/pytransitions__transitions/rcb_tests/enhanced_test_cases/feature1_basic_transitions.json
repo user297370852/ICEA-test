@@ -1,0 +1,141 @@
+{
+  "description": "Boundary coverage for declared states, triggers and state queries: a self-edge whose source and destination are the same state, firing a known trigger from a state that has no eligible outgoing edge for it, a minimal machine with a single registered state, and querying several per-state predicates across both the active and inactive states.",
+  "cases": [
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "spin",
+            "source": "A",
+            "dest": "A"
+          },
+          {
+            "op": "trigger",
+            "name": "spin"
+          },
+          {
+            "op": "state"
+          },
+          {
+            "op": "is_state",
+            "state": "A"
+          }
+        ]
+      },
+      "expected_output": "trigger=spin result=true state=A\nstate=A\nis_state=A value=true\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "state"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nstate=B\nerror=invalid_transition trigger=advance state=B\nstate=B\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "solo"
+          ],
+          "initial": "solo"
+        },
+        "commands": [
+          {
+            "op": "state"
+          },
+          {
+            "op": "is_state",
+            "state": "solo"
+          }
+        ]
+      },
+      "expected_output": "state=solo\nis_state=solo value=true\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B"
+          },
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "B",
+            "dest": "C"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "state"
+          },
+          {
+            "op": "is_state",
+            "state": "A"
+          },
+          {
+            "op": "is_state",
+            "state": "B"
+          },
+          {
+            "op": "is_state",
+            "state": "C"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\ntrigger=advance result=true state=C\nstate=C\nis_state=A value=false\nis_state=B value=false\nis_state=C value=true\n"
+    }
+  ]
+}

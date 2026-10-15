@@ -1,0 +1,72 @@
+{
+  "description": "Enhanced custom-error-page edge cases: when multiple templates exist the one matching the signalled status is chosen, template arguments are HTML-escaped on render, a nested inner set that defines a different status falls through to an outer template that defines the signalled status, a status defined by neither nested set falls through to the outer root which emits the generic page, and a backend that signals an error via the standard plaintext error path (rather than the templated context) bypasses the custom template and produces a plain-text body. Each case reports the response status, content type and rendered body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "error_page",
+        "root": true,
+        "outer_pages": {
+          "404.html": "<h1>nf</h1>",
+          "500.html": "<h1>se</h1>"
+        },
+        "status": 500,
+        "message": "x"
+      },
+      "expected_output": "status=500 content_type=text/html; charset=utf-8 body=<h1>se</h1>\n"
+    },
+    {
+      "input": {
+        "kind": "error_page",
+        "root": true,
+        "outer_pages": {
+          "503.html": "<p>{{.Message}}</p>"
+        },
+        "status": 503,
+        "message": "<b>down</b>"
+      },
+      "expected_output": "status=503 content_type=text/html; charset=utf-8 body=<p>&lt;b&gt;down&lt;/b&gt;</p>\n"
+    },
+    {
+      "input": {
+        "kind": "error_page",
+        "root": true,
+        "outer_pages": {
+          "500.html": "<h1>outer 500</h1>"
+        },
+        "inner_pages": {
+          "404.html": "<h1>inner 404</h1>"
+        },
+        "status": 500,
+        "message": "x"
+      },
+      "expected_output": "status=500 content_type=text/html; charset=utf-8 body=<h1>outer 500</h1>\n"
+    },
+    {
+      "input": {
+        "kind": "error_page",
+        "root": true,
+        "outer_pages": {
+          "500.html": "<h1>o500</h1>"
+        },
+        "inner_pages": {
+          "404.html": "<h1>i404</h1>"
+        },
+        "status": 502,
+        "message": "x"
+      },
+      "expected_output": "status=502 content_type=text/html; charset=utf-8 body=<h1>502 Bad Gateway</h1>\n"
+    },
+    {
+      "input": {
+        "kind": "error_page",
+        "root": true,
+        "outer_pages": {
+          "404.html": "<h1>custom</h1>"
+        },
+        "status": 404,
+        "backend_error": true
+      },
+      "expected_output": "status=404 content_type=text/plain; charset=utf-8 body=Not Found\n"
+    }
+  ]
+}

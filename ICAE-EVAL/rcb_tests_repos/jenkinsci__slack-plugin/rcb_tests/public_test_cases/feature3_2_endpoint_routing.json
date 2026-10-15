@@ -1,0 +1,13 @@
+{
+    "description": "Select the upstream endpoint and request shape from the sending mode. In webhook mode the message is posted to the team's incoming-webhook path derived from the team domain. In bot mode the message is posted to the chat post-message API with the channel, link-name expansion and as-user flags encoded as query parameters; the leading '#' is stripped. When the channel carries a thread timestamp after a colon (channel:timestamp), bot mode adds a thread parameter. The command is {\"op\":\"publish\",\"mode\":\"webhook\"|\"bot\",\"team_domain\":<d>,\"token\":<t>,\"channel\":<c>,\"status\":200} and the program prints `requests=1`, `delivered=true`, and `request_1_url=<routed url>`.",
+    "cases": [
+        {
+            "input": {"op": "publish", "mode": "bot", "base_url": "", "team_domain": "domain", "token": "token", "channel": "#room1", "status": 200},
+            "expected_output": "requests=1\ndelivered=true\nrequest_1_url=https://slack.com/api/chat.postMessage?token=token&channel=room1&link_names=1&as_user=true\n"
+        },
+        {
+            "input": {"op": "publish", "mode": "bot", "base_url": "", "team_domain": "domain", "token": "token", "channel": "#room1:1528317530", "status": 200},
+            "expected_output": "requests=1\ndelivered=true\nrequest_1_url=https://slack.com/api/chat.postMessage?token=token&channel=room1&link_names=1&as_user=true&thread_ts=1528317530\n"
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "description": "Resolve a set of named string variables that may reference one another using the syntax $(name). Two sources of variables are provided: a base set and an override set. For names present in both, the override value wins. Names that exist only in the override set are added. After overriding, every value has its $(name) references substituted with the already-resolved value of the referenced variable. References must point to variables that appear earlier in resolution order; a forward reference to a variable that is defined but not yet resolved is an error, and a reference to a name that does not exist anywhere is a separate error. Output reports the total count of resolved variables, then each resolved name=value pair sorted by name.",
+    "cases": [
+        {"input": {"action": "resolve_variables", "manifest_variables": {"test": "abc", "test2": "$(test)", "test3": "$(test2)", "test4": "xyz"}, "options_variables": {"test4": "$(test)-123"}}, "expected_output": "count=4\ntest=abc\ntest2=abc\ntest3=abc\ntest4=abc-123\n"},
+        {"input": {"action": "resolve_variables", "options_variables": {"newVar": "abc"}}, "expected_output": "count=1\nnewVar=abc\n"},
+        {"input": {"action": "resolve_variables", "manifest_variables": {"predefinedVar": "123"}, "options_variables": {"newVar": "abc", "newDerivativeVar": "$(predefinedVar)456"}}, "expected_output": "count=3\nnewDerivativeVar=123456\nnewVar=abc\npredefinedVar=123\n"},
+        {"input": {"action": "resolve_variables", "manifest_variables": {"test1": "$(test2)", "test2": "abc"}}, "expected_output": "error=unresolved_variable_reference\n"},
+        {"input": {"action": "resolve_variables", "manifest_variables": {"test1": "$(test2)"}}, "expected_output": "error=undefined_variable\n"}
+    ]
+}

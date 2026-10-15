@@ -1,0 +1,104 @@
+{
+  "description": "Credential management: setting both, clearing both removes the block, special characters percent-encoded in the authority, and setting only a password.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "username",
+            "value": "u"
+          },
+          {
+            "op": "set",
+            "field": "password",
+            "value": "p"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          },
+          {
+            "op": "set",
+            "field": "username",
+            "value": ""
+          },
+          {
+            "op": "set",
+            "field": "password",
+            "value": ""
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_username=true\nset_password=true\nhref=https://u:p@example.com/\nset_username=true\nset_password=true\nhref=https://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "username",
+            "value": "a b@c"
+          },
+          {
+            "op": "get",
+            "field": "username"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_username=true\nusername=a%20b%40c\nhref=https://a%20b%40c@example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "password",
+            "value": "secret"
+          },
+          {
+            "op": "get",
+            "field": "password"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_password=true\npassword=secret\nhref=https://:secret@example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://user:pass@example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "username",
+            "value": "x"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_username=true\nhref=http://x:pass@example.com/\n"
+    }
+  ]
+}

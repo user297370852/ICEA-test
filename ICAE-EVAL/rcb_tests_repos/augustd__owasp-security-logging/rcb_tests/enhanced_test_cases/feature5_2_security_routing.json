@@ -1,0 +1,35 @@
+{
+  "description": "Enhanced boundary coverage for the security-routing filter. Confirms that non-security markers are denied in both modes: an information-classification marker (CONFIDENTIAL) and a non-security event marker (EVENT SUCCESS) both yield DENY in default mode, and even with the accept-all switch enabled a non-security CONFIDENTIAL marker is still denied (accept-all only elevates genuine security-event markers). Also re-confirms the default mode neutral decision via an explicit accept_all=false flag.",
+  "cases": [
+    {
+      "input": {
+        "op": "filter_security",
+        "marker": "CONFIDENTIAL"
+      },
+      "expected_output": "decision=DENY\n"
+    },
+    {
+      "input": {
+        "op": "filter_security",
+        "marker": "EVENT SUCCESS"
+      },
+      "expected_output": "decision=DENY\n"
+    },
+    {
+      "input": {
+        "op": "filter_security",
+        "accept_all": false,
+        "marker": "SECURITY AUDIT"
+      },
+      "expected_output": "decision=NEUTRAL\n"
+    },
+    {
+      "input": {
+        "op": "filter_security",
+        "accept_all": true,
+        "marker": "CONFIDENTIAL"
+      },
+      "expected_output": "decision=DENY\n"
+    }
+  ]
+}

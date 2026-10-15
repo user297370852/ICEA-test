@@ -1,0 +1,27 @@
+{
+    "description": "Triggers may carry a payload of positional/keyword arguments. The machine has a payload-delivery mode controlling how that payload reaches transition callbacks. When delivery is disabled, the trigger's keyword arguments are forwarded directly to the callback signature; `store_kwarg_message` records the value supplied under the keyword `message`. When delivery is enabled, callbacks instead receive a single event object that wraps the arguments; `store_event_message` reads the same `message` value out of that event object's keyword payload. Either way the recorded message reflects the value passed at trigger time.",
+    "cases": [
+        {
+            "input": {
+                "machine": {"states": ["A", "B", "C", "D"], "initial": "A", "send_event": false},
+                "commands": [
+                    {"op": "add_transition", "trigger": "advance", "source": "A", "dest": "B", "before": "store_kwarg_message"},
+                    {"op": "trigger", "name": "advance", "kwargs": {"message": "Hallo. My name is Inigo Montoya."}},
+                    {"op": "get_message"}
+                ]
+            },
+            "expected_output": "trigger=advance result=true state=B\nmessage=Hallo. My name is Inigo Montoya.\n"
+        },
+        {
+            "input": {
+                "machine": {"states": ["A", "B", "C", "D"], "initial": "A", "send_event": true},
+                "commands": [
+                    {"op": "add_transition", "trigger": "advance", "source": "A", "dest": "B", "before": "store_event_message"},
+                    {"op": "trigger", "name": "advance", "kwargs": {"message": "You killed my father. Prepare to die."}},
+                    {"op": "get_message"}
+                ]
+            },
+            "expected_output": "trigger=advance result=true state=B\nmessage=You killed my father. Prepare to die.\n"
+        }
+    ]
+}

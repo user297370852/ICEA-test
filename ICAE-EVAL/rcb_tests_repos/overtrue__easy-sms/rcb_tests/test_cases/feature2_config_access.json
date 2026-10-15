@@ -1,0 +1,31 @@
+{
+    "description": "Read from and mutate a nested configuration map using dot-notation keys. A `get` resolves a key against the map: a top-level key returns its value, a dotted key descends into nested maps and numerically-indexed lists, and a key that does not resolve (or a null key) yields null. An existence check reports whether a top-level key is present. An assignment updates the value of an already-present top-level key, and a removal deletes a present top-level key; after removal a subsequent read of that key returns null. Each operation emits one line describing its result, with scalar values rendered as JSON.",
+    "cases": [
+        {
+            "input": {
+                "action": "config",
+                "config": {
+                    "foo": "bar",
+                    "bar": {"screen_name": "somebody", "profile": {"id": 9999, "name": "overtrue"}},
+                    "numbers": [{"id": 1, "number": 1}, {"id": 2, "number": 2}]
+                },
+                "operations": [
+                    {"op": "isset", "key": "foo"},
+                    {"op": "get", "key": "foo"},
+                    {"op": "get", "key": null},
+                    {"op": "get", "key": "bar.profile.id"},
+                    {"op": "get", "key": "bar.profile.name"},
+                    {"op": "get", "key": "numbers.0.id"},
+                    {"op": "get", "key": "numbers.0.number"},
+                    {"op": "get", "key": "numbers.1.id"},
+                    {"op": "get", "key": "numbers.1.number"},
+                    {"op": "set", "key": "foo", "value": "new-bar"},
+                    {"op": "get", "key": "foo"},
+                    {"op": "unset", "key": "foo"},
+                    {"op": "get", "key": "foo"}
+                ]
+            },
+            "expected_output": "isset foo => true\nget foo => \"bar\"\nget (null) => null\nget bar.profile.id => 9999\nget bar.profile.name => \"overtrue\"\nget numbers.0.id => 1\nget numbers.0.number => 1\nget numbers.1.id => 2\nget numbers.1.number => 2\nset foo\nget foo => \"new-bar\"\nunset foo\nget foo => null\n"
+        }
+    ]
+}

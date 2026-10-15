@@ -1,0 +1,85 @@
+{
+    "description": "Render a parent that embeds two child components side by side, each tagged with a stable key and bound to a reference name. When the parent re-renders with the two children in the opposite order (same keys), the framework reconciles by reordering the existing child elements instead of rebuilding them. The before/after observation points show the two element identity tokens swapping position while each reference still resolves to its original child instance and element.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "components": {
+                    "A": {
+                        "update": true,
+                        "render": {
+                            "el": "div",
+                            "children": [
+                                "A"
+                            ]
+                        }
+                    },
+                    "B": {
+                        "update": true,
+                        "render": {
+                            "el": "div",
+                            "children": [
+                                "B"
+                            ]
+                        }
+                    }
+                },
+                "root": {
+                    "state": {
+                        "condition": true
+                    },
+                    "render": {
+                        "if": "condition",
+                        "then": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "comp": "A",
+                                    "key": "a",
+                                    "ref": "a"
+                                },
+                                {
+                                    "comp": "B",
+                                    "key": "b",
+                                    "ref": "b"
+                                }
+                            ]
+                        },
+                        "else": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "comp": "B",
+                                    "key": "b",
+                                    "ref": "b"
+                                },
+                                {
+                                    "comp": "A",
+                                    "key": "a",
+                                    "ref": "a"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "before"
+                    },
+                    {
+                        "set": {
+                            "condition": false
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "after"
+                    }
+                ]
+            },
+            "expected_output": "== before ==\nelement=<div#n1><div#n2>A</div><div#n3>B</div></div>\ntext=AB\nrefs:\n  a=component element=<div#n2>A</div> ref=a\n  b=component element=<div#n3>B</div> ref=b\n== after ==\nelement=<div#n1><div#n3>B</div><div#n2>A</div></div>\ntext=BA\nrefs:\n  a=component element=<div#n2>A</div> ref=a\n  b=component element=<div#n3>B</div> ref=b\n"
+        }
+    ]
+}

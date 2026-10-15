@@ -1,0 +1,55 @@
+{
+    "cases": [
+        {
+            "input": {
+                "limits_mem": "128Mi", 
+                "limits_cpu": "500Mi", 
+                "requests_cpu": "250Mi", 
+                "requests_mem": "64Mi", 
+                "op": "parse_resources"
+            }, 
+            "expected_output": "{\"limits\":{\"cpu\":\"500Mi\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250Mi\",\"memory\":\"64Mi\"},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "limits_mem": "", 
+                "limits_cpu": "", 
+                "requests_cpu": "", 
+                "requests_mem": "", 
+                "op": "parse_resources"
+            }, 
+            "expected_output": "{\"limits\":{},\"requests\":{},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "limits_mem": "0", 
+                "limits_cpu": "0", 
+                "requests_cpu": "0", 
+                "requests_mem": "0", 
+                "op": "parse_resources"
+            }, 
+            "expected_output": "{\"limits\":{\"cpu\":\"0\",\"memory\":\"0\"},\"requests\":{\"cpu\":\"0\",\"memory\":\"0\"},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "limits_mem": "128m", 
+                "limits_cpu": "500mi", 
+                "requests_cpu": "250mi", 
+                "requests_mem": "64m", 
+                "op": "parse_resources"
+            }, 
+            "expected_output": "{\"error\":\"invalid_quantity\",\"status\":\"error\"}\n"
+        }, 
+        {
+            "input": {
+                "limits_mem": "128mb", 
+                "limits_cpu": "500Mi", 
+                "requests_cpu": "250Mi", 
+                "requests_mem": "64mb", 
+                "op": "parse_resources"
+            }, 
+            "expected_output": "{\"error\":\"invalid_quantity\",\"status\":\"error\"}\n"
+        }
+    ], 
+    "description": "Parse CPU and memory request/limit quantity strings into a normalized resource-requirements object echoing the canonical quantity for each present field. Valid SI ('M','G') and binary ('Mi','Gi') suffixes are accepted, as are '0' and blank (a blank field is simply omitted). Malformed unit notations (e.g. lower-case 'mi'/'gi' for CPU, or 'mb'/'g' for memory) are rejected as invalid_quantity."
+}

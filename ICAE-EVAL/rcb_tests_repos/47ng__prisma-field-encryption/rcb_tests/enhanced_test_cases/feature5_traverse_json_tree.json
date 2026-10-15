@@ -1,0 +1,141 @@
+{
+  "description": "Depth-first traversal boundaries: empty array and empty object (single visit each), scalar roots (number, boolean, null), nested arrays with index keys, deep single-chain object threading, mixed arrays/objects with null and boolean leaves, omitted initialState defaulting to the harness 'init' seed, a numeric initialState, collections holding empty children, and a unicode string leaf.",
+  "cases": [
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": [],
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"array\",\"node\":[]}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {},
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{}}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": 42,
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"number\",\"node\":42}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": true,
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"boolean\",\"node\":true}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": null,
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"null\",\"node\":null}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": [
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"array\",\"node\":[[1,2],[3]]}\n{\"state\":\"root\",\"key\":\"0\",\"path\":[\"0\"],\"type\":\"array\",\"node\":[1,2]}\n{\"state\":\"0\",\"key\":\"0\",\"path\":[\"0\",\"0\"],\"type\":\"number\",\"node\":1}\n{\"state\":\"0\",\"key\":\"1\",\"path\":[\"0\",\"1\"],\"type\":\"number\",\"node\":2}\n{\"state\":\"root\",\"key\":\"1\",\"path\":[\"1\"],\"type\":\"array\",\"node\":[3]}\n{\"state\":\"1\",\"key\":\"0\",\"path\":[\"1\",\"0\"],\"type\":\"number\",\"node\":3}\ncount=6\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {
+          "a": {
+            "b": {
+              "c": 1
+            }
+          }
+        },
+        "initialState": "seed"
+      },
+      "expected_output": "{\"state\":\"seed\",\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{\"a\":{\"b\":{\"c\":1}}}}\n{\"state\":\"root\",\"key\":\"a\",\"path\":[\"a\"],\"type\":\"object\",\"node\":{\"b\":{\"c\":1}}}\n{\"state\":\"a\",\"key\":\"b\",\"path\":[\"a\",\"b\"],\"type\":\"object\",\"node\":{\"c\":1}}\n{\"state\":\"a.b\",\"key\":\"c\",\"path\":[\"a\",\"b\",\"c\"],\"type\":\"number\",\"node\":1}\ncount=4\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": [
+          {
+            "x": [
+              null,
+              true
+            ]
+          },
+          "leaf"
+        ],
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"array\",\"node\":[{\"x\":[null,true]},\"leaf\"]}\n{\"state\":\"root\",\"key\":\"0\",\"path\":[\"0\"],\"type\":\"object\",\"node\":{\"x\":[null,true]}}\n{\"state\":\"0\",\"key\":\"x\",\"path\":[\"0\",\"x\"],\"type\":\"array\",\"node\":[null,true]}\n{\"state\":\"0.x\",\"key\":\"0\",\"path\":[\"0\",\"x\",\"0\"],\"type\":\"null\",\"node\":null}\n{\"state\":\"0.x\",\"key\":\"1\",\"path\":[\"0\",\"x\",\"1\"],\"type\":\"boolean\",\"node\":true}\n{\"state\":\"root\",\"key\":\"1\",\"path\":[\"1\"],\"type\":\"string\",\"node\":\"leaf\"}\ncount=6\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": "solo"
+      },
+      "expected_output": "{\"state\":\"init\",\"key\":null,\"path\":[],\"type\":\"string\",\"node\":\"solo\"}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {
+          "k": "v"
+        }
+      },
+      "expected_output": "{\"state\":\"init\",\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{\"k\":\"v\"}}\n{\"state\":\"root\",\"key\":\"k\",\"path\":[\"k\"],\"type\":\"string\",\"node\":\"v\"}\ncount=2\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {
+          "empty": [],
+          "obj": {},
+          "n": 0
+        },
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{\"empty\":[],\"obj\":{},\"n\":0}}\n{\"state\":\"root\",\"key\":\"empty\",\"path\":[\"empty\"],\"type\":\"array\",\"node\":[]}\n{\"state\":\"root\",\"key\":\"obj\",\"path\":[\"obj\"],\"type\":\"object\",\"node\":{}}\n{\"state\":\"root\",\"key\":\"n\",\"path\":[\"n\"],\"type\":\"number\",\"node\":0}\ncount=4\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": [
+          1,
+          2,
+          3
+        ],
+        "initialState": 7
+      },
+      "expected_output": "{\"state\":7,\"key\":null,\"path\":[],\"type\":\"array\",\"node\":[1,2,3]}\n{\"state\":\"root\",\"key\":\"0\",\"path\":[\"0\"],\"type\":\"number\",\"node\":1}\n{\"state\":\"root\",\"key\":\"1\",\"path\":[\"1\"],\"type\":\"number\",\"node\":2}\n{\"state\":\"root\",\"key\":\"2\",\"path\":[\"2\"],\"type\":\"number\",\"node\":3}\ncount=4\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {
+          "uni": "héllo→世界"
+        },
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{\"uni\":\"héllo→世界\"}}\n{\"state\":\"root\",\"key\":\"uni\",\"path\":[\"uni\"],\"type\":\"string\",\"node\":\"héllo→世界\"}\ncount=2\n"
+    }
+  ]
+}

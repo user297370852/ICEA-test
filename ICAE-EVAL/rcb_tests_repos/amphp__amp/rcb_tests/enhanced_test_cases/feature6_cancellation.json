@@ -1,0 +1,78 @@
+{
+  "description": "Enhanced cancellation coverage: multiple ordered handlers, all handlers unsubscribed (no firing), zero cancel requests (token stays not-requested), idempotent multi-cancel, mix of before- and after-cancellation subscribers, and a late subscriber when cancellation never happens.",
+  "cases": [
+    {
+      "input": {
+        "op": "cancellation",
+        "subscribe": [
+          "a",
+          "b",
+          "c"
+        ],
+        "cancel_times": 1
+      },
+      "expected_output": "requested_before=false\nrequested_after=true\nfired=[\"a\",\"b\",\"c\"]\nreason=cancelled\n"
+    },
+    {
+      "input": {
+        "op": "cancellation",
+        "subscribe": [
+          "a",
+          "b"
+        ],
+        "unsubscribe": [
+          "a",
+          "b"
+        ],
+        "cancel_times": 1
+      },
+      "expected_output": "requested_before=false\nrequested_after=true\nfired=[]\nreason=none\n"
+    },
+    {
+      "input": {
+        "op": "cancellation",
+        "subscribe": [
+          "a"
+        ],
+        "cancel_times": 0
+      },
+      "expected_output": "requested_before=false\nrequested_after=false\nfired=[]\nreason=none\n"
+    },
+    {
+      "input": {
+        "op": "cancellation",
+        "subscribe": [
+          "a",
+          "b"
+        ],
+        "cancel_times": 3
+      },
+      "expected_output": "requested_before=false\nrequested_after=true\nfired=[\"a\",\"b\"]\nreason=cancelled\n"
+    },
+    {
+      "input": {
+        "op": "cancellation",
+        "subscribe": [
+          "x"
+        ],
+        "cancel_times": 1,
+        "subscribe_after": [
+          "y",
+          "z"
+        ]
+      },
+      "expected_output": "requested_before=false\nrequested_after=true\nfired=[\"x\",\"y\",\"z\"]\nreason=cancelled\n"
+    },
+    {
+      "input": {
+        "op": "cancellation",
+        "subscribe": [],
+        "cancel_times": 0,
+        "subscribe_after": [
+          "late"
+        ]
+      },
+      "expected_output": "requested_before=false\nrequested_after=false\nfired=[]\nreason=none\n"
+    }
+  ]
+}

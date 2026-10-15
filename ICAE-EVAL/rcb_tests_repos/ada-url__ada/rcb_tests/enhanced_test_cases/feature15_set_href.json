@@ -1,0 +1,85 @@
+{
+  "description": "Whole-URL replacement: rejection of invalid string (leaving URL unchanged), IPv6 normalization, and octal/hex numeric IPv4 collapsing.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "href",
+            "value": "not a url"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_href=false\nhref=https://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "href",
+            "value": "http://[2001:DB8::0:1]/"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_href=true\nhref=http://[2001:db8::1]/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "href",
+            "value": "http://0x7f.1/"
+          },
+          {
+            "op": "get",
+            "field": "protocol"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_href=true\nprotocol=http:\nhref=http://127.0.0.1/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://a.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "href",
+            "value": "ftp://b.com:21/x"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_href=true\nhref=ftp://b.com/x\nport=\n"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+    "description": "Bulk operations must split oversized batches, execute replacements, run mixed ordered operations, and treat an empty batch as a successful no-op.",
+    "cases": [
+        {
+            "input": {
+                "collection": "a",
+                "insertCount": 1066,
+                "document": {
+                    "name": "Spearow",
+                    "type": "flying"
+                }
+            },
+            "expected_output": "bulk_ok=1\ndocument_count=1066\n"
+        },
+        {
+            "input": {
+                "collection": "a",
+                "seed": [
+                    {
+                        "name": "Squirtle",
+                        "type": "water"
+                    },
+                    {
+                        "name": "Starmie",
+                        "type": "water"
+                    }
+                ],
+                "replacements": [
+                    {
+                        "query": {
+                            "name": "Squirtle"
+                        },
+                        "document": {
+                            "name": "Charmander",
+                            "type": "fire"
+                        }
+                    },
+                    {
+                        "query": {
+                            "name": "Starmie"
+                        },
+                        "document": {
+                            "type": "fire"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "bulk_ok=1\ndocuments=[{\"name\":\"Charmander\",\"type\":\"fire\"},{\"name\":\"none\",\"type\":\"fire\"}]\n"
+        },
+        {
+            "input": {
+                "collection": "a",
+                "seed": [
+                    {
+                        "name": "Squirtle",
+                        "type": "water"
+                    },
+                    {
+                        "name": "Starmie",
+                        "type": "water"
+                    },
+                    {
+                        "name": "Lapras",
+                        "type": "water"
+                    },
+                    {
+                        "name": "Charmander",
+                        "type": "fire"
+                    }
+                ]
+            },
+            "expected_output": "bulk_ok=1\ndocuments=[{\"name\":\"Wartortle\",\"type\":\"water\",\"level\":3,\"hp\":100},{\"name\":\"Starmie\",\"type\":\"water\",\"level\":3,\"hp\":\"none\"},{\"name\":\"Lapras\",\"type\":\"water\",\"level\":3,\"hp\":\"none\"},{\"name\":\"Pidgeotto\",\"type\":\"flying\",\"level\":\"none\",\"hp\":\"none\"},{\"name\":\"Bulbasaur\",\"type\":\"grass\",\"level\":1,\"hp\":\"none\"}]\n"
+        },
+        {
+            "input": {
+                "collection": "a",
+                "seed": [
+                    {
+                        "name": "Squirtle",
+                        "type": "water"
+                    }
+                ]
+            },
+            "expected_output": "bulk_ok=1\n"
+        }
+    ]
+}

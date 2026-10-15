@@ -1,0 +1,81 @@
+{
+    "description": "The channel-users API returns the members of a presence channel. The request must be signed; an invalid signature yields a 401 error. The target channel must exist (else 404 naming the channel) and must be a presence channel (else 400). For a valid presence channel it returns the list of members, each rendered as its member id. The report prints the HTTP status then the raw JSON body, or a normalized error with its status and message.",
+    "cases": [
+        {
+            "input": {
+                "action": "fetch_users",
+                "setup": [],
+                "request": {
+                    "path": "/apps/1234/channel/my-channel",
+                    "route_params": {
+                        "appId": "1234",
+                        "channelName": "my-channel"
+                    },
+                    "sign_secret": "InvalidSecret"
+                }
+            },
+            "expected_output": "error=http_exception\nstatus=401\nmessage=Invalid auth signature provided.\n"
+        },
+        {
+            "input": {
+                "action": "fetch_users",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "my-channel"
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channel/my-channel/users",
+                    "route_params": {
+                        "appId": "1234",
+                        "channelName": "my-channel"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "error=http_exception\nstatus=400\nmessage=Invalid presence channel \"my-channel\"\n"
+        },
+        {
+            "input": {
+                "action": "fetch_users",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "my-channel"
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channel/invalid-channel/users",
+                    "route_params": {
+                        "appId": "1234",
+                        "channelName": "invalid-channel"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "error=http_exception\nstatus=404\nmessage=Unknown channel \"invalid-channel\"\n"
+        },
+        {
+            "input": {
+                "action": "fetch_users",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "presence-channel",
+                        "user_id": 1
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channel/presence-channel/users",
+                    "route_params": {
+                        "appId": "1234",
+                        "channelName": "presence-channel"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "status=200\n{\"users\":[{\"id\":1}]}\n"
+        }
+    ]
+}

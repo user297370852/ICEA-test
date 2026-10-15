@@ -1,0 +1,59 @@
+{
+    "description": "Retries failed sends after the configured retry delay, except rate-limited responses when configured to drop those batches.",
+    "cases": [
+        {
+            "input": {
+                "operation": "retry_policy",
+                "failure": "connection",
+                "drop_rate_limited": false,
+                "wait_ms": 520,
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    }
+                ]
+            },
+            "expected_output": "send_attempts=3\nstream=[level, INFO, app, my-app]\nrecord=ts=100 l=INFO c=test.TestApp t=thread-1 | Test message 1 \n"
+        },
+        {
+            "input": {
+                "operation": "retry_policy",
+                "failure": "rate_limited",
+                "drop_rate_limited": false,
+                "wait_ms": 520,
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    }
+                ]
+            },
+            "expected_output": "send_attempts=3\nstream=[level, INFO, app, my-app]\nrecord=ts=100 l=INFO c=test.TestApp t=thread-1 | Test message 1 \n"
+        },
+        {
+            "input": {
+                "operation": "retry_policy",
+                "failure": "rate_limited",
+                "drop_rate_limited": true,
+                "wait_ms": 260,
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    }
+                ]
+            },
+            "expected_output": "send_attempts=1\nstream=[level, INFO, app, my-app]\nrecord=ts=100 l=INFO c=test.TestApp t=thread-1 | Test message 1 \n"
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+  "description": "Quota parsing edge cases: zero available bytes, a very large quota value, a different server, missing quota property (unsupported), and malformed XML.",
+  "cases": [
+    {
+      "input": {
+        "server": "cloud.example.org",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:quota-used-bytes>0</d:quota-used-bytes>\n                <d:quota-available-bytes>0</d:quota-available-bytes>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "available_bytes=0\n"
+    },
+    {
+      "input": {
+        "server": "cloud.example.org",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:quota-available-bytes>9223372036854775807</d:quota-available-bytes>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "available_bytes=9223372036854775807\n"
+    },
+    {
+      "input": {
+        "server": "https://dav.box.com",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:quota-used-bytes>500</d:quota-used-bytes>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "error=method_not_supported\noperation=free\nserver=https://dav.box.com\n"
+    },
+    {
+      "input": {
+        "server": "srvX",
+        "multistatus_xml": "%%%not-xml%%%"
+      },
+      "expected_output": "available_bytes=\n"
+    }
+  ]
+}

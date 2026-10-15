@@ -1,0 +1,21 @@
+{
+  "description": "Remove cursor/control escape sequences and redundant reset escapes from log-like input while preserving visible log text and valid color markup.",
+  "cases": [
+    {
+      "input": {"operation":"render_html","palette":"xterm","text":"Test various sequences begin\n\u001b[6A\n\u001b[6B\n\u001b[6C\n\u001b[6D\n\u001b[6E\n\u001b[6F\n\u001b[6G\n\u001b[6;4H\n\u001b[6J\n\u001b[6K\n\u001b[6S\n\u001b[6T\n\u001b[6;4f\n\u001b[5i\n\u001b[4i\n\u001b[6n\n\u001b[s\n\u001b[u\nTest various sequences end\n"},
+      "expected_output": "Test various sequences begin\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTest various sequences end\n"
+    },
+    {
+      "input": {"operation":"render_html","palette":"xterm","text":"[Foo] \u001b[0m[\u001b[0m\u001b[0minfo\u001b[0m] \u001b[0m\u001b[0m\u001b[32m- this text is green\u001b[0m\u001b[0m"},
+      "expected_output": "[Foo] [info] <span style=\"color: #00CD00;\">- this text is green</span>"
+    },
+    {
+      "input": {"operation":"render_html","palette":"xterm","text":"\u001b[31m\n\u001b[1m\u001b[31mError: \u001b[0m\u001b[0m\u001b[1mNo configuration files found!\nbold text blurb\u001b[0m\n\u001b[0m\u001b[0m\u001b[0m\n"},
+      "expected_output": "<span style=\"color: #CD0000;\">\n<b></b></span><b><span style=\"color: #CD0000;\">Error: </span></b><b>No configuration files found!\nbold text blurb</b>\n\n"
+    },
+    {
+      "input": {"operation":"render_html","palette":"xterm","text":"\u001b[33mbanana_1  |\u001b[0m 19:59:14.353\u001b[0;38m [debug] Lager installed handler {lager_file_backend,\"banana.log\"} into lager_event\u001b[0m\n"},
+      "expected_output": "<span style=\"color: #CDCD00;\">banana_1  |</span> 19:59:14.353 [debug] Lager installed handler {lager_file_backend,\"banana.log\"} into lager_event\n"
+    }
+  ]
+}

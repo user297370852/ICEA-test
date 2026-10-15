@@ -1,0 +1,224 @@
+{
+  "description": "Enhanced boundary coverage for config-file-scan generation: empty/nested-empty objects, arrays, dedup+sort, empty inputs, deep nesting, dotted/unicode keys, escaped values, read/listing failures, sorted processing order.",
+  "cases": [
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "**/c.json"
+        ],
+        "paths": [
+          "a/c.json"
+        ],
+        "file_contents": {
+          "a/c.json": "{}"
+        }
+      },
+      "expected_output": "params=1\n#0\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"a\":{}}"
+        }
+      },
+      "expected_output": "params=1\n#0\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"a\":[\"x\",\"y\",\"z\"]}"
+        }
+      },
+      "expected_output": "params=1\n#0\na.0=x\na.1=y\na.2=z\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x",
+          "y"
+        ],
+        "paths": [
+          "b.json",
+          "a.json",
+          "b.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"k\":\"1\"}",
+          "b.json": "{\"k\":\"2\"}"
+        }
+      },
+      "expected_output": "params=2\n#0\nk=1\n#1\nk=2\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"k\":\"1\"}"
+        }
+      },
+      "expected_output": "params=0\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [],
+        "file_contents": {}
+      },
+      "expected_output": "params=0\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"a\":{\"b\":{\"c\":\"d\"}}}"
+        }
+      },
+      "expected_output": "params=1\n#0\na.b.c=d\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"a.b\":\"v\"}"
+        }
+      },
+      "expected_output": "params=1\n#0\na.b=v\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"k\":\"line1\\nline2=end\"}"
+        }
+      },
+      "expected_output": "params=1\n#0\nk=line1\nline2=end\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"z\":\"1\",\"m\":{\"k\":\"2\"},\"a\":[\"p\",\"q\"]}"
+        }
+      },
+      "expected_output": "params=1\n#0\na.0=p\na.1=q\nm.k=2\nz=1\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json",
+          "b.json",
+          "c.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"k\":\"1\"}",
+          "c.json": "{\"k\":\"3\"}"
+        },
+        "file_errors": [
+          "b.json"
+        ]
+      },
+      "expected_output": "error=source_unavailable\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "only.json"
+        ],
+        "paths_error": true,
+        "file_contents": {
+          "only.json": "{\"k\":\"1\"}"
+        }
+      },
+      "expected_output": "error=source_unavailable\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "10.json",
+          "2.json",
+          "1.json"
+        ],
+        "file_contents": {
+          "1.json": "{\"n\":\"one\"}",
+          "2.json": "{\"n\":\"two\"}",
+          "10.json": "{\"n\":\"ten\"}"
+        }
+      },
+      "expected_output": "params=3\n#0\nn=one\n#1\nn=ten\n#2\nn=two\n"
+    },
+    {
+      "input": {
+        "action": "git_files",
+        "files": [
+          "x"
+        ],
+        "paths": [
+          "a.json"
+        ],
+        "file_contents": {
+          "a.json": "{\"k\":\"\"}"
+        }
+      },
+      "expected_output": "params=1\n#0\nk=\n"
+    }
+  ]
+}

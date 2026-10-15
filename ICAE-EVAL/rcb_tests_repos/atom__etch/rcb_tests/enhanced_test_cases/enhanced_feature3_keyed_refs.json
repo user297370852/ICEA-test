@@ -1,0 +1,234 @@
+{
+  "description": "Feature 3.5/3.6 keyed reconciliation and component-reference coverage: reordering three keyed children, a synchronous keyed reorder, and a component reference whose bound element also exposes a nested DOM ref, with the reference moving across an in-place update.",
+  "cases": [
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "A": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                "A"
+              ]
+            }
+          },
+          "B": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                "B"
+              ]
+            }
+          },
+          "Cc": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                "C"
+              ]
+            }
+          }
+        },
+        "root": {
+          "state": {
+            "condition": true
+          },
+          "render": {
+            "if": "condition",
+            "then": {
+              "el": "div",
+              "children": [
+                {
+                  "comp": "A",
+                  "key": "a",
+                  "ref": "a"
+                },
+                {
+                  "comp": "B",
+                  "key": "b",
+                  "ref": "b"
+                },
+                {
+                  "comp": "Cc",
+                  "key": "c",
+                  "ref": "c"
+                }
+              ]
+            },
+            "else": {
+              "el": "div",
+              "children": [
+                {
+                  "comp": "Cc",
+                  "key": "c",
+                  "ref": "c"
+                },
+                {
+                  "comp": "A",
+                  "key": "a",
+                  "ref": "a"
+                },
+                {
+                  "comp": "B",
+                  "key": "b",
+                  "ref": "b"
+                }
+              ]
+            }
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "condition": false
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1><div#n2>A</div><div#n3>B</div><div#n4>C</div></div>\ntext=ABC\nrefs:\n  a=component element=<div#n2>A</div> ref=a\n  b=component element=<div#n3>B</div> ref=b\n  c=component element=<div#n4>C</div> ref=c\n== after ==\nelement=<div#n1><div#n4>C</div><div#n2>A</div><div#n3>B</div></div>\ntext=CAB\nrefs:\n  a=component element=<div#n2>A</div> ref=a\n  b=component element=<div#n3>B</div> ref=b\n  c=component element=<div#n4>C</div> ref=c\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "A": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                "A"
+              ]
+            }
+          },
+          "B": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "children": [
+                "B"
+              ]
+            }
+          }
+        },
+        "root": {
+          "state": {
+            "condition": true
+          },
+          "render": {
+            "if": "condition",
+            "then": {
+              "el": "div",
+              "children": [
+                {
+                  "comp": "A",
+                  "key": "a",
+                  "ref": "a"
+                },
+                {
+                  "comp": "B",
+                  "key": "b",
+                  "ref": "b"
+                }
+              ]
+            },
+            "else": {
+              "el": "div",
+              "children": [
+                {
+                  "comp": "B",
+                  "key": "b",
+                  "ref": "b"
+                },
+                {
+                  "comp": "A",
+                  "key": "a",
+                  "ref": "a"
+                }
+              ]
+            }
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "condition": false
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1><div#n2>A</div><div#n3>B</div></div>\ntext=AB\nrefs:\n  a=component element=<div#n2>A</div> ref=a\n  b=component element=<div#n3>B</div> ref=b\n== after ==\nelement=<div#n1><div#n3>B</div><div#n2>A</div></div>\ntext=BA\nrefs:\n  a=component element=<div#n2>A</div> ref=a\n  b=component element=<div#n3>B</div> ref=b\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "components": {
+          "A": {
+            "update": true,
+            "render": {
+              "el": "div",
+              "ref": "self",
+              "children": [
+                "A"
+              ]
+            }
+          }
+        },
+        "root": {
+          "state": {
+            "refName": "child"
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "comp": "A",
+                "ref": {
+                  "var": "refName"
+                }
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "p1"
+          },
+          {
+            "set": {
+              "refName": "kid"
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "p2"
+          }
+        ]
+      },
+      "expected_output": "== p1 ==\nelement=<div#n1><div#n2>A</div></div>\ntext=A\nrefs:\n  child=component element=<div#n2>A</div> ref=child\n    self=<div#n2>A</div>\n== p2 ==\nelement=<div#n1><div#n2>A</div></div>\ntext=A\nrefs:\n  kid=component element=<div#n2>A</div> ref=kid\n    self=<div#n2>A</div>\n"
+    }
+  ]
+}

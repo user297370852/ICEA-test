@@ -1,0 +1,17 @@
+{
+    "description": "Attach a request payload of one of three kinds and report the serialized body together with its resolved content type. A raw string body paired with an explicit media type is sent as-is, and when the media type carries no charset a UTF-8 charset is appended to the content type. A JSON-object body is serialized to its compact JSON text and sent as JSON (charset UTF-8 appended). A set of form fields (an even-length flat list of name, value, name, value, ...) is encoded as an application/x-www-form-urlencoded body joining each pair with '=' and separating pairs with '&'.",
+    "cases": [
+        {
+            "input": {"op": "request_builder", "method": "post", "url": "http://www.example.com/?foo=bar&p2=p2", "body": {"content": "test2", "content_type": "text/plain"}, "report": ["body", "content_type"]},
+            "expected_output": "body=test2\ncontent_type=text/plain; charset=utf-8\n"
+        },
+        {
+            "input": {"op": "request_builder", "method": "post", "url": "http://www.example.com/?foo=bar&p2=p2", "body": {"json": {"status": "ok"}}, "report": ["body", "content_type"]},
+            "expected_output": "body={\"status\":\"ok\"}\ncontent_type=application/json; charset=utf-8\n"
+        },
+        {
+            "input": {"op": "request_builder", "method": "post", "url": "http://www.example.com/?foo=bar&p2=p2", "form": ["foo", "bar", "test1", "test2"], "report": ["body", "content_type"]},
+            "expected_output": "body=foo=bar&test1=test2\ncontent_type=application/x-www-form-urlencoded\n"
+        }
+    ]
+}

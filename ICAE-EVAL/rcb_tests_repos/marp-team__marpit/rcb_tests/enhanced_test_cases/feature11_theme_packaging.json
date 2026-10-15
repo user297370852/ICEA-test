@@ -1,0 +1,44 @@
+{
+  "description": "Enhanced theme packaging coverage for after CSS, container scoping, printable theme imports, and fallback pack without theme name.",
+  "cases": [
+    {
+      "input": {
+        "stylesheets": [
+          "/* @theme base */ em { color: red; }",
+          "/* @theme child */ @import \"base\"; strong { color: blue; }"
+        ],
+        "checks": [
+          {
+            "kind": "pack",
+            "name": "child",
+            "options": {
+              "after": "a { text-decoration: none; }",
+              "container": [
+                "div.deck",
+                "article.slide"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "size=2\nthemes=[\"base\",\"child\"]\ncheck_0=section {\n  width: 1280px;\n  height: 720px;\n\n  box-sizing: border-box;\n  overflow: hidden;\n  position: relative;\n\n  scroll-snap-align: center center;\n}section::after {\n  bottom: 0;\n  content: attr(data-marpit-pagination);\n  padding: inherit;\n  pointer-events: none;\n  position: absolute;\n  right: 0;\n}section:not([data-marpit-pagination])::after {\n  display: none;\n}/* Normalization */section h1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n} /* @theme base */ section em { color: red; } /* @theme child */ section strong { color: blue; } section a { text-decoration: none; }\nfinal_size=2\n"
+    },
+    {
+      "input": {
+        "stylesheets": [
+          "/* @theme print-theme */ section { color: black; }"
+        ],
+        "checks": [
+          {
+            "kind": "pack",
+            "name": "print-theme",
+            "options": {
+              "printable": true
+            }
+          }
+        ]
+      },
+      "expected_output": "size=1\nthemes=[\"print-theme\"]\ncheck_0=section {\n  width: 1280px;\n  height: 720px;\n\n  box-sizing: border-box;\n  overflow: hidden;\n  position: relative;\n\n  scroll-snap-align: center center;\n}section::after {\n  bottom: 0;\n  content: attr(data-marpit-pagination);\n  padding: inherit;\n  pointer-events: none;\n  position: absolute;\n  right: 0;\n}section:not([data-marpit-pagination])::after {\n  display: none;\n}/* Normalization */section h1 {\n  font-size: 2em;\n  margin: 0.67em 0;\n}@page {\n  size: 1280px 720px;\n  margin: 0;\n}@media print {html, body {\n  background-color: #fff;\n  margin: 0;\n  page-break-inside: avoid;\n  break-inside: avoid-page;\n}\n  section {\n    page-break-before: always;\n    break-before: page;\n  }\n\n  section, section * {\n    -webkit-print-color-adjust: exact !important;\n    color-adjust: exact !important;\n  }\n\n  svg[data-marpit-svg] {\n    display: block;\n    height: 100vh;\n    width: 100vw;\n  }\n} /* @theme print-theme */ section { color: black; }\nfinal_size=1\n"
+    }
+  ]
+}

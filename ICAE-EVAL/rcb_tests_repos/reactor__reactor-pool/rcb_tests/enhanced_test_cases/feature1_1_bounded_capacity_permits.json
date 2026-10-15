@@ -1,0 +1,129 @@
+{
+  "description": "Enhanced boundary coverage for bounded capacity permits: min==max warmup saturation, negative/zero requests, full grant then full return then re-grant, a return that exceeds currently-granted permits (rejected even though below the configured maximum), very large capacity, and warmup interplay after a partial return.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "size_strategy_sequence",
+        "min": 3,
+        "max": 3,
+        "operations": [
+          {
+            "op": "get",
+            "value": 0
+          },
+          {
+            "op": "get",
+            "value": 0
+          },
+          {
+            "op": "get",
+            "value": 1
+          }
+        ]
+      },
+      "expected_output": "initial_permits=3\nget(0)=3\npermits=0\nget(0)=0\npermits=0\nget(1)=0\npermits=0\n"
+    },
+    {
+      "input": {
+        "scenario": "size_strategy_sequence",
+        "min": 0,
+        "max": 5,
+        "operations": [
+          {
+            "op": "get",
+            "value": -5
+          },
+          {
+            "op": "get",
+            "value": 0
+          },
+          {
+            "op": "get",
+            "value": 2
+          }
+        ]
+      },
+      "expected_output": "initial_permits=5\nget(-5)=0\npermits=5\nget(0)=0\npermits=5\nget(2)=2\npermits=3\n"
+    },
+    {
+      "input": {
+        "scenario": "size_strategy_sequence",
+        "min": 0,
+        "max": 5,
+        "operations": [
+          {
+            "op": "get",
+            "value": 5
+          },
+          {
+            "op": "return",
+            "value": 5
+          },
+          {
+            "op": "get",
+            "value": 1
+          }
+        ]
+      },
+      "expected_output": "initial_permits=5\nget(5)=5\npermits=0\nreturn(5)=accepted\npermits=5\nget(1)=1\npermits=4\n"
+    },
+    {
+      "input": {
+        "scenario": "size_strategy_sequence",
+        "min": 0,
+        "max": 10,
+        "operations": [
+          {
+            "op": "get",
+            "value": 2
+          },
+          {
+            "op": "return",
+            "value": 5
+          }
+        ]
+      },
+      "expected_output": "initial_permits=10\nget(2)=2\npermits=8\nreturn(5)=rejected\nerror=too_many_permits_returned\nreturned=5\npermits=8\n"
+    },
+    {
+      "input": {
+        "scenario": "size_strategy_sequence",
+        "min": 0,
+        "max": 1000000,
+        "operations": [
+          {
+            "op": "get",
+            "value": 999999
+          },
+          {
+            "op": "get",
+            "value": 2
+          }
+        ]
+      },
+      "expected_output": "initial_permits=1000000\nget(999999)=999999\npermits=1\nget(2)=1\npermits=0\n"
+    },
+    {
+      "input": {
+        "scenario": "size_strategy_sequence",
+        "min": 2,
+        "max": 4,
+        "operations": [
+          {
+            "op": "get",
+            "value": 1
+          },
+          {
+            "op": "return",
+            "value": 1
+          },
+          {
+            "op": "get",
+            "value": 0
+          }
+        ]
+      },
+      "expected_output": "initial_permits=4\nget(1)=2\npermits=2\nreturn(1)=accepted\npermits=3\nget(0)=1\npermits=2\n"
+    }
+  ]
+}

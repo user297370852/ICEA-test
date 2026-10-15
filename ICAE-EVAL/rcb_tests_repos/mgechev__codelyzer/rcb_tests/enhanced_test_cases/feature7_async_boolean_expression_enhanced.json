@@ -1,0 +1,39 @@
+{
+  "description": "Additional async boolean expression cases covering no-fix diagnostics, multiple expressions, strict safe expression, and property-chain observables.",
+  "cases": [
+    {
+      "input": {
+        "action": "lint",
+        "check": "async_boolean_expression",
+        "source": "\n@Component({\n  selector: 'sample-view',\n  template: '{{ !(ready$ | async) }}'\n})\nclass ReadyView {\n  ready$: Observable<Boolean>;\n}\n"
+      },
+      "expected_output": "check=async_boolean_expression\nfailure_count=1\nfailure_index=0\nmessage=Async pipes can not be negated, use (observable | async) === false instead\nstart_line=3\nstart_character=16\nend_line=3\nend_character=34\n"
+    },
+    {
+      "input": {
+        "action": "lint",
+        "check": "async_boolean_expression",
+        "apply_fix": true,
+        "source": "\n@Component({\n  selector: 'sample-view',\n  template: '{{ (ready$ | async) != false }} {{ !(enabled$ | async) }}'\n})\nclass MultiAsyncView {\n  ready$: Observable<Boolean>;\n  enabled$: Observable<Boolean>;\n}\n"
+      },
+      "expected_output": "check=async_boolean_expression\nfailure_count=1\nfailure_index=0\nmessage=Async pipes can not be negated, use (observable | async) === false instead\nstart_line=3\nstart_character=48\nend_line=3\nend_character=68\nfixed_source<<EOF\n\n@Component({\n  selector: 'sample-view',\n  template: '{{ (ready$ | async) != false }} {{ (enabled$ | async) === false }}'\n})\nclass MultiAsyncView {\n  ready$: Observable<Boolean>;\n  enabled$: Observable<Boolean>;\n}\n\nEOF\n"
+    },
+    {
+      "input": {
+        "action": "lint",
+        "check": "async_boolean_expression",
+        "source": "\n@Component({\n  selector: 'sample-view',\n  template: '{{ (user.active$ | async) === false }}'\n})\nclass UserView {}\n"
+      },
+      "expected_output": "check=async_boolean_expression\nfailure_count=0\n"
+    },
+    {
+      "input": {
+        "action": "lint",
+        "check": "async_boolean_expression",
+        "apply_fix": true,
+        "source": "\n@Component({\n  selector: 'sample-view',\n  template: '<div *ngIf=\"!(loaded$ | async)\">Loading</div>'\n})\nclass LoadingView {\n  loaded$: Observable<Boolean>;\n}\n"
+      },
+      "expected_output": "check=async_boolean_expression\nfailure_count=1\nfailure_index=0\nmessage=Async pipes can not be negated, use (observable | async) === false instead\nstart_line=3\nstart_character=25\nend_line=3\nend_character=43\nfixed_source<<EOF\n\n@Component({\n  selector: 'sample-view',\n  template: '<div *ngIf=\"(loaded$ | async) === false >Loading</div>'\n})\nclass LoadingView {\n  loaded$: Observable<Boolean>;\n}\n\nEOF\n"
+    }
+  ]
+}

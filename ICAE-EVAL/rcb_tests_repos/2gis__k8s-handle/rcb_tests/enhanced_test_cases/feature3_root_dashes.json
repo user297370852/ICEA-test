@@ -1,0 +1,29 @@
+{
+  "description": "Additional root-dash validation coverage: a single dashed root key, several dashed root keys reported in sorted order, and a section whose dashes appear only inside nested mapping values (legal) which therefore resolves to a sorted JSON object.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve",
+        "section": "one_dash",
+        "config": "common:\n  k8s_namespace: ns\n  templates:\n    - template: t.yaml.j2\none_dash:\n  my-key: value\n"
+      },
+      "expected_output": "error=root_dashes\nvars=my-key\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "many_dashes",
+        "config": "common:\n  k8s_namespace: ns\n  templates:\n    - template: t.yaml.j2\nmany_dashes:\n  zeta-var: 1\n  alpha-var: 2\n  mid-var: 3\n"
+      },
+      "expected_output": "error=root_dashes\nvars=alpha-var, mid-var, zeta-var\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "nested_ok",
+        "config": "common:\n  k8s_namespace: ns\n  templates:\n    - template: t.yaml.j2\nnested_ok:\n  config:\n    inner-dashed: ok\n    deeper:\n      another-dashed: fine\n"
+      },
+      "expected_output": "{\n  \"config\": {\n    \"deeper\": {\n      \"another-dashed\": \"fine\"\n    },\n    \"inner-dashed\": \"ok\"\n  },\n  \"k8s_namespace\": \"ns\",\n  \"templates\": [\n    {\n      \"template\": \"t.yaml.j2\"\n    }\n  ]\n}"
+    }
+  ]
+}

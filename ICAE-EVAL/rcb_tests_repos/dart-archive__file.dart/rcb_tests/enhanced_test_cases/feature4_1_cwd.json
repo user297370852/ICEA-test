@@ -1,0 +1,66 @@
+{
+  "description": "Working-directory coverage: the default working directory is root, a nested working directory makes multi-segment relative paths resolve beneath it, and re-setting the working directory updates subsequent relative resolution.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "cwd"
+          }
+        ]
+      },
+      "expected_output": "current_directory=/\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/a/b",
+            "recursive": true
+          },
+          {
+            "op": "set_cwd",
+            "path": "/a/b"
+          },
+          {
+            "op": "absolute",
+            "path": "c/d"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/a/b\ncurrent_directory=/a/b\nabsolute=/a/b/c/d\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/one"
+          },
+          {
+            "op": "create_directory",
+            "path": "/two"
+          },
+          {
+            "op": "set_cwd",
+            "path": "/one"
+          },
+          {
+            "op": "absolute",
+            "path": "x"
+          },
+          {
+            "op": "set_cwd",
+            "path": "/two"
+          },
+          {
+            "op": "absolute",
+            "path": "x"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/one\ncreated_directory=/two\ncurrent_directory=/one\nabsolute=/one/x\ncurrent_directory=/two\nabsolute=/two/x\n"
+    }
+  ]
+}

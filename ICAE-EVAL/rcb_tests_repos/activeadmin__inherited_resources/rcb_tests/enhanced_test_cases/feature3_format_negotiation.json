@@ -1,0 +1,76 @@
+{
+  "description": "Exercise representation negotiation across additional branches: requesting a representation the controller does not declare, and requesting a supported script representation for a delete write. When the requested representation is not among those the controller declares, the request fails and the error is reported as a neutral category rather than leaking any runtime detail. When a script representation is requested and supported for a write, the action's script view is rendered instead of redirecting while the conventional flash is still set.",
+  "cases": [
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "format": "xml",
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "error=unsupported_format\n"
+    },
+    {
+      "input": {
+        "action": "index",
+        "format": "js",
+        "data": {
+          "list": [
+            {
+              "id": 1
+            }
+          ]
+        }
+      },
+      "expected_output": "error=unsupported_format\n"
+    },
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "format": "js",
+        "config": {
+          "formats": [
+            "html"
+          ]
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "error=unsupported_format\n"
+    },
+    {
+      "input": {
+        "action": "destroy",
+        "id": "42",
+        "format": "js",
+        "config": {
+          "formats": [
+            "html",
+            "js"
+          ]
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=find id=42\nstore=destroy ok=true\nassign=article\nstatus=200\nbody=Destroy JS\nflash.notice=Article was successfully destroyed.\n"
+    }
+  ]
+}

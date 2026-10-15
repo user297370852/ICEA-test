@@ -1,0 +1,219 @@
+{
+  "description": "Render a lint violation with colorized output enabled, supplying a foreground color by name. When coloring is enabled, the directory portion of the file path, the separator after the file name, and the line/column segment are each wrapped in ANSI color escape sequences for the chosen color, while the file's base name and the line number itself are left uncolored. The output is a single line: the colored path separator wrapping, the base file name, a colored colon, the line number, a colored column segment, then a space and the message.",
+  "cases": [
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "RED"
+        },
+        "violations": [
+          {
+            "file": "/red.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "rule-1",
+            "message": "colored red",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "\u001b[31m/\u001b[0mred.kt\u001b[31m:\u001b[0m1\u001b[31m:1:\u001b[0m colored red\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "GREEN"
+        },
+        "violations": [
+          {
+            "file": "/green.kt",
+            "line": 2,
+            "col": 3,
+            "rule": "rule-2",
+            "message": "colored green",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "\u001b[32m/\u001b[0mgreen.kt\u001b[32m:\u001b[0m2\u001b[32m:3:\u001b[0m colored green\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "BLUE"
+        },
+        "violations": [
+          {
+            "file": "/blue.kt",
+            "line": 10,
+            "col": 100,
+            "rule": "rule-3",
+            "message": "multi digit line and col",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "\u001b[34m/\u001b[0mblue.kt\u001b[34m:\u001b[0m10\u001b[34m:100:\u001b[0m multi digit line and col\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true
+        },
+        "violations": [
+          {
+            "file": "/default.kt",
+            "line": 4,
+            "col": 4,
+            "rule": "rule-4",
+            "message": "default color used",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "\u001b[90m/\u001b[0mdefault.kt\u001b[90m:\u001b[0m4\u001b[90m:4:\u001b[0m default color used\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "RED"
+        },
+        "violations": [
+          {
+            "file": "/m1.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "first file",
+            "corrected": false
+          },
+          {
+            "file": "/m1.kt",
+            "line": 2,
+            "col": 2,
+            "rule": "r",
+            "message": "first file again",
+            "corrected": false
+          },
+          {
+            "file": "/m2.kt",
+            "line": 3,
+            "col": 3,
+            "rule": "r",
+            "message": "second file",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "\u001b[31m/\u001b[0mm1.kt\u001b[31m:\u001b[0m1\u001b[31m:1:\u001b[0m first file\n\u001b[31m/\u001b[0mm1.kt\u001b[31m:\u001b[0m2\u001b[31m:2:\u001b[0m first file again\n\u001b[31m/\u001b[0mm2.kt\u001b[31m:\u001b[0m3\u001b[31m:3:\u001b[0m second file\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "DARK_GRAY"
+        },
+        "violations": [
+          {
+            "file": "/c.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "kept",
+            "corrected": false
+          },
+          {
+            "file": "/c.kt",
+            "line": 2,
+            "col": 2,
+            "rule": "r",
+            "message": "dropped",
+            "corrected": true
+          }
+        ]
+      },
+      "expected_output": "\u001b[90m/\u001b[0mc.kt\u001b[90m:\u001b[0m1\u001b[90m:1:\u001b[0m kept\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "RED"
+        },
+        "violations": [
+          {
+            "file": "NoSlash.kt",
+            "line": 5,
+            "col": 6,
+            "rule": "r",
+            "message": "empty dir prefix",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "\u001b[31m\u001b[0mNoSlash.kt\u001b[31m:\u001b[0m5\u001b[31m:6:\u001b[0m empty dir prefix\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "DARK_GRAY"
+        },
+        "violations": [
+          {
+            "file": "/src/main/Deep.kt",
+            "line": 8,
+            "col": 12,
+            "rule": "r",
+            "message": "nested colored path",
+            "corrected": false
+          }
+        ]
+      },
+      "expected_output": "\u001b[90m/src/main/\u001b[0mDeep.kt\u001b[90m:\u001b[0m8\u001b[90m:12:\u001b[0m nested colored path\n"
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "RED"
+        },
+        "violations": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "render",
+        "config": {
+          "colored": true,
+          "color": "DARK_GRAY"
+        },
+        "violations": [
+          {
+            "file": "/x.kt",
+            "line": 1,
+            "col": 1,
+            "rule": "r",
+            "message": "gone",
+            "corrected": true
+          }
+        ]
+      },
+      "expected_output": ""
+    }
+  ]
+}

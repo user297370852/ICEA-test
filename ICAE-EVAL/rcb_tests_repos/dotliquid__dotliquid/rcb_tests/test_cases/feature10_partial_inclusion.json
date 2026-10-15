@@ -1,0 +1,78 @@
+{
+    "description": "Render named partial templates with explicit objects, repeated collections, local variables, nested partials, and dynamically selected partial names.",
+    "cases": [
+        {
+            "input": {
+                "template": "{% include 'product' with products[0] %}",
+                "data": {
+                    "products": [
+                        {
+                            "title": "Draft 151cm"
+                        },
+                        {
+                            "title": "Element 155cm"
+                        }
+                    ]
+                },
+                "partials": {
+                    "product": "Product: {{ product.title }} "
+                }
+            },
+            "expected_output": "Product: Draft 151cm "
+        },
+        {
+            "input": {
+                "template": "{% include 'product' for products %}",
+                "data": {
+                    "products": [
+                        {
+                            "title": "Draft 151cm"
+                        },
+                        {
+                            "title": "Element 155cm"
+                        }
+                    ]
+                },
+                "partials": {
+                    "product": "Product: {{ product.title }} "
+                }
+            },
+            "expected_output": "Product: Draft 151cm Product: Element 155cm "
+        },
+        {
+            "input": {
+                "template": "{% include 'locale_variables' echo1: 'test123', echo2: 'test321' %}",
+                "partials": {
+                    "locale_variables": "Locale: {{echo1}} {{echo2}}"
+                }
+            },
+            "expected_output": "Locale: test123 test321"
+        },
+        {
+            "input": {
+                "template": "{% include 'nested_template' %}",
+                "partials": {
+                    "nested_template": "{% include 'header' %} {% include 'body' %} {% include 'footer' %}",
+                    "header": "header",
+                    "body": "body {% include 'body_detail' %}",
+                    "body_detail": "body_detail",
+                    "footer": "footer"
+                }
+            },
+            "expected_output": "header body body_detail footer"
+        },
+        {
+            "input": {
+                "template": "{% include template %}",
+                "data": {
+                    "template": "Test123"
+                },
+                "partials": {
+                    "Test123": "Test123",
+                    "Test321": "Test321"
+                }
+            },
+            "expected_output": "Test123"
+        }
+    ]
+}

@@ -1,0 +1,126 @@
+{
+    "description": "A translated autoscaling policy is canonicalized by adding defaults, mapping scheduler target fields into plugin target fields, and expanding short built-in metric queries when applicable.",
+    "cases": [
+        {
+            "input": {
+                "policy": {
+                    "id": "string",
+                    "min": 1,
+                    "max": 5,
+                    "source": "source",
+                    "query": "query",
+                    "enabled": true,
+                    "evaluation_interval_ns": 1000000000,
+                    "target": {
+                        "name": "target",
+                        "config": {
+                            "target_config": "yes",
+                            "target_config2": "no",
+                            "Job": "job",
+                            "Group": "group"
+                        }
+                    },
+                    "strategy": {
+                        "name": "strategy",
+                        "config": {
+                            "strategy_config1": "yes",
+                            "strategy_config2": "no"
+                        }
+                    }
+                }
+            },
+            "expected_output": "id=string\nmin=1\nmax=5\nenabled=true\nsource=source\nquery=query\nevaluation_interval_ns=1000000000\ntarget_name=target\ntarget_config={Group=group,Job=job,group=group,job_id=job,target_config=yes,target_config2=no}\nstrategy_name=strategy\nstrategy_config={strategy_config1=yes,strategy_config2=no}\n"
+        },
+        {
+            "input": {
+                "policy": {}
+            },
+            "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=nomad-apm\nquery=\nevaluation_interval_ns=10000000000\ntarget_name=nomad-target\ntarget_config={}\nstrategy_name=\nstrategy_config={}\n"
+        },
+        {
+            "input": null,
+            "expected_output": "policy=<nil>\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "query": "avg_cpu",
+                    "target": {
+                        "config": {
+                            "Job": "job",
+                            "Group": "group"
+                        }
+                    }
+                }
+            },
+            "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=nomad-apm\nquery=avg_cpu/group/job\nevaluation_interval_ns=10000000000\ntarget_name=nomad-target\ntarget_config={Group=group,Job=job,group=group,job_id=job}\nstrategy_name=\nstrategy_config={}\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "source": "nomad-apm",
+                    "query": "avg_cpu",
+                    "target": {
+                        "config": {
+                            "Job": "job",
+                            "Group": "group"
+                        }
+                    }
+                }
+            },
+            "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=nomad-apm\nquery=avg_cpu/group/job\nevaluation_interval_ns=10000000000\ntarget_name=nomad-target\ntarget_config={Group=group,Job=job,group=group,job_id=job}\nstrategy_name=\nstrategy_config={}\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "query": "avg_cpu",
+                    "target": {
+                        "config": {
+                            "Job": "job",
+                            "Group": "group",
+                            "job_id": "my_job",
+                            "group": "my_group"
+                        }
+                    }
+                }
+            },
+            "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=nomad-apm\nquery=avg_cpu/my_group/my_job\nevaluation_interval_ns=10000000000\ntarget_name=nomad-target\ntarget_config={Group=group,Job=job,group=my_group,job_id=my_job}\nstrategy_name=\nstrategy_config={}\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "source": "not_nomad",
+                    "query": "avg_cpu",
+                    "target": {
+                        "config": {
+                            "Job": "job",
+                            "Group": "group"
+                        }
+                    }
+                }
+            },
+            "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=not_nomad\nquery=avg_cpu\nevaluation_interval_ns=10000000000\ntarget_name=nomad-target\ntarget_config={Group=group,Job=job,group=group,job_id=job}\nstrategy_name=\nstrategy_config={}\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "query": "avg_cpu/my_group/my_job",
+                    "target": {
+                        "config": {
+                            "Job": "job",
+                            "Group": "group"
+                        }
+                    }
+                }
+            },
+            "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=nomad-apm\nquery=avg_cpu/my_group/my_job\nevaluation_interval_ns=10000000000\ntarget_name=nomad-target\ntarget_config={Group=group,Job=job,group=group,job_id=job}\nstrategy_name=\nstrategy_config={}\n"
+        },
+        {
+            "input": {
+                "agent_default_evaluation_interval_ns": 5000000000,
+                "policy": {}
+            },
+            "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=nomad-apm\nquery=\nevaluation_interval_ns=5000000000\ntarget_name=nomad-target\ntarget_config={}\nstrategy_name=\nstrategy_config={}\n"
+        }
+    ]
+}

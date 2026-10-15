@@ -1,0 +1,30 @@
+{
+    "description": "Assemble a complete claim set from a map of caller-supplied claims plus automatically filled standard claims, evaluated against a reference current time and an issuer URL. Any standard claim the caller omits is generated: the issuer is the given URL, issued-at and not-before are the reference time, the expiration is the reference time plus the configured lifetime (in minutes, default sixty), and a token id is derived deterministically. The result is the assembled claim set as a name-to-value mapping in which caller-supplied claims keep their given values and ordering.",
+    "cases": [
+        {
+            "input": {
+                "op": "make_payload",
+                "now": 123,
+                "url": "http://example.com/foo",
+                "claims": {
+                    "sub": 1,
+                    "jti": "foo",
+                    "iat": 123
+                }
+            },
+            "expected_output": "{\"sub\":1,\"jti\":\"foo\",\"iat\":123,\"iss\":\"http:\\/\\/example.com\\/foo\",\"exp\":3723,\"nbf\":123}\n"
+        },
+        {
+            "input": {
+                "op": "make_payload",
+                "now": 123,
+                "url": "http://example.com/foo",
+                "claims": {
+                    "sub": 1,
+                    "foo": "baz"
+                }
+            },
+            "expected_output": "{\"sub\":1,\"foo\":\"baz\",\"iss\":\"http:\\/\\/example.com\\/foo\",\"iat\":123,\"exp\":3723,\"nbf\":123,\"jti\":\"d1f6bff329cfc64b2503d2fc3e259583\"}\n"
+        }
+    ]
+}

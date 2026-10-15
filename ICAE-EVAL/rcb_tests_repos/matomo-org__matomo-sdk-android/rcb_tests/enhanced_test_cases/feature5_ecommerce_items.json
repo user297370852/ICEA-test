@@ -1,0 +1,124 @@
+{
+  "description": "Ecommerce item edge cases: single item with only sku, sku plus quantity but no price, zero and large grouped prices, same-sku overwrite, remove of a non-existent sku, and clear followed by re-add.",
+  "cases": [
+    {
+      "input": {
+        "feature": "ecommerce_items",
+        "operations": [
+          {
+            "action": "add",
+            "sku": "only_sku"
+          }
+        ]
+      },
+      "expected_output": "items_json=[[\"only_sku\"]]\n"
+    },
+    {
+      "input": {
+        "feature": "ecommerce_items",
+        "operations": [
+          {
+            "action": "add",
+            "sku": "sku_q",
+            "quantity": 5
+          }
+        ]
+      },
+      "expected_output": "items_json=[[\"sku_q\",\"5\"]]\n"
+    },
+    {
+      "input": {
+        "feature": "ecommerce_items",
+        "operations": [
+          {
+            "action": "add",
+            "sku": "sku_zero",
+            "name": "free",
+            "category": "c",
+            "price_cents": 0,
+            "quantity": 1
+          }
+        ]
+      },
+      "expected_output": "items_json=[[\"sku_zero\",\"free\",\"c\",\"0.00\",\"1\"]]\n"
+    },
+    {
+      "input": {
+        "feature": "ecommerce_items",
+        "operations": [
+          {
+            "action": "add",
+            "sku": "sku_big",
+            "name": "big",
+            "category": "c",
+            "price_cents": 123456789,
+            "quantity": 10
+          }
+        ]
+      },
+      "expected_output": "items_json=[[\"sku_big\",\"big\",\"c\",\"1,234,567.89\",\"10\"]]\n"
+    },
+    {
+      "input": {
+        "feature": "ecommerce_items",
+        "operations": [
+          {
+            "action": "add",
+            "sku": "dup",
+            "name": "first",
+            "price_cents": 100
+          },
+          {
+            "action": "add",
+            "sku": "dup",
+            "name": "second",
+            "price_cents": 250
+          }
+        ]
+      },
+      "expected_output": "items_json=[[\"dup\",\"second\",\"2.50\"]]\n"
+    },
+    {
+      "input": {
+        "feature": "ecommerce_items",
+        "operations": [
+          {
+            "action": "add",
+            "sku": "keep",
+            "name": "k",
+            "price_cents": 300,
+            "quantity": 1
+          },
+          {
+            "action": "remove",
+            "sku": "does_not_exist"
+          }
+        ]
+      },
+      "expected_output": "items_json=[[\"keep\",\"k\",\"3.00\",\"1\"]]\n"
+    },
+    {
+      "input": {
+        "feature": "ecommerce_items",
+        "operations": [
+          {
+            "action": "add",
+            "sku": "a",
+            "price_cents": 100
+          },
+          {
+            "action": "clear"
+          },
+          {
+            "action": "add",
+            "sku": "b",
+            "name": "reborn",
+            "price_cents": 200,
+            "quantity": 2
+          }
+        ]
+      },
+      "expected_output": "items_json=[[\"b\",\"reborn\",\"2.00\",\"2\"]]\n"
+    }
+  ]
+}

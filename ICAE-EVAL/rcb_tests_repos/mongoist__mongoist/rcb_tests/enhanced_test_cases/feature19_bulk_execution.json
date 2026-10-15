@@ -1,0 +1,98 @@
+{
+  "description": "Bulk execution must handle a small insert batch, a large batch that splits, a different replacement set, an empty-bulk no-op on a single-document seed, and a mixed ordered batch over a three-document seed.",
+  "cases": [
+    {
+      "input": {
+        "collection": "a",
+        "insertCount": 5,
+        "document": {
+          "name": "Spearow",
+          "type": "flying"
+        }
+      },
+      "expected_output": "bulk_ok=1\ndocument_count=5\n"
+    },
+    {
+      "input": {
+        "collection": "a",
+        "insertCount": 2000,
+        "document": {
+          "name": "Pidgey",
+          "type": "flying"
+        }
+      },
+      "expected_output": "bulk_ok=1\ndocument_count=2000\n"
+    },
+    {
+      "input": {
+        "collection": "a",
+        "seed": [
+          {
+            "name": "Squirtle",
+            "type": "water"
+          },
+          {
+            "name": "Starmie",
+            "type": "water"
+          }
+        ],
+        "replacements": [
+          {
+            "query": {
+              "name": "Squirtle"
+            },
+            "document": {
+              "name": "Vaporeon",
+              "type": "water"
+            }
+          },
+          {
+            "query": {
+              "name": "Starmie"
+            },
+            "document": {
+              "name": "Jolteon",
+              "type": "electric"
+            }
+          }
+        ]
+      },
+      "expected_output": "bulk_ok=1\ndocuments=[{\"name\":\"Vaporeon\",\"type\":\"water\"},{\"name\":\"Jolteon\",\"type\":\"electric\"}]\n"
+    },
+    {
+      "input": {
+        "collection": "a",
+        "seed": [
+          {
+            "name": "Onix",
+            "type": "rock"
+          }
+        ]
+      },
+      "expected_output": "bulk_ok=1\n"
+    },
+    {
+      "input": {
+        "collection": "a",
+        "seed": [
+          {
+            "name": "Squirtle",
+            "type": "water",
+            "level": 10
+          },
+          {
+            "name": "Starmie",
+            "type": "water",
+            "level": 8
+          },
+          {
+            "name": "Vaporeon",
+            "type": "water",
+            "level": 14
+          }
+        ]
+      },
+      "expected_output": "bulk_ok=1\ndocuments=[{\"name\":\"Wartortle\",\"type\":\"water\",\"level\":3,\"hp\":100},{\"name\":\"Starmie\",\"type\":\"water\",\"level\":3,\"hp\":\"none\"},{\"name\":\"Vaporeon\",\"type\":\"water\",\"level\":3,\"hp\":\"none\"},{\"name\":\"Pidgeotto\",\"type\":\"flying\",\"level\":\"none\",\"hp\":\"none\"},{\"name\":\"Bulbasaur\",\"type\":\"grass\",\"level\":1,\"hp\":\"none\"}]\n"
+    }
+  ]
+}

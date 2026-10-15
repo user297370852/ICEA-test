@@ -1,0 +1,85 @@
+{
+    "description": "A two-state (on/off) latch. Transition operations return true only when they actually changed the state and false when it was already in the target state. State queries report the current position. Conditional runners execute an action only in the matching state, returning whether they ran. If an action throws during a transition, the latch reverts to its prior state and surfaces the failure.",
+    "cases": [
+        {
+            "input": {
+                "op": "switch",
+                "start": false,
+                "commands": [
+                    "is_off",
+                    "is_on",
+                    "switch_on",
+                    "is_on",
+                    "switch_on",
+                    "switch_off",
+                    "is_off",
+                    "switch_off"
+                ]
+            },
+            "expected_output": "is_off -> true\nis_on -> false\nswitch_on -> true\nis_on -> true\nswitch_on -> false\nswitch_off -> true\nis_off -> true\nswitch_off -> false\n"
+        },
+        {
+            "input": {
+                "op": "switch",
+                "start": true,
+                "commands": [
+                    "is_on",
+                    "is_off"
+                ]
+            },
+            "expected_output": "is_on -> true\nis_off -> false\n"
+        },
+        {
+            "input": {
+                "op": "switch",
+                "start": false,
+                "commands": [
+                    "switch_on_throw",
+                    "is_off",
+                    "is_on"
+                ]
+            },
+            "expected_output": "switch_on_throw -> error=action_failed\nis_off -> true\nis_on -> false\n"
+        },
+        {
+            "input": {
+                "op": "switch",
+                "start": true,
+                "commands": [
+                    "switch_off_throw",
+                    "is_on",
+                    "is_off"
+                ]
+            },
+            "expected_output": "switch_off_throw -> error=action_failed\nis_on -> true\nis_off -> false\n"
+        },
+        {
+            "input": {
+                "op": "switch",
+                "start": false,
+                "commands": [
+                    "if_off",
+                    "if_on",
+                    "switch_on",
+                    "if_on",
+                    "if_off"
+                ]
+            },
+            "expected_output": "if_off -> true\nif_on -> false\nswitch_on -> true\nif_on -> true\nif_off -> false\n"
+        },
+        {
+            "input": {
+                "op": "switch",
+                "start": false,
+                "commands": [
+                    "while_off",
+                    "while_on",
+                    "switch_on",
+                    "while_on",
+                    "while_off"
+                ]
+            },
+            "expected_output": "while_off -> true\nwhile_on -> false\nswitch_on -> true\nwhile_on -> true\nwhile_off -> false\n"
+        }
+    ]
+}

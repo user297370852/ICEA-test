@@ -1,0 +1,215 @@
+{
+  "description": "Enhanced native-disjoint cases covering algorithm variants, payload boundaries, scalar claims, typed parser mismatches, compression payloads, claim type enforcement, temporal boundary failures, and private-key forgery verification.",
+  "cases": [
+    {
+      "input": {
+        "op": "algorithm_info",
+        "name": "HS384"
+      },
+      "expected_output": "value=HS384\ndescription=HMAC using SHA-384\nfamily=HMAC\njdk_standard=true\nhmac=true\nrsa=false\nelliptic_curve=false"
+    },
+    {
+      "input": {
+        "op": "algorithm_info",
+        "name": "RS384"
+      },
+      "expected_output": "value=RS384\ndescription=RSASSA-PKCS-v1_5 using SHA-384\nfamily=RSA\njdk_standard=true\nhmac=false\nrsa=true\nelliptic_curve=false"
+    },
+    {
+      "input": {
+        "op": "algorithm_info",
+        "name": "ES384"
+      },
+      "expected_output": "value=ES384\ndescription=ECDSA using P-384 and SHA-384\nfamily=Elliptic Curve\njdk_standard=false\nhmac=false\nrsa=false\nelliptic_curve=true"
+    },
+    {
+      "input": {
+        "op": "algorithm_for_name",
+        "name": "pS512"
+      },
+      "expected_output": "value=PS512\nfamily=RSA"
+    },
+    {
+      "input": {
+        "op": "algorithm_for_name",
+        "name": "NoNe"
+      },
+      "expected_output": "value=none\nfamily=None"
+    },
+    {
+      "input": {
+        "op": "build_plaintext",
+        "payload": ""
+      },
+      "expected_output": "error=illegal_argument"
+    },
+    {
+      "input": {
+        "op": "build_plaintext",
+        "payload": "Line1\nLine2 /+=? & emoji: ☃"
+      },
+      "expected_output": "token=eyJhbGciOiJub25lIn0.TGluZTEKTGluZTIgLys9PyAmIGVtb2ppOiDimIM."
+    },
+    {
+      "input": {
+        "op": "build_parse_claims",
+        "claims": {
+          "iss": "Issuer",
+          "sub": "Subject",
+          "aud": "Audience",
+          "jti": "Token-123",
+          "iat": 0,
+          "active": true,
+          "quota": -7,
+          "ratio": 3.5,
+          "zeta": "last",
+          "alpha": "first"
+        }
+      },
+      "expected_output": "iss=Issuer\nsub=Subject\naud=Audience\njti=Token-123\niat=0\nclaim.active=true\nclaim.alpha=first\nclaim.quota=-7\nclaim.ratio=3.5\nclaim.zeta=last"
+    },
+    {
+      "input": {
+        "op": "build_parse_claims",
+        "claims": {
+          "iss": "Keep",
+          "sub": "RemoveMe",
+          "aud": "AlsoKeep",
+          "jti": "RemoveId"
+        },
+        "unset": [
+          "sub",
+          "jti"
+        ]
+      },
+      "expected_output": "iss=Keep\naud=AlsoKeep"
+    },
+    {
+      "input": {
+        "op": "sign_verify",
+        "alg": "HS384",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8w",
+        "payload": "A payload with dots... and unicode ☃"
+      },
+      "expected_output": "alg=HS384\nbody=A payload with dots... and unicode ☃"
+    },
+    {
+      "input": {
+        "op": "sign_verify",
+        "alg": "HS512",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4_QA",
+        "claims": {
+          "iss": "Me",
+          "sub": "Joe",
+          "role": "admin",
+          "level": 10
+        },
+        "emit_token": true
+      },
+      "expected_output": "token=eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJNZSIsInN1YiI6IkpvZSIsInJvbGUiOiJhZG1pbiIsImxldmVsIjoxMH0.QWXu2hLldNMkUG9pYVB07zV4vksFfDdUg_TrWFmWhfa7E2GHA4a_tZ3PHzKxGsdYQAQThyLQs6xF2PG-HN_jXQ\nalg=HS512\niss=Me\nsub=Joe\nclaim.level=10\nclaim.role=admin"
+    },
+    {
+      "input": {
+        "op": "compress_roundtrip",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA",
+        "codec": "GZIP",
+        "payload": "repeat-repeat-repeat-repeat-repeat ☃"
+      },
+      "expected_output": "calg=GZIP\nbody=repeat-repeat-repeat-repeat-repeat ☃"
+    },
+    {
+      "input": {
+        "op": "compress_roundtrip",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA",
+        "codec": "CUSTOM",
+        "payload": "custom codec plaintext"
+      },
+      "expected_output": "calg=CUSTOM\nbody=custom codec plaintext"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": "a.b.c.d"
+      },
+      "expected_output": "error=malformed\nreason=period_count"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "token": "eyJhbGciOiJub25lIn0.."
+      },
+      "expected_output": "error=malformed\nreason=missing_body"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJub25lIn0.eyJzdWIiOiJKb2UifQ.",
+        "method": "claims_jws"
+      },
+      "expected_output": "error=unsupported\nreason=unsigned_claims_jwt"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJIUzI1NiJ9.SGVsbG8gd29ybGQh.4Luu4D1QDg0vorxFuBy4sFq090uoZMwkkGfVFsOeqTw",
+        "method": "claims_jws",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA"
+      },
+      "expected_output": "error=unsupported\nreason=signed_plaintext_jws"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJKb2UifQ.qs8rO_cGp7ctWsq-yGbVzJ-cjAhzdLh1jP0296AC9Ac",
+        "method": "plaintext_jws",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA"
+      },
+      "expected_output": "error=unsupported\nreason=signed_claims_jws"
+    },
+    {
+      "input": {
+        "op": "require_claim",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA",
+        "claims": {
+          "role": "admin",
+          "level": 5
+        },
+        "require": {
+          "name": "level",
+          "value": 5
+        }
+      },
+      "expected_output": "error=incorrect_claim\nclaim=level"
+    },
+    {
+      "input": {
+        "op": "require_claim",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA",
+        "claims": {
+          "flag": true
+        },
+        "require": {
+          "name": "flag",
+          "value": false
+        }
+      },
+      "expected_output": "error=incorrect_claim\nclaim=flag"
+    },
+    {
+      "input": {
+        "op": "lifecycle",
+        "sub": "Boundary",
+        "exp_offset_sec": -1
+      },
+      "expected_output": "error=expired"
+    },
+    {
+      "input": {
+        "op": "forge_hmac_with_key",
+        "key_type": "rsa",
+        "verify_with": "private"
+      },
+      "expected_output": "error=unsupported\nreason=algorithm_key_mismatch"
+    }
+  ]
+}

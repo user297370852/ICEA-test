@@ -1,0 +1,26 @@
+{
+    "description": "Generate docker ps pipelines that extract deployed version identifiers from container names. The pipeline formats names, then uses grep/cut to extract the trailing dash-delimited segment (the version). current_running_version restricts to the latest running container. list_versions lists all versions for the service/role and optionally accepts extra docker flags plus a status filter that is inserted before those flags.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "current_running_version"
+            },
+            "expected_output": "docker ps --filter label=service=app --filter label=role=web --filter status=running --latest --format \"{{.Names}}\" | grep -oE \"\\-[^-]+$\" | cut -c 2-"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "list_versions"
+            },
+            "expected_output": "docker ps --filter label=service=app --filter label=role=web --format \"{{.Names}}\" | grep -oE \"\\-[^-]+$\" | cut -c 2-"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "list_versions", "args": {"docker_args": ["--latest"], "status": "running"}
+            },
+            "expected_output": "docker ps --filter label=service=app --filter label=role=web --filter status=running --latest --format \"{{.Names}}\" | grep -oE \"\\-[^-]+$\" | cut -c 2-"
+        }
+    ]
+}

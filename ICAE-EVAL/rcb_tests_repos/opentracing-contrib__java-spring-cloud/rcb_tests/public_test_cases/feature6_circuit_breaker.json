@@ -1,0 +1,16 @@
+{
+  "feature": "circuit_breaker",
+  "description": "Circuit-breaker instrumentation: commands run on breaker worker threads keep the caller's trace context, fallback invocations are recorded, and a traced command wrapper tags the command's identifying metadata.",
+  "cases": [
+    {
+      "name": "command_runs_in_caller_trace",
+      "input": {"feature": "circuit_breaker", "scenario": "command"},
+      "expected_output": "spans=2\ndistinct_traces=1\nop=caller component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=root\nop=sayHello component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=caller\n"
+    },
+    {
+      "name": "fallback_invocation_is_recorded",
+      "input": {"feature": "circuit_breaker", "scenario": "fallback"},
+      "expected_output": "spans=3\ndistinct_traces=1\nop=alwaysFail component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=caller\nop=caller component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=root\nop=defaultGreeting component=- span.kind=- http.status=- attrs=[fallback=yes] error=false error_log=- parent=caller\n"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+    "description": "After a batch that switches the active database, the connection reports the switched-to database as its current database. This holds for a single switch and for a switch performed inside a nested batch, where the most deeply selected database becomes current.",
+    "cases": [
+        {
+            "input": {
+                "action": "current_db",
+                "before": [
+                    [
+                        "select",
+                        1
+                    ]
+                ],
+                "batch": [
+                    [
+                        "select",
+                        2
+                    ]
+                ]
+            },
+            "expected_output": "current_db:int:2\n"
+        },
+        {
+            "input": {
+                "action": "current_db",
+                "before": [
+                    [
+                        "select",
+                        1
+                    ]
+                ],
+                "batch": [
+                    [
+                        "select",
+                        2
+                    ],
+                    {
+                        "batch": [
+                            [
+                                "select",
+                                3
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "current_db:int:3\n"
+        }
+    ]
+}

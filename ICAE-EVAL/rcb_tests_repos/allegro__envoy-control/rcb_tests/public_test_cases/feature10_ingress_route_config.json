@@ -1,0 +1,59 @@
+{
+    "description": "Build secured ingress route config: status virtual clusters, token-gated admin routes with 401 fallbacks, public admin routes, per-method retry routes, and a catch-all local route, in a fixed order.",
+    "cases": [
+        {
+            "input": {
+                "op": "ingress_routes",
+                "statusEnabled": true,
+                "createVirtualCluster": true,
+                "adminPublicAccess": true,
+                "adminToken": "test_token",
+                "securedPaths": [
+                    {
+                        "pathPrefix": "/config_dump",
+                        "method": "GET"
+                    }
+                ],
+                "healthCheckPath": "",
+                "healthCheckCluster": "health_check_cluster",
+                "responseTimeout": "777s",
+                "idleTimeout": "61s",
+                "connectionIdleTimeout": "120s",
+                "defaultRetryPolicy": {
+                    "enabled": true,
+                    "retryOn": [
+                        "connection-failure"
+                    ],
+                    "numRetries": 3
+                },
+                "perHttpMethod": {
+                    "GET": {
+                        "enabled": true,
+                        "retryOn": [
+                            "reset",
+                            "connection-failure"
+                        ],
+                        "numRetries": 1,
+                        "perTryTimeoutSeconds": 1,
+                        "hostSelectionRetryMaxAttempts": 3
+                    },
+                    "HEAD": {
+                        "enabled": true,
+                        "retryOn": [
+                            "connection-failure"
+                        ],
+                        "numRetries": 6
+                    },
+                    "POST": {
+                        "enabled": false,
+                        "retryOn": [
+                            "connection-failure"
+                        ],
+                        "numRetries": 6
+                    }
+                }
+            },
+            "expected_output": "routeConfigName=ingress_secured_routes\nvhost.name=secured_local_service\nvhost.domains=[*]\nvhost.virtualClusters=[status,endpoints]\nvhost.retryPolicy.retryOn=connection-failure\nvhost.retryPolicy.numRetries=3\nroutes=9\nroute[0] prefix=/status/envoy/config_dump method=[GET] cluster=this_admin retry=false\nroute[1] prefix=/status/envoy/config_dump method=[GET] directResponse=401 retry=false\nroute[2] prefix=/status/envoy/ method=[POST] cluster=this_admin retry=false\nroute[3] prefix=/status/envoy/ method=[POST] directResponse=401 retry=false\nroute[4] prefix=/status/envoy/ method=[] cluster=this_admin retry=false\nroute[5] prefix=/status/envoy method=[GET] redirect retry=false\nroute[6] prefix=/ method=[GET] cluster=local_service retry=true\nroute[7] prefix=/ method=[HEAD] cluster=local_service retry=true\nroute[8] prefix=/ method=[] cluster=local_service retry=false\n"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+{
+    "description": "Request-scoped flag caching: middleware attaches the resolved flag collection to the request so later checks reuse it. A request that has not passed through the middleware carries no cached attribute; after the middleware runs, the attribute is present and lists the configured flag names. Once cached, a flag check against that request keeps using the cached snapshot even if the live configuration is emptied afterward; a request without the cached snapshot reflects the now-empty configuration instead.",
+    "cases": [
+        {"input": {"op": "request_cache", "scenario": "no_middleware_attr", "flag_sources": ["flags.sources.SettingsFlagsSource"]}, "expected_output": "cached=false\n"},
+        {"input": {"op": "request_cache", "scenario": "with_middleware", "flag_sources": ["flags.sources.SettingsFlagsSource"]}, "expected_output": "cached=true\nflags=DB_FLAG,FLAG_DISABLED,FLAG_ENABLED,FLAG_ENABLED_WITH_KWARG\n"},
+        {"input": {"op": "request_cache", "scenario": "cached_after_change"}, "expected_output": "state=true\n"},
+        {"input": {"op": "request_cache", "scenario": "no_cache_after_change"}, "expected_output": "state=false\n"}
+    ]
+}

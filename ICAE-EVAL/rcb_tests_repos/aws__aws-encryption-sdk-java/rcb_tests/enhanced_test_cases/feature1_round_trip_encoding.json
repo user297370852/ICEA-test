@@ -1,0 +1,86 @@
+{
+  "description": "Enhanced round-trip encoding coverage disjoint from the native suite. Exercises additional header shapes: an explicitly empty {} context (distinct from null), a multi-entry encryption context, longer/different provider id and info labels with a larger encrypted key, a zero-length provider id and info with the minimum positive frame length (1), a multi-byte UTF-8 context value, and the maximum 32-bit frame length. Each verifies serialized_length is determined purely by field sizes and that decode/re-encode is byte-for-byte stable.",
+  "cases": [
+    {
+      "input": {
+        "action": "encode_round_trip",
+        "encryption_context": {},
+        "key_provider_id": "None",
+        "key_provider_info": "TestKeyID",
+        "encrypted_key_length": 32,
+        "content_type": "frame",
+        "frame_length": 4096
+      },
+      "expected_output": "serialized_length=113\nround_trip_stable=true\nversion=1\ncontent_type=frame\nframe_length=4096\nnonce_length=12\nencryption_context_length=0\nencrypted_key_blob_count=1\n"
+    },
+    {
+      "input": {
+        "action": "encode_round_trip",
+        "encryption_context": {
+          "A": "1",
+          "B": "2"
+        },
+        "key_provider_id": "None",
+        "key_provider_info": "TestKeyID",
+        "encrypted_key_length": 32,
+        "content_type": "frame",
+        "frame_length": 1024
+      },
+      "expected_output": "serialized_length=127\nround_trip_stable=true\nversion=1\ncontent_type=frame\nframe_length=1024\nnonce_length=12\nencryption_context_length=14\nencrypted_key_blob_count=1\n"
+    },
+    {
+      "input": {
+        "action": "encode_round_trip",
+        "encryption_context": {
+          "region": "us-east-1"
+        },
+        "key_provider_id": "aws-kms",
+        "key_provider_info": "arn:aws:kms:key",
+        "encrypted_key_length": 64,
+        "content_type": "single_block",
+        "frame_length": 0
+      },
+      "expected_output": "serialized_length=175\nround_trip_stable=true\nversion=1\ncontent_type=single_block\nframe_length=0\nnonce_length=12\nencryption_context_length=21\nencrypted_key_blob_count=1\n"
+    },
+    {
+      "input": {
+        "action": "encode_round_trip",
+        "encryption_context": {
+          "ENC": "value"
+        },
+        "key_provider_id": "",
+        "key_provider_info": "",
+        "encrypted_key_length": 16,
+        "content_type": "frame",
+        "frame_length": 1
+      },
+      "expected_output": "serialized_length=98\nround_trip_stable=true\nversion=1\ncontent_type=frame\nframe_length=1\nnonce_length=12\nencryption_context_length=14\nencrypted_key_blob_count=1\n"
+    },
+    {
+      "input": {
+        "action": "encode_round_trip",
+        "encryption_context": {
+          "k": "ééé"
+        },
+        "key_provider_id": "None",
+        "key_provider_info": "TestKeyID",
+        "encrypted_key_length": 32,
+        "content_type": "frame",
+        "frame_length": 4096
+      },
+      "expected_output": "serialized_length=126\nround_trip_stable=true\nversion=1\ncontent_type=frame\nframe_length=4096\nnonce_length=12\nencryption_context_length=13\nencrypted_key_blob_count=1\n"
+    },
+    {
+      "input": {
+        "action": "encode_round_trip",
+        "encryption_context": null,
+        "key_provider_id": "None",
+        "key_provider_info": "TestKeyID",
+        "encrypted_key_length": 32,
+        "content_type": "frame",
+        "frame_length": 2147483647
+      },
+      "expected_output": "serialized_length=113\nround_trip_stable=true\nversion=1\ncontent_type=frame\nframe_length=2147483647\nnonce_length=12\nencryption_context_length=0\nencrypted_key_blob_count=1\n"
+    }
+  ]
+}

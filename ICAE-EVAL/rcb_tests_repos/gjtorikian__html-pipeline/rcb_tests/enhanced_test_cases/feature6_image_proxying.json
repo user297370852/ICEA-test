@@ -1,0 +1,46 @@
+{
+  "description": "Camo proxy edge cases: whitelisted github subdomain preserved, explicit disabled=false, external http proxied, root-relative preserved, and multiple images.",
+  "cases": [
+    {
+      "input": {
+        "html": "<p><img src=\"https://avatars.github.com/x.png\"></p>",
+        "proxy_endpoint": "https//assets.example.org",
+        "proxy_secret": "ssssh-secret"
+      },
+      "expected_output": "<p><img src=\"https://avatars.github.com/x.png\"></p>\n"
+    },
+    {
+      "input": {
+        "html": "<p><img src=\"http://example.org/pic.png\"></p>",
+        "proxy_endpoint": "https//assets.example.org",
+        "proxy_secret": "ssssh-secret",
+        "disabled": false
+      },
+      "expected_output": "<p><img src=\"https//assets.example.org/0a677359c7fe693cd3c3c7922118f2c419b21778/687474703a2f2f6578616d706c652e6f72672f7069632e706e67\" data-canonical-src=\"http://example.org/pic.png\"></p>\n"
+    },
+    {
+      "input": {
+        "html": "<p><img src=\"https://cdn.other.net/a.png\"></p>",
+        "proxy_endpoint": "https//assets.example.org",
+        "proxy_secret": "ssssh-secret"
+      },
+      "expected_output": "<p><img src=\"https//assets.example.org/0785f5052fa03a464fe3c81a5c4c4c5c464a47e3/68747470733a2f2f63646e2e6f746865722e6e65742f612e706e67\" data-canonical-src=\"https://cdn.other.net/a.png\"></p>\n"
+    },
+    {
+      "input": {
+        "html": "<p><img src=\"/local/pic.png\"></p>",
+        "proxy_endpoint": "https//assets.example.org",
+        "proxy_secret": "ssssh-secret"
+      },
+      "expected_output": "<p><img src=\"/local/pic.png\"></p>\n"
+    },
+    {
+      "input": {
+        "html": "<p><img src=\"https://github.com/a.png\"><img src=\"http://twitter.com/b.png\"></p>",
+        "proxy_endpoint": "https//assets.example.org",
+        "proxy_secret": "ssssh-secret"
+      },
+      "expected_output": "<p><img src=\"https://github.com/a.png\"><img src=\"https//assets.example.org/0b8e16a5a2d02b5cba20418e8ffe6399c05786f4/687474703a2f2f747769747465722e636f6d2f622e706e67\" data-canonical-src=\"http://twitter.com/b.png\"></p>\n"
+    }
+  ]
+}

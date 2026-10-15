@@ -1,0 +1,139 @@
+{
+  "description": "Boundary coverage for metadata generation: providers without homepage, homepage without providers, minify with single and multiple versions, combined notify/providers/homepage, multi-version include hashes, and trailing-slash homepage normalization.",
+  "cases": [
+    {
+      "input": {
+        "action": "generate_metadata",
+        "config": {
+          "providers": true
+        },
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=p2/%package%.json\navailable=vendor/name\nproviders_url=p/%package%$%hash%.json\nproviders=vendor/name\ninclude_file=include/all$eaa1fa7a7e4fad7c7937d4aafcf6c68fc72f0e13.json\ninclude_packages=vendor/name\np2_versions=1.0\n"
+    },
+    {
+      "input": {
+        "action": "generate_metadata",
+        "config": {
+          "homepage": "http://localhost:1234/sub-dir"
+        },
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=/sub-dir/p2/%package%.json\navailable=vendor/name\ninclude_file=include/all$82aa8b329f93e0204b3dc0dd52891a59b81a3196.json\ninclude_packages=vendor/name\np2_versions=1.0\n"
+    },
+    {
+      "input": {
+        "action": "generate_metadata",
+        "minify": true,
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=p2/%package%.json\navailable=vendor/name\ninclude_file=include/all$82aa8b329f93e0204b3dc0dd52891a59b81a3196.json\ninclude_packages=vendor/name\np2_versions=1.0\np2_minified=composer/2.0\n"
+    },
+    {
+      "input": {
+        "action": "generate_metadata",
+        "config": {
+          "notify-batch": "http://localhost:54715/notify",
+          "providers": true
+        },
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=p2/%package%.json\navailable=vendor/name\nnotify_batch=http://localhost:54715/notify\nproviders_url=p/%package%$%hash%.json\nproviders=vendor/name\ninclude_file=include/all$eaa1fa7a7e4fad7c7937d4aafcf6c68fc72f0e13.json\ninclude_packages=vendor/name\np2_versions=1.0\n"
+    },
+    {
+      "input": {
+        "action": "generate_metadata",
+        "config": {},
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          },
+          {
+            "name": "vendor/name",
+            "version": "2.0"
+          },
+          {
+            "name": "vendor/name",
+            "version": "3.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=p2/%package%.json\navailable=vendor/name\ninclude_file=include/all$10115ea1138956a44fa0edde0c8f623c98115adc.json\ninclude_packages=vendor/name\np2_versions=1.0,2.0,3.0\n"
+    },
+    {
+      "input": {
+        "action": "generate_metadata",
+        "config": {
+          "homepage": "http://localhost:1234/sub-dir",
+          "providers": true,
+          "notify-batch": "http://localhost:54715/notify"
+        },
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=/sub-dir/p2/%package%.json\navailable=vendor/name\nnotify_batch=http://localhost:54715/notify\nproviders_url=/sub-dir/p/%package%$%hash%.json\nproviders=vendor/name\ninclude_file=include/all$eaa1fa7a7e4fad7c7937d4aafcf6c68fc72f0e13.json\ninclude_packages=vendor/name\np2_versions=1.0\n"
+    },
+    {
+      "input": {
+        "action": "generate_metadata",
+        "minify": true,
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          },
+          {
+            "name": "vendor/name",
+            "version": "1.1"
+          },
+          {
+            "name": "vendor/name",
+            "version": "2.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=p2/%package%.json\navailable=vendor/name\ninclude_file=include/all$29a5f5d8b2c2bea4b1490b3b07821fc9935859b5.json\ninclude_packages=vendor/name\np2_versions=1.0,1.1,2.0\np2_minified=composer/2.0\n"
+    },
+    {
+      "input": {
+        "action": "generate_metadata",
+        "config": {
+          "providers": true,
+          "homepage": "https://example.com/repo/"
+        },
+        "packages": [
+          {
+            "name": "vendor/name",
+            "version": "1.0"
+          }
+        ]
+      },
+      "expected_output": "metadata_url=/repo/p2/%package%.json\navailable=vendor/name\nproviders_url=/repo/p/%package%$%hash%.json\nproviders=vendor/name\ninclude_file=include/all$eaa1fa7a7e4fad7c7937d4aafcf6c68fc72f0e13.json\ninclude_packages=vendor/name\np2_versions=1.0\n"
+    }
+  ]
+}

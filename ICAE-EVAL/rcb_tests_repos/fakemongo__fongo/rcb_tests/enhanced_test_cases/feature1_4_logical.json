@@ -1,0 +1,135 @@
+{
+  "description": "A document matcher combines conditions with logical connectives, covering boundary inputs: a conjunction of two operator conditions on the same field, a disjunction with a single sub-query, a disjunction whose alternative is itself a conjunction, and a conjunction mixing a membership condition with an existence condition. Matching preserves the original document order.",
+  "cases": [
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "$and": [
+            {
+              "a": {
+                "$gte": 2
+              }
+            },
+            {
+              "a": {
+                "$ne": 4
+              }
+            }
+          ]
+        },
+        "documents": [
+          {
+            "a": 1
+          },
+          {
+            "a": 2
+          },
+          {
+            "a": 4
+          },
+          {
+            "a": 5
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 2}\n{ \"a\" : 5}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "$or": [
+            {
+              "a": 1
+            }
+          ]
+        },
+        "documents": [
+          {
+            "a": 1
+          },
+          {
+            "a": 2
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 1}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "$or": [
+            {
+              "a": 1
+            },
+            {
+              "$and": [
+                {
+                  "b": 2
+                },
+                {
+                  "c": 3
+                }
+              ]
+            }
+          ]
+        },
+        "documents": [
+          {
+            "a": 1
+          },
+          {
+            "b": 2,
+            "c": 3
+          },
+          {
+            "b": 2,
+            "c": 4
+          },
+          {
+            "a": 9
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 1}\n{ \"b\" : 2 , \"c\" : 3}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "$and": [
+            {
+              "a": {
+                "$in": [
+                  1,
+                  2
+                ]
+              }
+            },
+            {
+              "b": {
+                "$exists": true
+              }
+            }
+          ]
+        },
+        "documents": [
+          {
+            "a": 1,
+            "b": 0
+          },
+          {
+            "a": 1
+          },
+          {
+            "a": 3,
+            "b": 0
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 1 , \"b\" : 0}\n"
+    }
+  ]
+}

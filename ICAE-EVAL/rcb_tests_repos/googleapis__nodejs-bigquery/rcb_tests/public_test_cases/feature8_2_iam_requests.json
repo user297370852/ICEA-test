@@ -1,0 +1,36 @@
+{
+    "description": "Table IAM operations produce policy and permission request bodies, and unsupported policy versions are reported as a neutral error category.",
+    "cases": [
+        {
+            "input": {
+                "operation": "table_iam_request",
+                "action": "get",
+                "options": {
+                    "requestedPolicyVersion": 1
+                }
+            },
+            "expected_output": "{\n  \"method\": \"POST\",\n  \"uri\": \"/:getIamPolicy\",\n  \"json\": {\n    \"options\": {\n      \"requestedPolicyVersion\": 1\n    }\n  }\n}\n"
+        },
+        {
+            "input": {
+                "operation": "table_iam_request",
+                "action": "set",
+                "policy": {
+                    "version": 1,
+                    "bindings": [
+                        {
+                            "role": "reader",
+                            "members": [
+                                "user:a@example.com"
+                            ]
+                        }
+                    ]
+                },
+                "options": {
+                    "etag": "abc"
+                }
+            },
+            "expected_output": "{\n  \"method\": \"POST\",\n  \"uri\": \"/:setIamPolicy\",\n  \"json\": {\n    \"etag\": \"abc\",\n    \"policy\": {\n      \"version\": 1,\n      \"bindings\": [\n        {\n          \"role\": \"reader\",\n          \"members\": [\n            \"user:a@example.com\"\n          ]\n        }\n      ]\n    }\n  }\n}\n"
+        }
+    ]
+}

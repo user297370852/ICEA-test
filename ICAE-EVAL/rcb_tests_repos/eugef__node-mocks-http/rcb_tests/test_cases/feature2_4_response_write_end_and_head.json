@@ -1,0 +1,139 @@
+{
+    "description": "Low-level response writing concatenates string and buffer payloads, tracks encoding and finish state, writes status line and headers before body transmission, and preserves already-sent headers from later status writes.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "write_body_part",
+                        "payload": {
+                            "kind": "value",
+                            "value": "payload1"
+                        },
+                        "encoding": "utf8"
+                    },
+                    {
+                        "type": "write_body_part",
+                        "payload": {
+                            "kind": "value",
+                            "value": "payload2"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={}\ndata=payload1payload2\nbuffer=\nencoding=utf8\nended=false\nheaders_sent=true\nwritable_finished=false\ndata_length_valid=true\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "write_body_part",
+                        "payload": {
+                            "kind": "buffer",
+                            "value": "payload1"
+                        }
+                    },
+                    {
+                        "type": "finish_body",
+                        "payload": {
+                            "kind": "buffer",
+                            "value": "payload2"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={}\ndata=\nbuffer=payload1payload2\nencoding=absent\nended=true\nheaders_sent=true\nwritable_finished=true\ndata_length_valid=true\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "finish_body",
+                        "payload": {
+                            "kind": "value",
+                            "value": "payload1"
+                        },
+                        "encoding": "utf8"
+                    }
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={}\ndata=payload1\nbuffer=\nencoding=utf8\nended=true\nheaders_sent=true\nwritable_finished=true\ndata_length_valid=true\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "write_status_line",
+                        "args": [
+                            400,
+                            "NotOK",
+                            {
+                                "x-header": "test llama"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "status=400\nstatus_message=NotOK\nheaders={\"x-header\":\"test llama\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "set_raw_header",
+                        "name": "Access-Control-Allow-Origin",
+                        "value": "*"
+                    },
+                    {
+                        "type": "write_status_line",
+                        "args": [
+                            200,
+                            {
+                                "Access-Control-Max-Age": "86400"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={\"access-control-allow-origin\":\"*\",\"access-control-max-age\":\"86400\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "write_status_line",
+                        "args": [
+                            400,
+                            {
+                                "x-header": "test llama"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "write_body_part",
+                        "payload": {
+                            "kind": "value",
+                            "value": "foo"
+                        }
+                    },
+                    {
+                        "type": "write_status_line",
+                        "args": [
+                            500,
+                            {
+                                "x-header": "llama party"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "status=400\nstatus_message=OK\nheaders={\"x-header\":\"test llama\"}\ncookies={}\ndata=foo\nbuffer=\nencoding=absent\nended=false\nheaders_sent=true\nwritable_finished=false\ndata_length_valid=true\n"
+        }
+    ]
+}

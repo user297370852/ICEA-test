@@ -1,0 +1,67 @@
+{
+  "description": "Synthetic CLI, route annotation, and adapter error edge cases covering preserved existing parser options, unknown parser flags normalized as errors, top-position route insertion, unchanged route removal, and missing required schema fields.",
+  "cases": [
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "version"
+        ],
+        "existing_options": {
+          "show_indexes": true
+        }
+      },
+      "expected_output": "command=version\nshow_indexes=true\ntarget_action=do_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "models",
+          "--models",
+          "User,Post",
+          "--exclude",
+          "tests,fixtures,factories",
+          "--show-check-constraints",
+          "--with-comment"
+        ]
+      },
+      "expected_output": "error=internal_error\n"
+    },
+    {
+      "input": {
+        "op": "routes",
+        "action": "add",
+        "file_present": true,
+        "options": {
+          "position_in_routes": "top"
+        },
+        "routes_file_content": "Rails.application.routes.draw do\nend\n",
+        "rails_routes_output": "                Prefix Verb       URI Pattern                  Controller#Action\n              health GET        /health(.:format)           health#show\n"
+      },
+      "expected_output": "status=annotated\nfile=config/routes.rb\n# == Route Map\n#\n#                 Prefix Verb       URI Pattern                  Controller#Action\n#               health GET        /health(.:format)           health#show\n\nRails.application.routes.draw do\nend\n"
+    },
+    {
+      "input": {
+        "op": "routes",
+        "action": "remove",
+        "file_present": true,
+        "routes_file_content": "Rails.application.routes.draw do\n  get 'health', to: 'health#show'\nend\n"
+      },
+      "expected_output": "status=unchanged\n"
+    },
+    {
+      "input": {
+        "primary_key": "id",
+        "options": {},
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          }
+        ]
+      },
+      "expected_output": "error=missing_field\n"
+    }
+  ]
+}

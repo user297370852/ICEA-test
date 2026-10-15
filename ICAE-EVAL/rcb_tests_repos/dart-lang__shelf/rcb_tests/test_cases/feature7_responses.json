@@ -1,0 +1,83 @@
+{
+  "description": "Construct responses using their semantic factories and observe the resulting status code, body and key headers. Success and arbitrary-status responses carry the supplied body. Redirect responses set a location header and the corresponding 3xx status. Error responses default their body and set a text/plain content-type when no body is supplied, preserving any existing content-type parameters. A not-modified response uses status 304, carries a date header and an empty body. A status code below 100 is rejected as a neutral error.",
+  "cases": [
+    {
+      "input": {
+        "action": "response",
+        "kind": "ok",
+        "body": "hello, world"
+      },
+      "expected_output": "status=200\ncontentType=null\nlocation=null\nhasDate=false\nbody=hello, world\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "internalServerError"
+      },
+      "expected_output": "status=500\ncontentType=text/plain\nlocation=null\nhasDate=false\nbody=Internal Server Error\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "internalServerError",
+        "headers": {
+          "content-type": "application/octet-stream; param=whatever"
+        }
+      },
+      "expected_output": "status=500\ncontentType=text/plain; param=whatever\nlocation=null\nhasDate=false\nbody=Internal Server Error\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "found",
+        "location": "/foo"
+      },
+      "expected_output": "status=302\ncontentType=null\nlocation=/foo\nhasDate=false\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "movedPermanently",
+        "location": "/bar"
+      },
+      "expected_output": "status=301\ncontentType=null\nlocation=/bar\nhasDate=false\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "seeOther",
+        "location": "/baz"
+      },
+      "expected_output": "status=303\ncontentType=null\nlocation=/baz\nhasDate=false\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "forbidden"
+      },
+      "expected_output": "status=403\ncontentType=text/plain\nlocation=null\nhasDate=false\nbody=Forbidden\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "notFound"
+      },
+      "expected_output": "status=404\ncontentType=text/plain\nlocation=null\nhasDate=false\nbody=Not Found\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "notModified"
+      },
+      "expected_output": "status=304\ncontentType=null\nlocation=null\nhasDate=true\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "status",
+        "status": 50
+      },
+      "expected_output": "error=invalid_argument\nmessage=Invalid status code: 50.\n"
+    }
+  ]
+}

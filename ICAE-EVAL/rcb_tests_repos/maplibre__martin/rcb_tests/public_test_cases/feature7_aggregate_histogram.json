@@ -1,0 +1,84 @@
+{
+    "description": "Combine per-endpoint histogram buckets into named logical groups. For each group, buckets that share the same upper-bound (le) across member endpoints have their counts added together; buckets with distinct upper-bounds are kept separately. The combined buckets are sorted ascending by upper-bound. A group whose endpoints have no histogram data still appears in the result with an empty bucket list. Groups are reported in the order given.",
+    "cases": [
+        {
+            "input": {
+                "action": "aggregate_histogram",
+                "histograms": {
+                    "/sprite/{source_ids}.json": [
+                        {
+                            "count": 100,
+                            "le": 0.005
+                        },
+                        {
+                            "count": 150,
+                            "le": 0.01
+                        },
+                        {
+                            "count": 180,
+                            "le": 0.025
+                        }
+                    ],
+                    "/sprite/{source_ids}.png": [
+                        {
+                            "count": 50,
+                            "le": 0.005
+                        },
+                        {
+                            "count": 80,
+                            "le": 0.01
+                        },
+                        {
+                            "count": 120,
+                            "le": 0.025
+                        }
+                    ]
+                },
+                "groups": {
+                    "sprites": [
+                        "/sprite/{source_ids}.json",
+                        "/sprite/{source_ids}.png"
+                    ],
+                    "tiles": [
+                        "/{source_ids}/{z}/{x}/{y}"
+                    ]
+                }
+            },
+            "expected_output": "sprites\n0.005 150\n0.01 230\n0.025 300\ntiles\n"
+        },
+        {
+            "input": {
+                "action": "aggregate_histogram",
+                "histograms": {
+                    "/sprite/{source_ids}.json": [
+                        {
+                            "count": 100,
+                            "le": 0.005
+                        },
+                        {
+                            "count": 150,
+                            "le": 0.025
+                        }
+                    ],
+                    "/sprite/{source_ids}.png": [
+                        {
+                            "count": 50,
+                            "le": 0.01
+                        },
+                        {
+                            "count": 80,
+                            "le": 0.05
+                        }
+                    ]
+                },
+                "groups": {
+                    "sprites": [
+                        "/sprite/{source_ids}.json",
+                        "/sprite/{source_ids}.png"
+                    ]
+                }
+            },
+            "expected_output": "sprites\n0.005 100\n0.01 50\n0.025 150\n0.05 80\n"
+        }
+    ]
+}

@@ -1,0 +1,68 @@
+{
+  "description": "Decode an incoming request body and forward it to the routed handler, computing the Content-Length header; supports both a plain UTF-8 body and a Base64-encoded body.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world2"
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.content-type",
+          "headers.content-length",
+          "body"
+        ],
+        "event": {
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa",
+            "Content-Type": "application/json"
+          },
+          "body": "{\"greet\":\"hi\"}"
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.content-type=application/json\nrequest.headers.content-length=14\nrequest.body={\"greet\":\"hi\"}\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world2\"}\nheader.connection=keep-alive\nheader.content-length=18\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world2"
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.content-type",
+          "headers.content-length",
+          "body"
+        ],
+        "event": {
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa",
+            "Content-Type": "application/json"
+          },
+          "body": "eyJncmVldCI6ICJoaSJ9",
+          "isBase64Encoded": true
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.content-type=application/json\nrequest.headers.content-length=15\nrequest.body={\"greet\":\"hi\"}\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world2\"}\nheader.connection=keep-alive\nheader.content-length=18\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

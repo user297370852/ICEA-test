@@ -1,0 +1,106 @@
+{
+    "description": "Manage a catalog of named themes, including existence checks, deletion, fallback selection, imported metadata resolution, imported size-property resolution, and circular-import errors.",
+    "cases": [
+        {
+            "input": {
+                "stylesheets": [
+                    "/* @theme test1 */",
+                    "/* @theme test2 */"
+                ],
+                "checks": [
+                    {
+                        "kind": "exists",
+                        "name": "test1"
+                    },
+                    {
+                        "kind": "delete",
+                        "name": "test1"
+                    },
+                    {
+                        "kind": "exists",
+                        "name": "test1"
+                    },
+                    {
+                        "kind": "exists",
+                        "name": "test2"
+                    }
+                ]
+            },
+            "expected_output": "size=2\nthemes=[\"test1\",\"test2\"]\ncheck_0=true\ncheck_1=true\ncheck_2=false\ncheck_3=true\nfinal_size=1\n"
+        },
+        {
+            "input": {
+                "stylesheets": [
+                    "/* @theme meta */\n/* @meta-value A */",
+                    "/* @theme meta-imported */\n@import \"meta\";",
+                    "/* @theme array-meta */\n/* @array A */\n/* @array B */",
+                    "/* @theme array-meta-imported */\n/* @array C */\n@import \"array-meta\";"
+                ],
+                "metadata_types": {
+                    "array": "array"
+                },
+                "checks": [
+                    {
+                        "kind": "metadata",
+                        "theme": "meta-imported",
+                        "key": "meta-value"
+                    },
+                    {
+                        "kind": "metadata",
+                        "theme": "array-meta-imported",
+                        "key": "array"
+                    }
+                ]
+            },
+            "expected_output": "size=4\nthemes=[\"meta\",\"meta-imported\",\"array-meta\",\"array-meta-imported\"]\ncheck_0=\"A\"\ncheck_1=[\"A\",\"B\",\"C\"]\nfinal_size=4\n"
+        },
+        {
+            "input": {
+                "stylesheets": [
+                    "/* @theme size-specified */\nsection { width: 640px; height: 480px; }",
+                    "/* @theme import */\n@import \"imported\";",
+                    "/* @theme imported */\nsection { width: 100px; }",
+                    "/* @theme undefined-theme */\n@import \"ignore\";"
+                ],
+                "checks": [
+                    {
+                        "kind": "property",
+                        "theme": "size-specified",
+                        "key": "width"
+                    },
+                    {
+                        "kind": "property",
+                        "theme": "size-specified",
+                        "key": "height"
+                    },
+                    {
+                        "kind": "property",
+                        "theme": "import",
+                        "key": "width"
+                    },
+                    {
+                        "kind": "property",
+                        "theme": "undefined-theme",
+                        "key": "width"
+                    }
+                ]
+            },
+            "expected_output": "size=4\nthemes=[\"size-specified\",\"import\",\"imported\",\"undefined-theme\"]\ncheck_0=640px\ncheck_1=480px\ncheck_2=100px\ncheck_3=1280px\nfinal_size=4\n"
+        },
+        {
+            "input": {
+                "stylesheets": [
+                    "/* @theme circular-import */\n@import \"circular-import\";"
+                ],
+                "checks": [
+                    {
+                        "kind": "property",
+                        "theme": "circular-import",
+                        "key": "width"
+                    }
+                ]
+            },
+            "expected_output": "error=circular_theme_import\ntheme=circular-import\n"
+        }
+    ]
+}

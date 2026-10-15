@@ -1,0 +1,46 @@
+{
+  "description": "Selection of which template entries reach the destination. A built-in set of patterns is excluded by default (version-control metadata, compiled/cache artifacts, editor backups, the configuration file itself). An explicit exclude option drops entries matching shell-style patterns. An include option re-admits entries that the default exclusion would otherwise drop, by exact name or by pattern. The configuration file may also declare exclusion and inclusion pattern lists that drive the same selection.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "keep.txt": "keep\n",
+          ".svn": "x\n",
+          "a.pyc": "x\n",
+          "~tmp": "x\n"
+        },
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: keep.txt\nfile: keep.txt -> \"keep\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "A\n",
+          "b.log": "B\n"
+        },
+        "exclude": [
+          "*.log"
+        ],
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: a.txt\nfile: a.txt -> \"A\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "keep.txt": "keep\n",
+          ".svn": "svn\n"
+        },
+        "include": [
+          ".svn"
+        ],
+        "data": {}
+      },
+      "expected_output": "produced=2\npath: .svn\npath: keep.txt\nfile: .svn -> \"svn\\n\"\nfile: keep.txt -> \"keep\\n\"\n"
+    }
+  ]
+}

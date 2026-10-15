@@ -1,0 +1,17 @@
+{
+    "description": "Install a package via the system package manager, optionally registering external repositories first, and fail loudly if the manager reports an error. When taps are supplied they are registered (one tap command per repository) before the install command is issued. The install command is the manager's install verb followed by the package name and any extra options, with surrounding whitespace trimmed. If the install command exits with an error, the operation is reported as a normalized install failure that names the affected package; on success only the issued commands are reported. The output echoes each issued command verbatim and, on failure, a neutral error category plus the package name.",
+    "cases": [
+        {
+            "input": {"action": "install", "formula": "dnsmasq"},
+            "expected_output": "cmd=brew install dnsmasq\n"
+        },
+        {
+            "input": {"action": "install", "formula": "dnsmasq", "options": [], "taps": ["test/tap"]},
+            "expected_output": "cmd=sudo -u \"testuser\" brew tap test/tap\ncmd=brew install dnsmasq\n"
+        },
+        {
+            "input": {"action": "install", "formula": "dnsmasq", "fail": true, "error_output": "test error ouput"},
+            "expected_output": "cmd=brew install dnsmasq\nerror=install_failed\nformula=dnsmasq\n"
+        }
+    ]
+}

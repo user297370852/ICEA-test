@@ -1,0 +1,95 @@
+{
+  "description": "Additional response header management coverage for replacement after append, array/scalar bulk headers, raw header casing reads, removal of absent headers, and MIME extension resolution.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "add_header_value",
+            "name": "Link",
+            "value": "<a>"
+          },
+          {
+            "type": "add_header_value",
+            "name": "Link",
+            "value": "<b>"
+          },
+          {
+            "type": "assign_header",
+            "name": "Link",
+            "value": "<final>"
+          }
+        ],
+        "readHeaders": [
+          "link",
+          "LINK"
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={\"link\":\"<final>\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_link=<final>\nread_LINK=<final>\n"
+    },
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "assign_header_alias",
+            "values": {
+              "X-Array": [
+                "a",
+                "b"
+              ],
+              "X-Number": 42
+            }
+          },
+          {
+            "type": "remove_raw_header",
+            "name": "x-missing"
+          }
+        ],
+        "readHeaders": [
+          "x-array",
+          "X-Number",
+          "x-missing"
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={\"x-array\":[\"a\",\"b\"],\"x-number\":42}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_x-array=[\"a\",\"b\"]\nread_X-Number=42\nread_x-missing=absent\n"
+    },
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "set_raw_header",
+            "name": "X-Custom-Case",
+            "value": "Value"
+          }
+        ],
+        "readHeaders": [
+          "x-custom-case",
+          "X-CUSTOM-CASE"
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={\"x-custom-case\":\"Value\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_x-custom-case=Value\nread_X-CUSTOM-CASE=Value\n"
+    },
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "set_body_type",
+            "value": "json"
+          },
+          {
+            "type": "set_body_type",
+            "value": "application/xml"
+          }
+        ],
+        "readHeaders": [
+          "Content-Type"
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={\"content-type\":\"application/xml\"}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\nread_Content-Type=application/xml\n"
+    }
+  ]
+}

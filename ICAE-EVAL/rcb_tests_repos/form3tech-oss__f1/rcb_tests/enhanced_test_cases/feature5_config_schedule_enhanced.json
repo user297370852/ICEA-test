@@ -1,0 +1,30 @@
+{
+  "description": "Enhanced config_schedule cases covering sorted multi-parameter output, false ignore-dropped limits, invalid timestamp adapter validation, and missing gaussian iteration-frequency validation.",
+  "cases": [
+    {
+      "input": {
+        "op": "config_schedule",
+        "now": "2020-12-10T10:00:00+00:00",
+        "samples": 3,
+        "content": "\nscenario: enhanced\nlimits:\n  max-duration: 2m\n  concurrency: 1\n  max-iterations: 3\n  ignore-dropped: false\nstages:\n- duration: 2s\n  mode: constant\n  rate: 2/s\n  jitter: 0\n  distribution: none\n  parameters:\n    Z: z\n    A: a\n"
+      },
+      "expected_output": "scenario=enhanced\nmax_duration=2m0s\nconcurrency=1\nmax_iterations=3\nignore_dropped=false\nstages=1\nstage=0 duration=2s iteration_duration=1s users_concurrency=0\nparams=A=a,Z=z\nrates=2 2 2\n"
+    },
+    {
+      "input": {
+        "op": "config_schedule",
+        "now": "not-a-time",
+        "content": "scenario: template\n"
+      },
+      "expected_output": "error=invalid_timestamp\nvalue=not-a-time\n"
+    },
+    {
+      "input": {
+        "op": "config_schedule",
+        "now": "2020-12-10T10:00:00+00:00",
+        "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: gaussian\n  volume: 100\n  repeat: 20s\n"
+      },
+      "expected_output": "error=invalid_config\nreason=missing iteration-frequency at stage 0\n"
+    }
+  ]
+}

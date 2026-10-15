@@ -1,0 +1,47 @@
+{
+  "description": "Maintenance runner allow-list boundary cases: the command pattern only accepts paths beginning with './bin/rails' or './bin/rake' followed by 'db:migrate', so a 'rails' variant and a 'db:migrate:status' suffix are allowed, while a bare 'rake' (no ./bin/ prefix), an unrelated task, an interactive console, and an empty command are all normalized to the unknown-command error category with the raw command echoed back.",
+  "cases": [
+    {
+      "input": {
+        "action": "runner",
+        "command": "./bin/rails db:migrate"
+      },
+      "expected_output": "status=1\nheaders_empty=true\nstdout_has_unknown_task=true\nbody_has_unknown_task=true\n"
+    },
+    {
+      "input": {
+        "action": "runner",
+        "command": "./bin/rake db:migrate:status"
+      },
+      "expected_output": "status=1\nheaders_empty=true\nstdout_has_unknown_task=true\nbody_has_unknown_task=true\n"
+    },
+    {
+      "input": {
+        "action": "runner",
+        "command": "rake db:migrate"
+      },
+      "expected_output": "error=unknown_runner_command\ncommand=rake db:migrate\n"
+    },
+    {
+      "input": {
+        "action": "runner",
+        "command": "./bin/rake assets:precompile"
+      },
+      "expected_output": "error=unknown_runner_command\ncommand=./bin/rake assets:precompile\n"
+    },
+    {
+      "input": {
+        "action": "runner",
+        "command": "./bin/rails console"
+      },
+      "expected_output": "error=unknown_runner_command\ncommand=./bin/rails console\n"
+    },
+    {
+      "input": {
+        "action": "runner",
+        "command": ""
+      },
+      "expected_output": "error=unknown_runner_command\ncommand=\n"
+    }
+  ]
+}

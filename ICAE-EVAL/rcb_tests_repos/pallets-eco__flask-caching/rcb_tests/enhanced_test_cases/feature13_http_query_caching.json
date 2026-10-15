@@ -1,0 +1,45 @@
+{
+  "description": "Query-string cache keys: no params share a body, reordered params share, changed values diverge, original reused later.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "cache http query responses",
+        "requests": [
+          {
+            "label": "a",
+            "url": "/works"
+          },
+          {
+            "label": "b",
+            "url": "/works"
+          }
+        ]
+      },
+      "expected_output": "request=a status=200 url=/works body=count-1\nrequest=b status=200 url=/works body=count-1\nhandler_calls=1\n"
+    },
+    {
+      "input": {
+        "scenario": "cache http query responses",
+        "requests": [
+          {
+            "label": "a",
+            "url": "/works?x=1&y=2"
+          },
+          {
+            "label": "b",
+            "url": "/works?y=2&x=1"
+          },
+          {
+            "label": "c",
+            "url": "/works?x=2&y=2"
+          },
+          {
+            "label": "d",
+            "url": "/works?x=1&y=2"
+          }
+        ]
+      },
+      "expected_output": "request=a status=200 url=/works?x=1&y=2 body=count-1\nrequest=b status=200 url=/works?y=2&x=1 body=count-1\nrequest=c status=200 url=/works?x=2&y=2 body=count-2\nrequest=d status=200 url=/works?x=1&y=2 body=count-1\nhandler_calls=2\n"
+    }
+  ]
+}

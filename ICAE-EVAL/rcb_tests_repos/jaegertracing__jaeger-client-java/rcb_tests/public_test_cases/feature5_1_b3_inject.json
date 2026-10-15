@@ -1,0 +1,28 @@
+{
+    "description": "Inject a trace context into a B3 multi-header carrier. Each id is written as zero-padded 16-character lowercase hex; the parent header is emitted only when the parent id is non-zero; the sampled header is '1' when sampled, else '0'; debug flag emits a flags header. Baggage items are written under a configurable prefix (default 'baggage-'). Output lines are sorted by header name.",
+    "cases": [
+        {
+            "input": {
+                "op": "b3_inject",
+                "trace_id": 1,
+                "span_id": 2,
+                "parent_id": 3,
+                "flags": 0,
+                "baggage": {
+                    "foo": "bar"
+                }
+            },
+            "expected_output": "X-B3-ParentSpanId=0000000000000003\nX-B3-Sampled=0\nX-B3-SpanId=0000000000000002\nX-B3-TraceId=0000000000000001\nbaggage-foo=bar\n"
+        },
+        {
+            "input": {
+                "op": "b3_inject",
+                "trace_id": 1,
+                "span_id": 1,
+                "parent_id": 1,
+                "flags": 1
+            },
+            "expected_output": "X-B3-ParentSpanId=0000000000000001\nX-B3-Sampled=1\nX-B3-SpanId=0000000000000001\nX-B3-TraceId=0000000000000001\n"
+        }
+    ]
+}

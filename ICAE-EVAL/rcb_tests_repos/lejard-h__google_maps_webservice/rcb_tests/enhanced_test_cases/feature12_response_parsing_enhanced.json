@@ -1,0 +1,54 @@
+{
+  "description": "Response parsing coverage for families absent from the native suite (geocoding, places search, autocomplete, time zone, geolocation) plus non-OK directions status and multi-entry distance matrix.",
+  "cases": [
+    {
+      "input": {
+        "endpoint": "parse_geocoding",
+        "json": "{\"status\": \"OK\", \"results\": [{\"address_components\": [{\"long_name\": \"1600\", \"short_name\": \"1600\", \"types\": [\"street_number\"]}, {\"long_name\": \"Amphitheatre Pkwy\", \"short_name\": \"Amphitheatre Pkwy\", \"types\": [\"route\"]}], \"formatted_address\": \"1600 Amphitheatre Pkwy, Mountain View, CA 94043, USA\", \"geometry\": {\"location\": {\"lat\": 37.4224764, \"lng\": -122.0842499}, \"location_type\": \"ROOFTOP\"}, \"place_id\": \"ChIJ2eUgeAK6j4ARbn5u_wAGqWA\"}]}"
+      },
+      "expected_output": "status=OK\nis_okay=true\nresults=1\naddress_components=2\nformatted_address=1600 Amphitheatre Pkwy, Mountain View, CA 94043, USA\nlocation=37.4224764,-122.0842499\nlocation_type=ROOFTOP\nplace_id=ChIJ2eUgeAK6j4ARbn5u_wAGqWA\n"
+    },
+    {
+      "input": {
+        "endpoint": "parse_places_search",
+        "json": "{\"status\": \"OK\", \"results\": [{\"name\": \"Sydney Opera House\", \"geometry\": {\"location\": {\"lat\": -33.8567844, \"lng\": 151.2152967}}, \"opening_hours\": {\"open_now\": true}, \"photos\": [{\"photo_reference\": \"abc\", \"height\": 100, \"width\": 200}, {\"photo_reference\": \"def\", \"height\": 50, \"width\": 60}], \"place_id\": \"ChIJ3S-JXmauEmsRUcIaWtf4MzE\", \"types\": [\"tourist_attraction\", \"point_of_interest\", \"establishment\"]}]}"
+      },
+      "expected_output": "status=OK\nis_okay=true\nresults=1\nfirst_name=Sydney Opera House\nfirst_location=-33.8567844,151.2152967\nfirst_open_now=true\nfirst_photos=2\nfirst_place_id=ChIJ3S-JXmauEmsRUcIaWtf4MzE\nfirst_types=tourist_attraction|point_of_interest|establishment\n"
+    },
+    {
+      "input": {
+        "endpoint": "parse_places_autocomplete",
+        "json": "{\"status\": \"OK\", \"predictions\": [{\"description\": \"Paris, France\", \"distance_meters\": 12345, \"matched_substrings\": [{\"length\": 5, \"offset\": 0}], \"place_id\": \"ChIJD7fiBh9u5kcRYJSMaMOCCwQ\", \"terms\": [{\"offset\": 0, \"value\": \"Paris\"}, {\"offset\": 7, \"value\": \"France\"}], \"types\": [\"locality\", \"political\", \"geocode\"]}]}"
+      },
+      "expected_output": "status=OK\nis_okay=true\npredictions=1\nfirst_description=Paris, France\nfirst_distance_meters=12345\nfirst_matched=0:5\nfirst_place_id=ChIJD7fiBh9u5kcRYJSMaMOCCwQ\nfirst_terms=0:Paris|7:France\nfirst_types=locality|political|geocode\n"
+    },
+    {
+      "input": {
+        "endpoint": "parse_timezone",
+        "json": "{\"status\": \"OK\", \"dstOffset\": 3600, \"rawOffset\": -28800, \"timeZoneId\": \"America/Los_Angeles\", \"timeZoneName\": \"Pacific Daylight Time\"}"
+      },
+      "expected_output": "status=OK\nis_okay=true\ndst_offset=3600\nraw_offset=-28800\ntime_zone_id=America/Los_Angeles\ntime_zone_name=Pacific Daylight Time\n"
+    },
+    {
+      "input": {
+        "endpoint": "parse_geolocation",
+        "json": "{\"location\": {\"lat\": 51.0, \"lng\": -0.1}, \"accuracy\": 1200.4}"
+      },
+      "expected_output": "status=OK\nis_okay=true\nlocation=51.0,-0.1\naccuracy=1200.4\n"
+    },
+    {
+      "input": {
+        "endpoint": "parse_directions",
+        "json": "{\"status\": \"ZERO_RESULTS\", \"geocoded_waypoints\": [{\"geocoder_status\": \"OK\", \"place_id\": \"X\", \"types\": [\"locality\"]}], \"routes\": [{\"summary\": \"Main St\", \"legs\": [{\"steps\": [{\"travel_mode\": \"WALKING\", \"start_location\": {\"lat\": 1.0, \"lng\": 2.0}, \"end_location\": {\"lat\": 1.1, \"lng\": 2.1}}], \"start_address\": \"A\", \"end_address\": \"B\"}]}]}"
+      },
+      "expected_output": "status=ZERO_RESULTS\nis_okay=false\nroutes=1\ngeocoded_waypoints=1\nsummary=Main St\nleg_steps=1\nstart_address=A\nend_address=B\nfirst_step_mode=walking\n"
+    },
+    {
+      "input": {
+        "endpoint": "parse_distance_matrix",
+        "json": "{\"destination_addresses\": [\"D1\", \"D2\"], \"origin_addresses\": [\"O1\"], \"rows\": [{\"elements\": [{\"distance\": {\"text\": \"1 km\", \"value\": 1000}, \"duration\": {\"text\": \"5 mins\", \"value\": 300}, \"status\": \"OK\"}, {\"distance\": {\"text\": \"2 km\", \"value\": 2000}, \"duration\": {\"text\": \"10 mins\", \"value\": 600}, \"status\": \"OK\"}]}], \"status\": \"OK\"}"
+      },
+      "expected_output": "status=OK\nis_okay=true\norigin_addresses=1\ndestination_addresses=2\nrows=1\norigin_first=O1\ndestination_first=D1\nfirst_duration_text=5 mins\nfirst_distance_value=1000\n"
+    }
+  ]
+}

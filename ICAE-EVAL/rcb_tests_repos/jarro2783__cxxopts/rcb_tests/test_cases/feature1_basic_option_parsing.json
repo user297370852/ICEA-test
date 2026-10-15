@@ -1,0 +1,17 @@
+{
+  "description": "Basic option recognition: a single declaration list may expose an option under several long names and an optional short name. Parsing the argument vector records how many times each alias was seen (counts are shared across aliases of the same option), preserves the ordered list of recognized arguments (each with a canonical key and rendered value), and exposes the program name. Short options may be grouped into a single token, and the last grouped short may absorb the remaining characters as its value.",
+  "cases": [
+    {
+      "input": {"program": "tester", "options": [{"opts": "long"}, {"opts": "s,short"}, {"opts": "quick,brown"}, {"opts": "f,ox,jumped"}, {"opts": "over,z,lazy,dog"}, {"opts": "value", "type": "string"}, {"opts": "a,av", "type": "string"}, {"opts": "6,six"}, {"opts": "p, space"}, {"opts": "period.delimited"}, {"opts": "nothing", "type": "string"}], "argv": ["--long", "-s", "--value", "value", "-a", "b", "-6", "-p", "--space", "--quick", "--ox", "-f", "--brown", "-z", "--over", "--dog", "--lazy", "--period.delimited"], "queries": [{"q": "count", "name": "long"}, {"q": "contains", "name": "long"}, {"q": "count", "name": "value"}, {"q": "value", "name": "value", "type": "string"}, {"q": "value", "name": "a", "type": "string"}, {"q": "count", "name": "p"}, {"q": "count", "name": "space"}, {"q": "count", "name": "quick"}, {"q": "count", "name": "f"}, {"q": "count", "name": "z"}, {"q": "count", "name": "period.delimited"}, {"q": "count", "name": "nothing"}, {"q": "contains", "name": "nothing"}, {"q": "program"}]},
+      "expected_output": "count[long]=1\ncontains[long]=true\ncount[value]=1\nvalue[value]=value\nvalue[a]=b\ncount[p]=2\ncount[space]=2\ncount[quick]=2\ncount[f]=2\ncount[z]=4\ncount[period.delimited]=1\ncount[nothing]=0\ncontains[nothing]=false\nprogram=tester"
+    },
+    {
+      "input": {"program": "tester", "options": [{"opts": "long"}, {"opts": "s,short"}, {"opts": "quick,brown"}, {"opts": "f,ox,jumped"}, {"opts": "over,z,lazy,dog"}, {"opts": "value", "type": "string"}, {"opts": "a,av", "type": "string"}, {"opts": "6,six"}, {"opts": "p, space"}, {"opts": "period.delimited"}, {"opts": "nothing", "type": "string"}], "argv": ["--long", "-s", "--value", "value", "-a", "b", "-6", "-p", "--space", "--quick", "--ox", "-f", "--brown", "-z", "--over", "--dog", "--lazy", "--period.delimited"], "queries": [{"q": "arguments"}]},
+      "expected_output": "arguments=16\narg[0]=long:true\narg[1]=short:true\narg[2]=value:value\narg[3]=av:b\narg[4]=six:true\narg[5]=space:true\narg[6]=space:true\narg[7]=quick:true\narg[8]=jumped:true\narg[9]=jumped:true\narg[10]=quick:true\narg[11]=over:true\narg[12]=over:true\narg[13]=over:true\narg[14]=over:true\narg[15]=period.delimited:true"
+    },
+    {
+      "input": {"program": "test_short", "options": [{"opts": "a", "type": "string"}, {"opts": "b"}, {"opts": "c", "type": "string"}], "argv": ["-a", "value", "-bcfoo=something"], "queries": [{"q": "count", "name": "a"}, {"q": "value", "name": "a", "type": "string"}, {"q": "count", "name": "b"}, {"q": "count", "name": "c"}, {"q": "value", "name": "c", "type": "string"}, {"q": "arguments"}]},
+      "expected_output": "count[a]=1\nvalue[a]=value\ncount[b]=1\ncount[c]=1\nvalue[c]=foo=something\narguments=3\narg[0]=a:value\narg[1]=b:true\narg[2]=c:foo=something"
+    }
+  ]
+}

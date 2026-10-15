@@ -1,0 +1,39 @@
+{
+  "description": "Enforce the not-before (nbf) claim during verification: a token not yet active is rejected, an already-active token returns its claims, and the not-before check can be switched off.",
+  "cases": [
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJuYmYiOjQxMDI0NDQ4MDB9.nVD1NOgwZ3_B6qVB3Y0nVfz7bbU_vmuzM9gm9XN28n8",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        }
+      },
+      "expected_output": "error=token_not_active\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJuYmYiOjEwMDAwMDAwMDB9.j9cL7lSN2OhJUu7XjTDYmtQGhfxXaHArfxbggDBQzIQ",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        }
+      },
+      "expected_output": "alg=HS256\npayload={\"foo\":\"bar\",\"nbf\":1000000000}\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJuYmYiOjQxMDI0NDQ4MDB9.nVD1NOgwZ3_B6qVB3Y0nVfz7bbU_vmuzM9gm9XN28n8",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "check_nbf": false
+      },
+      "expected_output": "alg=HS256\npayload={\"foo\":\"bar\",\"nbf\":4102444800}\n"
+    }
+  ]
+}

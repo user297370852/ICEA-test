@@ -1,0 +1,140 @@
+{
+  "description": "Enhanced resource refresh coverage for group-scoped empty refresh preservation, category selectors matching multiple resources, and shortcut selector resolution including core resource formatting.",
+  "cases": [
+    {
+      "input": {
+        "action": "refresh_resources",
+        "handler_mode": "watch_event",
+        "selector": [
+          {
+            "group": "group1",
+            "version": "v1",
+            "plural": "r1"
+          },
+          {
+            "group": "group2",
+            "version": "v1",
+            "plural": "r2"
+          }
+        ],
+        "group": "group1",
+        "initial_resources": [
+          {
+            "group": "group1",
+            "version": "v1",
+            "plural": "r1",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          },
+          {
+            "group": "group2",
+            "version": "v1",
+            "plural": "r2",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          }
+        ],
+        "resources": []
+      },
+      "expected_output": "resources=group2/v1/r2\n"
+    },
+    {
+      "input": {
+        "action": "refresh_resources",
+        "handler_mode": "watch_event",
+        "selector": {
+          "category": "apps"
+        },
+        "group": null,
+        "resources": [
+          {
+            "group": "g",
+            "version": "v1",
+            "plural": "alpha",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ],
+            "categories": [
+              "apps"
+            ]
+          },
+          {
+            "group": "g",
+            "version": "v1",
+            "plural": "beta",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ],
+            "categories": [
+              "apps",
+              "other"
+            ]
+          },
+          {
+            "group": "g",
+            "version": "v1",
+            "plural": "gamma",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ],
+            "categories": [
+              "other"
+            ]
+          }
+        ]
+      },
+      "expected_output": "resources=g/v1/alpha,g/v1/beta\n"
+    },
+    {
+      "input": {
+        "action": "refresh_resources",
+        "handler_mode": "watch_event",
+        "selector": {
+          "shortcut": "po"
+        },
+        "group": null,
+        "resources": [
+          {
+            "group": "",
+            "version": "v1",
+            "plural": "pods",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ],
+            "shortcuts": [
+              "po"
+            ]
+          },
+          {
+            "group": "apps",
+            "version": "v1",
+            "plural": "deployments",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ],
+            "shortcuts": [
+              "deploy"
+            ]
+          }
+        ]
+      },
+      "expected_output": "resources=/v1/pods\n"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "description": "Start a live broadcast as a two-step sequence. First a POST creates the broadcast room; if the create response does not report success, the sequence aborts with a normalized room-creation failure. On success, the room and stream identifiers from the create response drive a second request that activates the stream with a 'started' status and an app-initiated reason; if that activation response does not report success, the sequence aborts with a normalized activation failure. When both steps succeed, the parsed create response is returned. The output describes the sequence of requests issued and either the parsed final response or a normalized error category.",
+  "cases": [
+    {
+      "input": {
+        "action": "start_live_stream",
+        "title": "Stream1",
+        "create_response": "{\"status_code\":0,\"room\":{\"room_id\":\"1\",\"stream_id\":\"2\"}}",
+        "status_response": "{\"status_code\":0}"
+      },
+      "expected_output": "{\"requests\":[{\"body\":{\"params\":{\"contacts_authorized\":0,\"title\":\"Stream1\"}},\"method\":\"POST\",\"params\":{},\"path\":\"aweme/v1/room/create/\"},{\"method\":\"GET\",\"params\":{\"reason_no\":0,\"room_id\":\"1\",\"status\":2,\"stream_id\":\"2\"},\"path\":\"aweme/v1/room/update/status/\"}],\"response\":{\"room\":{\"room_id\":\"1\",\"stream_id\":\"2\"},\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "start_live_stream",
+        "title": "Stream2",
+        "create_response": "{\"status_code\":1}",
+        "status_response": "{\"status_code\":0}"
+      },
+      "expected_output": "{\"error\":\"live_stream_room_not_created\",\"requests\":[{\"body\":{\"params\":{\"contacts_authorized\":0,\"title\":\"Stream2\"}},\"method\":\"POST\",\"params\":{},\"path\":\"aweme/v1/room/create/\"}]}\n"
+    },
+    {
+      "input": {
+        "action": "start_live_stream",
+        "title": "Stream3",
+        "create_response": "{\"status_code\":0,\"room\":{\"room_id\":\"10\",\"stream_id\":\"20\"}}",
+        "status_response": "{\"status_code\":5}"
+      },
+      "expected_output": "{\"error\":\"live_stream_not_started\",\"requests\":[{\"body\":{\"params\":{\"contacts_authorized\":0,\"title\":\"Stream3\"}},\"method\":\"POST\",\"params\":{},\"path\":\"aweme/v1/room/create/\"},{\"method\":\"GET\",\"params\":{\"reason_no\":0,\"room_id\":\"10\",\"status\":2,\"stream_id\":\"20\"},\"path\":\"aweme/v1/room/update/status/\"}]}\n"
+    }
+  ]
+}

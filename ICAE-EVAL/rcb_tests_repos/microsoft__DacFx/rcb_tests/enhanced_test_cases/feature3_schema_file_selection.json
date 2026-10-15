@@ -1,0 +1,48 @@
+{
+  "description": "Enhanced boundary coverage for schema file selection: glob-pattern removal from the build, classifying multiple files as non-schema content via none, and explicitly including several external SQL files alongside a local table.",
+  "cases": [
+    {
+      "input": {
+        "sql_files": {
+          "Keep.sql": "CREATE TABLE [dbo].[Keep]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n",
+          "OldTableA.sql": "CREATE TABLE [dbo].[OldTableA]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n",
+          "OldTableB.sql": "CREATE TABLE [dbo].[OldTableB]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n"
+        },
+        "remove_build": [
+          "Old*.sql"
+        ]
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Keep]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    },
+    {
+      "input": {
+        "sql_files": {
+          "Main.sql": "CREATE TABLE [dbo].[Main]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n",
+          "NotesA.sql": "-- excluded as non-schema content\nCREATE TABLE [dbo].[NotesA]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n",
+          "NotesB.sql": "-- excluded as non-schema content\nCREATE TABLE [dbo].[NotesB]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n"
+        },
+        "none": [
+          "NotesA.sql",
+          "NotesB.sql"
+        ]
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Main]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    },
+    {
+      "input": {
+        "sql_files": {
+          "Local.sql": "CREATE TABLE [dbo].[Local]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n"
+        },
+        "external_sql_files": {
+          "ext1.sql": "CREATE TABLE [dbo].[ExtOne] ( C1 INT NOT NULL )",
+          "ext2.sql": "CREATE TABLE [dbo].[ExtTwo] ( C1 INT NOT NULL )"
+        },
+        "build": [
+          "/external/ext1.sql",
+          "/external/ext2.sql"
+        ]
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[ExtOne],[dbo].[ExtTwo],[dbo].[Local]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    }
+  ]
+}

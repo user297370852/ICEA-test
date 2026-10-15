@@ -1,0 +1,69 @@
+{
+    "description": "Application health-check flags are emitted into the runtime flag vector only when health checking is enabled. When disabled, none of the health-related flags appear. When enabled without explicit tuning values, only the bare enable flag appears (the runtime keeps its own defaults). When enabled with explicit interval, timeout, threshold, and path values, each of those flags is also emitted. Output is the flag list, one token per line, in declaration order.",
+    "cases": [
+        {
+            "input": {
+                "action": "launch_flags",
+                "config": {
+                    "app_id": "MyID",
+                    "http_port": 8000,
+                    "grpc_port": 50001,
+                    "log_level": "INFO",
+                    "protocol": "http",
+                    "components_path": "/tmp/components",
+                    "metrics_port": 9001,
+                    "max_request_body_size": -1,
+                    "internal_grpc_port": 5050,
+                    "http_read_buffer_size": -1,
+                    "max_concurrency": -1,
+                    "enable_app_health": false
+                }
+            },
+            "expected_output": "--app-id\nMyID\n--app-port\n0\n--dapr-http-port\n8000\n--dapr-grpc-port\n50001\n--app-protocol\nhttp\n--profile-port\n0\n--log-level\nINFO\n--app-max-concurrency\n-1\n--components-path\n/tmp/components\n--metrics-port\n9001\n--dapr-http-max-request-size\n-1\n--dapr-http-read-buffer-size\n-1\n--dapr-internal-grpc-port\n5050\n"
+        },
+        {
+            "input": {
+                "action": "launch_flags",
+                "config": {
+                    "app_id": "MyID",
+                    "http_port": 8000,
+                    "grpc_port": 50001,
+                    "log_level": "INFO",
+                    "protocol": "http",
+                    "components_path": "/tmp/components",
+                    "metrics_port": 9001,
+                    "max_request_body_size": -1,
+                    "internal_grpc_port": 5050,
+                    "http_read_buffer_size": -1,
+                    "max_concurrency": -1,
+                    "enable_app_health": true
+                }
+            },
+            "expected_output": "--app-id\nMyID\n--app-port\n0\n--dapr-http-port\n8000\n--dapr-grpc-port\n50001\n--app-protocol\nhttp\n--profile-port\n0\n--log-level\nINFO\n--app-max-concurrency\n-1\n--components-path\n/tmp/components\n--metrics-port\n9001\n--dapr-http-max-request-size\n-1\n--dapr-http-read-buffer-size\n-1\n--dapr-internal-grpc-port\n5050\n--enable-app-health-check\n"
+        },
+        {
+            "input": {
+                "action": "launch_flags",
+                "config": {
+                    "app_id": "MyID",
+                    "http_port": 8000,
+                    "grpc_port": 50001,
+                    "log_level": "INFO",
+                    "protocol": "http",
+                    "components_path": "/tmp/components",
+                    "metrics_port": 9001,
+                    "max_request_body_size": -1,
+                    "internal_grpc_port": 5050,
+                    "http_read_buffer_size": -1,
+                    "max_concurrency": -1,
+                    "enable_app_health": true,
+                    "app_health_interval": 2,
+                    "app_health_timeout": 200,
+                    "app_health_threshold": 1,
+                    "app_health_path": "/foo"
+                }
+            },
+            "expected_output": "--app-id\nMyID\n--app-port\n0\n--dapr-http-port\n8000\n--dapr-grpc-port\n50001\n--app-protocol\nhttp\n--profile-port\n0\n--log-level\nINFO\n--app-max-concurrency\n-1\n--components-path\n/tmp/components\n--metrics-port\n9001\n--dapr-http-max-request-size\n-1\n--dapr-http-read-buffer-size\n-1\n--dapr-internal-grpc-port\n5050\n--enable-app-health-check\n--app-health-check-path\n/foo\n--app-health-probe-interval\n2\n--app-health-probe-timeout\n200\n--app-health-threshold\n1\n"
+        }
+    ]
+}

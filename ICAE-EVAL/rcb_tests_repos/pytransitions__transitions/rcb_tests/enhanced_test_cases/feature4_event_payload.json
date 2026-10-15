@@ -1,0 +1,130 @@
+{
+  "description": "Boundary coverage for trigger payload delivery: direct delivery where the trigger carries no keyword payload so the callback falls back to its own default value, direct delivery of a non-ASCII unicode payload, encapsulated delivery of an empty-string payload read out of the event object, and direct delivery of a purely numeric-looking string payload.",
+  "cases": [
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B"
+          ],
+          "initial": "A",
+          "send_event": false
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "before": "store_kwarg_message"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nmessage=Hello World!\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B"
+          ],
+          "initial": "A",
+          "send_event": false
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "before": "store_kwarg_message"
+          },
+          {
+            "op": "trigger",
+            "name": "advance",
+            "kwargs": {
+              "message": "héllo wörld ☃"
+            }
+          },
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nmessage=héllo wörld ☃\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B"
+          ],
+          "initial": "A",
+          "send_event": true
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "before": "store_event_message"
+          },
+          {
+            "op": "trigger",
+            "name": "advance",
+            "kwargs": {
+              "message": ""
+            }
+          },
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nmessage=\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B"
+          ],
+          "initial": "A",
+          "send_event": false
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "before": "store_kwarg_message"
+          },
+          {
+            "op": "trigger",
+            "name": "advance",
+            "kwargs": {
+              "message": "1234567890"
+            }
+          },
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nmessage=1234567890\n"
+    }
+  ]
+}

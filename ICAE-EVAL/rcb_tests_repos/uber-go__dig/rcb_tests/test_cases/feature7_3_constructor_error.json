@@ -1,0 +1,20 @@
+{
+    "description": "A provider may fail at construction time by reporting an error. Registration itself still succeeds, because the provider is only run when its value is actually needed. When a consumer (directly or transitively) requires a value whose provider fails during construction, resolution is aborted and the consumer reports a constructor-failed error; the consumer body is not run.",
+    "cases": [
+        {
+            "input": {"steps": [
+                {"op": "provide", "out": [{"type": "A"}], "fails": true},
+                {"op": "invoke", "in": [{"type": "A"}]}
+            ]},
+            "expected_output": "provide ok keys=A\ninvoke error=constructor_failed\n"
+        },
+        {
+            "input": {"steps": [
+                {"op": "provide", "out": [{"type": "B"}], "fails": true},
+                {"op": "provide", "out": [{"type": "A", "value": 9}], "in": [{"type": "B"}]},
+                {"op": "invoke", "in": [{"type": "A"}]}
+            ]},
+            "expected_output": "provide ok keys=B\nprovide ok keys=A\ninvoke error=constructor_failed\n"
+        }
+    ]
+}

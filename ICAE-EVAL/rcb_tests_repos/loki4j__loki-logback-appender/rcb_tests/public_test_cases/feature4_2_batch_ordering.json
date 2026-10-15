@@ -1,0 +1,109 @@
+{
+    "description": "Controls whether records are emitted in arrival order or sorted by timestamp, and whether labels are evaluated once for the batch or per event.",
+    "cases": [
+        {
+            "input": {
+                "operation": "append_ordering",
+                "sort_by_time": false,
+                "static_labels": true,
+                "events": [
+                    {
+                        "timestamp_ms": 105,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    },
+                    {
+                        "timestamp_ms": 103,
+                        "level": "DEBUG",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 2"
+                    },
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 3"
+                    },
+                    {
+                        "timestamp_ms": 104,
+                        "level": "WARN",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 4"
+                    },
+                    {
+                        "timestamp_ms": 103,
+                        "level": "ERROR",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 5"
+                    },
+                    {
+                        "timestamp_ms": 110,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 6"
+                    }
+                ]
+            },
+            "expected_output": "stream=[l, INFO]\nrecord=ts=105 INFO | Test message 1\nrecord=ts=103 DEBUG | Test message 2\nrecord=ts=100 INFO | Test message 3\nrecord=ts=104 WARN | Test message 4\nrecord=ts=103 ERROR | Test message 5\nrecord=ts=110 INFO | Test message 6\n"
+        },
+        {
+            "input": {
+                "operation": "append_ordering",
+                "sort_by_time": true,
+                "static_labels": true,
+                "events": [
+                    {
+                        "timestamp_ms": 105,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    },
+                    {
+                        "timestamp_ms": 103,
+                        "level": "DEBUG",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 2"
+                    },
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 3"
+                    },
+                    {
+                        "timestamp_ms": 104,
+                        "level": "WARN",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 4"
+                    },
+                    {
+                        "timestamp_ms": 103,
+                        "level": "ERROR",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 5"
+                    },
+                    {
+                        "timestamp_ms": 110,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 6"
+                    }
+                ]
+            },
+            "expected_output": "stream=[l, INFO]\nrecord=ts=100 INFO | Test message 3\nrecord=ts=103 DEBUG | Test message 2\nrecord=ts=103 ERROR | Test message 5\nrecord=ts=104 WARN | Test message 4\nrecord=ts=105 INFO | Test message 1\nrecord=ts=110 INFO | Test message 6\n"
+        }
+    ]
+}

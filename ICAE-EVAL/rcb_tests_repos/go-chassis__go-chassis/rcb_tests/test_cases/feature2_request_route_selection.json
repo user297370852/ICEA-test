@@ -1,0 +1,234 @@
+{
+    "description": "Selects destination metadata for an invocation by evaluating route rules for the requested destination, including header matches, default rules, zero-weight alternatives, and missing destinations.",
+    "cases": [
+        {
+            "input": {
+                "rules": {
+                    "RPCServer": [
+                        {
+                            "precedence": 2,
+                            "match": {
+                                "headers": {
+                                    "test": {
+                                        "exact": "user"
+                                    }
+                                }
+                            },
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "v2"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "precedence": 1,
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "v3"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "service": "RPCServer",
+                "headers": {
+                    "cookie": "user=jason",
+                    "X-Age": "18",
+                    "test": "user"
+                },
+                "source": {
+                    "tags": {
+                        "version": "v2"
+                    }
+                }
+            },
+            "expected_output": "service=RPCServer\nerror=none\nselected=true\nversion=v2\n"
+        },
+        {
+            "input": {
+                "rules": {
+                    "RPCServer": [
+                        {
+                            "precedence": 2,
+                            "match": {
+                                "headers": {
+                                    "test": {
+                                        "exact": "user"
+                                    }
+                                }
+                            },
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "v2"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "precedence": 1,
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "v3"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "service": "RPCServer",
+                "headers": {
+                    "cookie": "user=jason",
+                    "X-Age": "18"
+                },
+                "source": {
+                    "tags": {
+                        "version": "v2"
+                    }
+                }
+            },
+            "expected_output": "service=RPCServer\nerror=none\nselected=true\nversion=v3\n"
+        },
+        {
+            "input": {
+                "rules": {
+                    "catalogue": [
+                        {
+                            "precedence": 2,
+                            "route": [
+                                {
+                                    "weight": 0,
+                                    "tags": {
+                                        "version": "0.0.1",
+                                        "app": "sockshop"
+                                    }
+                                },
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "0.0.2",
+                                        "app": "sockshop"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "carts": [
+                        {
+                            "precedence": 2,
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "0.0.1",
+                                        "app": "sockshop"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "service": "carts",
+                "headers": {}
+            },
+            "expected_output": "service=carts\nerror=none\nselected=true\napp=sockshop\nversion=0.0.1\n"
+        },
+        {
+            "input": {
+                "rules": {
+                    "catalogue": [
+                        {
+                            "precedence": 2,
+                            "route": [
+                                {
+                                    "weight": 0,
+                                    "tags": {
+                                        "version": "0.0.1",
+                                        "app": "sockshop"
+                                    }
+                                },
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "0.0.2",
+                                        "app": "sockshop"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "carts": [
+                        {
+                            "precedence": 2,
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "0.0.1",
+                                        "app": "sockshop"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "service": "catalogue",
+                "headers": {}
+            },
+            "expected_output": "service=catalogue\nerror=none\nselected=true\napp=sockshop\nversion=0.0.2\n"
+        },
+        {
+            "input": {
+                "rules": {
+                    "catalogue": [
+                        {
+                            "precedence": 2,
+                            "route": [
+                                {
+                                    "weight": 0,
+                                    "tags": {
+                                        "version": "0.0.1",
+                                        "app": "sockshop"
+                                    }
+                                },
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "0.0.2",
+                                        "app": "sockshop"
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "carts": [
+                        {
+                            "precedence": 2,
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "0.0.1",
+                                        "app": "sockshop"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "service": "notexist",
+                "headers": {}
+            },
+            "expected_output": "service=notexist\nerror=none\nselected=false\n"
+        }
+    ]
+}

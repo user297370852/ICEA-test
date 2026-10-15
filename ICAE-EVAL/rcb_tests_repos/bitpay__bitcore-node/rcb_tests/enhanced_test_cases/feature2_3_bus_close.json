@@ -1,0 +1,64 @@
+{
+  "description": "Close tear-down edge cases: closing a bus over a node with no services produces no output; closing iterates every event across services (including two events published by the same service) and invokes each unsubscribe handler exactly once with only the bus token, regardless of name.",
+  "cases": [
+    {
+      "input": {
+        "kind": "bus",
+        "services": {},
+        "program": [
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "e1"
+            },
+            {
+              "name": "e2"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "e1 unsubscribe args=[bus]\ne2 unsubscribe args=[bus]\n"
+    },
+    {
+      "input": {
+        "kind": "bus",
+        "services": {
+          "db": [
+            {
+              "name": "dbtest"
+            }
+          ],
+          "service1": [
+            {
+              "name": "test"
+            },
+            {
+              "name": "extra"
+            }
+          ]
+        },
+        "program": [
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "dbtest unsubscribe args=[bus]\ntest unsubscribe args=[bus]\nextra unsubscribe args=[bus]\n"
+    }
+  ]
+}

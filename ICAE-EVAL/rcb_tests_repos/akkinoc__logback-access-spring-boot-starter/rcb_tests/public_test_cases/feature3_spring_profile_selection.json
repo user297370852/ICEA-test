@@ -1,0 +1,31 @@
+{
+  "description": "A configuration document gates sections behind profile expressions. A section is kept only when its expression matches the set of active profiles; a leading negation marker inverts the match, sections may nest (an inner section is evaluated only if its enclosing section is kept), and an empty expression is never kept. The engine reports, in declaration order, the output targets belonging to the kept sections together with their patterns, followed by an error count.",
+  "cases": [
+    {
+      "input": {
+        "mode": "configure",
+        "entry": "main.xml",
+        "documents": {
+          "main.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration>\n    <springProfile name=\"!logback-access-test-disable-default-console\">\n        <appender name=\"default_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n            <encoder>\n                <pattern>default_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n            </encoder>\n        </appender>\n        <appender-ref ref=\"default_console\"/>\n        <springProfile name=\"!logback-access-test-disable-default-nested-console\">\n            <appender name=\"default_nested_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n                <encoder>\n                    <pattern>default_nested_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n                </encoder>\n            </appender>\n            <appender-ref ref=\"default_nested_console\"/>\n        </springProfile>\n    </springProfile>\n    <springProfile name=\"logback-access-test-enable-additional-console\">\n        <appender name=\"additional_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n            <encoder>\n                <pattern>additional_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n            </encoder>\n        </appender>\n        <appender-ref ref=\"additional_console\"/>\n        <springProfile name=\"logback-access-test-enable-additional-nested-console\">\n            <appender name=\"additional_nested_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n                <encoder>\n                    <pattern>additional_nested_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n                </encoder>\n            </appender>\n            <appender-ref ref=\"additional_nested_console\"/>\n        </springProfile>\n    </springProfile>\n    <springProfile name=\"!logback-access-test-disable-empty\"/>\n    <springProfile name=\"\">\n        <appender name=\"ignored_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n            <encoder>\n                <pattern>ignored_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n            </encoder>\n        </appender>\n        <appender-ref ref=\"ignored_console\"/>\n    </springProfile>\n</configuration>\n"
+        },
+        "profiles": [
+          "logback-access-test-disable-default-console",
+          "logback-access-test-enable-additional-console",
+          "logback-access-test-enable-additional-nested-console"
+        ]
+      },
+      "expected_output": "appender=additional_console pattern=additional_console: %h %l %u [%t] \"%r\" %s %b\nappender=additional_nested_console pattern=additional_nested_console: %h %l %u [%t] \"%r\" %s %b\nerrors=0"
+    },
+    {
+      "input": {
+        "mode": "configure",
+        "entry": "main.xml",
+        "documents": {
+          "main.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration>\n    <springProfile name=\"!logback-access-test-disable-default-console\">\n        <appender name=\"default_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n            <encoder>\n                <pattern>default_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n            </encoder>\n        </appender>\n        <appender-ref ref=\"default_console\"/>\n        <springProfile name=\"!logback-access-test-disable-default-nested-console\">\n            <appender name=\"default_nested_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n                <encoder>\n                    <pattern>default_nested_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n                </encoder>\n            </appender>\n            <appender-ref ref=\"default_nested_console\"/>\n        </springProfile>\n    </springProfile>\n    <springProfile name=\"logback-access-test-enable-additional-console\">\n        <appender name=\"additional_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n            <encoder>\n                <pattern>additional_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n            </encoder>\n        </appender>\n        <appender-ref ref=\"additional_console\"/>\n        <springProfile name=\"logback-access-test-enable-additional-nested-console\">\n            <appender name=\"additional_nested_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n                <encoder>\n                    <pattern>additional_nested_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n                </encoder>\n            </appender>\n            <appender-ref ref=\"additional_nested_console\"/>\n        </springProfile>\n    </springProfile>\n    <springProfile name=\"!logback-access-test-disable-empty\"/>\n    <springProfile name=\"\">\n        <appender name=\"ignored_console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n            <encoder>\n                <pattern>ignored_console: %h %l %u [%t] &quot;%r&quot; %s %b</pattern>\n            </encoder>\n        </appender>\n        <appender-ref ref=\"ignored_console\"/>\n    </springProfile>\n</configuration>\n"
+        },
+        "profiles": []
+      },
+      "expected_output": "appender=default_console pattern=default_console: %h %l %u [%t] \"%r\" %s %b\nappender=default_nested_console pattern=default_nested_console: %h %l %u [%t] \"%r\" %s %b\nerrors=0"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "description": "Boundary coverage for combined single-pass metrics parsing: an empty input text, a text containing only the sum and count series so the histogram section is absent, and a text containing only bucket series so the sum and count sections are absent. The output composes the per-endpoint duration sum, request count, and latency histogram views over the same text, with the synthetic infinity bucket dropped and buckets sorted ascending.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_complete",
+        "text": ""
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "parse_complete",
+        "text": "martin_http_requests_duration_seconds_sum{endpoint=\"/a\",method=\"GET\",status=\"200\"} 2.5\nmartin_http_requests_duration_seconds_count{endpoint=\"/a\",method=\"GET\",status=\"200\"} 5"
+      },
+      "expected_output": "sum /a 2.5\ncount /a 5\n"
+    },
+    {
+      "input": {
+        "action": "parse_complete",
+        "text": "martin_http_requests_duration_seconds_bucket{endpoint=\"/b\",method=\"GET\",status=\"200\",le=\"0.05\"} 4\nmartin_http_requests_duration_seconds_bucket{endpoint=\"/b\",method=\"GET\",status=\"200\",le=\"+Inf\"} 4"
+      },
+      "expected_output": "histogram /b\n0.05 4\n"
+    }
+  ]
+}

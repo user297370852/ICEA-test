@@ -1,0 +1,54 @@
+{
+  "description": "Enhanced: config scope derivation - https scheme, host with port, deep subdomain + deep path, trailing slashes, query+fragment dropping, and a two-label host emitting a single scope.",
+  "cases": [
+    {
+      "input": {
+        "op": "config_scopes",
+        "uri": "https://example.com"
+      },
+      "expected_output": "count=1\nhttps://example.com\n"
+    },
+    {
+      "input": {
+        "op": "config_scopes",
+        "uri": "https://a.b.c.example.com"
+      },
+      "expected_output": "count=4\nhttps://a.b.c.example.com\nhttps://b.c.example.com\nhttps://c.example.com\nhttps://example.com\n"
+    },
+    {
+      "input": {
+        "op": "config_scopes",
+        "uri": "http://example.com/a/b/c"
+      },
+      "expected_output": "count=4\nhttp://example.com/a/b/c\nhttp://example.com/a/b\nhttp://example.com/a\nhttp://example.com\n"
+    },
+    {
+      "input": {
+        "op": "config_scopes",
+        "uri": "http://example.com/a/b/c/"
+      },
+      "expected_output": "count=4\nhttp://example.com/a/b/c\nhttp://example.com/a/b\nhttp://example.com/a\nhttp://example.com\n"
+    },
+    {
+      "input": {
+        "op": "config_scopes",
+        "uri": "http://sub.example.com/p?x=1#frag"
+      },
+      "expected_output": "count=3\nhttp://sub.example.com/p\nhttp://sub.example.com\nhttp://example.com\n"
+    },
+    {
+      "input": {
+        "op": "config_scopes",
+        "uri": "http://example.com:8080/foo"
+      },
+      "expected_output": "count=2\nhttp://example.com/foo\nhttp://example.com\n"
+    },
+    {
+      "input": {
+        "op": "config_scopes",
+        "uri": "http://foo.bar.example.com/one/two"
+      },
+      "expected_output": "count=5\nhttp://foo.bar.example.com/one/two\nhttp://foo.bar.example.com/one\nhttp://foo.bar.example.com\nhttp://bar.example.com\nhttp://example.com\n"
+    }
+  ]
+}

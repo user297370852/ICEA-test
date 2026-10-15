@@ -1,0 +1,74 @@
+{
+  "description": "Enhanced edge cases for tag selection: an 'and not' combination, a parenthesised expression mixing or/and/not, and an expression that selects nothing.",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "-t",
+          "@one and not @three"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nsteps total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Another line=7 status=passed\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "-t",
+          "(@one or @ignore) and not @three"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nsteps total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Another line=7 status=passed\nscenario keyword=Scenario name=And line=13 status=passed\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "-t",
+          "@nonexistent"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=0 passed=0 failed=0 undefined=0 pending=0 skipped=0\nsteps total=0 passed=0 failed=0 undefined=0 pending=0 skipped=0\nresult=ok\n"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "description": "Boundary coverage for persisting a value and notifying observers: persisting an empty string, persisting a value that itself contains the delimiter and whitespace characters used by the event log, persisting a multi-byte unicode value, and persisting a value when no observer is attached so only the store delegation and result are observable. Each set operation still delegates exactly one write to the backing store and reports its result.",
+  "cases": [
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": ""
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore write key=key value=\nput ok=true\nemit[0] \n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "a=b c=d"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore write key=key value=a=b c=d\nput ok=true\nemit[0] a=b c=d\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "café ☃ 😀"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore write key=key value=café ☃ 😀\nput ok=true\nemit[0] café ☃ 😀\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "put",
+            "value": "no observer attached"
+          }
+        ]
+      },
+      "expected_output": "store write key=key value=no observer attached\nput ok=true\n"
+    }
+  ]
+}

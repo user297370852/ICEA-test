@@ -1,0 +1,107 @@
+{
+  "description": "Enhanced implicit/default handling: a bare value-bearing flag falling back to its implicit value, a string default applied (count 0) when the option is absent, an empty equals-assignment overriding the implicit text with the empty string, and a no-implicit option satisfied by an explicit equals-assignment.",
+  "cases": [
+    {
+      "input": {
+        "program": "impl",
+        "options": [
+          {
+            "opts": "level",
+            "type": "string",
+            "implicit": "high"
+          }
+        ],
+        "argv": [
+          "--level"
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "level"
+          },
+          {
+            "q": "value",
+            "name": "level",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "count[level]=1\nvalue[level]=high"
+    },
+    {
+      "input": {
+        "program": "strdef",
+        "options": [
+          {
+            "opts": "host",
+            "type": "string",
+            "default": "localhost"
+          }
+        ],
+        "argv": [],
+        "queries": [
+          {
+            "q": "count",
+            "name": "host"
+          },
+          {
+            "q": "value",
+            "name": "host",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "count[host]=0\nvalue[host]=localhost"
+    },
+    {
+      "input": {
+        "program": "implempty",
+        "options": [
+          {
+            "opts": "name",
+            "type": "string",
+            "implicit": "bar"
+          }
+        ],
+        "argv": [
+          "--name="
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "name"
+          },
+          {
+            "q": "value",
+            "name": "name",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "count[name]=1\nvalue[name]="
+    },
+    {
+      "input": {
+        "program": "reqarg",
+        "options": [
+          {
+            "opts": "path",
+            "type": "string",
+            "no_implicit": true
+          }
+        ],
+        "argv": [
+          "--path=/tmp/x"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "path",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "value[path]=/tmp/x"
+    }
+  ]
+}

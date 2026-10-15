@@ -1,0 +1,88 @@
+{
+  "description": "Enhanced freshness/accuracy comparison edge cases: both fixes null; the elapsed-nanos newer-than-threshold boundary (exactly equal is NOT enough, one nano over is, one nano under falls through to accuracy); equal accuracies are not strictly better; a much-newer A with worse accuracy still wins via the freshness rule; and an A lacking accuracy loses even when newer by less than the threshold.",
+  "cases": [
+    {
+      "input": {
+        "command": "compare_fixes",
+        "a": null,
+        "b": null
+      },
+      "expected_output": "a_better_than_b=false\n"
+    },
+    {
+      "input": {
+        "command": "compare_fixes",
+        "a": {
+          "elapsed_nanos": 60000000000
+        },
+        "b": {
+          "elapsed_nanos": 0
+        }
+      },
+      "expected_output": "a_better_than_b=false\n"
+    },
+    {
+      "input": {
+        "command": "compare_fixes",
+        "a": {
+          "elapsed_nanos": 60000000001
+        },
+        "b": {
+          "elapsed_nanos": 0
+        }
+      },
+      "expected_output": "a_better_than_b=true\n"
+    },
+    {
+      "input": {
+        "command": "compare_fixes",
+        "a": {
+          "elapsed_nanos": 59999999999
+        },
+        "b": {
+          "elapsed_nanos": 0
+        }
+      },
+      "expected_output": "a_better_than_b=false\n"
+    },
+    {
+      "input": {
+        "command": "compare_fixes",
+        "a": {
+          "accuracy": 25.0
+        },
+        "b": {
+          "accuracy": 25.0
+        }
+      },
+      "expected_output": "a_better_than_b=false\n"
+    },
+    {
+      "input": {
+        "command": "compare_fixes",
+        "a": {
+          "accuracy": 999.0,
+          "elapsed_nanos": 200000000000
+        },
+        "b": {
+          "accuracy": 1.0,
+          "elapsed_nanos": 0
+        }
+      },
+      "expected_output": "a_better_than_b=true\n"
+    },
+    {
+      "input": {
+        "command": "compare_fixes",
+        "a": {
+          "elapsed_nanos": 10000000000
+        },
+        "b": {
+          "accuracy": 50.0,
+          "elapsed_nanos": 0
+        }
+      },
+      "expected_output": "a_better_than_b=false\n"
+    }
+  ]
+}

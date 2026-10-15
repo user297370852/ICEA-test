@@ -1,0 +1,47 @@
+{
+    "description": "Build a paginated result that pairs a value-carrying result with paging metadata (page number, page size, total pages, total records), then observe both the underlying result state and the paging metadata. Constructing a paginated result directly from a value yields a successful status carrying that value (including null) alongside the paging metadata. Converting an existing result into a paginated result preserves the original status and payload: a successful source carries its value; an error source carries its error messages; an invalid source carries its validation errors; not-found and forbidden sources carry their statuses. In every case the paging metadata is attached unchanged.",
+    "cases": [
+        {
+            "input": {
+                "op": "paged_ctor",
+                "value": "test string",
+                "paged_info": {
+                    "page_number": 0,
+                    "page_size": 10,
+                    "total_pages": 1,
+                    "total_records": 3
+                }
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=test string\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\npageNumber=0\npageSize=10\ntotalPages=1\ntotalRecords=3\n"
+        },
+        {
+            "input": {
+                "op": "paged_ctor",
+                "value": null,
+                "paged_info": {
+                    "page_number": 0,
+                    "page_size": 10,
+                    "total_pages": 1,
+                    "total_records": 3
+                }
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\npageNumber=0\npageSize=10\ntotalPages=1\ntotalRecords=3\n"
+        },
+        {
+            "input": {
+                "op": "to_paged",
+                "factory": "error",
+                "errors": [
+                    "Something bad happened."
+                ],
+                "paged_info": {
+                    "page_number": 0,
+                    "page_size": 10,
+                    "total_pages": 1,
+                    "total_records": 3
+                }
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=Something bad happened.\nvalidationErrors=\npageNumber=0\npageSize=10\ntotalPages=1\ntotalRecords=3\n"
+        }
+    ]
+}

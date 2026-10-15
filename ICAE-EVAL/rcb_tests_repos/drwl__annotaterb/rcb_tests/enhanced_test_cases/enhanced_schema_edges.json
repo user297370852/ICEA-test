@@ -1,0 +1,225 @@
+{
+  "description": "Synthetic schema annotation edge cases covering composite primary keys, array and false defaults, suppressed JSON defaults, partial decimal precision, combined index markers with sorting, foreign-key sorting/actions, and Markdown check constraints.",
+  "cases": [
+    {
+      "input": {
+        "table_name": "join_records",
+        "primary_key": [
+          "account_id",
+          "user_id"
+        ],
+        "options": {},
+        "columns": [
+          {
+            "name": "account_id",
+            "type": "integer"
+          },
+          {
+            "name": "user_id",
+            "type": "integer"
+          },
+          {
+            "name": "role",
+            "type": "string",
+            "limit": 30,
+            "null": true
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: join_records\n#\n#  account_id :integer          not null, primary key\n#  user_id    :integer          not null, primary key\n#  role       :string(30)\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "preferences",
+        "primary_key": "id",
+        "options": {},
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "flags",
+            "type": "string",
+            "array": true,
+            "default": [
+              "alpha",
+              "beta"
+            ]
+          },
+          {
+            "name": "enabled",
+            "type": "boolean",
+            "default": false
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: preferences\n#\n#  id      :integer          not null, primary key\n#  flags   :string           default([\"alpha\", \"beta\"]), not null, is an Array\n#  enabled :boolean          default(FALSE), not null\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "preference_snapshots",
+        "primary_key": "id",
+        "options": {},
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "metadata",
+            "type": "json",
+            "default": {
+              "theme": "dark"
+            }
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: preference_snapshots\n#\n#  id       :integer          not null, primary key\n#  metadata :json             not null\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "measurements",
+        "primary_key": "id",
+        "options": {},
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "ratio",
+            "type": "decimal",
+            "precision": 12,
+            "null": true
+          },
+          {
+            "name": "payload",
+            "type": "text",
+            "limit": 65535
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: measurements\n#\n#  id      :integer          not null, primary key\n#  ratio   :decimal(12, )\n#  payload :text(65535)      not null\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "events",
+        "primary_key": "id",
+        "options": {
+          "show_indexes": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "tenant_id",
+            "type": "integer"
+          },
+          {
+            "name": "occurred_at",
+            "type": "datetime"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "z_events_tenant_time",
+            "columns": [
+              "tenant_id",
+              "occurred_at"
+            ],
+            "unique": true,
+            "orders": {
+              "occurred_at": "desc"
+            },
+            "where": "deleted_at IS NULL",
+            "using": "btree"
+          },
+          {
+            "name": "a_events_time",
+            "columns": [
+              "occurred_at"
+            ]
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: events\n#\n#  id          :integer          not null, primary key\n#  tenant_id   :integer          not null\n#  occurred_at :datetime         not null\n#\n# Indexes\n#\n#  a_events_time         (occurred_at)\n#  z_events_tenant_time  (tenant_id,occurred_at DESC) UNIQUE WHERE deleted_at IS NULL\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "line_items",
+        "primary_key": "id",
+        "options": {
+          "show_foreign_keys": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "order_id",
+            "type": "integer",
+            "null": true
+          },
+          {
+            "name": "product_uuid",
+            "type": "string",
+            "limit": 36,
+            "null": true
+          }
+        ],
+        "foreign_keys": [
+          {
+            "name": "z_fk_product",
+            "column": "product_uuid",
+            "to_table": "products",
+            "primary_key": "uuid",
+            "on_update": "cascade"
+          },
+          {
+            "name": "a_fk_order",
+            "column": "order_id",
+            "to_table": "orders",
+            "on_delete": "nullify"
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: line_items\n#\n#  id           :integer          not null, primary key\n#  order_id     :integer\n#  product_uuid :string(36)\n#\n# Foreign Keys\n#\n#  a_fk_order    (order_id => orders.id) ON DELETE => nullify\n#  z_fk_product  (product_uuid => products.uuid) ON UPDATE => cascade\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "scores",
+        "primary_key": "id",
+        "options": {
+          "format_markdown": true,
+          "show_check_constraints": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "score",
+            "type": "integer",
+            "null": true
+          }
+        ],
+        "check_constraints": [
+          {
+            "name": "score_nonnegative",
+            "expression": "score >= 0"
+          },
+          {
+            "name": "score_upper",
+            "expression": "score <= 100"
+          }
+        ]
+      },
+      "expected_output": "# ## Schema Information\n#\n# Table name: `scores`\n#\n# ### Columns\n#\n# Name         | Type               | Attributes\n# ------------ | ------------------ | ---------------------------\n# **`id`**     | `integer`          | `not null, primary key`\n# **`score`**  | `integer`          |\n#\n# ### Check Constraints\n#\n# * `score_nonnegative`: `(score >= 0)`\n# * `score_upper`: `(score <= 100)`\n#\n"
+    }
+  ]
+}

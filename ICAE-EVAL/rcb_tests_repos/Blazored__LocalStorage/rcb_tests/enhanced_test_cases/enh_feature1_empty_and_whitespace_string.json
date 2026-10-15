@@ -1,0 +1,102 @@
+{
+  "description": "Edge text payloads. An empty string serializes to a quoted empty JSON string and round-trips; a whitespace-only serialized form is treated as absent on typed read (yielding null) yet still counts as a stored entry and is recoverable as raw text.",
+  "cases": [
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "string",
+            "value": ""
+          },
+          {
+            "op": "length"
+          },
+          {
+            "op": "get_string",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "length=1\nraw=\"\"\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "string",
+            "value": ""
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "value=\n"
+    },
+    {
+      "input": {
+        "mode": "async",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "string",
+            "value": " "
+          },
+          {
+            "op": "get_string",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "raw=\" \"\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set_string",
+            "key": "k",
+            "value": ""
+          },
+          {
+            "op": "length"
+          },
+          {
+            "op": "get_string",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "length=1\nraw=\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "string",
+            "value": "line1\nline2\ttab"
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "value=line1\nline2\ttab\n"
+    }
+  ]
+}

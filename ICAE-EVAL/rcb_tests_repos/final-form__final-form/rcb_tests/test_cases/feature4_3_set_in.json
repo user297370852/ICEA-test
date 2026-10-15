@@ -1,0 +1,270 @@
+{
+  "description": "Return a new structure with a value written at a nested path, leaving the input structure untouched (immutable update). Missing intermediate objects/arrays along the path are created; bracketed segments create arrays and dotted segments create objects. Writing an absent value (no value supplied) deletes the targeted leaf and prunes now-empty objects, while arrays retain their length. Error conditions are reported as neutral categories: a null/absent root, a null/absent key, writing a non-numeric key into an array, or a numeric key into an object.",
+  "cases": [
+    {
+      "input": {
+        "op": "set",
+        "key": "whatever",
+        "value": "some value"
+      },
+      "expected_output": "error=null_state"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": null,
+        "key": "whatever",
+        "value": "some value"
+      },
+      "expected_output": "error=null_state"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {},
+        "value": "some value"
+      },
+      "expected_output": "error=null_key"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {},
+        "key": null,
+        "value": "some value"
+      },
+      "expected_output": "error=null_key"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": [],
+        "key": "foo",
+        "value": "bar"
+      },
+      "expected_output": "error=non_numeric_key_on_array"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {},
+        "key": "42",
+        "value": "bar"
+      },
+      "expected_output": "error=numeric_key_on_object"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {},
+          "c": {},
+          "d": {}
+        },
+        "key": "e",
+        "value": {}
+      },
+      "expected_output": "{\"a\":{},\"b\":{},\"c\":{},\"d\":{},\"e\":{}}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": [
+          {
+            "a": 1
+          },
+          {
+            "b": 2
+          },
+          {
+            "c": 3
+          },
+          {
+            "d": 4
+          }
+        ],
+        "key": "4",
+        "value": {
+          "e": 5
+        }
+      },
+      "expected_output": "[{\"a\":1},{\"b\":2},{\"c\":3},{\"d\":4},{\"e\":5}]"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {},
+          "c": {},
+          "d": {}
+        },
+        "key": "c",
+        "value": {
+          "x": 1
+        }
+      },
+      "expected_output": "{\"a\":{},\"b\":{},\"c\":{\"x\":1},\"d\":{}}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": [
+          {
+            "a": 1
+          },
+          {
+            "b": 2
+          },
+          {
+            "c": 3
+          },
+          {
+            "d": 4
+          }
+        ],
+        "key": "2",
+        "value": {
+          "z": 9
+        }
+      },
+      "expected_output": "[{\"a\":1},{\"b\":2},{\"z\":9},{\"d\":4}]"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {}
+        },
+        "key": "c.d.e",
+        "value": 5
+      },
+      "expected_output": "{\"a\":{},\"b\":{},\"c\":{\"d\":{\"e\":5}}}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {}
+        },
+        "key": "c[2].d[0][1]",
+        "value": 9
+      },
+      "expected_output": "{\"a\":{},\"b\":{},\"c\":[null,null,{\"d\":[[null,9]]}]}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {},
+          "dog": {
+            "cat": {
+              "rat": "foo"
+            }
+          }
+        },
+        "key": "dog.cat.rat"
+      },
+      "expected_output": "{\"a\":{},\"b\":{}}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {},
+          "dog": {}
+        },
+        "key": "dog.cat"
+      },
+      "expected_output": "{\"a\":{},\"b\":{}}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {}
+        },
+        "key": "b"
+      },
+      "expected_output": "{\"a\":{}}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {}
+        },
+        "key": "b"
+      },
+      "expected_output": "{\"a\":{}}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {},
+          "dog": [
+            {
+              "rat": "foo"
+            }
+          ]
+        },
+        "key": "dog[0].rat"
+      },
+      "expected_output": "{\"a\":{},\"b\":{},\"dog\":[{}]}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {},
+          "dog": [
+            {
+              "c": 1
+            },
+            {
+              "d": 2
+            }
+          ]
+        },
+        "key": "dog[1]"
+      },
+      "expected_output": "{\"a\":{},\"b\":{},\"dog\":[{\"c\":1},null]}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {},
+          "dog": [
+            {
+              "c": 1
+            }
+          ]
+        },
+        "key": "dog[1]"
+      },
+      "expected_output": "{\"a\":{},\"b\":{},\"dog\":[{\"c\":1},null]}"
+    },
+    {
+      "input": {
+        "op": "set",
+        "state": {
+          "a": {},
+          "b": {}
+        },
+        "key": "dog[0].rat"
+      },
+      "expected_output": "{\"a\":{},\"b\":{}}"
+    }
+  ]
+}

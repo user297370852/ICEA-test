@@ -1,0 +1,26 @@
+{
+  "description": "Enhanced configuration parsing cases covering unrelated YAML, explicit empty filters, and mixed filter ordering.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_config",
+        "yaml": "target:\n  registry: mirror.example.com\ncopy:\n  policy: delayed\n"
+      },
+      "expected_output": "filters=0\n"
+    },
+    {
+      "input": {
+        "op": "parse_config",
+        "yaml": "source:\n  filters: []\n"
+      },
+      "expected_output": "filters=0\n"
+    },
+    {
+      "input": {
+        "op": "parse_config",
+        "yaml": "source:\n  filters:\n    - jmespath: \"container.name == 'api'\"\n    - jmespath: \"contains(container.image, 'redis')\"\n    - jmespath: \"obj.metadata.namespace == 'prod'\"\nextra: ignored\n"
+      },
+      "expected_output": "filters=3\nfilter[0].jmespath=container.name == 'api'\nfilter[1].jmespath=contains(container.image, 'redis')\nfilter[2].jmespath=obj.metadata.namespace == 'prod'\n"
+    }
+  ]
+}

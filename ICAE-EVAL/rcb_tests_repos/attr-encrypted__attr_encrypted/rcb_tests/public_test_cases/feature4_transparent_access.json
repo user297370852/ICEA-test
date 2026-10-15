@@ -1,0 +1,83 @@
+{
+  "description": "Assigning plaintext to an encrypted attribute transparently writes a non-plaintext representation into its backing storage, and reading the attribute back transparently recovers the original plaintext. Because each encryption uses a fresh initialization vector, two independent instances assigned the same plaintext store different ciphertext. A boolean query accessor reports whether the attribute currently holds a non-empty value: it is false before assignment and after assigning an empty value, and true after assigning a non-empty value. Each transcript line reports a recovered value, a storage-presence fact, a stored-versus-plaintext comparison, a per-instance uniqueness flag, or a query-accessor result.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "assign_read",
+            "attr": "email",
+            "value": "test@example.com",
+            "report_stored": true,
+            "report_stored_equals_plain": true
+          }
+        ]
+      },
+      "expected_output": "assign_read[email]=test@example.com\nstored_equals_plain[email]=false\nstored_present[email]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "predicate_steps",
+            "attr": "email",
+            "steps": [
+              {
+                "assign": false
+              },
+              {
+                "assign": true,
+                "value": ""
+              },
+              {
+                "assign": true,
+                "value": "test@example.com"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "predicate[email][00]=false\npredicate[email][01]=false\npredicate[email][02]=true\n"
+    }
+  ]
+}

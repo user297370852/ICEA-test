@@ -1,0 +1,40 @@
+{
+  "description": "GET error normalization for upstream rejections without redis and alternative cache-error values.",
+  "cases": [
+    {
+      "input": {
+        "action": "connector_get_request_data",
+        "uri": "https://api.example.test/timeout",
+        "statusCode": 200,
+        "body": {},
+        "rejectMessage": "ETIMEDOUT connecting to upstream"
+      },
+      "expected_output": "{\n  \"code\": \"GRAPHQL_QUERY_ERROR\",\n  \"component\": \"ExampleConnector\",\n  \"description\": \"There was an error with the query: ETIMEDOUT connecting to upstream\",\n  \"docsLink\": \"https://ibm.biz/graphql\",\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"An internal server error occurred\",\n  \"statusCode\": 500,\n  \"targetEndpoint\": \"https://api.example.test/timeout\"\n}\n"
+    },
+    {
+      "input": {
+        "action": "connector_get_request_data",
+        "uri": "https://api.example.test/cache-down",
+        "statusCode": 200,
+        "body": {
+          "unused": true
+        },
+        "redis": {
+          "error": "Connection refused 127.0.0.1:6379"
+        }
+      },
+      "expected_output": "{\n  \"error\": \"cache_error\",\n  \"value\": \"Connection refused 127.0.0.1:6379\"\n}\n"
+    },
+    {
+      "input": {
+        "action": "connector_get_request_data",
+        "uri": "https://api.example.test/reject-with-cache",
+        "statusCode": 200,
+        "body": {},
+        "redis": {},
+        "rejectMessage": "socket hang up"
+      },
+      "expected_output": "{\n  \"code\": \"GRAPHQL_QUERY_ERROR\",\n  \"component\": \"ExampleConnector\",\n  \"description\": \"There was an error with the query: socket hang up\",\n  \"docsLink\": \"https://ibm.biz/graphql\",\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"An internal server error occurred\",\n  \"statusCode\": 500,\n  \"targetEndpoint\": \"https://api.example.test/reject-with-cache\"\n}\n"
+    }
+  ]
+}

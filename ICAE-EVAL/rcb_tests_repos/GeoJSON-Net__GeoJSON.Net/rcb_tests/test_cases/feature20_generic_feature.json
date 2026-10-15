@@ -1,0 +1,67 @@
+{
+  "description": "A feature can be read against a known geometry type or a known strongly typed property shape, instead of the open property bag. Reading against a specific geometry type or a typed property object reconstructs the feature and re-emits it canonically; serializing a feature with a typed property object emits those named properties. Comparing such a typed feature to a null reference is well-defined and returns not-equal.",
+  "cases": [
+    {
+      "input": {
+        "op": "roundtrip",
+        "target": "FeaturePoint",
+        "wire": "{\"type\":\"Feature\",\"id\":\"test-id\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[125.6,10.1,456]},\"properties\":{\"name\":\"Dinagat Islands\"}}"
+      },
+      "expected_output": "{\"type\":\"Feature\",\"id\":\"test-id\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[125.6,10.1,456.0]},\"properties\":{\"name\":\"Dinagat Islands\"}}\n"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "target": "FeatureLineString",
+        "wire": "{\"type\":\"Feature\",\"id\":\"test-id\",\"geometry\":{\"coordinates\":[[4.889259338378906,52.370725881211314],[4.895267486572266,52.3711451105601],[4.892091751098633,52.36931095278263],[4.889259338378906,52.370725881211314]],\"type\":\"LineString\"},\"properties\":{\"name\":\"Dinagat Islands\"}}"
+      },
+      "expected_output": "{\"type\":\"Feature\",\"id\":\"test-id\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.889259338378906,52.370725881211314],[4.895267486572266,52.3711451105601],[4.892091751098633,52.36931095278263],[4.889259338378906,52.370725881211314]]},\"properties\":{\"name\":\"Dinagat Islands\"}}\n"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "target": "FeatureTypedPoint",
+        "wire": "{\"type\":\"Feature\",\"id\":\"test-id\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[125.6,10.1]},\"properties\":{\"name\":\"Dinagat Islands\",\"value\":4.2}}"
+      },
+      "expected_output": "{\"type\":\"Feature\",\"id\":\"test-id\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[125.6,10.1]},\"properties\":{\"name\":\"Dinagat Islands\",\"value\":4.2}}\n"
+    },
+    {
+      "input": {
+        "op": "typed_feature_serialize",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            2,
+            1
+          ]
+        },
+        "name": "no name here",
+        "value": 1.337,
+        "id": "no id there"
+      },
+      "expected_output": "{\"type\":\"Feature\",\"id\":\"no id there\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[2.0,1.0]},\"properties\":{\"name\":\"no name here\",\"value\":1.337}}\n"
+    },
+    {
+      "input": {
+        "op": "equals",
+        "kind": "feature",
+        "left": {
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              123,
+              34
+            ]
+          },
+          "id": "testid",
+          "properties": {
+            "test1": "test1val",
+            "test2": "test2val"
+          }
+        },
+        "right": null
+      },
+      "expected_output": "equals=false\nequals_reverse=false\nop_equals=false\nop_not_equals=true\nhash_equal=na\n"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "description": "Enhanced boundary coverage for leading masking (mask the front, keep the last four). Probes the length boundary of the lookahead-based regex which needs a non-empty leading run before the final four characters: a four-character value passes through unchanged, while a five-character and six-character value is masked leaving exactly the final four visible. Also covers the second matched alternate (giftCardNum) and a quoted JSON-style short value that is too short to mask.",
+  "cases": [
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "orderNumber=1234"
+      },
+      "expected_output": "masked=orderNumber=1234\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "orderNumber=12345"
+      },
+      "expected_output": "masked=orderNumber=*****2345\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "orderNumber=abcdef"
+      },
+      "expected_output": "masked=orderNumber=*****cdef\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "giftCardNum=1234567890"
+      },
+      "expected_output": "masked=giftCardNum=*****7890\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "\"orderNumber\":\"1234\""
+      },
+      "expected_output": "masked=\"orderNumber\":\"1234\"\n"
+    }
+  ]
+}

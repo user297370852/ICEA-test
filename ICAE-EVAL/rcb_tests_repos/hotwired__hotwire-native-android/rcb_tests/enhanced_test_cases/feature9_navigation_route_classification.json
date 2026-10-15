@@ -1,0 +1,77 @@
+{
+  "description": "Host-equality boundary coverage for navigation route classification across app (navigate), external_browser (cancel), and external_browser_tab (cancel) handlers, exercising same-host, different-host, sibling-subdomain, apex-vs-subdomain, and query-string URLs distinct from the start location.",
+  "cases": [
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "app",
+        "start_location": "https://shop.example.com",
+        "url": "https://shop.example.com/products/123"
+      },
+      "expected_output": "route_kind=app\nstart_host=shop.example.com\ntarget_host=shop.example.com\ndecision=navigate\nmatches=true\n"
+    },
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "app",
+        "start_location": "https://shop.example.com",
+        "url": "https://shop.example.com/search?q=shoes"
+      },
+      "expected_output": "route_kind=app\nstart_host=shop.example.com\ntarget_host=shop.example.com\ndecision=navigate\nmatches=true\n"
+    },
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "app",
+        "start_location": "https://shop.example.com",
+        "url": "https://other.example.com/page"
+      },
+      "expected_output": "route_kind=app\nstart_host=shop.example.com\ntarget_host=other.example.com\ndecision=navigate\nmatches=false\n"
+    },
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "app",
+        "start_location": "https://shop.example.com",
+        "url": "https://example.com/page"
+      },
+      "expected_output": "route_kind=app\nstart_host=shop.example.com\ntarget_host=example.com\ndecision=navigate\nmatches=false\n"
+    },
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "external_browser",
+        "start_location": "https://shop.example.com",
+        "url": "https://shop.example.com/help"
+      },
+      "expected_output": "route_kind=external_browser\nstart_host=shop.example.com\ntarget_host=shop.example.com\ndecision=cancel\nmatches=false\n"
+    },
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "external_browser",
+        "start_location": "https://shop.example.com",
+        "url": "https://cdn.othersite.org/asset"
+      },
+      "expected_output": "route_kind=external_browser\nstart_host=shop.example.com\ntarget_host=cdn.othersite.org\ndecision=cancel\nmatches=true\n"
+    },
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "external_browser_tab",
+        "start_location": "https://shop.example.com",
+        "url": "https://shop.example.com/faq"
+      },
+      "expected_output": "route_kind=external_browser_tab\nstart_host=shop.example.com\ntarget_host=shop.example.com\ndecision=cancel\nmatches=false\n"
+    },
+    {
+      "input": {
+        "action": "classify_navigation_route",
+        "route_kind": "external_browser_tab",
+        "start_location": "https://shop.example.com",
+        "url": "https://news.ycombinator.com/newest"
+      },
+      "expected_output": "route_kind=external_browser_tab\nstart_host=shop.example.com\ntarget_host=news.ycombinator.com\ndecision=cancel\nmatches=true\n"
+    }
+  ]
+}

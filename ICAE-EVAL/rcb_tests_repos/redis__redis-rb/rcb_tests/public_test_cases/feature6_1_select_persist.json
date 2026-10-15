@@ -1,0 +1,49 @@
+{
+    "description": "A database-switch command issued inside a batch takes effect for the rest of that batch and persists after the batch returns. One database is written before the batch; the batch switches to a second database and writes there; probing each database afterward shows each value landed in its own database.",
+    "cases": [
+        {
+            "input": {
+                "action": "select_persist",
+                "before": [
+                    [
+                        "select",
+                        1
+                    ],
+                    [
+                        "set",
+                        "db",
+                        "1"
+                    ]
+                ],
+                "batch": [
+                    [
+                        "select",
+                        2
+                    ],
+                    [
+                        "set",
+                        "db",
+                        "2"
+                    ]
+                ],
+                "probes": [
+                    {
+                        "db": 1,
+                        "read": [
+                            "get",
+                            "db"
+                        ]
+                    },
+                    {
+                        "db": 2,
+                        "read": [
+                            "get",
+                            "db"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "db@1:str:1\ndb@2:str:2\n"
+        }
+    ]
+}

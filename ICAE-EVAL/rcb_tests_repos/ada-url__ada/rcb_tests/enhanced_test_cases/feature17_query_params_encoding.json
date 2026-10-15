@@ -1,0 +1,101 @@
+{
+  "description": "Form-encoding rules: spaces as plus, literal plus percent-encoded, reserved chars encoded, newlines/tabs encoded, equals in key, and emoji UTF-8 encoding with decoded read-back.",
+  "cases": [
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "append",
+            "key": "k",
+            "value": "a\nb\tc"
+          },
+          {
+            "op": "to_string"
+          },
+          {
+            "op": "get",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "to_string=k=a%0Ab%09c\nget=a\nb\tc\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "append",
+            "key": "a=b",
+            "value": "c=d"
+          },
+          {
+            "op": "to_string"
+          },
+          {
+            "op": "get",
+            "key": "a=b"
+          }
+        ]
+      },
+      "expected_output": "to_string=a%3Db=c%3Dd\nget=c=d\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "append",
+            "key": "emoji",
+            "value": "🌈x"
+          },
+          {
+            "op": "to_string"
+          },
+          {
+            "op": "get",
+            "key": "emoji"
+          }
+        ]
+      },
+      "expected_output": "to_string=emoji=%F0%9F%8C%88x\nget=🌈x\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "append",
+            "key": "s p",
+            "value": "v p"
+          },
+          {
+            "op": "to_string"
+          }
+        ]
+      },
+      "expected_output": "to_string=s+p=v+p\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "append",
+            "key": "r",
+            "value": "a&b=c#d"
+          },
+          {
+            "op": "to_string"
+          },
+          {
+            "op": "get",
+            "key": "r"
+          }
+        ]
+      },
+      "expected_output": "to_string=r=a%26b%3Dc%23d\nget=a&b=c#d\n"
+    }
+  ]
+}

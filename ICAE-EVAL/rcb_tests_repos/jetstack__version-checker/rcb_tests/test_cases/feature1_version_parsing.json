@@ -1,0 +1,45 @@
+{
+    "description": "Parse a container image tag into a three-part numeric version (major, minor, patch) plus a free-form metadata suffix. A leading 'v' is optional. Missing numeric components default to 0. Any text that follows the patch number (or any text that prevents a leading numeric match) is preserved verbatim as metadata. Tags that do not start with a number yield a zero version and carry the whole string as metadata.",
+    "cases": [
+        {
+            "input": {"action": "parse_version", "tag": ""},
+            "expected_output": "tag=\nmajor=0\nminor=0\npatch=0\nmetadata="
+        },
+        {
+            "input": {"action": "parse_version", "tag": "v"},
+            "expected_output": "tag=v\nmajor=0\nminor=0\npatch=0\nmetadata=v"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "hello-1.2.3"},
+            "expected_output": "tag=hello-1.2.3\nmajor=0\nminor=0\npatch=0\nmetadata=hello-1.2.3"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1"},
+            "expected_output": "tag=1\nmajor=1\nminor=0\npatch=0\nmetadata="
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1.2"},
+            "expected_output": "tag=1.2\nmajor=1\nminor=2\npatch=0\nmetadata="
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1.0.1"},
+            "expected_output": "tag=1.0.1\nmajor=1\nminor=0\npatch=1\nmetadata="
+        },
+        {
+            "input": {"action": "parse_version", "tag": "v1.0.1"},
+            "expected_output": "tag=v1.0.1\nmajor=1\nminor=0\npatch=1\nmetadata="
+        },
+        {
+            "input": {"action": "parse_version", "tag": "v1.0.1-debian-3.hello-world-12"},
+            "expected_output": "tag=v1.0.1-debian-3.hello-world-12\nmajor=1\nminor=0\npatch=1\nmetadata=-debian-3.hello-world-12"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "v1.0.1-"},
+            "expected_output": "tag=v1.0.1-\nmajor=1\nminor=0\npatch=1\nmetadata=-"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "v1.3.hello1-debian-3.hello-world-12"},
+            "expected_output": "tag=v1.3.hello1-debian-3.hello-world-12\nmajor=1\nminor=3\npatch=0\nmetadata=.hello1-debian-3.hello-world-12"
+        }
+    ]
+}

@@ -1,0 +1,108 @@
+{
+  "description": "Build a parameterized binary query carrying a single bound parameter and report the per-parameter wire metadata that the protocol requires for that parameter: its numeric type identifier, its wire format code, its serialized byte length, and its serialized bytes. Parameters are always sent in binary, so the format code is always 1. A present value reports its type's numeric identifier, the byte length of its binary form, and those bytes as space-separated uppercase hexadecimal. A typed null value reports the underlying type's identifier, a length of -1, and a null marker for the value. An untyped null reports a type identifier of 0, a length of -1, and a null marker. An array-typed value reports the array's own numeric type identifier.",
+  "cases": [
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "int2",
+          "value": -1
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=21\nformat=1\nlength=2\nvalue=FF FF\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "int2",
+          "value": 32767
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=21\nformat=1\nlength=2\nvalue=7F FF\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "int4",
+          "value": 42
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=23\nformat=1\nlength=4\nvalue=00 00 00 2A\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "int4",
+          "value": -1
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=23\nformat=1\nlength=4\nvalue=FF FF FF FF\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "text",
+          "value": ""
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=25\nformat=1\nlength=0\nvalue=<null>\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "text",
+          "value": "hi"
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=25\nformat=1\nlength=2\nvalue=68 69\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "text",
+          "null": true
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=25\nformat=1\nlength=-1\nvalue=<null>\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "bytea",
+          "value": []
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=17\nformat=1\nlength=0\nvalue=<null>\n"
+    },
+    {
+      "input": {
+        "op": "bind_meta",
+        "text": "",
+        "param": {
+          "type": "bytea",
+          "value": [
+            255,
+            0,
+            16
+          ]
+        }
+      },
+      "expected_output": "params_count=1\ntext=\noid=17\nformat=1\nlength=3\nvalue=FF 00 10\n"
+    }
+  ]
+}

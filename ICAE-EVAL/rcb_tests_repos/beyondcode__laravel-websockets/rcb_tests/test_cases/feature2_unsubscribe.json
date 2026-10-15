@@ -1,0 +1,47 @@
+{
+    "description": "A client first subscribes to an open channel and then sends an unsubscribe control message for the same channel. After unsubscribing, the channel still exists but no longer counts that client: its occupancy flag is false and its subscriber count is zero. The report shows the client's received frames and the post-operation channel occupancy/subscription count.",
+    "cases": [
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "100.1"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    },
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:unsubscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    }
+                ],
+                "report": {
+                    "connections": [
+                        "a"
+                    ],
+                    "channels": [
+                        "test-channel"
+                    ]
+                }
+            },
+            "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"test-channel\"}\n[channel:test-channel] occupied=false subscription_count=0\n"
+        }
+    ]
+}

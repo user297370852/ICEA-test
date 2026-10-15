@@ -1,0 +1,62 @@
+{
+    "description": "Generate docker ps queries that locate containers by label. current_running_container_id returns the id of the latest running container for the service/role; with a destination configured, a destination label filter is inserted. container_id_for builds a query that matches an exact container name anchored with ^ and $.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "current_running_container_id"
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest"
+        },
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "container_id_for",
+                "args": {
+                    "container_name": "app-999"
+                }
+            },
+            "expected_output": "docker container ls --all --filter name=^app-999$ --quiet"
+        }
+    ]
+}

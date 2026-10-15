@@ -1,0 +1,152 @@
+{
+    "description": "Resolve a token vector against a parser that mixes optional arguments (named with a leading prefix character) and positional arguments, producing a set of name=value bindings. Covers: an optional that consumes one value, an optional with an optional value that falls back to a fixed constant when given with no value, a positional that greedily collects the remaining tokens; precedence of a parser-wide default over a per-argument default; a default sentinel that removes the binding entirely so the name is absent from the result; redistribution of positionals so a greedy collector yields tokens to later fixed-count and required positionals; and an optional appearing between positionals.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "?",
+                        "const": "c"
+                    },
+                    {
+                        "name": "suites",
+                        "nargs": "*"
+                    }
+                ],
+                "argv": [
+                    "--bar",
+                    "--foo",
+                    "hello",
+                    "cake",
+                    "dango",
+                    "mochi"
+                ]
+            },
+            "expected_output": "bar=c\nfoo=hello\nsuites=[cake, dango, mochi]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-f"
+                        ],
+                        "default": "foo"
+                    },
+                    {
+                        "flags": [
+                            "-g"
+                        ],
+                        "default": "bar"
+                    },
+                    {
+                        "flags": [
+                            "-i"
+                        ],
+                        "default": "alpha"
+                    }
+                ],
+                "parser_defaults": {
+                    "foo": "FOO"
+                },
+                "argv": [
+                    "-i",
+                    "input"
+                ]
+            },
+            "expected_output": "f=foo\nfoo=FOO\ng=bar\ni=input\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-g"
+                        ],
+                        "default": "::suppress::"
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "f=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "a"
+                    },
+                    {
+                        "name": "b",
+                        "nargs": "*"
+                    },
+                    {
+                        "name": "c",
+                        "nargs": 2
+                    },
+                    {
+                        "name": "d",
+                        "nargs": "?"
+                    },
+                    {
+                        "name": "e"
+                    },
+                    {
+                        "name": "f",
+                        "nargs": "*",
+                        "default": [
+                            "f1",
+                            "f2"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "a",
+                    "b1",
+                    "b2",
+                    "c1",
+                    "c2",
+                    "e"
+                ]
+            },
+            "expected_output": "a=a\nb=[b1, b2]\nc=[c1, c2]\nd=null\ne=e\nf=[f1, f2]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ]
+                    },
+                    {
+                        "name": "bar",
+                        "nargs": "*"
+                    }
+                ],
+                "argv": [
+                    "a",
+                    "--foo",
+                    "b",
+                    "c",
+                    "d",
+                    "e"
+                ]
+            },
+            "expected_output": "bar=[a, c, d, e]\nfoo=b\n"
+        }
+    ]
+}

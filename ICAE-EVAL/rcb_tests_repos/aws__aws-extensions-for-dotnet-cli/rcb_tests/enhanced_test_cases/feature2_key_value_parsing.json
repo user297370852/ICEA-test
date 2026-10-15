@@ -1,0 +1,53 @@
+{
+  "description": "Enhanced boundary coverage for key=value option parsing: whitespace-only option treated as empty, duplicate keys collapse to a single entry with the last value winning, multiple pairs, quoted keys containing delimiters, quoted empty values, quoted values containing multiple '=' signs, a bare key with no '=' sign, and an empty-key pair appearing after a valid pair which aborts the whole parse with the normalized error.",
+  "cases": [
+    {
+      "input": {
+        "option": "   "
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "option": "A=1;A=2"
+      },
+      "expected_output": "count=1\nA=2\n"
+    },
+    {
+      "input": {
+        "option": "a=1;b=2;c=3"
+      },
+      "expected_output": "count=3\na=1\nb=2\nc=3\n"
+    },
+    {
+      "input": {
+        "option": "\"a;b\"=c"
+      },
+      "expected_output": "count=1\na;b=c\n"
+    },
+    {
+      "input": {
+        "option": "K=\"\""
+      },
+      "expected_output": "count=1\nK=\n"
+    },
+    {
+      "input": {
+        "option": "\"x\"=\"a=b=c\""
+      },
+      "expected_output": "count=1\nx=a=b=c\n"
+    },
+    {
+      "input": {
+        "option": "justkey"
+      },
+      "expected_output": "count=1\njustkey=\n"
+    },
+    {
+      "input": {
+        "option": "A=1;=bad"
+      },
+      "expected_output": "error=command_line_parse_error\n"
+    }
+  ]
+}

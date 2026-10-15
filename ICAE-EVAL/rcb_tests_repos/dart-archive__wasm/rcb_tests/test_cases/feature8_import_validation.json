@@ -1,0 +1,116 @@
+{
+  "description": "Instantiation-time import checking: a fully and correctly supplied set of imports instantiates successfully; leaving an import unfilled, supplying an import of the wrong kind (memory/global where a function is expected), naming an import that does not exist, or filling the same import twice each yields a normalized category (with the offending import name where relevant).",
+  "cases": [
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "someFn",
+            "behavior": "return",
+            "arity": 4,
+            "value": 123
+          }
+        ],
+        "build": true,
+        "report_build": true
+      },
+      "expected_output": "instantiated=true\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "build": true
+      },
+      "expected_output": "error=missing_import\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "memory",
+            "module": "env",
+            "name": "someFn",
+            "pages": 10
+          }
+        ]
+      },
+      "expected_output": "error=import_kind_mismatch\nexpected=memory\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "global",
+            "module": "env",
+            "name": "someFn",
+            "value": 123
+          }
+        ]
+      },
+      "expected_output": "error=import_kind_mismatch\nexpected=global\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "foo",
+            "name": "someFn",
+            "behavior": "return",
+            "arity": 4,
+            "value": 123
+          }
+        ],
+        "build": true
+      },
+      "expected_output": "error=import_not_found\nimport=foo::someFn\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "otherFn",
+            "behavior": "return",
+            "arity": 4,
+            "value": 123
+          }
+        ],
+        "build": true
+      },
+      "expected_output": "error=import_not_found\nimport=env::otherFn\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "someFn",
+            "behavior": "return",
+            "arity": 4,
+            "value": 123
+          },
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "someFn",
+            "behavior": "return",
+            "arity": 4,
+            "value": 456
+          }
+        ]
+      },
+      "expected_output": "error=import_already_filled\nimport=env::someFn\n"
+    }
+  ]
+}

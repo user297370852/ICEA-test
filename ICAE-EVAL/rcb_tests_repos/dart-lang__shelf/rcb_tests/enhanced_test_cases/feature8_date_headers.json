@@ -1,0 +1,56 @@
+{
+  "description": "Parse conditional date headers: a different valid HTTP date on a request, both expires and last-modified present on a response, the Unix epoch, and malformed date values surfaced as neutral errors.",
+  "cases": [
+    {
+      "input": {
+        "action": "dates",
+        "kind": "request",
+        "headers": {
+          "if-modified-since": "Wed, 21 Oct 2015 07:28:00 GMT"
+        }
+      },
+      "expected_output": "ifModifiedSince=2015-10-21T07:28:00.000Z\n"
+    },
+    {
+      "input": {
+        "action": "dates",
+        "kind": "response",
+        "headers": {
+          "expires": "Mon, 01 Jan 2001 00:00:00 GMT",
+          "last-modified": "Tue, 15 Nov 1994 12:45:26 GMT"
+        }
+      },
+      "expected_output": "expires=2001-01-01T00:00:00.000Z\nlastModified=1994-11-15T12:45:26.000Z\n"
+    },
+    {
+      "input": {
+        "action": "dates",
+        "kind": "request",
+        "headers": {
+          "if-modified-since": "Thu, 01 Jan 1970 00:00:00 GMT"
+        }
+      },
+      "expected_output": "ifModifiedSince=1970-01-01T00:00:00.000Z\n"
+    },
+    {
+      "input": {
+        "action": "dates",
+        "kind": "request",
+        "headers": {
+          "if-modified-since": "not a date"
+        }
+      },
+      "expected_output": "error=format\nmessage=Invalid HTTP date: expected /Mon|Tue|Wed|Thu|Fri|Sat|Sun/.\n"
+    },
+    {
+      "input": {
+        "action": "dates",
+        "kind": "response",
+        "headers": {
+          "expires": "garbage value"
+        }
+      },
+      "expected_output": "error=format\nmessage=Invalid HTTP date: expected /Mon|Tue|Wed|Thu|Fri|Sat|Sun/.\n"
+    }
+  ]
+}

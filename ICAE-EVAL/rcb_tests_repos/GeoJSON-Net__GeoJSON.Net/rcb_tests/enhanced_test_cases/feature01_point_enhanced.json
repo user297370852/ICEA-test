@@ -1,0 +1,177 @@
+{
+  "description": "Enhanced boundary coverage for Point geometry: origin coordinate, explicit zero elevation (must still be emitted), negative axes, very large/small magnitudes, high-precision values, attached named CRS, null-position construction failure, and structural inequality across the five-line equality contract.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize",
+        "object": {
+          "type": "Point",
+          "coordinates": [
+            0,
+            0
+          ]
+        },
+        "formatting": "none"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[0.0,0.0]}\n"
+    },
+    {
+      "input": {
+        "op": "serialize",
+        "object": {
+          "type": "Point",
+          "coordinates": [
+            -122.123456,
+            -45.987654
+          ]
+        },
+        "formatting": "none"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[-122.123456,-45.987654]}\n"
+    },
+    {
+      "input": {
+        "op": "serialize",
+        "object": {
+          "type": "Point",
+          "coordinates": [
+            -180,
+            -90,
+            -1000.5
+          ]
+        },
+        "formatting": "none"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[-180.0,-90.0,-1000.5]}\n"
+    },
+    {
+      "input": {
+        "op": "serialize",
+        "object": {
+          "type": "Point",
+          "coordinates": [
+            179.99999999,
+            89.99999999,
+            8848.86
+          ]
+        },
+        "formatting": "none"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[179.99999999,89.99999999,8848.86]}\n"
+    },
+    {
+      "input": {
+        "op": "serialize",
+        "object": {
+          "type": "Point",
+          "coordinates": [
+            1e-12,
+            2e-12
+          ]
+        },
+        "formatting": "none"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[1E-12,2E-12]}\n"
+    },
+    {
+      "input": {
+        "op": "serialize",
+        "object": {
+          "type": "Point",
+          "coordinates": [
+            123456789.123,
+            987654321.987
+          ]
+        },
+        "formatting": "none"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[123456789.123,987654321.987]}\n"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "target": "Point",
+        "wire": "{\"type\":\"Point\",\"coordinates\":[0.0,0.0,0.0]}"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[0.0,0.0,0.0]}\n"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "target": "Point",
+        "wire": "{\"type\":\"Point\",\"coordinates\":[-122.5,-45.25]}"
+      },
+      "expected_output": "{\"type\":\"Point\",\"coordinates\":[-122.5,-45.25]}\n"
+    },
+    {
+      "input": {
+        "op": "construct",
+        "object": {
+          "type": "Point",
+          "coordinates": null
+        }
+      },
+      "expected_output": "error=argument_null\nparam=coordinates\n"
+    },
+    {
+      "input": {
+        "op": "equals",
+        "kind": "geometry",
+        "left": {
+          "type": "Point",
+          "coordinates": [
+            1,
+            2
+          ]
+        },
+        "right": {
+          "type": "Point",
+          "coordinates": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "expected_output": "equals=false\nequals_reverse=false\nop_equals=false\nop_not_equals=true\nhash_equal=false\n"
+    },
+    {
+      "input": {
+        "op": "equals",
+        "kind": "geometry",
+        "left": {
+          "type": "Point",
+          "coordinates": [
+            1,
+            2,
+            3
+          ]
+        },
+        "right": {
+          "type": "Point",
+          "coordinates": [
+            1,
+            2,
+            4
+          ]
+        }
+      },
+      "expected_output": "equals=false\nequals_reverse=false\nop_equals=false\nop_not_equals=true\nhash_equal=false\n"
+    },
+    {
+      "input": {
+        "op": "equals",
+        "kind": "geometry",
+        "left": {
+          "type": "Point",
+          "coordinates": [
+            10,
+            20
+          ]
+        },
+        "right": null
+      },
+      "expected_output": "equals=false\nequals_reverse=false\nop_equals=false\nop_not_equals=true\nhash_equal=na\n"
+    }
+  ]
+}

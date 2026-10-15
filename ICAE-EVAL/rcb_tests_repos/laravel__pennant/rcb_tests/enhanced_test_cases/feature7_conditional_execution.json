@@ -1,0 +1,80 @@
+{
+  "description": "Branch on a feature's state and run the active callback when it is active. The active callback receives the feature's stored payload, which may be a structured list, a non-false numeric value, or a deeply nested object; the inactive callback runs for a feature defined to resolve to exactly boolean false.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "activate",
+            "feature": "foo",
+            "value": [
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "op": "when",
+            "feature": "foo"
+          }
+        ]
+      },
+      "expected_output": "when foo = active [1,2,3]\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "activate",
+            "feature": "bar",
+            "value": 0
+          },
+          {
+            "op": "when",
+            "feature": "bar"
+          }
+        ]
+      },
+      "expected_output": "when bar = active 0\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "baz",
+            "resolver": {
+              "type": "const",
+              "value": false
+            }
+          },
+          {
+            "op": "when",
+            "feature": "baz"
+          }
+        ]
+      },
+      "expected_output": "when baz = inactive\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "activate",
+            "feature": "qux",
+            "value": {
+              "deep": {
+                "n": 5
+              }
+            }
+          },
+          {
+            "op": "when",
+            "feature": "qux"
+          }
+        ]
+      },
+      "expected_output": "when qux = active {\"deep\":{\"n\":5}}\n"
+    }
+  ]
+}

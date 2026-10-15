@@ -1,0 +1,52 @@
+{
+  "description": "Reset selects only default base/fs/git catalog checks without backup and challenge updates preserve explicit check-level challenges.",
+  "cases": [
+    {
+      "input": {
+        "feature": "reset_config",
+        "initial_yaml": "---\nchallenge: Yes\nincludes:\n  - custom\nversion: 1.0.0\nchecks:\n- from: custom\n  test: custom\n  method: Regex\n  enable: true\n  description: \"custom\"\n",
+        "available_checks": [
+          {
+            "group": "base",
+            "pattern": "sudo",
+            "method": "starts_with",
+            "enabled": true,
+            "description": "base check"
+          },
+          {
+            "group": "fs",
+            "pattern": "rm -rf",
+            "method": "contains",
+            "enabled": false,
+            "description": "fs disabled",
+            "challenge": "Yes"
+          },
+          {
+            "group": "git",
+            "pattern": "git\\s+reset",
+            "method": "regex",
+            "enabled": true,
+            "description": "git reset"
+          },
+          {
+            "group": "extra",
+            "pattern": "extra",
+            "method": "contains",
+            "enabled": true,
+            "description": "excluded extra"
+          }
+        ],
+        "backup_existing": false
+      },
+      "expected_output": "backup_created=no\nchallenge=Math\nincludes=base,fs,git\ncheck_count=3\ncheck=base|StartWith|true|Default|base check\ncheck=fs|Contains|false|Yes|fs disabled\ncheck=git|Regex|true|Default|git reset\n"
+    },
+    {
+      "input": {
+        "feature": "update_challenge",
+        "initial_yaml": "---\nchallenge: Math\nincludes:\n  - base\n  - fs\nversion: 0.2.2\nchecks:\n- from: base\n  test: sudo\n  method: StartWith\n  enable: true\n  challenge: Math\n  description: \"base challenge stays math\"\n- from: fs\n  test: rm\n  method: Contains\n  enable: false\n  description: \"fs default challenge\"\n",
+        "challenge": "Enter"
+      },
+      "expected_output": "challenge=Enter\nincludes=base,fs\ncheck_count=2\ncheck=base|StartWith|true|Math|base challenge stays math\ncheck=fs|Contains|false|Default|fs default challenge\n"
+    }
+  ]
+}

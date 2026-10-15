@@ -1,0 +1,350 @@
+{
+  "description": "Feature 2.1/2.2 diff-and-patch coverage: multiple sequential async updates on a stable root, a synchronous text patch, an in-place attribute patch, dynamically adding then removing a child across updates, an idempotent no-op update (stable tokens), a deep nested-node text patch with a stable ref, and a three-step condition toggle that rebinds refs both directions.",
+  "cases": [
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "msg": "a"
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "var": "msg"
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "s0"
+          },
+          {
+            "set": {
+              "msg": "b"
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "s1"
+          },
+          {
+            "set": {
+              "msg": "c"
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "s2"
+          }
+        ]
+      },
+      "expected_output": "== s0 ==\nelement=<div#n1>a</div>\ntext=a\n== s1 ==\nelement=<div#n1>b</div>\ntext=b\n== s2 ==\nelement=<div#n1>c</div>\ntext=c\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "greeting": "Hello"
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "var": "greeting"
+              },
+              " World"
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "greeting": "Goodbye"
+            }
+          },
+          {
+            "updateSync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1>Hello World</div>\ntext=Hello World\n== after ==\nelement=<div#n1>Goodbye World</div>\ntext=Goodbye World\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "cls": "a"
+          },
+          "render": {
+            "el": "div",
+            "attrs": {
+              "className": {
+                "var": "cls"
+              }
+            },
+            "children": [
+              "x"
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "cls": "b"
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1 class=\"a\">x</div>\ntext=x\n== after ==\nelement=<div#n1 class=\"b\">x</div>\ntext=x\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "showB": false
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              "A",
+              {
+                "if": "showB",
+                "then": {
+                  "el": "span",
+                  "children": [
+                    "B"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "showB": true
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1>A</div>\ntext=A\n== after ==\nelement=<div#n1>A<span#n2>B</span></div>\ntext=AB\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "showB": true
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              "A",
+              {
+                "if": "showB",
+                "then": {
+                  "el": "span",
+                  "children": [
+                    "B"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "showB": false
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1>A<span#n2>B</span></div>\ntext=AB\n== after ==\nelement=<div#n1>A</div>\ntext=A\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "x": "same"
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "var": "x"
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "x": "same"
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1>same</div>\ntext=same\n== after ==\nelement=<div#n1>same</div>\ntext=same\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "t": "hi"
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "el": "span",
+                "ref": "s",
+                "children": [
+                  {
+                    "var": "t"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "before"
+          },
+          {
+            "set": {
+              "t": "bye"
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "after"
+          }
+        ]
+      },
+      "expected_output": "== before ==\nelement=<div#n1><span#n2>hi</span></div>\ntext=hi\nrefs:\n  s=<span#n2>hi</span>\n== after ==\nelement=<div#n1><span#n2>bye</span></div>\ntext=bye\nrefs:\n  s=<span#n2>bye</span>\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "condition": true
+          },
+          "render": {
+            "if": "condition",
+            "then": {
+              "el": "div",
+              "children": [
+                {
+                  "el": "span",
+                  "ref": "on",
+                  "children": [
+                    "ON"
+                  ]
+                }
+              ]
+            },
+            "else": {
+              "el": "div",
+              "children": [
+                {
+                  "el": "span",
+                  "ref": "off",
+                  "children": [
+                    "OFF"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "steps": [
+          {
+            "probe": "p1"
+          },
+          {
+            "set": {
+              "condition": false
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "p2"
+          },
+          {
+            "set": {
+              "condition": true
+            }
+          },
+          {
+            "updateAsync": true
+          },
+          {
+            "probe": "p3"
+          }
+        ]
+      },
+      "expected_output": "== p1 ==\nelement=<div#n1><span#n2>ON</span></div>\ntext=ON\nrefs:\n  on=<span#n2>ON</span>\n== p2 ==\nelement=<div#n1><span#n2>OFF</span></div>\ntext=OFF\nrefs:\n  off=<span#n2>OFF</span>\n== p3 ==\nelement=<div#n1><span#n2>ON</span></div>\ntext=ON\nrefs:\n  on=<span#n2>ON</span>\n"
+    }
+  ]
+}

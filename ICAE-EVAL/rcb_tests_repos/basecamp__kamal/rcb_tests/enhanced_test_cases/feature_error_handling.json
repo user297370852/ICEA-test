@@ -1,0 +1,115 @@
+{
+  "description": "Error-normalization edge cases: the adapter must render native runtime failures as a language-neutral category. A secret whose value is absent from the host environment yields error=missing_env with the variable name; an unrecognized action yields error=invalid_configuration. Covered across the run, role.env_args, and execute paths.",
+  "cases": [
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "MISSING_SECRET_XYZ"
+            ]
+          }
+        },
+        "env": {},
+        "version": "999",
+        "role": "web",
+        "action": "run"
+      },
+      "expected_output": "error=missing_env\nvar=MISSING_SECRET_XYZ"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "totally_unknown_action"
+      },
+      "expected_output": "error=invalid_configuration"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "clear": {
+              "REDIS_URL": "redis://x/y"
+            },
+            "secret": [
+              "NOT_IN_ENV_ABC"
+            ]
+          }
+        },
+        "env": {},
+        "version": "999",
+        "role": "web",
+        "action": "role.env_args"
+      },
+      "expected_output": "error=missing_env\nvar=NOT_IN_ENV_ABC"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "ALSO_MISSING_123"
+            ]
+          }
+        },
+        "env": {},
+        "version": "999",
+        "role": "web",
+        "action": "execute_in_new_container",
+        "args": {
+          "command": [
+            "bin/setup"
+          ]
+        }
+      },
+      "expected_output": "error=missing_env\nvar=ALSO_MISSING_123"
+    }
+  ]
+}

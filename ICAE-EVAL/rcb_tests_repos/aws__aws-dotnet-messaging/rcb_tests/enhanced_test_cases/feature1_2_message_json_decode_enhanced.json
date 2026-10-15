@@ -1,0 +1,47 @@
+{
+  "description": "Boundary coverage for decoding application-message JSON (female gender, case-insensitive keys, extra ignored keys, missing/empty nested address, negative and large numbers).",
+  "cases": [
+    {
+      "input": {
+        "operation": "message_json_decode",
+        "json": "{\"FirstName\":\"Carol\",\"LastName\":\"Diaz\",\"Age\":45,\"Gender\":\"Female\",\"Address\":{\"Unit\":9,\"Street\":\"Elm St\",\"ZipCode\":\"54321\"}}"
+      },
+      "expected_output": "first_name=Carol\nlast_name=Diaz\nage=45\ngender=Female\naddress_unit=9\naddress_street=Elm St\naddress_zip=54321\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_decode",
+        "json": "{\"firstname\":\"low\",\"LASTNAME\":\"CASE\",\"aGe\":7,\"GENDER\":\"Male\",\"address\":{\"unit\":3,\"STREET\":\"Mixed Rd\",\"zipcode\":\"00077\"}}"
+      },
+      "expected_output": "first_name=\nlast_name=\nage=0\ngender=Male\naddress_unit=\naddress_street=\naddress_zip=\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_decode",
+        "json": "{\"FirstName\":\"Extra\",\"LastName\":\"Fields\",\"Age\":50,\"Gender\":\"Female\",\"Unknown\":\"ignored\",\"Nested\":{\"x\":1},\"Address\":{\"Unit\":2,\"Street\":\"Oak\",\"ZipCode\":\"11111\",\"Country\":\"US\"}}"
+      },
+      "expected_output": "first_name=Extra\nlast_name=Fields\nage=50\ngender=Female\naddress_unit=2\naddress_street=Oak\naddress_zip=11111\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_decode",
+        "json": "{\"FirstName\":\"NoAddr\",\"LastName\":\"Person\",\"Age\":22,\"Gender\":\"Male\"}"
+      },
+      "expected_output": "first_name=NoAddr\nlast_name=Person\nage=22\ngender=Male\naddress_unit=\naddress_street=\naddress_zip=\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_decode",
+        "json": "{\"FirstName\":\"NegAge\",\"LastName\":\"Test\",\"Age\":-99,\"Gender\":\"Female\",\"Address\":{\"Unit\":-7,\"Street\":\"Sub Zero\",\"ZipCode\":\"00001\"}}"
+      },
+      "expected_output": "first_name=NegAge\nlast_name=Test\nage=-99\ngender=Female\naddress_unit=-7\naddress_street=Sub Zero\naddress_zip=00001\n"
+    },
+    {
+      "input": {
+        "operation": "message_json_decode",
+        "json": "{}"
+      },
+      "expected_output": "first_name=\nlast_name=\nage=0\ngender=Male\naddress_unit=\naddress_street=\naddress_zip=\n"
+    }
+  ]
+}

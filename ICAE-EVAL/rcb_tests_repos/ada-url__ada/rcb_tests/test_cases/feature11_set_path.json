@@ -1,0 +1,165 @@
+{
+    "description": "Set the path of a parsed URL. The new path is reflected when read back, and re-serialization preserves any query already present. For schemes that are not special, a path that begins with two slashes is disambiguated from an authority by inserting a hidden marker segment in the serialization while the read-back path stays as given; giving the URL a hostname removes that marker. Setting a path keeps the URL internally consistent.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://www.google.com",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "pathname",
+                        "value": "/my-super-long-path"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_pathname=true\npathname=/my-super-long-path\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://test.com:5/?param=1",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "pathname",
+                        "value": "path"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_pathname=true\nhref=http://test.com:5/path?param=1\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "non-spec:/",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "pathname",
+                        "value": "//p"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_pathname=true\npathname=//p\nhref=non-spec:/.//p\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "non-spec:/.//p",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "has_empty_hostname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_hostname"
+                    },
+                    {
+                        "op": "set",
+                        "field": "hostname",
+                        "value": "h"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_hostname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_empty_hostname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhas_empty_hostname=false\nhas_hostname=false\nset_hostname=true\nhas_hostname=true\nhas_empty_hostname=false\npathname=//p\nhref=non-spec://h//p\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "non-spec:/.//p",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_empty_hostname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_hostname"
+                    },
+                    {
+                        "op": "set",
+                        "field": "hostname",
+                        "value": ""
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_hostname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_empty_hostname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\npathname=//p\nhas_empty_hostname=false\nhas_hostname=false\nset_hostname=true\nhas_hostname=true\nhas_empty_hostname=true\npathname=//p\nhref=non-spec:////p\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "blob:/?",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "validate"
+                    },
+                    {
+                        "op": "set",
+                        "field": "pathname",
+                        "value": "//.."
+                    },
+                    {
+                        "op": "get",
+                        "field": "validate"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nvalidate=true\nset_pathname=true\nvalidate=true\n"
+        }
+    ]
+}

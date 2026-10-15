@@ -1,0 +1,100 @@
+{
+  "description": "Enhanced stream-adapter coverage: empty source completes, mixed operation/plain elements, structured emitted values, immediate first-element failure, mid-stream failure stopping emission, and several non-iterable source types (null, bool, float).",
+  "cases": [
+    {
+      "input": {
+        "op": "iterator",
+        "elements": []
+      },
+      "expected_output": "emitted=[]\nstatus=completed\n"
+    },
+    {
+      "input": {
+        "op": "iterator",
+        "elements": [
+          {
+            "resolve": 1
+          },
+          {
+            "value": 2
+          },
+          {
+            "resolve": 3
+          }
+        ]
+      },
+      "expected_output": "emitted=[1,2,3]\nstatus=completed\n"
+    },
+    {
+      "input": {
+        "op": "iterator",
+        "elements": [
+          {
+            "resolve": {
+              "k": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "value": [
+              3,
+              4
+            ]
+          }
+        ]
+      },
+      "expected_output": "emitted=[{\"k\":[1,2]},[3,4]]\nstatus=completed\n"
+    },
+    {
+      "input": {
+        "op": "iterator",
+        "elements": [
+          {
+            "fail": "first"
+          }
+        ]
+      },
+      "expected_output": "emitted=[]\nstatus=failed\nreason=first\n"
+    },
+    {
+      "input": {
+        "op": "iterator",
+        "elements": [
+          {
+            "value": "a"
+          },
+          {
+            "fail": "stop"
+          },
+          {
+            "value": "b"
+          }
+        ]
+      },
+      "expected_output": "emitted=[\"a\"]\nstatus=failed\nreason=stop\n"
+    },
+    {
+      "input": {
+        "op": "iterator",
+        "invalid": null
+      },
+      "expected_output": "status=error\nerror=invalid_iterable\n"
+    },
+    {
+      "input": {
+        "op": "iterator",
+        "invalid": true
+      },
+      "expected_output": "status=error\nerror=invalid_iterable\n"
+    },
+    {
+      "input": {
+        "op": "iterator",
+        "invalid": 3.5
+      },
+      "expected_output": "status=error\nerror=invalid_iterable\n"
+    }
+  ]
+}

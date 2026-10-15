@@ -1,0 +1,124 @@
+{
+  "description": "Enhanced boundary/edge coverage for object-storage archive reference parsing (//<bucket>[/<key>][:<suffix>]). Covers: empty bucket (//), empty suffix after the colon (//bucket:), a bucket WITH a key combined with a docker tag suffix, source index via @ (positive, signed '+5', leading-zeros '00', non-numeric '0x10'/'abc'), fully-qualified and host-qualified docker references (quay.io, localhost:5000), nested repository paths, uppercase tag preserved, a digest-bearing reference (rejected), dotted bucket name with key, multi-segment key with no suffix, missing '//' prefix (rejected), and an index suffix carrying an extra ':' segment (rejected).",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//"
+      },
+      "expected_output": "valid=true\nbucket=\nkey=\nref=(none)\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket/key:busybox"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=key\nref=docker.io/library/busybox:latest\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:@5"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=\nref=(none)\nsource_index=5\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:@+5"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=\nref=(none)\nsource_index=5\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:@00"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=\nref=(none)\nsource_index=0\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:@0x10"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:@abc"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:quay.io/org/img:v1"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=\nref=quay.io/org/img:v1\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:localhost:5000/repo"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=\nref=localhost:5000/repo:latest\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:repo/sub/path:v2"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=\nref=docker.io/repo/sub/path:v2\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:busybox:UPPER"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=\nref=docker.io/library/busybox:UPPER\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:ubuntu@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//my.bucket.name/path/to/obj"
+      },
+      "expected_output": "valid=true\nbucket=my.bucket.name\nkey=path/to/obj\nref=(none)\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket/a/b/c/d/e"
+      },
+      "expected_output": "valid=true\nbucket=bucket\nkey=a/b/c/d/e\nref=(none)\nsource_index=-1\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "bucket"
+      },
+      "expected_output": "valid=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_reference",
+        "ref": "//bucket:@999999:extra"
+      },
+      "expected_output": "valid=false\n"
+    }
+  ]
+}

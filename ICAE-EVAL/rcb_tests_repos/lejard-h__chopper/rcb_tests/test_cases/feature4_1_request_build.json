@@ -1,0 +1,87 @@
+{
+    "description": "Construct an HTTP request from a method, a relative or absolute request URI, a base URI, an optional parameter map and headers. The output reports the resolved method, the fully composed URL (base+path+merged query) and every header sorted by name. Query parameters embedded in the URI are preserved and merged with the explicit parameter map; nested maps flatten with a dot separator and lists repeat their key.",
+    "cases": [
+        {
+            "input": {
+                "op": "assemble_request",
+                "method": "GET",
+                "uri": "/bar",
+                "baseUri": "https://foo/"
+            },
+            "expected_output": "method=GET\nurl=https://foo/bar\n"
+        },
+        {
+            "input": {
+                "op": "assemble_request",
+                "method": "GET",
+                "uri": "/bar?lorem=ipsum&dolor=123",
+                "baseUri": "https://foo/"
+            },
+            "expected_output": "method=GET\nurl=https://foo/bar?lorem=ipsum&dolor=123\n"
+        },
+        {
+            "input": {
+                "op": "assemble_request",
+                "method": "GET",
+                "uri": "/bar",
+                "baseUri": "https://foo/",
+                "parameters": {
+                    "lorem": "ipsum",
+                    "dolor": 123
+                }
+            },
+            "expected_output": "method=GET\nurl=https://foo/bar?lorem=ipsum&dolor=123\n"
+        },
+        {
+            "input": {
+                "op": "assemble_request",
+                "method": "GET",
+                "uri": "https://chopper.dev/test3",
+                "baseUri": "",
+                "parameters": {
+                    "foo": "bar",
+                    "foo_list": [
+                        "one",
+                        "two",
+                        "three"
+                    ],
+                    "user": {
+                        "name": "john",
+                        "surname": "doe"
+                    }
+                }
+            },
+            "expected_output": "method=GET\nurl=https://chopper.dev/test3?foo=bar&foo_list=one&foo_list=two&foo_list=three&user.name=john&user.surname=doe\n"
+        },
+        {
+            "input": {
+                "op": "assemble_request",
+                "method": "GET",
+                "uri": "/bar",
+                "baseUri": "https://foo/",
+                "headers": {
+                    "content-type": "application/json; charset=utf-8",
+                    "accept": "application/json; charset=utf-8"
+                }
+            },
+            "expected_output": "method=GET\nurl=https://foo/bar\nheader.accept=application/json; charset=utf-8\nheader.content-type=application/json; charset=utf-8\n"
+        },
+        {
+            "input": {
+                "op": "assemble_request",
+                "method": "GET",
+                "uri": "/bar?first=sit&second=amet&first_list=a&first_list=b",
+                "baseUri": "https://foo/",
+                "parameters": {
+                    "lorem": "ipsum",
+                    "dolor": 123,
+                    "second_list": [
+                        "a",
+                        "b"
+                    ]
+                }
+            },
+            "expected_output": "method=GET\nurl=https://foo/bar?first=sit&second=amet&first_list=a&first_list=b&lorem=ipsum&dolor=123&second_list=a&second_list=b\n"
+        }
+    ]
+}

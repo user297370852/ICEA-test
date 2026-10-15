@@ -1,0 +1,37 @@
+{
+  "description": "Parse a JSON wire document back into a portlet collection and report the reconstructed state as a deterministic dump giving the portlet count and, per portlet in document order, its identifier, class, parameter count, and each parameter as a sorted name/value line. These cases exercise boundary inputs: an empty collection, a record with no initialization parameters, a record whose wire parameters are supplied out of sorted order, and a collection of several records.",
+  "cases": [
+    {
+      "input": {
+        "op": "from_json",
+        "target": "portlet_list",
+        "payload": "{\"portlet\":[]}"
+      },
+      "expected_output": "portlets=0\n"
+    },
+    {
+      "input": {
+        "op": "from_json",
+        "target": "portlet_list",
+        "payload": "{\"portlet\":[{\"portlet-name\":\"noparams\",\"portlet-class\":\"com.dotcms.NoParams\",\"init-param\":[]}]}"
+      },
+      "expected_output": "portlets=1\n[0] id=noparams\n[0] class=com.dotcms.NoParams\n[0] init_count=0\n"
+    },
+    {
+      "input": {
+        "op": "from_json",
+        "target": "portlet_list",
+        "payload": "{\"portlet\":[{\"portlet-name\":\"sorting\",\"portlet-class\":\"com.dotcms.Sort\",\"init-param\":[{\"name\":\"zeta\",\"value\":\"z\"},{\"name\":\"alpha\",\"value\":\"a\"},{\"name\":\"mu\",\"value\":\"m\"}]}]}"
+      },
+      "expected_output": "portlets=1\n[0] id=sorting\n[0] class=com.dotcms.Sort\n[0] init_count=3\n[0] init.alpha=a\n[0] init.mu=m\n[0] init.zeta=z\n"
+    },
+    {
+      "input": {
+        "op": "from_json",
+        "target": "portlet_list",
+        "payload": "{\"portlet\":[{\"portlet-name\":\"one\",\"portlet-class\":\"com.dotcms.One\",\"init-param\":[{\"name\":\"a\",\"value\":\"1\"}]},{\"portlet-name\":\"two\",\"portlet-class\":\"com.dotcms.Two\",\"init-param\":[{\"name\":\"b\",\"value\":\"2\"},{\"name\":\"c\",\"value\":\"3\"}]}]}"
+      },
+      "expected_output": "portlets=2\n[0] id=one\n[0] class=com.dotcms.One\n[0] init_count=1\n[0] init.a=1\n[1] id=two\n[1] class=com.dotcms.Two\n[1] init_count=2\n[1] init.b=2\n[1] init.c=3\n"
+    }
+  ]
+}

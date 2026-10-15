@@ -1,0 +1,35 @@
+{
+    "description": "A compact token is the concatenation of three dot-separated segments: a base64-encoded JSON header, a base64-encoded JSON payload, and a signature segment. Decoding parses the header and payload back into structured claims, keeps the signature segment verbatim, and retains the original raw token string. The adapter reports the header algorithm, every decoded payload claim, the signature segment, and whether the raw token round-tripped.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "header": {
+                    "alg": "RS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|123",
+                    "aud": "sample-client",
+                    "exp": 9999999999,
+                    "iat": 1000000000
+                }
+            },
+            "expected_output": "alg=RS256\naud=sample-client\nexp=9999999999\niat=1000000000\niss=https://login.example.com/\nsub=user|123\nsignature=sig\nraw_matches=true\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "header": {
+                    "alg": "HS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|123",
+                    "name": "ÁÁutf8"
+                }
+            },
+            "expected_output": "alg=HS256\niss=https://login.example.com/\nname=ÁÁutf8\nsub=user|123\nsignature=sig\nraw_matches=true\n"
+        }
+    ]
+}

@@ -1,0 +1,65 @@
+{
+  "description": "Additional token count request formatting cases for mixed part arrays, explicit generation config, and cached content name variants.",
+  "cases": [
+    {
+      "input": {
+        "request": [
+          "one",
+          {
+            "text": "two"
+          }
+        ],
+        "modelDefaults": {
+          "model": "gemini-pro"
+        }
+      },
+      "expected_output": "request={\"generateContentRequest\":{\"contents\":[{\"parts\":[{\"text\":\"one\"},{\"text\":\"two\"}],\"role\":\"user\"}],\"model\":\"gemini-pro\"}}\n"
+    },
+    {
+      "input": {
+        "request": {
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "explicit"
+                }
+              ]
+            }
+          ],
+          "generationConfig": {
+            "temperature": 0.2
+          }
+        },
+        "modelDefaults": {
+          "model": "gemini-pro",
+          "cachedContent": {
+            "name": "cachedContents/abc123"
+          }
+        }
+      },
+      "expected_output": "request={\"generateContentRequest\":{\"cachedContent\":\"cachedContents/abc123\",\"contents\":[{\"parts\":[{\"text\":\"explicit\"}],\"role\":\"user\"}],\"generationConfig\":{\"temperature\":0.2},\"model\":\"gemini-pro\"}}\n"
+    },
+    {
+      "input": {
+        "request": "count me",
+        "modelDefaults": {
+          "model": "m",
+          "systemInstruction": {
+            "parts": [
+              {
+                "text": "sys"
+              }
+            ]
+          },
+          "tools": [],
+          "cachedContent": {
+            "name": "cachedContents/cache-id"
+          }
+        }
+      },
+      "expected_output": "request={\"generateContentRequest\":{\"cachedContent\":\"cachedContents/cache-id\",\"contents\":[{\"parts\":[{\"text\":\"count me\"}],\"role\":\"user\"}],\"model\":\"m\",\"systemInstruction\":{\"parts\":[{\"text\":\"sys\"}]},\"tools\":[]}}\n"
+    }
+  ]
+}

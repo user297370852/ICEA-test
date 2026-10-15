@@ -1,0 +1,75 @@
+{
+  "description": "Enhanced boundary/edge coverage for credential-string classification. Priority order is: arn:aws prefix -> SECRET_ARN; otherwise contains ':' -> SECRET_TEXT; otherwise -> SECRET_NAME. Covers other AWS partitions (aws-us-gov), the minimal exact prefix 'arn:aws', near-misses ('arn:aw', 'arnaws-no-colon') that fall through to colon/name rules, case sensitivity of the prefix (uppercase ARN:AWS is not the prefix but has a colon), leading whitespace before the prefix, a lone colon, multi-colon values, and a trailing-colon value.",
+  "cases": [
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "arn:aws-us-gov:secretsmanager:us-gov-west-1:0:secret:s"
+      },
+      "expected_output": "creds_type=SECRET_ARN\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "arn:aws"
+      },
+      "expected_output": "creds_type=SECRET_ARN\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "arn:aw:not-aws-prefix"
+      },
+      "expected_output": "creds_type=SECRET_TEXT\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "ARN:AWS:secret"
+      },
+      "expected_output": "creds_type=SECRET_TEXT\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": " arn:aws:leading-space"
+      },
+      "expected_output": "creds_type=SECRET_TEXT\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": ":"
+      },
+      "expected_output": "creds_type=SECRET_TEXT\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "user:pass:extra:more"
+      },
+      "expected_output": "creds_type=SECRET_TEXT\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "plainname"
+      },
+      "expected_output": "creds_type=SECRET_NAME\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "trailing-colon:"
+      },
+      "expected_output": "creds_type=SECRET_TEXT\n"
+    },
+    {
+      "input": {
+        "op": "creds_type",
+        "creds": "arnaws-no-colon"
+      },
+      "expected_output": "creds_type=SECRET_NAME\n"
+    }
+  ]
+}

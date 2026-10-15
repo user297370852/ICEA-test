@@ -1,0 +1,77 @@
+{
+  "description": "Authorize a personal credential attached to an account. Three preconditions must hold in order: personal credentials must be permitted, the upstream-reported identity id must equal the account's external id, and the carried scopes must include the required notifications scope. Acceptance or the first-failing normalized reason category is reported.",
+  "cases": [
+    {
+      "input": {
+        "action": "personal_token_authorization",
+        "tokens_enabled": true,
+        "personal_access_token": "abc",
+        "github_id": 50,
+        "access_token": "a",
+        "remote_user_id": 50,
+        "oauth_scopes": "notifications, repo"
+      },
+      "expected_output": "authorized=true\n"
+    },
+    {
+      "input": {
+        "action": "personal_token_authorization",
+        "tokens_enabled": true,
+        "personal_access_token": "abc",
+        "github_id": 50,
+        "access_token": "a",
+        "remote_user_id": 50,
+        "oauth_scopes": "repo, notifications, user"
+      },
+      "expected_output": "authorized=true\n"
+    },
+    {
+      "input": {
+        "action": "personal_token_authorization",
+        "tokens_enabled": false,
+        "personal_access_token": "abc",
+        "github_id": 1,
+        "access_token": "a",
+        "remote_user_id": 99,
+        "oauth_scopes": "user"
+      },
+      "expected_output": "authorized=false\nreason=disallowed_tokens\n"
+    },
+    {
+      "input": {
+        "action": "personal_token_authorization",
+        "tokens_enabled": true,
+        "personal_access_token": "abc",
+        "github_id": 1,
+        "access_token": "a",
+        "remote_user_id": 2,
+        "oauth_scopes": "user"
+      },
+      "expected_output": "authorized=false\nreason=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "personal_token_authorization",
+        "tokens_enabled": true,
+        "personal_access_token": "abc",
+        "github_id": 5,
+        "access_token": "a",
+        "remote_user_id": 5,
+        "oauth_scopes": ""
+      },
+      "expected_output": "authorized=false\nreason=missing_scope\n"
+    },
+    {
+      "input": {
+        "action": "personal_token_authorization",
+        "tokens_enabled": true,
+        "personal_access_token": "abc",
+        "github_id": 5,
+        "access_token": "a",
+        "remote_user_id": 5,
+        "oauth_scopes": "notification"
+      },
+      "expected_output": "authorized=false\nreason=missing_scope\n"
+    }
+  ]
+}

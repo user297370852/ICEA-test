@@ -1,0 +1,266 @@
+{
+    "description": "Process a pod admission request and emit the ordered set of image-reference rewrite operations needed to point every container and init-container at the target registry. Each rewrite preserves the original image coordinates (including digest pinning) under a registry-prefixed path. The output reports the target registry, the rewrite operations, and whether any warnings were produced.",
+    "cases": [
+        {
+            "input": {
+                "op": "swap_images",
+                "admission_review": {
+                    "apiVersion": "admission.k8s.io/v1",
+                    "kind": "AdmissionReview",
+                    "request": {
+                        "dryRun": false,
+                        "kind": {
+                            "group": "",
+                            "kind": "Pod",
+                            "version": "v1"
+                        },
+                        "name": "nginx28",
+                        "object": {
+                            "apiVersion": "v1",
+                            "kind": "Pod",
+                            "metadata": {
+                                "creationTimestamp": null,
+                                "labels": {
+                                    "run": "nginx28"
+                                },
+                                "name": "nginx28",
+                                "namespace": "default"
+                            },
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "image": "nginx",
+                                        "imagePullPolicy": "Always",
+                                        "name": "nginx28",
+                                        "resources": {},
+                                        "terminationMessagePath": "/dev/termination-log",
+                                        "terminationMessagePolicy": "File",
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                                "name": "default-token-fjtvr",
+                                                "readOnly": true
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "image": "k8s.gcr.io/ingress-nginx/controller:v0.43.0@sha256:9bba603b99bf25f6d117cf1235b6598c16033ad027b143c90fa5b3cc583c5713",
+                                        "imagePullPolicy": "Always",
+                                        "name": "ingress-nginx28",
+                                        "resources": {},
+                                        "terminationMessagePath": "/dev/termination-log",
+                                        "terminationMessagePolicy": "File",
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                                "name": "default-token-fjtvr",
+                                                "readOnly": true
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "dnsPolicy": "ClusterFirst",
+                                "enableServiceLinks": true,
+                                "initContainers": [
+                                    {
+                                        "image": "init-container",
+                                        "imagePullPolicy": "Always",
+                                        "name": "init-container28",
+                                        "resources": {},
+                                        "terminationMessagePath": "/dev/termination-log",
+                                        "terminationMessagePolicy": "File",
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                                "name": "default-token-fxbar",
+                                                "readOnly": true
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "priority": 0,
+                                "restartPolicy": "Never",
+                                "schedulerName": "default-scheduler",
+                                "securityContext": {},
+                                "serviceAccount": "default",
+                                "serviceAccountName": "default",
+                                "terminationGracePeriodSeconds": 30,
+                                "tolerations": [
+                                    {
+                                        "effect": "NoExecute",
+                                        "key": "node.kubernetes.io/not-ready",
+                                        "operator": "Exists",
+                                        "tolerationSeconds": 300
+                                    },
+                                    {
+                                        "effect": "NoExecute",
+                                        "key": "node.kubernetes.io/unreachable",
+                                        "operator": "Exists",
+                                        "tolerationSeconds": 300
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "default-token-fjtvr",
+                                        "secret": {
+                                            "secretName": "default-token-fjtvr"
+                                        }
+                                    }
+                                ]
+                            },
+                            "status": {}
+                        },
+                        "oldObject": null,
+                        "operation": "CREATE",
+                        "options": {
+                            "apiVersion": "meta.k8s.io/v1",
+                            "fieldManager": "kubectl-run",
+                            "kind": "CreateOptions"
+                        },
+                        "requestKind": {
+                            "group": "",
+                            "kind": "Pod",
+                            "version": "v1"
+                        },
+                        "requestResource": {
+                            "group": "",
+                            "resource": "pods",
+                            "version": "v1"
+                        },
+                        "resource": {
+                            "group": "",
+                            "resource": "pods",
+                            "version": "v1"
+                        },
+                        "uid": "c78e0c58-7389-4838-b4f5-28d6005c1cc3",
+                        "userInfo": {
+                            "groups": [
+                                "system:masters",
+                                "system:authenticated"
+                            ],
+                            "username": "kubernetes-admin"
+                        }
+                    }
+                }
+            },
+            "expected_output": "target_registry=123456789.dkr.ecr.ap-southeast-2.amazonaws.com\npatch_ops=3\nreplace /spec/containers/0/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/docker.io/library/nginx:latest\nreplace /spec/containers/1/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/k8s.gcr.io/ingress-nginx/controller@sha256:9bba603b99bf25f6d117cf1235b6598c16033ad027b143c90fa5b3cc583c5713\nreplace /spec/initContainers/0/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/docker.io/library/init-container:latest\nwarnings=none\n"
+        },
+        {
+            "input": {
+                "op": "swap_images",
+                "admission_review": {
+                    "apiVersion": "admission.k8s.io/v1",
+                    "kind": "AdmissionReview",
+                    "request": {
+                        "dryRun": false,
+                        "kind": {
+                            "group": "",
+                            "kind": "Pod",
+                            "version": "v1"
+                        },
+                        "name": "nginx28",
+                        "object": {
+                            "apiVersion": "v1",
+                            "kind": "Pod",
+                            "metadata": {
+                                "creationTimestamp": null,
+                                "labels": {
+                                    "run": "nginx28"
+                                },
+                                "name": "nginx28",
+                                "namespace": "test-ns"
+                            },
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "image": "nginx",
+                                        "imagePullPolicy": "Always",
+                                        "name": "nginx28",
+                                        "resources": {},
+                                        "terminationMessagePath": "/dev/termination-log",
+                                        "terminationMessagePolicy": "File",
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                                                "name": "default-token-fjtvr",
+                                                "readOnly": true
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "dnsPolicy": "ClusterFirst",
+                                "enableServiceLinks": true,
+                                "imagePullSecrets": [
+                                    {
+                                        "name": "my-pod-secret"
+                                    }
+                                ],
+                                "priority": 0,
+                                "restartPolicy": "Never",
+                                "schedulerName": "default-scheduler",
+                                "securityContext": {},
+                                "serviceAccount": "my-service-account",
+                                "serviceAccountName": "my-service-account",
+                                "terminationGracePeriodSeconds": 30,
+                                "tolerations": [
+                                    {
+                                        "effect": "NoExecute",
+                                        "key": "node.kubernetes.io/not-ready",
+                                        "operator": "Exists",
+                                        "tolerationSeconds": 300
+                                    },
+                                    {
+                                        "effect": "NoExecute",
+                                        "key": "node.kubernetes.io/unreachable",
+                                        "operator": "Exists",
+                                        "tolerationSeconds": 300
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "default-token-fjtvr",
+                                        "secret": {
+                                            "secretName": "default-token-fjtvr"
+                                        }
+                                    }
+                                ]
+                            },
+                            "status": {}
+                        },
+                        "oldObject": null,
+                        "operation": "CREATE",
+                        "options": {
+                            "apiVersion": "meta.k8s.io/v1",
+                            "fieldManager": "kubectl-run",
+                            "kind": "CreateOptions"
+                        },
+                        "requestKind": {
+                            "group": "",
+                            "kind": "Pod",
+                            "version": "v1"
+                        },
+                        "requestResource": {
+                            "group": "",
+                            "resource": "pods",
+                            "version": "v1"
+                        },
+                        "resource": {
+                            "group": "",
+                            "resource": "pods",
+                            "version": "v1"
+                        },
+                        "uid": "c78e0c58-7389-4838-b4f5-28d6005c1cc3",
+                        "userInfo": {
+                            "groups": [
+                                "system:masters",
+                                "system:authenticated"
+                            ],
+                            "username": "kubernetes-admin"
+                        }
+                    }
+                }
+            },
+            "expected_output": "target_registry=123456789.dkr.ecr.ap-southeast-2.amazonaws.com\npatch_ops=1\nreplace /spec/containers/0/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/docker.io/library/nginx:latest\nwarnings=none\n"
+        }
+    ]
+}

@@ -1,0 +1,48 @@
+{
+    "description": "Invalid or expired tokens are rejected and expired token cleanup is observable.",
+    "cases": [
+        {
+            "description": "A request with an already expired token is rejected by the protected HTTP endpoint.",
+            "input": {
+                "operation": "invalid_token",
+                "token_kind": "expired"
+            },
+            "expected_output": "route=/api/\nrequest.status=401\nrequest.url=/api/\nrequest.detail=Invalid token.\n"
+        },
+        {
+            "description": "A request with a token shorter than the lookup key length is rejected by the protected HTTP endpoint.",
+            "input": {
+                "operation": "invalid_token",
+                "token_kind": "too_short"
+            },
+            "expected_output": "route=/api/\nrequest.status=401\nrequest.url=/api/\nrequest.detail=Invalid token.\n"
+        },
+        {
+            "description": "A request with a modified token value that cannot match the stored digest is rejected by the protected HTTP endpoint.",
+            "input": {
+                "operation": "invalid_token",
+                "token_kind": "odd_length_existing_plus_one"
+            },
+            "expected_output": "route=/api/\nrequest.status=401\nrequest.url=/api/\nrequest.detail=Invalid token.\n"
+        },
+        {
+            "description": "When authentication encounters expired sessions for an account, those expired sessions are removed from persistent storage.",
+            "input": {
+                "operation": "expired_cleanup",
+                "route": "logout",
+                "expired_count": 10
+            },
+            "expected_output": "route=/api/logout/\nrequest.status=401\nrequest.url=/api/logout/\nrequest.detail=Invalid token.\ntokens_before=10\ntokens_after=0\n"
+        },
+        {
+            "description": "When an expired token is encountered during authentication, the expiration notification includes the affected account identifier.",
+            "input": {
+                "operation": "expired_cleanup",
+                "route": "api",
+                "expired_count": 1,
+                "observe_signal": true
+            },
+            "expected_output": "route=/api/\nrequest.status=401\nrequest.url=/api/\nrequest.detail=Invalid token.\ntokens_before=1\ntokens_after=0\nexpired_signal_called=true\nexpired_signal_username=john.doe\nexpired_signal_source=auth_token\n"
+        }
+    ]
+}

@@ -1,0 +1,56 @@
+{
+  "description": "Token verification basics: omitted token key, falsy '0' token, and propagation of service failures / invalid JSON.",
+  "cases": [
+    {
+      "input": {
+        "operation": "verify_token",
+        "secret": "secret"
+      },
+      "expected_output": "success=false\nerror_codes=[\"missing-input-response\"]\nhostname=null\nchallenge_ts=null\napk_package_name=null\nscore=null\naction=null\n"
+    },
+    {
+      "input": {
+        "operation": "verify_token",
+        "secret": "secret",
+        "user_response_token": "0"
+      },
+      "expected_output": "success=false\nerror_codes=[\"missing-input-response\"]\nhostname=null\nchallenge_ts=null\napk_package_name=null\nscore=null\naction=null\n"
+    },
+    {
+      "input": {
+        "operation": "verify_token",
+        "secret": "secret",
+        "user_response_token": "response",
+        "service_response": {
+          "success": false,
+          "error-codes": [
+            "invalid-input-response"
+          ]
+        }
+      },
+      "expected_output": "success=false\nerror_codes=[\"invalid-input-response\"]\nhostname=null\nchallenge_ts=null\napk_package_name=null\nscore=null\naction=null\n"
+    },
+    {
+      "input": {
+        "operation": "verify_token",
+        "secret": "secret",
+        "user_response_token": "response",
+        "service_json": "NOT JSON"
+      },
+      "expected_output": "success=false\nerror_codes=[\"invalid-json\"]\nhostname=null\nchallenge_ts=null\napk_package_name=null\nscore=null\naction=null\n"
+    },
+    {
+      "input": {
+        "operation": "verify_token",
+        "secret": "secret",
+        "user_response_token": "response",
+        "service_response": {
+          "success": true,
+          "hostname": "a.b",
+          "score": "0.7"
+        }
+      },
+      "expected_output": "success=true\nerror_codes=[]\nhostname=a.b\nchallenge_ts=null\napk_package_name=null\nscore=0.7\naction=null\n"
+    }
+  ]
+}

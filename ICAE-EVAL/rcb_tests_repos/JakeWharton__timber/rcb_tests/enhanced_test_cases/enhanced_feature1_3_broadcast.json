@@ -1,0 +1,84 @@
+{
+  "description": "Boundary coverage for broadcast fan-out: broadcasting to an empty registry, broadcasting to several destinations, removing more than one destination before rebroadcasting, and clearing then re-installing before broadcasting again. The output reports, per broadcast, how many destinations received it.",
+  "cases": [
+    {
+      "input": {
+        "action": "registry",
+        "steps": [
+          {
+            "op": "broadcast",
+            "message": "early"
+          },
+          {
+            "op": "plant",
+            "count": 3
+          },
+          {
+            "op": "broadcast",
+            "message": "after"
+          }
+        ]
+      },
+      "expected_output": "received=0\nreceived=3\n"
+    },
+    {
+      "input": {
+        "action": "registry",
+        "steps": [
+          {
+            "op": "plant",
+            "count": 3
+          },
+          {
+            "op": "broadcast",
+            "message": "a"
+          },
+          {
+            "op": "uproot",
+            "index": 0
+          },
+          {
+            "op": "uproot",
+            "index": 2
+          },
+          {
+            "op": "broadcast",
+            "message": "b"
+          }
+        ]
+      },
+      "expected_output": "received=3\nreceived=1\n"
+    },
+    {
+      "input": {
+        "action": "registry",
+        "steps": [
+          {
+            "op": "plant",
+            "count": 2
+          },
+          {
+            "op": "broadcast",
+            "message": "x"
+          },
+          {
+            "op": "uproot_all"
+          },
+          {
+            "op": "broadcast",
+            "message": "y"
+          },
+          {
+            "op": "plant",
+            "count": 4
+          },
+          {
+            "op": "broadcast",
+            "message": "z"
+          }
+        ]
+      },
+      "expected_output": "received=2\nreceived=0\nreceived=4\n"
+    }
+  ]
+}

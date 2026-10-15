@@ -1,0 +1,33 @@
+{
+  "description": "Enhanced TLS and fallback coverage for verify-full mode, SNI suppression on encrypted fallback, and multi-endpoint environment fallbacks.",
+  "cases": [
+    {
+      "input": {
+        "operation": "parse_connection_settings",
+        "connection_string": "postgres://jack:secret@verify.example.com:5432/mydb?sslmode=verify-full"
+      },
+      "expected_output": "status=ok\nhost=verify.example.com\nport=5432\ndatabase=mydb\nuser=jack\npassword=secret\nconnect_timeout_seconds=0\ntls=enabled\ntls_insecure_skip_verify=false\ntls_server_name=verify.example.com\nruntime_params={}\nvalidate_connect=false\nfallback_count=0\n"
+    },
+    {
+      "input": {
+        "operation": "parse_connection_settings",
+        "connection_string": "postgres://jack:secret@sni.test:5432/mydb?sslmode=allow&sslsni=0"
+      },
+      "expected_output": "status=ok\nhost=sni.test\nport=5432\ndatabase=mydb\nuser=jack\npassword=secret\nconnect_timeout_seconds=0\ntls=disabled\nruntime_params={}\nvalidate_connect=false\nfallback.0.host=sni.test\nfallback.0.port=5432\nfallback.0.tls=enabled\nfallback.0.tls_insecure_skip_verify=true\nfallback.0.tls_server_name=\nfallback_count=1\n"
+    },
+    {
+      "input": {
+        "operation": "parse_environment_settings",
+        "environment": {
+          "PGHOST": "env1,env2",
+          "PGPORT": "1111,2222",
+          "PGDATABASE": "envdb",
+          "PGUSER": "envuser",
+          "PGPASSWORD": "envpass",
+          "PGSSLMODE": "allow"
+        }
+      },
+      "expected_output": "status=ok\nhost=env1\nport=1111\ndatabase=envdb\nuser=envuser\npassword=envpass\nconnect_timeout_seconds=0\ntls=disabled\nruntime_params={}\nvalidate_connect=false\nfallback.0.host=env1\nfallback.0.port=1111\nfallback.0.tls=enabled\nfallback.0.tls_insecure_skip_verify=true\nfallback.0.tls_server_name=env1\nfallback.1.host=env2\nfallback.1.port=2222\nfallback.1.tls=disabled\nfallback.2.host=env2\nfallback.2.port=2222\nfallback.2.tls=enabled\nfallback.2.tls_insecure_skip_verify=true\nfallback.2.tls_server_name=env2\nfallback_count=3\n"
+    }
+  ]
+}

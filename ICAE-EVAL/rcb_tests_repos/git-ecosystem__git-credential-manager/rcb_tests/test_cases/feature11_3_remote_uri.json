@@ -1,0 +1,13 @@
+{
+    "description": "Reconstruct the remote repository URL from credential-query arguments. The URL requires both protocol and host; if either is missing no URL is produced. The host may carry a port as 'host:port'. The path, when present, is appended. By default the username is omitted; when user inclusion is requested the username is URL-encoded and embedded in the authority, but the password is never included.",
+    "cases": [
+        {"input": {"op": "remote_uri", "arguments": {}}, "expected_output": "uri=<none>\n"},
+        {"input": {"op": "remote_uri", "arguments": {"protocol": "https", "host": "example.com"}}, "expected_output": "uri=https://example.com/\n"},
+        {"input": {"op": "remote_uri", "arguments": {"protocol": "https", "host": "example.com:456"}}, "expected_output": "uri=https://example.com:456/\n"},
+        {"input": {"op": "remote_uri", "arguments": {"protocol": "https", "host": "example.com", "path": "an/example/path"}}, "expected_output": "uri=https://example.com/an/example/path\n"},
+        {"input": {"op": "remote_uri", "arguments": {"protocol": "https", "host": "example.com", "path": "an/example/path", "username": "john.doe", "password": "password123"}}, "expected_output": "uri=https://example.com/an/example/path\n"},
+        {"input": {"op": "remote_uri", "include_user": true, "arguments": {"protocol": "https", "host": "example.com", "username": "john.doe", "password": "password123"}}, "expected_output": "uri=https://john.doe@example.com/\n"},
+        {"input": {"op": "remote_uri", "include_user": true, "arguments": {"protocol": "https", "host": "example.com", "username": "john.doe@domain.com", "password": "password123"}}, "expected_output": "uri=https://john.doe%40domain.com@example.com/\n"},
+        {"input": {"op": "remote_uri", "include_user": true, "arguments": {"protocol": "https", "host": "example.com", "path": "an/example/path", "username": "john.doe", "password": "password123"}}, "expected_output": "uri=https://john.doe@example.com/an/example/path\n"}
+    ]
+}

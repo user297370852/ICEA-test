@@ -1,0 +1,75 @@
+{
+  "description": "Enhanced weight-validation boundary cases: empty rule map, exactly-100 boundary, just-over-100 boundary, multiple services with multiple rules sorted by name, and a single over-budget rule short-circuiting validity.",
+  "cases": [
+    {
+      "input": {
+        "rules": {}
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "rules": {
+          "s": [
+            {
+              "route": [
+                {
+                  "weight": 100
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "valid=true\nservice=s rule_index=0 total_weight=100\n"
+    },
+    {
+      "input": {
+        "rules": {
+          "s": [
+            {
+              "route": [
+                {
+                  "weight": 101
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "valid=false\nservice=s rule_index=0 total_weight=101\n"
+    },
+    {
+      "input": {
+        "rules": {
+          "b": [
+            {
+              "route": [
+                {
+                  "weight": 100
+                }
+              ]
+            }
+          ],
+          "a": [
+            {
+              "route": [
+                {
+                  "weight": 30
+                }
+              ]
+            },
+            {
+              "route": [
+                {
+                  "weight": 70
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "valid=true\nservice=a rule_index=0 total_weight=30\nservice=a rule_index=1 total_weight=70\nservice=b rule_index=0 total_weight=100\n"
+    }
+  ]
+}

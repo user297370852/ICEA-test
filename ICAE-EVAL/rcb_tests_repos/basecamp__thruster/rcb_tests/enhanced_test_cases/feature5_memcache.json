@@ -1,0 +1,185 @@
+{
+  "description": "In-memory store edge cases: payload exactly at the per-item size limit vs one byte over, value exactly 256 bytes (the inline-print boundary) vs 257 bytes, overwrite shrinking then growing a value, get on a never-set key, and a value rejected because it exceeds total capacity.",
+  "cases": [
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 100000,
+        "maxItemSize": 64,
+        "operations": [
+          {
+            "op": "set",
+            "key": 1,
+            "valueSize": 64,
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 1
+          }
+        ]
+      },
+      "expected_output": "set key=1 value_len=64\nget key=1 found=true value=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"
+    },
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 100000,
+        "maxItemSize": 64,
+        "operations": [
+          {
+            "op": "set",
+            "key": 1,
+            "valueSize": 65,
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 1
+          }
+        ]
+      },
+      "expected_output": "set key=1 value_len=65\nget key=1 found=false value_len=0\n"
+    },
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 100000,
+        "maxItemSize": 100000,
+        "operations": [
+          {
+            "op": "set",
+            "key": 2,
+            "valueSize": 256,
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 2
+          }
+        ]
+      },
+      "expected_output": "set key=2 value_len=256\nget key=2 found=true value=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"
+    },
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 100000,
+        "maxItemSize": 100000,
+        "operations": [
+          {
+            "op": "set",
+            "key": 2,
+            "valueSize": 257,
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 2
+          }
+        ]
+      },
+      "expected_output": "set key=2 value_len=257\nget key=2 found=true value_len=257\n"
+    },
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 100000,
+        "maxItemSize": 100000,
+        "operations": [
+          {
+            "op": "set",
+            "key": 3,
+            "value": "longer-initial-value",
+            "ttlSeconds": 60
+          },
+          {
+            "op": "set",
+            "key": 3,
+            "value": "tiny",
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 3
+          },
+          {
+            "op": "set",
+            "key": 3,
+            "value": "grown-back-bigger-value",
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 3
+          }
+        ]
+      },
+      "expected_output": "set key=3 value_len=20\nset key=3 value_len=4\nget key=3 found=true value=tiny\nset key=3 value_len=23\nget key=3 found=true value=grown-back-bigger-value\n"
+    },
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 100000,
+        "maxItemSize": 100000,
+        "operations": [
+          {
+            "op": "get",
+            "key": 777
+          }
+        ]
+      },
+      "expected_output": "get key=777 found=false value_len=0\n"
+    },
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 50,
+        "maxItemSize": 100000,
+        "operations": [
+          {
+            "op": "set",
+            "key": 4,
+            "valueSize": 51,
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 4
+          }
+        ]
+      },
+      "expected_output": "set key=4 value_len=51\nget key=4 found=false value_len=0\n"
+    },
+    {
+      "input": {
+        "action": "memcache",
+        "capacity": 100000,
+        "maxItemSize": 100000,
+        "operations": [
+          {
+            "op": "set",
+            "key": 10,
+            "value": "alpha",
+            "ttlSeconds": 60
+          },
+          {
+            "op": "set",
+            "key": 20,
+            "value": "beta",
+            "ttlSeconds": 60
+          },
+          {
+            "op": "get",
+            "key": 10
+          },
+          {
+            "op": "get",
+            "key": 20
+          }
+        ]
+      },
+      "expected_output": "set key=10 value_len=5\nset key=20 value_len=4\nget key=10 found=true value=alpha\nget key=20 found=true value=beta\n"
+    }
+  ]
+}

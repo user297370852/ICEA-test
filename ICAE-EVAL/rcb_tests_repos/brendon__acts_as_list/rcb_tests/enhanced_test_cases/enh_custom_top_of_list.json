@@ -1,0 +1,108 @@
+{
+  "description": "A non-zero, non-one starting index (top_of_list = 5). The first appended record reports position 5 and the rest follow 6,7,...; relocation uses the same scale.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id",
+          "top_of_list": 5
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5
+            }
+          }
+        ],
+        "queries": [
+          {
+            "q": "item_status",
+            "ref": "a"
+          },
+          {
+            "q": "item_status",
+            "ref": "c"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "position=5 first=true last=false in_list=true\nposition=7 first=false last=true in_list=true\npositions=[5, 6, 7]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id",
+          "top_of_list": 5
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "move_to_bottom",
+            "ref": "a"
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[2, 3, 1]\npositions=[5, 6, 7]"
+    }
+  ]
+}

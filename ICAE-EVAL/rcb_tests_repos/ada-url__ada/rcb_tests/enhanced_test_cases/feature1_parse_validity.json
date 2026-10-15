@@ -1,0 +1,90 @@
+{
+  "description": "Boundary and grammar edge cases for parse acceptance/rejection: IPv4/IPv6 limits, unclosed brackets, port range limits, missing host, leading/trailing whitespace trimming, tab/newline stripping, and relative references with and without a usable base.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://255.255.255.255"
+      },
+      "expected_output": "url=valid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://256.256.256.256"
+      },
+      "expected_output": "url=invalid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://[::1]"
+      },
+      "expected_output": "url=valid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://[::1"
+      },
+      "expected_output": "url=invalid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:65535"
+      },
+      "expected_output": "url=valid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:65536"
+      },
+      "expected_output": "url=invalid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://"
+      },
+      "expected_output": "url=invalid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "   https://trim.example.com   "
+      },
+      "expected_output": "url=valid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "ht\ttp://newline.example.com"
+      },
+      "expected_output": "url=valid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "foo/bar"
+      },
+      "expected_output": "url=invalid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "../x",
+        "base": "https://host.example/a/b/c"
+      },
+      "expected_output": "url=valid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:0"
+      },
+      "expected_output": "url=valid\n"
+    }
+  ]
+}

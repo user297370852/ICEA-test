@@ -1,0 +1,40 @@
+{
+  "description": "Enhanced per-service request-size edge cases: a request body exactly equal to the configured maximum is accepted and forwarded to the backend, while a body one byte over the maximum is rejected with a payload-too-large response and never reaches the backend. Each registration reports success and each probe reports the response status with the body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "app-ok"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "a",
+            "buffer_requests": true,
+            "max_request_body_size": 8
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "POST",
+            "body": "12345678"
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "POST",
+            "body": "123456789"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nstatus=200 target=app-ok\nstatus=413 target=Request too large\n"
+    }
+  ]
+}

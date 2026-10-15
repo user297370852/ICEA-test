@@ -1,0 +1,110 @@
+{
+    "description": "Refresh namespace membership from listed namespace objects, adding matching names, preserving prior matches across incremental refreshes, removing deletion-marked names, and ignoring names outside configured patterns.",
+    "cases": [
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "bodies",
+                        "items": [
+                            {
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=ns1\n"
+        },
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "bodies",
+                        "items": [
+                            {
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "source": "bodies",
+                        "items": [
+                            {
+                                "metadata": {
+                                    "name": "ns2"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=ns1,ns2\n"
+        },
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "bodies",
+                        "items": [
+                            {
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "source": "bodies",
+                        "items": [
+                            {
+                                "metadata": {
+                                    "name": "ns1",
+                                    "deletionTimestamp": "..."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=\n"
+        },
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "bodies",
+                        "items": [
+                            {
+                                "metadata": {
+                                    "name": "def1"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=\n"
+        }
+    ]
+}

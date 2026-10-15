@@ -1,0 +1,79 @@
+{
+  "description": "Boundary coverage for object metadata sanitization. Exercises an annotations map containing only the two tool-injected annotations so every preserved annotation is removed, an object carrying several server-managed scalar fields but no annotations, an annotations map mixing preserved entries with the two dropped ones, an object whose metadata is entirely empty, and an object whose metadata holds only cleared fields. Output is the resulting object as compact, key-sorted JSON.",
+  "cases": [
+    {
+      "input": {
+        "action": "sanitize",
+        "api_version": "v1",
+        "kind": "ConfigMap",
+        "metadata": {
+          "name": "cm-a",
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "blob",
+            "deployment.kubernetes.io/revision": "3"
+          }
+        }
+      },
+      "expected_output": "{\"apiVersion\":\"v1\",\"kind\":\"ConfigMap\",\"metadata\":{\"annotations\":{},\"name\":\"cm-a\"}}\n"
+    },
+    {
+      "input": {
+        "action": "sanitize",
+        "api_version": "apps/v1",
+        "kind": "Deployment",
+        "metadata": {
+          "name": "dep-b",
+          "namespace": "prod",
+          "resourceVersion": "9981",
+          "uid": "u-123",
+          "generation": 5,
+          "deletionGracePeriodSeconds": 30
+        }
+      },
+      "expected_output": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"name\":\"dep-b\",\"namespace\":\"prod\"}}\n"
+    },
+    {
+      "input": {
+        "action": "sanitize",
+        "api_version": "v1",
+        "kind": "Service",
+        "metadata": {
+          "name": "svc-c",
+          "annotations": {
+            "team": "sre",
+            "owner": "me",
+            "kubectl.kubernetes.io/last-applied-configuration": "x",
+            "deployment.kubernetes.io/revision": "7"
+          }
+        }
+      },
+      "expected_output": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"owner\":\"me\",\"team\":\"sre\"},\"name\":\"svc-c\"}}\n"
+    },
+    {
+      "input": {
+        "action": "sanitize",
+        "api_version": "v1",
+        "kind": "Namespace",
+        "metadata": {}
+      },
+      "expected_output": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{}}\n"
+    },
+    {
+      "input": {
+        "action": "sanitize",
+        "api_version": "batch/v1",
+        "kind": "Job",
+        "metadata": {
+          "creationTimestamp": "2021-06-01T12:00:00Z",
+          "generation": 3,
+          "resourceVersion": "55",
+          "uid": "abc-xyz",
+          "managedFields": [
+            {}
+          ]
+        }
+      },
+      "expected_output": "{\"apiVersion\":\"batch/v1\",\"kind\":\"Job\",\"metadata\":{}}\n"
+    }
+  ]
+}

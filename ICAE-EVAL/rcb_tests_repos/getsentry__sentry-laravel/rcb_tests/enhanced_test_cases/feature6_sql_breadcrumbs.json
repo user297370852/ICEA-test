@@ -1,0 +1,43 @@
+{
+  "description": "SQL breadcrumb edge cases: multiple bindings with zero duration, an empty bindings array still rendered when binding recording is on, and query recording disabled suppressing output even with bindings on.",
+  "cases": [
+    {
+      "input": {
+        "feature": "sql_breadcrumbs",
+        "record_queries": true,
+        "record_bindings": true,
+        "query": "INSERT INTO t (a,b) VALUES (?,?)",
+        "bindings": [
+          "x",
+          "y"
+        ],
+        "duration_ms": 0
+      },
+      "expected_output": "breadcrumb_count=1\nbreadcrumb_exists=true\nbreadcrumb_category=db.sql.query\nbreadcrumb_level=info\nbreadcrumb_message=INSERT INTO t (a,b) VALUES (?,?)\nbreadcrumb_metadata={\"connectionName\":\"test\",\"executionTimeMs\":0,\"bindings\":[\"x\",\"y\"]}\n"
+    },
+    {
+      "input": {
+        "feature": "sql_breadcrumbs",
+        "record_queries": true,
+        "record_bindings": true,
+        "query": "SELECT 1",
+        "bindings": [],
+        "duration_ms": 5
+      },
+      "expected_output": "breadcrumb_count=1\nbreadcrumb_exists=true\nbreadcrumb_category=db.sql.query\nbreadcrumb_level=info\nbreadcrumb_message=SELECT 1\nbreadcrumb_metadata={\"connectionName\":\"test\",\"executionTimeMs\":5,\"bindings\":[]}\n"
+    },
+    {
+      "input": {
+        "feature": "sql_breadcrumbs",
+        "record_queries": false,
+        "record_bindings": true,
+        "query": "SELECT 1",
+        "bindings": [
+          "1"
+        ],
+        "duration_ms": 5
+      },
+      "expected_output": "breadcrumb_count=0\nbreadcrumb_exists=false\n"
+    }
+  ]
+}

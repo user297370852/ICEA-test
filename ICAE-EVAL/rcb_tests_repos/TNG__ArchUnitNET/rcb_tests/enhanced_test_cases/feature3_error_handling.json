@@ -1,0 +1,105 @@
+{
+  "description": "Error-category coverage for the request adapter using only the constraint families and scope kinds already exposed by the engine. These cases exercise the neutral error paths the contract models: an unresolved class name in the scope or in the targets yields an unknown-type signal that also echoes the offending name; pairing a supported scope kind with a constraint family that scope does not support yields an unknown-constraint signal; and an empty scope member list yields an invalid-request signal. The adapter emits a single neutral error line (plus the echoed type name where applicable) instead of an evaluation report.",
+  "cases": [
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Ghost.Type"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "error=unknown_type\ntype=SampleApp.Ghost.Type\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Nonexistent.Klass"
+          ]
+        }
+      },
+      "expected_output": "error=unknown_type\ntype=SampleApp.Nonexistent.Klass\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Missing.Service"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "error=unknown_type\ntype=SampleApp.Missing.Service\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "error=unknown_constraint\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Services.ReportService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "error=unknown_constraint\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": []
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "error=invalid_request\n"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+    "description": "GET data loading returns response bodies, stores successful fresh responses in cache, serves cached responses when available while refreshing, and skips cache when disabled or unsuccessful.",
+    "cases": [
+        {
+            "input": {
+                "action": "connector_get_request_data",
+                "uri": "https://api.example.test/items/1",
+                "statusCode": 200,
+                "body": {
+                    "id": 1,
+                    "name": "fresh"
+                },
+                "redis": {}
+            },
+            "expected_output": "{\n  \"redisOps\": [\n    {\n      \"op\": \"get\"\n    },\n    {\n      \"op\": \"setex\",\n      \"ttl\": 300,\n      \"value\": {\n        \"id\": 1,\n        \"name\": \"fresh\"\n      }\n    }\n  ],\n  \"result\": {\n    \"id\": 1,\n    \"name\": \"fresh\"\n  }\n}\n"
+        },
+        {
+            "input": {
+                "action": "connector_get_request_data",
+                "uri": "https://api.example.test/items/2",
+                "statusCode": 200,
+                "body": {
+                    "id": 2,
+                    "name": "fresh"
+                },
+                "redis": {
+                    "cachedJson": "{\"id\":2,\"name\":\"cached\"}"
+                }
+            },
+            "expected_output": "{\n  \"redisOps\": [\n    {\n      \"op\": \"get\"\n    },\n    {\n      \"op\": \"setex\",\n      \"ttl\": 300,\n      \"value\": {\n        \"id\": 2,\n        \"name\": \"fresh\"\n      }\n    }\n  ],\n  \"result\": {\n    \"id\": 2,\n    \"name\": \"cached\"\n  }\n}\n"
+        },
+        {
+            "input": {
+                "action": "connector_get_request_data",
+                "uri": "https://api.example.test/items/3",
+                "statusCode": 200,
+                "body": {
+                    "id": 3
+                },
+                "enableCache": false,
+                "redis": {}
+            },
+            "expected_output": "{\n  \"redisOps\": [],\n  \"result\": {\n    \"id\": 3\n  }\n}\n"
+        },
+        {
+            "input": {
+                "action": "connector_get_request_data",
+                "uri": "https://api.example.test/missing",
+                "statusCode": 404,
+                "body": {},
+                "redis": {}
+            },
+            "expected_output": "{\n  \"redisOps\": [\n    {\n      \"op\": \"get\"\n    }\n  ],\n  \"result\": {}\n}\n"
+        }
+    ]
+}

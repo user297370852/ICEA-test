@@ -1,0 +1,15 @@
+{
+    "description": "An application-scoped managed-bean resource exposes a shared integer counter via a sub-path that can be read (GET, returns the current value then post-increments) and set (PUT, body is the new integer value, response carries no content). The counter persists across requests for the lifetime of the application. Input is a sequence of requests: set to 10, read (10), read (11), set to 32, read (32). Output concatenates each request's status, routed URL, and body separated by a blank line; a successful set returns status 204 with an empty body.",
+    "cases": [
+        {
+            "input": {"requests": [
+                {"app": "main", "path": "jcdibean/dependent/singleton/alpha/counter", "query": {"x": "beta"}, "method": "PUT", "body": "10"},
+                {"app": "main", "path": "jcdibean/dependent/singleton/alpha/counter", "query": {"x": "beta"}},
+                {"app": "main", "path": "jcdibean/dependent/singleton/alpha/counter", "query": {"x": "beta"}},
+                {"app": "main", "path": "jcdibean/dependent/singleton/alpha/counter", "query": {"x": "beta"}, "method": "PUT", "body": "32"},
+                {"app": "main", "path": "jcdibean/dependent/singleton/alpha/counter", "query": {"x": "beta"}}
+            ]},
+            "expected_output": "status=204\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter?x=beta\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter?x=beta\nbody=10\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter?x=beta\nbody=11\n\nstatus=204\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter?x=beta\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/dependent/singleton/alpha/counter?x=beta\nbody=32"
+        }
+    ]
+}

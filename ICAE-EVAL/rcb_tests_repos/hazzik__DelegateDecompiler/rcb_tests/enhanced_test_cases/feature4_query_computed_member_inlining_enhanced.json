@@ -1,0 +1,133 @@
+{
+  "description": "Additional query inlining cases covering no matches, duplicate matches, alternate affixed full-text matches, negative numeric ranges, blank text fields, and ordering with duplicate matched records.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "inline_query",
+        "expression": "computed full text property",
+        "match": "Nobody Here",
+        "records": [
+          {
+            "first": "Ada",
+            "last": "Lovelace"
+          },
+          {
+            "first": "Grace",
+            "last": "Hopper"
+          }
+        ]
+      },
+      "expected_output": "query_expression=records.Where(p => (((p.First + \" \") + p.Last) == target))\nmatched=\n"
+    },
+    {
+      "input": {
+        "scenario": "inline_query",
+        "expression": "computed full text property",
+        "match": "Ada Lovelace",
+        "records": [
+          {
+            "first": "Ada",
+            "last": "Lovelace"
+          },
+          {
+            "first": "Ada",
+            "last": "Lovelace"
+          },
+          {
+            "first": "Grace",
+            "last": "Hopper"
+          }
+        ]
+      },
+      "expected_output": "query_expression=records.Where(p => (((p.First + \" \") + p.Last) == target))\nmatched=Ada Lovelace|Ada Lovelace\n"
+    },
+    {
+      "input": {
+        "scenario": "inline_query",
+        "expression": "computed full text method with affixes",
+        "match": "Mr Grace Hopper Jr.",
+        "records": [
+          {
+            "first": "Ada",
+            "last": "Lovelace"
+          },
+          {
+            "first": "Grace",
+            "last": "Hopper"
+          },
+          {
+            "first": "Katherine",
+            "last": "Johnson"
+          }
+        ]
+      },
+      "expected_output": "query_expression=records.Where(p => (((((\"Mr \" + p.First) + \" \") + p.Last) + \" Jr.\") == target))\nmatched=Grace Hopper\n"
+    },
+    {
+      "input": {
+        "scenario": "inline_query",
+        "expression": "computed numeric text property",
+        "match": "-5-5",
+        "records": [
+          {
+            "first": "Neg",
+            "last": "Range",
+            "from": -5,
+            "to": 5
+          },
+          {
+            "first": "Zero",
+            "last": "Range",
+            "from": 0,
+            "to": 0
+          }
+        ]
+      },
+      "expected_output": "query_expression=records.Where(p => (((p.From.ToString() + \"-\") + p.To.ToString()) == target))\nmatched=Neg Range\n"
+    },
+    {
+      "input": {
+        "scenario": "inline_query",
+        "expression": "computed boolean property",
+        "match": "unused",
+        "records": [
+          {
+            "first": "",
+            "last": "Blank"
+          },
+          {
+            "first": "Ada",
+            "last": ""
+          },
+          {
+            "first": "Grace",
+            "last": "Hopper"
+          }
+        ]
+      },
+      "expected_output": "query_expression=records.Where(p => True)\nmatched= Blank|Ada |Grace Hopper\n"
+    },
+    {
+      "input": {
+        "scenario": "inline_query",
+        "expression": "computed ordering",
+        "match": "Ada Lovelace",
+        "records": [
+          {
+            "first": "Zed",
+            "last": "Alpha"
+          },
+          {
+            "first": "Ada",
+            "last": "Lovelace"
+          },
+          {
+            "first": "Ada",
+            "last": "Lovelace"
+          }
+        ]
+      },
+      "expected_output": "query_expression=records.Where(p => (((p.First + \" \") + p.Last) == target)).OrderBy(p => ((p.First + \" \") + p.Last))\nmatched=Ada Lovelace|Ada Lovelace\n"
+    }
+  ]
+}

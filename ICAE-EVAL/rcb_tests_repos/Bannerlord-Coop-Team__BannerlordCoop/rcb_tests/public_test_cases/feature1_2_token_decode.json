@@ -1,0 +1,29 @@
+{
+    "description": "Parse a connection identity token back into its identity and version fields. A well-formed '<guid>%<version>' token yields the recovered client identity and four-part version. Any malformed token — empty string, missing a part, an extra trailing delimiter, a leading delimiter, or a zero identity — is rejected as a neutral invalid_token error with no fields recovered.",
+    "cases": [
+        {
+            "input": {"action": "decode_token", "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.2.3.4"},
+            "expected_output": "client_id=8e8a09e4-eddf-4c33-a1d8-1e399b763fd4\nversion=1.2.3.4\n"
+        },
+        {
+            "input": {"action": "decode_token", "token": ""},
+            "expected_output": "error=invalid_token\n"
+        },
+        {
+            "input": {"action": "decode_token", "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%"},
+            "expected_output": "error=invalid_token\n"
+        },
+        {
+            "input": {"action": "decode_token", "token": "%1.1.1.1"},
+            "expected_output": "error=invalid_token\n"
+        },
+        {
+            "input": {"action": "decode_token", "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.1.1.1%"},
+            "expected_output": "error=invalid_token\n"
+        },
+        {
+            "input": {"action": "decode_token", "token": "%8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.1.1.1"},
+            "expected_output": "error=invalid_token\n"
+        }
+    ]
+}

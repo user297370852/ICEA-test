@@ -1,0 +1,19 @@
+{
+    "description": "Build the Cloudinary layer (overlay/underlay) qualifier string from a declarative description of the layer. The adapter renders the result prefixed as 'layer=<qualifier>'. Plain assets render as 'l_<public_id>' where a folder separator '/' becomes ':'. Non-default resource types prepend a type token (e.g. video:, subtitles:). Text layers render as 'l_text:<style>:<url-encoded text>' where the text is double-escaped for commas and slashes. A 'fetch' source is base64-url-encoded. Error conditions are normalized: a text layer without style or public_id yields 'error=overlay_text_requires_style', and a non-text layer without a public_id yields 'error=overlay_requires_public_id' plus a 'layer_type' field.",
+    "cases": [
+        {"input": {"op": "overlay", "layer": {"public_id": "logo"}}, "expected_output": "layer=l_logo\n"},
+        {"input": {"op": "overlay", "layer": {"public_id": "folder/logo"}}, "expected_output": "layer=l_folder:logo\n"},
+        {"input": {"op": "overlay", "layer": {"public_id": "logo", "type": "private"}}, "expected_output": "layer=l_private:logo\n"},
+        {"input": {"op": "overlay", "layer": {"public_id": "logo", "format": "png"}}, "expected_output": "layer=l_logo.png\n"},
+        {"input": {"op": "overlay", "layer": {"resource_type": "video", "public_id": "cat"}}, "expected_output": "layer=l_video:cat\n"},
+        {"input": {"op": "overlay", "layer": {"public_id": "logo", "text": "Hello World, Nice to meet you?"}}, "expected_output": "layer=l_text:logo:Hello%20World%252C%20Nice%20to%20meet%20you%3F\n"},
+        {"input": {"op": "overlay", "layer": {"text": "Hello World, Nice to meet you?", "font_family": "Arial", "font_size": "18"}}, "expected_output": "layer=l_text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F\n"},
+        {"input": {"op": "overlay", "layer": {"text": "Hello World, Nice/ to meet you?", "font_family": "Arial", "font_size": "18"}}, "expected_output": "layer=l_text:Arial_18:Hello%20World%252C%20Nice%252F%20to%20meet%20you%3F\n"},
+        {"input": {"op": "overlay", "layer": {"resource_type": "subtitles", "public_id": "sample_sub_en.srt"}}, "expected_output": "layer=l_subtitles:sample_sub_en.srt\n"},
+        {"input": {"op": "overlay", "layer": {"public_id": "logo", "fetch": "https://cloudinary.com/images/old_logo.png"}}, "expected_output": "layer=l_fetch:aHR0cHM6Ly9jbG91ZGluYXJ5LmNvbS9pbWFnZXMvb2xkX2xvZ28ucG5n\n"},
+        {"input": {"op": "overlay", "layer": {"public_id": "logo", "type": "upload", "resource_type": "image"}}, "expected_output": "layer=l_logo\n"},
+        {"input": {"op": "overlay", "layer": {"text": "text"}}, "expected_output": "error=overlay_text_requires_style\n"},
+        {"input": {"op": "overlay", "layer": {"resource_type": "image"}}, "expected_output": "error=overlay_requires_public_id\nlayer_type=image\n"},
+        {"input": {"op": "overlay", "layer": {"resource_type": "video"}}, "expected_output": "error=overlay_requires_public_id\nlayer_type=video\n"}
+    ]
+}

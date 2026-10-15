@@ -1,0 +1,117 @@
+{
+  "description": "Disable and re-enable projects. Disabling hides a project from the catalog and from lookup by id; both disable and enable are idempotent. Disabling or enabling an unknown project surfaces a not-found / no-history error. A symbol belonging to a disabled project remains reserved and cannot be reused.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "VITAFAST",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "9"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nquery {\n  molecule {\n    v2 {\n      projects(page: 0, perPage: 100) {\n        nodes { ipnftUid }\n      }\n    }\n  }\n}\n"
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule {\n    v2 {\n      project(ipnftUid: $ipnftUid) {\n        ipnftUid\n        ipnftSymbol\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { enableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { enableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nquery {\n  molecule {\n    v2 {\n      projects(page: 0, perPage: 100) {\n        nodes { ipnftUid }\n      }\n    }\n  }\n}\n"
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule {\n    v2 {\n      project(ipnftUid: $ipnftUid) {\n        ipnftUid\n        ipnftSymbol\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          }
+        ]
+      },
+      "expected_output": "--- operation 1 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"disableProject\": {\n        \"project\": {\n          \"__typename\": \"MoleculeProjectMutV2\"\n        }\n      }\n    }\n  }\n}\n--- operation 2 ---\nerrors:\n  - Project 0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9 not found\ndata:\nnull\n--- operation 3 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"projects\": {\n        \"nodes\": []\n      }\n    }\n  }\n}\n--- operation 4 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": null\n    }\n  }\n}\n--- operation 5 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"enableProject\": {\n        \"project\": {\n          \"__typename\": \"MoleculeProjectMutV2\"\n        }\n      }\n    }\n  }\n}\n--- operation 6 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"enableProject\": {\n        \"project\": {\n          \"__typename\": \"MoleculeProjectMutV2\"\n        }\n      }\n    }\n  }\n}\n--- operation 7 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"projects\": {\n        \"nodes\": [\n          {\n            \"ipnftUid\": \"0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9\"\n          }\n        ]\n      }\n    }\n  }\n}\n--- operation 8 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"ipnftSymbol\": \"vitafast\",\n        \"ipnftUid\": \"0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9\"\n      }\n    }\n  }\n}\n"
+    },
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "foo"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { enableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "foo"
+            }
+          }
+        ]
+      },
+      "expected_output": "--- operation 1 ---\nerrors:\n  - Project foo not found\ndata:\nnull\n--- operation 2 ---\nerrors:\n  - No historical entries for project foo\ndata:\nnull\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "vitafast",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "9"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "vitafast",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_10",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "10"
+            }
+          }
+        ]
+      },
+      "expected_output": "--- operation 1 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"createProject\": {\n        \"__typename\": \"CreateProjectErrorConflict\",\n        \"isSuccess\": false,\n        \"message\": \"Conflict with existing project vitafast (0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9)\"\n      }\n    }\n  }\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+    "description": "Before a newly registered backend begins receiving traffic it must pass a health check within a bounded deploy window. A backend whose health endpoint does not return a success status within the window causes the registration to fail with a target-unhealthy error and no routing change takes effect. A backend that passes its health check is activated and subsequently serves matching requests. Each registration reports success or the normalized error category.",
+    "cases": [
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "bad": {
+                        "body": "broken",
+                        "status": 503
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "bad",
+                        "deploy_timeout_ms": 300
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 error=target_unhealthy\n"
+        },
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "good": {
+                        "body": "healthy-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "good"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\nstatus=200 target=healthy-app\n"
+        }
+    ]
+}

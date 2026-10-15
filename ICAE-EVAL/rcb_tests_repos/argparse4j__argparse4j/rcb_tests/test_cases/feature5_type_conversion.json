@@ -1,0 +1,192 @@
+{
+    "description": "Convert raw string operands into typed values before binding them. Covers integer conversion (including across a list-valued positional), conversion to an enumerated value matched by its symbolic member name, conversion to an enumerated value matched by its display string (which may differ from the member name), and conversion to a boolean restricted to a configurable pair of accepted literals. A value that does not convert is rejected with a diagnostic naming the offending input and the set of acceptable values.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "nargs": "*",
+                        "type": "int"
+                    }
+                ],
+                "argv": [
+                    "1",
+                    "2",
+                    "3"
+                ]
+            },
+            "expected_output": "foo=[1, 2, 3]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--c"
+                        ],
+                        "type": "enum"
+                    }
+                ],
+                "argv": [
+                    "--c",
+                    "GREEN"
+                ]
+            },
+            "expected_output": "c=GREEN\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--c"
+                        ],
+                        "type": "enum"
+                    }
+                ],
+                "argv": [
+                    "--c",
+                    "PURPLE"
+                ]
+            },
+            "expected_output": "error: argument --c: could not convert 'PURPLE' (choose from {RED,GREEN,BLUE})\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--s"
+                        ],
+                        "type": "enumstr"
+                    }
+                ],
+                "argv": [
+                    "--s",
+                    "X-LARGE"
+                ]
+            },
+            "expected_output": "s=X-LARGE\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--s"
+                        ],
+                        "type": "enumstr"
+                    }
+                ],
+                "argv": [
+                    "--s",
+                    "SMALL"
+                ]
+            },
+            "expected_output": "s=SMALL\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--s"
+                        ],
+                        "type": "enumstr"
+                    }
+                ],
+                "argv": [
+                    "--s",
+                    "LARGE"
+                ]
+            },
+            "expected_output": "error: argument --s: could not convert 'LARGE' (choose from {SMALL,MEDIUM,X-LARGE})\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--b"
+                        ],
+                        "type": "boolean"
+                    }
+                ],
+                "argv": [
+                    "--b",
+                    "true"
+                ]
+            },
+            "expected_output": "b=true\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--b"
+                        ],
+                        "type": "boolean"
+                    }
+                ],
+                "argv": [
+                    "--b",
+                    "false"
+                ]
+            },
+            "expected_output": "b=false\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--b"
+                        ],
+                        "type": "boolean"
+                    }
+                ],
+                "argv": [
+                    "--b",
+                    "TRUE"
+                ]
+            },
+            "expected_output": "error: argument --b: could not convert 'TRUE' (choose from {true,false})\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--b"
+                        ],
+                        "type": "booleanyn"
+                    }
+                ],
+                "argv": [
+                    "--b",
+                    "yes"
+                ]
+            },
+            "expected_output": "b=true\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--b"
+                        ],
+                        "type": "booleanyn"
+                    }
+                ],
+                "argv": [
+                    "--b",
+                    "Yes"
+                ]
+            },
+            "expected_output": "error: argument --b: could not convert 'Yes' (choose from {yes,no})\n"
+        }
+    ]
+}

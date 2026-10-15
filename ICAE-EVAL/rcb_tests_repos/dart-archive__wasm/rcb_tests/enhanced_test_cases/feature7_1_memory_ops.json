@@ -1,0 +1,81 @@
+{
+  "description": "Standalone-memory boundaries: a single-page memory reporting 65536 bytes, writing/reading the first and a high byte, a maximum byte value (255), growing by zero pages, and growing within a declared maximum while preserving written bytes.",
+  "cases": [
+    {
+      "input": {
+        "module": "0061736d0100000006810000",
+        "standalone_memory": {
+          "pages": 1
+        },
+        "memory_ops": [
+          {
+            "op": "info"
+          },
+          {
+            "op": "write",
+            "index": 0,
+            "value": 255
+          },
+          {
+            "op": "read",
+            "index": 0
+          },
+          {
+            "op": "read",
+            "index": 65535
+          }
+        ]
+      },
+      "expected_output": "pages=1\nbytes=65536\nwrite[0]=255\nbyte[0]=255\nbyte[65535]=0\n"
+    },
+    {
+      "input": {
+        "module": "0061736d0100000006810000",
+        "standalone_memory": {
+          "pages": 2
+        },
+        "memory_ops": [
+          {
+            "op": "info"
+          },
+          {
+            "op": "grow",
+            "pages": 0
+          },
+          {
+            "op": "info"
+          }
+        ]
+      },
+      "expected_output": "pages=2\nbytes=131072\ngrow[0]=ok\npages=2\nbytes=131072\n"
+    },
+    {
+      "input": {
+        "module": "0061736d0100000006810000",
+        "standalone_memory": {
+          "pages": 3,
+          "max": 10
+        },
+        "memory_ops": [
+          {
+            "op": "write",
+            "index": 1000,
+            "value": 7
+          },
+          {
+            "op": "grow",
+            "pages": 5
+          },
+          {
+            "op": "info"
+          },
+          {
+            "op": "read",
+            "index": 1000
+          }
+        ]
+      },
+      "expected_output": "write[1000]=7\ngrow[5]=ok\npages=8\nbytes=524288\nbyte[1000]=7\n"
+    }
+  ]
+}

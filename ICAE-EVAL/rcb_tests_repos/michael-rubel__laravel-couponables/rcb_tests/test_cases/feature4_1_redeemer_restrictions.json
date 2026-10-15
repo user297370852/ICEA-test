@@ -1,0 +1,37 @@
+{
+    "description": "Coupons restricted to a specific customer or customer type can be redeemed only by matching redeemers; mismatches produce a normalized not-allowed error.",
+    "cases": [
+        {
+            "input": {
+                "action": "redeem_coupon",
+                "code": "redeemer-coupon",
+                "restriction": "this_customer"
+            },
+            "expected_output": "coupon_code=redeemer-coupon\ncoupon_type=null\ncoupon_value=null\ncoupon_limit=null\ncoupon_quantity=null\nredemption_count=1\nredeemer_alias=customer\nevents=[\"coupon_verified\",\"coupon_redeemed\"]\n"
+        },
+        {
+            "input": {
+                "action": "redeem_coupon",
+                "code": "alien-coupon",
+                "restriction": "other_customer"
+            },
+            "expected_output": "error=coupon_not_allowed\nevents=[\"coupon_not_allowed\"]\nredemption_count=0\nremaining_quantity=null\n"
+        },
+        {
+            "input": {
+                "action": "redeem_coupon",
+                "code": "same-model-coupon",
+                "restriction": "customer_type_only"
+            },
+            "expected_output": "coupon_code=same-model-coupon\ncoupon_type=null\ncoupon_value=null\ncoupon_limit=null\ncoupon_quantity=null\nredemption_count=1\nredeemer_alias=customer\nevents=[\"coupon_verified\",\"coupon_redeemed\"]\n"
+        },
+        {
+            "input": {
+                "action": "redeem_coupon",
+                "code": "another-model-coupon",
+                "restriction": "other_type_only"
+            },
+            "expected_output": "error=coupon_not_allowed\nevents=[\"coupon_not_allowed\"]\nredemption_count=0\nremaining_quantity=null\n"
+        }
+    ]
+}

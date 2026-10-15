@@ -1,0 +1,11 @@
+{
+  "description": "Loads an inventory document into visible host records, skipping hidden template entries, expanding ranged aliases, preserving local-host markers, and rendering connection-related settings.",
+  "cases": [
+    {
+      "input": {
+        "yaml": ".base: &base\n  deploy_path: path\n  roles:\n    - a\n    - b\n    - c\n  param: param\n\nfoo:\n  <<: *base\n  extra: extra\n\nbar:\n  hostname: bar.com\n  remote_user: remote_user\n  port: 22\n  config_file: configFile\n  identity_file: identityFile\n  forward_agent: true\n  ssh_multiplexing: false\n  sshOptions:\n    Option: Value\n  sshFlags:\n    -f:\n    -someFlag: value\n  param: param\n\nlocal:\n  local: \"\"\n  deploy_to: /var/local\n  param: local\n\ndb[1:2].example.org:\n  stage: production\n  roles: db\n"
+      },
+      "expected_output": "hosts=foo,bar,local,db1.example.org,db2.example.org\nhost.foo.type=remote\nhost.foo.hostname=foo\nhost.foo.roles=[\"a\",\"b\",\"c\"]\nhost.foo.param=param\nhost.bar.type=remote\nhost.bar.hostname=bar.com\nhost.bar.param=param\nhost.bar.remote_user=remote_user\nhost.bar.port=22\nhost.bar.config_file=configFile\nhost.bar.identity_file=identityFile\nhost.bar.forward_agent=true\nhost.bar.ssh_multiplexing=false\nhost.bar.ssh_arguments=-f -A -someFlag value -p 22 -F configFile -i identityFile -o Option=Value\nhost.local.type=local\nhost.local.hostname=local\nhost.local.deploy_to=/var/local\nhost.local.param=local\nhost.db1.example.org.type=remote\nhost.db1.example.org.hostname=db1.example.org\nhost.db1.example.org.roles=db\nhost.db2.example.org.type=remote\nhost.db2.example.org.hostname=db2.example.org\nhost.db2.example.org.roles=db\n"
+    }
+  ]
+}

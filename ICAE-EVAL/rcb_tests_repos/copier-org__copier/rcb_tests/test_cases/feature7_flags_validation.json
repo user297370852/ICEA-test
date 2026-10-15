@@ -1,0 +1,46 @@
+{
+  "description": "Validation of the run-mode option set. Each mode is a strict boolean; a non-boolean value is reported as a validation error on the offending field. The overwrite-everything and preserve-everything modes are mutually exclusive and enabling both is reported as a mutual-exclusion error. Unknown extra keys are ignored. Valid input echoes the resolved mode values.",
+  "cases": [
+    {
+      "input": {
+        "op": "check_flags",
+        "flags": {
+          "pretend": true,
+          "quiet": false,
+          "force": true,
+          "skip": false,
+          "cleanup_on_error": true
+        }
+      },
+      "expected_output": "valid=true\ncleanup_on_error=true\nforce=true\npretend=true\nquiet=false\nskip=false\n"
+    },
+    {
+      "input": {
+        "op": "check_flags",
+        "flags": {
+          "pretend": "not_a_bool"
+        }
+      },
+      "expected_output": "error=invalid_flags\nfield=pretend reason=value\n"
+    },
+    {
+      "input": {
+        "op": "check_flags",
+        "flags": {
+          "force": true,
+          "skip": true
+        }
+      },
+      "expected_output": "error=invalid_flags\nfield=skip reason=mutually_exclusive\n"
+    },
+    {
+      "input": {
+        "op": "check_flags",
+        "flags": {
+          "i_am_not_a_member": "stranger"
+        }
+      },
+      "expected_output": "valid=true\ncleanup_on_error=true\nforce=false\npretend=false\nquiet=false\nskip=false\n"
+    }
+  ]
+}

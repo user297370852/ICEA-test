@@ -1,0 +1,17 @@
+{
+    "description": "Background workers are registered against named nodes of a fixed dependency graph, each carrying an integer marker. When a graceful shutdown is requested, every worker is cancelled and reports its marker. The reports are emitted strictly in the graph's shutdown order: a node is only torn down after every node that depends on it has already been torn down, so upstream producers stop before the consumers they feed.",
+    "cases": [
+        {
+            "input": {"action": "ordered_shutdown", "spawns": [{"node": "Metrics", "marker": 0}, {"node": "BlockFlush", "marker": 0}, {"node": "SchedulerExtender", "marker": 0}, {"node": "FuseRequest", "marker": 1}, {"node": "AsyncFuse", "marker": 2}, {"node": "Rpc", "marker": 3}, {"node": "WriteBack", "marker": 3}]},
+            "expected_output": "node=Metrics marker=0\nnode=BlockFlush marker=0\nnode=SchedulerExtender marker=0\nnode=FuseRequest marker=1\nnode=AsyncFuse marker=2\nnode=Rpc marker=3\nnode=WriteBack marker=3\n"
+        },
+        {
+            "input": {"action": "ordered_shutdown", "spawns": [{"node": "BlockFlush", "marker": 10}, {"node": "AsyncFuse", "marker": 20}, {"node": "Rpc", "marker": 30}]},
+            "expected_output": "node=BlockFlush marker=10\nnode=AsyncFuse marker=20\nnode=Rpc marker=30\n"
+        },
+        {
+            "input": {"action": "ordered_shutdown", "spawns": [{"node": "Root", "marker": 7}, {"node": "Metrics", "marker": 9}]},
+            "expected_output": "node=Root marker=7\nnode=Metrics marker=9\n"
+        }
+    ]
+}

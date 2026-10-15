@@ -1,0 +1,127 @@
+{
+  "description": "Encoding-safe capture across positions and shapes of invalid byte runs: an invalid byte at the start, in the middle, and at the end of a message is each replaced by the standard replacement character; multiple separated invalid runs each yield their own replacement; a message that is a single invalid byte becomes one replacement character; a well-formed multi-byte UTF-8 message passes through unchanged; and an empty byte sequence records an empty-but-valid message.",
+  "cases": [
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 2,
+              "message": {
+                "bytes": [
+                  228,
+                  32,
+                  97,
+                  98
+                ]
+              },
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=2 source=prog message=� ab backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 2,
+              "message": {
+                "bytes": [
+                  97,
+                  98,
+                  32,
+                  228
+                ]
+              },
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=2 source=prog message=ab � backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 2,
+              "message": {
+                "bytes": [
+                  97,
+                  228,
+                  98,
+                  229,
+                  99
+                ]
+              },
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=2 source=prog message=a�b�c backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 2,
+              "message": {
+                "bytes": [
+                  228
+                ]
+              },
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=2 source=prog message=� backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 2,
+              "message": {
+                "bytes": [
+                  240,
+                  159,
+                  152,
+                  128,
+                  32,
+                  111,
+                  107
+                ]
+              },
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=2 source=prog message=😀 ok backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 2,
+              "message": {
+                "bytes": []
+              },
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=2 source=prog message= backtrace= env= valid_encoding=true\nprimary total=1\n"
+    }
+  ]
+}

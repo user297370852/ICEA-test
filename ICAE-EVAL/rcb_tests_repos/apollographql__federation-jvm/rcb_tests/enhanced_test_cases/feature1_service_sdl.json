@@ -1,0 +1,64 @@
+{
+  "description": "Boundary and logical service-discovery SDL cases: entity-only subgraphs with an empty Query, minimal first-generation schemas, nested key selections with @provides/@requires, second-generation v2.0/v2.3/v2.5 link imports, non-resolvable keys, enum/input/custom-scalar ordering normalization, and interface members.",
+  "cases": [
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "type Product @key(fields: \"id\") {\n  id: ID!\n  name: String\n}\n"
+      },
+      "expected_output": "schema {\n  query: Query\n}\n\ntype Product @key(fields : \"id\") {\n  id: ID!\n  name: String\n}\n\ntype Query\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "type Query {\n  ping: String\n}\n"
+      },
+      "expected_output": "schema {\n  query: Query\n}\n\ntype Query {\n  ping: String\n}\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "type Query {\n  a: A\n}\n\ntype A @key(fields: \"id\") {\n  id: ID!\n  b: B @provides(fields: \"name\")\n}\n\ntype B @key(fields: \"id\") @extends {\n  id: ID! @external\n  name: String @external\n}\n"
+      },
+      "expected_output": "schema {\n  query: Query\n}\n\ntype A @key(fields : \"id\") {\n  b: B @provides(fields : \"name\")\n  id: ID!\n}\n\ntype B @extends @key(fields : \"id\") {\n  id: ID! @external\n  name: String @external\n}\n\ntype Query {\n  a: A\n}\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\"])\n\ntype Query {\n  product(id: ID!): Product\n}\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n  name: String\n}\n"
+      },
+      "expected_output": "schema @link(import : [\"@key\"], url : \"https://specs.apollo.dev/federation/v2.0\"){\n  query: Query\n}\n\ndirective @federation__extends on OBJECT | INTERFACE\n\ndirective @federation__external on OBJECT | FIELD_DEFINITION\n\ndirective @federation__override(from: String!) on FIELD_DEFINITION\n\ndirective @federation__provides(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__requires(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__shareable on OBJECT | FIELD_DEFINITION\n\ndirective @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\ndirective @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\nunion _Entity = Product\n\ntype Product @key(fields : \"id\", resolvable : true) {\n  id: ID!\n  name: String\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  product(id: ID!): Product\n}\n\ntype _Service {\n  sdl: String!\n}\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}\n\nscalar _Any\n\nscalar federation__FieldSet\n\nscalar link__Import\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\"])\n\ntype Query {\n  product(id: ID!): Product\n}\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n}\n\ntype Supplier @key(fields: \"id\", resolvable: false) {\n  id: ID!\n}\n"
+      },
+      "expected_output": "schema @link(import : [\"@key\"], url : \"https://specs.apollo.dev/federation/v2.3\"){\n  query: Query\n}\n\ndirective @federation__composeDirective(name: String!) repeatable on SCHEMA\n\ndirective @federation__extends on OBJECT | INTERFACE\n\ndirective @federation__external on OBJECT | FIELD_DEFINITION\n\ndirective @federation__interfaceObject on OBJECT\n\ndirective @federation__override(from: String!) on FIELD_DEFINITION\n\ndirective @federation__provides(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__requires(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__shareable repeatable on OBJECT | FIELD_DEFINITION\n\ndirective @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\ndirective @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\nunion _Entity = Product | Supplier\n\ntype Product @key(fields : \"id\", resolvable : true) {\n  id: ID!\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  product(id: ID!): Product\n}\n\ntype Supplier @key(fields : \"id\", resolvable : false) {\n  id: ID!\n}\n\ntype _Service {\n  sdl: String!\n}\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}\n\nscalar _Any\n\nscalar federation__FieldSet\n\nscalar link__Import\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "type Query {\n  search(filter: Filter): [Item!]!\n}\n\nenum Color {\n  RED\n  GREEN\n  BLUE\n}\n\ninput Filter {\n  color: Color\n  limit: Int = 10\n}\n\ntype Item @key(fields: \"id\") {\n  id: ID!\n  color: Color\n}\n"
+      },
+      "expected_output": "schema {\n  query: Query\n}\n\ntype Item @key(fields : \"id\") {\n  color: Color\n  id: ID!\n}\n\ntype Query {\n  search(filter: Filter): [Item!]!\n}\n\nenum Color {\n  BLUE\n  GREEN\n  RED\n}\n\ninput Filter {\n  color: Color\n  limit: Int = 10\n}\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.5\", import: [\"@key\", \"@authenticated\"])\n\ntype Query {\n  product(id: ID!): Product\n}\n\ntype Product @key(fields: \"id\") @authenticated {\n  id: ID!\n  name: String\n}\n"
+      },
+      "expected_output": "schema @link(import : [\"@key\", \"@authenticated\"], url : \"https://specs.apollo.dev/federation/v2.5\"){\n  query: Query\n}\n\ndirective @authenticated on SCALAR | OBJECT | FIELD_DEFINITION | INTERFACE | ENUM\n\ndirective @federation__composeDirective(name: String!) repeatable on SCHEMA\n\ndirective @federation__extends on OBJECT | INTERFACE\n\ndirective @federation__external on OBJECT | FIELD_DEFINITION\n\ndirective @federation__interfaceObject on OBJECT\n\ndirective @federation__override(from: String!) on FIELD_DEFINITION\n\ndirective @federation__provides(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__requires(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__requiresScopes(scopes: [[federation__Scope!]!]!) on SCALAR | OBJECT | FIELD_DEFINITION | INTERFACE | ENUM\n\ndirective @federation__shareable repeatable on OBJECT | FIELD_DEFINITION\n\ndirective @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\ndirective @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\nunion _Entity = Product\n\ntype Product @authenticated @key(fields : \"id\", resolvable : true) {\n  id: ID!\n  name: String\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  product(id: ID!): Product\n}\n\ntype _Service {\n  sdl: String!\n}\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}\n\nscalar _Any\n\nscalar federation__FieldSet\n\nscalar federation__Scope\n\nscalar link__Import\n"
+    },
+    {
+      "input": {
+        "op": "service_sdl",
+        "abstractTypeResolvers": [
+          "Node"
+        ],
+        "sdl": "type Query {\n  node(id: ID!): Node\n}\n\ninterface Node {\n  id: ID!\n}\n\ntype Widget implements Node @key(fields: \"id\") {\n  id: ID!\n  label: String\n}\n"
+      },
+      "expected_output": "schema {\n  query: Query\n}\n\ninterface Node {\n  id: ID!\n}\n\ntype Query {\n  node(id: ID!): Node\n}\n\ntype Widget implements Node @key(fields : \"id\") {\n  id: ID!\n  label: String\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "description": "Enhanced parameter arity validation: missing/extra arguments across multiple operations, both switches set simultaneously, allowLessParams binding integer defaults to zero, allowExtraParams trimming surplus args on multi-argument methods, and the empty-params-without-relaxation rejection.",
+  "cases": [
+    {
+      "description": "addInts with no params is rejected as params-invalid",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": []
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n"
+    },
+    {
+      "description": "addInts with three positional args is rejected as params-invalid",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n"
+    },
+    {
+      "description": "addInts missing trailing int binds to default zero when fewer allowed",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            10
+          ]
+        },
+        "allowLessParams": true
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=10\n"
+    },
+    {
+      "description": "addInts with surplus arg trimmed when extras allowed",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            4,
+            5,
+            99
+          ]
+        },
+        "allowExtraParams": true
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=9\n"
+    },
+    {
+      "description": "both switches set: too-few args still binds defaults",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 2,
+          "method": "addInts",
+          "params": [
+            3
+          ]
+        },
+        "allowExtraParams": true,
+        "allowLessParams": true
+      },
+      "expected_output": "jsonrpc=2.0\nid=2\noutcome=success\nresult=3\n"
+    },
+    {
+      "description": "voidMethod with surplus arg trimmed when extras allowed",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 3,
+          "method": "voidMethod",
+          "params": [
+            7,
+            8
+          ]
+        },
+        "allowExtraParams": true
+      },
+      "expected_output": "jsonrpc=2.0\nid=3\noutcome=success\nresult=null\n"
+    },
+    {
+      "description": "echo with one extra arg rejected without relaxation",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 4,
+          "method": "echo",
+          "params": [
+            "a",
+            "b",
+            "c"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=4\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "description": "Lifecycle combinations across mutating and query operations: existence and count after removing the only key; existence and count after clearing several keys; and an overwrite keeping the count at one while changing the stored value.",
+  "cases": [
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "string",
+            "value": "v"
+          },
+          {
+            "op": "remove",
+            "key": "k"
+          },
+          {
+            "op": "contains",
+            "key": "k"
+          },
+          {
+            "op": "length"
+          }
+        ]
+      },
+      "expected_output": "contains=false\nlength=0\n"
+    },
+    {
+      "input": {
+        "mode": "async",
+        "steps": [
+          {
+            "op": "set",
+            "key": "a",
+            "type": "int",
+            "value": 1
+          },
+          {
+            "op": "set",
+            "key": "b",
+            "type": "int",
+            "value": 2
+          },
+          {
+            "op": "clear"
+          },
+          {
+            "op": "contains",
+            "key": "a"
+          },
+          {
+            "op": "length"
+          }
+        ]
+      },
+      "expected_output": "contains=false\nlength=0\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "int",
+            "value": 1
+          },
+          {
+            "op": "set",
+            "key": "k",
+            "type": "int",
+            "value": 2
+          },
+          {
+            "op": "length"
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "int"
+          }
+        ]
+      },
+      "expected_output": "length=1\nvalue=2\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "steps": [
+          {
+            "op": "set",
+            "key": "k",
+            "type": "string",
+            "value": "x"
+          },
+          {
+            "op": "clear"
+          },
+          {
+            "op": "contains",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "contains=false\n"
+    }
+  ]
+}

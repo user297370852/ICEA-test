@@ -1,0 +1,96 @@
+{
+  "description": "Additional event-section coverage: single mapping event, pull_request with multiple activity types, push with tags and branch-ignore filters, multi-event mappings, workflow_dispatch typed inputs, workflow_call with only-secrets and with default/non-required inputs, workflow_run with multiple referenced workflows, and malformed schedule/inputs rejected as a neutral error.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "pull_request"
+      },
+      "expected_output": "event=pull_request\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "pull_request: {types: [opened, synchronize, reopened]}"
+      },
+      "expected_output": "event=pull_request\ntype=opened\ntype=synchronize\ntype=reopened\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "push: {tags: [v1, v2], branches-ignore: [dev]}"
+      },
+      "expected_output": "event=push\ntag=v1\ntag=v2\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "push: {branches: [main, release/*]}"
+      },
+      "expected_output": "event=push\nbranch=main\nbranch=release/*\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "{push: {branches: [main]}, pull_request: {types: [opened]}}"
+      },
+      "expected_output": "event=push\nbranch=main\nevent=pull_request\ntype=opened\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "workflow_dispatch: {inputs: {env: {type: choice, required: false}}}"
+      },
+      "expected_output": "event=workflow_dispatch\ninput env type=choice required=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "workflow_call: {secrets: {TOKEN: {required: true}, EXTRA: {required: false}}}"
+      },
+      "expected_output": "event=workflow_call\nsecret TOKEN required=true\nsecret EXTRA required=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "workflow_run: {workflows: [a, b], types: [completed, requested]}"
+      },
+      "expected_output": "event=workflow_run\ntype=completed\ntype=requested\nworkflow=a\nworkflow=b\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "schedule: [{cron: \"0 0 * * *\"}]"
+      },
+      "expected_output": "event=schedule\ncron=0 0 * * *\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "schedule: {cron: \"0 0 * * *\"}"
+      },
+      "expected_output": "error=invalid_events\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "schedule: []"
+      },
+      "expected_output": "event=schedule\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "workflow_call: {inputs: {n: {type: string, required: false}}, outputs: {o: {description: d, value: v}}}"
+      },
+      "expected_output": "event=workflow_call\ninput n type=string required=false\noutput o description=d value=v\n"
+    },
+    {
+      "input": {
+        "op": "parse_workflow_events",
+        "yaml": "[push, pull_request, workflow_dispatch]"
+      },
+      "expected_output": "event=push\nevent=pull_request\nevent=workflow_dispatch\n"
+    }
+  ]
+}

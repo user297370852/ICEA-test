@@ -1,0 +1,77 @@
+{
+  "description": "Pattern text is parsed into boundary flags and literal, optional, or wildcard nodes; invalid syntax returns normalized pattern-syntax errors.",
+  "cases": [
+    {
+      "input": {
+        "pattern": ""
+      },
+      "expected_output": "{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[]}"
+    },
+    {
+      "input": {
+        "pattern": "|sup|"
+      },
+      "expected_output": "{\"boundary_start\":true,\"boundary_end\":true,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"sup\",\"code_points\":[\"U+0073\",\"U+0075\",\"U+0070\"]}]}"
+    },
+    {
+      "input": {
+        "pattern": "hello [world]"
+      },
+      "expected_output": "{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"hello \",\"code_points\":[\"U+0068\",\"U+0065\",\"U+006C\",\"U+006C\",\"U+006F\",\"U+0020\"]},{\"kind\":\"optional\",\"child\":{\"kind\":\"literal\",\"chars\":\"world\",\"code_points\":[\"U+0077\",\"U+006F\",\"U+0072\",\"U+006C\",\"U+0064\"]}}]}"
+    },
+    {
+      "input": {
+        "pattern": "?[?]"
+      },
+      "expected_output": "{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"wildcard\"},{\"kind\":\"optional\",\"child\":{\"kind\":\"wildcard\"}}]}"
+    },
+    {
+      "input": {
+        "pattern": "yo \\[ what is up"
+      },
+      "expected_output": "{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"yo [ what is up\",\"code_points\":[\"U+0079\",\"U+006F\",\"U+0020\",\"U+005B\",\"U+0020\",\"U+0077\",\"U+0068\",\"U+0061\",\"U+0074\",\"U+0020\",\"U+0069\",\"U+0073\",\"U+0020\",\"U+0075\",\"U+0070\"]}]}"
+    },
+    {
+      "input": {
+        "pattern": "hello 🌉 world"
+      },
+      "expected_output": "{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"hello 🌉 world\",\"code_points\":[\"U+0068\",\"U+0065\",\"U+006C\",\"U+006C\",\"U+006F\",\"U+0020\",\"U+1F309\",\"U+0020\",\"U+0077\",\"U+006F\",\"U+0072\",\"U+006C\",\"U+0064\"]}]}"
+    },
+    {
+      "input": {
+        "pattern": "[bar]]"
+      },
+      "expected_output": "error=pattern_syntax\nline=1\ncolumn=6\nmessage=Unexpected ']' with no corresponding '['."
+    },
+    {
+      "input": {
+        "pattern": "su|p"
+      },
+      "expected_output": "error=pattern_syntax\nline=1\ncolumn=3\nmessage=Boundary assertions are not supported in this position; they are only allowed at the start / end of the pattern."
+    },
+    {
+      "input": {
+        "pattern": "[[a]]"
+      },
+      "expected_output": "error=pattern_syntax\nline=1\ncolumn=2\nmessage=Unexpected nested optional node."
+    },
+    {
+      "input": {
+        "pattern": "[aa"
+      },
+      "expected_output": "error=pattern_syntax\nline=1\ncolumn=3\nmessage=Unexpected unclosed '['."
+    },
+    {
+      "input": {
+        "pattern": "oopsies \\:"
+      },
+      "expected_output": "error=pattern_syntax\nline=1\ncolumn=10\nmessage=Cannot escape character ':'; the only characters that can be escaped are the following: '\\', '[', ']', '?', '|'."
+    },
+    {
+      "input": {
+        "pattern": "trailing \\"
+      },
+      "expected_output": "error=pattern_syntax\nline=1\ncolumn=10\nmessage=Unexpected trailing backslash."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+    "description": "Given a subgraph SDL, build the complete executable federated schema and print its full SDL, including the synthetic plumbing that federation injects: a union enumerating every resolvable entity type, the two service-discovery root fields, the wrapper object type that carries the schema document, and the scalar types used by representations and key selections. Type, field and directive declarations are emitted in a normalized order.",
+    "cases": [
+        {
+            "input": {
+                "op": "federated_schema_sdl",
+                "sdl": "type Product @key(fields: \"id\") @key(fields: \"sku package\") @key(fields: \"sku variation { id }\") {\n    id: ID!\n    sku: String\n    package: String\n    variation: ProductVariation\n    dimensions: ProductDimension\n    createdBy: User @provides(fields: \"totalProductsCreated\")\n    notes: String\n}\n\ntype ProductVariation {\n    id: ID!\n}\n\ntype ProductDimension {\n  size: String\n  weight: Float\n  unit: String\n}\n\nextend type Query {\n    product(id: ID!): Product\n}\n\ntype User @key(fields: \"email\") @extends {\n    email: ID! @external\n    name: String\n    totalProductsCreated: Int @external\n}\n",
+                "federationV2": false
+            },
+            "expected_output": "directive @extends on OBJECT | INTERFACE\n\ndirective @external on FIELD_DEFINITION\n\ndirective @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE\n\ndirective @provides(fields: _FieldSet!) on FIELD_DEFINITION\n\ndirective @requires(fields: _FieldSet!) on FIELD_DEFINITION\n\nunion _Entity = Product | User\n\ntype Product @key(fields : \"id\") @key(fields : \"sku package\") @key(fields : \"sku variation { id }\") {\n  createdBy: User @provides(fields : \"totalProductsCreated\")\n  dimensions: ProductDimension\n  id: ID!\n  notes: String\n  package: String\n  sku: String\n  variation: ProductVariation\n}\n\ntype ProductDimension {\n  size: String\n  unit: String\n  weight: Float\n}\n\ntype ProductVariation {\n  id: ID!\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  product(id: ID!): Product\n}\n\ntype User @extends @key(fields : \"email\") {\n  email: ID! @external\n  name: String\n  totalProductsCreated: Int @external\n}\n\ntype _Service {\n  sdl: String!\n}\n\nscalar _Any\n\nscalar _FieldSet\n"
+        },
+        {
+            "input": {
+                "op": "federated_schema_sdl",
+                "sdl": "type Product @key(fields: \"id\") @extends {\n    id: ID!\n    reviews: [Review!]!\n}\n\ntype Review {\n  id: ID!\n  text: String!\n}\n",
+                "federationV2": false
+            },
+            "expected_output": "directive @extends on OBJECT | INTERFACE\n\ndirective @external on FIELD_DEFINITION\n\ndirective @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE\n\ndirective @provides(fields: _FieldSet!) on FIELD_DEFINITION\n\ndirective @requires(fields: _FieldSet!) on FIELD_DEFINITION\n\nunion _Entity = Product\n\ntype Product @extends @key(fields : \"id\") {\n  id: ID!\n  reviews: [Review!]!\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n}\n\ntype Review {\n  id: ID!\n  text: String!\n}\n\ntype _Service {\n  sdl: String!\n}\n\nscalar _Any\n\nscalar _FieldSet\n"
+        }
+    ]
+}

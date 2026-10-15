@@ -1,0 +1,92 @@
+{
+  "description": "Enhanced declaration/grouping: three distinct groups counted, a single declaration exposing several long names plus a short all sharing one value, and an empty option specification rejected as invalid_option_format.",
+  "cases": [
+    {
+      "input": {
+        "program": "grp",
+        "options": [
+          {
+            "group": "A",
+            "opts": "a"
+          },
+          {
+            "group": "B",
+            "opts": "b"
+          },
+          {
+            "group": "C",
+            "opts": "c"
+          },
+          {
+            "group": "A",
+            "opts": "a2,alpha2"
+          }
+        ],
+        "argv": [
+          "-a",
+          "-b"
+        ],
+        "queries": [
+          {
+            "q": "groups"
+          },
+          {
+            "q": "count",
+            "name": "a"
+          },
+          {
+            "q": "count",
+            "name": "c"
+          }
+        ]
+      },
+      "expected_output": "groups=3\ncount[a]=1\ncount[c]=0"
+    },
+    {
+      "input": {
+        "program": "share",
+        "options": [
+          {
+            "opts": "m,multi,multi-alias",
+            "type": "int"
+          }
+        ],
+        "argv": [
+          "--multi",
+          "99"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "m",
+            "type": "int"
+          },
+          {
+            "q": "value",
+            "name": "multi",
+            "type": "int"
+          },
+          {
+            "q": "value",
+            "name": "multi-alias",
+            "type": "int"
+          }
+        ]
+      },
+      "expected_output": "value[m]=99\nvalue[multi]=99\nvalue[multi-alias]=99"
+    },
+    {
+      "input": {
+        "program": "badspec",
+        "options": [
+          {
+            "opts": ""
+          }
+        ],
+        "argv": [],
+        "queries": []
+      },
+      "expected_output": "error=invalid_option_format"
+    }
+  ]
+}

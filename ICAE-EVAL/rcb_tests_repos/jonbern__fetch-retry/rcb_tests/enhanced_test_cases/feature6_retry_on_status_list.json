@@ -1,0 +1,71 @@
+{
+  "description": "Boundary coverage for the retry-on status list: an empty list makes no response retryable, so even a server-error response resolves immediately; a list may also opt a normally-successful status into the retry policy, causing such a response to be retried until one whose status is absent from the list settles the wrapper; and a list of several statuses must keep retrying across a mix of listed statuses until a non-listed status finally resolves the wrapper.",
+  "cases": [
+    {
+      "input": {
+        "url": "http://someurl",
+        "options": {
+          "retryOn": []
+        },
+        "script": [
+          {
+            "resolve": 503
+          }
+        ]
+      },
+      "expected_output": "fetch_count=1\nurl=http://someurl\noptions_passed=true\noutcome=resolved status=503\n"
+    },
+    {
+      "input": {
+        "url": "http://someurl",
+        "options": {
+          "retryOn": [
+            200
+          ]
+        },
+        "script": [
+          {
+            "resolve": 200
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "resolve": 404
+          }
+        ]
+      },
+      "expected_output": "fetch_count=2\nurl=http://someurl\noptions_passed=true\noutcome=resolved status=404\n"
+    },
+    {
+      "input": {
+        "url": "http://someurl",
+        "options": {
+          "retryOn": [
+            500,
+            502,
+            503
+          ]
+        },
+        "script": [
+          {
+            "resolve": 502
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "resolve": 500
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "fetch_count=3\nurl=http://someurl\noptions_passed=true\noutcome=resolved status=200\n"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "description": "Evaluate the retry-eligibility decisions for a failed-execution record given its current lifecycle status, its retry-state snapshot (attempt count, timeout deadline and next-retry time point, all in epoch milliseconds) and its retry policy (maximum retry count). Three derived signals are reported. The first, retry-able, is true when the attempt count is strictly below the maximum. The second, can-retry, is true only when retry-able AND the status permits another attempt: a failed status permits it, a succeeded status never does, and a prepared status permits it only after its timeout deadline has elapsed relative to the current wall-clock time. The third, should-retry-now, is true only when can-retry holds AND the current wall-clock time has reached the next-retry time point. Timeout deadlines and next-retry time points set far in the future therefore evaluate as not-yet-timed-out and not-yet-due.",
+  "cases": [
+    {
+      "input": {
+        "action": "retry_decision",
+        "status": "FAILED",
+        "retries": 10,
+        "maxRetries": 10,
+        "timoutAt": 99999999999999,
+        "nextRetryAt": 99999999999999
+      },
+      "expected_output": "isRetryable=false\ncanRetry=false\nshouldToRetry=false\n"
+    },
+    {
+      "input": {
+        "action": "retry_decision",
+        "status": "FAILED",
+        "retries": 11,
+        "maxRetries": 10,
+        "timoutAt": 99999999999999,
+        "nextRetryAt": 99999999999999
+      },
+      "expected_output": "isRetryable=false\ncanRetry=false\nshouldToRetry=false\n"
+    },
+    {
+      "input": {
+        "action": "retry_decision",
+        "status": "FAILED",
+        "retries": 0,
+        "maxRetries": 0,
+        "timoutAt": 99999999999999,
+        "nextRetryAt": 99999999999999
+      },
+      "expected_output": "isRetryable=false\ncanRetry=false\nshouldToRetry=false\n"
+    },
+    {
+      "input": {
+        "action": "retry_decision",
+        "status": "FAILED",
+        "retries": 0,
+        "maxRetries": 10,
+        "timoutAt": 0,
+        "nextRetryAt": 0
+      },
+      "expected_output": "isRetryable=true\ncanRetry=true\nshouldToRetry=true\n"
+    },
+    {
+      "input": {
+        "action": "retry_decision",
+        "status": "PREPARED",
+        "retries": 1,
+        "maxRetries": 10,
+        "timoutAt": 0,
+        "nextRetryAt": 0
+      },
+      "expected_output": "isRetryable=true\ncanRetry=true\nshouldToRetry=true\n"
+    },
+    {
+      "input": {
+        "action": "retry_decision",
+        "status": "PREPARED",
+        "retries": 1,
+        "maxRetries": 10,
+        "timoutAt": 0,
+        "nextRetryAt": 99999999999999
+      },
+      "expected_output": "isRetryable=true\ncanRetry=true\nshouldToRetry=false\n"
+    },
+    {
+      "input": {
+        "action": "retry_decision",
+        "status": "SUCCEEDED",
+        "retries": 10,
+        "maxRetries": 10,
+        "timoutAt": 99999999999999,
+        "nextRetryAt": 99999999999999
+      },
+      "expected_output": "isRetryable=false\ncanRetry=false\nshouldToRetry=false\n"
+    }
+  ]
+}

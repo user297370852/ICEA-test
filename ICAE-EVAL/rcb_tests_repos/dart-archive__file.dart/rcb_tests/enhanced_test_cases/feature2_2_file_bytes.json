@@ -1,0 +1,80 @@
+{
+  "description": "Byte I/O coverage: a zero byte value embedded in content, reading written bytes back as UTF-8 text, and overwriting a byte file with a different-length byte sequence.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/b.bin",
+            "bytes": [
+              0,
+              10,
+              127,
+              128,
+              255
+            ]
+          },
+          {
+            "op": "read",
+            "path": "/b.bin",
+            "as": "bytes"
+          },
+          {
+            "op": "length",
+            "path": "/b.bin"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=5\nbytes=0,10,127,128,255\nlength=5\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/t.bin",
+            "bytes": [
+              104,
+              105
+            ]
+          },
+          {
+            "op": "read",
+            "path": "/t.bin"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=2\ntext=\"hi\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/o.bin",
+            "bytes": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "op": "write",
+            "path": "/o.bin",
+            "bytes": [
+              9
+            ]
+          },
+          {
+            "op": "read",
+            "path": "/o.bin",
+            "as": "bytes"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=4\nwrote_bytes=1\nbytes=9\n"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+    "description": "Transform item data with sparse fieldsets keyed by the resource type; nested requested relationships must remain available in parent and child fieldsets.",
+    "cases": [
+        {
+            "input": {
+                "operation": "transform_fieldsets",
+                "resourceKey": "articles",
+                "data": {
+                    "id": 1,
+                    "title": "Hello",
+                    "body": "Long"
+                },
+                "fieldsets": [
+                    "id",
+                    "title"
+                ]
+            },
+            "expected_output": "{\"data\":{\"id\":1,\"title\":\"Hello\"}}\n"
+        },
+        {
+            "input": {
+                "operation": "transform_fieldsets",
+                "resourceKey": "articles",
+                "data": {
+                    "id": 1,
+                    "title": "Hello",
+                    "author": {
+                        "id": 9,
+                        "name": "Lin"
+                    }
+                },
+                "includes": [
+                    "author.profile"
+                ],
+                "fieldsets": {
+                    "articles": [
+                        "id",
+                        "title"
+                    ],
+                    "author": [
+                        "id"
+                    ]
+                }
+            },
+            "expected_output": "{\"data\":{\"id\":1,\"title\":\"Hello\",\"author\":{\"id\":9,\"name\":\"Lin\"}}}\n"
+        },
+        {
+            "input": {
+                "operation": "transform_fieldsets",
+                "data": {
+                    "id": 1
+                },
+                "fieldsets": [
+                    "id"
+                ]
+            },
+            "expected_output": "error=missing_resource_key\nfeature=sparse_fieldsets\n"
+        }
+    ]
+}

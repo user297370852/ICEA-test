@@ -1,0 +1,127 @@
+{
+  "description": "Enhanced coverage for asynchronous single/multiple call completion and failure signals.",
+  "cases": [
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "executor": "default",
+        "calls": [
+          {
+            "outcomes": [
+              {
+                "return": "ok"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "future_done=true\nsuccessful=true\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "executor": "default",
+        "calls": [
+          {
+            "outcomes": [
+              {
+                "return": true
+              }
+            ]
+          },
+          {
+            "outcomes": [
+              {
+                "throw": "io_error"
+              },
+              {
+                "return": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "futures_done=2\ncompleted_successfully=2\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "executor": "provided",
+        "calls": [
+          {
+            "outcomes": [
+              {
+                "return": "x"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "future_done=true\nsuccessful=true\nexecutor=provided\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "executor": "default",
+        "calls": [
+          {
+            "outcomes": [
+              {
+                "throw": "io_error"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "future_error=retries_exhausted\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 1,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "executor": "provided",
+        "calls": [
+          {
+            "outcomes": [
+              {
+                "return": true
+              }
+            ]
+          },
+          {
+            "outcomes": [
+              {
+                "return": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "futures_done=2\ncompleted_successfully=2\nexecutor=provided\n"
+    }
+  ]
+}

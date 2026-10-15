@@ -1,0 +1,96 @@
+{
+    "description": "Build an XML document programmatically from a sequence of build operations and serialize the result. Supported operations include adding an XML declaration (with version, optional encoding, and extra attributes), a processing instruction (target plus raw content), comments, character-data (CDATA) sections, literal text, elements (with a tag name, an attribute map, an explicit self-closing preference, and nested child operations), and attributes (name, value, and optional quote style). Elements opened with children or text render with explicit open/close tags; childless elements render self-closing unless self-closing is explicitly disabled. Consecutive text additions within one element are merged. The output is the canonical serialization of the assembled document.",
+    "cases": [
+        {
+            "input": {
+                "action": "build",
+                "ops": [
+                    {
+                        "op": "declaration",
+                        "encoding": "UTF-8"
+                    },
+                    {
+                        "op": "processing",
+                        "target": "xml-stylesheet",
+                        "text": "href=\"/style.css\" type=\"text/css\" title=\"default stylesheet\""
+                    },
+                    {
+                        "op": "element",
+                        "name": "bookstore",
+                        "children": [
+                            {
+                                "op": "comment",
+                                "text": "Only one book?"
+                            },
+                            {
+                                "op": "element",
+                                "name": "book",
+                                "children": [
+                                    {
+                                        "op": "element",
+                                        "name": "title",
+                                        "children": [
+                                            {
+                                                "op": "attribute",
+                                                "name": "lang",
+                                                "value": "en"
+                                            },
+                                            {
+                                                "op": "text",
+                                                "text": "Harry "
+                                            },
+                                            {
+                                                "op": "cdata",
+                                                "text": "Potter"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "op": "element",
+                                        "name": "price",
+                                        "text": "29.99"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><?xml-stylesheet href=\"/style.css\" type=\"text/css\" title=\"default stylesheet\"?><bookstore><!--Only one book?--><book><title lang=\"en\">Harry <![CDATA[Potter]]></title><price>29.99</price></book></bookstore>\n"
+        },
+        {
+            "input": {
+                "action": "build",
+                "ops": [
+                    {
+                        "op": "element",
+                        "name": "element",
+                        "children": [
+                            {
+                                "op": "element",
+                                "name": "self-closing-default"
+                            },
+                            {
+                                "op": "element",
+                                "name": "self-closing-true",
+                                "is_self_closing": true
+                            },
+                            {
+                                "op": "element",
+                                "name": "self-closing-true-with-children",
+                                "is_self_closing": true,
+                                "text": "!"
+                            },
+                            {
+                                "op": "element",
+                                "name": "self-closing-false",
+                                "is_self_closing": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "<element><self-closing-default/><self-closing-true/><self-closing-true-with-children>!</self-closing-true-with-children><self-closing-false></self-closing-false></element>\n"
+        }
+    ]
+}

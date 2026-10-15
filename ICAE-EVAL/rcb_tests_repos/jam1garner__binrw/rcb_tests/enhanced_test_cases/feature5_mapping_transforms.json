@@ -1,0 +1,87 @@
+{
+  "description": "Edge coverage for mapping and fallible conversion: closure map with custom extra, closure with zero extra and zero byte, expr map on larger value, struct map little-endian assembly, expr map empty stream (EOF), try_map success at zero, try_map negative boundary (-32768), struct try_map negative success, struct try_map failure path, and field try_map truncated (EOF).",
+  "cases": [
+    {
+      "input": {
+        "feature": "map_transform",
+        "bytes": "0a",
+        "mode": "closure",
+        "extra": 3
+      },
+      "expected_output": "status=ok\na=13\n"
+    },
+    {
+      "input": {
+        "feature": "map_transform",
+        "bytes": "00",
+        "mode": "closure",
+        "extra": 0
+      },
+      "expected_output": "status=ok\na=0\n"
+    },
+    {
+      "input": {
+        "feature": "map_transform",
+        "bytes": "05",
+        "mode": "expr"
+      },
+      "expected_output": "status=ok\na=6\n"
+    },
+    {
+      "input": {
+        "feature": "map_transform",
+        "bytes": "ff00",
+        "mode": "struct"
+      },
+      "expected_output": "status=ok\na=255\n"
+    },
+    {
+      "input": {
+        "feature": "map_transform",
+        "bytes": "",
+        "mode": "expr"
+      },
+      "expected_output": "error=unexpected_eof\n"
+    },
+    {
+      "input": {
+        "feature": "try_map",
+        "bytes": "00000000",
+        "mode": "field"
+      },
+      "expected_output": "status=ok\na=0\n"
+    },
+    {
+      "input": {
+        "feature": "try_map",
+        "bytes": "ffff8000",
+        "mode": "field"
+      },
+      "expected_output": "status=ok\na=-32768\n"
+    },
+    {
+      "input": {
+        "feature": "try_map",
+        "bytes": "00ff",
+        "mode": "struct"
+      },
+      "expected_output": "status=ok\na=-256\n"
+    },
+    {
+      "input": {
+        "feature": "try_map",
+        "bytes": "0200",
+        "mode": "struct"
+      },
+      "expected_output": "error=custom_failure\npos=0\nmessage=conversion_failed\n"
+    },
+    {
+      "input": {
+        "feature": "try_map",
+        "bytes": "00",
+        "mode": "field"
+      },
+      "expected_output": "error=unexpected_eof\n"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "description": "Enhanced cluster coverage for empty endpoint load assignments, alternate valid discovery types, zero connect timeout, endpoint ordering, high port values, and normalized handling of an unknown discovery type.",
+  "cases": [
+    {
+      "input": {
+        "op": "cluster",
+        "name": "dns_cluster",
+        "connect_timeout_seconds": 0,
+        "http2": false,
+        "discovery_type": "STRICT_DNS",
+        "endpoints": []
+      },
+      "expected_output": "cluster=dns_cluster\nconnect_timeout_seconds=0\ndiscovery_type=STRICT_DNS\nhttp2=false\n"
+    },
+    {
+      "input": {
+        "op": "cluster",
+        "name": "multi-endpoint-h2",
+        "connect_timeout_seconds": 120,
+        "http2": true,
+        "discovery_type": "LOGICAL_DNS",
+        "endpoints": [
+          {
+            "ip": "10.10.0.1",
+            "port": 80
+          },
+          {
+            "ip": "10.10.0.1",
+            "port": 81
+          },
+          {
+            "ip": "172.16.5.9",
+            "port": 65535
+          }
+        ]
+      },
+      "expected_output": "cluster=multi-endpoint-h2\nconnect_timeout_seconds=120\ndiscovery_type=LOGICAL_DNS\nhttp2=true\nendpoint address=10.10.0.1 port=80\nendpoint address=10.10.0.1 port=81\nendpoint address=172.16.5.9 port=65535\n"
+    },
+    {
+      "input": {
+        "op": "cluster",
+        "name": "bad-discovery",
+        "connect_timeout_seconds": 1,
+        "http2": false,
+        "discovery_type": "BOGUS",
+        "endpoints": [
+          {
+            "ip": "192.0.2.10",
+            "port": 8080
+          }
+        ]
+      },
+      "expected_output": "error=unknown_discovery_type\nvalue=BOGUS\n"
+    }
+  ]
+}

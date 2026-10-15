@@ -1,0 +1,85 @@
+{
+  "description": "Once the container is closed, further update requests are silently ignored and the current value is left unchanged, so a later read reports the value as of closing. Subscribers that attach after closing are delivered only the final value followed immediately by a completion signal, and multiple late subscribers each independently observe that final value and completion. A subscriber that attaches before closing and one that attaches after closing both end up observing the same settled value and completion, reported in attachment order.",
+  "cases": [
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "close"
+          },
+          {
+            "op": "subscribe",
+            "id": "a"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[0] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 5,
+        "steps": [
+          {
+            "op": "increase"
+          },
+          {
+            "op": "close"
+          },
+          {
+            "op": "increase"
+          },
+          {
+            "op": "read"
+          },
+          {
+            "op": "subscribe",
+            "id": "a"
+          }
+        ]
+      },
+      "expected_output": "state=6\nsubscriber=a values=[6] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "increase"
+          },
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "close"
+          },
+          {
+            "op": "subscribe",
+            "id": "b"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[1] done=true\nsubscriber=b values=[1] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "close"
+          },
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "subscribe",
+            "id": "b"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[0] done=true\nsubscriber=b values=[0] done=true\n"
+    }
+  ]
+}

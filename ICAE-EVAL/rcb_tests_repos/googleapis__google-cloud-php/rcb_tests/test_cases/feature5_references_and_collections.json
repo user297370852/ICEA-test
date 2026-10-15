@@ -1,0 +1,61 @@
+{
+    "description": "Collection and document references expose stable identities, create child references, and list child collections through paged connection calls.",
+    "cases": [
+        {
+            "input": {
+                "feature": "references",
+                "operation": "collection_identity",
+                "name": "projects/example_project/databases/(default)/documents/a/b"
+            },
+            "expected_output": "{\n    \"type\": \"collection_reference\",\n    \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n    \"path\": \"a/b\",\n    \"id\": \"b\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "references",
+                "operation": "document_identity",
+                "name": "projects/example_project/databases/(default)/documents/a/b"
+            },
+            "expected_output": "{\n    \"type\": \"document_reference\",\n    \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n    \"path\": \"a/b\",\n    \"id\": \"b\",\n    \"parent\": \"projects/example_project/databases/(default)/documents/a\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "references",
+                "operation": "collection_child_document",
+                "collection": "projects/example_project/databases/(default)/documents/a/b",
+                "document_id": "foo"
+            },
+            "expected_output": "{\n    \"type\": \"document_reference\",\n    \"name\": \"projects/example_project/databases/(default)/documents/a/b/foo\",\n    \"path\": \"a/b/foo\",\n    \"id\": \"foo\",\n    \"parent\": \"projects/example_project/databases/(default)/documents/a/b\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "references",
+                "operation": "document_child_collection",
+                "document": "projects/example_project/databases/(default)/documents/a/b",
+                "collection_id": "c"
+            },
+            "expected_output": "{\n    \"type\": \"collection_reference\",\n    \"name\": \"projects/example_project/databases/(default)/documents/a/b/c\",\n    \"path\": \"a/b/c\",\n    \"id\": \"c\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "references",
+                "operation": "list_child_collections",
+                "document": "projects/example_project/databases/(default)/documents/a/b",
+                "pages": [
+                    {
+                        "collectionIds": [
+                            "c",
+                            "d"
+                        ],
+                        "nextPageToken": "token"
+                    },
+                    {
+                        "collectionIds": [
+                            "e"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"collections\": [\n        {\n            \"type\": \"collection_reference\",\n            \"name\": \"projects/example_project/databases/(default)/documents/a/b/c\",\n            \"path\": \"a/b/c\",\n            \"id\": \"c\"\n        },\n        {\n            \"type\": \"collection_reference\",\n            \"name\": \"projects/example_project/databases/(default)/documents/a/b/d\",\n            \"path\": \"a/b/d\",\n            \"id\": \"d\"\n        },\n        {\n            \"type\": \"collection_reference\",\n            \"name\": \"projects/example_project/databases/(default)/documents/a/b/e\",\n            \"path\": \"a/b/e\",\n            \"id\": \"e\"\n        }\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"list_collections\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents/a/b\"\n            }\n        },\n        {\n            \"operation\": \"list_collections\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents/a/b\",\n                \"pageToken\": \"token\"\n            }\n        }\n    ]\n}\n"
+        }
+    ]
+}

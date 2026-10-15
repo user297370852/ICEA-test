@@ -1,0 +1,16 @@
+{
+    "description": "Classify the host as an address literal when it is a complete dotted-quad IPv4 address (after normalizing Unicode dot separators) or a bracketed IPv6 address, populating the ipv4 or ipv6 field and leaving suffix empty; address-like but invalid hosts (over-range octets, wrong label count, hex octets) remain ordinary domain labels with both IP fields empty.",
+    "cases": [
+        {"input": "http://216.22.0.192/", "expected_output": "fqdn=\nsubdomain=\ndomain=216.22.0.192\nsuffix=\nipv4=216.22.0.192\nipv6=\n"},
+        {"input": "http://216.22.project.coop/", "expected_output": "fqdn=216.22.project.coop\nsubdomain=216.22\ndomain=project\nsuffix=coop\nipv4=\nipv6=\n"},
+        {"input": "http://127.0.0.1/foo/bar", "expected_output": "fqdn=\nsubdomain=\ndomain=127.0.0.1\nsuffix=\nipv4=127.0.0.1\nipv6=\n"},
+        {"input": "http://127\u30020\uff0e0\uff611/foo/bar", "expected_output": "fqdn=\nsubdomain=\ndomain=127.0.0.1\nsuffix=\nipv4=127.0.0.1\nipv6=\n"},
+        {"input": "http://256.256.256.256/foo/bar", "expected_output": "fqdn=\nsubdomain=256.256.256\ndomain=256\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "http://127.0.0/foo/bar", "expected_output": "fqdn=\nsubdomain=127.0\ndomain=0\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "http://127.0.0.0x1/foo/bar", "expected_output": "fqdn=\nsubdomain=127.0.0\ndomain=0x1\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "http://127.0.0.1.9/foo/bar", "expected_output": "fqdn=\nsubdomain=127.0.0.1\ndomain=9\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "https://apple:pass@127.0.0.1:50/a", "expected_output": "fqdn=\nsubdomain=\ndomain=127.0.0.1\nsuffix=\nipv4=127.0.0.1\nipv6=\n"},
+        {"input": "https://apple:pass@[::]:50/a", "expected_output": "fqdn=\nsubdomain=\ndomain=[::]\nsuffix=\nipv4=\nipv6=::\n"},
+        {"input": "https://apple:pass@[aBcD:ef01:2345:6789:aBcD:ef01:127.0.0.1]:50/a", "expected_output": "fqdn=\nsubdomain=\ndomain=[aBcD:ef01:2345:6789:aBcD:ef01:127.0.0.1]\nsuffix=\nipv4=\nipv6=aBcD:ef01:2345:6789:aBcD:ef01:127.0.0.1\n"}
+    ]
+}

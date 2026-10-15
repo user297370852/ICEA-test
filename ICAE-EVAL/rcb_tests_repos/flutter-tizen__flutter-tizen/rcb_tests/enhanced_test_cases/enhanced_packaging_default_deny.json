@@ -1,0 +1,52 @@
+{
+  "description": "Packaging certificate gate — default-deny behavior. Both TPK packaging stages (dotnet_tpk, native_tpk) only configure a signing certificate profile when the scenario is exactly `build_succeeds`; every other scenario value (including the implicit `default` scenario when the field is omitted, or any typo/variant) leaves the SDK without a profile and the build must be rejected with the normalized `error=no_certificate_profile` line. The native suite only checks the two named scenarios (build_succeeds, no_profile); these synthetic cases prove the gate is default-deny for unrecognized/missing scenario values, so a mistyped scenario can never silently produce an unsigned package.",
+  "cases": [
+    {
+      "input": {
+        "stage": "dotnet_tpk"
+      },
+      "expected_output": "error=no_certificate_profile\n"
+    },
+    {
+      "input": {
+        "stage": "dotnet_tpk",
+        "scenario": "default"
+      },
+      "expected_output": "error=no_certificate_profile\n"
+    },
+    {
+      "input": {
+        "stage": "dotnet_tpk",
+        "scenario": "Build_Succeeds"
+      },
+      "expected_output": "error=no_certificate_profile\n"
+    },
+    {
+      "input": {
+        "stage": "dotnet_tpk",
+        "scenario": "build_fails"
+      },
+      "expected_output": "error=no_certificate_profile\n"
+    },
+    {
+      "input": {
+        "stage": "native_tpk"
+      },
+      "expected_output": "error=no_certificate_profile\n"
+    },
+    {
+      "input": {
+        "stage": "native_tpk",
+        "scenario": "default"
+      },
+      "expected_output": "error=no_certificate_profile\n"
+    },
+    {
+      "input": {
+        "stage": "native_tpk",
+        "scenario": "BUILD_SUCCEEDS"
+      },
+      "expected_output": "error=no_certificate_profile\n"
+    }
+  ]
+}

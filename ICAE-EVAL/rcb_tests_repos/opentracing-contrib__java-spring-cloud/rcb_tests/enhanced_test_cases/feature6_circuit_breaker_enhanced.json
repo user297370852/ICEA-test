@@ -1,0 +1,26 @@
+{
+  "feature": "circuit_breaker",
+  "description": "Synthetic circuit-breaker tracing edge coverage for alternate command metadata values.",
+  "cases": [
+    {
+      "name": "traced_command_uses_custom_group_as_thread_pool_key",
+      "input": {
+        "feature": "circuit_breaker",
+        "scenario": "traced_command",
+        "command_group": "inventoryGroup",
+        "command_key": "reserveStock"
+      },
+      "expected_output": "spans=3\ndistinct_traces=1\nop=caller component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=root\nop=doRun component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=reserveStock\nop=reserveStock component=hystrix span.kind=- http.status=- attrs=[commandGroup=inventoryGroup;commandKey=reserveStock;threadPoolKey=inventoryGroup] error=false error_log=- parent=caller\n"
+    },
+    {
+      "name": "traced_command_preserves_mixed_case_metadata",
+      "input": {
+        "feature": "circuit_breaker",
+        "scenario": "traced_command",
+        "command_group": "CheckoutGroup",
+        "command_key": "PayNow"
+      },
+      "expected_output": "spans=3\ndistinct_traces=1\nop=PayNow component=hystrix span.kind=- http.status=- attrs=[commandGroup=CheckoutGroup;commandKey=PayNow;threadPoolKey=CheckoutGroup] error=false error_log=- parent=caller\nop=caller component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=root\nop=doRun component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=PayNow\n"
+    }
+  ]
+}

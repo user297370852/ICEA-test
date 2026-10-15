@@ -1,0 +1,41 @@
+{
+  "description": "Attempt to export one stored batch for spans, metrics, and logs with configured exporter availability, exporter outcomes, and export timeout.",
+  "cases": [
+    {
+      "input": {"timeout_ms": 10000, "availability": {"spans": true, "metrics": true, "logs": true}, "results": {"spans": [true], "metrics": [], "logs": []}, "operation": "spans"},
+      "expected_output": "exported=true\nspans_calls=1\nspans_timeout_ms=10000\nmetrics_calls=0\nlogs_calls=0\n"
+    },
+    {
+      "input": {"availability": {"spans": true, "metrics": true, "logs": true}, "results": {"spans": [true], "metrics": [], "logs": []}, "operation": "spans"},
+      "expected_output": "exported=true\nspans_calls=1\nspans_timeout_ms=5000\nmetrics_calls=0\nlogs_calls=0\n"
+    },
+    {
+      "input": {"availability": {"spans": true, "metrics": true, "logs": true}, "results": {"spans": [], "metrics": [true], "logs": []}, "operation": "metrics"},
+      "expected_output": "exported=true\nspans_calls=0\nmetrics_calls=1\nmetrics_timeout_ms=5000\nlogs_calls=0\n"
+    },
+    {
+      "input": {"availability": {"spans": true, "metrics": true, "logs": true}, "results": {"spans": [], "metrics": [], "logs": [true]}, "operation": "logs"},
+      "expected_output": "exported=true\nspans_calls=0\nmetrics_calls=0\nlogs_calls=1\nlogs_timeout_ms=5000\n"
+    },
+    {
+      "input": {"availability": {"spans": true, "metrics": true, "logs": true}, "results": {"spans": [false], "metrics": [false], "logs": [false]}, "operation": "each"},
+      "expected_output": "exported=false\nspans_calls=1\nspans_timeout_ms=5000\nmetrics_calls=1\nmetrics_timeout_ms=5000\nlogs_calls=1\nlogs_timeout_ms=5000\n"
+    },
+    {
+      "input": {"availability": {"spans": true, "metrics": true, "logs": true}, "results": {"spans": [true], "metrics": [false], "logs": [false]}, "operation": "each"},
+      "expected_output": "exported=true\nspans_calls=1\nspans_timeout_ms=5000\nmetrics_calls=1\nmetrics_timeout_ms=5000\nlogs_calls=1\nlogs_timeout_ms=5000\n"
+    },
+    {
+      "input": {"availability": {"spans": false, "metrics": true, "logs": true}, "results": {"spans": [], "metrics": [], "logs": []}, "operation": "spans"},
+      "expected_output": "exported=false\nspans_calls=0\nmetrics_calls=0\nlogs_calls=0\n"
+    },
+    {
+      "input": {"availability": {"spans": true, "metrics": false, "logs": true}, "results": {"spans": [], "metrics": [], "logs": []}, "operation": "metrics"},
+      "expected_output": "exported=false\nspans_calls=0\nmetrics_calls=0\nlogs_calls=0\n"
+    },
+    {
+      "input": {"availability": {"spans": true, "metrics": true, "logs": false}, "results": {"spans": [], "metrics": [], "logs": []}, "operation": "logs"},
+      "expected_output": "exported=false\nspans_calls=0\nmetrics_calls=0\nlogs_calls=0\n"
+    }
+  ]
+}

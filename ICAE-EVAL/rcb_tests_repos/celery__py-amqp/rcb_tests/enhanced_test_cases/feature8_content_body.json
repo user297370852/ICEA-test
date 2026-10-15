@@ -1,0 +1,57 @@
+{
+  "description": "Body reassembly variants: a single chunk that exactly completes the body; many small byte chunks; a text body delivered as one string chunk; and a body completed from already-pending chunks plus a final chunk.",
+  "cases": [
+    {
+      "input": {
+        "op": "content_body",
+        "body_size": 4,
+        "chunks": [
+          "deadbeef"
+        ]
+      },
+      "expected_output": "ready=true\nbody_hex=deadbeef"
+    },
+    {
+      "input": {
+        "op": "content_body",
+        "body_size": 6,
+        "chunks": [
+          "01",
+          "02",
+          "03",
+          "04",
+          "05",
+          "06"
+        ]
+      },
+      "expected_output": "ready=false\nready=false\nready=false\nready=false\nready=false\nready=true\nbody_hex=010203040506"
+    },
+    {
+      "input": {
+        "op": "content_body",
+        "body_size": 5,
+        "chunks": [
+          {
+            "str": "hello"
+          }
+        ]
+      },
+      "expected_output": "ready=true\nbody_str=hello"
+    },
+    {
+      "input": {
+        "op": "content_body",
+        "body_size": 5,
+        "received": 3,
+        "pending": [
+          "6162",
+          "63"
+        ],
+        "chunks": [
+          "6465"
+        ]
+      },
+      "expected_output": "ready=true\nbody_hex=6162636465"
+    }
+  ]
+}

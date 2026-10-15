@@ -1,0 +1,21 @@
+{
+  "description": "Subcomponent structural validation, additional shapes: declaring two factory inner interfaces is rejected (exactly one factory inner interface required), and a factory inner interface with no functions is rejected (exactly one function returning the subcomponent required).",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent\nimport software.amazon.lastmile.kotlin.inject.anvil.SingleIn\n\n@ContributesSubcomponent(String::class)\n@SingleIn(String::class)\ninterface SubcomponentInterface {\n    @ContributesSubcomponent.Factory(Unit::class)\n    interface Factory {\n        fun createSubcomponentInterface(): SubcomponentInterface\n    }\n    @ContributesSubcomponent.Factory(Unit::class)\n    interface Factory2 {\n        fun createSubcomponentInterface(): SubcomponentInterface\n    }\n}\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Contributed subcomponent must have exactly one inner interface annotated with @ContributesSubcomponent.Factory.\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesSubcomponent\nimport software.amazon.lastmile.kotlin.inject.anvil.SingleIn\n\n@ContributesSubcomponent(String::class)\n@SingleIn(String::class)\ninterface SubcomponentInterface {\n    @ContributesSubcomponent.Factory(Unit::class)\n    interface Factory\n}\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Factory interfaces must contain exactly one function with the subcomponent as return type.\n"
+    }
+  ]
+}

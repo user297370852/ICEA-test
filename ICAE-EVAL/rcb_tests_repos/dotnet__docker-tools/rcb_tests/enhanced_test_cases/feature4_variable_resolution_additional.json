@@ -1,0 +1,67 @@
+{
+  "description": "Additional variable-resolution cases covering empty inputs, multiple references in a value, override chains, null-reference handling, option-provided references, and undefined variables in override values.",
+  "cases": [
+    {
+      "input": {
+        "action": "resolve_variables"
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "action": "resolve_variables",
+        "manifest_variables": {
+          "major": "8",
+          "minor": "0",
+          "version": "$(major).$(minor)",
+          "tag": "v$(version)-$(major)"
+        }
+      },
+      "expected_output": "count=4\nmajor=8\nminor=0\ntag=v8.0-8\nversion=8.0\n"
+    },
+    {
+      "input": {
+        "action": "resolve_variables",
+        "manifest_variables": {
+          "base": "old",
+          "child": "$(base)-child"
+        },
+        "options_variables": {
+          "base": "new",
+          "extra": "$(child)-extra"
+        }
+      },
+      "expected_output": "count=3\nbase=new\nchild=new-child\nextra=new-child-extra\n"
+    },
+    {
+      "input": {
+        "action": "resolve_variables",
+        "manifest_variables": {
+          "empty": null
+        }
+      },
+      "expected_output": "count=1\nempty=\n"
+    },
+    {
+      "input": {
+        "action": "resolve_variables",
+        "manifest_variables": {
+          "root": "$(late)"
+        },
+        "options_variables": {
+          "late": "value"
+        }
+      },
+      "expected_output": "count=2\nlate=value\nroot=value\n"
+    },
+    {
+      "input": {
+        "action": "resolve_variables",
+        "options_variables": {
+          "broken": "$(missing)-x"
+        }
+      },
+      "expected_output": "error=undefined_variable\n"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+    "description": "Parse an LDAP search filter string into a node tree and reassemble it into canonical form. The output reports \"nodes=\", a JSON tree where each group node is {group: operator, nodes: [...]} and each leaf condition is {attribute, operator, value}, followed by \"assembled=\", the canonical filter rebuilt from that tree. Reassembly drops redundant surrounding parentheses and insignificant whitespace while preserving spaces inside values, and supports several sibling root nodes. A structurally invalid filter (unbalanced parentheses, an unclosed nested group, or a malformed condition) is reported as a single neutral error line \"error=parser_exception\".",
+    "cases": [
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(|(foo=bar)(:baz:~=zal))"
+            },
+            "expected_output": "nodes=[{\"group\":\"|\",\"nodes\":[{\"attribute\":\"foo\",\"operator\":\"=\",\"value\":\"bar\"},{\"attribute\":\":baz:\",\"operator\":\"~=\",\"value\":\"zal\"}]}]\nassembled=(|(foo=bar)(:baz:~=zal))\n"
+        },
+        {
+            "input": {
+                "op": "parse_filter",
+                "value": "(|(foo=bar)(:baz:~=zal)))"
+            },
+            "expected_output": "error=parser_exception\n"
+        }
+    ]
+}

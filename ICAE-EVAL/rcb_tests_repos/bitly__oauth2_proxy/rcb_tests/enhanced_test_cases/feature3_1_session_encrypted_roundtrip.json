@@ -1,0 +1,61 @@
+{
+  "description": "Boundary coverage for encrypted session round-trip: a 16-byte and a 24-byte secret (other accepted AES key sizes) round-trip every field; an empty refresh token round-trips as empty while the access token recovers; a session with a zero/epoch expiry and one with a far-future expiry both recover the clear expiry exactly; decoding with a different same-length secret recovers the clear fields but not the encrypted tokens.",
+  "cases": [
+    {
+      "input": {
+        "action": "session_encrypted_roundtrip",
+        "secret": "0123456789abcdef",
+        "email": "alice@corp.com",
+        "access_token": "AT-16",
+        "refresh_token": "RT-16",
+        "expires_unix": 4102444800
+      },
+      "expected_output": "field_count=4\nemail=alice@corp.com\nuser=alice\nexpires_unix=4102444800\naccess_token=AT-16\nrefresh_token=RT-16\n"
+    },
+    {
+      "input": {
+        "action": "session_encrypted_roundtrip",
+        "secret": "0123456789abcdefghijklmn",
+        "email": "bob@corp.com",
+        "access_token": "AT-24",
+        "refresh_token": "RT-24",
+        "expires_unix": 2000000000
+      },
+      "expected_output": "field_count=4\nemail=bob@corp.com\nuser=bob\nexpires_unix=2000000000\naccess_token=AT-24\nrefresh_token=RT-24\n"
+    },
+    {
+      "input": {
+        "action": "session_encrypted_roundtrip",
+        "secret": "0123456789abcdefghijklmnopqrstuv",
+        "email": "user@domain.com",
+        "access_token": "onlyaccess",
+        "refresh_token": "",
+        "expires_unix": 4102444800
+      },
+      "expected_output": "field_count=4\nemail=user@domain.com\nuser=user\nexpires_unix=4102444800\naccess_token=onlyaccess\nrefresh_token=\n"
+    },
+    {
+      "input": {
+        "action": "session_encrypted_roundtrip",
+        "secret": "0123456789abcdefghijklmnopqrstuv",
+        "email": "user@domain.com",
+        "access_token": "tk",
+        "refresh_token": "rf",
+        "expires_unix": 0
+      },
+      "expected_output": "field_count=4\nemail=user@domain.com\nuser=user\nexpires_unix=0\naccess_token=tk\nrefresh_token=rf\n"
+    },
+    {
+      "input": {
+        "action": "session_encrypted_roundtrip",
+        "secret": "0123456789abcdef",
+        "decode_secret": "fedcba9876543210",
+        "email": "user@domain.com",
+        "access_token": "token1234",
+        "refresh_token": "refresh4321",
+        "expires_unix": 4102444800
+      },
+      "expected_output": "field_count=4\nemail=user@domain.com\nuser=user\nexpires_unix=4102444800\naccess_token=<not-recovered>\nrefresh_token=<not-recovered>\n"
+    }
+  ]
+}

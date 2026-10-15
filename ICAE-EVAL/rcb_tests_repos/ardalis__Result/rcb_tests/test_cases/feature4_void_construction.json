@@ -1,0 +1,98 @@
+{
+    "description": "Build a result that carries no value through its constructor and named factory methods, then observe its status, success flag, optional success message, correlation identifier, error messages and validation errors. The carried value is always absent. The plain constructor and the success factory (with or without a success message) report a successful status; the error factory reports an error status with the supplied messages, and a dedicated variant additionally attaches a correlation identifier; the invalid factory reports an invalid status carrying validation errors; the not-found, forbidden and unauthorized factories report their respective statuses.",
+    "cases": [
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "ctor"
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "success"
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "success_message",
+                "message": "success"
+            },
+            "expected_output": "status=Ok\nisSuccess=true\nvalue=null\nsuccessMessage=success\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "error",
+                "errors": [
+                    "test1"
+                ]
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=test1\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "error",
+                "errors": [
+                    "test1",
+                    "test2"
+                ]
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=test1|test2\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "error_correlation",
+                "correlation_id": "testId",
+                "errors": [
+                    "Error 1",
+                    "Error 2"
+                ]
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=testId\nerrors=Error 1|Error 2\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "invalid",
+                "validation_errors": [
+                    {
+                        "identifier": "name",
+                        "error_message": "Name is required"
+                    },
+                    {
+                        "identifier": "postalCode",
+                        "error_message": "PostalCode cannot exceed 10 characters"
+                    }
+                ]
+            },
+            "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=name;message=Name is required;code=;severity=Error|identifier=postalCode;message=PostalCode cannot exceed 10 characters;code=;severity=Error\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "not_found"
+            },
+            "expected_output": "status=NotFound\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "forbidden"
+            },
+            "expected_output": "status=Forbidden\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "build_void",
+                "factory": "unauthorized"
+            },
+            "expected_output": "status=Unauthorized\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        }
+    ]
+}

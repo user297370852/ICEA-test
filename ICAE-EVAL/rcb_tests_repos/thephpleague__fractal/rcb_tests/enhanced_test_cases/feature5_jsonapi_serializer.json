@@ -1,0 +1,63 @@
+{
+  "description": "Serialize transformed resources as a compound document with side-loaded relationships: primary records are placed as an array under the supplied resource key or a default data key, and included relationships are collected into a separate top-level linked section grouped by relationship name with de-duplication by id. These cases exercise empty collections, items without includes, and repeated related entities sharing an id across more than two records.",
+  "cases": [
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "json_api",
+        "resource": "collection",
+        "data": []
+      },
+      "expected_output": "{\"data\":[]}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "json_api",
+        "resource": "item",
+        "resource_key": "book",
+        "data": {
+          "title": "Solo",
+          "year": "2001"
+        }
+      },
+      "expected_output": "{\"book\":[{\"title\":\"Solo\",\"year\":2001}]}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "json_api",
+        "resource": "collection",
+        "resource_key": "book",
+        "includes": "author",
+        "data": [
+          {
+            "title": "A",
+            "year": "2001",
+            "_author": {
+              "id": 7,
+              "name": "Sam"
+            }
+          },
+          {
+            "title": "B",
+            "year": "2002",
+            "_author": {
+              "id": 7,
+              "name": "Sam"
+            }
+          },
+          {
+            "title": "C",
+            "year": "2003",
+            "_author": {
+              "id": 8,
+              "name": "Pat"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"book\":[{\"title\":\"A\",\"year\":2001},{\"title\":\"B\",\"year\":2002},{\"title\":\"C\",\"year\":2003}],\"linked\":{\"author\":[{\"id\":7,\"name\":\"Sam\"},{\"id\":8,\"name\":\"Pat\"}]}}\n"
+    }
+  ]
+}

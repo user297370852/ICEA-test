@@ -1,0 +1,28 @@
+{
+    "description": "Locate the visible host inside URL-like syntax before extraction: strip accepted scheme and scheme-relative prefixes, drop user credentials and port, ignore path/query/fragment text, and treat malformed scheme-like prefixes as plain text or empty hosts exactly as the lenient host detection rules dictate.",
+    "cases": [
+        {"input": "//", "expected_output": "fqdn=\nsubdomain=\ndomain=\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "://", "expected_output": "fqdn=\nsubdomain=\ndomain=\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "://example.com", "expected_output": "fqdn=\nsubdomain=\ndomain=\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "a+-.://example.com", "expected_output": "fqdn=example.com\nsubdomain=\ndomain=example\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "a#//example.com", "expected_output": "fqdn=\nsubdomain=\ndomain=a\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "a@://example.com", "expected_output": "fqdn=\nsubdomain=\ndomain=\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "#//example.com", "expected_output": "fqdn=\nsubdomain=\ndomain=\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "http://", "expected_output": "fqdn=\nsubdomain=\ndomain=\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": "https://mail.google.com/mail", "expected_output": "fqdn=mail.google.com\nsubdomain=mail\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "ssh://mail.google.com/mail", "expected_output": "fqdn=mail.google.com\nsubdomain=mail\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "//mail.google.com/mail", "expected_output": "fqdn=mail.google.com\nsubdomain=mail\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "mail.google.com/mail", "expected_output": "fqdn=mail.google.com\nsubdomain=mail\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "git+ssh://www.github.com:8443/", "expected_output": "fqdn=www.github.com\nsubdomain=www\ndomain=github\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "ftp://johndoe:5cr1p7k1dd13@1337.warez.com:2501", "expected_output": "fqdn=1337.warez.com\nsubdomain=1337\ndomain=warez\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://google.com?q=cats", "expected_output": "fqdn=google.com\nsubdomain=\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://google.com#Welcome", "expected_output": "fqdn=google.com\nsubdomain=\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://google.com/#Welcome", "expected_output": "fqdn=google.com\nsubdomain=\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://google.com/s#Welcome", "expected_output": "fqdn=google.com\nsubdomain=\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://google.com/s?q=cats#Welcome", "expected_output": "fqdn=google.com\nsubdomain=\ndomain=google\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://www.example.com./", "expected_output": "fqdn=www.example.com\nsubdomain=www\ndomain=example\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://www.example.com\u3002/", "expected_output": "fqdn=www.example.com\nsubdomain=www\ndomain=example\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://www.example.com\uff0e/", "expected_output": "fqdn=www.example.com\nsubdomain=www\ndomain=example\nsuffix=com\nipv4=\nipv6=\n"},
+        {"input": "http://www.example.com\uff61/", "expected_output": "fqdn=www.example.com\nsubdomain=www\ndomain=example\nsuffix=com\nipv4=\nipv6=\n"}
+    ]
+}

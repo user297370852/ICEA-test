@@ -1,0 +1,61 @@
+{
+  "description": "Cloud event normalization edge cases: explicit non-200 gateway/ALB status codes via the /test/201 route, exercising statusDescription and base64 input handling beyond the native suite.",
+  "cases": [
+    {
+      "input": {
+        "feature": "cloudEvent",
+        "event": {
+          "path": "/test/201",
+          "httpMethod": "GET",
+          "headers": {
+            "Host": "wt6mne2s9k.execute-api.us-west-2.amazonaws.com"
+          },
+          "multiValueHeaders": {
+            "host": [
+              "wt6mne2s9k.execute-api.us-west-2.amazonaws.com"
+            ]
+          },
+          "requestContext": {
+            "identity": {
+              "sourceIp": "203.0.113.5"
+            },
+            "stage": "test"
+          },
+          "queryStringParameters": null,
+          "multiValueQueryStringParameters": null
+        }
+      },
+      "expected_output": "status=201\nbase64=false\nheaders={\"content-type\":[\"application/json\"]}\nbody={\"request\":{\"interface\":\"apigateway\",\"ip\":\"203.0.113.5\",\"route\":\"/test/201\",\"isBase64Encoded\":false}}\n"
+    },
+    {
+      "input": {
+        "feature": "cloudEvent",
+        "event": {
+          "requestContext": {
+            "elb": {
+              "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:XXXXXXXXXX:targetgroup/Test-ALB-Lambda/XXXXXXX"
+            }
+          },
+          "httpMethod": "GET",
+          "path": "/test/201",
+          "multiValueQueryStringParameters": {
+            "qs1": [
+              "foo"
+            ]
+          },
+          "multiValueHeaders": {
+            "host": [
+              "wt6mne2s9k.execute-api.us-west-2.amazonaws.com"
+            ],
+            "x-forwarded-for": [
+              "198.51.100.7"
+            ]
+          },
+          "body": "",
+          "isBase64Encoded": false
+        }
+      },
+      "expected_output": "status=201\nstatus_description=201 Created\nbase64=false\nheaders={\"content-type\":[\"application/json\"]}\nbody={\"request\":{\"interface\":\"alb\",\"ip\":\"198.51.100.7\",\"route\":\"/test/201\",\"isBase64Encoded\":false}}\n"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+    "description": "Parse a server metrics exposition text and extract, per endpoint label, the total accumulated request-duration (sum) and the total request count, keyed by endpoint. Only the duration sum and count series for the request-duration metric family are recognized; comment lines and unrelated metric families are ignored. Endpoints that appear only in one series produce a value only in that series.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_metrics",
+                "text": "# HELP martin_http_requests_duration_seconds HTTP request duration in seconds for all requests\n# TYPE martin_http_requests_duration_seconds histogram\nmartin_http_requests_duration_seconds_sum{endpoint=\"/sprite/{source_ids}.json\",method=\"GET\",status=\"200\"} 12.5\nmartin_http_requests_duration_seconds_count{endpoint=\"/sprite/{source_ids}.json\",method=\"GET\",status=\"200\"} 50\nmartin_http_requests_duration_seconds_sum{endpoint=\"/font/{fontstack}/{start}-{end}\",method=\"GET\",status=\"200\"} 3.2\nmartin_http_requests_duration_seconds_count{endpoint=\"/font/{fontstack}/{start}-{end}\",method=\"GET\",status=\"200\"} 8\nmartin_http_requests_duration_seconds_sum{endpoint=\"/style/{style_id}\",method=\"GET\",status=\"200\"} 7.0\nmartin_http_requests_duration_seconds_count{endpoint=\"/style/{style_id}\",method=\"GET\",status=\"200\"} 14"
+            },
+            "expected_output": "sum /sprite/{source_ids}.json 12.5\nsum /font/{fontstack}/{start}-{end} 3.2\nsum /style/{style_id} 7\ncount /sprite/{source_ids}.json 50\ncount /font/{fontstack}/{start}-{end} 8\ncount /style/{style_id} 14\n"
+        },
+        {
+            "input": {
+                "action": "parse_metrics",
+                "text": "other_metric{foo=\"bar\"} 123\nmartin_http_requests_duration_seconds_sum{endpoint=\"/catalog\",method=\"GET\",status=\"200\"} 1.1\nmartin_http_requests_duration_seconds_count{endpoint=\"/catalog\",method=\"GET\",status=\"200\"} 2"
+            },
+            "expected_output": "sum /catalog 1.1\ncount /catalog 2\n"
+        }
+    ]
+}

@@ -1,0 +1,51 @@
+{
+    "description": "Skip re-rendering when properties have not meaningfully changed. Two strategies exist: compare every property shallowly, or compare only a named subset of properties. Output emits the cumulative render count after the initial render and after each property update; the count only grows when a watched property changes.",
+    "cases": [
+        {
+            "input": {
+                "command": "memoize",
+                "strategy": {
+                    "type": "all"
+                },
+                "initial_props": {
+                    "foo": "bar"
+                },
+                "prop_updates": [
+                    {
+                        "foo": "bar"
+                    },
+                    {
+                        "foo": "baz"
+                    }
+                ]
+            },
+            "expected_output": "renders=1\nrenders=1\nrenders=2\n"
+        },
+        {
+            "input": {
+                "command": "memoize",
+                "strategy": {
+                    "type": "keys",
+                    "keys": [
+                        "counter"
+                    ]
+                },
+                "initial_props": {
+                    "counter": 0,
+                    "foobar": "foobar"
+                },
+                "prop_updates": [
+                    {
+                        "counter": 0,
+                        "foobar": "barbaz"
+                    },
+                    {
+                        "counter": 42,
+                        "foobar": "barbaz"
+                    }
+                ]
+            },
+            "expected_output": "renders=1\nrenders=1\nrenders=2\n"
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+  "description": "Additional dependency-inventory coverage: an empty repository (one analyzed package, no dependencies), a single workflow referencing a pinned action and a container image, and a docker-based reusable action.",
+  "cases": [
+    {
+      "input": {
+        "op": "inventory_purls",
+        "purl": "pkg:github/org/owner",
+        "files": {}
+      },
+      "expected_output": "packages=1\nbuild_dependencies=0\npackage_dependencies=0\n"
+    },
+    {
+      "input": {
+        "op": "inventory_purls",
+        "purl": "pkg:github/org/owner",
+        "files": {
+          ".github/workflows/ci.yml": "on: push\njobs:\n  build:\n    runs-on: ubuntu-latest\n    container:\n      image: node:20\n    steps:\n      - uses: actions/checkout@v4\n"
+        }
+      },
+      "expected_output": "purl=pkg:docker/node%3A20\npurl=pkg:githubactions/actions/checkout@v4\npackages=1\nbuild_dependencies=2\npackage_dependencies=0\n"
+    },
+    {
+      "input": {
+        "op": "inventory_purls",
+        "purl": "pkg:github/org/owner",
+        "files": {
+          "action.yml": "runs:\n  using: docker\n  image: docker://alpine:3.19\n"
+        }
+      },
+      "expected_output": "purl=pkg:docker/alpine%3A3.19\npackages=1\nbuild_dependencies=0\npackage_dependencies=1\n"
+    }
+  ]
+}

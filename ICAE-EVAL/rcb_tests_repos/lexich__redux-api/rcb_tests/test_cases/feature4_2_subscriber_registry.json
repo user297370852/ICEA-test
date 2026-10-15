@@ -1,0 +1,35 @@
+{
+  "description": "A one-shot subscriber registry collects callbacks and later notifies all of them exactly once, then empties itself. Only callable subscribers are stored (non-callable pushes are ignored). On `resolve` each subscriber is invoked with a null error and the payload as data; on `reject` each is invoked with the payload as the error. After notification the registry holds zero subscribers.",
+  "cases": [
+    {
+      "input": {
+        "op": "notify_subscribers",
+        "subscribers": 2,
+        "action": "reject",
+        "payload": "err"
+      },
+      "expected_output": "registered=2\nsubscriber index=0 err=\"err\"\nsubscriber index=1 err=\"err\"\nremaining=0\n"
+    },
+    {
+      "input": {
+        "op": "notify_subscribers",
+        "subscribers": 2,
+        "action": "resolve",
+        "payload": "ok"
+      },
+      "expected_output": "registered=2\nsubscriber index=0 err=null data=\"ok\"\nsubscriber index=1 err=null data=\"ok\"\nremaining=0\n"
+    },
+    {
+      "input": {
+        "op": "notify_subscribers",
+        "subscribers": 1,
+        "pushNonFunction": {
+          "value": 42
+        },
+        "action": "resolve",
+        "payload": "ok"
+      },
+      "expected_output": "registered=1\nsubscriber index=0 err=null data=\"ok\"\nremaining=0\n"
+    }
+  ]
+}

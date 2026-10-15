@@ -1,0 +1,33 @@
+{
+    "description": "An error value is constructed in one of several ways and then queried for membership in the not-found category. Construction variants are: building a categorized error directly from a message; tagging an existing plain error with the category, which is a nil-safe operation that yields no error when there is no underlying error; supplying no error at all; or providing a foreign error that advertises its own category membership through a boolean self-report. The query walks the chain of wrapped causes, so a categorized error stays recognizable even after being wrapped by an unrelated cause-bearing error. The output reports the queried category name, whether the value is recognized as a member of that category, and the value's textual message (empty when there is no error).",
+    "cases": [
+        {
+            "input": {"action": "classify", "category": "not_found", "error": {"build": "new", "message": "foo not found"}},
+            "expected_output": "category=not_found\nclassified=true\nmessage=foo not found\n"
+        },
+        {
+            "input": {"action": "classify", "category": "not_found", "error": {"build": "wrap", "message": "this is a test"}},
+            "expected_output": "category=not_found\nclassified=true\nmessage=this is a test\n"
+        },
+        {
+            "input": {"action": "classify", "category": "not_found", "error": {"build": "wrap", "message": null}},
+            "expected_output": "category=not_found\nclassified=false\nmessage=\n"
+        },
+        {
+            "input": {"action": "classify", "category": "not_found", "error": null},
+            "expected_output": "category=not_found\nclassified=false\nmessage=\n"
+        },
+        {
+            "input": {"action": "classify", "category": "not_found", "error": {"build": "custom", "flag": false}},
+            "expected_output": "category=not_found\nclassified=false\nmessage=false\n"
+        },
+        {
+            "input": {"action": "classify", "category": "not_found", "error": {"build": "custom", "flag": true}},
+            "expected_output": "category=not_found\nclassified=true\nmessage=true\n"
+        },
+        {
+            "input": {"action": "classify", "category": "not_found", "error": {"build": "new", "message": "test"}, "wrap_in_cause": true},
+            "expected_output": "category=not_found\nclassified=true\nmessage=some details: test\n"
+        }
+    ]
+}

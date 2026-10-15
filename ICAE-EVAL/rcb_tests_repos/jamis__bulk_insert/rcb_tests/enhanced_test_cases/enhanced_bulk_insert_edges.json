@@ -1,0 +1,288 @@
+{
+  "description": "Synthetic native-disjoint edge coverage for bulk insert queueing, defaults, batch flushing, hooks, generated ids, and SQL rendering.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "queue_state",
+        "rows": []
+      },
+      "expected_output": "pending_initial=false\npending_count_initial=0\n"
+    },
+    {
+      "input": {
+        "scenario": "queue_state",
+        "batch_limit": 2,
+        "rows": [
+          [
+            "One",
+            0,
+            false
+          ],
+          [
+            "Two",
+            -1,
+            true
+          ],
+          [
+            "Three",
+            999999,
+            false
+          ]
+        ]
+      },
+      "expected_output": "pending_initial=false\npending_count_initial=0\npending_after_row1=true\npending_count_after_row1=1\npending_after_row2=true\npending_count_after_row2=2\npending_after_row3=true\npending_count_after_row3=1\n"
+    },
+    {
+      "input": {
+        "scenario": "buffered_insert",
+        "rows": []
+      },
+      "expected_output": "pending_before_save=false\npending_count_before_save=0\ndatabase_count_before_save=0\npending_after_save=false\npending_count_after_save=0\ndatabase_count_after_save=0\ngenerated_id_batches=0\n"
+    },
+    {
+      "input": {
+        "scenario": "buffered_insert",
+        "return_generated_ids": true,
+        "rows": [
+          {
+            "greeting": "",
+            "age": 0,
+            "happy": false,
+            "color": "blue"
+          },
+          {
+            "greeting": "Dup",
+            "age": -5,
+            "happy": true,
+            "color": null
+          },
+          {
+            "greeting": "Dup",
+            "age": 2147483647,
+            "happy": false
+          }
+        ]
+      },
+      "expected_output": "pending_before_save=true\npending_count_before_save=3\ndatabase_count_before_save=0\npending_after_save=false\npending_count_after_save=0\ndatabase_count_after_save=3\ngenerated_id_batches=1\nrecord1.greeting=\nrecord1.age=0\nrecord1.happy=false\nrecord1.color=blue\nrecord1.created_at_present=true\nrecord1.updated_at_present=true\nrecord2.greeting=Dup\nrecord2.age=-5\nrecord2.happy=true\nrecord2.color=null\nrecord2.created_at_present=true\nrecord2.updated_at_present=true\nrecord3.greeting=Dup\nrecord3.age=2147483647\nrecord3.happy=false\nrecord3.color=chartreuse\nrecord3.created_at_present=true\nrecord3.updated_at_present=true\n"
+    },
+    {
+      "input": {
+        "scenario": "block_insert",
+        "rows": []
+      },
+      "expected_output": "database_count=0\n"
+    },
+    {
+      "input": {
+        "scenario": "batch_limit",
+        "batch_limit": 2,
+        "rows": [
+          [
+            "A",
+            1,
+            true
+          ],
+          [
+            "B",
+            2,
+            false
+          ],
+          [
+            "C",
+            3,
+            true
+          ],
+          [
+            "D",
+            4,
+            false
+          ],
+          [
+            "E",
+            5,
+            true
+          ]
+        ]
+      },
+      "expected_output": "after_row1_database_count=0\nafter_row1_pending_count=1\nafter_row2_database_count=0\nafter_row2_pending_count=2\nafter_row3_database_count=2\nafter_row3_pending_count=1\nafter_row4_database_count=2\nafter_row4_pending_count=2\nafter_row5_database_count=4\nafter_row5_pending_count=1\nafter_final_save_database_count=5\nrecord1.greeting=A\nrecord1.age=1\nrecord1.happy=true\nrecord1.color=chartreuse\nrecord1.created_at_present=true\nrecord1.updated_at_present=true\nrecord2.greeting=B\nrecord2.age=2\nrecord2.happy=false\nrecord2.color=chartreuse\nrecord2.created_at_present=true\nrecord2.updated_at_present=true\nrecord3.greeting=C\nrecord3.age=3\nrecord3.happy=true\nrecord3.color=chartreuse\nrecord3.created_at_present=true\nrecord3.updated_at_present=true\nrecord4.greeting=D\nrecord4.age=4\nrecord4.happy=false\nrecord4.color=chartreuse\nrecord4.created_at_present=true\nrecord4.updated_at_present=true\nrecord5.greeting=E\nrecord5.age=5\nrecord5.happy=true\nrecord5.color=chartreuse\nrecord5.created_at_present=true\nrecord5.updated_at_present=true\n"
+    },
+    {
+      "input": {
+        "scenario": "timestamp_defaults",
+        "rows": [
+          [
+            "Solo",
+            77,
+            true
+          ]
+        ]
+      },
+      "expected_output": "database_count=1\nrecord1.created_at_present=true\nrecord1.updated_at_present=true\n"
+    },
+    {
+      "input": {
+        "scenario": "generated_ids",
+        "batches": [
+          [
+            {
+              "greeting": "alpha"
+            }
+          ],
+          [],
+          [
+            {
+              "greeting": "beta"
+            },
+            {
+              "greeting": "gamma"
+            },
+            {
+              "greeting": "delta"
+            }
+          ]
+        ]
+      },
+      "expected_output": "generated_id_batches_initial=0\ngenerated_id_batches_after_empty_save=0\ngenerated_id_batches_after_batch1=1\ngenerated_id_batches_after_batch2=1\ngenerated_id_batches_after_batch3=2\ndatabase_count=4\n"
+    },
+    {
+      "input": {
+        "scenario": "hook_filter",
+        "reject_greeting": "BlockMe",
+        "rows": [
+          {
+            "greeting": "BlockMe",
+            "age": 1,
+            "happy": false
+          },
+          {
+            "greeting": "KeepMe",
+            "age": 2,
+            "happy": true
+          }
+        ]
+      },
+      "expected_output": "database_count=1\nrecord1.greeting=KeepMe\nrecord1.age=2\nrecord1.happy=true\nrecord1.color=chartreuse\nrecord1.created_at_present=true\nrecord1.updated_at_present=true\n"
+    },
+    {
+      "input": {
+        "scenario": "hook_filter",
+        "reject_greeting": "Drop",
+        "rows": [
+          [
+            "Drop",
+            1,
+            false
+          ],
+          [
+            "Drop",
+            2,
+            true
+          ]
+        ]
+      },
+      "expected_output": "database_count=0\n"
+    },
+    {
+      "input": {
+        "scenario": "hook_counters",
+        "rows": []
+      },
+      "expected_output": "before_save_calls=0\nafter_save_calls=0\ndatabase_count=0\n"
+    },
+    {
+      "input": {
+        "scenario": "sql_preview",
+        "database_engine": "SQLite",
+        "skip_conflicts": false,
+        "rows": [
+          [
+            "A",
+            0,
+            true,
+            null,
+            null
+          ],
+          [
+            "B",
+            -2,
+            false,
+            null,
+            null
+          ]
+        ]
+      },
+      "expected_output": "database_engine=SQLite\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('A',0,1,NULL,NULL,'chartreuse'),('B',-2,0,NULL,NULL,'chartreuse')\n"
+    },
+    {
+      "input": {
+        "scenario": "sql_preview",
+        "database_engine": "SQLite",
+        "columns": [
+          "greeting",
+          "age"
+        ],
+        "rows": [
+          [
+            "Short",
+            8
+          ]
+        ]
+      },
+      "expected_output": "database_engine=SQLite\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\") VALUES ('Short',8)\n"
+    },
+    {
+      "input": {
+        "scenario": "sql_preview",
+        "database_engine": "MySQL",
+        "skip_conflicts": false,
+        "update_on_conflict": true,
+        "rows": [
+          [
+            "Quote",
+            42,
+            true,
+            null,
+            null
+          ]
+        ]
+      },
+      "expected_output": "database_engine=MySQL\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('Quote',42,1,NULL,NULL,'chartreuse') ON DUPLICATE KEY UPDATE `greeting`=VALUES(`greeting`), `age`=VALUES(`age`), `happy`=VALUES(`happy`), `created_at`=VALUES(`created_at`), `updated_at`=VALUES(`updated_at`), `color`=VALUES(`color`)\n"
+    },
+    {
+      "input": {
+        "scenario": "sql_preview",
+        "database_engine": "PostgreSQL",
+        "update_on_conflict": [
+          "greeting"
+        ],
+        "rows": [
+          [
+            "PG",
+            7,
+            false,
+            null,
+            null
+          ]
+        ]
+      },
+      "expected_output": "database_engine=PostgreSQL\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('PG',7,0,NULL,NULL,'chartreuse') ON CONFLICT(greeting) DO UPDATE SET greeting=EXCLUDED.greeting, age=EXCLUDED.age, happy=EXCLUDED.happy, created_at=EXCLUDED.created_at, updated_at=EXCLUDED.updated_at, color=EXCLUDED.color\n"
+    },
+    {
+      "input": {
+        "scenario": "sql_preview",
+        "database_engine": "PostGIS",
+        "return_generated_ids": true,
+        "rows": [
+          [
+            "Geo",
+            9,
+            true,
+            null,
+            null
+          ]
+        ]
+      },
+      "expected_output": "database_engine=PostGIS\nsql=INSERT  INTO \"testings\" (\"greeting\",\"age\",\"happy\",\"created_at\",\"updated_at\",\"color\") VALUES ('Geo',9,1,NULL,NULL,'chartreuse') RETURNING id\n"
+    }
+  ]
+}

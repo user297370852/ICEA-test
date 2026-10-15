@@ -1,0 +1,206 @@
+{
+    "description": "Queries build structured requests for selection, filtering, ordering, limits, offsets, cursors, and decode returned document rows into snapshots.",
+    "cases": [
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "select",
+                        "fields": [
+                            "users.john",
+                            "users.dave"
+                        ]
+                    },
+                    {
+                        "type": "select",
+                        "fields": [
+                            "users.dan"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"foo\"\n                        }\n                    ],\n                    \"select\": {\n                        \"fields\": [\n                            {\n                                \"fieldPath\": \"users.john\"\n                            },\n                            {\n                                \"fieldPath\": \"users.dave\"\n                            },\n                            {\n                                \"fieldPath\": \"users.dan\"\n                            }\n                        ]\n                    }\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [],\n    \"size\": 0,\n    \"is_empty\": true\n}\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "where",
+                        "field": "user.name",
+                        "operator": "=",
+                        "value": "John"
+                    },
+                    {
+                        "type": "where",
+                        "field": "user.age",
+                        "operator": "=",
+                        "value": 30
+                    },
+                    {
+                        "type": "where",
+                        "field": "user.coolness",
+                        "operator": "=",
+                        "value": null
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"foo\"\n                        }\n                    ],\n                    \"where\": {\n                        \"compositeFilter\": {\n                            \"op\": 1,\n                            \"filters\": [\n                                {\n                                    \"fieldFilter\": {\n                                        \"field\": {\n                                            \"fieldPath\": \"user.name\"\n                                        },\n                                        \"op\": 5,\n                                        \"value\": {\n                                            \"stringValue\": \"John\"\n                                        }\n                                    }\n                                },\n                                {\n                                    \"fieldFilter\": {\n                                        \"field\": {\n                                            \"fieldPath\": \"user.age\"\n                                        },\n                                        \"op\": 5,\n                                        \"value\": {\n                                            \"integerValue\": 30\n                                        }\n                                    }\n                                },\n                                {\n                                    \"unaryFilter\": {\n                                        \"field\": {\n                                            \"fieldPath\": \"user.coolness\"\n                                        },\n                                        \"op\": 3\n                                    }\n                                }\n                            ]\n                        }\n                    }\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [],\n    \"size\": 0,\n    \"is_empty\": true\n}\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "order",
+                        "field": "user.name",
+                        "direction": "DESC"
+                    },
+                    {
+                        "type": "order",
+                        "field": "user.age",
+                        "direction": "ASC"
+                    },
+                    {
+                        "type": "limit",
+                        "value": 50
+                    },
+                    {
+                        "type": "offset",
+                        "value": 50
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"foo\"\n                        }\n                    ],\n                    \"orderBy\": [\n                        {\n                            \"field\": {\n                                \"fieldPath\": \"user.name\"\n                            },\n                            \"direction\": 2\n                        },\n                        {\n                            \"field\": {\n                                \"fieldPath\": \"user.age\"\n                            },\n                            \"direction\": 1\n                        }\n                    ],\n                    \"limit\": {\n                        \"value\": 50\n                    },\n                    \"offset\": 50\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [],\n    \"size\": 0,\n    \"is_empty\": true\n}\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "order",
+                        "field": "name",
+                        "direction": 2
+                    },
+                    {
+                        "type": "start_at",
+                        "values": [
+                            "john"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"foo\"\n                        }\n                    ],\n                    \"orderBy\": [\n                        {\n                            \"field\": {\n                                \"fieldPath\": \"name\"\n                            },\n                            \"direction\": 2\n                        }\n                    ],\n                    \"startAt\": {\n                        \"before\": true,\n                        \"values\": [\n                            {\n                                \"stringValue\": \"john\"\n                            }\n                        ]\n                    }\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [],\n    \"size\": 0,\n    \"is_empty\": true\n}\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "order",
+                        "field": "__name__",
+                        "direction": 2
+                    },
+                    {
+                        "type": "end_at",
+                        "values": [
+                            "john"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"foo\"\n                        }\n                    ],\n                    \"orderBy\": [\n                        {\n                            \"field\": {\n                                \"fieldPath\": \"__name__\"\n                            },\n                            \"direction\": 2\n                        }\n                    ],\n                    \"endAt\": {\n                        \"before\": false,\n                        \"values\": [\n                            {\n                                \"referenceValue\": \"projects/example_project/databases/(default)/documents/foo/john\"\n                            }\n                        ]\n                    }\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [],\n    \"size\": 0,\n    \"is_empty\": true\n}\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [],
+                "rows": [
+                    {
+                        "document": {
+                            "name": "projects/example_project/databases/(default)/documents/foo",
+                            "fields": {
+                                "hello": {
+                                    "stringValue": "world"
+                                }
+                            }
+                        },
+                        "readTime": {
+                            "seconds": 100
+                        }
+                    },
+                    []
+                ]
+            },
+            "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"foo\"\n                        }\n                    ]\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [\n        {\n            \"name\": \"projects/example_project/databases/(default)/documents/foo\",\n            \"fields\": {\n                \"hello\": \"world\"\n            }\n        }\n    ],\n    \"size\": 1,\n    \"is_empty\": false\n}\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "where",
+                        "field": "foo",
+                        "operator": "hello",
+                        "value": "bar"
+                    }
+                ],
+                "execute": false
+            },
+            "expected_output": "error=invalid_operator\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "order",
+                        "field": "foo",
+                        "direction": "hello"
+                    }
+                ],
+                "execute": false
+            },
+            "expected_output": "error=error\n"
+        },
+        {
+            "input": {
+                "feature": "queries",
+                "parent": "projects/example_project/databases/(default)/documents",
+                "collection": "foo",
+                "steps": [
+                    {
+                        "type": "order",
+                        "field": "foo"
+                    },
+                    {
+                        "type": "end_at",
+                        "values": [
+                            "a",
+                            "b"
+                        ]
+                    }
+                ],
+                "execute": false
+            },
+            "expected_output": "error=invalid_cursor\n"
+        }
+    ]
+}

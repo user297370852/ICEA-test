@@ -1,0 +1,74 @@
+{
+    "description": "Apply exception retry rules to thrown failures and report whether the failure is retried until exhaustion or rejected as unexpected.",
+    "cases": [
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 1,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "caused_by",
+                    "exceptions": [
+                        "custom_error"
+                    ]
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "wrapper_error",
+                            "cause": {
+                                "throw": "custom_error"
+                            }
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=1\nlast_exception=wrapper_error\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 1,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "caused_by",
+                    "exceptions": [
+                        "io_error"
+                    ]
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "wrapper_error",
+                            "cause": {
+                                "throw": "custom_error"
+                            }
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=unexpected_exception\nexception=wrapper_error\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 1,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "specific_exceptions",
+                    "exceptions": [
+                        "general_error"
+                    ]
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "io_error"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=1\nlast_exception=io_error\n"
+        }
+    ]
+}

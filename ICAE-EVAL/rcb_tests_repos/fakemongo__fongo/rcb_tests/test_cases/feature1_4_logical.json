@@ -1,0 +1,230 @@
+{
+    "description": "A document matcher combines conditions with logical connectives. A query object listing several field conditions is an implicit conjunction: every condition must hold. An explicit conjunction connective requires all of its sub-queries to hold. A disjunction connective keeps a document when at least one of its sub-queries holds, and disjunctions may be nested. A negation connective inverts a condition, keeping the documents the inner condition would reject. Matching preserves the original document order.",
+    "cases": [
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": 3,
+                    "n": "j"
+                },
+                "documents": [
+                    {
+                        "a": 3
+                    },
+                    {
+                        "a": [
+                            1,
+                            3
+                        ],
+                        "n": "j"
+                    },
+                    {
+                        "a": 3,
+                        "n": "j"
+                    },
+                    {
+                        "n": "j"
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : [ 1 , 3] , \"n\" : \"j\"}\n{ \"a\" : 3 , \"n\" : \"j\"}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "$and": [
+                        {
+                            "a": 3
+                        },
+                        {
+                            "b": 4
+                        }
+                    ]
+                },
+                "documents": [
+                    {
+                        "a": 3,
+                        "b": 4
+                    },
+                    {
+                        "a": 3,
+                        "b": 5
+                    },
+                    {
+                        "b": 4
+                    },
+                    {
+                        "a": 3
+                    },
+                    {
+                        "a": 5,
+                        "b": 4
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : 3 , \"b\" : 4}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "$or": [
+                        {
+                            "a": 3
+                        },
+                        {
+                            "b": {
+                                "$ne": 3
+                            }
+                        }
+                    ]
+                },
+                "documents": [
+                    {
+                        "a": 3,
+                        "b": 1
+                    },
+                    {
+                        "a": 1,
+                        "b": 3
+                    },
+                    {
+                        "a": 1,
+                        "b": 1
+                    },
+                    {
+                        "a": 3
+                    },
+                    {
+                        "b": 1
+                    },
+                    {
+                        "a": 5
+                    },
+                    {
+                        "b": 3
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : 3 , \"b\" : 1}\n{ \"a\" : 1 , \"b\" : 1}\n{ \"a\" : 3}\n{ \"b\" : 1}\n{ \"a\" : 5}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "$or": [
+                        {
+                            "a": 3
+                        },
+                        {
+                            "$or": [
+                                {
+                                    "b": 1
+                                },
+                                {
+                                    "b": 3
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "documents": [
+                    {
+                        "a": 3,
+                        "b": 1
+                    },
+                    {
+                        "a": 1,
+                        "b": 3
+                    },
+                    {
+                        "a": 1,
+                        "b": 7
+                    },
+                    {
+                        "a": 3
+                    },
+                    {
+                        "b": 1
+                    },
+                    {
+                        "a": 5
+                    },
+                    {
+                        "b": 7
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : 3 , \"b\" : 1}\n{ \"a\" : 1 , \"b\" : 3}\n{ \"a\" : 3}\n{ \"b\" : 1}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$not": 3
+                    }
+                },
+                "documents": [
+                    {
+                        "a": [
+                            1,
+                            4
+                        ]
+                    },
+                    {
+                        "a": [
+                            1,
+                            3
+                        ]
+                    },
+                    {
+                        "a": 1
+                    },
+                    {
+                        "a": 3
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : [ 1 , 4]}\n{ \"a\" : 1}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$not": {
+                            "$nin": [
+                                2,
+                                3
+                            ]
+                        }
+                    }
+                },
+                "documents": [
+                    {
+                        "a": [
+                            1,
+                            4
+                        ]
+                    },
+                    {
+                        "a": [
+                            1,
+                            3
+                        ]
+                    },
+                    {
+                        "a": 1
+                    },
+                    {
+                        "a": 3
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : [ 1 , 3]}\n{ \"a\" : 3}\n"
+        }
+    ]
+}

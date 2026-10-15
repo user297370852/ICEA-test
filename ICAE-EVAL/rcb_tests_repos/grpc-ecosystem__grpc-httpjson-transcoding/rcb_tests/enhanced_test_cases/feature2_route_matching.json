@@ -1,0 +1,132 @@
+{
+  "description": "Route selection edge cases: specificity between literal/single/double wildcards, method case-sensitivity, empty route table, and full-path consumption boundaries.",
+  "cases": [
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/*"
+          },
+          {
+            "method": "GET",
+            "template": "/a/b"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/b",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=1\nbody=\nbindings=\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/**"
+          },
+          {
+            "method": "GET",
+            "template": "/a/*"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/x",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=1\nbody=\nbindings=\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/**"
+          }
+        ],
+        "method": "GET",
+        "path": "/a",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/**"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/b/c/d/e",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "POST",
+            "template": "/a/b"
+          },
+          {
+            "method": "GET",
+            "template": "/a/b"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/b",
+        "query": ""
+      },
+      "expected_output": "matched=true\nroute_index=1\nbody=\nbindings=\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/b"
+          }
+        ],
+        "method": "get",
+        "path": "/a/b",
+        "query": ""
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [
+          {
+            "method": "GET",
+            "template": "/a/b:verb"
+          }
+        ],
+        "method": "GET",
+        "path": "/a/b",
+        "query": ""
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "operation": "match_request",
+        "routes": [],
+        "method": "GET",
+        "path": "/a",
+        "query": ""
+      },
+      "expected_output": "matched=false\n"
+    }
+  ]
+}

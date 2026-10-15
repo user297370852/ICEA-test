@@ -1,0 +1,57 @@
+{
+  "description": "Per-endpoint transport options are merged with global options configured on the client. Static option objects are deep-merged (global plus endpoint headers combined). When global options are supplied as a function, it receives the routed URL and params and returns options to merge; the per-call params themselves are also merged into the final options passed to the transport.",
+  "cases": [
+    {
+      "input": {
+        "op": "pure_request",
+        "endpoints": {
+          "test": {
+            "url": "/api/test",
+            "options": {
+              "headers": {
+                "X-Header": 1
+              }
+            }
+          }
+        },
+        "fetch": "echo_url_opts",
+        "use": {
+          "options": {
+            "headers": {
+              "Accept": "application/json"
+            }
+          }
+        },
+        "endpoint": "test"
+      },
+      "expected_output": "data={\"opts\":{\"headers\":{\"Accept\":\"application/json\",\"X-Header\":1}},\"url\":\"/api/test\"}\nfetch_count=1\n"
+    },
+    {
+      "input": {
+        "op": "pure_request",
+        "endpoints": {
+          "test": {
+            "url": "/api/test/(:id)",
+            "options": {
+              "headers": {
+                "X-Header": 1
+              }
+            }
+          }
+        },
+        "fetch": "echo_url_opts",
+        "use": {
+          "options": "fn:accept_header"
+        },
+        "endpoint": "test",
+        "pathvars": {
+          "id": 1
+        },
+        "params": {
+          "a": "b"
+        }
+      },
+      "expected_output": "data={\"opts\":{\"a\":\"b\",\"headers\":{\"Accept\":\"application/json\",\"X-Header\":1}},\"url\":\"/api/test/1\"}\nfetch_count=1\n"
+    }
+  ]
+}

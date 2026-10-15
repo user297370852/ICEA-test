@@ -1,0 +1,128 @@
+{
+  "description": "Compose pipelines over the public middleware/handler surface: three pass-through middlewares wrapping a traced handler, a request-phase short-circuit with a non-200 status, a short-circuit by the second middleware, a short-circuit whose respond omits an explicit status, and a single pass-through over a header-setting handler.",
+  "cases": [
+    {
+      "input": {
+        "action": "pipeline",
+        "middlewares": [
+          {
+            "name": "A",
+            "request": "pass",
+            "response": "pass"
+          },
+          {
+            "name": "B",
+            "request": "pass",
+            "response": "pass"
+          },
+          {
+            "name": "C",
+            "request": "pass",
+            "response": "pass"
+          }
+        ],
+        "handler": {
+          "type": "trace",
+          "body": "deep"
+        }
+      },
+      "expected_output": "request:A\nrequest:B\nrequest:C\nhandler\nresponse:C\nresponse:B\nresponse:A\nstatus=200\nbody=deep\n"
+    },
+    {
+      "input": {
+        "action": "pipeline",
+        "middlewares": [
+          {
+            "name": "A",
+            "request": {
+              "respond": {
+                "status": 404,
+                "headers": {
+                  "from": "mw"
+                },
+                "body": "blocked"
+              }
+            },
+            "response": "pass"
+          }
+        ],
+        "handler": {
+          "type": "fail"
+        }
+      },
+      "expected_output": "request:A\nstatus=404\nfrom=mw\nbody=blocked\n"
+    },
+    {
+      "input": {
+        "action": "pipeline",
+        "middlewares": [
+          {
+            "name": "A",
+            "request": "pass",
+            "response": "pass"
+          },
+          {
+            "name": "B",
+            "request": {
+              "respond": {
+                "status": 403,
+                "headers": {
+                  "from": "B"
+                },
+                "body": "stop"
+              }
+            },
+            "response": "pass"
+          }
+        ],
+        "handler": {
+          "type": "fail"
+        }
+      },
+      "expected_output": "request:A\nrequest:B\nresponse:A\nstatus=403\nfrom=B\nbody=stop\n"
+    },
+    {
+      "input": {
+        "action": "pipeline",
+        "middlewares": [
+          {
+            "name": "A",
+            "request": {
+              "respond": {
+                "headers": {
+                  "from": "nostatus"
+                },
+                "body": "defaulted"
+              }
+            },
+            "response": "pass"
+          }
+        ],
+        "handler": {
+          "type": "fail"
+        }
+      },
+      "expected_output": "request:A\nstatus=200\nfrom=nostatus\nbody=defaulted\n"
+    },
+    {
+      "input": {
+        "action": "pipeline",
+        "middlewares": [
+          {
+            "name": "A",
+            "request": "pass",
+            "response": "pass"
+          }
+        ],
+        "handler": {
+          "type": "trace",
+          "body": "x",
+          "headers": {
+            "from": "inner"
+          }
+        }
+      },
+      "expected_output": "request:A\nhandler\nresponse:A\nstatus=200\nfrom=inner\nbody=x\n"
+    }
+  ]
+}

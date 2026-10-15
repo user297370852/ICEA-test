@@ -1,0 +1,36 @@
+{
+    "description": "Normalize parse, render, include-recursion, and missing-partial errors into language-neutral stdout categories.",
+    "cases": [
+        {
+            "input": {
+                "template": " {% for a in b %} ... ",
+                "rethrow_errors": true
+            },
+            "expected_output": "error=syntax\n"
+        },
+        {
+            "input": {
+                "template": " {% if 1 =! 2 %}ok{% endif %} "
+            },
+            "expected_output": " Liquid error: Unknown operator =! "
+        },
+        {
+            "input": {
+                "template": "{% include 'loop' %}",
+                "partials": {
+                    "loop": "-{% include 'loop' %}"
+                },
+                "rethrow_errors": true
+            },
+            "expected_output": "error=include_recursion\n"
+        },
+        {
+            "input": {
+                "template": " hello {% include 'doesnotexist' %} world ",
+                "partials": {},
+                "rethrow_errors": true
+            },
+            "expected_output": "error=template_not_found\n"
+        }
+    ]
+}

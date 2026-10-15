@@ -1,0 +1,110 @@
+{
+  "description": "Enhanced JSON-LD coverage: combined type/title/description/image override; custom values with non-string scalar data (integer, boolean, null serialized as JSON literals); description embedded literally containing an ampersand and a URL to verify slash escaping without HTML escaping; an image array combined with a custom value; explicit title with url resolved from null; and a site reference combined with a single image.",
+  "cases": [
+    {
+      "input": {
+        "channel": "jsonld",
+        "steps": [
+          {
+            "type": "Article"
+          },
+          {
+            "title": "T"
+          },
+          {
+            "description": "D"
+          },
+          {
+            "image": "i.png"
+          }
+        ]
+      },
+      "expected_output": "<script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"Article\",\"name\":\"T\",\"description\":\"D\",\"image\":\"i.png\"}</script>"
+    },
+    {
+      "input": {
+        "channel": "jsonld",
+        "steps": [
+          {
+            "value": {
+              "key": "count",
+              "data": 42
+            }
+          },
+          {
+            "value": {
+              "key": "active",
+              "data": true
+            }
+          },
+          {
+            "value": {
+              "key": "empty",
+              "data": null
+            }
+          }
+        ]
+      },
+      "expected_output": "<script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"For those who helped create the Genki Dama\",\"count\":42,\"active\":true,\"empty\":null}</script>"
+    },
+    {
+      "input": {
+        "channel": "jsonld",
+        "steps": [
+          {
+            "description": "A & B http://x.com/y"
+          }
+        ]
+      },
+      "expected_output": "<script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"A & B http:\\/\\/x.com\\/y\"}</script>"
+    },
+    {
+      "input": {
+        "channel": "jsonld",
+        "steps": [
+          {
+            "images": [
+              "a.png",
+              "b.png"
+            ]
+          },
+          {
+            "value": {
+              "key": "k",
+              "data": "v"
+            }
+          }
+        ]
+      },
+      "expected_output": "<script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"For those who helped create the Genki Dama\",\"image\":[\"a.png\",\"b.png\"],\"k\":\"v\"}</script>"
+    },
+    {
+      "input": {
+        "channel": "jsonld",
+        "steps": [
+          {
+            "title": "T"
+          },
+          {
+            "url": null
+          }
+        ]
+      },
+      "expected_output": "<script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"T\",\"description\":\"For those who helped create the Genki Dama\",\"url\":\"http:\\/\\/localhost\"}</script>"
+    },
+    {
+      "input": {
+        "channel": "jsonld",
+        "steps": [
+          {
+            "site": "http://s.com"
+          },
+          {
+            "image": "i.png"
+          }
+        ]
+      },
+      "expected_output": "<script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"For those who helped create the Genki Dama\",\"url\":\"http:\\/\\/s.com\",\"image\":\"i.png\"}</script>"
+    }
+  ]
+}

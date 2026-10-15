@@ -1,0 +1,84 @@
+{
+  "description": "Multi-frame binary decoding edge cases: multiple attachments, binary ack with namespace and multiple attachments, incomplete attachment counts yielding no message, and namespaced binary event with an id.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "452-[\"two\",{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1}]"
+          },
+          {
+            "bytes": [
+              1
+            ]
+          },
+          {
+            "bytes": [
+              2,
+              3
+            ]
+          }
+        ]
+      },
+      "expected_output": "type=binary_event\nevent=two\nattachment_count=2\ndata=[{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1}]\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "462-/test,8[{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1}]"
+          },
+          {
+            "bytes": [
+              9
+            ]
+          },
+          {
+            "bytes": [
+              8
+            ]
+          }
+        ]
+      },
+      "expected_output": "type=binary_ack\nnamespace=/test\nid=8\nattachment_count=2\ndata=[{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1}]\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "452-[\"two\",{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1}]"
+          },
+          {
+            "bytes": [
+              1
+            ]
+          }
+        ]
+      },
+      "expected_output": "message=none\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "451-/test,12[\"evt\",{\"_placeholder\":true,\"num\":0}]"
+          },
+          {
+            "bytes": [
+              7
+            ]
+          }
+        ]
+      },
+      "expected_output": "type=binary_event\nevent=evt\nnamespace=/test\nid=12\nattachment_count=1\ndata=[{\"_placeholder\":true,\"num\":0}]\n"
+    }
+  ]
+}

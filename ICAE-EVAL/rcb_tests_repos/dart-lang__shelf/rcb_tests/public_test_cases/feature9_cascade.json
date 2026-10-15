@@ -1,0 +1,59 @@
+{
+  "description": "Compose several handlers into a cascade that returns the first acceptable response. By default a response is unacceptable (causing the cascade to try the next handler) when its status is 404 or 405; otherwise it is returned immediately. If all handlers are unacceptable the final response is returned. The set of cascading statuses can be replaced by an explicit list or by a predicate over the status code. An empty cascade and the simultaneous use of both a status list and a predicate are reported as neutral errors.",
+  "cases": [
+    {
+      "input": {
+        "action": "cascade",
+        "handlers": [
+          {
+            "type": "toggle",
+            "header": "one",
+            "body": "handler 1"
+          },
+          {
+            "type": "toggle",
+            "header": "two",
+            "body": "handler 2"
+          },
+          {
+            "type": "toggle",
+            "header": "three",
+            "body": "handler 3"
+          }
+        ],
+        "requestHeaders": {
+          "one": "false"
+        }
+      },
+      "expected_output": "status=200\nbody=handler 2\n"
+    },
+    {
+      "input": {
+        "action": "cascade",
+        "statusCodes": [
+          302,
+          403
+        ],
+        "handlers": [
+          {
+            "type": "found",
+            "location": "/"
+          },
+          {
+            "type": "forbidden",
+            "body": "handler 2"
+          },
+          {
+            "type": "notfound",
+            "body": "handler 3"
+          },
+          {
+            "type": "ok",
+            "body": "handler 4"
+          }
+        ]
+      },
+      "expected_output": "status=404\nbody=handler 3\n"
+    }
+  ]
+}

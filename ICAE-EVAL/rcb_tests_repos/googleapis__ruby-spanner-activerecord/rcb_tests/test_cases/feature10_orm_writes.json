@@ -1,0 +1,39 @@
+{
+  "description": "Maps record insert and upsert operations to the database client, preserving SQL execution, commit request counts, generated ids, mutation operation, table name, columns, and values.",
+  "cases": [
+    {
+      "input": {
+        "feature": "orm_write",
+        "operation": "insert",
+        "sql": "INSERT OR IGNORE INTO `singers` (`first_name`,`last_name`) VALUES ('Alice', 'Ecila')",
+        "attributes": {
+          "first_name": "Alice",
+          "last_name": "Ecila"
+        }
+      },
+      "expected_output": "sql=INSERT OR IGNORE INTO `singers` (`first_name`,`last_name`) VALUES ('Alice', 'Ecila')\nexecute_requests=1\ncommit_requests=1\ncommit_mutations=0\n"
+    },
+    {
+      "input": {
+        "feature": "orm_write",
+        "operation": "insert_returning_mutation",
+        "attributes": {
+          "first_name": "Alice",
+          "last_name": "Ecila"
+        }
+      },
+      "expected_output": "operation=insert\ntable=singers\ncolumns=first_name,last_name,id\nvalues=Alice,Ecila,<generated-int64>\ngenerated_id_numeric=true\ngenerated_id_matches_returned=true\n"
+    },
+    {
+      "input": {
+        "feature": "orm_write",
+        "operation": "upsert_mutation",
+        "attributes": {
+          "first_name": "Alice",
+          "last_name": "Ecila"
+        }
+      },
+      "expected_output": "operation=insert_or_update\ntable=singers\ncolumns=first_name,last_name,id\nvalues=Alice,Ecila,<generated-int64>\ngenerated_id_numeric=true\ngenerated_id_matches_returned=true\n"
+    }
+  ]
+}

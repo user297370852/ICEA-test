@@ -1,0 +1,54 @@
+{
+  "description": "Verify automatic time-claim defaults when neither --exp nor --no-iat is supplied: iat is added automatically, exp is absent, and the token still validates with a secret. Also confirm that disabling iat without requesting exp yields a token with neither time claim that still validates.",
+  "cases": [
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "-S",
+          "sec",
+          "-P",
+          "this=that"
+        ],
+        "decode_args": [
+          "decode",
+          "-S",
+          "sec"
+        ],
+        "report": [
+          "status",
+          "claim.iat.presence",
+          "claim.exp.presence",
+          "claim.this"
+        ]
+      },
+      "expected_output": "status=valid\nclaim.iat=present\nclaim.exp=absent\nclaim.this=that\n"
+    },
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "--no-iat",
+          "-S",
+          "sec",
+          "-P",
+          "this=that"
+        ],
+        "decode_args": [
+          "decode",
+          "-S",
+          "sec"
+        ],
+        "report": [
+          "status",
+          "claim.iat.presence",
+          "claim.exp.presence",
+          "claim.this"
+        ]
+      },
+      "expected_output": "status=valid\nclaim.iat=absent\nclaim.exp=absent\nclaim.this=that\n"
+    }
+  ]
+}

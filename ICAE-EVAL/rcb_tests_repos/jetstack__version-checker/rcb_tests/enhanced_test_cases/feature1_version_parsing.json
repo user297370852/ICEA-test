@@ -1,0 +1,49 @@
+{
+    "description": "ENHANCED (native-disjoint) boundary cases for image-tag version parsing. Covers leading-zero numeric groups, a 4th dotted group landing in metadata, a trailing dot that blocks the minor/patch match, digits glued directly to letters, an uppercase 'V' prefix that defeats the lowercase-only 'v?' anchor, build-metadata suffixes, a near-int64 large major, a minor-only tag with a pre-release suffix, and a leading-space tag that prevents any numeric match.",
+    "cases": [
+        {
+            "input": {"action": "parse_version", "tag": "01.02.03"},
+            "expected_output": "tag=01.02.03\nmajor=1\nminor=2\npatch=3\nmetadata="
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1.2.3.4"},
+            "expected_output": "tag=1.2.3.4\nmajor=1\nminor=2\npatch=3\nmetadata=.4"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1.2.3.4.5"},
+            "expected_output": "tag=1.2.3.4.5\nmajor=1\nminor=2\npatch=3\nmetadata=.4.5"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1."},
+            "expected_output": "tag=1.\nmajor=1\nminor=0\npatch=0\nmetadata=."
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1abc"},
+            "expected_output": "tag=1abc\nmajor=1\nminor=0\npatch=0\nmetadata=abc"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "1.2abc"},
+            "expected_output": "tag=1.2abc\nmajor=1\nminor=2\npatch=0\nmetadata=abc"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "V1.2.3"},
+            "expected_output": "tag=V1.2.3\nmajor=0\nminor=0\npatch=0\nmetadata=V1.2.3"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "v1.2.3+build.5"},
+            "expected_output": "tag=v1.2.3+build.5\nmajor=1\nminor=2\npatch=3\nmetadata=+build.5"
+        },
+        {
+            "input": {"action": "parse_version", "tag": "999999999999.1.2"},
+            "expected_output": "tag=999999999999.1.2\nmajor=999999999999\nminor=1\npatch=2\nmetadata="
+        },
+        {
+            "input": {"action": "parse_version", "tag": "v2.5-beta"},
+            "expected_output": "tag=v2.5-beta\nmajor=2\nminor=5\npatch=0\nmetadata=-beta"
+        },
+        {
+            "input": {"action": "parse_version", "tag": " 1.2.3"},
+            "expected_output": "tag= 1.2.3\nmajor=0\nminor=0\npatch=0\nmetadata= 1.2.3"
+        }
+    ]
+}

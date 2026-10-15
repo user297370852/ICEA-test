@@ -1,0 +1,53 @@
+{
+  "description": "Applying local workspace changes writes text and binary files with the correct operation type, supports deletion, and writes clashes under a conflict area while hashing the original path when needed.",
+  "cases": [
+    {
+      "description": "A batch containing a text addition, binary addition, and deletion reports all performed file operations and final stored bytes.",
+      "input": {
+        "command": "local.apply",
+        "initial": [
+          {
+            "path": "old.md",
+            "encoding": "plaintext",
+            "content": "old"
+          }
+        ],
+        "writes": [
+          {
+            "path": "new.md",
+            "encoding": "plaintext",
+            "content": "Hello"
+          },
+          {
+            "path": "image.png",
+            "encoding": "base64",
+            "content": "AQIDAA=="
+          }
+        ],
+        "deletes": [
+          "old.md"
+        ]
+      },
+      "expected_output": "changes=[{\"path\":\"new.md\",\"type\":\"ADDED\"},{\"path\":\"image.png\",\"type\":\"ADDED\"},{\"path\":\"old.md\",\"type\":\"REMOVED\"}]\nnew_baseline={\"image.png\":\"9e1f9134d8418b3367ac4a9b6741c27b1bbaada9\",\"new.md\":\"f3fbfed40eafab440b506b503df6cd0495b71f4d\"}\nfiles={\"image.png\":\"AQIDAA==\",\"new.md\":\"SGVsbG8=\"}\n"
+    },
+    {
+      "description": "A clashed remote file is written below the conflict area while baseline state is keyed to the original file path.",
+      "input": {
+        "command": "local.apply",
+        "initial": [],
+        "writes": [
+          {
+            "path": ".obsidian/app.json",
+            "encoding": "plaintext",
+            "content": "{}"
+          }
+        ],
+        "deletes": [],
+        "clash_paths": [
+          ".obsidian/app.json"
+        ]
+      },
+      "expected_output": "changes=[{\"path\":\"_fit/.obsidian/app.json\",\"type\":\"ADDED\"}]\nnew_baseline={\".obsidian/app.json\":\"de3a9e9b96d7ce1a54279dc796cd7b3456fbd55e\"}\nfiles={\"_fit/.obsidian/app.json\":\"e30=\"}\n"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "description": "Register a new account with an email and password and expose the resulting authenticated identity. The request supplies the chosen credentials together with two canned backend responses: one for the account-creation endpoint (which returns an identity token, refresh token and the new account's unique identifier) and one for the account-info endpoint (which returns the stored profile, including the unique identifier, email, creation and last-login timestamps in epoch milliseconds, and the list of linked sign-in providers). The client merges these into a user object and reports the email, unique identifier, whether the account is newly created, the sign-in provider used, whether the account is anonymous, how many linked providers it has, and the account creation time in epoch milliseconds.",
+    "cases": [
+        {
+            "input": {
+                "action": "sign_up",
+                "email": "new.user@example.com",
+                "password": "secret-pass",
+                "responses": {
+                    "register": {
+                        "status": 200,
+                        "body": {"idToken": "tok-abc", "email": "new.user@example.com", "refreshToken": "refresh-xyz", "localId": "uid-001"}
+                    },
+                    "account": {
+                        "status": 200,
+                        "body": {"users": [{"localId": "uid-001", "email": "new.user@example.com", "createdAt": "1600000000000", "lastLoginAt": "1600000005000", "providerUserInfo": [{"providerId": "password", "email": "new.user@example.com", "federatedId": "new.user@example.com"}]}]}
+                    }
+                }
+            },
+            "expected_output": "email=new.user@example.com\nuid=uid-001\nis_new_user=true\nprovider_id=password\nis_anonymous=false\nprovider_count=1\ncreation_time_ms=1600000000000\n"
+        }
+    ]
+}

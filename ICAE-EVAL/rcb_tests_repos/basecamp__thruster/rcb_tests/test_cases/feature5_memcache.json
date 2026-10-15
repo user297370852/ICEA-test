@@ -1,0 +1,71 @@
+{
+    "description": "An in-memory key/value store holds byte payloads under numeric keys with a per-entry expiry time, a total capacity and a per-item size limit. Storing a key records its payload; storing the same key again replaces the prior payload. Retrieving a key returns its current payload when present and unexpired. An item whose size exceeds the total capacity (or the per-item limit) is rejected and never becomes retrievable. Output reports, per operation, either the stored payload length or the retrieval outcome (found flag plus the payload, or the payload length for large values).",
+    "cases": [
+        {
+            "input": {
+                "action": "memcache",
+                "capacity": 33554432,
+                "maxItemSize": 1048576,
+                "operations": [
+                    {
+                        "op": "set",
+                        "key": 1,
+                        "value": "hello world",
+                        "ttlSeconds": 30
+                    },
+                    {
+                        "op": "get",
+                        "key": 1
+                    }
+                ]
+            },
+            "expected_output": "set key=1 value_len=11\nget key=1 found=true value=hello world\n"
+        },
+        {
+            "input": {
+                "action": "memcache",
+                "capacity": 33554432,
+                "maxItemSize": 1048576,
+                "operations": [
+                    {
+                        "op": "set",
+                        "key": 1,
+                        "value": "first",
+                        "ttlSeconds": 30
+                    },
+                    {
+                        "op": "set",
+                        "key": 1,
+                        "value": "second",
+                        "ttlSeconds": 30
+                    },
+                    {
+                        "op": "get",
+                        "key": 1
+                    }
+                ]
+            },
+            "expected_output": "set key=1 value_len=5\nset key=1 value_len=6\nget key=1 found=true value=second\n"
+        },
+        {
+            "input": {
+                "action": "memcache",
+                "capacity": 3072,
+                "maxItemSize": 51200,
+                "operations": [
+                    {
+                        "op": "set",
+                        "key": 1,
+                        "valueSize": 10240,
+                        "ttlSeconds": 3600
+                    },
+                    {
+                        "op": "get",
+                        "key": 1
+                    }
+                ]
+            },
+            "expected_output": "set key=1 value_len=10240\nget key=1 found=false value_len=0\n"
+        }
+    ]
+}

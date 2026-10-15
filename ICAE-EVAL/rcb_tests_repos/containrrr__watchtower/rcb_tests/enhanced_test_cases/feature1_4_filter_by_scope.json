@@ -1,0 +1,83 @@
+{
+  "description": "Boundary coverage for the scope selector. Covers the degenerate empty-target case, where an empty configured scope imposes no restriction so every candidate is admitted regardless of its own scope (present, absent, or mismatched); case-sensitive matching where a differently-cased scope is a mismatch; and a present-but-empty scope value versus a non-empty target. Output lists each candidate as its name and whether it was admitted.",
+  "cases": [
+    {
+      "input": {
+        "action": "filter",
+        "mode": "scope",
+        "scope": "",
+        "containers": [
+          {
+            "name": "with_scope",
+            "scope": {
+              "value": "anything",
+              "present": true
+            }
+          },
+          {
+            "name": "no_scope"
+          },
+          {
+            "name": "absent_scope",
+            "scope": {
+              "value": "x",
+              "present": false
+            }
+          }
+        ]
+      },
+      "expected_output": "container=with_scope included=true\ncontainer=no_scope included=true\ncontainer=absent_scope included=true\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "scope",
+        "scope": "Prod",
+        "containers": [
+          {
+            "name": "exact",
+            "scope": {
+              "value": "Prod",
+              "present": true
+            }
+          },
+          {
+            "name": "lower",
+            "scope": {
+              "value": "prod",
+              "present": true
+            }
+          }
+        ]
+      },
+      "expected_output": "container=exact included=true\ncontainer=lower included=false\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "scope",
+        "scope": "team-a",
+        "containers": [
+          {
+            "name": "empty_val",
+            "scope": {
+              "value": "",
+              "present": true
+            }
+          },
+          {
+            "name": "match",
+            "scope": {
+              "value": "team-a",
+              "present": true
+            }
+          },
+          {
+            "name": "no_field"
+          }
+        ]
+      },
+      "expected_output": "container=empty_val included=false\ncontainer=match included=true\ncontainer=no_field included=false\n"
+    }
+  ]
+}

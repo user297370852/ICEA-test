@@ -1,0 +1,89 @@
+{
+  "description": "Single text-frame decoding edge cases: protocol v3 default-namespace events, acknowledgement with namespace and complex payload, opened handshake with empty upgrades, v3 bare-string error with namespace, and event with id plus data.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "eio": 3,
+        "frames": [
+          {
+            "text": "42[\"greet\",\"world\"]"
+          }
+        ]
+      },
+      "expected_output": "type=event\nevent=greet\ndata=[\"world\"]\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "43/test,5[\"a\",{\"k\":1}]"
+          }
+        ]
+      },
+      "expected_output": "type=ack\nnamespace=/test\nid=5\ndata=[\"a\",{\"k\":1}]\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "0{\"sid\":\"abc123\",\"upgrades\":[],\"pingInterval\":10000,\"pingTimeout\":5000}"
+          }
+        ]
+      },
+      "expected_output": "type=opened\nsid=abc123\nping_interval=10000\nping_timeout=5000\nupgrades=\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 3,
+        "frames": [
+          {
+            "text": "44/test,\"boom\""
+          }
+        ]
+      },
+      "expected_output": "type=error\nerror_message=/test,\"boom\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "42/test,99[\"evt\",1,2,3]"
+          }
+        ]
+      },
+      "expected_output": "type=event\nevent=evt\nnamespace=/test\nid=99\ndata=[1,2,3]\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "42[\"only\"]"
+          }
+        ]
+      },
+      "expected_output": "type=event\nevent=only\ndata=[]\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "eio": 4,
+        "frames": [
+          {
+            "text": "430[]"
+          }
+        ]
+      },
+      "expected_output": "type=ack\nid=0\ndata=[]\n"
+    }
+  ]
+}

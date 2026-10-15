@@ -1,0 +1,51 @@
+{
+  "description": "Enhanced layered configuration merge cases cover empty layer lists and scaling-target plugin declarations without duplicating native cases.",
+  "cases": [
+    {
+      "input": [],
+      "expected_output": "log_json=false\nlog_level=info\nplugin_dir=/plugins\ndefault_evaluation_interval_ns=10000000000\nhttp_bind_address=127.0.0.1\nhttp_bind_port=8080\nnomad_address=http://127.0.0.1:4646\nnomad_region=\nnomad_namespace=\nnomad_token=\nnomad_http_auth=\nnomad_ca_cert=\nnomad_ca_path=\nnomad_client_cert=\nnomad_client_key=\nnomad_tls_server_name=\nnomad_skip_verify=false\napm_plugins=nomad-apm:nomad-apm\ntarget_plugins=nomad-target:nomad-target\nstrategy_plugins=\n"
+    },
+    {
+      "input": [
+        {
+          "Targets": [
+            {
+              "Name": "nomad-target",
+              "Driver": "custom-nomad-target",
+              "Args": [
+                "first"
+              ],
+              "Config": {
+                "region": "global"
+              }
+            },
+            {
+              "Name": "aws-asg",
+              "Driver": "aws-asg",
+              "Config": {
+                "region": "us-east-1"
+              }
+            }
+          ]
+        },
+        {
+          "Targets": [
+            {
+              "Name": "aws-asg",
+              "Driver": "aws-asg-v2",
+              "Args": [
+                "second",
+                "third"
+              ],
+              "Config": {
+                "region": "us-west-2",
+                "profile": "prod"
+              }
+            }
+          ]
+        }
+      ],
+      "expected_output": "log_json=false\nlog_level=info\nplugin_dir=/plugins\ndefault_evaluation_interval_ns=10000000000\nhttp_bind_address=127.0.0.1\nhttp_bind_port=8080\nnomad_address=http://127.0.0.1:4646\nnomad_region=\nnomad_namespace=\nnomad_token=\nnomad_http_auth=\nnomad_ca_cert=\nnomad_ca_path=\nnomad_client_cert=\nnomad_client_key=\nnomad_tls_server_name=\nnomad_skip_verify=false\napm_plugins=nomad-apm:nomad-apm\ntarget_plugins=aws-asg:aws-asg-v2 args=[second,third] config={profile=prod,region=us-west-2},nomad-target:custom-nomad-target args=[first] config={region=global}\nstrategy_plugins=\n"
+    }
+  ]
+}

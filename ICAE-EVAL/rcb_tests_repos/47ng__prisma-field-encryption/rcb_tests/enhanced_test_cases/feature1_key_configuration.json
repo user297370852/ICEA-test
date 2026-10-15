@@ -1,0 +1,97 @@
+{
+  "description": "Boundary and duplicate-collapsing coverage for keychain configuration: empty decryption-key list, a decryption key identical to the encryption key (collapsed so the encryption key is never counted twice), repeated duplicate decryption keys, an empty-string encryption key rejected as a missing key, a missing encryption key with only decryption keys supplied, and various distinct encryption keys re-serialized to canonical form.",
+  "cases": [
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+        "decryptionKeys": []
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=\nencryptionKeyInKeychain=true\nkeychainSize=1\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+        "decryptionKeys": [
+          "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM="
+        ]
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=\nencryptionKeyInKeychain=true\nkeychainSize=1\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+        "decryptionKeys": [
+          "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM=",
+          "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM="
+        ]
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=\nencryptionKeyInKeychain=true\nkeychainSize=2\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+        "decryptionKeys": [
+          "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+          "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM=",
+          "k1.aesgcm256.El9unG7WBAVRQdATOyMggE3XrLV2ZjTGKdajfmIeBPs="
+        ]
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=\nencryptionKeyInKeychain=true\nkeychainSize=3\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM="
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM=\nencryptionKeyInKeychain=true\nkeychainSize=1\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.El9unG7WBAVRQdATOyMggE3XrLV2ZjTGKdajfmIeBPs=",
+        "decryptionKeys": [
+          "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+          "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM="
+        ]
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.El9unG7WBAVRQdATOyMggE3XrLV2ZjTGKdajfmIeBPs=\nencryptionKeyInKeychain=true\nkeychainSize=3\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "",
+        "decryptionKeys": [
+          "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM="
+        ]
+      },
+      "expected_output": "error=no_encryption_key\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "decryptionKeys": [
+          "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+          "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM="
+        ]
+      },
+      "expected_output": "error=no_encryption_key\n"
+    },
+    {
+      "input": {
+        "op": "configure_keys",
+        "encryptionKey": "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM=",
+        "decryptionKeys": [
+          "k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM=",
+          "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+          "k1.aesgcm256.DbQoar8ZLuUsOHZNyrnjlskInHDYlzF3q6y1KGM7DUM=",
+          "k1.aesgcm256.El9unG7WBAVRQdATOyMggE3XrLV2ZjTGKdajfmIeBPs="
+        ]
+      },
+      "expected_output": "encryptionKey=k1.aesgcm256.4BNYdJnjOQJP2adq9cGM9kb4dZxDujUs6aPS0VeRtAM=\nencryptionKeyInKeychain=true\nkeychainSize=3\n"
+    }
+  ]
+}

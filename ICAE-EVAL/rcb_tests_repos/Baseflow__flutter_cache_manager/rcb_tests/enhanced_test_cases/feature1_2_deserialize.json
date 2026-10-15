@@ -1,0 +1,76 @@
+{
+  "description": "Reconstructing a cache record from persisted flat records covering boundary inputs: a record that omits the key column so the key falls back to the URL, an explicitly empty key column that is retained, a zero and a negative validity timestamp, a very large numeric id, non-ASCII URL and entity-tag text, and records that omit the relative path and entity-tag columns so those fields read back absent.",
+  "cases": [
+    {
+      "input": {
+        "action": "deserialize",
+        "record": {
+          "_id": 10,
+          "url": "cdn.example.org/file.bin",
+          "relativePath": "f.bin",
+          "eTag": "e10",
+          "validTill": 0,
+          "touched": 1585387560000
+        }
+      },
+      "expected_output": "id=10\nurl=cdn.example.org/file.bin\nkey=cdn.example.org/file.bin\nrelativePath=f.bin\neTag=e10\nvalidTill_millis=0\nlength=null\n"
+    },
+    {
+      "input": {
+        "action": "deserialize",
+        "record": {
+          "_id": 11,
+          "url": "cdn.example.org/file.bin",
+          "key": "",
+          "relativePath": "f.bin",
+          "eTag": "e11",
+          "validTill": -1000,
+          "touched": 1585387560000
+        }
+      },
+      "expected_output": "id=11\nurl=cdn.example.org/file.bin\nkey=\nrelativePath=f.bin\neTag=e11\nvalidTill_millis=-1000\nlength=null\n"
+    },
+    {
+      "input": {
+        "action": "deserialize",
+        "record": {
+          "_id": 9007199254740991,
+          "url": "cdn.example.org/big.bin",
+          "key": "big-key",
+          "relativePath": "big.bin",
+          "eTag": "e-big",
+          "validTill": 4102444800000,
+          "touched": 1585387560000
+        }
+      },
+      "expected_output": "id=9007199254740991\nurl=cdn.example.org/big.bin\nkey=big-key\nrelativePath=big.bin\neTag=e-big\nvalidTill_millis=4102444800000\nlength=null\n"
+    },
+    {
+      "input": {
+        "action": "deserialize",
+        "record": {
+          "_id": 12,
+          "url": "https://例.com/フ.png",
+          "key": "キー",
+          "relativePath": "フ.png",
+          "eTag": "タグ",
+          "validTill": 1585301160000,
+          "touched": 1585387560000
+        }
+      },
+      "expected_output": "id=12\nurl=https://例.com/フ.png\nkey=キー\nrelativePath=フ.png\neTag=タグ\nvalidTill_millis=1585301160000\nlength=null\n"
+    },
+    {
+      "input": {
+        "action": "deserialize",
+        "record": {
+          "_id": 13,
+          "url": "cdn.example.org/min.bin",
+          "validTill": 1585301160000,
+          "touched": 1585387560000
+        }
+      },
+      "expected_output": "id=13\nurl=cdn.example.org/min.bin\nkey=cdn.example.org/min.bin\nrelativePath=null\neTag=null\nvalidTill_millis=1585301160000\nlength=null\n"
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "description": "Selector filtering edge cases: equality on a subset, AND of two predicates, inequality that also matches hosts missing the label, a selector matching nothing, and whitespace-tolerant predicates.",
+  "cases": [
+    {
+      "input": {
+        "hosts": [
+          {
+            "alias": "prod-web",
+            "labels": {
+              "stage": "prod",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "prod-db",
+            "labels": {
+              "stage": "prod",
+              "tier": "db"
+            }
+          },
+          {
+            "alias": "stage-web",
+            "labels": {
+              "stage": "staging",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "nolabel"
+          }
+        ],
+        "selector": "tier=web"
+      },
+      "expected_output": "selected=prod-web,stage-web\ncount=2\n"
+    },
+    {
+      "input": {
+        "hosts": [
+          {
+            "alias": "prod-web",
+            "labels": {
+              "stage": "prod",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "prod-db",
+            "labels": {
+              "stage": "prod",
+              "tier": "db"
+            }
+          },
+          {
+            "alias": "stage-web",
+            "labels": {
+              "stage": "staging",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "nolabel"
+          }
+        ],
+        "selector": "stage=prod, tier=web"
+      },
+      "expected_output": "selected=prod-web\ncount=1\n"
+    },
+    {
+      "input": {
+        "hosts": [
+          {
+            "alias": "prod-web",
+            "labels": {
+              "stage": "prod",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "prod-db",
+            "labels": {
+              "stage": "prod",
+              "tier": "db"
+            }
+          },
+          {
+            "alias": "stage-web",
+            "labels": {
+              "stage": "staging",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "nolabel"
+          }
+        ],
+        "selector": "stage != prod"
+      },
+      "expected_output": "selected=stage-web,nolabel\ncount=2\n"
+    },
+    {
+      "input": {
+        "hosts": [
+          {
+            "alias": "prod-web",
+            "labels": {
+              "stage": "prod",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "prod-db",
+            "labels": {
+              "stage": "prod",
+              "tier": "db"
+            }
+          },
+          {
+            "alias": "stage-web",
+            "labels": {
+              "stage": "staging",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "nolabel"
+          }
+        ],
+        "selector": "stage=nonexistent"
+      },
+      "expected_output": "selected=\ncount=0\n"
+    },
+    {
+      "input": {
+        "hosts": [
+          {
+            "alias": "prod-web",
+            "labels": {
+              "stage": "prod",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "prod-db",
+            "labels": {
+              "stage": "prod",
+              "tier": "db"
+            }
+          },
+          {
+            "alias": "stage-web",
+            "labels": {
+              "stage": "staging",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "nolabel"
+          }
+        ],
+        "selector": " stage = prod "
+      },
+      "expected_output": "selected=prod-web,prod-db\ncount=2\n"
+    },
+    {
+      "input": {
+        "hosts": [
+          {
+            "alias": "prod-web",
+            "labels": {
+              "stage": "prod",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "prod-db",
+            "labels": {
+              "stage": "prod",
+              "tier": "db"
+            }
+          },
+          {
+            "alias": "stage-web",
+            "labels": {
+              "stage": "staging",
+              "tier": "web"
+            }
+          },
+          {
+            "alias": "nolabel"
+          }
+        ],
+        "selector": "all"
+      },
+      "expected_output": "selected=prod-web,prod-db,stage-web,nolabel\ncount=4\n"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "description": "Service configuration edge cases: environment override with DSN present, partial DSN credentials, http scheme with port, and zero/large error masks.",
+  "cases": [
+    {
+      "input": {
+        "feature": "service_configuration",
+        "dsn": "https://pub:sec@example.io/42",
+        "environment": "production",
+        "error_types": 0
+      },
+      "expected_output": "monitoring_bound=true\nenvironment=production\ndsn_base=https://example.io\ndsn_project_id=42\ndsn_public_key=pub\ndsn_secret_key=sec\nerror_types=0\n"
+    },
+    {
+      "input": {
+        "feature": "service_configuration",
+        "dsn": "http://onlypub@host.test:9000/7",
+        "error_types": 8
+      },
+      "expected_output": "monitoring_bound=true\nenvironment=testing\ndsn_base=http://host.test\ndsn_project_id=7\ndsn_public_key=onlypub\ndsn_secret_key=null\nerror_types=8\n"
+    },
+    {
+      "input": {
+        "feature": "service_configuration",
+        "dsn": "https://publickey:secretkey@sentry.dev/123",
+        "environment": "staging"
+      },
+      "expected_output": "monitoring_bound=true\nenvironment=staging\ndsn_base=https://sentry.dev\ndsn_project_id=123\ndsn_public_key=publickey\ndsn_secret_key=secretkey\nerror_types=-1\n"
+    },
+    {
+      "input": {
+        "feature": "service_configuration",
+        "error_types": 4096
+      },
+      "expected_output": "monitoring_bound=true\nenvironment=testing\ndsn_base=http://sentry.dev\ndsn_project_id=123\ndsn_public_key=publickey\ndsn_secret_key=secretkey\nerror_types=4096\n"
+    }
+  ]
+}

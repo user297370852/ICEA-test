@@ -1,0 +1,133 @@
+{
+  "description": "Multimap observation and mutation edge cases: keys/values/entries iteration, set on an absent key, get/get_all on absent keys, and remove of a non-matching value.",
+  "cases": [
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "append",
+            "key": "a",
+            "value": "1"
+          },
+          {
+            "op": "append",
+            "key": "b",
+            "value": "2"
+          },
+          {
+            "op": "append",
+            "key": "a",
+            "value": "3"
+          },
+          {
+            "op": "keys"
+          },
+          {
+            "op": "values"
+          },
+          {
+            "op": "entries"
+          }
+        ]
+      },
+      "expected_output": "keys=a\nb\na\nvalues=1\n2\n3\nentries\na=1\nb=2\na=3\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "set",
+            "key": "x",
+            "value": "9"
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "to_string"
+          }
+        ]
+      },
+      "expected_output": "size=1\nto_string=x=9\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "get",
+            "key": "missing"
+          },
+          {
+            "op": "get_all",
+            "key": "missing"
+          }
+        ]
+      },
+      "expected_output": "get=absent\nget_all=0\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "steps": [
+          {
+            "op": "append",
+            "key": "k",
+            "value": "v1"
+          },
+          {
+            "op": "append",
+            "key": "k",
+            "value": "v2"
+          },
+          {
+            "op": "remove",
+            "key": "k",
+            "value": "nope"
+          },
+          {
+            "op": "size"
+          },
+          {
+            "op": "to_string"
+          }
+        ]
+      },
+      "expected_output": "size=2\nto_string=k=v1&k=v2\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "init": "a=1&b=2&a=3",
+        "steps": [
+          {
+            "op": "size"
+          },
+          {
+            "op": "to_string"
+          }
+        ]
+      },
+      "expected_output": "size=3\nto_string=a=1&b=2&a=3\n"
+    },
+    {
+      "input": {
+        "action": "search_params",
+        "init": "a=&b&c=3",
+        "steps": [
+          {
+            "op": "has",
+            "key": "c"
+          },
+          {
+            "op": "get",
+            "key": "c"
+          }
+        ]
+      },
+      "expected_output": "has=true\nget=3\n"
+    }
+  ]
+}

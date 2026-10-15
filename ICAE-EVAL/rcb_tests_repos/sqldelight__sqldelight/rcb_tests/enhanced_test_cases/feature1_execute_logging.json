@@ -1,0 +1,408 @@
+{
+  "description": "Wrapping a base data-access driver in a logging decorator and issuing one or more write statements. Each forwarded write emits a log entry naming the write operation followed by the SQL text; when bound parameter values are supplied for that statement, an additional log entry lists those bound values in binding order. A write whose parameter-binding step binds nothing emits only the operation/SQL entry and no value entry. Every emitted log line is written to standard output in the order produced.",
+  "cases": [
+    {
+      "input": {
+        "commands": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO test VALUES (?);",
+            "parameters": 0
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO test VALUES (?);\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO test VALUES (?);",
+            "parameters": 0,
+            "binders": []
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO test VALUES (?);\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?);",
+            "parameters": 1,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 42
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?);\n [42]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?);",
+            "parameters": 1,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 1
+              }
+            ]
+          },
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "DELETE FROM t WHERE id = ?;",
+            "parameters": 1,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 2
+              }
+            ]
+          },
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "UPDATE t SET name = ? WHERE id = ?;",
+            "parameters": 2,
+            "binders": [
+              {
+                "bind": "string",
+                "index": 1,
+                "value": "Bob"
+              },
+              {
+                "bind": "long",
+                "index": 2,
+                "value": 3
+              }
+            ]
+          },
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "VACUUM;",
+            "parameters": 0
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?);\n [1]\nEXECUTE\n DELETE FROM t WHERE id = ?;\n [2]\nEXECUTE\n UPDATE t SET name = ? WHERE id = ?;\n [Bob, 3]\nEXECUTE\n VACUUM;\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?, ?, ?, ?);",
+            "parameters": 4,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 7
+              },
+              {
+                "bind": "string",
+                "index": 2,
+                "value": "Alec"
+              },
+              {
+                "bind": "double",
+                "index": 3,
+                "value": 1.5
+              },
+              {
+                "bind": "boolean",
+                "index": 4,
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?, ?, ?, ?);\n [7, Alec, 1.5, true]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?, ?, ?, ?);",
+            "parameters": 4,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": null
+              },
+              {
+                "bind": "string",
+                "index": 2,
+                "value": null
+              },
+              {
+                "bind": "double",
+                "index": 3,
+                "value": null
+              },
+              {
+                "bind": "boolean",
+                "index": 4,
+                "value": null
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?, ?, ?, ?);\n [null, null, null, null]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?, ?, ?);",
+            "parameters": 3,
+            "binders": [
+              {
+                "bind": "string",
+                "index": 3,
+                "value": "third"
+              },
+              {
+                "bind": "string",
+                "index": 1,
+                "value": "first"
+              },
+              {
+                "bind": "string",
+                "index": 2,
+                "value": "second"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?, ?, ?);\n [third, first, second]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO élève (næme) VALUES ('你好');",
+            "parameters": 0
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO élève (næme) VALUES ('你好');\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t\n  (a, b)\nVALUES (?, ?);",
+            "parameters": 2,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 1
+              },
+              {
+                "bind": "long",
+                "index": 2,
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t\n  (a, b)\nVALUES (?, ?);\n [1, 2]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?, ?, ?, ?);",
+            "parameters": 4,
+            "binders": [
+              {
+                "bind": "double",
+                "index": 1,
+                "value": 0.0
+              },
+              {
+                "bind": "double",
+                "index": 2,
+                "value": 1.0
+              },
+              {
+                "bind": "double",
+                "index": 3,
+                "value": -2.25
+              },
+              {
+                "bind": "double",
+                "index": 4,
+                "value": 1000000.0
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?, ?, ?, ?);\n [0.0, 1.0, -2.25, 1000000.0]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?, ?);",
+            "parameters": 2,
+            "binders": [
+              {
+                "bind": "boolean",
+                "index": 1,
+                "value": true
+              },
+              {
+                "bind": "boolean",
+                "index": 2,
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?, ?);\n [true, false]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?, ?, ?);",
+            "parameters": 3,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": -9223372036854775808
+              },
+              {
+                "bind": "long",
+                "index": 2,
+                "value": 0
+              },
+              {
+                "bind": "long",
+                "index": 3,
+                "value": 9223372036854775807
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?, ?, ?);\n [-9223372036854775808, 0, 9223372036854775807]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "INSERT INTO t VALUES (?, ?);",
+            "parameters": 2,
+            "binders": [
+              {
+                "bind": "string",
+                "index": 1,
+                "value": "a, b]["
+              },
+              {
+                "bind": "string",
+                "index": 2,
+                "value": "x"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n INSERT INTO t VALUES (?, ?);\n [a, b][, x]\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "",
+            "parameters": 1,
+            "binders": [
+              {
+                "bind": "string",
+                "index": 1,
+                "value": ""
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n \n []\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "execute",
+            "identifier": null,
+            "sql": "PRAGMA user_version = ?;",
+            "parameters": 1,
+            "binders": [
+              {
+                "bind": "long",
+                "index": 1,
+                "value": 5
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "EXECUTE\n PRAGMA user_version = ?;\n [5]\n"
+    }
+  ]
+}

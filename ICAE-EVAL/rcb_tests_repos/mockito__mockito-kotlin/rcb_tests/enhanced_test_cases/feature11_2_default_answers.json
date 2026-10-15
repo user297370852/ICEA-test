@@ -1,0 +1,66 @@
+{
+  "description": "Default-answer strategy boundary cases: returns_self yields the double itself on repeated chain calls, returns_mocks produces a present stand-in for a reference-typed member, and deep stubbing reads back boundary values (zero and a large integer) programmed through a chained member.",
+  "cases": [
+    {
+      "input": {
+        "double": "mock",
+        "settings": {
+          "default_answer": "returns_self"
+        },
+        "script": [
+          {
+            "do": "invoke",
+            "member": "selfChain"
+          },
+          {
+            "do": "invoke",
+            "member": "selfChain"
+          }
+        ]
+      },
+      "expected_output": "identity=self\nidentity=self\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "settings": {
+          "default_answer": "deep_stubs"
+        },
+        "stubs": [
+          {
+            "member": "deepChain",
+            "return": 0
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "deepChain"
+          }
+        ]
+      },
+      "expected_output": "value=0\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "settings": {
+          "default_answer": "deep_stubs"
+        },
+        "stubs": [
+          {
+            "member": "deepChain",
+            "return": 1000000
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "deepChain"
+          }
+        ]
+      },
+      "expected_output": "value=1000000\n"
+    }
+  ]
+}

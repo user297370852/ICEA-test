@@ -1,0 +1,50 @@
+{
+  "description": "Resolve each feature's value at most once per scope and keep it cached, counting how many times the resolver runs. Reading the same feature for distinct scopes resolves it once per scope, so the invocation counter rises by one for each new scope, while a repeated read of an already-resolved scope does not run the resolver again.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "foo",
+            "resolver": {
+              "type": "counter",
+              "value": true
+            }
+          },
+          {
+            "op": "active",
+            "feature": "foo"
+          },
+          {
+            "op": "active",
+            "feature": "foo",
+            "scope": {
+              "user": 1
+            }
+          },
+          {
+            "op": "active",
+            "feature": "foo",
+            "scope": {
+              "user": 2
+            }
+          },
+          {
+            "op": "calls",
+            "feature": "foo"
+          },
+          {
+            "op": "active",
+            "feature": "foo"
+          },
+          {
+            "op": "calls",
+            "feature": "foo"
+          }
+        ]
+      },
+      "expected_output": "active foo = true\nactive foo = true\nactive foo = true\ncalls foo = 3\nactive foo = true\ncalls foo = 3\n"
+    }
+  ]
+}

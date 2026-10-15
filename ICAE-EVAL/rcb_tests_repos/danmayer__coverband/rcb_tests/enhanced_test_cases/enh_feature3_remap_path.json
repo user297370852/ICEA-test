@@ -1,0 +1,71 @@
+{
+  "description": "Boundary coverage for canonical path remapping against an ordered list of root-path prefixes. Exercises: a key that matches no prefix (returned effectively unchanged), a single-element root list, a regular-expression prefix matching a rotating release directory, a match on a middle prefix in a longer list, a key already under the local root, and a key that is already relative. Each matching prefix is rewritten to the configured local root (the last entry).",
+  "cases": [
+    {
+      "input": {
+        "op": "remap_path",
+        "key": "lib/foo.rb",
+        "roots": [
+          "/app/",
+          "/local/root/"
+        ]
+      },
+      "expected_output": "path=lib/foo.rb"
+    },
+    {
+      "input": {
+        "op": "remap_path",
+        "key": "/x/y.rb",
+        "roots": [
+          "/x/"
+        ]
+      },
+      "expected_output": "path=/x/y.rb"
+    },
+    {
+      "input": {
+        "op": "remap_path",
+        "key": "/releases/v123/app/m.rb",
+        "roots": [
+          "/releases/v\\d+/",
+          "/canonical/"
+        ]
+      },
+      "expected_output": "path=/canonical/app/m.rb"
+    },
+    {
+      "input": {
+        "op": "remap_path",
+        "key": "/a/b/c.rb",
+        "roots": [
+          "/x/",
+          "/a/",
+          "/dest/"
+        ]
+      },
+      "expected_output": "path=/dest/b/c.rb"
+    },
+    {
+      "input": {
+        "op": "remap_path",
+        "key": "/canonical/app.rb",
+        "roots": [
+          "/old/",
+          "/canonical/"
+        ]
+      },
+      "expected_output": "path=/canonical/app.rb"
+    },
+    {
+      "input": {
+        "op": "remap_path",
+        "key": "./relative/path.rb",
+        "roots": [
+          "/app/",
+          "/dest/"
+        ]
+      },
+      "expected_output": "path=/dest/relative/path.rb"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+    "description": "Decode a single attribute value given in the wire format used by a NoSQL document store, where every value is a JSON object with exactly one key naming its type and the matching encoded payload. The decoder reports the resolved logical type and the value. Scalars report their value directly; binary payloads are reported as their standard base64 text; collection types report their element count followed by one line per element (sets list their members, a heterogeneous list reports each element's own type and scalar value, and a map reports each entry keyed by name with its element type and scalar value, entries ordered by key); the null type reports a null indicator.",
+    "cases": [
+        {"input": {"action": "dynamodb_decode", "value": {"S": "Hello"}}, "expected_output": "type=String\nvalue=Hello\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"N": "123.45"}}, "expected_output": "type=Number\nvalue=123.45\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"BOOL": true}}, "expected_output": "type=Boolean\nvalue=true\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"B": "AAEqQQ=="}}, "expected_output": "type=Binary\nvalue=AAEqQQ==\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"NULL": true}}, "expected_output": "type=Null\nis_null=true\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"SS": ["Giraffe", "Zebra"]}}, "expected_output": "type=StringSet\ncount=2\n[0]=Giraffe\n[1]=Zebra\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"SS": []}}, "expected_output": "type=StringSet\ncount=0\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"NS": ["1234", "567.8"]}}, "expected_output": "type=NumberSet\ncount=2\n[0]=1234\n[1]=567.8\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"BS": ["AAEqQQ==", "AAEqQQ=="]}}, "expected_output": "type=BinarySet\ncount=2\n[0]=AAEqQQ==\n[1]=AAEqQQ==\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"L": [{"S": "Cookies"}, {"S": "Coffee"}, {"N": "3.14159"}]}}, "expected_output": "type=List\ncount=3\n[0] type=String value=Cookies\n[1] type=String value=Coffee\n[2] type=Number value=3.14159\n"},
+        {"input": {"action": "dynamodb_decode", "value": {"M": {"Name": {"S": "Joe"}, "Age": {"N": "35"}}}}, "expected_output": "type=Map\ncount=2\nAge: type=Number value=35\nName: type=String value=Joe\n"}
+    ]
+}

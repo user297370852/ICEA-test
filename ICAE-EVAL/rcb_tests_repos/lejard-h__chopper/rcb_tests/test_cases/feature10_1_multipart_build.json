@@ -1,0 +1,83 @@
+{
+    "description": "Build a multipart/form-data request from a list of parts. A value part becomes a form field whose value is the stringified input. A file part carrying a byte list becomes a file upload. Parts whose value is null are skipped entirely. Output lists the resulting fields (sorted by name), the number of file parts, and the raw bytes of each file part.",
+    "cases": [
+        {
+            "input": {
+                "op": "multipart",
+                "parts": [
+                    {
+                        "kind": "value",
+                        "name": "foo",
+                        "value": "bar"
+                    },
+                    {
+                        "kind": "value",
+                        "name": "int",
+                        "value": 42
+                    }
+                ]
+            },
+            "expected_output": "field.foo=bar\nfield.int=42\nfile_count=0\n"
+        },
+        {
+            "input": {
+                "op": "multipart",
+                "parts": [
+                    {
+                        "kind": "value",
+                        "name": "foo",
+                        "value": "bar"
+                    },
+                    {
+                        "kind": "file",
+                        "name": "file",
+                        "value": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "field.foo=bar\nfile_count=1\nfile.file.bytes=0,1,2,3,4,5,6,7,8,9\n"
+        },
+        {
+            "input": {
+                "op": "multipart",
+                "parts": [
+                    {
+                        "kind": "value",
+                        "name": "int",
+                        "value": 42
+                    },
+                    {
+                        "kind": "file",
+                        "name": "list int",
+                        "value": [
+                            1,
+                            2
+                        ]
+                    },
+                    {
+                        "kind": "value",
+                        "name": "null value",
+                        "value": null
+                    },
+                    {
+                        "kind": "file",
+                        "name": "null file",
+                        "value": null
+                    }
+                ]
+            },
+            "expected_output": "field.int=42\nfile_count=1\nfile.list int.bytes=1,2\n"
+        }
+    ]
+}

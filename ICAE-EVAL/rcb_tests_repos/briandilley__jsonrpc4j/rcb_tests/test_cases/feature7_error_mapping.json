@@ -1,0 +1,57 @@
+{
+  "description": "Service-error mapping: an unmapped exception thrown by a method becomes a generic error-not-handled response, while exceptions explicitly mapped to a code are reported with that code; an explicit message and data override the defaults, and when no message override is given the thrown exception's own message is surfaced. Host-language class names are never exposed.",
+  "cases": [
+    {
+      "description": "unmapped exception becomes error-not-handled",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "throwsUnmapped",
+          "params": []
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32001\nerror_category=error_not_handled\n"
+    },
+    {
+      "description": "mapped exception reports the configured code",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "throwsMapped",
+          "params": []
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=1234\nerror_category=custom\n"
+    },
+    {
+      "description": "explicit message and data override the defaults",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "throwsMappedFull",
+          "params": []
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=-5678\nerror_category=custom\nerror_message=The message\nerror_data=The data\n"
+    },
+    {
+      "description": "thrown exception message surfaces when not overridden",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "throwsMappedWithExceptionMessage",
+          "params": []
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=error\nerror_code=1234\nerror_category=custom\nerror_message=exception message\nerror_data_message=exception message\n"
+    }
+  ]
+}

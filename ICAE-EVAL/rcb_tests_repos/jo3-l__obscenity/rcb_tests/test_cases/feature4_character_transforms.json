@@ -1,0 +1,83 @@
+{
+  "description": "Character normalization pipelines transform text by lowercasing ASCII, dropping non-lowercase alphabetic characters, resolving leetspeak/confusable characters, and applying custom remaps.",
+  "cases": [
+    {
+      "input": {
+        "text": "AZaz0?",
+        "pipeline": [
+          "ascii_lowercase"
+        ]
+      },
+      "expected_output": "{\"text\":\"azaz0?\",\"code_points\":[\"U+0061\",\"U+007A\",\"U+0061\",\"U+007A\",\"U+0030\",\"U+003F\"]}"
+    },
+    {
+      "input": {
+        "text": "azAZ0?",
+        "pipeline": [
+          "skip_non_alphabetic"
+        ]
+      },
+      "expected_output": "{\"text\":\"azAZ\",\"code_points\":[\"U+0061\",\"U+007A\",\"U+0041\",\"U+005A\"]}"
+    },
+    {
+      "input": {
+        "text": "@$e\\",
+        "pipeline": [
+          "leet_speak"
+        ]
+      },
+      "expected_output": "{\"text\":\"ase\\\\\",\"code_points\":[\"U+0061\",\"U+0073\",\"U+0065\",\"U+005C\"]}"
+    },
+    {
+      "input": {
+        "text": "⓵❌a",
+        "pipeline": [
+          "confusables"
+        ]
+      },
+      "expected_output": "{\"text\":\"1Xa\",\"code_points\":[\"U+0031\",\"U+0058\",\"U+0061\"]}"
+    },
+    {
+      "input": {
+        "text": "bcez",
+        "pipeline": [
+          {
+            "type": "remap_characters",
+            "map": {
+              "a": "bc"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\"text\":\"aaez\",\"code_points\":[\"U+0061\",\"U+0061\",\"U+0065\",\"U+007A\"]}"
+    },
+    {
+      "input": {
+        "text": "whatever",
+        "pipeline": [
+          {
+            "type": "remap_characters",
+            "map": {
+              "ab": "cd"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=single_code_point_required"
+    },
+    {
+      "input": {
+        "text": "whatever",
+        "pipeline": [
+          {
+            "type": "remap_characters",
+            "map": {
+              "": "cd"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=single_code_point_required"
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "description": "Downstream fan-out coverage: two same-kind sinks attached downstream both receive the full payload and each records it under the same-kind label; a same-kind sink and a foreign standard logger attached together each format the entry their own way; the foreign standard logger surfaces the correct single-letter severity across the severity range; suppression skips the primary sink yet the entry is still forwarded to an attached same-kind downstream sink, which records it; a foreign probe logger observes a non-suppressed entry with the skip flag inactive; and a same-kind sink accumulates a running count across multiple forwarded entries.",
+  "cases": [
+    {
+      "input": {
+        "actions": [
+          {
+            "chain": "recording"
+          },
+          {
+            "chain": "recording"
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "twice",
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "chained level=1 source=prog message=twice backtrace= env= valid_encoding=true\nchained total=1\nchained level=1 source=prog message=twice backtrace= env= valid_encoding=true\nchained total=1\nprimary level=1 source=prog message=twice backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "chain": "recording"
+          },
+          {
+            "chain": "standard"
+          },
+          {
+            "log": {
+              "level": 2,
+              "message": "both",
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "chain_standard severity=W message=both\nchained level=2 source=prog message=both backtrace= env= valid_encoding=true\nchained total=1\nprimary level=2 source=prog message=both backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "chain": "standard"
+          },
+          {
+            "log": {
+              "level": 0,
+              "message": "dbg"
+            }
+          },
+          {
+            "log": {
+              "level": 3,
+              "message": "err"
+            }
+          },
+          {
+            "log": {
+              "level": 4,
+              "message": "fat"
+            }
+          },
+          {
+            "log": {
+              "level": 7,
+              "message": "any"
+            }
+          }
+        ]
+      },
+      "expected_output": "chain_standard severity=D message=dbg\nchain_standard severity=E message=err\nchain_standard severity=F message=fat\nchain_standard severity=A message=any\nprimary level=0 source= message=dbg backtrace= env= valid_encoding=true\nprimary level=3 source= message=err backtrace= env= valid_encoding=true\nprimary level=4 source= message=fat backtrace= env= valid_encoding=true\nprimary level=7 source= message=any backtrace= env= valid_encoding=true\nprimary total=4\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "chain": "recording"
+          },
+          {
+            "skip_store": true
+          },
+          {
+            "log": {
+              "level": 2,
+              "message": "hidden",
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "chained level=2 source=prog message=hidden backtrace= env= valid_encoding=true\nchained total=1\nprimary total=0\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "chain": "probe"
+          },
+          {
+            "log": {
+              "level": 2,
+              "message": null,
+              "source": "visible"
+            }
+          }
+        ]
+      },
+      "expected_output": "chain_probe skip_store=false message=visible\nprimary level=2 source= message=visible backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "chain": "recording"
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "one",
+              "source": "prog"
+            }
+          },
+          {
+            "log": {
+              "level": 1,
+              "message": "two",
+              "source": "prog"
+            }
+          }
+        ]
+      },
+      "expected_output": "chained level=1 source=prog message=one backtrace= env= valid_encoding=true\nchained level=1 source=prog message=two backtrace= env= valid_encoding=true\nchained total=2\nprimary level=1 source=prog message=one backtrace= env= valid_encoding=true\nprimary level=1 source=prog message=two backtrace= env= valid_encoding=true\nprimary total=2\n"
+    }
+  ]
+}

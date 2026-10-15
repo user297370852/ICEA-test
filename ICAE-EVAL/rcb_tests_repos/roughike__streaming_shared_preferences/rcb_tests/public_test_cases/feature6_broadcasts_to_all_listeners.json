@@ -1,0 +1,31 @@
+{
+    "description": "Every value change is delivered to all active observers. Three observers are attached and each first receives the default value. Each subsequent set operation delegates the write to the store once and notifies all three observers, so every observer sees the same new value, in observer-attachment order.",
+    "cases": [
+        {
+            "input": {
+                "key": "key",
+                "default": "default value",
+                "ops": [
+                    {
+                        "op": "observe"
+                    },
+                    {
+                        "op": "observe"
+                    },
+                    {
+                        "op": "observe"
+                    },
+                    {
+                        "op": "put",
+                        "value": "first change"
+                    },
+                    {
+                        "op": "put",
+                        "value": "second change"
+                    }
+                ]
+            },
+            "expected_output": "emit[0] default value\nemit[1] default value\nemit[2] default value\nstore write key=key value=first change\nput ok=true\nemit[0] first change\nemit[1] first change\nemit[2] first change\nstore write key=key value=second change\nput ok=true\nemit[0] second change\nemit[1] second change\nemit[2] second change\n"
+        }
+    ]
+}

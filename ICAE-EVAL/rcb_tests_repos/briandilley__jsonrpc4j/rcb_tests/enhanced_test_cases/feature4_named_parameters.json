@@ -1,0 +1,120 @@
+{
+  "description": "Enhanced named-parameter dispatch and type coercion: boolean false, double from integer literal, double from numeric string, uppercase UUID, named echo by parameter name, and uncoercible-argument rejection at different positional indices (boolean at index 0, double at index 1).",
+  "cases": [
+    {
+      "description": "named echo bound by parameter name",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": {
+            "text": "named"
+          }
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"named\"\n"
+    },
+    {
+      "description": "named addInts bound by parameter names",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": {
+            "a": 11,
+            "b": 22
+          }
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=33\n"
+    },
+    {
+      "description": "coercion with boolean false and integer-literal double",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "methodWithDifferentTypes",
+          "params": {
+            "param1": false,
+            "param2": 5,
+            "param3": "12345678-1234-1234-1234-123456789abc"
+          }
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"types:false,5.0,12345678-1234-1234-1234-123456789abc\"\n"
+    },
+    {
+      "description": "coercion with double supplied as a numeric string",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "methodWithDifferentTypes",
+          "params": {
+            "param1": true,
+            "param2": "2.5",
+            "param3": "00000000-0000-0000-0000-000000000001"
+          }
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"types:true,2.5,00000000-0000-0000-0000-000000000001\"\n"
+    },
+    {
+      "description": "uncoercible boolean at index 0",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 9,
+          "method": "methodWithDifferentTypes",
+          "params": [
+            "not-a-bool",
+            1.0,
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=9\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=Failed to read method parameter at index 0\n"
+    },
+    {
+      "description": "uncoercible double at index 1",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 8,
+          "method": "methodWithDifferentTypes",
+          "params": [
+            true,
+            "not-a-number",
+            "00000000-0000-0000-0000-000000000000"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=8\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=Failed to read method parameter at index 1\n"
+    },
+    {
+      "description": "named methodWithoutRequiredParam with both params present",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "methodWithoutRequiredParam",
+          "params": {
+            "param1": "p",
+            "param2": "q"
+          }
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"withoutRequired:p|q\"\n"
+    }
+  ]
+}

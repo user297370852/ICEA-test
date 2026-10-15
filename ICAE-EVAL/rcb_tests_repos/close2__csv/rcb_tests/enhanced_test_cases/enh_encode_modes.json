@@ -1,0 +1,188 @@
+{
+  "description": "ENHANCED: Encoding under explicit quote modes and custom delimiter/escape/quote characters — always-quoting empty and null fields, strings-mode leaving null/numeric/bool bare while quoting textual values containing the delimiter, custom field delimiters, custom escape character with multiple embedded quotes, and a custom quote character.",
+  "cases": [
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "quoteMode": "always"
+        },
+        "rows": [
+          [
+            "",
+            null,
+            0
+          ]
+        ]
+      },
+      "expected_output": "\"\",,\"0\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "quoteMode": "always"
+        },
+        "rows": [
+          [
+            "a",
+            "b"
+          ],
+          [
+            "c",
+            "d"
+          ]
+        ]
+      },
+      "expected_output": "\"a\",\"b\"\r\n\"c\",\"d\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "quoteMode": "strings"
+        },
+        "rows": [
+          [
+            null,
+            1,
+            2.5,
+            true,
+            "txt"
+          ]
+        ]
+      },
+      "expected_output": ",1,2.5,true,\"txt\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "quoteMode": "strings"
+        },
+        "rows": [
+          [
+            "a,b",
+            100
+          ]
+        ]
+      },
+      "expected_output": "\"a,b\",100"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "fieldDelimiter": ";"
+        },
+        "rows": [
+          [
+            "a;b",
+            "c"
+          ]
+        ]
+      },
+      "expected_output": "\"a;b\";c"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "fieldDelimiter": "\t"
+        },
+        "rows": [
+          [
+            "a\tb",
+            "c"
+          ]
+        ]
+      },
+      "expected_output": "\"a\tb\"\tc"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "lineDelimiter": "\n"
+        },
+        "rows": [
+          [
+            "a"
+          ],
+          [
+            "b"
+          ]
+        ]
+      },
+      "expected_output": "a\nb"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "escapeCharacter": "\\"
+        },
+        "rows": [
+          [
+            "a\"b\"c"
+          ]
+        ]
+      },
+      "expected_output": "\"a\\\"b\\\"c\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "escapeCharacter": "\\"
+        },
+        "rows": [
+          [
+            "\"\""
+          ]
+        ]
+      },
+      "expected_output": "\"\\\"\\\"\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "quoteCharacter": "'"
+        },
+        "rows": [
+          [
+            "a'b",
+            "c,d"
+          ]
+        ]
+      },
+      "expected_output": "'a''b','c,d'"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "addBom": true
+        },
+        "rows": [
+          [
+            "a",
+            "b"
+          ]
+        ]
+      },
+      "expected_output": "﻿a,b"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "config": {
+          "addBom": true
+        },
+        "rows": []
+      },
+      "expected_output": "﻿"
+    }
+  ]
+}

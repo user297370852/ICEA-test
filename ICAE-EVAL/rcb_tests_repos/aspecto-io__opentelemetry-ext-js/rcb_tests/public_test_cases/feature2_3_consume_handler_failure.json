@@ -1,0 +1,63 @@
+{
+    "description": "When a per-message consumer handler fails, its span is marked with an error status and the failure is re-surfaced to the caller; the error is reported as a neutral category. A thrown value with a readable reason yields that reason as the status message; a thrown value without a readable reason (including an empty/absent value) yields no status message.",
+    "cases": [
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "throw_error",
+                            "message": "error thrown from eachMessage callback"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=error error=handler_failure\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=error thrown from eachMessage callback\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        },
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "throw_object_no_message"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=error error=handler_failure_no_message\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=<none>\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        },
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "throw_undefined"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=error error=handler_failure_empty\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=<none>\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        }
+    ]
+}

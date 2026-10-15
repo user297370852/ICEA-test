@@ -1,0 +1,77 @@
+{
+  "description": "Enhanced unified-facade coverage: title + description + canonical fanned out together; a verbatim (append_default=false) title fanned out; a description with an injection payload to verify per-channel escaping differences (HTML-escaped in head/og/twitter, literal in JSON-LD); a multi-image list fanned out to og/twitter (indexed)/json-ld array; and a title combined with a single image.",
+  "cases": [
+    {
+      "input": {
+        "channel": "seo",
+        "steps": [
+          {
+            "title": "T"
+          },
+          {
+            "description": "D"
+          },
+          {
+            "canonical": "http://c.com"
+          }
+        ]
+      },
+      "expected_output": "<title>T - It's Over 9000!</title><meta name=\"description\" content=\"D\"><link rel=\"canonical\" href=\"http://c.com\"/><meta property=\"og:title\" content=\"T\" /><meta property=\"og:description\" content=\"D\" /><meta name=\"twitter:title\" content=\"T\" /><meta name=\"twitter:description\" content=\"D\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"T\",\"description\":\"D\"}</script>"
+    },
+    {
+      "input": {
+        "channel": "seo",
+        "steps": [
+          {
+            "title": {
+              "text": "Verbatim",
+              "append_default": false
+            }
+          }
+        ]
+      },
+      "expected_output": "<title>Verbatim</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta property=\"og:title\" content=\"Verbatim\" /><meta property=\"og:description\" content=\"For those who helped create the Genki Dama\" /><meta name=\"twitter:title\" content=\"Verbatim\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Verbatim\",\"description\":\"For those who helped create the Genki Dama\"}</script>"
+    },
+    {
+      "input": {
+        "channel": "seo",
+        "steps": [
+          {
+            "description": "A & B <c>"
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"A &amp; B &lt;c&gt;\"><meta property=\"og:description\" content=\"A &amp; B &lt;c&gt;\" /><meta property=\"og:title\" content=\"Over 9000 Thousand!\" /><meta name=\"twitter:description\" content=\"A &amp; B &lt;c&gt;\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"A & B <c>\"}</script>"
+    },
+    {
+      "input": {
+        "channel": "seo",
+        "steps": [
+          {
+            "images": [
+              "a.png",
+              "b.png"
+            ]
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta property=\"og:title\" content=\"Over 9000 Thousand!\" /><meta property=\"og:description\" content=\"For those who helped create the Genki Dama\" /><meta property=\"og:image\" content=\"a.png\" /><meta property=\"og:image\" content=\"b.png\" /><meta name=\"twitter:image0\" content=\"a.png\" /><meta name=\"twitter:image1\" content=\"b.png\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"For those who helped create the Genki Dama\",\"image\":[\"a.png\",\"b.png\"]}</script>"
+    },
+    {
+      "input": {
+        "channel": "seo",
+        "steps": [
+          {
+            "title": "Home"
+          },
+          {
+            "images": [
+              "x.png"
+            ]
+          }
+        ]
+      },
+      "expected_output": "<title>Home - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta property=\"og:title\" content=\"Home\" /><meta property=\"og:description\" content=\"For those who helped create the Genki Dama\" /><meta property=\"og:image\" content=\"x.png\" /><meta name=\"twitter:title\" content=\"Home\" /><meta name=\"twitter:image0\" content=\"x.png\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Home\",\"description\":\"For those who helped create the Genki Dama\",\"image\":\"x.png\"}</script>"
+    }
+  ]
+}

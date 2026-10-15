@@ -1,0 +1,86 @@
+{
+    "description": "Resolve archive storage paths and decide whether a package should be skipped during archive creation.",
+    "cases": [
+        {
+            "input": {
+                "action": "archive_policy",
+                "query": "storage_path",
+                "output_dir": ".",
+                "config": {
+                    "absolute-directory": "/home/satis/build/dist"
+                }
+            },
+            "expected_output": "path=/home/satis/build/dist\n"
+        },
+        {
+            "input": {
+                "action": "archive_policy",
+                "query": "storage_path",
+                "output_dir": "build",
+                "config": {
+                    "directory": "dist"
+                }
+            },
+            "expected_output": "path=build/dist\n"
+        },
+        {
+            "input": {
+                "action": "archive_policy",
+                "package": {
+                    "name": "vendor/name",
+                    "version": "1.0",
+                    "type": "metapackage"
+                },
+                "config": {}
+            },
+            "expected_output": "skip=true\n"
+        },
+        {
+            "input": {
+                "action": "archive_policy",
+                "package": {
+                    "name": "vendor/name",
+                    "version": "dev-master",
+                    "normalized": "dev-master"
+                },
+                "config": {
+                    "skip-dev": 1
+                }
+            },
+            "expected_output": "skip=true\n"
+        },
+        {
+            "input": {
+                "action": "archive_policy",
+                "package": {
+                    "name": "vendor/name",
+                    "version": "1.0"
+                },
+                "config": {
+                    "whitelist": [
+                        "othervendor/othername"
+                    ]
+                }
+            },
+            "expected_output": "skip=true\n"
+        },
+        {
+            "input": {
+                "action": "archive_policy",
+                "package": {
+                    "name": "othervendor/othername",
+                    "version": "1.0"
+                },
+                "provides": [
+                    "vendor/name"
+                ],
+                "config": {
+                    "blacklist": [
+                        "vendor/name"
+                    ]
+                }
+            },
+            "expected_output": "skip=true\n"
+        }
+    ]
+}

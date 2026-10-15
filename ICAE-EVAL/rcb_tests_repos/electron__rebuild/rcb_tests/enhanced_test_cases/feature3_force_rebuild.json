@@ -1,0 +1,61 @@
+{
+  "description": "Force-flag boundary coverage: forcing a full rebuild across a multi-module tree whose stamps all already match the target ABI still yields zero skips; and force combined with an allow-list rebuilds exactly the named module (still with zero skips) even though its stamp matches.",
+  "cases": [
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "9.0.0",
+        "builtForRuntimeVersion": "9.0.0",
+        "force": true,
+        "dependencies": {
+          "alpha": "1",
+          "beta": "1"
+        },
+        "modules": [
+          {
+            "name": "alpha",
+            "native": true
+          },
+          {
+            "name": "beta",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=80\nselected=alpha,beta\nskipped=0\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "builtForRuntimeVersion": "10.4.7",
+        "force": true,
+        "only": [
+          "farmhash"
+        ],
+        "dependencies": {
+          "ref-napi": "1",
+          "farmhash": "1"
+        },
+        "optionalDependencies": {
+          "bcrypt": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          },
+          {
+            "name": "farmhash",
+            "native": true
+          },
+          {
+            "name": "bcrypt",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "runtime_abi=82\nselected=farmhash\nskipped=0\n"
+    }
+  ]
+}

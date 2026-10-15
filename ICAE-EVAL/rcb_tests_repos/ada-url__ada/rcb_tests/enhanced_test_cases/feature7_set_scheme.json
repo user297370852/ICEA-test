@@ -1,0 +1,111 @@
+{
+  "description": "Scheme changes: compatible special-to-special swaps, default-port dropping on change, and rejected transitions that leave the URL unchanged.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/x",
+        "steps": [
+          {
+            "op": "set",
+            "field": "protocol",
+            "value": "https"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_protocol=true\nhref=https://example.com/x\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "ws://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "protocol",
+            "value": "wss"
+          },
+          {
+            "op": "get",
+            "field": "protocol"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_protocol=true\nprotocol=wss:\nhref=wss://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:80/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "protocol",
+            "value": "http"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_protocol=true\nport=\nhref=http://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "protocol",
+            "value": "mailto"
+          },
+          {
+            "op": "get",
+            "field": "protocol"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_protocol=true\nprotocol=http:\nhref=http://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "protocol",
+            "value": "ftp"
+          },
+          {
+            "op": "get",
+            "field": "protocol"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_protocol=true\nprotocol=ftp:\nhref=ftp://example.com/\n"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "description": "History-reset edge cases: clearing with no prior invocations still verifies as never; multiple invocations cleared then re-exercised count only post-reset calls; and a reset preserves programmed responses so stubbed members keep returning their configured value across the clear.",
+  "cases": [
+    {
+      "input": {
+        "double": "mock",
+        "script": [
+          {
+            "do": "clear"
+          },
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "never": true
+            }
+          }
+        ]
+      },
+      "expected_output": "verified member=acceptNumber never\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 1
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 2
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 3
+          },
+          {
+            "do": "clear"
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 4
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 5
+          },
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "times": 2
+            }
+          }
+        ]
+      },
+      "expected_output": "verified member=acceptNumber times=2\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "stubs": [
+          {
+            "member": "text",
+            "return": "kept"
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "text"
+          },
+          {
+            "do": "clear"
+          },
+          {
+            "do": "invoke",
+            "member": "text"
+          },
+          {
+            "do": "verify",
+            "member": "text",
+            "mode": {
+              "times": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "value=kept\nvalue=kept\nverified member=text times=1\n"
+    }
+  ]
+}

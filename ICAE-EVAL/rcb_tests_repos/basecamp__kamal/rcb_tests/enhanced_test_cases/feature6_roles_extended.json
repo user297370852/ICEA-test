@@ -1,0 +1,167 @@
+{
+  "description": "Role-resolution edge cases: querying the startup command of a map role that defines no cmd (empty), resolving default labels (role and service) by key, reading a deployment-level env value through a flat-array role, listing the hosts of a map role given as a direct array, rendering env args for a flat deployment with several clear vars, and the label_args of an additional non-web role.",
+  "cases": [
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": {
+            "web": {
+              "hosts": [
+                "1.1.1.1"
+              ]
+            },
+            "workers": {
+              "hosts": [
+                "1.1.1.2"
+              ],
+              "cmd": "bin/jobs"
+            }
+          },
+          "env": {
+            "REDIS_URL": "redis://x/y"
+          }
+        },
+        "role": "web",
+        "action": "role.cmd"
+      },
+      "expected_output": "cmd="
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "REDIS_URL": "redis://x/y"
+          }
+        },
+        "role": "web",
+        "action": "role.label",
+        "args": {
+          "key": "service"
+        }
+      },
+      "expected_output": "service=app"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "REDIS_URL": "redis://x/y",
+            "RACK_ENV": "production"
+          }
+        },
+        "role": "web",
+        "action": "role.env_value",
+        "args": {
+          "key": "RACK_ENV"
+        }
+      },
+      "expected_output": "RACK_ENV=production"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": {
+            "web": [
+              "1.1.1.1",
+              "1.1.1.2"
+            ],
+            "cron": {
+              "hosts": [
+                "1.1.1.9"
+              ],
+              "cmd": "bin/cron"
+            }
+          },
+          "env": {
+            "REDIS_URL": "redis://x/y"
+          }
+        },
+        "role": "web",
+        "action": "role.hosts"
+      },
+      "expected_output": "1.1.1.1\n1.1.1.2"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "REDIS_URL": "redis://x/y",
+            "RACK_ENV": "production",
+            "PORT": "8080"
+          }
+        },
+        "role": "web",
+        "action": "role.env_args"
+      },
+      "expected_output": "unredacted: -e REDIS_URL=\"redis://x/y\" -e RACK_ENV=\"production\" -e PORT=\"8080\"\nredacted: -e REDIS_URL=\"redis://x/y\" -e RACK_ENV=\"production\" -e PORT=\"8080\""
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": {
+            "web": [
+              "1.1.1.1"
+            ],
+            "cron": {
+              "hosts": [
+                "1.1.1.9"
+              ],
+              "cmd": "bin/cron"
+            }
+          },
+          "env": {
+            "REDIS_URL": "redis://x/y"
+          }
+        },
+        "role": "cron",
+        "action": "role.label_args"
+      },
+      "expected_output": "--label service=\"app\" --label role=\"cron\""
+    }
+  ]
+}

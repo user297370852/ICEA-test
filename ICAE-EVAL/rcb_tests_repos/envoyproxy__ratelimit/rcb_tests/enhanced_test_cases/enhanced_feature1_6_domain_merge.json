@@ -1,0 +1,87 @@
+{
+  "description": "Merging configuration for one domain across multiple documents makes every contributed limit resolvable: a value-qualified limit from the last document, a key-only default from a middle document, and a single-document merge that still resolves its only limit.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": true,
+        "configs": [
+          {
+            "name": "a.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k1\n    value: v1\n    rate_limit:\n      unit: minute\n      requests_per_unit: 10\n"
+          },
+          {
+            "name": "b.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k2\n    rate_limit:\n      unit: hour\n      requests_per_unit: 20\n"
+          },
+          {
+            "name": "c.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k3\n    value: v3\n    rate_limit:\n      unit: day\n      requests_per_unit: 30\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "k3",
+              "value": "v3"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.k3_v3\nrequests_per_unit=30\nunit=DAY\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": true,
+        "configs": [
+          {
+            "name": "a.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k1\n    value: v1\n    rate_limit:\n      unit: minute\n      requests_per_unit: 10\n"
+          },
+          {
+            "name": "b.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k2\n    rate_limit:\n      unit: hour\n      requests_per_unit: 20\n"
+          },
+          {
+            "name": "c.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k3\n    value: v3\n    rate_limit:\n      unit: day\n      requests_per_unit: 30\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "k2",
+              "value": "anything"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.k2\nrequests_per_unit=20\nunit=HOUR\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": true,
+        "configs": [
+          {
+            "name": "a.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: k1\n    value: v1\n    rate_limit:\n      unit: minute\n      requests_per_unit: 10\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "k1",
+              "value": "v1"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.k1_v1\nrequests_per_unit=10\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+    }
+  ]
+}

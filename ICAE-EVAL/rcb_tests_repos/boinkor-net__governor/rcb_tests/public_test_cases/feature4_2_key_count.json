@@ -1,0 +1,38 @@
+{
+    "description": "Track how many distinct keys the keyed limiter is currently holding state for. A newly created limiter holds no keys and reports as empty. Each first-time admission request under a new key adds exactly one tracked key; repeated reporting shows the live key count growing by one per newly seen key and the empty flag turning false once at least one key is present.",
+    "cases": [
+        {
+            "input": {
+                "action": "simulate",
+                "limiter": "keyed",
+                "quota": {
+                    "per_second": 1
+                },
+                "ops": [
+                    {
+                        "len": {}
+                    },
+                    {
+                        "check_key": "foo"
+                    },
+                    {
+                        "len": {}
+                    },
+                    {
+                        "check_key": "bar"
+                    },
+                    {
+                        "len": {}
+                    },
+                    {
+                        "check_key": "baz"
+                    },
+                    {
+                        "len": {}
+                    }
+                ]
+            },
+            "expected_output": "len count=0 empty=true\ncheck_key key=foo allow\nlen count=1 empty=false\ncheck_key key=bar allow\nlen count=2 empty=false\ncheck_key key=baz allow\nlen count=3 empty=false\n"
+        }
+    ]
+}

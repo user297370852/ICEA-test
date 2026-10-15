@@ -1,0 +1,45 @@
+{
+    "description": "ENHANCED (native-disjoint) URL routing cases: a known host with NO slash falls back to docker with empty host and the whole string as path; trailing-slash leaves an empty path; the unescaped-dot quirk routes dockerxio/gcrxio/quayxio to their registries; docker is tried before gcr/quay; a leading slash gives an empty candidate host and falls back; an unknown leading host falls back to docker; and a double slash preserves the empty middle in the path.",
+    "cases": [
+        {
+            "input": {"action": "route_url", "url": "docker.io"},
+            "expected_output": "url=docker.io\nregistry=docker\nhost=\npath=docker.io"
+        },
+        {
+            "input": {"action": "route_url", "url": "docker.io/"},
+            "expected_output": "url=docker.io/\nregistry=docker\nhost=docker.io\npath="
+        },
+        {
+            "input": {"action": "route_url", "url": "dockerxio/foo/bar"},
+            "expected_output": "url=dockerxio/foo/bar\nregistry=docker\nhost=dockerxio\npath=foo/bar"
+        },
+        {
+            "input": {"action": "route_url", "url": "gcrxio/repo/img"},
+            "expected_output": "url=gcrxio/repo/img\nregistry=gcr\nhost=gcrxio\npath=repo/img"
+        },
+        {
+            "input": {"action": "route_url", "url": "quayxio/team/app"},
+            "expected_output": "url=quayxio/team/app\nregistry=quay\nhost=quayxio\npath=team/app"
+        },
+        {
+            "input": {"action": "route_url", "url": "/nginx"},
+            "expected_output": "url=/nginx\nregistry=docker\nhost=\npath=/nginx"
+        },
+        {
+            "input": {"action": "route_url", "url": "registry.example.com/team/app"},
+            "expected_output": "url=registry.example.com/team/app\nregistry=docker\nhost=\npath=registry.example.com/team/app"
+        },
+        {
+            "input": {"action": "route_url", "url": "foo.docker.io/a/b/c"},
+            "expected_output": "url=foo.docker.io/a/b/c\nregistry=docker\nhost=foo.docker.io\npath=a/b/c"
+        },
+        {
+            "input": {"action": "route_url", "url": "us.gcr.io/"},
+            "expected_output": "url=us.gcr.io/\nregistry=gcr\nhost=us.gcr.io\npath="
+        },
+        {
+            "input": {"action": "route_url", "url": "quay.io//team/app"},
+            "expected_output": "url=quay.io//team/app\nregistry=quay\nhost=quay.io\npath=/team/app"
+        }
+    ]
+}

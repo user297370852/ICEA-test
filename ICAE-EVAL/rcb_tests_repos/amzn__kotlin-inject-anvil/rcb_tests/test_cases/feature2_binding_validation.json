@@ -1,0 +1,29 @@
+{
+    "description": "Binding contribution validates the bound type and scope: the bound type must be unambiguous (exactly one super type), the same type may not be bound twice, and all scope-defining annotations must agree.",
+    "cases": [
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\n@Inject\n@ContributesBinding(Unit::class)\nclass Impl\n"
+                ]
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=The bound type could not be determined for Impl. There are no super types.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Base\ninterface Base2\n\n@Inject\n@ContributesBinding(Unit::class)\nclass Impl : Base, Base2\n"
+                ]
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=The bound type could not be determined for Impl. There are multiple super types: Base, Base2.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Base\ninterface Base2\n\n@Inject\n@ContributesBinding(scope = String::class, boundType = Base::class)\n@ContributesBinding(scope = Unit::class, boundType = Base2::class)\nclass Impl : Base, Base2\n"
+                ]
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=All scopes on annotations must be the same.\n"
+        }
+    ]
+}

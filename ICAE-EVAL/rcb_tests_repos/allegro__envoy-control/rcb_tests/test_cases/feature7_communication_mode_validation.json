@@ -1,0 +1,37 @@
+{
+    "description": "Communication-mode compatibility validation. The server advertises which streaming modes it supports: aggregated (ads) and/or separate (xds). A connecting node requests one mode (aggregated when ads is true, separate when it is false). If the requested mode is not supported by the server the request is rejected with a mode-not-supported decision naming the unsupported mode (ADS or XDS). If the requested mode is supported the request is accepted. Decisions are emitted as neutral lines: 'result=accepted' on success, or 'error=mode_not_supported' with the mode name on rejection.",
+    "cases": [
+        {
+            "input": {"op": "communication_mode", "adsSupported": false, "xdsSupported": true, "ads": true, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "error=mode_not_supported\nmode=ADS\n"
+        },
+        {
+            "input": {"op": "communication_mode", "adsSupported": true, "xdsSupported": false, "ads": false, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "error=mode_not_supported\nmode=XDS\n"
+        },
+        {
+            "input": {"op": "communication_mode", "adsSupported": false, "xdsSupported": false, "ads": false, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "error=mode_not_supported\nmode=XDS\n"
+        },
+        {
+            "input": {"op": "communication_mode", "adsSupported": false, "xdsSupported": false, "ads": true, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "error=mode_not_supported\nmode=ADS\n"
+        },
+        {
+            "input": {"op": "communication_mode", "adsSupported": true, "xdsSupported": true, "ads": true, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "result=accepted\n"
+        },
+        {
+            "input": {"op": "communication_mode", "adsSupported": true, "xdsSupported": false, "ads": true, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "result=accepted\n"
+        },
+        {
+            "input": {"op": "communication_mode", "adsSupported": false, "xdsSupported": true, "ads": false, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "result=accepted\n"
+        },
+        {
+            "input": {"op": "communication_mode", "adsSupported": true, "xdsSupported": true, "ads": false, "serviceDependencies": ["a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "result=accepted\n"
+        }
+    ]
+}

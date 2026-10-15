@@ -1,0 +1,75 @@
+{
+  "description": "Enhanced inbound fulfillment coverage for shipment item variants, international address fields, inbound guidance, and inbound item pagination.",
+  "cases": [
+    {
+      "input": {
+        "feature": "inbound_items",
+        "operation": "CreateInboundShipment",
+        "items": [
+          {
+            "sku": "sku-zero",
+            "quantity": 0
+          },
+          {
+            "sku": "sku-full",
+            "quantity": 1,
+            "quantity_in_case": 0,
+            "asin": "ASINX",
+            "condition": "NewItem"
+          }
+        ]
+      },
+      "expected_output": "{\"items\":[{\"QuantityInCase\":null,\"QuantityShipped\":0,\"SellerSKU\":\"sku-zero\"},{\"QuantityInCase\":0,\"QuantityShipped\":1,\"SellerSKU\":\"sku-full\"}]}\n"
+    },
+    {
+      "input": {
+        "feature": "inbound_address",
+        "address": {
+          "name": "Name & Co",
+          "address_1": "Line 1/2",
+          "address_2": "Suite #5",
+          "city": "São Paulo",
+          "country": "BR"
+        }
+      },
+      "expected_output": "{\"ship_from_address\":{\"ShipFromAddress.AddressLine1\":\"Line 1/2\",\"ShipFromAddress.AddressLine2\":\"Suite #5\",\"ShipFromAddress.City\":\"São Paulo\",\"ShipFromAddress.CountryCode\":\"BR\",\"ShipFromAddress.DistrictOrCounty\":null,\"ShipFromAddress.Name\":\"Name & Co\",\"ShipFromAddress.PostalCode\":null,\"ShipFromAddress.StateOrProvinceCode\":null}}\n"
+    },
+    {
+      "input": {
+        "feature": "request_params",
+        "area": "inbound_shipments",
+        "operation": "GetInboundGuidanceForSKU",
+        "arguments": {
+          "skus": [
+            "sku-one",
+            "sku two"
+          ],
+          "marketplace_id": "MKT 9"
+        }
+      },
+      "expected_output": "{\"endpoint\":\"https://mws.amazonservices.com\",\"params\":{\"AWSAccessKeyId\":\"cred_access\",\"Action\":\"GetInboundGuidanceForSKU\",\"MWSAuthToken\":\"cred_token\",\"MarketplaceId\":\"MKT%209\",\"SellerId\":\"cred_account\",\"SellerSKUList.Id.1\":\"sku-one\",\"SellerSKUList.Id.2\":\"sku%20two\",\"SignatureMethod\":\"HmacSHA256\",\"SignatureVersion\":\"2\",\"Timestamp\":\"<iso8601-url-encoded-utc-second>\",\"Version\":\"2010-10-01\"},\"path\":\"/FulfillmentInboundShipment/2010-10-01\",\"version\":\"2010-10-01\"}\n"
+    },
+    {
+      "input": {
+        "feature": "request_params",
+        "area": "inbound_shipments",
+        "operation": "ListInboundShipmentItems",
+        "arguments": {
+          "shipment_id": "SHIP123"
+        }
+      },
+      "expected_output": "{\"endpoint\":\"https://mws.amazonservices.com\",\"params\":{\"AWSAccessKeyId\":\"cred_access\",\"Action\":\"ListInboundShipmentItems\",\"MWSAuthToken\":\"cred_token\",\"SellerId\":\"cred_account\",\"ShipmentId\":\"SHIP123\",\"SignatureMethod\":\"HmacSHA256\",\"SignatureVersion\":\"2\",\"Timestamp\":\"<iso8601-url-encoded-utc-second>\",\"Version\":\"2010-10-01\"},\"path\":\"/FulfillmentInboundShipment/2010-10-01\",\"version\":\"2010-10-01\"}\n"
+    },
+    {
+      "input": {
+        "feature": "request_params",
+        "area": "inbound_shipments",
+        "operation": "ListInboundShipmentItemsByNextToken",
+        "arguments": {
+          "next_token": "TOKEN123"
+        }
+      },
+      "expected_output": "{\"endpoint\":\"https://mws.amazonservices.com\",\"params\":{\"AWSAccessKeyId\":\"cred_access\",\"Action\":\"ListInboundShipmentItemsByNextToken\",\"MWSAuthToken\":\"cred_token\",\"NextToken\":\"TOKEN123\",\"SellerId\":\"cred_account\",\"SignatureMethod\":\"HmacSHA256\",\"SignatureVersion\":\"2\",\"Timestamp\":\"<iso8601-url-encoded-utc-second>\",\"Version\":\"2010-10-01\"},\"path\":\"/FulfillmentInboundShipment/2010-10-01\",\"version\":\"2010-10-01\"}\n"
+    }
+  ]
+}

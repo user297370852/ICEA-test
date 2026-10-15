@@ -1,0 +1,68 @@
+{
+  "description": "Tearing down a session transmits a DISCONNECT control packet, closes the transport and returns the session to a disconnected state. These cases exercise disconnect with no prior live session, repeated disconnects and the session state observed afterwards.",
+  "cases": [
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "disconnect"
+          }
+        ]
+      },
+      "expected_output": "disconnect\nconnected=0\nstate=-1\nsent=e0 00\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "disconnect"
+          },
+          {
+            "op": "disconnect"
+          }
+        ]
+      },
+      "expected_output": "disconnect\nconnected=0\nstate=-1\nsent=e0 00\ndisconnect\nconnected=0\nstate=-1\nsent=e0 00\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "disconnect"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "disconnect\nconnected=0\nstate=-1\nsent=e0 00\nstate=-1\n"
+    }
+  ]
+}

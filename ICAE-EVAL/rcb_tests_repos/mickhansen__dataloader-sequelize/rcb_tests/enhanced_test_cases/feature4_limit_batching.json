@@ -1,0 +1,107 @@
+{
+  "description": "Boundary coverage for per-owner row caps under batching. Owners that share the same cap can still be batched together, but owners requesting a different cap cannot share a round-trip; each owner receives at most its cap of the lowest-keyed links. The reported signals are the number of round-trips, the owner-key set per round-trip, and the capped id set per owner, covering the minimum positive cap, a cap larger than any owner's membership, three distinct caps, and a capped empty owner.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "limit": 1
+            }
+          },
+          {
+            "project": 2,
+            "as": "members",
+            "options": {
+              "limit": 1
+            }
+          },
+          {
+            "project": 3,
+            "as": "members",
+            "options": {
+              "limit": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2,3\nr0.op0=members=101\nr0.op1=members=104\nr0.op2=members=107\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "limit": 100
+            }
+          },
+          {
+            "project": 2,
+            "as": "members",
+            "options": {
+              "limit": 100
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2\nr0.op0=members=101,102,103,104\nr0.op1=members=104,105,106,107\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "limit": 1
+            }
+          },
+          {
+            "project": 2,
+            "as": "members",
+            "options": {
+              "limit": 2
+            }
+          },
+          {
+            "project": 3,
+            "as": "members",
+            "options": {
+              "limit": 3
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=3\nbatch=1\nbatch=2\nbatch=3\nr0.op0=members=101\nr0.op1=members=104,105\nr0.op2=members=107,108,109\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 4,
+            "as": "members",
+            "options": {
+              "limit": 2
+            }
+          },
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "limit": 2
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,4\nr0.op0=members=\nr0.op1=members=101,102\n"
+    }
+  ]
+}

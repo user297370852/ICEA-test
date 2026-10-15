@@ -1,0 +1,94 @@
+{
+  "description": "Additional native-disjoint service-manager cases covering default sharing, alternate service registrations, empty and nested build options, one-hop aliases, runtime mutation subsets, override actions, and longer cyclic aliases.",
+  "cases": [
+    {
+      "input": {
+        "operation": "service_retrieval",
+        "registration": "factory",
+        "service": "generic_object"
+      },
+      "expected_output": "has_service=yes\nresolved=generic_object\nsame_on_second_get=yes\n"
+    },
+    {
+      "input": {
+        "operation": "service_retrieval",
+        "registration": "abstract_factory",
+        "service": "optioned_object"
+      },
+      "expected_output": "has_service=yes\nresolved=optioned_object\nsame_on_second_get=yes\n"
+    },
+    {
+      "input": {
+        "operation": "sharing_rules"
+      },
+      "expected_output": "same_on_second_get=yes\n"
+    },
+    {
+      "input": {
+        "operation": "build_with_options",
+        "options": {}
+      },
+      "expected_output": "resolved=optioned_object\noptions=[]\nsame_on_second_build=no\n"
+    },
+    {
+      "input": {
+        "operation": "build_with_options",
+        "options": {
+          "nested": {
+            "alpha": "beta"
+          },
+          "enabled": true,
+          "count": 3
+        }
+      },
+      "expected_output": "resolved=optioned_object\noptions={\"nested\":{\"alpha\":\"beta\"},\"enabled\":true,\"count\":3}\nsame_on_second_build=no\n"
+    },
+    {
+      "input": {
+        "operation": "alias_resolution",
+        "aliases": {
+          "only": "optioned_object"
+        },
+        "get": "only"
+      },
+      "expected_output": "has_requested=yes\nresolved=optioned_object\nsame_as_target=yes\n"
+    },
+    {
+      "input": {
+        "operation": "runtime_mutation",
+        "actions": [
+          "set_factory"
+        ],
+        "get": "foo"
+      },
+      "expected_output": "has_requested=yes\nresolved=generic_object\nsource=factory\ndecorated_as=null\ninitialized=null\nsame_on_second_get=yes\n"
+    },
+    {
+      "input": {
+        "operation": "runtime_mutation",
+        "actions": [
+          "set_factory",
+          "add_initializer",
+          "set_unshared"
+        ],
+        "get": "foo"
+      },
+      "expected_output": "has_requested=yes\nresolved=generic_object\nsource=factory\ndecorated_as=null\ninitialized=yes\nsame_on_second_get=no\n"
+    },
+    {
+      "input": {
+        "operation": "override_protection",
+        "action": "set_alias"
+      },
+      "expected_output": "error=modification_not_allowed\ndetail=unspecified\n"
+    },
+    {
+      "input": {
+        "operation": "override_protection",
+        "allow_override": true,
+        "action": "configure"
+      },
+      "expected_output": "allow_override=yes\nmutation_applied=yes\nresolved=date_time_object\n"
+    }
+  ]
+}

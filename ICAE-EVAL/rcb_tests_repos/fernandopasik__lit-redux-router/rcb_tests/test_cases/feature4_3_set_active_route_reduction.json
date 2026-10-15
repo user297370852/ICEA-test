@@ -1,0 +1,88 @@
+{
+    "description": "Reduce a set-active-route command: the active route becomes the command path and every route in the table is re-evaluated for match and parameters against the new active route.",
+    "cases": [
+        {
+            "input": {
+                "op": "reduce",
+                "action": {
+                    "path": "/contact",
+                    "type": "SET_ACTIVE_ROUTE"
+                }
+            },
+            "expected_output": "activeRoute=/contact"
+        },
+        {
+            "input": {
+                "op": "reduce",
+                "state": {
+                    "activeRoute": "/",
+                    "routes": {
+                        "/about": {
+                            "active": false,
+                            "params": {}
+                        },
+                        "/contact": {
+                            "active": false,
+                            "params": {}
+                        },
+                        "/home": {
+                            "active": false,
+                            "params": {}
+                        }
+                    }
+                },
+                "action": {
+                    "path": "/contact",
+                    "type": "SET_ACTIVE_ROUTE"
+                }
+            },
+            "expected_output": "activeRoute=/contact\nroute[/about].active=false\nroute[/contact].active=true\nroute[/home].active=false"
+        },
+        {
+            "input": {
+                "op": "reduce",
+                "state": {
+                    "activeRoute": "/",
+                    "routes": {
+                        "/about": {
+                            "active": false,
+                            "params": {}
+                        },
+                        "/products/:id": {
+                            "active": false,
+                            "params": {}
+                        }
+                    }
+                },
+                "action": {
+                    "path": "/products/shirt",
+                    "type": "SET_ACTIVE_ROUTE"
+                }
+            },
+            "expected_output": "activeRoute=/products/shirt\nroute[/about].active=false\nroute[/products/:id].active=true\nroute[/products/:id].param.id=shirt"
+        },
+        {
+            "input": {
+                "op": "reduce",
+                "state": {
+                    "activeRoute": "/",
+                    "routes": {
+                        "/about": {
+                            "active": false,
+                            "params": {}
+                        },
+                        "/products/:id": {
+                            "active": false,
+                            "params": {}
+                        }
+                    }
+                },
+                "action": {
+                    "path": "/about",
+                    "type": "SET_ACTIVE_ROUTE"
+                }
+            },
+            "expected_output": "activeRoute=/about\nroute[/about].active=true\nroute[/products/:id].active=false"
+        }
+    ]
+}

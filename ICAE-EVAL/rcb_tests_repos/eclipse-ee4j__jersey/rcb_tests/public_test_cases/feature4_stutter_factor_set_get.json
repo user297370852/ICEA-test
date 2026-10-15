@@ -1,0 +1,14 @@
+{
+    "description": "The repeat factor of the stutter echo service can be reconfigured at runtime through its own HTTP endpoint, and the change is observed by the separate echo endpoint that shares the same application-scoped service instance. Input is a sequence of requests: a PUT that sets the factor (request body is the integer factor, response carries no content), followed by a GET on the echo endpoint. The output concatenates each request's status, routed URL, and body, separated by a blank line. A successful factor update returns status 204 with an empty body; the subsequent echo repeats the `s` query value `factor` times.",
+    "cases": [
+        {
+            "input": {"requests": [
+                {"app": "main", "path": "stutter-service-factor", "method": "PUT", "body": "3"},
+                {"app": "main", "path": "stutter", "query": {"s": "lincoln"}},
+                {"app": "main", "path": "stutter-service-factor", "method": "PUT", "body": "2"},
+                {"app": "main", "path": "stutter", "query": {"s": "lincoln"}}
+            ]},
+            "expected_output": "status=204\nurl=http://localhost:9998/main/stutter-service-factor\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/stutter?s=lincoln\nbody=lincolnlincolnlincoln\n\nstatus=204\nurl=http://localhost:9998/main/stutter-service-factor\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/stutter?s=lincoln\nbody=lincolnlincoln"
+        }
+    ]
+}

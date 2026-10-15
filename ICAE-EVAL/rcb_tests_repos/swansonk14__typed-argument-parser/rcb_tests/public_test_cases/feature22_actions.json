@@ -1,0 +1,63 @@
+{
+    "description": "Configuration-time arguments can opt into accumulation behaviors: an append action collects one converted value per occurrence onto the list default; an append-constant action appends a fixed constant per occurrence; a count action tallies the number of occurrences onto a numeric default; and an extend action flattens multiple multi-valued occurrences into the default list.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "arg",
+                        "type": "List[int]",
+                        "default": [
+                            1,
+                            2
+                        ]
+                    }
+                ],
+                "configure": [
+                    {
+                        "flags": [
+                            "--arg"
+                        ],
+                        "kwargs": {
+                            "action": "append"
+                        }
+                    }
+                ],
+                "argv": [
+                    "--arg",
+                    "3",
+                    "--arg",
+                    "4"
+                ]
+            },
+            "expected_output": "arg=[int:1, int:2, int:3, int:4]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "arg",
+                        "type": "int",
+                        "default": 7
+                    }
+                ],
+                "configure": [
+                    {
+                        "flags": [
+                            "--arg",
+                            "-a"
+                        ],
+                        "kwargs": {
+                            "action": "count"
+                        }
+                    }
+                ],
+                "argv": [
+                    "-aaa",
+                    "--arg"
+                ]
+            },
+            "expected_output": "arg=int:11\n"
+        }
+    ]
+}

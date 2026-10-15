@@ -1,0 +1,53 @@
+{
+  "description": "File rename coverage: content is preserved at the new path while the old path disappears, and renaming into a destination whose parent directory is missing fails with a not-found category.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/a",
+            "text": "payload"
+          },
+          {
+            "op": "rename",
+            "from": "/a",
+            "to": "/b"
+          },
+          {
+            "op": "exists",
+            "path": "/a",
+            "as": "file"
+          },
+          {
+            "op": "exists",
+            "path": "/b",
+            "as": "file"
+          },
+          {
+            "op": "read",
+            "path": "/b"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=7\nrenamed=/b\nexists=false\nexists=true\ntext=\"payload\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/a",
+            "text": "x"
+          },
+          {
+            "op": "rename",
+            "from": "/a",
+            "to": "/no/dest"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=1\nerror=no_such_file_or_directory\n"
+    }
+  ]
+}

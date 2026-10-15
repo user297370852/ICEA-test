@@ -1,0 +1,21 @@
+{
+    "description": "Text files are decoded as UTF-8 (falling back to Latin-1), so content containing non-ASCII letters is read correctly and a word with valid accented characters is not reported as a misspelling, while a separate misspelled word in the same file is still detected. Files detected as binary (those containing a null byte) are skipped without being spell-checked; by default skipping a binary file emits a neutral binary-file warning, and enabling the quiet bit that governs binary-file messages suppresses that warning. In every binary case the total count is zero because no content was checked.",
+    "cases": [
+        {
+            "input": {"files": {"a.txt": "na\u00efve\n"}, "args": ["a.txt"]},
+            "expected_output": "count=0\n"
+        },
+        {
+            "input": {"files": {"a.txt": "na\u00efve\nnaieve\n"}, "args": ["a.txt"]},
+            "expected_output": "a.txt:2: naieve  ==> naive\ncount=1\n"
+        },
+        {
+            "input": {"files": {"a.txt": "\u0000\u0000naiive\u0000\u0000"}, "args": ["a.txt"]},
+            "expected_output": "warning=binary_file\ncount=0\n"
+        },
+        {
+            "input": {"files": {"a.txt": "\u0000\u0000naiive\u0000\u0000"}, "args": ["-q", "2", "a.txt"]},
+            "expected_output": "count=0\n"
+        }
+    ]
+}

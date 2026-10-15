@@ -1,0 +1,40 @@
+{
+  "description": "Boundary parse-error reporting: a fully valid document (zero errors), an invalid date on a later line, an unrepresentable date, and a malformed should-total with mismatched separators.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_errors",
+        "text": "2020-01-01\n    1h"
+      },
+      "expected_output": "errors=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_errors",
+        "text": "2020-01-01\n\n2020-13-01"
+      },
+      "expected_output": "errors=1\nerror[0].code=invalid_date\nerror[0].line=3\nerror[0].position=0\nerror[0].length=10\n"
+    },
+    {
+      "input": {
+        "action": "parse_errors",
+        "text": "2020-02-30\n    1h"
+      },
+      "expected_output": "errors=1\nerror[0].code=invalid_date\nerror[0].line=1\nerror[0].position=0\nerror[0].length=10\n"
+    },
+    {
+      "input": {
+        "action": "parse_errors",
+        "text": "2020-01-01 (1h!\n    1h"
+      },
+      "expected_output": "errors=1\nerror[0].code=malformed_properties_syntax\nerror[0].line=1\nerror[0].position=15\nerror[0].length=1\n"
+    },
+    {
+      "input": {
+        "action": "parse_errors",
+        "text": "2020-01-01\n    7h60m"
+      },
+      "expected_output": "errors=1\nerror[0].code=malformed_entry\nerror[0].line=2\nerror[0].position=4\nerror[0].length=5\n"
+    }
+  ]
+}

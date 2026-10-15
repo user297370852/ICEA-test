@@ -1,0 +1,46 @@
+{
+    "description": "A draining variant of cancel stops collection and returns every still-buffered event to the caller as an ordered list, each tagged by category. Because the leftovers are handed back rather than left in the buffer, the observation block ends cleanly with no violation. Here one item is read first, then the drain returns the single remaining event of each kind.",
+    "cases": [
+        {
+            "input": {
+                "emissions": [
+                    "one",
+                    "two"
+                ],
+                "terminal": "never",
+                "ops": [
+                    "take_item",
+                    "stop_and_drain"
+                ]
+            },
+            "expected_output": "item=one\nremaining=item:two\n"
+        },
+        {
+            "input": {
+                "emissions": [
+                    "one"
+                ],
+                "terminal": "complete",
+                "ops": [
+                    "take_item",
+                    "stop_and_drain"
+                ]
+            },
+            "expected_output": "item=one\nremaining=complete\n"
+        },
+        {
+            "input": {
+                "emissions": [
+                    "one"
+                ],
+                "terminal": "error",
+                "errorLabel": "boom",
+                "ops": [
+                    "take_item",
+                    "stop_and_drain"
+                ]
+            },
+            "expected_output": "item=one\nremaining=error:boom\n"
+        }
+    ]
+}

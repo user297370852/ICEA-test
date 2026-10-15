@@ -1,0 +1,56 @@
+{
+    "description": "Read file-wide and line-local suppression comments and answer whether named checks are suppressed globally or at a specific line.",
+    "cases": [
+        {
+            "input": {
+                "command": "check_suppressions",
+                "content": "// ignore_for_file:rule_id1\n\nvoid main() {\n  // ignore: rule_id4\n  const a = 5; // ignore: RULE_ID5\n\n  // ignore:rule_id6 ,rule_id7\n  const b = a + 5; // ignore: RULE_ID8, rule_id9, unused_local_variable\n}\n\n// ignore_for_file: rule_id2 , RULE_ID3\n",
+                "global_rules": [
+                    "rule_id1",
+                    "rule_id2",
+                    "rule_id3",
+                    "rule_id4"
+                ],
+                "line_rules": [
+                    {
+                        "rule": "rule_id1",
+                        "line": 5
+                    },
+                    {
+                        "rule": "rule_id2",
+                        "line": 8
+                    },
+                    {
+                        "rule": "rule_id3",
+                        "line": 2
+                    },
+                    {
+                        "rule": "rule_id4",
+                        "line": 5
+                    },
+                    {
+                        "rule": "rule_id5",
+                        "line": 5
+                    },
+                    {
+                        "rule": "rule_id6",
+                        "line": 8
+                    },
+                    {
+                        "rule": "rule_id7",
+                        "line": 8
+                    },
+                    {
+                        "rule": "rule_id8",
+                        "line": 8
+                    },
+                    {
+                        "rule": "rule_id9",
+                        "line": 8
+                    }
+                ]
+            },
+            "expected_output": "global:rule_id1=true\nglobal:rule_id2=true\nglobal:rule_id3=true\nglobal:rule_id4=false\nline:5:rule_id1=true\nline:8:rule_id2=true\nline:2:rule_id3=true\nline:5:rule_id4=true\nline:5:rule_id5=true\nline:8:rule_id6=true\nline:8:rule_id7=true\nline:8:rule_id8=true\nline:8:rule_id9=true\n"
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+{
+  "description": "Implicit and default values. An option may declare an implicit value used when the flag is given an empty equals-assignment, and a default value used when the flag is absent entirely. When a value-bearing option is given as `--name=` (empty assignment) it records a present value of the empty string. A boolean option configured with no implicit value requires an explicit argument: supplying the bare flag reports a missing_argument error, while explicit truthy/falsy assignments parse correctly. Default values apply with a count of zero when the option is absent.",
+  "cases": [
+    {
+      "input": {"program": "implicit", "options": [{"opts": "implicit", "type": "string", "implicit": "foo"}], "argv": ["--implicit="], "queries": [{"q": "count", "name": "implicit"}, {"q": "value", "name": "implicit", "type": "string"}]},
+      "expected_output": "count[implicit]=1\nvalue[implicit]="
+    },
+    {
+      "input": {"program": "no_implicit", "options": [{"opts": "bool", "type": "bool", "no_implicit": true}], "argv": ["--bool"], "queries": []},
+      "expected_output": "error=missing_argument\nparam=bool"
+    },
+    {
+      "input": {"program": "defaults", "options": [{"opts": "default", "type": "int", "default": "42"}, {"opts": "v,vector", "type": "vec_int", "default": "1,4"}], "argv": [], "queries": [{"q": "count", "name": "default"}, {"q": "value", "name": "default", "type": "int"}, {"q": "value", "name": "vector", "type": "vec_int"}]},
+      "expected_output": "count[default]=0\nvalue[default]=42\nvalue[vector]=[1,4]"
+    }
+  ]
+}

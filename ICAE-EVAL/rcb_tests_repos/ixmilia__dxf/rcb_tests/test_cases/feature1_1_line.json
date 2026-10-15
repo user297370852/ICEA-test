@@ -1,0 +1,56 @@
+{
+    "description": "Parse and emit a straight line segment. A line is defined by two endpoints (start P1, end P2), an optional thickness and an optional extrusion direction vector. Omitted coordinates default to the origin and the extrusion direction defaults to the +Z unit vector. Reading reports the parsed typed values; writing emits the canonical entities section the library produces.",
+    "cases": [
+        {
+            "input": {
+                "op": "read_entity",
+                "dxf": "  0\nLINE\n"
+            },
+            "expected_output": "type=line\nlayer=0\nlinetype=BYLAYER\nlinetype_scale=1\nis_visible=true\nis_in_paper_space=false\ncolor=BYLAYER\np1=0,0,0\np2=0,0,0\nthickness=0\nextrusion=0,0,1\n"
+        },
+        {
+            "input": {
+                "op": "read_entity",
+                "dxf": "  0\nLINE\n 10\n1.1\n 20\n2.2\n 30\n3.3\n 11\n4.4\n 21\n5.5\n 31\n6.6\n 39\n7.7\n210\n8.8\n220\n9.9\n230\n10.1\n"
+            },
+            "expected_output": "type=line\nlayer=0\nlinetype=BYLAYER\nlinetype_scale=1\nis_visible=true\nis_in_paper_space=false\ncolor=BYLAYER\np1=1.1,2.2,3.3\np2=4.4,5.5,6.6\nthickness=7.7\nextrusion=8.8,9.9,10.1\n"
+        },
+        {
+            "input": {
+                "op": "write_entity",
+                "entity": {
+                    "type": "line"
+                }
+            },
+            "expected_output": "  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA\n100\nAcDbEntity\n  8\n0\n100\nAcDbLine\n 10\n0.0\n 20\n0.0\n 30\n0.0\n 11\n0.0\n 21\n0.0\n 31\n0.0\n  0\nENDSEC\n"
+        },
+        {
+            "input": {
+                "op": "write_entity",
+                "entity": {
+                    "type": "line",
+                    "p1": [
+                        1,
+                        2,
+                        3
+                    ],
+                    "p2": [
+                        4,
+                        5,
+                        6
+                    ],
+                    "color_index": 7,
+                    "handle": 66,
+                    "layer": "bar",
+                    "thickness": 7,
+                    "extrusion": [
+                        8,
+                        9,
+                        10
+                    ]
+                }
+            },
+            "expected_output": "  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\n42\n100\nAcDbEntity\n  8\nbar\n 62\n7\n100\nAcDbLine\n 39\n7.0\n 10\n1.0\n 20\n2.0\n 30\n3.0\n 11\n4.0\n 21\n5.0\n 31\n6.0\n210\n8.0\n220\n9.0\n230\n10.0\n  0\nENDSEC\n"
+        }
+    ]
+}

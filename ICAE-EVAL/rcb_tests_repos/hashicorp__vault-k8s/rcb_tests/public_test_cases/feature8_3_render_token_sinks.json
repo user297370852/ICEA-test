@@ -1,0 +1,39 @@
+{
+    "cases": [
+        {
+            "input": {
+                "init_container": true, 
+                "annotations": {
+                    "vault.hashicorp.com/agent-inject-token": "true", 
+                    "vault.hashicorp.com/role": "foobar"
+                }, 
+                "op": "render_config"
+            }, 
+            "expected_output": "{\"config\":{\"exit_after_auth\":true,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"},{\"type\":\"file\",\"path\":\"/vault/secrets/token\"}]},\"templates\":[],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "init_container": true, 
+                "annotations": {
+                    "vault.hashicorp.com/agent-inject-token": "false", 
+                    "vault.hashicorp.com/role": "foobar"
+                }, 
+                "op": "render_config"
+            }, 
+            "expected_output": "{\"config\":{\"exit_after_auth\":true,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "init_container": true, 
+                "annotations": {
+                    "vault.hashicorp.com/agent-inject-token": "true", 
+                    "vault.hashicorp.com/secret-volume-path": "/new/secrets", 
+                    "vault.hashicorp.com/role": "foobar"
+                }, 
+                "op": "render_config"
+            }, 
+            "expected_output": "{\"config\":{\"exit_after_auth\":true,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"},{\"type\":\"file\",\"path\":\"/new/secrets/token\"}]},\"templates\":[],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+        }
+    ], 
+    "description": "The auto-auth section always emits a token-helper sink that writes the issued token to the agent home path. When token injection is enabled an additional file sink is emitted that writes the token under the secret volume path (overridable). Disabling token injection leaves only the token-helper sink."
+}

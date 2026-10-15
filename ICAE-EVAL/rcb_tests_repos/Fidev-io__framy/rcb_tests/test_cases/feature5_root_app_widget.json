@@ -1,0 +1,58 @@
+{
+    "description": "Generate the root application widget. The output is a `FramyApp` stateless widget returning a `MaterialApp` with a fixed key and an `onGenerateRoute` hook. An optional theme accessor controls a `theme:` argument: when none is supplied no theme line is emitted; when supplied, the accessor is rendered as a reference of the form `[owner-prefix]name[()]`, where the owner prefix is `Owner.` for a static accessor or `Owner().` for an instance accessor (absent when there is no owner), and a trailing `()` is appended only when the accessor is callable rather than a readable property.",
+    "cases": [
+        {
+            "input": {
+                "target": "framy_app"
+            },
+            "expected_output": "class FramyApp extends StatelessWidget {\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      key: Key('FramyApp'),\n      \n      onGenerateRoute: onGenerateRoute,\n    );\n  }\n}\n"
+        },
+        {
+            "input": {
+                "target": "framy_app",
+                "theme": {
+                    "name": "getThemeData",
+                    "static": true,
+                    "invokable": true
+                }
+            },
+            "expected_output": "class FramyApp extends StatelessWidget {\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      key: Key('FramyApp'),\n      theme: getThemeData(),\n      onGenerateRoute: onGenerateRoute,\n    );\n  }\n}\n"
+        },
+        {
+            "input": {
+                "target": "framy_app",
+                "theme": {
+                    "name": "getThemeData",
+                    "owner": "CustomAppTheme",
+                    "static": false,
+                    "invokable": true
+                }
+            },
+            "expected_output": "class FramyApp extends StatelessWidget {\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      key: Key('FramyApp'),\n      theme: CustomAppTheme().getThemeData(),\n      onGenerateRoute: onGenerateRoute,\n    );\n  }\n}\n"
+        },
+        {
+            "input": {
+                "target": "framy_app",
+                "theme": {
+                    "name": "getThemeData",
+                    "owner": "CustomAppTheme",
+                    "static": true,
+                    "invokable": true
+                }
+            },
+            "expected_output": "class FramyApp extends StatelessWidget {\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      key: Key('FramyApp'),\n      theme: CustomAppTheme.getThemeData(),\n      onGenerateRoute: onGenerateRoute,\n    );\n  }\n}\n"
+        },
+        {
+            "input": {
+                "target": "framy_app",
+                "theme": {
+                    "name": "theme",
+                    "owner": "CustomAppTheme",
+                    "static": false,
+                    "invokable": false
+                }
+            },
+            "expected_output": "class FramyApp extends StatelessWidget {\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp(\n      key: Key('FramyApp'),\n      theme: CustomAppTheme().theme,\n      onGenerateRoute: onGenerateRoute,\n    );\n  }\n}\n"
+        }
+    ]
+}

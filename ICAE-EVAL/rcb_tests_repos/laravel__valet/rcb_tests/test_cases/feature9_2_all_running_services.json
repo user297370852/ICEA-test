@@ -1,0 +1,13 @@
+{
+    "description": "List all running package-manager services by combining the root-level listing (services started at boot, queried with privilege) with the user-level listing (services started at login, queried as the invoking user), de-duplicated while preserving first-seen order. The adapter issues two listing commands: the privileged one (prefixed for root) and the user one. Each result is split into names and blank lines dropped; the two lists are concatenated and duplicates removed. The output echoes both issued commands (privileged first, then user) followed by one line per unique running service, in first-seen order.",
+    "cases": [
+        {
+            "input": {"action": "all_running_services", "root_response": "sudo_ran_service", "user_response": "user_ran_service"},
+            "expected_output": "cmd=sudo brew services list | grep started | awk '{ print $1; }'\ncmd=brew services list | grep started | awk '{ print $1; }'\nservice=sudo_ran_service\nservice=user_ran_service\n"
+        },
+        {
+            "input": {"action": "all_running_services", "root_response": "service1\nservice2\nservice1\n", "user_response": "service3\nservice4\nservice2\n"},
+            "expected_output": "cmd=sudo brew services list | grep started | awk '{ print $1; }'\ncmd=brew services list | grep started | awk '{ print $1; }'\nservice=service1\nservice=service2\nservice=service3\nservice=service4\n"
+        }
+    ]
+}

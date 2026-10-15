@@ -1,0 +1,81 @@
+{
+  "description": "Boundary coverage for the predicate-driven retry decision: a predicate that declines immediately on the very first completed response settles the wrapper at once with that response; a predicate that approves several times before declining drives a longer retry chain governed solely by its returns; and a predicate consulted across a mix of a failed attempt and a later completed attempt receives the corresponding error-or-response arguments on each invocation before it finally settles the wrapper.",
+  "cases": [
+    {
+      "input": {
+        "url": "http://someUrl",
+        "options": {
+          "retryOn": {
+            "fn": true,
+            "returns": false
+          }
+        },
+        "script": [
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "retryOn_call attempt=0 error=none status=200\nfetch_count=1\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+    },
+    {
+      "input": {
+        "url": "http://someUrl",
+        "options": {
+          "retryOn": {
+            "fn": true,
+            "returns": [
+              true,
+              true,
+              false
+            ]
+          }
+        },
+        "script": [
+          {
+            "reject": "a"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "reject": "b"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "retryOn_call attempt=0 error=a status=none\nretryOn_call attempt=1 error=b status=none\nretryOn_call attempt=2 error=none status=200\nfetch_count=3\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+    },
+    {
+      "input": {
+        "url": "http://someUrl",
+        "options": {
+          "retryOn": {
+            "fn": true,
+            "returns": [
+              true,
+              false
+            ]
+          }
+        },
+        "script": [
+          {
+            "reject": "boom"
+          },
+          {
+            "advance": 1000
+          },
+          {
+            "resolve": 200
+          }
+        ]
+      },
+      "expected_output": "retryOn_call attempt=0 error=boom status=none\nretryOn_call attempt=1 error=none status=200\nfetch_count=2\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+    }
+  ]
+}

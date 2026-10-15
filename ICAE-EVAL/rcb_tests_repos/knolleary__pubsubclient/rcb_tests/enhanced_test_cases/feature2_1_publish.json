@@ -1,0 +1,126 @@
+{
+  "description": "A publish on a live session transmits a PUBLISH control packet carrying the length-prefixed topic and the raw payload bytes copied verbatim. These cases exercise boundary payloads: an empty payload, an empty topic, single raw bytes and an embedded zero byte, observing the exact transmitted bytes and the boolean outcome.",
+  "cases": [
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "publish",
+            "topic": "topic",
+            "payload": ""
+          }
+        ]
+      },
+      "expected_output": "publish=1\nsent=30 07 00 05 74 6f 70 69 63\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "publish",
+            "topic": "",
+            "payload": "payload"
+          }
+        ]
+      },
+      "expected_output": "publish=1\nsent=30 09 00 00 70 61 79 6c 6f 61 64\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "publish",
+            "topic": "topic",
+            "payload_bytes": "00"
+          }
+        ]
+      },
+      "expected_output": "publish=1\nsent=30 08 00 05 74 6f 70 69 63 00\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "publish",
+            "topic": "topic",
+            "payload_bytes": "ff"
+          }
+        ]
+      },
+      "expected_output": "publish=1\nsent=30 08 00 05 74 6f 70 69 63 ff\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "publish",
+            "topic": "topic",
+            "payload": "BB",
+            "retained": false
+          }
+        ]
+      },
+      "expected_output": "publish=1\nsent=30 09 00 05 74 6f 70 69 63 42 42\n"
+    }
+  ]
+}

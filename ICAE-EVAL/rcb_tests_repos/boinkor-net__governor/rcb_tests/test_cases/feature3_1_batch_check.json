@@ -1,0 +1,90 @@
+{
+    "description": "Submit batched admission requests that ask to admit a specific number of units atomically (all-or-nothing). A batch of one behaves identically to a single-unit request. A batch is admitted only if the whole batch fits within the currently available budget; otherwise the batch is rejected and reports the wait time (in nanoseconds) until the whole batch could be admitted. Over time the budget replenishes and previously rejected batches become admissible, then are rejected again once the restored budget is consumed. Each clock advance reports the new absolute virtual time in nanoseconds.",
+    "cases": [
+        {
+            "input": {
+                "action": "simulate",
+                "quota": {
+                    "per_second": 2
+                },
+                "ops": [
+                    {
+                        "check_n": 1
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_n": 1
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_n": 1
+                    },
+                    {
+                        "advance_ms": 1000
+                    },
+                    {
+                        "check_n": 1
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_n": 1
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_n": 1
+                    }
+                ]
+            },
+            "expected_output": "check_n n=1 allow\nadvance now_ns=1000000\ncheck_n n=1 allow\nadvance now_ns=2000000\ncheck_n n=1 deny wait_ns=498000000\nadvance now_ns=1002000000\ncheck_n n=1 allow\nadvance now_ns=1003000000\ncheck_n n=1 allow\nadvance now_ns=1004000000\ncheck_n n=1 deny wait_ns=496000000\n"
+        },
+        {
+            "input": {
+                "action": "simulate",
+                "quota": {
+                    "per_second": 4
+                },
+                "ops": [
+                    {
+                        "check_n": 2
+                    },
+                    {
+                        "check_n": 2
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_n": 2
+                    },
+                    {
+                        "advance_ms": 1000
+                    },
+                    {
+                        "check_n": 2
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_n": 2
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_n": 2
+                    }
+                ]
+            },
+            "expected_output": "check_n n=2 allow\ncheck_n n=2 allow\nadvance now_ns=1000000\ncheck_n n=2 deny wait_ns=499000000\nadvance now_ns=1001000000\ncheck_n n=2 allow\nadvance now_ns=1002000000\ncheck_n n=2 allow\nadvance now_ns=1003000000\ncheck_n n=2 deny wait_ns=497000000\n"
+        }
+    ]
+}

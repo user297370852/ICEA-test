@@ -1,0 +1,64 @@
+{
+  "description": "Boundary auth selection: http(non-tls) basic, git/file schemes none, URL password precedence over env token, password env precedence over token env, ssh custom user with key, and unsupported scheme errors.",
+  "cases": [
+    {
+      "input": {
+        "op": "select_auth",
+        "url": "http://user:secret@example.com/foo"
+      },
+      "expected_output": "kind=basic\nuser=user\nsecret=secret\n"
+    },
+    {
+      "input": {
+        "op": "select_auth",
+        "url": "git://example.com/foo"
+      },
+      "expected_output": "kind=none\n"
+    },
+    {
+      "input": {
+        "op": "select_auth",
+        "url": "http://example.com/foo"
+      },
+      "expected_output": "kind=none\n"
+    },
+    {
+      "input": {
+        "op": "select_auth",
+        "url": "https://user:urlpass@example.com/foo",
+        "env": {
+          "GIT_HTTP_TOKEN": "envtoken"
+        }
+      },
+      "expected_output": "kind=basic\nuser=user\nsecret=urlpass\n"
+    },
+    {
+      "input": {
+        "op": "select_auth",
+        "url": "https://user@example.com/foo",
+        "env": {
+          "GIT_HTTP_PASSWORD": "envpass",
+          "GIT_HTTP_TOKEN": "envtoken"
+        }
+      },
+      "expected_output": "kind=basic\nuser=user\nsecret=envpass\n"
+    },
+    {
+      "input": {
+        "op": "select_auth",
+        "url": "ssh://deploy@example.com/foo",
+        "env": {
+          "GIT_SSH_KEY": "LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUFNd0FBQUF0emMyZ3RaVwpReU5UVXhPUUFBQUNBKzNmN2hTN2c1VVd3WE9HVlRyTWZobXh5cmpxejdTeHhieDdJMWo4RHZ2d0FBQUpoQUZma09RQlg1CkRnQUFBQXR6YzJndFpXUXlOVFV4T1FBQUFDQSszZjdoUzdnNVVXd1hPR1ZUck1maG14eXJqcXo3U3h4Yng3STFqOER2dncKQUFBRUFhWW1YbHRmVzZuaFJvM2lXR2dsUkI0OGxZcTB6MFEzSTNLeXJkdXRFcjZqN2QvdUZMdURsUmJCYzRaVk9zeCtHYgpIS3VPclB0TEhGdkhzaldQd08rL0FBQUFFMmRoY25SdmJtMUFaMkZ5ZEc5dWJTMTRjSE1CQWc9PQotLS0tLUVORCBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0K"
+        }
+      },
+      "expected_output": "kind=ssh_key\nuser=deploy\n"
+    },
+    {
+      "input": {
+        "op": "select_auth",
+        "url": "ftp://example.com/foo"
+      },
+      "expected_output": "error=unsupported_scheme\nscheme=ftp\n"
+    }
+  ]
+}

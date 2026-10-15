@@ -1,0 +1,57 @@
+{
+  "description": "A presence channel requires an authentication token plus channel_data describing the joining member. On a valid token the subscription acknowledgement carries a presence roster of member ids, the per-member info hash and the member count. An invalid token is rejected with a signature error and protocol code.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "888.8"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "presence-room",
+                "auth": "TestKey:cf54ee9585e6a3e6cb2826f205dfe9a55d8382c91d633bae9c9f6ba57c73e92d",
+                "channel_data": "{\"user_id\":42,\"user_info\":{\"name\":\"Zoe\"}}"
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"presence-room\",\"data\":\"{\\\"presence\\\":{\\\"ids\\\":[\\\"42\\\"],\\\"hash\\\":{\\\"42\\\":{\\\"name\\\":\\\"Zoe\\\"}},\\\"count\\\":1}}\"}\n"
+    },
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "888.8"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "presence-room",
+                "auth": "badtoken",
+                "channel_data": ""
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "error=invalid_signature\ncode=4009\n[a] received 0\n"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "description": "Enhanced boundary coverage for Feature 2 (per-call kind exclusion). Covers: excluding by kind suppresses ALL sinks of that kind (two A's both dropped), excluding multiple kinds at once leaves only the unexcluded sink, excluding every registered kind yields a return line with no per-sink lines, excluding a kind that is not registered is a no-op (all sinks still receive), and an explicit empty exclusion list behaves like no exclusion at all.",
+  "cases": [
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "A"
+        ],
+        "calls": [
+          {
+            "level": "message",
+            "message": "Dup",
+            "exceptFor": [
+              "A"
+            ]
+          }
+        ]
+      },
+      "expected_output": "return=Dup\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "B",
+          "C"
+        ],
+        "calls": [
+          {
+            "level": "error",
+            "exception": "Boom",
+            "exceptFor": [
+              "A",
+              "C"
+            ]
+          }
+        ]
+      },
+      "expected_output": "return=Boom\nclient=B level=error exception=Boom\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "B"
+        ],
+        "calls": [
+          {
+            "level": "message",
+            "message": "M",
+            "exceptFor": [
+              "A",
+              "B"
+            ]
+          }
+        ]
+      },
+      "expected_output": "return=M\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "B"
+        ],
+        "calls": [
+          {
+            "level": "message",
+            "message": "M",
+            "exceptFor": [
+              "C"
+            ]
+          }
+        ]
+      },
+      "expected_output": "return=M\nclient=A level=message message=M\nclient=B level=message message=M\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "B"
+        ],
+        "calls": [
+          {
+            "level": "message",
+            "message": "M",
+            "exceptFor": []
+          }
+        ]
+      },
+      "expected_output": "return=M\nclient=A level=message message=M\nclient=B level=message message=M\n"
+    }
+  ]
+}

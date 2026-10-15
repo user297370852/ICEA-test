@@ -1,0 +1,31 @@
+{
+    "description": "Browser global error and unhandled rejection events are converted into normalized notices and error breadcrumbs while ignored cross-origin script errors are skipped.",
+    "cases": [
+        {
+            "input": {
+                "kind": "global_error",
+                "message": "expected message",
+                "url": "https://www.example.com/",
+                "line": "1"
+            },
+            "expected_output": "notify_count=1\nname=window.onerror\nmessage=expected message\nstack=expected message\n    at ? (https://www.example.com/:1:0)\nbreadcrumb_count=1\nbreadcrumb_message=window.onerror\nbreadcrumb_category=error\n"
+        },
+        {
+            "input": {
+                "kind": "global_error",
+                "message": "Script error",
+                "url": "https://www.example.com/",
+                "line": 0
+            },
+            "expected_output": "notify_count=0\nname=none\nmessage=none\nstack=none\nbreadcrumb_count=0\nbreadcrumb_message=none\nbreadcrumb_category=none\n"
+        },
+        {
+            "input": {
+                "kind": "unhandled_rejection",
+                "reasonSpecified": true,
+                "reason": "Honeybadgers!"
+            },
+            "expected_output": "notify_count=1\nname=window.onunhandledrejection\nmessage=UnhandledPromiseRejectionWarning: Honeybadgers!\nstack=none\nbreadcrumb_count=0\nbreadcrumb_message=none\nbreadcrumb_category=none\n"
+        }
+    ]
+}

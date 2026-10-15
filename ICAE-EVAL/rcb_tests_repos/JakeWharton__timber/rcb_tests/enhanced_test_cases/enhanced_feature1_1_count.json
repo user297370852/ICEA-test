@@ -1,0 +1,93 @@
+{
+  "description": "Boundary coverage for registry size accounting: counting an empty registry, batch installs, individual removals that decrement the count, mixing batch and single installs, and repeated clears. The output is one count line per query.",
+  "cases": [
+    {
+      "input": {
+        "action": "registry",
+        "steps": [
+          {
+            "op": "count"
+          },
+          {
+            "op": "plant_batch",
+            "count": 5
+          },
+          {
+            "op": "count"
+          },
+          {
+            "op": "uproot",
+            "index": 0
+          },
+          {
+            "op": "count"
+          },
+          {
+            "op": "uproot",
+            "index": 4
+          },
+          {
+            "op": "count"
+          },
+          {
+            "op": "uproot_all"
+          },
+          {
+            "op": "count"
+          }
+        ]
+      },
+      "expected_output": "count=0\ncount=5\ncount=4\ncount=3\ncount=0\n"
+    },
+    {
+      "input": {
+        "action": "registry",
+        "steps": [
+          {
+            "op": "plant",
+            "count": 1
+          },
+          {
+            "op": "plant_batch",
+            "count": 3
+          },
+          {
+            "op": "plant",
+            "count": 1
+          },
+          {
+            "op": "count"
+          },
+          {
+            "op": "uproot_all"
+          },
+          {
+            "op": "count"
+          },
+          {
+            "op": "uproot_all"
+          },
+          {
+            "op": "count"
+          }
+        ]
+      },
+      "expected_output": "count=5\ncount=0\ncount=0\n"
+    },
+    {
+      "input": {
+        "action": "registry",
+        "steps": [
+          {
+            "op": "plant_batch",
+            "count": 64
+          },
+          {
+            "op": "count"
+          }
+        ]
+      },
+      "expected_output": "count=64\n"
+    }
+  ]
+}

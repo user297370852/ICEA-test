@@ -1,0 +1,46 @@
+{
+  "description": "Enhanced client-lifecycle edge cases: a bare disconnect with no prior connect leaves everything absent; reconnecting after a disconnect restores both facades; two requests while connected register two active listeners; and a redundant double-connect stays connected with no listeners.",
+  "cases": [
+    {
+      "input": {
+        "command": "client_lifecycle",
+        "actions": [
+          "disconnect"
+        ]
+      },
+      "expected_output": "connected=false\nlocation_api=absent\ngeofencing_api=absent\nlisteners=0\n"
+    },
+    {
+      "input": {
+        "command": "client_lifecycle",
+        "actions": [
+          "connect",
+          "disconnect",
+          "connect"
+        ]
+      },
+      "expected_output": "connected=true\nlocation_api=available\ngeofencing_api=available\nlisteners=0\n"
+    },
+    {
+      "input": {
+        "command": "client_lifecycle",
+        "actions": [
+          "connect",
+          "request",
+          "request"
+        ]
+      },
+      "expected_output": "connected=true\nlocation_api=available\ngeofencing_api=available\nlisteners=2\n"
+    },
+    {
+      "input": {
+        "command": "client_lifecycle",
+        "actions": [
+          "connect",
+          "connect"
+        ]
+      },
+      "expected_output": "connected=true\nlocation_api=available\ngeofencing_api=available\nlisteners=0\n"
+    }
+  ]
+}

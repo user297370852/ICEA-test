@@ -1,0 +1,60 @@
+{
+  "description": "Boundary and special-value coverage for the Patch record wire round trip: a fully-populated record with a non-empty extra metadata map, a negative apply depth, a zero depth alongside an explicitly-set sha256/extra, a record with only an extra map set (sha256/depth unset -> null), and a record carrying non-ASCII (unicode) text in its description and url. The output lists each field of the record reconstructed from its own serialized wire form.",
+  "cases": [
+    {
+      "input": {
+        "op": "patch_wire",
+        "patch": {
+          "package": "vendor/pkg",
+          "url": "/local/path/to.patch",
+          "description": "desc with spaces & = signs",
+          "depth": 3,
+          "sha256": "abc123",
+          "extra": {
+            "provenance": "root",
+            "weight": 5
+          }
+        }
+      },
+      "expected_output": "package=vendor/pkg\ndescription=desc with spaces & = signs\nurl=/local/path/to.patch\nsha256=abc123\ndepth=3\nextra={\"provenance\":\"root\",\"weight\":5}\n"
+    },
+    {
+      "input": {
+        "op": "patch_wire",
+        "patch": {
+          "package": "a/b",
+          "url": "https://example.com/p.patch",
+          "description": "neg depth",
+          "depth": -1
+        }
+      },
+      "expected_output": "package=a/b\ndescription=neg depth\nurl=https://example.com/p.patch\nsha256=null\ndepth=-1\nextra=[]\n"
+    },
+    {
+      "input": {
+        "op": "patch_wire",
+        "patch": {
+          "package": "x/y",
+          "url": "u",
+          "description": "d",
+          "extra": {
+            "k": "v"
+          }
+        }
+      },
+      "expected_output": "package=x/y\ndescription=d\nurl=u\nsha256=null\ndepth=null\nextra={\"k\":\"v\"}\n"
+    },
+    {
+      "input": {
+        "op": "patch_wire",
+        "patch": {
+          "package": "u/n",
+          "url": "http://h/é.patch",
+          "description": "unicode café",
+          "sha256": "ff"
+        }
+      },
+      "expected_output": "package=u/n\ndescription=unicode café\nurl=http://h/é.patch\nsha256=ff\ndepth=null\nextra=[]\n"
+    }
+  ]
+}

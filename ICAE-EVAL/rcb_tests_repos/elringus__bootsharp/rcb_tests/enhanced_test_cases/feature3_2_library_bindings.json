@@ -1,0 +1,76 @@
+{
+  "description": "Library binding generation across nesting depth, multiple exported members, async result entry points, and script-reserved parameter renaming: deep four-level assembly object hierarchies, sibling method bindings, awaitable ValueTask<T> using invokeAsync, and reserved parameter 'function' renamed to 'fn'.",
+  "cases": [
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "a.b.c.d.dll",
+            "members": [
+              "[JSInvokable] public static void M () { }"
+            ]
+          }
+        ],
+        "probes": [
+          "exports.a = {};",
+          "exports.a.b = {};",
+          "exports.a.b.c = {};",
+          "exports.a.b.c.d = {};",
+          "exports.a.b.c.d.M = () => exports.invoke('a.b.c.d', 'M');"
+        ]
+      },
+      "expected_output": "contains=exports.a = {};\nvalue=true\ncontains=exports.a.b = {};\nvalue=true\ncontains=exports.a.b.c = {};\nvalue=true\ncontains=exports.a.b.c.d = {};\nvalue=true\ncontains=exports.a.b.c.d.M = () => exports.invoke('a.b.c.d', 'M');\nvalue=true\n"
+    },
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "x.dll",
+            "members": [
+              "[JSInvokable] public static void A () { }",
+              "[JSInvokable] public static void B () { }"
+            ]
+          }
+        ],
+        "probes": [
+          "exports.x.A = () => exports.invoke('x', 'A');",
+          "exports.x.B = () => exports.invoke('x', 'B');",
+          "exports.x = {};"
+        ]
+      },
+      "expected_output": "contains=exports.x.A = () => exports.invoke('x', 'A');\nvalue=true\ncontains=exports.x.B = () => exports.invoke('x', 'B');\nvalue=true\ncontains=exports.x = {};\nvalue=true\n"
+    },
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "x.dll",
+            "members": [
+              "[JSInvokable] public static ValueTask<int> AsyVal () => default;"
+            ]
+          }
+        ],
+        "probes": [
+          "AsyVal = () => exports.invokeAsync('x', 'AsyVal');"
+        ]
+      },
+      "expected_output": "contains=AsyVal = () => exports.invokeAsync('x', 'AsyVal');\nvalue=true\n"
+    },
+    {
+      "input": {
+        "assemblies": [
+          {
+            "name": "x.dll",
+            "members": [
+              "[JSInvokable] public static void Reserved (string function) { }"
+            ]
+          }
+        ],
+        "probes": [
+          "Reserved = (fn) => exports.invoke('x', 'Reserved', fn);"
+        ]
+      },
+      "expected_output": "contains=Reserved = (fn) => exports.invoke('x', 'Reserved', fn);\nvalue=true\n"
+    }
+  ]
+}

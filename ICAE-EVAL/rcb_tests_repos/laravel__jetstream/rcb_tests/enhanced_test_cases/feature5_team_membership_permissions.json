@@ -1,0 +1,130 @@
+{
+  "description": "Permission resolution edges: a member whose role holds both checked permissions passes both, a role with no permissions fails both, a wildcard token scope grants while an empty token scope blocks, and a token scope cannot grant a permission the team role lacks.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "team_relationships",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team_name": "T",
+        "member": {
+          "name": "M",
+          "email": "m@e.com",
+          "password": "secret"
+        },
+        "role": {
+          "key": "ed",
+          "name": "Ed",
+          "permissions": [
+            "foo",
+            "bar"
+          ]
+        },
+        "permission_checks": [
+          "foo",
+          "bar"
+        ]
+      },
+      "expected_output": "owner_belongs_to_team=yes\nowner_owns_team=yes\nowned_team_count=1\nall_team_count=1\npersonal_team_id_matches=yes\ncurrent_team_id_matches=yes\noutsider_belongs_to_team=no\noutsider_owns_team=no\nmember_belongs_to_team=yes\nmember_owns_team=no\nmember_can_foo=yes\nmember_can_bar=yes\n"
+    },
+    {
+      "input": {
+        "scenario": "team_relationships",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team_name": "T",
+        "member": {
+          "name": "M",
+          "email": "m@e.com",
+          "password": "secret"
+        },
+        "role": {
+          "key": "ed",
+          "name": "Ed",
+          "permissions": []
+        },
+        "permission_checks": [
+          "foo",
+          "bar"
+        ]
+      },
+      "expected_output": "owner_belongs_to_team=yes\nowner_owns_team=yes\nowned_team_count=1\nall_team_count=1\npersonal_team_id_matches=yes\ncurrent_team_id_matches=yes\noutsider_belongs_to_team=no\noutsider_owns_team=no\nmember_belongs_to_team=yes\nmember_owns_team=no\nmember_can_foo=no\nmember_can_bar=no\n"
+    },
+    {
+      "input": {
+        "scenario": "token_limited_team_permission",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team_name": "T",
+        "role": {
+          "key": "admin",
+          "name": "A",
+          "permissions": [
+            "foo"
+          ]
+        },
+        "blocked_member": {
+          "name": "B",
+          "email": "b@e.com",
+          "password": "secret"
+        },
+        "allowed_member": {
+          "name": "Al",
+          "email": "al@e.com",
+          "password": "secret"
+        },
+        "blocked_token_permissions": [],
+        "allowed_token_permissions": [
+          "*"
+        ],
+        "permission": "foo"
+      },
+      "expected_output": "blocked_member_can_foo=no\nallowed_member_can_foo=yes\n"
+    },
+    {
+      "input": {
+        "scenario": "token_limited_team_permission",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team_name": "T",
+        "role": {
+          "key": "admin",
+          "name": "A",
+          "permissions": [
+            "bar"
+          ]
+        },
+        "blocked_member": {
+          "name": "B",
+          "email": "b@e.com",
+          "password": "secret"
+        },
+        "allowed_member": {
+          "name": "Al",
+          "email": "al@e.com",
+          "password": "secret"
+        },
+        "blocked_token_permissions": [
+          "foo"
+        ],
+        "allowed_token_permissions": [
+          "foo"
+        ],
+        "permission": "foo"
+      },
+      "expected_output": "blocked_member_can_foo=no\nallowed_member_can_foo=no\n"
+    }
+  ]
+}

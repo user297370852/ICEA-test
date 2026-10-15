@@ -1,0 +1,77 @@
+{
+    "description": "Model RPC requests produce deterministic URLs, request headers, methods, streaming query markers, custom client labels, custom headers, timeout signals, and normalized backend errors.",
+    "cases": [
+        {
+            "input": {
+                "mode": "url",
+                "model": "models/model-name",
+                "task": "GENERATE_CONTENT",
+                "apiKey": "key",
+                "stream": true,
+                "options": {}
+            },
+            "expected_output": "url=https://generativelanguage.googleapis.com/v1beta/models/model-name:generateContent?alt=sse\ncontains_api_key=false\n"
+        },
+        {
+            "input": {
+                "mode": "url",
+                "model": "tunedModels/model-name",
+                "task": "GENERATE_CONTENT",
+                "apiKey": "key",
+                "stream": false,
+                "options": {
+                    "apiVersion": "v2beta",
+                    "baseUrl": "http://my.staging.website"
+                }
+            },
+            "expected_output": "url=http://my.staging.website/v2beta/tunedModels/model-name:generateContent\ncontains_api_key=false\n"
+        },
+        {
+            "input": {
+                "mode": "construct",
+                "model": "model-name",
+                "task": "GENERATE_CONTENT",
+                "apiKey": "key",
+                "stream": true,
+                "body": "",
+                "options": {
+                    "apiClient": "client/version",
+                    "timeout": 5000
+                },
+                "customHeaders": {
+                    "customerHeader": "customerHeaderValue"
+                }
+            },
+            "expected_output": "url=https://generativelanguage.googleapis.com/v1beta/model-name:generateContent?alt=sse\nmethod=POST\ncontent_type=application/json\napi_key_header=key\nclient_header=client/version genai-js/__PACKAGE_VERSION__\ncustomer_header=customerHeaderValue\nhas_abort_signal=true\n"
+        },
+        {
+            "input": {
+                "mode": "construct",
+                "model": "model-name",
+                "task": "GENERATE_CONTENT",
+                "apiKey": "key",
+                "stream": true,
+                "body": "",
+                "options": {},
+                "customHeaders": {
+                    "x-goog-api-client": "client/version"
+                }
+            },
+            "expected_output": "error=reserved_header\nheader=x-goog-api-client\n"
+        },
+        {
+            "input": {
+                "mode": "fetch_error",
+                "model": "model-name",
+                "task": "GENERATE_CONTENT",
+                "apiKey": "key",
+                "stream": true,
+                "body": "",
+                "status": 500,
+                "statusText": "Server Error",
+                "errorMessage": "extra info"
+            },
+            "expected_output": "error=http_error\nmessage=extra info\nstatus=500\nstatus_text=Server Error\n"
+        }
+    ]
+}

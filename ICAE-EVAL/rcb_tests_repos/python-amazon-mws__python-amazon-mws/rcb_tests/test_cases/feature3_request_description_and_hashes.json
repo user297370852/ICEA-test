@@ -1,0 +1,46 @@
+{
+    "description": "Create deterministic query descriptions and base64 MD5 digests for request and payload integrity checks.",
+    "cases": [
+        {
+            "input": {
+                "feature": "request_description",
+                "params": {
+                    "AWSAccessKeyId": "AAAAAAAAAAAAAAAAAAAA",
+                    "Markets": "AAAAAAAAAAAAAA",
+                    "SignatureVersion": "2",
+                    "Timestamp": "2017-08-12T19%3A40%3A35Z",
+                    "Version": "2017-01-01",
+                    "SignatureMethod": "HmacSHA256"
+                }
+            },
+            "expected_output": "{\"request_description\":\"AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Markets=AAAAAAAAAAAAAA&SignatureMethod=HmacSHA256&SignatureVersion=2&Timestamp=2017-08-12T19%3A40%3A35Z&Version=2017-01-01\"}\n"
+        },
+        {
+            "input": {
+                "feature": "content_md5",
+                "text": "mws"
+            },
+            "expected_output": "{\"content_md5\":\"mA5nPbh1CSx9M3dbkr3Cyg==\"}\n"
+        },
+        {
+            "input": {
+                "feature": "data_wrapper",
+                "text": "abc\tdef",
+                "headers": {
+                    "content-md5": "Zj+Bh1BJ8HzBb9ToK28qFQ=="
+                }
+            },
+            "expected_output": "{\"content_md5_valid\":true,\"parsed_text\":\"abc\\tdef\"}\n"
+        },
+        {
+            "input": {
+                "feature": "data_wrapper",
+                "text": "abc\tdef",
+                "headers": {
+                    "content-md5": "notthehash"
+                }
+            },
+            "expected_output": "{\"error\":\"content_md5_mismatch\"}\n"
+        }
+    ]
+}

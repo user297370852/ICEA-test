@@ -1,0 +1,48 @@
+{
+  "description": "Additional tracer metrics and baggage restriction coverage for unsampled span metric counters, unknown metric names, exact tag-string ordering, and arbitrary service/key policy allowance.",
+  "cases": [
+    {
+      "input": {
+        "op": "tracer_metrics",
+        "service": "svc",
+        "operation": "unsampledOperation",
+        "sampled": false,
+        "queries": [
+          {
+            "name": "jaeger:started_spans",
+            "tags": "sampled=y"
+          },
+          {
+            "name": "jaeger:started_spans",
+            "tags": "sampled=n"
+          },
+          {
+            "name": "jaeger:traces",
+            "tags": "sampled=y,state=started"
+          },
+          {
+            "name": "jaeger:traces",
+            "tags": "sampled=n,state=started"
+          },
+          {
+            "name": "jaeger:traces",
+            "tags": "state=started,sampled=n"
+          },
+          {
+            "name": "unknown",
+            "tags": "sampled=n"
+          }
+        ]
+      },
+      "expected_output": "jaeger:started_spans|sampled=y=0\njaeger:started_spans|sampled=n=1\njaeger:traces|sampled=y,state=started=0\njaeger:traces|sampled=n,state=started=1\njaeger:traces|state=started,sampled=n=-1\nunknown|sampled=n=-1\n"
+    },
+    {
+      "input": {
+        "op": "baggage_restriction",
+        "service": "orders",
+        "key": "User_ID"
+      },
+      "expected_output": "key_allowed=true\nmax_value_length=2048\n"
+    }
+  ]
+}

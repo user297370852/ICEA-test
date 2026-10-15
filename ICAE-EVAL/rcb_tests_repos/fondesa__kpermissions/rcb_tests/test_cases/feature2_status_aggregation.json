@@ -1,0 +1,37 @@
+{
+    "description": "Aggregate a list of permission statuses into collective predicates. The input is an ordered list of status objects (each with a category type and permission identifier). The output reports the size of the list, then for every category a pair of quantifiers: an `all_*` flag (true only when every element of the list belongs to that category) and an `any_*` flag (true when at least one element belongs to it). The categories covered are: granted, denied (any denied sub-kind), permanently denied, should-show-rationale, and request-required. An empty-category list yields false for the corresponding flags; mixed lists let `any_*` be true while `all_*` is false.",
+    "cases": [
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "granted", "permission": "android.permission.SEND_SMS"}, {"type": "granted", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=true\nall_denied=false\nall_permanently_denied=false\nall_should_show_rationale=false\nall_request_required=false\nany_granted=true\nany_denied=false\nany_permanently_denied=false\nany_should_show_rationale=false\nany_request_required=false\n"
+        },
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "granted", "permission": "android.permission.SEND_SMS"}, {"type": "permanently_denied", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=false\nall_denied=false\nall_permanently_denied=false\nall_should_show_rationale=false\nall_request_required=false\nany_granted=true\nany_denied=true\nany_permanently_denied=true\nany_should_show_rationale=false\nany_request_required=false\n"
+        },
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "permanently_denied", "permission": "android.permission.SEND_SMS"}, {"type": "should_show_rationale", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=false\nall_denied=true\nall_permanently_denied=false\nall_should_show_rationale=false\nall_request_required=false\nany_granted=false\nany_denied=true\nany_permanently_denied=true\nany_should_show_rationale=true\nany_request_required=false\n"
+        },
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "permanently_denied", "permission": "android.permission.SEND_SMS"}, {"type": "permanently_denied", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=false\nall_denied=true\nall_permanently_denied=true\nall_should_show_rationale=false\nall_request_required=false\nany_granted=false\nany_denied=true\nany_permanently_denied=true\nany_should_show_rationale=false\nany_request_required=false\n"
+        },
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "should_show_rationale", "permission": "android.permission.SEND_SMS"}, {"type": "should_show_rationale", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=false\nall_denied=true\nall_permanently_denied=false\nall_should_show_rationale=true\nall_request_required=false\nany_granted=false\nany_denied=true\nany_permanently_denied=false\nany_should_show_rationale=true\nany_request_required=false\n"
+        },
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "request_required", "permission": "android.permission.SEND_SMS"}, {"type": "request_required", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=false\nall_denied=false\nall_permanently_denied=false\nall_should_show_rationale=false\nall_request_required=true\nany_granted=false\nany_denied=false\nany_permanently_denied=false\nany_should_show_rationale=false\nany_request_required=true\n"
+        },
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "granted", "permission": "android.permission.SEND_SMS"}, {"type": "request_required", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=false\nall_denied=false\nall_permanently_denied=false\nall_should_show_rationale=false\nall_request_required=false\nany_granted=true\nany_denied=false\nany_permanently_denied=false\nany_should_show_rationale=false\nany_request_required=true\n"
+        },
+        {
+            "input": {"op": "aggregate_statuses", "statuses": [{"type": "request_required", "permission": "android.permission.SEND_SMS"}, {"type": "permanently_denied", "permission": "android.permission.CALL_PHONE"}]},
+            "expected_output": "count=2\nall_granted=false\nall_denied=false\nall_permanently_denied=false\nall_should_show_rationale=false\nall_request_required=false\nany_granted=false\nany_denied=true\nany_permanently_denied=true\nany_should_show_rationale=false\nany_request_required=true\n"
+        }
+    ]
+}

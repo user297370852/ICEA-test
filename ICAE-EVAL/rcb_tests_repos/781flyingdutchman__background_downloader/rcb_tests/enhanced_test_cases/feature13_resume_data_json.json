@@ -1,0 +1,77 @@
+{
+  "description": "Resume-data round-trip edge cases. A missing entity tag is preserved as null and a missing required-start-byte defaults to 0; a floating-point required-start-byte is normalized to an integer; and the paired task may itself be an upload task carrying its upload-specific fields.",
+  "cases": [
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "ResumeData",
+        "json": {
+          "task": {
+            "url": "u2",
+            "taskType": "DownloadTask",
+            "taskId": "t1",
+            "filename": "f1",
+            "creationTime": 5
+          },
+          "data": "tmp/path"
+        }
+      },
+      "expected_output": "{\"task\":{\"url\":\"u2\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":5,\"taskId\":\"t1\",\"filename\":\"f1\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\"},\"data\":\"tmp/path\",\"requiredStartByte\":0,\"eTag\":null}\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "ResumeData",
+        "json": {
+          "task": {
+            "url": "url?a=b",
+            "headers": {
+              "c": "d"
+            },
+            "httpRequestMethod": "GET",
+            "post": null,
+            "retries": 5,
+            "retriesRemaining": 5,
+            "creationTime": 1000,
+            "taskId": "taskId",
+            "filename": "filename",
+            "directory": "dir",
+            "baseDirectory": 1,
+            "group": "group",
+            "updates": 3,
+            "requiresWiFi": true,
+            "allowPause": true,
+            "metaData": "metaData",
+            "taskType": "DownloadTask"
+          },
+          "data": "payload",
+          "requiredStartByte": 500.0,
+          "eTag": "abc"
+        }
+      },
+      "expected_output": "{\"task\":{\"url\":\"url?a=b\",\"headers\":{\"c\":\"d\"},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":5,\"retriesRemaining\":5,\"creationTime\":1000,\"taskId\":\"taskId\",\"filename\":\"filename\",\"directory\":\"dir\",\"baseDirectory\":1,\"group\":\"group\",\"updates\":3,\"requiresWiFi\":true,\"allowPause\":true,\"metaData\":\"metaData\",\"taskType\":\"DownloadTask\"},\"data\":\"payload\",\"requiredStartByte\":500,\"eTag\":\"abc\"}\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "ResumeData",
+        "json": {
+          "task": {
+            "url": "uu",
+            "taskType": "UploadTask",
+            "taskId": "ut",
+            "filename": "uf",
+            "creationTime": 1000,
+            "fileField": "file",
+            "mimeType": "application/octet-stream",
+            "fields": {}
+          },
+          "data": "d",
+          "requiredStartByte": 10,
+          "eTag": "e1"
+        }
+      },
+      "expected_output": "{\"task\":{\"url\":\"uu\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":1000,\"taskId\":\"ut\",\"filename\":\"uf\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"UploadTask\",\"fileField\":\"file\",\"mimeType\":\"application/octet-stream\",\"fields\":{}},\"data\":\"d\",\"requiredStartByte\":10,\"eTag\":\"e1\"}\n"
+    }
+  ]
+}

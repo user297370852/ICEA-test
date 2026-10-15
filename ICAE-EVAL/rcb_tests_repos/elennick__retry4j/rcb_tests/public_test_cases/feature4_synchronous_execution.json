@@ -1,0 +1,57 @@
+{
+    "description": "Run a synchronous operation under a retry policy and report the final status or normalized failure.",
+    "cases": [
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 5,
+                    "backoff": "fixed",
+                    "delay_ms": 0
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": true
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=true\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 5,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception"
+                },
+                "call_name": "TestCall",
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "file_not_found"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ncall_name=TestCall\ntotal_tries=5\nlast_exception=file_not_found\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 1,
+                    "delay_ms": 0
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": null
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=null\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+        }
+    ]
+}

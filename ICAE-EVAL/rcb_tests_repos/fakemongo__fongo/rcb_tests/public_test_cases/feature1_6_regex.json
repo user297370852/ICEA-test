@@ -1,0 +1,53 @@
+{
+    "description": "A document matcher supports regular-expression conditions on string fields. A field condition given as a pattern keeps documents whose string value matches the pattern (anchored as the pattern dictates); when the field is an array of strings, it matches if any element matches. The pattern may be supplied directly or together with option flags (for example, enabling dot-to-match-newline behavior). Regex conditions also apply through dotted paths into nested documents. Non-string and absent values do not match. Documents are returned in their original order.",
+    "cases": [
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$regex": "^foo"
+                    }
+                },
+                "documents": [
+                    {
+                        "a": 1
+                    },
+                    {
+                        "a": null
+                    },
+                    {
+                        "a": "fooSter"
+                    },
+                    {
+                        "a": "funky foo"
+                    },
+                    {
+                        "a": [
+                            "foomania",
+                            "notfoo"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : \"fooSter\"}\n{ \"a\" : [ \"foomania\" , \"notfoo\"]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$regex": "foo.*Ster",
+                        "$options": "s"
+                    }
+                },
+                "documents": [
+                    {
+                        "a": "foo\nSter"
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : \"foo\\nSter\"}\n"
+        }
+    ]
+}

@@ -1,0 +1,151 @@
+{
+  "description": "Cache-key derivation edge cases: three-parameter order independence, duplicate-valued query parameters whose internal order matters, path sensitivity with trailing differences, HEAD vs GET keyed separately, and method-driven bypass (PUT/PATCH).",
+  "cases": [
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "constant",
+          "body": "Z"
+        },
+        "requests": [
+          {
+            "url": "http://e.com/p?a=1&b=2&c=3"
+          },
+          {
+            "url": "http://e.com/p?c=3&a=1&b=2"
+          },
+          {
+            "url": "http://e.com/p?b=2&c=3&a=1"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Z\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Z\nrequest=2\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Z\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "counter",
+          "body": "D"
+        },
+        "requests": [
+          {
+            "url": "http://e.com/p?a=1&a=2"
+          },
+          {
+            "url": "http://e.com/p?a=2&a=1"
+          },
+          {
+            "url": "http://e.com/p?a=1&a=2"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=D 1\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=D 2\nrequest=2\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=D 1\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "constant",
+          "body": "P"
+        },
+        "requests": [
+          {
+            "url": "http://e.com/a"
+          },
+          {
+            "url": "http://e.com/a/"
+          },
+          {
+            "url": "http://e.com/a"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=P\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=P\nrequest=2\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=P\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "counter",
+          "body": "M"
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "http://e.com/x"
+          },
+          {
+            "method": "HEAD",
+            "url": "http://e.com/x"
+          },
+          {
+            "method": "GET",
+            "url": "http://e.com/x"
+          },
+          {
+            "method": "HEAD",
+            "url": "http://e.com/x"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=M 1\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=M 2\nrequest=2\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=M 1\nrequest=3\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=M 2\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "counter",
+          "body": "W"
+        },
+        "requests": [
+          {
+            "method": "PUT",
+            "url": "http://e.com/x"
+          },
+          {
+            "method": "PATCH",
+            "url": "http://e.com/x"
+          },
+          {
+            "method": "GET",
+            "url": "http://e.com/x"
+          },
+          {
+            "method": "GET",
+            "url": "http://e.com/x"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=bypass\nset_cookie=-\nextra=-\nbody=W 1\nrequest=1\nstatus=200\nx_cache=bypass\nset_cookie=-\nextra=-\nbody=W 2\nrequest=2\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=W 3\nrequest=3\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=W 3\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=60",
+          "bodyMode": "constant",
+          "body": "Q"
+        },
+        "requests": [
+          {
+            "url": "http://e.com/s"
+          },
+          {
+            "url": "http://e.com/s?a=1"
+          },
+          {
+            "url": "http://e.com/s"
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Q\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Q\nrequest=2\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Q\n"
+    }
+  ]
+}

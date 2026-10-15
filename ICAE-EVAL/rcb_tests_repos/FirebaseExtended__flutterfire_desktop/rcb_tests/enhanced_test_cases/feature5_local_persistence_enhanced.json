@@ -1,0 +1,145 @@
+{
+  "description": "Enhanced coverage for the local key-value session store: overwriting an existing key keeps the last value, an empty-string value is still a stored (retrievable) value, values containing spaces and reserved characters round-trip verbatim, putting a string then a null for the same key removes it (later read fails), a null put for a key that was never stored is a harmless no-op, and reads target the correct key when several keys coexist in one box.",
+  "cases": [
+    {
+      "input": {
+        "action": "store",
+        "name": "overwrite-box",
+        "puts": [
+          {
+            "key": "token",
+            "value": "first"
+          },
+          {
+            "key": "token",
+            "value": "second"
+          }
+        ],
+        "get": "token"
+      },
+      "expected_output": "value=second\n"
+    },
+    {
+      "input": {
+        "action": "store",
+        "name": "empty-value-box",
+        "puts": [
+          {
+            "key": "token",
+            "value": ""
+          }
+        ],
+        "get": "token"
+      },
+      "expected_output": "value=\n"
+    },
+    {
+      "input": {
+        "action": "store",
+        "name": "special-box",
+        "puts": [
+          {
+            "key": "token",
+            "value": "a b=c&d/e:f"
+          }
+        ],
+        "get": "token"
+      },
+      "expected_output": "value=a b=c&d/e:f\n"
+    },
+    {
+      "input": {
+        "action": "store",
+        "name": "unicode-box",
+        "puts": [
+          {
+            "key": "token",
+            "value": "café-你好"
+          }
+        ],
+        "get": "token"
+      },
+      "expected_output": "value=café-你好\n"
+    },
+    {
+      "input": {
+        "action": "store",
+        "name": "put-then-remove-box",
+        "puts": [
+          {
+            "key": "token",
+            "value": "stored"
+          },
+          {
+            "key": "token",
+            "value": null
+          }
+        ],
+        "get": "token"
+      },
+      "expected_output": "error=not_found\n"
+    },
+    {
+      "input": {
+        "action": "store",
+        "name": "noop-null-box",
+        "puts": [
+          {
+            "key": "ghost",
+            "value": null
+          },
+          {
+            "key": "token",
+            "value": "kept"
+          }
+        ],
+        "get": "token"
+      },
+      "expected_output": "value=kept\n"
+    },
+    {
+      "input": {
+        "action": "store",
+        "name": "multi-key-box",
+        "puts": [
+          {
+            "key": "alpha",
+            "value": "1"
+          },
+          {
+            "key": "beta",
+            "value": "2"
+          },
+          {
+            "key": "gamma",
+            "value": "3"
+          }
+        ],
+        "get": "beta"
+      },
+      "expected_output": "value=2\n"
+    },
+    {
+      "input": {
+        "action": "store",
+        "name": "remove-one-keep-other-box",
+        "puts": [
+          {
+            "key": "a",
+            "value": "x"
+          },
+          {
+            "key": "b",
+            "value": "y"
+          },
+          {
+            "key": "a",
+            "value": null
+          }
+        ],
+        "get": "b"
+      },
+      "expected_output": "value=y\n"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+    "description": "A host may be claimed by at most one service at a time. Registering a new service under a host that is already claimed by a different service is rejected with a host-already-in-use error, and the original service keeps serving that host. Re-registering an existing service by the same name under the same host is allowed and atomically swaps its backend. Each registration reports success or the normalized error category, and each probe reports the response status and backend body.",
+    "cases": [
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "a": {
+                        "body": "service-a"
+                    },
+                    "b": {
+                        "body": "service-b"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "a"
+                    },
+                    {
+                        "op": "deploy",
+                        "name": "s2",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "b"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\ndeploy s2 error=host_in_use\nstatus=200 target=service-a\n"
+        },
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "a": {
+                        "body": "service-a"
+                    },
+                    "b": {
+                        "body": "service-b"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "a"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/",
+                        "method": "GET"
+                    },
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "b"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\nstatus=200 target=service-a\ndeploy s1 ok\nstatus=200 target=service-b\n"
+        }
+    ]
+}

@@ -1,0 +1,163 @@
+{
+  "description": "Enhanced coverage for synchronous execution success/exhaustion paths and result rendering.",
+  "cases": [
+    {
+      "input": {
+        "policy": {
+          "max_tries": 5,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "runtime_error"
+            },
+            {
+              "throw": "runtime_error"
+            },
+            {
+              "return": "ok"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=ok\nsuccessful=true\ncall_name=\ntotal_tries=3\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "call_name": "MyOp",
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "io_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ncall_name=MyOp\ntotal_tries=3\nlast_exception=io_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "no_wait"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": 42
+            }
+          ]
+        }
+      },
+      "expected_output": "result=42.0\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "no_wait"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": false
+            }
+          ]
+        }
+      },
+      "expected_output": "result=false\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 4,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "null_reference"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=4\nlast_exception=null_reference\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "retry_indefinitely": true,
+          "retry_on": "any_exception",
+          "backoff": "fixed",
+          "delay_ms": 0
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "io_error"
+            },
+            {
+              "throw": "io_error"
+            },
+            {
+              "throw": "io_error"
+            },
+            {
+              "throw": "io_error"
+            },
+            {
+              "return": "recovered"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=recovered\nsuccessful=true\ncall_name=\ntotal_tries=5\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "no_wait"
+        },
+        "call_name": "NamedCall",
+        "operation": {
+          "outcomes": [
+            {
+              "return": "done"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=done\nsuccessful=true\ncall_name=NamedCall\ntotal_tries=1\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "custom_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=2\nlast_exception=custom_error\n"
+    }
+  ]
+}

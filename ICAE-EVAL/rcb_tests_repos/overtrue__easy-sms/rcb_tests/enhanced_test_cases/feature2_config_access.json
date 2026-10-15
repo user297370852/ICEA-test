@@ -1,0 +1,109 @@
+{
+  "description": "Read from and mutate a nested configuration map using dot-notation keys. A get resolves a key against the map: a top-level key returns its value, a dotted key descends into nested maps and numerically-indexed lists, and a key that does not resolve yields null. An existence check reports whether a top-level key is present. An assignment updates the value of an already-present top-level key, and a removal deletes a present top-level key; after removal a subsequent read of that key returns null and an existence check reports absence. Each operation emits one line describing its result, with scalar values rendered as JSON.",
+  "cases": [
+    {
+      "input": {
+        "action": "config",
+        "config": {
+          "a": 1,
+          "b": {
+            "c": {
+              "d": "deep"
+            }
+          },
+          "list": [
+            {
+              "x": 10
+            },
+            {
+              "x": 20
+            },
+            {
+              "x": 30
+            }
+          ],
+          "empty_map": {},
+          "zero": 0,
+          "flag": false
+        },
+        "operations": [
+          {
+            "op": "isset",
+            "key": "a"
+          },
+          {
+            "op": "isset",
+            "key": "missing"
+          },
+          {
+            "op": "get",
+            "key": "a"
+          },
+          {
+            "op": "get",
+            "key": "b.c.d"
+          },
+          {
+            "op": "get",
+            "key": "list.2.x"
+          },
+          {
+            "op": "get",
+            "key": "list.5.x"
+          },
+          {
+            "op": "get",
+            "key": "b.c.missing"
+          },
+          {
+            "op": "get",
+            "key": "zero"
+          },
+          {
+            "op": "get",
+            "key": "flag"
+          },
+          {
+            "op": "set",
+            "key": "a",
+            "value": 999
+          },
+          {
+            "op": "get",
+            "key": "a"
+          },
+          {
+            "op": "unset",
+            "key": "b"
+          },
+          {
+            "op": "get",
+            "key": "b"
+          },
+          {
+            "op": "isset",
+            "key": "b"
+          }
+        ]
+      },
+      "expected_output": "isset a => true\nisset missing => false\nget a => 1\nget b.c.d => \"deep\"\nget list.2.x => 30\nget list.5.x => null\nget b.c.missing => null\nget zero => 0\nget flag => false\nset a\nget a => 999\nunset b\nget b => null\nisset b => false\n"
+    },
+    {
+      "input": {
+        "action": "config",
+        "config": {},
+        "operations": [
+          {
+            "op": "get",
+            "key": "anything"
+          },
+          {
+            "op": "isset",
+            "key": "anything"
+          }
+        ]
+      },
+      "expected_output": "get anything => null\nisset anything => false\n"
+    }
+  ]
+}

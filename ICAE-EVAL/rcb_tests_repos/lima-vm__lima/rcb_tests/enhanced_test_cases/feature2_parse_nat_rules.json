@@ -1,0 +1,47 @@
+{
+  "description": "Boundary and logical-path coverage for extracting forwarded ports from firewall NAT rule dumps: empty dumps, dumps containing only non-forwarding bookkeeping, forwarding rules with and without a pinned destination address, the maximum port value, and multiple forwarding rules in one dump.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_nat_rules",
+        "rules": ""
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "op": "parse_nat_rules",
+        "rules": "-P PREROUTING ACCEPT\n-N CNI-HOSTPORT-DNAT\n-A POSTROUTING -m comment --comment \"CNI portfwd requiring masquerade\" -j CNI-HOSTPORT-MASQ\n-A CNI-HOSTPORT-MASQ -m mark --mark 0x2000/0x2000 -j MASQUERADE\n"
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "op": "parse_nat_rules",
+        "rules": "-A CNI-DN-aaaaaaaaaaaaaaaaaaaaaa -p tcp -m tcp --dport 9000 -j DNAT --to-destination 10.4.0.20:80\n"
+      },
+      "expected_output": "tcp=true ip=0.0.0.0 port=9000\n"
+    },
+    {
+      "input": {
+        "op": "parse_nat_rules",
+        "rules": "-A CNI-DN-bbbbbbbbbbbbbbbbbbbbbb -d 192.168.5.5/32 -p tcp -m tcp --dport 9001 -j DNAT --to-destination 10.4.0.21:80\n"
+      },
+      "expected_output": "tcp=true ip=192.168.5.5 port=9001\n"
+    },
+    {
+      "input": {
+        "op": "parse_nat_rules",
+        "rules": "-A CNI-DN-cccccccccccccccccccccc -p tcp -m tcp --dport 65535 -j DNAT --to-destination 10.4.0.22:80\n"
+      },
+      "expected_output": "tcp=true ip=0.0.0.0 port=65535\n"
+    },
+    {
+      "input": {
+        "op": "parse_nat_rules",
+        "rules": "-A CNI-DN-dddddddddddddddddddddd -p tcp -m tcp --dport 7000 -j DNAT --to-destination 10.4.0.30:80\n-A CNI-DN-eeeeeeeeeeeeeeeeeeeeee -d 127.0.0.1/32 -p tcp -m tcp --dport 7001 -j DNAT --to-destination 10.4.0.31:80\n"
+      },
+      "expected_output": "tcp=true ip=0.0.0.0 port=7000\ntcp=true ip=127.0.0.1 port=7001\n"
+    }
+  ]
+}

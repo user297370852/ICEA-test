@@ -1,0 +1,85 @@
+{
+    "description": "When a service has TLS enabled, a plaintext request to it is answered with a permanent redirect to the same URL over the secure scheme; for methods where a redirect body is emitted the response body contains the redirect link. When a service does not have TLS enabled, a request arriving over the secure transport is rejected with a service-unavailable response. Registering a TLS-enabled service under a wildcard host is rejected because automatic certificate provisioning does not support wildcard hosts. Each probe reports the response status and body; each registration reports success or the normalized error category.",
+    "cases": [
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "a": {
+                        "body": "secure-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "secure.example.com"
+                        ],
+                        "target": "a",
+                        "tls": true
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://secure.example.com/path",
+                        "method": "GET"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://secure.example.com/path",
+                        "method": "POST"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\nstatus=301 target=<a href=\"https://secure.example.com/path\">Moved Permanently</a>.\nstatus=301 target=\n"
+        },
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "a": {
+                        "body": "plain-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "plain.example.com"
+                        ],
+                        "target": "a"
+                    },
+                    {
+                        "op": "request",
+                        "url": "https://plain.example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\nstatus=503 target=Service Unavailable\n"
+        },
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "a": {
+                        "body": "secure-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "*.example.com"
+                        ],
+                        "target": "a",
+                        "tls": true
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 error=automatic_tls_wildcard_unsupported\n"
+        }
+    ]
+}

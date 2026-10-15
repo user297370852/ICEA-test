@@ -1,0 +1,102 @@
+{
+    "description": "Schema-guided row decoding converts API row cells into named objects, preserving nested records and repeated fields with domain type conversions.",
+    "cases": [
+        {
+            "input": {
+                "operation": "merge_rows",
+                "schema": {
+                    "fields": [
+                        {
+                            "name": "name",
+                            "type": "STRING"
+                        },
+                        {
+                            "name": "flag",
+                            "type": "BOOLEAN"
+                        },
+                        {
+                            "name": "nested",
+                            "type": "RECORD",
+                            "fields": [
+                                {
+                                    "name": "ok",
+                                    "type": "BOOLEAN"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "arr",
+                            "type": "STRING",
+                            "mode": "REPEATED"
+                        }
+                    ]
+                },
+                "rows": [
+                    {
+                        "f": [
+                            {
+                                "v": "cat"
+                            },
+                            {
+                                "v": "true"
+                            },
+                            {
+                                "v": {
+                                    "f": [
+                                        {
+                                            "v": "false"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "v": [
+                                    {
+                                        "v": "a"
+                                    },
+                                    {
+                                        "v": "b"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "[\n  {\n    \"name\": \"cat\",\n    \"flag\": true,\n    \"nested\": {\n      \"ok\": false\n    },\n    \"arr\": [\n      \"a\",\n      \"b\"\n    ]\n  }\n]\n"
+        },
+        {
+            "input": {
+                "operation": "merge_rows",
+                "schema": {
+                    "fields": [
+                        {
+                            "name": "id",
+                            "type": "INTEGER"
+                        },
+                        {
+                            "name": "label",
+                            "type": "STRING"
+                        }
+                    ]
+                },
+                "rows": [
+                    {
+                        "f": [
+                            {
+                                "v": "123"
+                            },
+                            {
+                                "v": "kitten"
+                            }
+                        ]
+                    }
+                ],
+                "options": {
+                    "wrapIntegers": true
+                }
+            },
+            "expected_output": "error=invalid_integer_cast\n"
+        }
+    ]
+}

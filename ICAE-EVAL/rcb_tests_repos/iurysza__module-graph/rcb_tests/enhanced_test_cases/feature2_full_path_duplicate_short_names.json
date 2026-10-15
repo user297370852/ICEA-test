@@ -1,0 +1,49 @@
+{
+  "description": "Additional full-path coverage for modules that share the same short name in different folders, plus labelled duplicate short-name edges.",
+  "cases": [
+    {
+      "input": {
+        "heading": "## Modules",
+        "document": "Intro\n\n## Modules",
+        "showFullPath": true,
+        "orientation": "TB",
+        "dependencies": {
+          ":featureA:api": [
+            {
+              "target": ":featureB:api",
+              "configuration": "implementation"
+            }
+          ],
+          ":featureB:api": [
+            {
+              "target": ":shared:api",
+              "configuration": "compileOnly"
+            }
+          ]
+        }
+      },
+      "expected_output": "Intro\n\n## Modules\n\n```mermaid\n%%{\n  init: {\n    'theme': 'neutral'\n  }\n}%%\n\ngraph TB\n  :featureA:api --> :featureB:api\n  :featureB:api --> :shared:api\n```"
+    },
+    {
+      "input": {
+        "heading": "## Full Labelled",
+        "document": "## Full Labelled",
+        "showFullPath": true,
+        "linkText": "configuration",
+        "dependencies": {
+          ":root:app": [
+            {
+              "target": ":root:lib",
+              "configuration": "api"
+            },
+            {
+              "target": ":root:lib",
+              "configuration": "runtimeOnly"
+            }
+          ]
+        }
+      },
+      "expected_output": "## Full Labelled\n\n```mermaid\n%%{\n  init: {\n    'theme': 'neutral'\n  }\n}%%\n\ngraph LR\n  :root:app -- api --> :root:lib\n  :root:app -- runtimeOnly --> :root:lib\n```"
+    }
+  ]
+}

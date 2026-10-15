@@ -1,0 +1,59 @@
+{
+  "description": "Boundary and edge coverage for parsing WebDAV listing into ordered resource entries: empty multistatus, malformed XML, percent-encoded and Unicode hrefs, deeply nested directories, and responses missing href.",
+  "cases": [
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n\n</d:multistatus>"
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "not even xml <<<"
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": ""
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/dir/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype><d:collection/></d:resourcetype>\n                <d:getlastmodified>Tue, 02 Feb 2021 12:30:00 GMT</d:getlastmodified>\n                <d:displayname>photos</d:displayname>\n                <d:creationdate>2021-02-02T12:30:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].path=/dir/\nitem[0].is_directory=true\nitem[0].text=/dir/\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/a/b/c/deep/file.bin</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].path=/a/b/c/deep/file.bin\nitem[0].is_directory=false\nitem[0].text=/a/b/c/deep/file.bin\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/%D0%9C%D0%BE%D1%80%D0%B5.jpg</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].path=/Море.jpg\nitem[0].is_directory=false\nitem[0].text=/Море.jpg\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/space%20name.txt</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].path=/space name.txt\nitem[0].is_directory=false\nitem[0].text=/space name.txt\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop><d:resourcetype/></d:prop>\n        </d:propstat>\n    </d:response>\n    <d:response>\n        <d:href>/only.txt</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].path=/only.txt\nitem[0].is_directory=false\nitem[0].text=/only.txt\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>http://srv.example.com/mount/file.txt</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].path=/mount/file.txt\nitem[0].is_directory=false\nitem[0].text=/mount/file.txt\n"
+    }
+  ]
+}

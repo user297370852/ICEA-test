@@ -1,0 +1,13 @@
+{
+  "description": "Option declaration variants and grouping. Options may be declared with an associated group name, a per-option default value, and an argument-help label; the number of distinct groups is reported via groups(). A single declaration may expose several long names plus a short name, all sharing one underlying value. Declaring an option with an empty specification is rejected as invalid_option_format. A configuration with no declared options has zero groups.",
+  "cases": [
+    {
+      "input": {"program": "test", "options": [{"group": "", "opts": "a, address", "type": "string", "default": "127.0.0.1"}, {"group": "", "opts": "p, port", "type": "string", "default": "7110", "arg_help": "PORT"}, {"group": "TEST_GROUP", "opts": "t, test"}, {"group": "TEST_GROUP", "opts": "h,help"}], "argv": ["--address", "10.0.0.1", "-p", "8000", "-t"], "queries": [{"q": "groups"}, {"q": "count", "name": "address"}, {"q": "count", "name": "port"}, {"q": "count", "name": "test"}, {"q": "count", "name": "help"}, {"q": "value", "name": "address", "type": "string"}, {"q": "value", "name": "port", "type": "string"}, {"q": "value", "name": "test", "type": "bool"}]},
+      "expected_output": "groups=2\ncount[address]=1\ncount[port]=1\ncount[test]=1\ncount[help]=0\nvalue[address]=10.0.0.1\nvalue[port]=8000\nvalue[test]=true"
+    },
+    {
+      "input": {"program": "t", "options": [{"opts": ""}], "argv": [], "queries": []},
+      "expected_output": "error=invalid_option_format"
+    }
+  ]
+}

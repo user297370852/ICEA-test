@@ -1,0 +1,235 @@
+{
+  "description": "Enhanced boundary coverage for directory-scan generation: cross-pattern duplication (no dedup), '?'/char-class/range/negation globs, malformed patterns, trailing-slash basenames, '**' single-segment semantics, deep nesting, error propagation, stress.",
+  "cases": [
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "*",
+          "app1"
+        ],
+        "apps": [
+          "app1",
+          "app2"
+        ]
+      },
+      "expected_output": "params=3\n#0\npath=app1\npath.basename=app1\n#1\npath=app2\npath.basename=app2\n#2\npath=app1\npath.basename=app1\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "app?"
+        ],
+        "apps": [
+          "app1",
+          "app2",
+          "apps",
+          "ap"
+        ]
+      },
+      "expected_output": "params=3\n#0\npath=app1\npath.basename=app1\n#1\npath=app2\npath.basename=app2\n#2\npath=apps\npath.basename=apps\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "app[12]"
+        ],
+        "apps": [
+          "app1",
+          "app2",
+          "app3"
+        ]
+      },
+      "expected_output": "params=2\n#0\npath=app1\npath.basename=app1\n#1\npath=app2\npath.basename=app2\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "app[^1]"
+        ],
+        "apps": [
+          "app1",
+          "app2",
+          "app3"
+        ]
+      },
+      "expected_output": "params=2\n#0\npath=app2\npath.basename=app2\n#1\npath=app3\npath.basename=app3\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "app[1-2]"
+        ],
+        "apps": [
+          "app1",
+          "app2",
+          "app3"
+        ]
+      },
+      "expected_output": "params=2\n#0\npath=app1\npath.basename=app1\n#1\npath=app2\npath.basename=app2\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "["
+        ],
+        "apps": [
+          "app1"
+        ]
+      },
+      "expected_output": "params=0\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "*/"
+        ],
+        "apps": [
+          "app1/",
+          "app2"
+        ]
+      },
+      "expected_output": "params=1\n#0\npath=app1/\npath.basename=app1\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "**"
+        ],
+        "apps": [
+          "app1",
+          "p1/app2"
+        ]
+      },
+      "expected_output": "params=1\n#0\npath=app1\npath.basename=app1\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "p1/p2/*"
+        ],
+        "apps": [
+          "p1/p2/app3",
+          "p1/app2",
+          "p1/p2/p3/app4"
+        ]
+      },
+      "expected_output": "params=1\n#0\npath=p1/p2/app3\npath.basename=app3\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "nope*"
+        ],
+        "apps": [
+          "app1",
+          "app2"
+        ]
+      },
+      "expected_output": "params=0\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "b*",
+          "a*"
+        ],
+        "apps": [
+          "a1",
+          "b1",
+          "a2",
+          "b2"
+        ]
+      },
+      "expected_output": "params=4\n#0\npath=b1\npath.basename=b1\n#1\npath=b2\npath.basename=b2\n#2\npath=a1\npath.basename=a1\n#3\npath=a2\npath.basename=a2\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "*"
+        ],
+        "apps": [
+          "app1",
+          "app2"
+        ],
+        "apps_error": true
+      },
+      "expected_output": "error=source_unavailable\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "*"
+        ],
+        "apps": [
+          "app00",
+          "app01",
+          "app02",
+          "app03",
+          "app04",
+          "app05",
+          "app06",
+          "app07",
+          "app08",
+          "app09",
+          "app10",
+          "app11",
+          "app12",
+          "app13",
+          "app14",
+          "app15",
+          "app16",
+          "app17",
+          "app18",
+          "app19",
+          "app20",
+          "app21",
+          "app22",
+          "app23",
+          "app24",
+          "app25",
+          "app26",
+          "app27",
+          "app28",
+          "app29",
+          "app30",
+          "app31",
+          "app32",
+          "app33",
+          "app34",
+          "app35",
+          "app36",
+          "app37",
+          "app38",
+          "app39"
+        ]
+      },
+      "expected_output": "params=40\n#0\npath=app00\npath.basename=app00\n#1\npath=app01\npath.basename=app01\n#2\npath=app02\npath.basename=app02\n#3\npath=app03\npath.basename=app03\n#4\npath=app04\npath.basename=app04\n#5\npath=app05\npath.basename=app05\n#6\npath=app06\npath.basename=app06\n#7\npath=app07\npath.basename=app07\n#8\npath=app08\npath.basename=app08\n#9\npath=app09\npath.basename=app09\n#10\npath=app10\npath.basename=app10\n#11\npath=app11\npath.basename=app11\n#12\npath=app12\npath.basename=app12\n#13\npath=app13\npath.basename=app13\n#14\npath=app14\npath.basename=app14\n#15\npath=app15\npath.basename=app15\n#16\npath=app16\npath.basename=app16\n#17\npath=app17\npath.basename=app17\n#18\npath=app18\npath.basename=app18\n#19\npath=app19\npath.basename=app19\n#20\npath=app20\npath.basename=app20\n#21\npath=app21\npath.basename=app21\n#22\npath=app22\npath.basename=app22\n#23\npath=app23\npath.basename=app23\n#24\npath=app24\npath.basename=app24\n#25\npath=app25\npath.basename=app25\n#26\npath=app26\npath.basename=app26\n#27\npath=app27\npath.basename=app27\n#28\npath=app28\npath.basename=app28\n#29\npath=app29\npath.basename=app29\n#30\npath=app30\npath.basename=app30\n#31\npath=app31\npath.basename=app31\n#32\npath=app32\npath.basename=app32\n#33\npath=app33\npath.basename=app33\n#34\npath=app34\npath.basename=app34\n#35\npath=app35\npath.basename=app35\n#36\npath=app36\npath.basename=app36\n#37\npath=app37\npath.basename=app37\n#38\npath=app38\npath.basename=app38\n#39\npath=app39\npath.basename=app39\n"
+    },
+    {
+      "input": {
+        "action": "git_directories",
+        "directories": [
+          "a/b/*/"
+        ],
+        "apps": [
+          "a/b/c/",
+          "a/b/d"
+        ]
+      },
+      "expected_output": "params=1\n#0\npath=a/b/c/\npath.basename=c\n"
+    }
+  ]
+}

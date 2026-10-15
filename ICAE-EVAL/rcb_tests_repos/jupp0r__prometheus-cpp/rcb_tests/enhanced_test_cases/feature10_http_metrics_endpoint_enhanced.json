@@ -1,0 +1,130 @@
+{
+  "description": "Enhanced HTTP coverage for alternate paths, missing credentials against authenticated routes, wrong-path removals, repeated requests, and simultaneous compression/authentication.",
+  "cases": [
+    {
+      "input": {
+        "feature": "http",
+        "registries": [
+          {
+            "path": "/custom",
+            "counter_name": "custom_total"
+          }
+        ],
+        "requests": [
+          {
+            "path": "/metrics",
+            "contains": [
+              "custom_total"
+            ]
+          },
+          {
+            "path": "/custom",
+            "contains": [
+              "custom_total"
+            ]
+          }
+        ]
+      },
+      "expected_output": "request_path=/metrics\nstatus=404\ncontent_type=text/plain; charset=utf-8\ncontains_custom_total=no\nrequest_path=/custom\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_custom_total=yes\n"
+    },
+    {
+      "input": {
+        "feature": "http",
+        "registries": [
+          {
+            "path": "/secure",
+            "counter_name": "secure_total"
+          }
+        ],
+        "auth": [
+          {
+            "path": "/secure",
+            "username": "alice",
+            "password": "wonder",
+            "realm": "Secure Realm"
+          }
+        ],
+        "requests": [
+          {
+            "path": "/secure",
+            "contains": [
+              "secure_total"
+            ]
+          },
+          {
+            "path": "/secure",
+            "username": "alice",
+            "password": "wonder",
+            "contains": [
+              "secure_total"
+            ]
+          }
+        ]
+      },
+      "expected_output": "request_path=/secure\nstatus=401\ncontains_secure_total=no\nrequest_path=/secure\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_secure_total=yes\n"
+    },
+    {
+      "input": {
+        "feature": "http",
+        "registries": [
+          {
+            "path": "/metrics",
+            "counter_name": "keep_total"
+          }
+        ],
+        "remove_registry_indexes": [
+          {
+            "index": 0,
+            "path": "/wrong"
+          }
+        ],
+        "requests": [
+          {
+            "path": "/metrics",
+            "contains": [
+              "keep_total"
+            ]
+          },
+          {
+            "path": "/wrong",
+            "contains": [
+              "keep_total"
+            ]
+          }
+        ]
+      },
+      "expected_output": "request_path=/metrics\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_keep_total=yes\nrequest_path=/wrong\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_keep_total=no\n"
+    },
+    {
+      "input": {
+        "feature": "http",
+        "registries": [
+          {
+            "path": "/metrics",
+            "counter_name": "compressed_secure_total"
+          }
+        ],
+        "auth": [
+          {
+            "path": "/metrics",
+            "username": "u",
+            "password": "p",
+            "realm": "R"
+          }
+        ],
+        "requests": [
+          {
+            "path": "/metrics",
+            "username": "u",
+            "password": "p",
+            "accept_compression": true,
+            "contains": [
+              "compressed_secure_total"
+            ]
+          }
+        ]
+      },
+      "expected_output": "request_path=/metrics\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_compressed_secure_total=yes\n"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "description": "Additional manifest-composition cases covering empty include lists, primary/include repository consolidation while preserving repository order, sorted variable output, and duplicate variables introduced by a later include.",
+  "cases": [
+    {
+      "input": {
+        "action": "compose_manifest",
+        "manifest": {
+          "variables": {
+            "solo": "value"
+          },
+          "repos": [
+            {
+              "name": "onlyRepo",
+              "images": [
+                {
+                  "platforms": [
+                    {
+                      "dockerfile": "src/only/Dockerfile",
+                      "os": "linux",
+                      "osVersion": "focal",
+                      "tags": {
+                        "onlyTag": {}
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "repos=onlyRepo\nonlyRepo.images=1\nvariables=solo\nsolo=value\n"
+    },
+    {
+      "input": {
+        "action": "compose_manifest",
+        "manifest": {
+          "includes": [
+            "inc-a.json",
+            "inc-b.json"
+          ],
+          "variables": {
+            "root": "r"
+          },
+          "repos": [
+            {
+              "name": "alpha",
+              "images": [
+                {
+                  "platforms": [
+                    {
+                      "dockerfile": "alpha/root/Dockerfile",
+                      "os": "linux",
+                      "osVersion": "focal",
+                      "tags": {
+                        "rootTag": {}
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "includes": {
+          "inc-a.json": {
+            "variables": {
+              "zeta": "z",
+              "beta": "b"
+            },
+            "repos": [
+              {
+                "name": "beta",
+                "images": [
+                  {
+                    "platforms": [
+                      {
+                        "dockerfile": "beta/a/Dockerfile",
+                        "os": "linux",
+                        "osVersion": "buster",
+                        "tags": {
+                          "betaTag": {}
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "alpha",
+                "images": [
+                  {
+                    "platforms": [
+                      {
+                        "dockerfile": "alpha/a/Dockerfile",
+                        "os": "linux",
+                        "osVersion": "jammy",
+                        "tags": {
+                          "alphaA": {}
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "inc-b.json": {
+            "variables": {
+              "gamma": "g"
+            },
+            "repos": [
+              {
+                "name": "gamma",
+                "images": [
+                  {
+                    "platforms": [
+                      {
+                        "dockerfile": "gamma/b/Dockerfile",
+                        "os": "windows",
+                        "osVersion": "nanoserver-ltsc2022",
+                        "tags": {
+                          "gammaTag": {}
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "beta",
+                "images": [
+                  {
+                    "platforms": [
+                      {
+                        "dockerfile": "beta/b/Dockerfile",
+                        "os": "linux",
+                        "osVersion": "alpine3.18",
+                        "tags": {
+                          "betaB": {}
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "repos=alpha,beta,gamma\nalpha.images=2\nbeta.images=2\ngamma.images=1\nvariables=beta,gamma,root,zeta\nbeta=b\ngamma=g\nroot=r\nzeta=z\n"
+    },
+    {
+      "input": {
+        "action": "compose_manifest",
+        "manifest": {
+          "includes": [
+            "vars-a.json",
+            "vars-b.json"
+          ],
+          "variables": {
+            "root": "value"
+          }
+        },
+        "includes": {
+          "vars-a.json": {
+            "variables": {
+              "shared": "a"
+            }
+          },
+          "vars-b.json": {
+            "variables": {
+              "shared": "b"
+            }
+          }
+        }
+      },
+      "expected_output": "error=duplicate_variable\n"
+    }
+  ]
+}

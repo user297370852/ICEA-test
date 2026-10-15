@@ -1,0 +1,50 @@
+{
+    "description": "Flags assertions that appear outside valid test contexts or inside conditional control flow.",
+    "cases": [
+        {
+            "input": {
+                "source": "expect(true).toBe(false)",
+                "rules": {
+                    "no-standalone-expect": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-standalone-expect\nmessage0.text=Expect must be inside of a test block.\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => expect(true).toBe(true))",
+                "rules": {
+                    "no-standalone-expect": "error"
+                }
+            },
+            "expected_output": "messages=0\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => { if (ready) { expect(value).toBe(1) } })",
+                "rules": {
+                    "no-conditional-expect": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-conditional-expect\nmessage0.text=Avoid calling `expect` conditionally`\nmessage0.line=1\nmessage0.column=33\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => { try { run() } catch (error) { expect(error).toBeDefined() } })",
+                "rules": {
+                    "no-conditional-expect": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-conditional-expect\nmessage0.text=Avoid calling `expect` conditionally`\nmessage0.line=1\nmessage0.column=50\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => { expect(value).toBe(1) })",
+                "rules": {
+                    "no-conditional-expect": "error"
+                }
+            },
+            "expected_output": "messages=0\n"
+        }
+    ]
+}

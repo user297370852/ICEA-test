@@ -1,0 +1,43 @@
+{
+    "description": "Drops an event whose encoded size exceeds the configured batch byte limit while preserving subsequent valid events in the sent payload.",
+    "cases": [
+        {
+            "input": {
+                "operation": "drop_large_event",
+                "batch_max_items": 3,
+                "batch_max_bytes": 500,
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    },
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "TestApp",
+                        "thread": "main",
+                        "message": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+                    },
+                    {
+                        "timestamp_ms": 104,
+                        "level": "WARN",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 2"
+                    },
+                    {
+                        "timestamp_ms": 107,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 3"
+                    }
+                ]
+            },
+            "expected_output": "stream=[level, INFO, app, my-app]\nrecord=ts=100 l=INFO c=test.TestApp t=thread-1 | Test message 1 \nrecord=ts=107 l=INFO c=test.TestApp t=thread-1 | Test message 3 \nstream=[level, WARN, app, my-app]\nrecord=ts=104 l=WARN c=test.TestApp t=thread-2 | Test message 2 \n"
+        }
+    ]
+}

@@ -1,0 +1,89 @@
+{
+  "description": "Minimal-change locale provisioning edge cases: below API 23 only the differing field is written (language-only, country-only, language-matches-but-country-differs) with a reboot; the API-22 lower boundary; and at API 23+ the combined locale handles language-only (lowercased), country-only (verbatim), and mixed-case normalization.",
+  "cases": [
+    {
+      "input": {
+        "op": "ensure_locale",
+        "language": "fr",
+        "current": {
+          "apiLevel": 18,
+          "language": "en",
+          "country": "US"
+        }
+      },
+      "expected_output": "device_op=set_language value=fr\ndevice_op=reboot\n"
+    },
+    {
+      "input": {
+        "op": "ensure_locale",
+        "country": "de",
+        "current": {
+          "apiLevel": 18,
+          "language": "en",
+          "country": "us"
+        }
+      },
+      "expected_output": "device_op=set_country value=de\ndevice_op=reboot\n"
+    },
+    {
+      "input": {
+        "op": "ensure_locale",
+        "language": "en",
+        "country": "DE",
+        "current": {
+          "apiLevel": 18,
+          "language": "en",
+          "country": "us"
+        }
+      },
+      "expected_output": "device_op=set_country value=DE\ndevice_op=reboot\n"
+    },
+    {
+      "input": {
+        "op": "ensure_locale",
+        "language": "en",
+        "country": "us",
+        "current": {
+          "apiLevel": 22,
+          "language": "fr",
+          "country": "FR"
+        }
+      },
+      "expected_output": "device_op=set_language value=en\ndevice_op=set_country value=us\ndevice_op=reboot\n"
+    },
+    {
+      "input": {
+        "op": "ensure_locale",
+        "language": "FR",
+        "current": {
+          "apiLevel": 23,
+          "locale": "en-US"
+        }
+      },
+      "expected_output": "device_op=set_locale value=fr\ndevice_op=reboot\n"
+    },
+    {
+      "input": {
+        "op": "ensure_locale",
+        "country": "DE",
+        "current": {
+          "apiLevel": 23,
+          "locale": "en-US"
+        }
+      },
+      "expected_output": "device_op=set_locale value=DE\ndevice_op=reboot\n"
+    },
+    {
+      "input": {
+        "op": "ensure_locale",
+        "language": "EN",
+        "country": "gb",
+        "current": {
+          "apiLevel": 23,
+          "locale": "fr-FR"
+        }
+      },
+      "expected_output": "device_op=set_locale value=en-GB\ndevice_op=reboot\n"
+    }
+  ]
+}

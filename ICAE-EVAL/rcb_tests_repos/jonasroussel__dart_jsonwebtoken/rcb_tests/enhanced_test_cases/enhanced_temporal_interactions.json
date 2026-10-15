@@ -1,0 +1,67 @@
+{
+  "description": "Temporal-claim interactions covering simultaneous exp/nbf failures, independently disabled checks, exact issue_at equality with exp present, and issue_at rejection when expiry is ignored.",
+  "cases": [
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjEwMDAwMDAwMDAsIm5iZiI6NDEwMjQ0NDgwMH0.ncp-8xVSLuiyLYoEGw06W5cSiITZALa554sMI1SppRE",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "check_exp": false
+      },
+      "expected_output": "error=token_not_active\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjEwMDAwMDAwMDAsIm5iZiI6NDEwMjQ0NDgwMH0.ncp-8xVSLuiyLYoEGw06W5cSiITZALa554sMI1SppRE",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "check_nbf": false
+      },
+      "expected_output": "error=token_expired\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJleHAiOjEwMDAwMDAwMDAsIm5iZiI6NDEwMjQ0NDgwMH0.ncp-8xVSLuiyLYoEGw06W5cSiITZALa554sMI1SppRE",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "check_exp": false,
+        "check_nbf": false
+      },
+      "expected_output": "alg=HS256\npayload={\"exp\":1000000000,\"foo\":\"bar\",\"nbf\":4102444800}\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MDAwMDAwMDEsImV4cCI6NDEwMjQ0NDgwMH0.HN0OipX03qo4u7kg6W47RUhLiEyXQxa7Gq5mhc7MO-s",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "issue_at": 1600000001
+      },
+      "expected_output": "alg=HS256\npayload={\"exp\":4102444800,\"iat\":1600000001}\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjEwMDAwMDAwMDAsImV4cCI6MTAwMDAwMDAwMH0.lfCdwTALI6icUSNIWitVlvtx0KTjV7wlWEOPJNXcGEU",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "issue_at": 1600000001,
+        "check_exp": false
+      },
+      "expected_output": "error=invalid_token\nreason=expired_issue_at\n"
+    }
+  ]
+}

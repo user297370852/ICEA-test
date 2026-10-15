@@ -1,0 +1,11 @@
+{
+    "description": "Mask sensitive substrings as they stream through an output writer. The writer is configured with a list of secret byte sequences and a replacement string; any occurrence of a secret in the streamed bytes (even spanning multiple writes, even when one secret encloses another) is replaced by the replacement string, and consecutive masked bytes collapse into a single replacement. Bytes that only partially match a secret at the end of the stream are emitted unmasked. Input is supplied as an ordered list of write chunks; the fully processed output is emitted verbatim.",
+    "cases": [
+        {"input": {"action": "mask", "masks": ["foo", "bar"], "mask_string": "<redacted by SecretHub>", "writes": ["test"]}, "expected_output": "test"},
+        {"input": {"action": "mask", "masks": ["foo", "bar"], "mask_string": "<redacted by SecretHub>", "writes": ["test foo test"]}, "expected_output": "test <redacted by SecretHub> test"},
+        {"input": {"action": "mask", "masks": ["foo", "bar"], "mask_string": "<redacted by SecretHub>", "writes": ["test foo bar"]}, "expected_output": "test <redacted by SecretHub> <redacted by SecretHub>"},
+        {"input": {"action": "mask", "masks": ["foobar"], "mask_string": "<redacted by SecretHub>", "writes": ["test foo"]}, "expected_output": "test foo"},
+        {"input": {"action": "mask", "masks": ["foo", "bar", "testfoobartestfoo"], "mask_string": "<redacted by SecretHub>", "writes": ["testfoobartestfoo bar foo"]}, "expected_output": "<redacted by SecretHub> <redacted by SecretHub> <redacted by SecretHub>"},
+        {"input": {"action": "mask", "masks": ["foo", "bar"], "mask_string": "<redacted by SecretHub>", "writes": ["fo", "o bar f", "o"]}, "expected_output": "<redacted by SecretHub> <redacted by SecretHub> fo"}
+    ]
+}

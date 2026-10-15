@@ -1,0 +1,36 @@
+{
+  "description": "Boundary coverage for browser HTTP payloads: custom filter lists, object cookies with default filters, and a custom API key.",
+  "cases": [
+    {
+      "input": {
+        "options": {
+          "cookies": "session=abc; creditcard=4111-1111"
+        },
+        "filters": [
+          "creditcard",
+          "session"
+        ]
+      },
+      "expected_output": "request_method=POST\nrequest_url=https://api.honeybadger.io/v1/notices/js\nasync=true\napi_key_header=testing\ncontent_type_header=application/json\ncookie=session=[FILTERED];creditcard=[FILTERED]\nuser_agent_present=true\n"
+    },
+    {
+      "input": {
+        "options": {
+          "cookies": {
+            "user": "bob",
+            "password": "p@ss",
+            "theme": "dark"
+          }
+        }
+      },
+      "expected_output": "request_method=POST\nrequest_url=https://api.honeybadger.io/v1/notices/js\nasync=true\napi_key_header=testing\ncontent_type_header=application/json\ncookie=user=bob;password=[FILTERED];theme=dark\nuser_agent_present=true\n"
+    },
+    {
+      "input": {
+        "apiKey": "customkey",
+        "options": {}
+      },
+      "expected_output": "request_method=POST\nrequest_url=https://api.honeybadger.io/v1/notices/js\nasync=true\napi_key_header=customkey\ncontent_type_header=application/json\ncookie=none\nuser_agent_present=true\n"
+    }
+  ]
+}

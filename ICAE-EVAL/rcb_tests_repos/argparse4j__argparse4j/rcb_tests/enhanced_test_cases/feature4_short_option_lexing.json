@@ -1,0 +1,122 @@
+{
+  "description": "Enhanced lexing coverage: a unique long-option prefix accepted, an ambiguous long-option prefix rejected, a long option with embedded =value, concatenated short booleans with a trailing value-taking option, a negative-number token bound as a value, and an alternate prefix char with concatenation.",
+  "cases": [
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--verbose"
+            ],
+            "action": "store_true"
+          }
+        ],
+        "argv": [
+          "--verb"
+        ]
+      },
+      "expected_output": "verbose=true\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--foobar"
+            ]
+          },
+          {
+            "flags": [
+              "--foobaz"
+            ]
+          }
+        ],
+        "argv": [
+          "--foo",
+          "x"
+        ]
+      },
+      "expected_output": "error: ambiguous option: --foo could match --foobar, --foobaz\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--key"
+            ]
+          }
+        ],
+        "argv": [
+          "--key=value"
+        ]
+      },
+      "expected_output": "key=value\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "-a"
+            ],
+            "action": "store_true"
+          },
+          {
+            "flags": [
+              "-b"
+            ],
+            "action": "store_true"
+          },
+          {
+            "flags": [
+              "-c"
+            ]
+          }
+        ],
+        "argv": [
+          "-abcVAL"
+        ]
+      },
+      "expected_output": "a=true\nb=true\nc=VAL\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "-n"
+            ]
+          }
+        ],
+        "argv": [
+          "-n",
+          "-42"
+        ]
+      },
+      "expected_output": "n=-42\n"
+    },
+    {
+      "input": {
+        "prefix_chars": "+",
+        "arguments": [
+          {
+            "flags": [
+              "+x"
+            ],
+            "action": "store_true"
+          },
+          {
+            "flags": [
+              "+y"
+            ]
+          }
+        ],
+        "argv": [
+          "+xyZ"
+        ]
+      },
+      "expected_output": "x=true\ny=Z\n"
+    }
+  ]
+}

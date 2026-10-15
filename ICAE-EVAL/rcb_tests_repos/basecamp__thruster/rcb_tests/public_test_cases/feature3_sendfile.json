@@ -1,0 +1,37 @@
+{
+    "description": "An accelerated file-delivery feature lets the origin delegate sending a static file to the proxy by returning a header naming a path on disk instead of writing the file body itself. When the feature is enabled, the proxy advertises support to the origin (a request header), and on seeing the delegation header it reads the named file from disk, sends its contents as the response body (discarding any body the origin wrote), strips the delegation header, and sets the Content-Length to the real file size and the Content-Type by sniffing the file. Crucially, even when the origin marked the response with a Content-Encoding, the proxy still sets Content-Length to the true on-disk size rather than passing through the origin's (possibly zero) value, preventing truncated responses. If no delegation header is present the origin's own response (status, headers, body) is returned untouched. When the feature is disabled the proxy neither advertises support nor intercepts the delegation header, which then passes straight through. Output reports the status, Content-Type, Content-Length, Content-Encoding, the delegation header's final state, and the body.",
+    "cases": [
+        {
+            "input": {
+                "action": "sendfile",
+                "enabled": true,
+                "request": {
+                    "method": "GET",
+                    "path": "/"
+                },
+                "upstream": {
+                    "fileContent": "Sendfile body contents.\n",
+                    "body": "this body should not be seen"
+                }
+            },
+            "expected_output": "status=200\ncontent_type=text/plain; charset=utf-8\ncontent_length=24\ncontent_encoding=-\nx_sendfile=-\nbody=Sendfile body contents.\n\n"
+        },
+        {
+            "input": {
+                "action": "sendfile",
+                "enabled": false,
+                "request": {
+                    "method": "GET",
+                    "path": "/"
+                },
+                "upstream": {
+                    "fileContent": "irrelevant\n",
+                    "contentType": "application/custom",
+                    "status": 418,
+                    "body": "This body should be seen"
+                }
+            },
+            "expected_output": "status=418\ncontent_type=application/custom\ncontent_length=-\ncontent_encoding=-\nx_sendfile=<passthrough>\nbody=This body should be seen\n"
+        }
+    ]
+}

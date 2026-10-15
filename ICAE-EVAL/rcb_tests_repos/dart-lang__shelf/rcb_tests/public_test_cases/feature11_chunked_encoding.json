@@ -1,0 +1,29 @@
+{
+  "description": "Wrap a handler with middleware that applies chunked transfer coding to streamed responses. Chunked coding is added (and the transfer-encoding header set) only when the response has no known content length, has a normal (>=200, not 204, not 304) status, is not multipart/byteranges, and does not already use a non-identity transfer-encoding. Otherwise the response passes through unchanged.",
+  "cases": [
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "ok",
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              104,
+              105
+            ]
+          ]
+        }
+      },
+      "expected_output": "transferEncoding=chunked\nbody=2\r\nhi\r\n0\r\n\r\n\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "ok",
+        "body": "hi"
+      },
+      "expected_output": "transferEncoding=null\nbody=hi\n"
+    }
+  ]
+}

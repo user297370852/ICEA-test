@@ -1,0 +1,34 @@
+{
+    "description": "A transition can be guarded by conditions. A `conditions` guard requires every named boolean check to return true for the transition to fire; an `unless` guard requires every named check to return false. When a guard blocks a transition, firing the trigger reports no move and the active state is unchanged. When several transitions share the same trigger and source, they are evaluated in declaration order and the first whose guards all pass is taken. `cond_pass` is a check that always returns true and `cond_fail` always returns false.",
+    "cases": [
+        {
+            "input": {
+                "machine": {"states": ["A", "B", "C", "D", "E"], "initial": "A"},
+                "commands": [
+                    {"op": "add_transition", "trigger": "advance", "source": "A", "dest": "B", "conditions": "cond_pass"},
+                    {"op": "add_transition", "trigger": "advance", "source": "B", "dest": "C", "unless": ["cond_fail"]},
+                    {"op": "add_transition", "trigger": "advance", "source": "C", "dest": "D", "unless": ["cond_fail", "cond_pass"]},
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "state"}
+                ]
+            },
+            "expected_output": "trigger=advance result=true state=B\nstate=B\ntrigger=advance result=true state=C\nstate=C\ntrigger=advance result=false state=C\nstate=C\n"
+        },
+        {
+            "input": {
+                "machine": {"states": ["A", "B", "C", "D", "E"], "initial": "A"},
+                "commands": [
+                    {"op": "add_transition", "trigger": "advance", "source": "A", "dest": "B", "conditions": ["cond_fail"]},
+                    {"op": "add_transition", "trigger": "advance", "source": "A", "dest": "C"},
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "state"}
+                ]
+            },
+            "expected_output": "trigger=advance result=true state=C\nstate=C\n"
+        }
+    ]
+}

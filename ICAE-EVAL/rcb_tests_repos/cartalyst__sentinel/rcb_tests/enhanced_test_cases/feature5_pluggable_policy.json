@@ -1,0 +1,83 @@
+{
+  "description": "Enhanced pluggable-policy edge cases (disjoint from native): the SAME primary grant / secondary denial data evaluated under lenient (entity primary grant wins → granted) versus strict (any denial stands → denied), plus a strict run where a primary grant for a key denied in a secondary set is suppressed while an unrelated primary grant and an any-query survive.",
+  "cases": [
+    {
+      "input": {
+        "op": "permissible_policy",
+        "policy": "lenient",
+        "permissions": {
+          "a": true
+        },
+        "secondary": [
+          {
+            "a": false
+          }
+        ],
+        "queries": [
+          {
+            "all": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected_output": "policy=lenient\nall[a]=true\n"
+    },
+    {
+      "input": {
+        "op": "permissible_policy",
+        "policy": "strict",
+        "permissions": {
+          "a": true
+        },
+        "secondary": [
+          {
+            "a": false
+          }
+        ],
+        "queries": [
+          {
+            "all": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected_output": "policy=strict\nall[a]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissible_policy",
+        "policy": "strict",
+        "permissions": {
+          "read": true,
+          "write": true
+        },
+        "secondary": [
+          {
+            "write": false
+          }
+        ],
+        "queries": [
+          {
+            "all": [
+              "read"
+            ]
+          },
+          {
+            "all": [
+              "write"
+            ]
+          },
+          {
+            "any": [
+              "read",
+              "write"
+            ]
+          }
+        ]
+      },
+      "expected_output": "policy=strict\nall[read]=true\nall[write]=false\nany[read,write]=true\n"
+    }
+  ]
+}

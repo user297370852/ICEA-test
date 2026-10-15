@@ -1,0 +1,90 @@
+{
+  "description": "SSH argument rendering boundaries: empty argument set, options-only, multiple ordered options, valued and boolean flags, defaults with empty overrides, inspecting present and absent flags/options.",
+  "cases": [
+    {
+      "input": {
+        "flags": [],
+        "options": {}
+      },
+      "expected_output": "arguments=\n"
+    },
+    {
+      "input": {
+        "options": {
+          "Compression": "yes",
+          "BatchMode": "yes"
+        }
+      },
+      "expected_output": "arguments=-o Compression=yes -o BatchMode=yes\n"
+    },
+    {
+      "input": {
+        "flags": [
+          "-A",
+          "-C",
+          "-q"
+        ]
+      },
+      "expected_output": "arguments=-A -C -q\n"
+    },
+    {
+      "input": {
+        "flags": {
+          "0": "-A",
+          "-i": "key.pem",
+          "-q": null
+        },
+        "inspect_flags": [
+          "-A",
+          "-i",
+          "-q"
+        ]
+      },
+      "expected_output": "arguments=-A -q -i key.pem\nflag.-A=true\nflag.-i=key.pem\nflag.-q=true\n"
+    },
+    {
+      "input": {
+        "defaults": {
+          "flags": [
+            "-F"
+          ],
+          "options": {
+            "Option": "Default"
+          }
+        },
+        "overrides": {}
+      },
+      "expected_output": "arguments=-F -o Option=Default\n"
+    },
+    {
+      "input": {
+        "options": {
+          "ServerAliveInterval": "30",
+          "ServerAliveCountMax": "3"
+        },
+        "inspect_options": [
+          "ServerAliveInterval",
+          "ServerAliveCountMax"
+        ]
+      },
+      "expected_output": "arguments=-o ServerAliveInterval=30 -o ServerAliveCountMax=3\noption.ServerAliveInterval=30\noption.ServerAliveCountMax=3\n"
+    },
+    {
+      "input": {
+        "flags": [
+          "-A"
+        ],
+        "options": {
+          "User": "deploy"
+        },
+        "inspect_flags": [
+          "-A"
+        ],
+        "inspect_options": [
+          "User"
+        ]
+      },
+      "expected_output": "arguments=-A -o User=deploy\noption.User=deploy\nflag.-A=true\n"
+    }
+  ]
+}

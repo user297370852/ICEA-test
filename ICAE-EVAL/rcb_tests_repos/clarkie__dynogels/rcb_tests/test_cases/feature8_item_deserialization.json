@@ -1,0 +1,99 @@
+{
+  "description": "Reverse transformation of a stored item back into a plain application record. Scalar attributes pass through unchanged. Any attribute stored as a typed set is flattened to a plain list of its member values. The transformation recurses through nested objects and through lists of objects, flattening sets wherever they appear at any depth. A null item yields a null result.",
+  "cases": [
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "name": "Tim Tester"
+        }
+      },
+      "expected_output": "{\"name\":\"Tim Tester\"}\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "names": {
+            "__set__": [
+              "a",
+              "b",
+              "c"
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"names\":[\"a\",\"b\",\"c\"]}\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "scores": {
+            "__set__": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"scores\":[1,2,3]}\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": null
+      },
+      "expected_output": "null\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "name": "foo bar",
+          "scores": {
+            "__set__": [
+              1,
+              2,
+              3
+            ]
+          },
+          "things": [
+            {
+              "title": "item 1",
+              "letters": {
+                "__set__": [
+                  "a",
+                  "b",
+                  "c"
+                ]
+              }
+            },
+            {
+              "title": "item 2",
+              "letters": {
+                "__set__": [
+                  "x",
+                  "y",
+                  "z"
+                ]
+              }
+            }
+          ],
+          "info": {
+            "name": "baz",
+            "ages": {
+              "__set__": [
+                20,
+                21,
+                22
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "{\"info\":{\"ages\":[20,21,22],\"name\":\"baz\"},\"name\":\"foo bar\",\"scores\":[1,2,3],\"things\":[{\"letters\":[\"a\",\"b\",\"c\"],\"title\":\"item 1\"},{\"letters\":[\"x\",\"y\",\"z\"],\"title\":\"item 2\"}]}\n"
+    }
+  ]
+}

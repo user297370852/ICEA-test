@@ -1,0 +1,25 @@
+{
+    "description": "A middleware buffers the request body in memory up to a memory threshold, spilling to backing storage beyond it, and enforces an overall maximum body size. A request whose body fits within the overall maximum is passed to the handler, which returns its response. A request whose body exceeds the overall maximum is rejected with a payload-too-large response and the handler is not invoked. Each case reports the response status and body.",
+    "cases": [
+        {
+            "input": {
+                "kind": "request_buffer_mw",
+                "max_mem_bytes": 1024,
+                "max_bytes": 100,
+                "request_body": "small",
+                "response_body": "handled"
+            },
+            "expected_output": "status=200 body=handled\n"
+        },
+        {
+            "input": {
+                "kind": "request_buffer_mw",
+                "max_mem_bytes": 4,
+                "max_bytes": 8,
+                "request_body": "this is way too large",
+                "response_body": "handled"
+            },
+            "expected_output": "status=413 body=Request too large\n"
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "description": "After building a compressed sparse-row adjacency structure from the edge list, two functions read it back: one returns the per-vertex offset array (a prefix-sum of out-degrees, one entry per vertex plus a terminating total) and the other returns the flattened destination array of neighbor dense ids in adjacency order.",
+    "cases": [
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, id BIGINT)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17),(2,4,18)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (id) LABEL Knows)",
+                    "SELECT CREATE_CSR_EDGE(0,(SELECT count(a.id) FROM Student a),CAST((SELECT sum(CREATE_CSR_VERTEX(0,(SELECT count(a.id) FROM Student a),sub.dense_id,sub.cnt)) FROM (SELECT a.rowid as dense_id, count(k.src) as cnt FROM Student a LEFT JOIN Know k ON k.src = a.id GROUP BY a.rowid) sub) AS BIGINT),a.rowid,c.rowid,k.rowid) as temp FROM Know k JOIN student a on a.id = k.src JOIN student c on c.id = k.dst"
+                ],
+                "query": "SELECT * from get_csr_v(0)"
+            },
+            "expected_output": "0\n3\n5\n7\n8\n9\n9\n"
+        },
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, id BIGINT)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17),(2,4,18)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (id) LABEL Knows)",
+                    "SELECT CREATE_CSR_EDGE(0,(SELECT count(a.id) FROM Student a),CAST((SELECT sum(CREATE_CSR_VERTEX(0,(SELECT count(a.id) FROM Student a),sub.dense_id,sub.cnt)) FROM (SELECT a.rowid as dense_id, count(k.src) as cnt FROM Student a LEFT JOIN Know k ON k.src = a.id GROUP BY a.rowid) sub) AS BIGINT),a.rowid,c.rowid,k.rowid) as temp FROM Know k JOIN student a on a.id = k.src JOIN student c on c.id = k.dst"
+                ],
+                "query": "SELECT * from get_csr_e(0)"
+            },
+            "expected_output": "1\n2\n3\n2\n3\n3\n4\n0\n3\n"
+        }
+    ]
+}

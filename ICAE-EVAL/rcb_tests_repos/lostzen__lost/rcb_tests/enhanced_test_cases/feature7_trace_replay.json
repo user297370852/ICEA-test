@@ -1,0 +1,33 @@
+{
+  "description": "Enhanced GPX replay edge cases: a single track point (no bearing); a two-point due-east segment (bearing ~90); a two-point due-north segment (bearing ~0); and a four-point zig-zag exercising bearings in multiple quadrants.",
+  "cases": [
+    {
+      "input": {
+        "command": "replay_trace",
+        "gpx": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/0\" version=\"1.0\" creator=\"trace\">\n  <trk><trkseg>\n    <trkpt lat=\"12.34\" lon=\"56.78\"><speed>5.5</speed></trkpt>\n  </trkseg></trk>\n</gpx>\n"
+      },
+      "expected_output": "locations=1\n1 lat=12.34 lng=56.78 speed=5.5 bearing=0.0 has_bearing=false\n"
+    },
+    {
+      "input": {
+        "command": "replay_trace",
+        "gpx": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/0\" version=\"1.0\" creator=\"trace\">\n  <trk><trkseg>\n    <trkpt lat=\"0.0\" lon=\"0.0\"><speed>1.0</speed></trkpt>\n    <trkpt lat=\"0.0\" lon=\"1.0\"><speed>2.0</speed></trkpt>\n  </trkseg></trk>\n</gpx>\n"
+      },
+      "expected_output": "locations=2\n1 lat=0.0 lng=0.0 speed=1.0 bearing=0.0 has_bearing=false\n2 lat=0.0 lng=1.0 speed=2.0 bearing=90.0 has_bearing=true\n"
+    },
+    {
+      "input": {
+        "command": "replay_trace",
+        "gpx": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/0\" version=\"1.0\" creator=\"trace\">\n  <trk><trkseg>\n    <trkpt lat=\"0.0\" lon=\"0.0\"><speed>1.0</speed></trkpt>\n    <trkpt lat=\"1.0\" lon=\"0.0\"><speed>2.0</speed></trkpt>\n  </trkseg></trk>\n</gpx>\n"
+      },
+      "expected_output": "locations=2\n1 lat=0.0 lng=0.0 speed=1.0 bearing=0.0 has_bearing=false\n2 lat=1.0 lng=0.0 speed=2.0 bearing=0.0 has_bearing=true\n"
+    },
+    {
+      "input": {
+        "command": "replay_trace",
+        "gpx": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/0\" version=\"1.0\" creator=\"trace\">\n  <trk><trkseg>\n    <trkpt lat=\"0.0\" lon=\"0.0\"><speed>1.0</speed></trkpt>\n    <trkpt lat=\"1.0\" lon=\"0.0\"><speed>2.0</speed></trkpt>\n    <trkpt lat=\"1.0\" lon=\"1.0\"><speed>3.0</speed></trkpt>\n    <trkpt lat=\"0.0\" lon=\"1.0\"><speed>4.0</speed></trkpt>\n  </trkseg></trk>\n</gpx>\n"
+      },
+      "expected_output": "locations=4\n1 lat=0.0 lng=0.0 speed=1.0 bearing=0.0 has_bearing=false\n2 lat=1.0 lng=0.0 speed=2.0 bearing=0.0 has_bearing=true\n3 lat=1.0 lng=1.0 speed=3.0 bearing=89.99127 has_bearing=true\n4 lat=0.0 lng=1.0 speed=4.0 bearing=180.0 has_bearing=true\n"
+    }
+  ]
+}

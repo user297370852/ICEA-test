@@ -1,0 +1,194 @@
+{
+  "description": "Option validation boundary coverage: empty-string present values (empty_value), conditional regex anchoring (FOOBAR/foo), unknown extra rule fields, exactly-one dependency satisfied paths, preclusion with missing required c, case-insensitive boolean pattern, and unknown rule sets.",
+  "cases": [
+    {
+      "input": {
+        "rule_set": "required",
+        "values": {
+          "a": ""
+        }
+      },
+      "expected_output": "valid=false\nerror=empty_value\n"
+    },
+    {
+      "input": {
+        "rule_set": "optional",
+        "values": {
+          "a": "x"
+        }
+      },
+      "expected_output": "valid=true\na=x\n"
+    },
+    {
+      "input": {
+        "rule_set": "optional",
+        "values": {
+          "a": ""
+        }
+      },
+      "expected_output": "valid=false\nerror=empty_value\n"
+    },
+    {
+      "input": {
+        "rule_set": "required_when_a_is_FOO",
+        "values": {
+          "a": "FOOBAR"
+        }
+      },
+      "expected_output": "valid=true\na=FOOBAR\nb=\n"
+    },
+    {
+      "input": {
+        "rule_set": "required_when_a_is_FOO",
+        "values": {
+          "a": "foo"
+        }
+      },
+      "expected_output": "valid=true\na=foo\nb=\n"
+    },
+    {
+      "input": {
+        "rule_set": "required_when_a_is_FOO",
+        "values": {
+          "b": "x"
+        }
+      },
+      "expected_output": "valid=true\na=\nb=x\n"
+    },
+    {
+      "input": {
+        "rule_set": "required_when_a_is_FOO",
+        "values": {
+          "a": "FOO",
+          "b": ""
+        }
+      },
+      "expected_output": "valid=false\nerror=empty_value\n"
+    },
+    {
+      "input": {
+        "rule_set": "optional_when_a_is_FOO",
+        "values": {
+          "a": "FOO",
+          "b": "x"
+        }
+      },
+      "expected_output": "valid=true\na=FOO\nb=x\n"
+    },
+    {
+      "input": {
+        "rule_set": "optional_when_a_is_FOO",
+        "values": {
+          "a": "BAR",
+          "b": "y"
+        }
+      },
+      "expected_output": "valid=true\na=BAR\nb=y\n"
+    },
+    {
+      "input": {
+        "rule_set": "optional_when_a_is_FOO",
+        "values": {
+          "b": "z"
+        }
+      },
+      "expected_output": "valid=true\na=\nb=z\n"
+    },
+    {
+      "input": {
+        "rule_set": "default_FOO",
+        "values": {
+          "a": ""
+        }
+      },
+      "expected_output": "valid=false\nerror=empty_value\n"
+    },
+    {
+      "input": {
+        "rule_set": "depends_on_exactly_one_of_a_or_b_and_c",
+        "values": {
+          "c": "ccc"
+        }
+      },
+      "expected_output": "valid=true\na=\nb=\nc=ccc\nd=\n"
+    },
+    {
+      "input": {
+        "rule_set": "depends_on_exactly_one_of_a_or_b_and_c",
+        "values": {
+          "a": "x",
+          "b": "y"
+        }
+      },
+      "expected_output": "valid=true\na=x\nb=y\nc=\nd=\n"
+    },
+    {
+      "input": {
+        "rule_set": "precludes_a_or_b_when_c_present",
+        "values": {
+          "a": "aaa"
+        }
+      },
+      "expected_output": "valid=false\nerror=missing_required_value\n"
+    },
+    {
+      "input": {
+        "rule_set": "precludes_a_or_b_when_c_present",
+        "values": {}
+      },
+      "expected_output": "valid=false\nerror=missing_required_value\n"
+    },
+    {
+      "input": {
+        "rule_set": "boolean_text_pattern",
+        "values": {
+          "a": "true"
+        }
+      },
+      "expected_output": "valid=true\na=true\n"
+    },
+    {
+      "input": {
+        "rule_set": "boolean_text_pattern",
+        "values": {
+          "a": "TRUE"
+        }
+      },
+      "expected_output": "valid=true\na=TRUE\n"
+    },
+    {
+      "input": {
+        "rule_set": "boolean_text_pattern",
+        "values": {
+          "a": "False"
+        }
+      },
+      "expected_output": "valid=true\na=False\n"
+    },
+    {
+      "input": {
+        "rule_set": "boolean_text_pattern",
+        "values": {
+          "a": "yes"
+        }
+      },
+      "expected_output": "valid=false\nerror=pattern_mismatch\n"
+    },
+    {
+      "input": {
+        "rule_set": "boolean_text_pattern",
+        "values": {
+          "a": ""
+        }
+      },
+      "expected_output": "valid=false\nerror=empty_value\n"
+    },
+    {
+      "input": {
+        "rule_set": "nonexistent_rule",
+        "values": {}
+      },
+      "expected_output": "error=unknown_rule_set\nrule_set=nonexistent_rule\n"
+    }
+  ]
+}

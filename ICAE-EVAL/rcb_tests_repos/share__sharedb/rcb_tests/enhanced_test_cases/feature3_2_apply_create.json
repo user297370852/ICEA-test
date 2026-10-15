@@ -1,0 +1,95 @@
+{
+  "description": "Applying a create operation to an empty snapshot initializes the document: it adopts the named type's canonical identifier, sets its content to the supplied initial data (or the type's empty value when none is supplied), and advances the version by one. Creating over a snapshot that already has a type is rejected with a normalized already-exists category and leaves the snapshot untouched.",
+  "cases": [
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 0
+        },
+        "op": {
+          "v": 0,
+          "create": {
+            "type": "json0",
+            "data": {
+              "a": 1,
+              "b": 2
+            }
+          }
+        }
+      },
+      "expected_output": "v=1\ntype=http://sharejs.org/types/JSONv0\ndata={\"a\":1,\"b\":2}\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 0
+        },
+        "op": {
+          "v": 0,
+          "create": {
+            "type": "json0",
+            "data": ""
+          }
+        }
+      },
+      "expected_output": "v=1\ntype=http://sharejs.org/types/JSONv0\ndata=\"\"\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 0
+        },
+        "op": {
+          "v": 0,
+          "create": {
+            "type": "json0",
+            "data": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      },
+      "expected_output": "v=1\ntype=http://sharejs.org/types/JSONv0\ndata=[1,2,3]\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 0
+        },
+        "op": {
+          "v": 0,
+          "create": {
+            "type": "json0",
+            "data": 42
+          }
+        }
+      },
+      "expected_output": "v=1\ntype=http://sharejs.org/types/JSONv0\ndata=42\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 3,
+          "type": "json0",
+          "data": {
+            "x": 1
+          }
+        },
+        "op": {
+          "v": 3,
+          "create": {
+            "type": "json0"
+          }
+        }
+      },
+      "expected_output": "error=ERR_DOC_ALREADY_CREATED\n"
+    }
+  ]
+}

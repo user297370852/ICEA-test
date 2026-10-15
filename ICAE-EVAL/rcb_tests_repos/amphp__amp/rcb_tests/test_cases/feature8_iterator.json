@@ -1,0 +1,29 @@
+{
+    "description": "Turn an in-memory iterable into an asynchronous stream that emits each element in order. Elements that are themselves asynchronous operations are awaited and their resolved values are emitted; plain values are emitted directly. The stream completes after the last element. If an element fails, the stream stops at that point, emitting any values produced before it and then failing with that element's failure reason; elements after the failure are never emitted. The result reports the ordered list of emitted values plus whether the stream completed or failed (and, on failure, the reason). Providing a source that is not iterable is reported as an invalid-iterable error.",
+    "cases": [
+        {
+            "input": {"op": "iterator", "elements": [{"resolve": 1}, {"resolve": 2}, {"resolve": 3}]},
+            "expected_output": "emitted=[1,2,3]\nstatus=completed\n"
+        },
+        {
+            "input": {"op": "iterator", "elements": [{"value": 1}, {"value": 2}, {"value": 3}, {"value": 4}]},
+            "expected_output": "emitted=[1,2,3,4]\nstatus=completed\n"
+        },
+        {
+            "input": {"op": "iterator", "elements": [{"fail": "boom"}, {"fail": "boom"}]},
+            "expected_output": "emitted=[]\nstatus=failed\nreason=boom\n"
+        },
+        {
+            "input": {"op": "iterator", "elements": [{"resolve": 1}, {"resolve": 2}, {"fail": "boom"}, {"resolve": 4}]},
+            "expected_output": "emitted=[1,2]\nstatus=failed\nreason=boom\n"
+        },
+        {
+            "input": {"op": "iterator", "invalid": "string"},
+            "expected_output": "status=error\nerror=invalid_iterable\n"
+        },
+        {
+            "input": {"op": "iterator", "invalid": 32},
+            "expected_output": "status=error\nerror=invalid_iterable\n"
+        }
+    ]
+}

@@ -1,0 +1,61 @@
+{
+  "description": "Streaming JSON-to-proto edge cases: empty arrays, single/multi element streams, body-target streams, and non-array payload rejection.",
+  "cases": [
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "streaming": true,
+        "json": "[{}]"
+      },
+      "expected_output": "message[0]=\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "streaming": true,
+        "json": "[{ \"name\":\"a\" }]"
+      },
+      "expected_output": "message[0]=\nname: \"a\"\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "book",
+        "streaming": true,
+        "body_target": "",
+        "json": "[{ \"name\":\"1\" },{ \"name\":\"2\" }]"
+      },
+      "expected_output": "message[0]=\nname: \"1\"\n--end--\nmessage[1]=\nname: \"2\"\n--end--\nfinished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "streaming": true,
+        "json": "\"x\""
+      },
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "shelf",
+        "streaming": true,
+        "json": "123"
+      },
+      "expected_output": "finished=true\n"
+    },
+    {
+      "input": {
+        "operation": "json_to_proto",
+        "schema": "create_book_request",
+        "streaming": true,
+        "body_target": "book",
+        "json": "[{ \"name\":\"a\" },{ \"name\":\"b\", \"title\":\"t\" }]"
+      },
+      "expected_output": "message[0]=\nbook {\n  name: \"a\"\n}\n--end--\nmessage[1]=\nbook {\n  name: \"b\"\n  title: \"t\"\n}\n--end--\nfinished=true\n"
+    }
+  ]
+}

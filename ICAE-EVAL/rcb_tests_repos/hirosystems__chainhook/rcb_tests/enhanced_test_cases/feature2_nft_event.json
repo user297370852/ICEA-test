@@ -1,0 +1,303 @@
+{
+  "description": "Evaluate a non-fungible-token event predicate against a sequence of blocks under boundary and edge conditions, including empty block streams, transactions emitting several events, multiple matching transactions within a single block, accepted-action sets that exclude or include the emitted action, identifier matching that ignores the event payload value, empty-string identifiers, and case-sensitive identifier comparison. The report states whether any block was selected, how many blocks were selected, and the identifiers of the matched transactions.",
+  "cases": [
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "asset-id",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": []
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "asset-id",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "other-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  },
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "asset-id",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xa1",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              },
+              {
+                "txid": "0xa2",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xa1,0xa2\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "asset-id",
+          "actions": []
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "asset-id",
+          "actions": [
+            "transfer",
+            "burn"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "asset-id",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "some-other-raw-value",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xaa\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xaa\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "ASSET-ID",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "nft_event",
+          "asset_identifier": "asset-id",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xdup",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "transactions": [
+              {
+                "txid": "0xdup",
+                "events": [
+                  {
+                    "type": "NFTMintEvent",
+                    "data": {
+                      "asset_identifier": "asset-id",
+                      "raw_value": "",
+                      "recipient": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=2\nmatched_transactions=0xdup,0xdup\n"
+    }
+  ]
+}

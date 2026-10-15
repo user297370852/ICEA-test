@@ -1,0 +1,79 @@
+{
+  "description": "Recognition-notification edge cases: with partial results disabled, an interim (non-final) recognition payload is suppressed (no callback, nothing remembered) while a final payload is still delivered; a final result delivered with partial results enabled is forwarded; and a multi-alternate payload reports the first alternate as the recognized phrase.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen",
+            "onResult": true,
+            "partialResults": false
+          },
+          {
+            "do": "deliver",
+            "method": "recognition",
+            "payload": "{\"alternates\":[{\"recognizedWords\":\"interim\",\"confidence\":0.5}],\"finalResult\":false}"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nlistening=true recognized=false available=true has_error=false last_recognized= last_status=listening last_level=0.0\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen",
+            "onResult": true,
+            "partialResults": false
+          },
+          {
+            "do": "deliver",
+            "method": "recognition",
+            "payload": "{\"alternates\":[{\"recognizedWords\":\"finalwords\",\"confidence\":0.9}],\"finalResult\":true}"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nresult recognized=finalwords final=true\nlistening=true recognized=true available=true has_error=false last_recognized=finalwords last_status=listening last_level=0.0\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen",
+            "onResult": true
+          },
+          {
+            "do": "deliver",
+            "method": "recognition",
+            "payload": "{\"alternates\":[{\"recognizedWords\":\"best guess\",\"confidence\":0.9},{\"recognizedWords\":\"other\",\"confidence\":0.3}],\"finalResult\":true}"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nresult recognized=best guess final=true\nlistening=true recognized=true available=true has_error=false last_recognized=best guess last_status=listening last_level=0.0\n"
+    }
+  ]
+}

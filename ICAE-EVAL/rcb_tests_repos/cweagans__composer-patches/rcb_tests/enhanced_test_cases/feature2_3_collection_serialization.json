@@ -1,0 +1,41 @@
+{
+  "description": "Collection serialization boundary coverage: a single fully-populated patch (sha256, depth and a non-empty extra map all set, so no null placeholders) nested under its package, and two distinct patches for the SAME package serialized as a two-element list with null placeholders for their unset optional fields. The output is the canonical wire form of a collection rebuilt from its own serialization.",
+  "cases": [
+    {
+      "input": {
+        "op": "collection_wire",
+        "add": [
+          {
+            "package": "some/package",
+            "description": "p1",
+            "url": "u1",
+            "sha256": "deadbeef",
+            "depth": 2,
+            "extra": {
+              "provenance": "root"
+            }
+          }
+        ]
+      },
+      "expected_output": "{\n    \"patches\": {\n        \"some/package\": [\n            {\n                \"package\": \"some/package\",\n                \"description\": \"p1\",\n                \"url\": \"u1\",\n                \"sha256\": \"deadbeef\",\n                \"depth\": 2,\n                \"extra\": {\n                    \"provenance\": \"root\"\n                }\n            }\n        ]\n    }\n}\n"
+    },
+    {
+      "input": {
+        "op": "collection_wire",
+        "add": [
+          {
+            "package": "some/package",
+            "description": "p1",
+            "url": "u1"
+          },
+          {
+            "package": "some/package",
+            "description": "p2",
+            "url": "u2"
+          }
+        ]
+      },
+      "expected_output": "{\n    \"patches\": {\n        \"some/package\": [\n            {\n                \"package\": \"some/package\",\n                \"description\": \"p1\",\n                \"url\": \"u1\",\n                \"sha256\": null,\n                \"depth\": null,\n                \"extra\": []\n            },\n            {\n                \"package\": \"some/package\",\n                \"description\": \"p2\",\n                \"url\": \"u2\",\n                \"sha256\": null,\n                \"depth\": null,\n                \"extra\": []\n            }\n        ]\n    }\n}\n"
+    }
+  ]
+}

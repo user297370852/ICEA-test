@@ -1,0 +1,87 @@
+{
+    "description": "Configuration loading accepts a single file or a directory of configuration files, merges directory files in name order, ignores editor temporary files, and reports missing or malformed inputs as normalized errors.",
+    "cases": [
+        {
+            "input": {
+                "path": "missing"
+            },
+            "expected_output": "error=path_not_found\n"
+        },
+        {
+            "input": {
+                "path": "file",
+                "files": [
+                    {
+                        "name": "main.hcl",
+                        "content": "default_evaluation_interval = \"10s\""
+                    }
+                ]
+            },
+            "expected_output": "default_evaluation_interval_ns=10000000000\nplugin_dir=\n"
+        },
+        {
+            "input": {
+                "path": "dir",
+                "files": [
+                    {
+                        "name": "config1.hcl",
+                        "content": "default_evaluation_interval = \"10s\""
+                    },
+                    {
+                        "name": "config2.hcl",
+                        "content": "plugin_dir = \"/opt/nomad-autoscaler/plugins\""
+                    }
+                ]
+            },
+            "expected_output": "default_evaluation_interval_ns=10000000000\nplugin_dir=/opt/nomad-autoscaler/plugins\n"
+        },
+        {
+            "input": {
+                "path": "dir",
+                "files": [
+                    {
+                        "name": "config1.hcl",
+                        "content": "default_evaluation_interval = \"10s\""
+                    },
+                    {
+                        "name": "config2.hcl",
+                        "content": "plugin_dir = \"/opt/nomad-autoscaler/plugins\""
+                    },
+                    {
+                        "name": "config3.hcl",
+                        "content": "\u00bfque?"
+                    }
+                ]
+            },
+            "expected_output": "error=configuration_parse_failed\n"
+        },
+        {
+            "input": {
+                "path": "dir",
+                "files": [
+                    {
+                        "name": "config.hcl~",
+                        "content": "\u00bfque?"
+                    },
+                    {
+                        "name": ".#other.hcl",
+                        "content": "\u00bfque?"
+                    },
+                    {
+                        "name": "#third.hcl#",
+                        "content": "\u00bfque?"
+                    },
+                    {
+                        "name": "config.hcl",
+                        "content": "plugin_dir = \"/kept/plugins\""
+                    },
+                    {
+                        "name": "notes.txt",
+                        "content": "\u00bfque?"
+                    }
+                ]
+            },
+            "expected_output": "default_evaluation_interval_ns=0\nplugin_dir=/kept/plugins\n"
+        }
+    ]
+}

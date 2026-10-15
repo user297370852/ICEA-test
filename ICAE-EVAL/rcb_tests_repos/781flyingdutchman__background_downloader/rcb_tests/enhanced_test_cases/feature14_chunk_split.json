@@ -1,0 +1,83 @@
+{
+  "description": "Single-source ranged-split edge cases. A content length that divides evenly across the chunk count yields equal pieces; an uneven division rounds the piece size up so the early pieces are full-sized and the final piece absorbs the shorter remainder ending at the last byte; a tiny content length with a piece size larger than the remaining bytes still terminates cleanly at the final byte; and a single-byte single-chunk split yields one zero-to-zero piece. A zero or negative content length advertised with range support is still rejected with the neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "action": "chunk_split",
+        "taskId": "Q",
+        "url": "https://example.com/file.bin",
+        "chunks": 4,
+        "headers": {
+          "content-length": "1000",
+          "accept-ranges": "bytes"
+        }
+      },
+      "expected_output": "count=4\nurl=https://example.com/file.bin fromByte=0 toByte=249 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":0,\"to\":249}\nurl=https://example.com/file.bin fromByte=250 toByte=499 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":250,\"to\":499}\nurl=https://example.com/file.bin fromByte=500 toByte=749 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":500,\"to\":749}\nurl=https://example.com/file.bin fromByte=750 toByte=999 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":750,\"to\":999}\n"
+    },
+    {
+      "input": {
+        "action": "chunk_split",
+        "taskId": "Q",
+        "url": "https://example.com/file.bin",
+        "chunks": 3,
+        "headers": {
+          "content-length": "1000",
+          "accept-ranges": "bytes"
+        }
+      },
+      "expected_output": "count=3\nurl=https://example.com/file.bin fromByte=0 toByte=333 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":0,\"to\":333}\nurl=https://example.com/file.bin fromByte=334 toByte=667 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":334,\"to\":667}\nurl=https://example.com/file.bin fromByte=668 toByte=999 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":668,\"to\":999}\n"
+    },
+    {
+      "input": {
+        "action": "chunk_split",
+        "taskId": "Q",
+        "url": "https://example.com/file.bin",
+        "chunks": 2,
+        "headers": {
+          "content-length": "7",
+          "accept-ranges": "bytes"
+        }
+      },
+      "expected_output": "count=2\nurl=https://example.com/file.bin fromByte=0 toByte=3 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":0,\"to\":3}\nurl=https://example.com/file.bin fromByte=4 toByte=6 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":4,\"to\":6}\n"
+    },
+    {
+      "input": {
+        "action": "chunk_split",
+        "taskId": "Q",
+        "url": "https://example.com/file.bin",
+        "chunks": 1,
+        "headers": {
+          "content-length": "1",
+          "accept-ranges": "bytes"
+        }
+      },
+      "expected_output": "count=1\nurl=https://example.com/file.bin fromByte=0 toByte=0 group=chunk metaData={\"parentTaskId\":\"Q\",\"from\":0,\"to\":0}\n"
+    },
+    {
+      "input": {
+        "action": "chunk_split",
+        "taskId": "Q",
+        "url": "https://example.com/file.bin",
+        "chunks": 1,
+        "headers": {
+          "content-length": "0",
+          "accept-ranges": "bytes"
+        }
+      },
+      "expected_output": "error=cannot_chunk\n"
+    },
+    {
+      "input": {
+        "action": "chunk_split",
+        "taskId": "Q",
+        "url": "https://example.com/file.bin",
+        "chunks": 1,
+        "headers": {
+          "content-length": "-5",
+          "accept-ranges": "bytes"
+        }
+      },
+      "expected_output": "error=cannot_chunk\n"
+    }
+  ]
+}

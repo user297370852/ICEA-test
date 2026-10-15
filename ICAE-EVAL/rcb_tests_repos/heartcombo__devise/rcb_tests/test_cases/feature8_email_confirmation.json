@@ -1,0 +1,66 @@
+{
+    "description": "Email confirmation requests and token consumption expose HTML/JSON framework outcomes and account confirmation state.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "confirmation",
+                "mode": "request"
+            },
+            "expected_output": "status=200\npath=/users/sign_in\nmessage=You will receive an email with instructions for how to confirm your email address in a few minutes\nmail_count=1\njson_has_errors=false\n"
+        },
+        {
+            "input": {
+                "scenario": "confirmation",
+                "mode": "request",
+                "format": "json"
+            },
+            "expected_output": "status=201\npath=null\nmessage=none\nmail_count=1\njson_has_errors=false\n"
+        },
+        {
+            "input": {
+                "scenario": "confirmation",
+                "mode": "request",
+                "format": "json",
+                "submitted_email": "invalid.test@test.com"
+            },
+            "expected_output": "status=422\npath=null\nmessage=record not found\nmail_count=0\njson_has_errors=true\n"
+        },
+        {
+            "input": {
+                "scenario": "confirmation",
+                "mode": "consume",
+                "token": "valid",
+                "confirmation_token_valid_days": 3,
+                "sent_days_ago": 2
+            },
+            "expected_output": "status=302\npath=null\nmessage=none\nconfirmed=true\njson_has_user=false\njson_has_token_error=false\n"
+        },
+        {
+            "input": {
+                "scenario": "confirmation",
+                "mode": "consume",
+                "token": "valid",
+                "confirmation_token_valid_days": 3,
+                "sent_days_ago": 4
+            },
+            "expected_output": "status=200\npath=null\nmessage=none\nconfirmed=false\njson_has_user=false\njson_has_token_error=false\n"
+        },
+        {
+            "input": {
+                "scenario": "confirmation",
+                "mode": "consume",
+                "token": "invalid_confirmation",
+                "format": "json"
+            },
+            "expected_output": "status=422\npath=null\nmessage=none\nconfirmed=false\njson_has_user=false\njson_has_token_error=true\n"
+        },
+        {
+            "input": {
+                "scenario": "confirmation",
+                "mode": "consume",
+                "token": "blank"
+            },
+            "expected_output": "status=200\npath=null\nmessage=none\nconfirmed=false\njson_has_user=false\njson_has_token_error=false\n"
+        }
+    ]
+}

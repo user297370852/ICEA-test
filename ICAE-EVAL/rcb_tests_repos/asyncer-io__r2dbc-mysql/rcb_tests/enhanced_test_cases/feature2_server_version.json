@@ -1,0 +1,89 @@
+{
+  "description": "Boundary and logical-path coverage for the version banner decoder: a leading dot, a bare MariaDB token, the exact replication-hack prefix alone and followed by real numbers, alphabetic and whitespace prefixes that truncate the numeric part, a trailing dot, a MariaDB token appearing far after the numbers, and a numeric overflow component.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_version",
+        "version": ".5.6"
+      },
+      "expected_output": "major=0\nminor=5\npatch=6\nmariadb=false\ncanonical=0.5.6\ndisplay=.5.6\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "MariaDB"
+      },
+      "expected_output": "major=0\nminor=0\npatch=0\nmariadb=true\ncanonical=0.0.0\ndisplay=MariaDB\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "5.5.5-"
+      },
+      "expected_output": "major=0\nminor=0\npatch=0\nmariadb=true\ncanonical=0.0.0\ndisplay=5.5.5-\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "5.5.5-9.9.9"
+      },
+      "expected_output": "major=9\nminor=9\npatch=9\nmariadb=true\ncanonical=9.9.9\ndisplay=5.5.5-9.9.9\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "5a.6.7"
+      },
+      "expected_output": "major=5\nminor=0\npatch=0\nmariadb=false\ncanonical=5.0.0\ndisplay=5a.6.7\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "v5.7.1"
+      },
+      "expected_output": "major=0\nminor=0\npatch=0\nmariadb=false\ncanonical=0.0.0\ndisplay=v5.7.1\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": " 8.0"
+      },
+      "expected_output": "major=0\nminor=0\npatch=0\nmariadb=false\ncanonical=0.0.0\ndisplay= 8.0\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "5.7."
+      },
+      "expected_output": "major=5\nminor=7\npatch=0\nmariadb=false\ncanonical=5.7.0\ndisplay=5.7.\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "8.0.34"
+      },
+      "expected_output": "major=8\nminor=0\npatch=34\nmariadb=false\ncanonical=8.0.34\ndisplay=8.0.34\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "8.0.0 build with MariaDB"
+      },
+      "expected_output": "major=8\nminor=0\npatch=0\nmariadb=true\ncanonical=8.0.0\ndisplay=8.0.0 build with MariaDB\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "10.6.16-MariaDB-1:10.6.16+maria~ubu2004"
+      },
+      "expected_output": "major=10\nminor=6\npatch=16\nmariadb=true\ncanonical=10.6.16\ndisplay=10.6.16-MariaDB-1:10.6.16+maria~ubu2004\n"
+    },
+    {
+      "input": {
+        "action": "parse_version",
+        "version": "9999999999.1.2"
+      },
+      "expected_output": "major=1410065407\nminor=1\npatch=2\nmariadb=false\ncanonical=1410065407.1.2\ndisplay=9999999999.1.2\n"
+    }
+  ]
+}

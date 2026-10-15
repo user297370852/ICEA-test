@@ -1,0 +1,41 @@
+{
+  "description": "Rolling file sink edge cases: a single record published on clean shutdown, an empty batch, and a left-unfinalized single-record file reported as an unreadable in-flight container.",
+  "cases": [
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "simple",
+        "roll_every": "1 day",
+        "records": [
+          {
+            "ts": 7
+          }
+        ]
+      },
+      "expected_output": "published_files=1\ninflight_files=0\npublished[0]=.avro|7\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "simple",
+        "roll_every": "1 day",
+        "records": []
+      },
+      "expected_output": "published_files=1\ninflight_files=0\npublished[0]=.avro|\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "simple",
+        "roll_every": "1 day",
+        "cleanup": false,
+        "records": [
+          {
+            "ts": 99
+          }
+        ]
+      },
+      "expected_output": "published_files=0\ninflight_files=1\ninflight[0]=.avro.partial|<unreadable>\n"
+    }
+  ]
+}

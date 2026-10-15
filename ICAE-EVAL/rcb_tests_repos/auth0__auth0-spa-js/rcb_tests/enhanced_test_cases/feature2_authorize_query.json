@@ -1,0 +1,60 @@
+{
+  "description": "Edge cases for authorization-request query serialization: empty params, values requiring percent-encoding (space, ampersand, equals, plus, unicode), empty-string values, and numeric values.",
+  "cases": [
+    {
+      "input": {
+        "op": "authorize_query",
+        "params": {}
+      },
+      "expected_output": "query=\n"
+    },
+    {
+      "input": {
+        "op": "authorize_query",
+        "params": {
+          "prompt": ""
+        }
+      },
+      "expected_output": "query=prompt=\n"
+    },
+    {
+      "input": {
+        "op": "authorize_query",
+        "params": {
+          "state": "a b&c=d+e"
+        }
+      },
+      "expected_output": "query=state=a%20b%26c%3Dd%2Be\n"
+    },
+    {
+      "input": {
+        "op": "authorize_query",
+        "params": {
+          "scope": "openid",
+          "audience": "https://api.example.com/path?q=1"
+        }
+      },
+      "expected_output": "query=scope=openid&audience=https%3A%2F%2Fapi.example.com%2Fpath%3Fq%3D1\n"
+    },
+    {
+      "input": {
+        "op": "authorize_query",
+        "params": {
+          "login_hint": "jane+test@example.com",
+          "ui_locales": "en café"
+        }
+      },
+      "expected_output": "query=login_hint=jane%2Btest%40example.com&ui_locales=en%20caf%C3%A9\n"
+    },
+    {
+      "input": {
+        "op": "authorize_query",
+        "params": {
+          "max_age": 0,
+          "client_id": "abc"
+        }
+      },
+      "expected_output": "query=max_age=0&client_id=abc\n"
+    }
+  ]
+}

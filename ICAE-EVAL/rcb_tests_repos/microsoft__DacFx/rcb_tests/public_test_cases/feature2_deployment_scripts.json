@@ -1,0 +1,29 @@
+{
+    "description": "Attach deployment-only SQL scripts to a database project and report whether the built package carries pre-deployment or post-deployment script payloads without adding those scripts as schema objects.",
+    "cases": [
+        {
+            "input": {
+                "sql_files": {
+                    "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n",
+                    "Script.PreDeployment1.sql": "-- This file contains SQL statements that will be executed before the build script.\nCREATE TABLE Table2 (ID INT NOT NULL, COL1 INT NULL)\nGO\n"
+                },
+                "pre_deploy": [
+                    "Script.PreDeployment1.sql"
+                ]
+            },
+            "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Table1]\nviews=\npre_deploy_script=true\npost_deploy_script=false\ndiagnostics=none\n"
+        },
+        {
+            "input": {
+                "sql_files": {
+                    "Table1.sql": "CREATE TABLE [dbo].[Table1]\n(\n\tc1 int NOT NULL PRIMARY KEY,\n\tc2 int NULL\n)\n",
+                    "Script.PostDeployment1.sql": "-- This file contains SQL statements that will be executed after the build script.\nINSERT INTO Table1 VALUES (1, 2)\nGO\nINSERT INTO Table1 VALUES (3, 4)\nGO\n"
+                },
+                "post_deploy": [
+                    "Script.PostDeployment1.sql"
+                ]
+            },
+            "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Table1]\nviews=\npre_deploy_script=false\npost_deploy_script=true\ndiagnostics=none\n"
+        }
+    ]
+}

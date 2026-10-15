@@ -1,0 +1,105 @@
+{
+  "description": "Additional storage cases cover overwriting existing keys, empty-string keys and values, keys containing namespace-like separators, and clearing an empty namespace before reuse.",
+  "cases": [
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "save",
+            "key": "dup",
+            "value": "first"
+          },
+          {
+            "action": "read",
+            "key": "dup",
+            "label": "after_first"
+          },
+          {
+            "action": "save",
+            "key": "dup",
+            "value": "second"
+          },
+          {
+            "action": "read",
+            "key": "dup",
+            "label": "after_overwrite"
+          },
+          {
+            "action": "store_entries",
+            "label": "entries"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nafter_first=first\nsaved=true\nafter_overwrite=second\nentries=1\n"
+    },
+    {
+      "input": {
+        "namespace": "edge",
+        "steps": [
+          {
+            "action": "save",
+            "key": "",
+            "value": "empty-key-value"
+          },
+          {
+            "action": "save",
+            "key": "colon:key:with:parts",
+            "value": "colon-value"
+          },
+          {
+            "action": "save",
+            "key": "blank-value",
+            "value": ""
+          },
+          {
+            "action": "read",
+            "key": "",
+            "label": "empty_key"
+          },
+          {
+            "action": "read",
+            "key": "colon:key:with:parts",
+            "label": "colon_key"
+          },
+          {
+            "action": "read",
+            "key": "blank-value",
+            "label": "blank_value"
+          },
+          {
+            "action": "store_entries",
+            "label": "entries"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nsaved=true\nempty_key=empty-key-value\ncolon_key=colon-value\nblank_value=\nentries=3\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "clear",
+            "label": "clear_empty"
+          },
+          {
+            "action": "store_entries",
+            "label": "after_empty_clear"
+          },
+          {
+            "action": "save",
+            "key": "after",
+            "value": "usable"
+          },
+          {
+            "action": "read",
+            "key": "after",
+            "label": "after_save"
+          }
+        ]
+      },
+      "expected_output": "clear_empty=undefined\nafter_empty_clear=0\nsaved=true\nafter_save=usable\n"
+    }
+  ]
+}

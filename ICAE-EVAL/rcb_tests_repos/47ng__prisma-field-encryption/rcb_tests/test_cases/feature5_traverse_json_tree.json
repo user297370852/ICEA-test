@@ -1,0 +1,77 @@
+{
+  "description": "Traverse an arbitrary JSON value depth-first in a reduce-like manner, invoking a callback once per node (the root first, then descending into array elements and object entries in source order). For each visited node the callback receives the threaded state and an item describing the node: its key relative to its parent (absent for the root), its path from the root as an array of keys, its kind (string, number, boolean, null, array, or object), and the node value itself. The callback returns a new state that is passed only to that node direct children, so sibling branches each observe the same parent-contributed state independently. The number of callback invocations equals the total number of nodes (collections plus all nested leaves). Here the harness callback returns each node path as the state handed to its children, making the threading observable.",
+  "cases": [
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": "Hello, World!",
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"string\",\"node\":\"Hello, World!\"}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": [
+          "John",
+          "Paul",
+          "George",
+          "Ringo"
+        ],
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"array\",\"node\":[\"John\",\"Paul\",\"George\",\"Ringo\"]}\n{\"state\":\"root\",\"key\":\"0\",\"path\":[\"0\"],\"type\":\"string\",\"node\":\"John\"}\n{\"state\":\"root\",\"key\":\"1\",\"path\":[\"1\"],\"type\":\"string\",\"node\":\"Paul\"}\n{\"state\":\"root\",\"key\":\"2\",\"path\":[\"2\"],\"type\":\"string\",\"node\":\"George\"}\n{\"state\":\"root\",\"key\":\"3\",\"path\":[\"3\"],\"type\":\"string\",\"node\":\"Ringo\"}\ncount=5\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {
+          "John": "Lennon",
+          "Paul": "McCartney",
+          "George": "Harrison",
+          "Ringo": "Starr"
+        },
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{\"John\":\"Lennon\",\"Paul\":\"McCartney\",\"George\":\"Harrison\",\"Ringo\":\"Starr\"}}\n{\"state\":\"root\",\"key\":\"John\",\"path\":[\"John\"],\"type\":\"string\",\"node\":\"Lennon\"}\n{\"state\":\"root\",\"key\":\"Paul\",\"path\":[\"Paul\"],\"type\":\"string\",\"node\":\"McCartney\"}\n{\"state\":\"root\",\"key\":\"George\",\"path\":[\"George\"],\"type\":\"string\",\"node\":\"Harrison\"}\n{\"state\":\"root\",\"key\":\"Ringo\",\"path\":[\"Ringo\"],\"type\":\"string\",\"node\":\"Starr\"}\ncount=5\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {
+          "bandName": "The Beatles",
+          "formedIn": 1960,
+          "currentlyActive": false,
+          "members": [
+            {
+              "firstName": "John",
+              "lastName": "Lennon",
+              "birth": "1940-10-09",
+              "death": "1980-12-08"
+            },
+            {
+              "firstName": "Paul",
+              "lastName": "McCartney",
+              "birth": "1942-06-18",
+              "death": null
+            },
+            {
+              "firstName": "George",
+              "lastName": "Harrison",
+              "birth": "1943-02-25",
+              "death": "2001-11-29"
+            },
+            {
+              "firstName": "Ringo",
+              "lastName": "Starr",
+              "birth": "1940-07-07",
+              "death": null
+            }
+          ]
+        },
+        "initialState": "init"
+      },
+      "expected_output": "{\"state\":\"init\",\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{\"bandName\":\"The Beatles\",\"formedIn\":1960,\"currentlyActive\":false,\"members\":[{\"firstName\":\"John\",\"lastName\":\"Lennon\",\"birth\":\"1940-10-09\",\"death\":\"1980-12-08\"},{\"firstName\":\"Paul\",\"lastName\":\"McCartney\",\"birth\":\"1942-06-18\",\"death\":null},{\"firstName\":\"George\",\"lastName\":\"Harrison\",\"birth\":\"1943-02-25\",\"death\":\"2001-11-29\"},{\"firstName\":\"Ringo\",\"lastName\":\"Starr\",\"birth\":\"1940-07-07\",\"death\":null}]}}\n{\"state\":\"root\",\"key\":\"bandName\",\"path\":[\"bandName\"],\"type\":\"string\",\"node\":\"The Beatles\"}\n{\"state\":\"root\",\"key\":\"formedIn\",\"path\":[\"formedIn\"],\"type\":\"number\",\"node\":1960}\n{\"state\":\"root\",\"key\":\"currentlyActive\",\"path\":[\"currentlyActive\"],\"type\":\"boolean\",\"node\":false}\n{\"state\":\"root\",\"key\":\"members\",\"path\":[\"members\"],\"type\":\"array\",\"node\":[{\"firstName\":\"John\",\"lastName\":\"Lennon\",\"birth\":\"1940-10-09\",\"death\":\"1980-12-08\"},{\"firstName\":\"Paul\",\"lastName\":\"McCartney\",\"birth\":\"1942-06-18\",\"death\":null},{\"firstName\":\"George\",\"lastName\":\"Harrison\",\"birth\":\"1943-02-25\",\"death\":\"2001-11-29\"},{\"firstName\":\"Ringo\",\"lastName\":\"Starr\",\"birth\":\"1940-07-07\",\"death\":null}]}\n{\"state\":\"members\",\"key\":\"0\",\"path\":[\"members\",\"0\"],\"type\":\"object\",\"node\":{\"firstName\":\"John\",\"lastName\":\"Lennon\",\"birth\":\"1940-10-09\",\"death\":\"1980-12-08\"}}\n{\"state\":\"members.0\",\"key\":\"firstName\",\"path\":[\"members\",\"0\",\"firstName\"],\"type\":\"string\",\"node\":\"John\"}\n{\"state\":\"members.0\",\"key\":\"lastName\",\"path\":[\"members\",\"0\",\"lastName\"],\"type\":\"string\",\"node\":\"Lennon\"}\n{\"state\":\"members.0\",\"key\":\"birth\",\"path\":[\"members\",\"0\",\"birth\"],\"type\":\"string\",\"node\":\"1940-10-09\"}\n{\"state\":\"members.0\",\"key\":\"death\",\"path\":[\"members\",\"0\",\"death\"],\"type\":\"string\",\"node\":\"1980-12-08\"}\n{\"state\":\"members\",\"key\":\"1\",\"path\":[\"members\",\"1\"],\"type\":\"object\",\"node\":{\"firstName\":\"Paul\",\"lastName\":\"McCartney\",\"birth\":\"1942-06-18\",\"death\":null}}\n{\"state\":\"members.1\",\"key\":\"firstName\",\"path\":[\"members\",\"1\",\"firstName\"],\"type\":\"string\",\"node\":\"Paul\"}\n{\"state\":\"members.1\",\"key\":\"lastName\",\"path\":[\"members\",\"1\",\"lastName\"],\"type\":\"string\",\"node\":\"McCartney\"}\n{\"state\":\"members.1\",\"key\":\"birth\",\"path\":[\"members\",\"1\",\"birth\"],\"type\":\"string\",\"node\":\"1942-06-18\"}\n{\"state\":\"members.1\",\"key\":\"death\",\"path\":[\"members\",\"1\",\"death\"],\"type\":\"null\",\"node\":null}\n{\"state\":\"members\",\"key\":\"2\",\"path\":[\"members\",\"2\"],\"type\":\"object\",\"node\":{\"firstName\":\"George\",\"lastName\":\"Harrison\",\"birth\":\"1943-02-25\",\"death\":\"2001-11-29\"}}\n{\"state\":\"members.2\",\"key\":\"firstName\",\"path\":[\"members\",\"2\",\"firstName\"],\"type\":\"string\",\"node\":\"George\"}\n{\"state\":\"members.2\",\"key\":\"lastName\",\"path\":[\"members\",\"2\",\"lastName\"],\"type\":\"string\",\"node\":\"Harrison\"}\n{\"state\":\"members.2\",\"key\":\"birth\",\"path\":[\"members\",\"2\",\"birth\"],\"type\":\"string\",\"node\":\"1943-02-25\"}\n{\"state\":\"members.2\",\"key\":\"death\",\"path\":[\"members\",\"2\",\"death\"],\"type\":\"string\",\"node\":\"2001-11-29\"}\n{\"state\":\"members\",\"key\":\"3\",\"path\":[\"members\",\"3\"],\"type\":\"object\",\"node\":{\"firstName\":\"Ringo\",\"lastName\":\"Starr\",\"birth\":\"1940-07-07\",\"death\":null}}\n{\"state\":\"members.3\",\"key\":\"firstName\",\"path\":[\"members\",\"3\",\"firstName\"],\"type\":\"string\",\"node\":\"Ringo\"}\n{\"state\":\"members.3\",\"key\":\"lastName\",\"path\":[\"members\",\"3\",\"lastName\"],\"type\":\"string\",\"node\":\"Starr\"}\n{\"state\":\"members.3\",\"key\":\"birth\",\"path\":[\"members\",\"3\",\"birth\"],\"type\":\"string\",\"node\":\"1940-07-07\"}\n{\"state\":\"members.3\",\"key\":\"death\",\"path\":[\"members\",\"3\",\"death\"],\"type\":\"null\",\"node\":null}\ncount=25\n"
+    }
+  ]
+}

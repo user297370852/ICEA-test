@@ -1,0 +1,89 @@
+{
+  "description": "Path assignment: query preservation, percent-encoding of unsafe characters, empty path, and dot-segment handling on assignment.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/old?keep=1",
+        "steps": [
+          {
+            "op": "set",
+            "field": "pathname",
+            "value": "/new"
+          },
+          {
+            "op": "get",
+            "field": "pathname"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_pathname=true\npathname=/new\nhref=https://example.com/new?keep=1\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "pathname",
+            "value": "/a b/c"
+          },
+          {
+            "op": "get",
+            "field": "pathname"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_pathname=true\npathname=/a%20b/c\nhref=https://example.com/a%20b/c\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/x/y",
+        "steps": [
+          {
+            "op": "set",
+            "field": "pathname",
+            "value": ""
+          },
+          {
+            "op": "get",
+            "field": "pathname"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_pathname=true\npathname=/\nhref=https://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "pathname",
+            "value": "/a/../b"
+          },
+          {
+            "op": "get",
+            "field": "pathname"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_pathname=true\npathname=/b\n"
+    }
+  ]
+}

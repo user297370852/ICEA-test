@@ -1,0 +1,49 @@
+{
+  "description": "Enhanced edge cases for dry-run: a dry-run over a passing scenario (still all skipped), and a dry-run over a feature with a background plus two scenarios (every step counted as skipped).",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--dry-run"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: dry pass\n  Scenario: P\n    Given this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=0 undefined=0 pending=0 skipped=1\nsteps total=1 passed=0 failed=0 undefined=0 pending=0 skipped=1\nscenario keyword=Scenario name=P line=2 status=skipped\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--dry-run"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: dry bg\n  Background:\n    Given this step passes\n  Scenario: A\n    Given this step passes\n  Scenario: B\n    Given this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=0 failed=0 undefined=0 pending=0 skipped=2\nsteps total=2 passed=0 failed=0 undefined=0 pending=0 skipped=2\nscenario keyword=Scenario name=A line=4 status=skipped\nscenario keyword=Scenario name=B line=6 status=skipped\nresult=ok\n"
+    }
+  ]
+}

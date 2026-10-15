@@ -1,0 +1,35 @@
+{
+    "description": "Parse and emit a single-line text entity. Text carries a string value, an insertion point, a height, a style name, rotation, oblique angle, backward/upside-down flags, and horizontal/vertical justification codes. Caret-encoded control characters in the stored string are decoded on read and reported with explicit escapes.",
+    "cases": [
+        {
+            "input": {
+                "op": "read_entity",
+                "dxf": "  0\nTEXT\n"
+            },
+            "expected_output": "type=text\nlayer=0\nlinetype=BYLAYER\nlinetype_scale=1\nis_visible=true\nis_in_paper_space=false\ncolor=BYLAYER\nvalue=null\ntext_style_name=STANDARD\nlocation=0,0,0\nthickness=0\ntext_height=1\nrelative_x_scale=1\nrotation=0\noblique_angle=0\nis_text_backward=false\nis_text_upside_down=false\nhorizontal_justification=Left\nvertical_justification=Baseline\nsecond_alignment_point=0,0,0\nnormal=0,0,1\n"
+        },
+        {
+            "input": {
+                "op": "read_entity",
+                "dxf": "  0\nTEXT\n  1\nfoo bar\n  7\ntext style name\n 10\n11\n 20\n22\n 30\n33\n 40\n44\n 50\n55\n 71\n255\n 72\n3\n 73\n1\n"
+            },
+            "expected_output": "type=text\nlayer=0\nlinetype=BYLAYER\nlinetype_scale=1\nis_visible=true\nis_in_paper_space=false\ncolor=BYLAYER\nvalue=foo bar\ntext_style_name=text style name\nlocation=11,22,33\nthickness=0\ntext_height=44\nrelative_x_scale=1\nrotation=55\noblique_angle=0\nis_text_backward=true\nis_text_upside_down=true\nhorizontal_justification=Aligned\nvertical_justification=Bottom\nsecond_alignment_point=0,0,0\nnormal=0,0,1\n"
+        },
+        {
+            "input": {
+                "op": "read_entity",
+                "dxf": "  0\nTEXT\n  1\na^G^ ^^ b\n"
+            },
+            "expected_output": "type=text\nlayer=0\nlinetype=BYLAYER\nlinetype_scale=1\nis_visible=true\nis_in_paper_space=false\ncolor=BYLAYER\nvalue=a\\x07^\\x1E b\ntext_style_name=STANDARD\nlocation=0,0,0\nthickness=0\ntext_height=1\nrelative_x_scale=1\nrotation=0\noblique_angle=0\nis_text_backward=false\nis_text_upside_down=false\nhorizontal_justification=Left\nvertical_justification=Baseline\nsecond_alignment_point=0,0,0\nnormal=0,0,1\n"
+        },
+        {
+            "input": {
+                "op": "write_entity",
+                "entity": {
+                    "type": "text"
+                }
+            },
+            "expected_output": "  0\nSECTION\n  2\nENTITIES\n  0\nTEXT\n  5\nA\n100\nAcDbEntity\n  8\n0\n100\nAcDbText\n 10\n0.0\n 20\n0.0\n 30\n0.0\n 40\n1.0\n  1\n\n 11\n0.0\n 21\n0.0\n 31\n0.0\n  0\nENDSEC\n"
+        }
+    ]
+}

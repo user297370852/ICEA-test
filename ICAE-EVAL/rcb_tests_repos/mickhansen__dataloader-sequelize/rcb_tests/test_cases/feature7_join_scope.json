@@ -1,0 +1,76 @@
+{
+    "description": "A relationship may instead carry a scope on the join table itself, i.e. a fixed filter applied to the link rows so that only links flagged a certain way connect the two records. Loads of a join-scoped relationship batch together into a single round-trip and honor row caps the same way (mixed caps split into separate round-trips). A join-scoped relationship and the plain relationship between the same pair never share a round-trip. The reported signals are the round-trip count, the owner-key set per round-trip, and the id set returned to each owner.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "scope_through",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "secretMembers",
+                        "options": {
+                            "limit": 10
+                        }
+                    },
+                    {
+                        "project": 2,
+                        "as": "secretMembers",
+                        "options": {
+                            "limit": 10
+                        }
+                    },
+                    {
+                        "project": 3,
+                        "as": "secretMembers",
+                        "options": {
+                            "limit": 2
+                        }
+                    }
+                ]
+            },
+            "expected_output": "queries=2\nbatch=1,2\nbatch=3\nr0.op0=members=101,102\nr0.op1=members=105\nr0.op2=members=107,108\n"
+        },
+        {
+            "input": {
+                "scenario": "scope_through",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "secretMembers"
+                    },
+                    {
+                        "project": 2,
+                        "as": "secretMembers"
+                    },
+                    {
+                        "project": 3,
+                        "as": "secretMembers"
+                    }
+                ]
+            },
+            "expected_output": "queries=1\nbatch=1,2,3\nr0.op0=members=101,102\nr0.op1=members=105\nr0.op2=members=107,108,109\n"
+        },
+        {
+            "input": {
+                "scenario": "scope_through",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "secretMembers",
+                        "options": {
+                            "limit": 10
+                        }
+                    },
+                    {
+                        "project": 1,
+                        "as": "members",
+                        "options": {
+                            "limit": 10
+                        }
+                    }
+                ]
+            },
+            "expected_output": "queries=2\nbatch=1\nbatch=1\nr0.op0=members=101,102\nr0.op1=members=101,102,103,104\n"
+        }
+    ]
+}

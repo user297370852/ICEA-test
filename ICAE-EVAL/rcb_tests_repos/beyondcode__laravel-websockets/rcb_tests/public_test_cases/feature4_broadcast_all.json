@@ -1,0 +1,51 @@
+{
+    "description": "Two clients are subscribed to the same channel. A payload is then broadcast on that channel to every subscriber. Both clients receive the broadcast frame (in addition to their earlier subscription acknowledgement). The report shows each client's full received frame list.",
+    "cases": [
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "1.1"
+                    },
+                    {
+                        "name": "b",
+                        "socket_id": "2.2"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    },
+                    {
+                        "type": "message",
+                        "conn": "b",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    },
+                    {
+                        "type": "broadcast",
+                        "channel": "test-channel",
+                        "payload": {
+                            "event": "broadcasted-event",
+                            "channel": "test-channel"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "[a] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"test-channel\"}\n{\"event\":\"broadcasted-event\",\"channel\":\"test-channel\"}\n[b] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"test-channel\"}\n{\"event\":\"broadcasted-event\",\"channel\":\"test-channel\"}\n"
+        }
+    ]
+}

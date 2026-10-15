@@ -1,0 +1,151 @@
+{
+  "description": "Additional native-disjoint multidimensional coverage for HTML-to-Markdown conversion: empty inputs, mixed block/inline nesting, whitespace-sensitive code, URL escaping with titles, reference links, images, code fences, list spacing, tables, style options, element omission, and adapter errors.",
+  "cases": [
+    {
+      "input": {
+        "html": ""
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "html": "   \n\t  "
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "html": "<h2>Section</h2><p>Intro <strong>bold</strong> and <em>em</em>.</p><blockquote><p>Quote <code>x</code></p></blockquote>"
+      },
+      "expected_output": "## Section\n\nIntro **bold** and _em_.\n\n> Quote `x`"
+    },
+    {
+      "input": {
+        "html": "<p><code>alpha `` beta</code></p>"
+      },
+      "expected_output": "`alpha `` beta`"
+    },
+    {
+      "input": {
+        "html": "<p>A <code>  padded  </code> B</p>"
+      },
+      "expected_output": "A `padded` B"
+    },
+    {
+      "input": {
+        "html": "<p>A <code>  padded  </code> B</p>",
+        "options": {
+          "preserve_inline_code_whitespace": true
+        }
+      },
+      "expected_output": "A `  padded  ` B"
+    },
+    {
+      "input": {
+        "html": "Go <a href=\"https://example.com/a b?q=1\" title=\"Title Here\"> site </a> now"
+      },
+      "expected_output": "Go [site](<https://example.com/a b?q=1 \"Title Here\">) now"
+    },
+    {
+      "input": {
+        "html": "<p><a href=\"/a\">Alpha</a> and <a href=\"/b\" title=\"Bee\">Beta</a></p>",
+        "options": {
+          "link_style": "referenced",
+          "link_reference_style": "collapsed"
+        }
+      },
+      "expected_output": "[Alpha][] and [Beta][]\n\n[Alpha]: /a\n[Beta]: /b \"Bee\""
+    },
+    {
+      "input": {
+        "html": "<p>Logo <img src=\"/img/my logo.png\" alt=\"A Logo\" title=\"Big Logo\"> end</p>"
+      },
+      "expected_output": "Logo ![A Logo](</img/my logo.png \"Big Logo\">) end"
+    },
+    {
+      "input": {
+        "html": "<pre><code class=\"language-python\">print(1)\nprint(2)</code></pre>",
+        "options": {
+          "code_block_fence": "tildes"
+        }
+      },
+      "expected_output": "~~~python\nprint(1)\nprint(2)\n~~~"
+    },
+    {
+      "input": {
+        "html": "<pre><code>```\ninside\n```</code></pre>"
+      },
+      "expected_output": "````\n```\ninside\n```\n````"
+    },
+    {
+      "input": {
+        "html": "<ul><li>First <strong>bold</strong></li><li><a href=\"/x\">Link</a></li></ul>"
+      },
+      "expected_output": "*   First **bold**\n*   [Link](/x)"
+    },
+    {
+      "input": {
+        "html": "<ol><li>One</li><li>Two</li></ol>",
+        "options": {
+          "ordered_list_spacing": 4
+        }
+      },
+      "expected_output": "1.    One\n2.    Two"
+    },
+    {
+      "input": {
+        "html": "<table><caption>Cap <em>T</em></caption><tr><th>H</th></tr><tr><td><strong>A</strong></td><td><a href=\"/b\">B</a></td></tr></table>"
+      },
+      "expected_output": "Cap T\n| A |B |"
+    },
+    {
+      "input": {
+        "html": "<h2>Subheading</h2>",
+        "options": {
+          "heading_style": "setext"
+        }
+      },
+      "expected_output": "Subheading\n----------"
+    },
+    {
+      "input": {
+        "html": "A<hr>B",
+        "options": {
+          "horizontal_rule": "underscores"
+        }
+      },
+      "expected_output": "A\n\n_ _ _\n\nB"
+    },
+    {
+      "input": {
+        "html": "Start <a href=\"/x\">link</a> <img src=\"/y.png\" alt=\"pic\"> End",
+        "options": {
+          "omit_elements": [
+            "a"
+          ]
+        }
+      },
+      "expected_output": "Start ![pic](/y.png) End"
+    },
+    {
+      "input": {
+        "html": "<h1>Keep</h1><p>Drop paragraph?</p>",
+        "options": {
+          "omit_elements": [
+            "p"
+          ]
+        }
+      },
+      "expected_output": "# Keep"
+    },
+    {
+      "input": {
+        "html": "x",
+        "options": {
+          "heading_style": "bad"
+        }
+      },
+      "expected_output": "error=unsupported_heading_style\n"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "description": "Enhanced lenient resolution edge cases (disjoint from native): resolution with no secondary sets supplied, a secondary-only grant surviving, a primary grant overriding a secondary denial for the same key (lenient primary-wins), an empty query list producing only the mode line, and any/all over absent keys.",
+  "cases": [
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "a": true,
+          "b": false
+        },
+        "queries": [
+          {
+            "all": [
+              "a"
+            ]
+          },
+          {
+            "all": [
+              "b"
+            ]
+          },
+          {
+            "any": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "all": [
+              "c"
+            ]
+          },
+          {
+            "any": [
+              "b",
+              "c"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[a]=true\nall[b]=false\nany[a,b]=true\nall[c]=false\nany[b,c]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "x": true
+        },
+        "secondary": [
+          {
+            "x": false
+          },
+          {
+            "y": true
+          }
+        ],
+        "queries": [
+          {
+            "all": [
+              "x"
+            ]
+          },
+          {
+            "all": [
+              "y"
+            ]
+          },
+          {
+            "all": [
+              "z"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[x]=true\nall[y]=true\nall[z]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "p": true
+        },
+        "queries": []
+      },
+      "expected_output": "mode=lenient\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "m": true,
+          "n": true
+        },
+        "secondary": [
+          {
+            "m": false
+          }
+        ],
+        "queries": [
+          {
+            "all": [
+              "m",
+              "n"
+            ]
+          },
+          {
+            "any": [
+              "m"
+            ]
+          },
+          {
+            "all": [
+              "m"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[m,n]=true\nany[m]=true\nall[m]=true\n"
+    }
+  ]
+}

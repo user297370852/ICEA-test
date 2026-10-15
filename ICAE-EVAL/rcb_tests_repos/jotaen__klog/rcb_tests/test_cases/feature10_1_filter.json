@@ -1,0 +1,38 @@
+{
+    "description": "Filter records in a document. A record is kept only if it satisfies all of the supplied clauses: on/after a date, on/before a date, and containing all of a set of tags (tags may match the record summary or be narrowed to matching entries). The result reports the count, the matching dates, and the total minutes of the matching (possibly tag-reduced) records.",
+    "cases": [
+        {
+            "input": {
+                "action": "filter",
+                "after": "2000-01-01",
+                "text": "1999-12-31\n    5h #bar\n\n2000-01-01\n#foo\n    6h #bar\n\n2000-01-03\n#foo\n    4h #bar"
+            },
+            "expected_output": "matched=2\ndates=2000-01-01,2000-01-03\ntotal_minutes=600\n"
+        },
+        {
+            "input": {
+                "action": "filter",
+                "tags": [
+                    "bar"
+                ],
+                "text": "1999-12-31\n    5h #bar\n\n2000-01-01\n#foo\n    15m\n    6h #bar\n\n2000-01-02\n#foo\n    7h"
+            },
+            "expected_output": "matched=2\ndates=1999-12-31,2000-01-01\ntotal_minutes=660\n"
+        },
+        {
+            "input": {
+                "action": "filter",
+                "before": "2000-01-01",
+                "text": "1999-12-30\n#foo\n\n1999-12-31\n    5h #bar\n\n2000-01-01\n#foo\n    6h\n\n2000-01-02\n    7h"
+            },
+            "expected_output": "matched=3\ndates=1999-12-30,1999-12-31,2000-01-01\ntotal_minutes=660\n"
+        },
+        {
+            "input": {
+                "action": "filter",
+                "text": "1999-12-31\n    5h\n\n2000-01-01\n    6h"
+            },
+            "expected_output": "matched=2\ndates=1999-12-31,2000-01-01\ntotal_minutes=660\n"
+        }
+    ]
+}

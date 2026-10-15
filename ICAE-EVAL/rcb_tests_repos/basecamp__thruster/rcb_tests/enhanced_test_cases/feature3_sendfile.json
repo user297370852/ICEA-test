@@ -1,0 +1,98 @@
+{
+  "description": "Accelerated file-delivery edge cases: content-type sniffing for HTML and GIF payloads, empty file delivery (Content-Length 0), no-delegation passthrough while enabled, disabled-feature passthrough with no file, and a non-200 status with a delegated file.",
+  "cases": [
+    {
+      "input": {
+        "action": "sendfile",
+        "enabled": true,
+        "request": {
+          "method": "GET",
+          "path": "/"
+        },
+        "upstream": {
+          "fileContent": "<!DOCTYPE html>\n<html><body>Hi</body></html>\n",
+          "body": "x"
+        }
+      },
+      "expected_output": "status=200\ncontent_type=text/html; charset=utf-8\ncontent_length=45\ncontent_encoding=-\nx_sendfile=-\nbody=<!DOCTYPE html>\n<html><body>Hi</body></html>\n\n"
+    },
+    {
+      "input": {
+        "action": "sendfile",
+        "enabled": true,
+        "request": {
+          "method": "GET",
+          "path": "/"
+        },
+        "upstream": {
+          "fileContent": "GIF87a fake gif bytes",
+          "body": "x"
+        }
+      },
+      "expected_output": "status=200\ncontent_type=image/gif\ncontent_length=21\ncontent_encoding=-\nx_sendfile=-\nbody=GIF87a fake gif bytes\n"
+    },
+    {
+      "input": {
+        "action": "sendfile",
+        "enabled": true,
+        "request": {
+          "method": "GET",
+          "path": "/"
+        },
+        "upstream": {
+          "fileContent": "",
+          "body": "x"
+        }
+      },
+      "expected_output": "status=200\ncontent_type=text/plain; charset=utf-8\ncontent_length=0\ncontent_encoding=-\nx_sendfile=-\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "sendfile",
+        "enabled": true,
+        "request": {
+          "method": "GET",
+          "path": "/"
+        },
+        "upstream": {
+          "body": "plain origin body",
+          "status": 200,
+          "contentType": "text/plain"
+        }
+      },
+      "expected_output": "status=200\ncontent_type=text/plain\ncontent_length=-\ncontent_encoding=-\nx_sendfile=-\nbody=plain origin body\n"
+    },
+    {
+      "input": {
+        "action": "sendfile",
+        "enabled": false,
+        "request": {
+          "method": "GET",
+          "path": "/"
+        },
+        "upstream": {
+          "body": "hello",
+          "status": 200,
+          "contentType": "text/markdown"
+        }
+      },
+      "expected_output": "status=200\ncontent_type=text/markdown\ncontent_length=-\ncontent_encoding=-\nx_sendfile=-\nbody=hello\n"
+    },
+    {
+      "input": {
+        "action": "sendfile",
+        "enabled": true,
+        "request": {
+          "method": "GET",
+          "path": "/"
+        },
+        "upstream": {
+          "fileContent": "served regardless\n",
+          "status": 200,
+          "body": "x"
+        }
+      },
+      "expected_output": "status=200\ncontent_type=text/plain; charset=utf-8\ncontent_length=18\ncontent_encoding=-\nx_sendfile=-\nbody=served regardless\n\n"
+    }
+  ]
+}

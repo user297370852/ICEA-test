@@ -1,0 +1,36 @@
+{
+  "description": "Provider error handling ordering: when a failing provider precedes a healthy one, the default behavior still surfaces the normalized source-failure error (failure short-circuits the merge); when errors are explicitly ignored, the failing provider is skipped and only the healthy provider's flags remain.",
+  "cases": [
+    {
+      "input": {
+        "op": "list_flags",
+        "sources": [
+          "dispatcher.source_fixture.ExceptionalFlagsSource",
+          "flags.sources.SettingsFlagsSource"
+        ],
+        "flags": {
+          "X": {
+            "boolean": true
+          }
+        }
+      },
+      "expected_output": "error=source_failed\n"
+    },
+    {
+      "input": {
+        "op": "list_flags",
+        "sources": [
+          "dispatcher.source_fixture.ExceptionalFlagsSource",
+          "flags.sources.SettingsFlagsSource"
+        ],
+        "flags": {
+          "X": {
+            "boolean": true
+          }
+        },
+        "ignore_errors": true
+      },
+      "expected_output": "flags=1\nflag=X conditions=1\ncondition flag=X name=boolean value=True\n"
+    }
+  ]
+}

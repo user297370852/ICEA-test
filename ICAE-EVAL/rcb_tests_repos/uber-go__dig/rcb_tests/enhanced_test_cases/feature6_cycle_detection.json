@@ -1,0 +1,154 @@
+{
+  "description": "The dependency graph must stay acyclic. Covers a direct self-dependency, a longer four-node cycle, and a cycle introduced only after several acyclic providers register successfully.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A"
+              }
+            ],
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide error=cycle\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A"
+              }
+            ],
+            "in": [
+              {
+                "type": "D"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "B"
+              }
+            ],
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "C"
+              }
+            ],
+            "in": [
+              {
+                "type": "B"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "D"
+              }
+            ],
+            "in": [
+              {
+                "type": "C"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\nprovide ok keys=B\nprovide ok keys=C\nprovide error=cycle\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "A"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "B"
+              }
+            ],
+            "in": [
+              {
+                "type": "A"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "C"
+              }
+            ],
+            "in": [
+              {
+                "type": "B"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "D"
+              }
+            ],
+            "in": [
+              {
+                "type": "C"
+              },
+              {
+                "type": "E"
+              }
+            ]
+          },
+          {
+            "op": "provide",
+            "out": [
+              {
+                "type": "E"
+              }
+            ],
+            "in": [
+              {
+                "type": "D"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provide ok keys=A\nprovide ok keys=B\nprovide ok keys=C\nprovide ok keys=D\nprovide error=cycle\n"
+    }
+  ]
+}

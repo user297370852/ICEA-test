@@ -1,0 +1,61 @@
+{
+  "description": "Team creation name-length and content boundaries: max-length (255) name persists, over-length (256) and whitespace-only names fail validation, and multibyte/unicode names persist.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "create_team",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team": {
+          "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      },
+      "expected_output": "team_created=yes\nteam_name=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nowner_email=o@e.com\npersonal_team=no\nowned_team_count=1\n"
+    },
+    {
+      "input": {
+        "scenario": "create_team_validation",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team": {
+          "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      },
+      "expected_output": "error=validation_failed\nfield=name\nmessage=The name must not be greater than 255 characters.\n"
+    },
+    {
+      "input": {
+        "scenario": "create_team_validation",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team": {
+          "name": "   "
+        }
+      },
+      "expected_output": "error=validation_failed\nfield=name\nmessage=The name field is required.\n"
+    },
+    {
+      "input": {
+        "scenario": "create_team",
+        "owner": {
+          "name": "O",
+          "email": "o@e.com",
+          "password": "secret"
+        },
+        "team": {
+          "name": "团队"
+        }
+      },
+      "expected_output": "team_created=yes\nteam_name=团队\nowner_email=o@e.com\npersonal_team=no\nowned_team_count=1\n"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+    "description": "Translate a JSON array input as a stream of request messages, including scalar and repeated-field body targets, and reject non-array input in streaming mode.",
+    "cases": [
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "shelf",
+                "streaming": true,
+                "json": "[{ \"name\" : \"1\", \"theme\" : \"Russian\" }, { \"name\" : \"2\", \"theme\" : \"History\" }, { \"name\" : \"3\", \"theme\" : \"Mistery\" }]"
+            },
+            "expected_output": "message[0]=\nname: \"1\"\ntheme: \"Russian\"\n--end--\nmessage[1]=\nname: \"2\"\ntheme: \"History\"\n--end--\nmessage[2]=\nname: \"3\"\ntheme: \"Mistery\"\n--end--\nfinished=true\n"
+        },
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "shelf",
+                "streaming": true,
+                "body_target": "theme",
+                "json": "[\"Classic\", \"Fiction\", \"Documentary\"]"
+            },
+            "expected_output": "message[0]=\ntheme: \"Classic\"\n--end--\nmessage[1]=\ntheme: \"Fiction\"\n--end--\nmessage[2]=\ntheme: \"Documentary\"\n--end--\nfinished=true\n"
+        },
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "list_shelves_response",
+                "streaming": true,
+                "body_target": "shelves",
+                "json": "[[{\"name\":\"1\",\"theme\":\"Classic\"},{\"name\":\"2\",\"theme\":\"Fiction\"}], [{\"name\":\"5\",\"theme\":\"Drama\"}]]"
+            },
+            "expected_output": "message[0]=\nshelves {\n  name: \"1\"\n  theme: \"Classic\"\n}\nshelves {\n  name: \"2\"\n  theme: \"Fiction\"\n}\n--end--\nmessage[1]=\nshelves {\n  name: \"5\"\n  theme: \"Drama\"\n}\n--end--\nfinished=true\n"
+        },
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "shelf",
+                "streaming": true,
+                "json": "[]"
+            },
+            "expected_output": "finished=true\n"
+        },
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "shelf",
+                "streaming": true,
+                "json": "{\"name\":\"1\"}"
+            },
+            "expected_output": "error=invalid_json\n"
+        }
+    ]
+}

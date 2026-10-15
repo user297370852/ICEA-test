@@ -1,0 +1,35 @@
+{
+    "description": "When reloading is enabled, a reload removes previously loaded objects and reads updated file contents on the next access.",
+    "cases": [
+        {
+            "input": {
+                "operation": "reload_updates_loaded_values",
+                "roots": [
+                    "."
+                ],
+                "files": {
+                    "x.rb": "X = 1",
+                    "y.rb": "module Y; end",
+                    "y/a.rb": "Y::A = 1",
+                    "z/a.rb": "Z::A = 1"
+                },
+                "before_access": [
+                    "X",
+                    "Y::A",
+                    "Z::A"
+                ],
+                "updates": {
+                    "x.rb": "X = 2",
+                    "y/a.rb": "Y::A = 2",
+                    "z/a.rb": "Z::A = 2"
+                },
+                "after_access": [
+                    "X",
+                    "Y::A",
+                    "Z::A"
+                ]
+            },
+            "expected_output": "before=X\nvalue=1\nbefore=Y::A\nvalue=1\nbefore=Z::A\nvalue=1\nafter=X\nvalue=2\nafter=Y::A\nvalue=2\nafter=Z::A\nvalue=2\n"
+        }
+    ]
+}

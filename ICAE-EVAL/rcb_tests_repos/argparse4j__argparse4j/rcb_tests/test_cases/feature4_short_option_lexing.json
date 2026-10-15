@@ -1,0 +1,505 @@
+{
+    "description": "Lexing of single-prefix short options: several boolean/short options may be concatenated into one token, and a trailing option that needs a value takes the rest of the token as its embedded value (or, if empty, the next token); a unique prefix of a longer option name is accepted while an ambiguous prefix that could match several options is rejected; an alternative prefix character can be configured and still supports concatenation; and tokens that look like negative numbers are treated as values rather than options unless a matching numeric option is defined.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-2"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-3"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-ff"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-c"
+                        ],
+                        "action": "append_const",
+                        "const": true
+                    }
+                ],
+                "argv": [
+                    "-123=x",
+                    "-ff=a",
+                    "-fx",
+                    "-cccc"
+                ]
+            },
+            "expected_output": "1=true\n2=3=x\n3=null\nc=[true, true, true, true]\nf=x\nff=a\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-2"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-3"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-ff"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-c"
+                        ],
+                        "action": "append_const",
+                        "const": true
+                    }
+                ],
+                "argv": [
+                    "-12",
+                    "foo"
+                ]
+            },
+            "expected_output": "1=true\n2=foo\n3=null\nc=null\nf=null\nff=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-2"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-3"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-ff"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-c"
+                        ],
+                        "action": "append_const",
+                        "const": true
+                    }
+                ],
+                "argv": [
+                    "-12 "
+                ]
+            },
+            "expected_output": "1=true\n2= \n3=null\nc=null\nf=null\nff=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-2"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-3"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-ff"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-c"
+                        ],
+                        "action": "append_const",
+                        "const": true
+                    }
+                ],
+                "argv": [
+                    "-12",
+                    "-fx"
+                ]
+            },
+            "expected_output": "error: argument -2: expected one argument\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-aaa"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-bbb"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-aaa"
+                ]
+            },
+            "expected_output": "a=false\naaa=true\nb=null\nbbb=false\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-aaa"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-bbb"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-a"
+                ]
+            },
+            "expected_output": "a=true\naaa=false\nb=null\nbbb=false\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-aaa"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-bbb"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-aa"
+                ]
+            },
+            "expected_output": "error: ambiguous option: -aa could match -a, -aaa\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-aaa"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-bbb"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-bx"
+                ]
+            },
+            "expected_output": "a=false\naaa=false\nb=x\nbbb=false\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-aaa"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-bbb"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-bbb"
+                ]
+            },
+            "expected_output": "a=false\naaa=false\nb=null\nbbb=true\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-aaa"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-bbb"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-bb"
+                ]
+            },
+            "expected_output": "error: ambiguous option: -bb could match -b, -bbb\n"
+        },
+        {
+            "input": {
+                "prefix_chars": "-+",
+                "arguments": [
+                    {
+                        "flags": [
+                            "+a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "+b"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "+abc"
+                ]
+            },
+            "expected_output": "a=true\nb=c\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-x"
+                        ]
+                    },
+                    {
+                        "name": "foo",
+                        "nargs": "?"
+                    }
+                ],
+                "argv": [
+                    "-x",
+                    "-1"
+                ]
+            },
+            "expected_output": "foo=null\nx=-1\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-x"
+                        ]
+                    },
+                    {
+                        "name": "foo",
+                        "nargs": "?"
+                    }
+                ],
+                "argv": [
+                    "-x",
+                    "-1",
+                    "-5"
+                ]
+            },
+            "expected_output": "foo=-5\nx=-1\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "dest": "one"
+                    },
+                    {
+                        "name": "foo",
+                        "nargs": "?"
+                    }
+                ],
+                "argv": [
+                    "-1",
+                    "X"
+                ]
+            },
+            "expected_output": "foo=null\none=X\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "dest": "one"
+                    },
+                    {
+                        "name": "foo",
+                        "nargs": "?"
+                    }
+                ],
+                "argv": [
+                    "-2"
+                ]
+            },
+            "expected_output": "error: unrecognized arguments: '-2'\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "dest": "one"
+                    },
+                    {
+                        "name": "foo",
+                        "nargs": "?"
+                    }
+                ],
+                "argv": [
+                    "-1",
+                    "-1"
+                ]
+            },
+            "expected_output": "error: argument -1: expected one argument\n"
+        }
+    ]
+}

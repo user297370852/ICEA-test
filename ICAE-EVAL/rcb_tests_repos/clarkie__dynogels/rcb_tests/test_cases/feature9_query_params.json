@@ -1,0 +1,349 @@
+{
+  "description": "Assembly of the request parameters for a partition-scoped read, accumulated through a fluent builder and rendered together with the target table designation. Key conditions on the partition and sort attributes (equality, ordered comparisons, prefix match, and range) contribute a key-condition expression with their associated name and value placeholder bindings; when the read is finalized the partition equality is appended automatically, and selecting a secondary index switches the partition condition to that index's partition attribute. Non-key filter conditions (equality, existence/absence, range, set membership, and nested document paths) contribute a separate filter expression. Placeholder value names are de-duplicated across clauses. Builder options such as a projected attribute list, an index selection, a result limit, and consistent-read selection are reflected in the parameters; a non-positive limit is rejected as a neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "equals",
+            "foo@example.com"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\"},\"KeyConditionExpression\":\"(#email = :email)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "equals",
+            "foo@example.com"
+          ]
+        ],
+        "execKey": true
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\",\"#name\":\"name\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\",\":name\":\"tim\"},\"KeyConditionExpression\":\"(#email = :email) AND (#name = :name)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "age": "number"
+          },
+          "indexes": [
+            {
+              "hashKey": "age",
+              "type": "global",
+              "name": "UserAgeIndex"
+            }
+          ]
+        },
+        "hashKey": 18,
+        "ops": [
+          [
+            "usingIndex",
+            "UserAgeIndex"
+          ]
+        ],
+        "execKey": true
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\"},\"ExpressionAttributeValues\":{\":age\":18},\"IndexName\":\"UserAgeIndex\",\"KeyConditionExpression\":\"(#age = :age)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "between",
+            "bob@bob.com",
+            "foo@foo.com"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"bob@bob.com\",\":email_2\":\"foo@foo.com\"},\"KeyConditionExpression\":\"(#email BETWEEN :email AND :email_2)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "beginsWith",
+            "foo"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo\"},\"KeyConditionExpression\":\"(begins_with(#email, :email))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "age": "number"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "filter",
+            "age"
+          ],
+          [
+            "equals",
+            5
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\"},\"ExpressionAttributeValues\":{\":age\":5},\"FilterExpression\":\"(#age = :age)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "age": "number"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "filter",
+            "age"
+          ],
+          [
+            "exists"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\"},\"FilterExpression\":\"(attribute_exists(#age))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "age": "number"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "filter",
+            "age"
+          ],
+          [
+            "between",
+            5,
+            7
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\"},\"ExpressionAttributeValues\":{\":age\":5,\":age_2\":7},\"FilterExpression\":\"(#age BETWEEN :age AND :age_2)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "age": "number"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "filter",
+            "age"
+          ],
+          [
+            "in",
+            [
+              5,
+              7,
+              12
+            ]
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\"},\"ExpressionAttributeValues\":{\":age\":5,\":age_2\":7,\":age_3\":12},\"FilterExpression\":\"(#age IN (:age,:age_2,:age_3))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "data": "object"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "filter",
+            "data.attr"
+          ],
+          [
+            "equals",
+            15
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#attr\":\"attr\",\"#data\":\"data\"},\"ExpressionAttributeValues\":{\":data_attr\":15},\"FilterExpression\":\"(#data.#attr = :data_attr)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "created": "date"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "attributes",
+            [
+              "created",
+              "email"
+            ]
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#created\":\"created\",\"#email\":\"email\"},\"ProjectionExpression\":\"#created,#email\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "consistentRead",
+            true
+          ]
+        ]
+      },
+      "expected_output": "{\"ConsistentRead\":true,\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "limit",
+            0
+          ]
+        ]
+      },
+      "expected_output": "error=invalid_limit\n"
+    }
+  ]
+}

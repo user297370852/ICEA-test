@@ -1,0 +1,47 @@
+{
+    "description": "Resolving a dependency aggregate searches the requesting container first and then walks up its ancestors, returning the nearest aggregate that satisfies the requested type; a type held only by a descendant is not visible to an ancestor. The input assembles a parent and child each holding an aggregate of a different type, then requests several types from both containers; the output reports, per request, the resolved aggregate's label, or a neutral not-found error listing the labels inspected along the ancestor chain when no match exists.",
+    "cases": [
+        {
+            "input": {
+                "action": "di",
+                "scopes": [
+                    {
+                        "id": "p",
+                        "parent": null,
+                        "component": {
+                            "type": "alpha",
+                            "id": "parent_component"
+                        }
+                    },
+                    {
+                        "id": "c",
+                        "parent": "p",
+                        "component": {
+                            "type": "beta",
+                            "id": "child_component"
+                        }
+                    }
+                ],
+                "lookups": [
+                    {
+                        "scope": "c",
+                        "type": "beta"
+                    },
+                    {
+                        "scope": "c",
+                        "type": "alpha"
+                    },
+                    {
+                        "scope": "p",
+                        "type": "alpha"
+                    },
+                    {
+                        "scope": "p",
+                        "type": "beta"
+                    }
+                ]
+            },
+            "expected_output": "lookup[c,beta]=component=child_component\nlookup[c,alpha]=component=parent_component\nlookup[p,alpha]=component=parent_component\nlookup[p,beta]=error=component_not_found inspected=[parent_component]\n"
+        }
+    ]
+}

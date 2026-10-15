@@ -1,0 +1,40 @@
+{
+  "description": "Enhanced boundary coverage for idle-time eviction: idle durations straddling the threshold (above, exactly equal, below, and zero), a zero time-to-live where every resource (including a freshly idle one) is evicted, and a large threshold where only the equal-or-greater resource is evicted.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "idle_ttl_predicate",
+        "ttl_ms": 5000,
+        "idle_ms": [
+          6000,
+          5000,
+          4000,
+          0
+        ]
+      },
+      "expected_output": "resource[0].idle_ms=6000\nresource[0].evict=true\nresource[1].idle_ms=5000\nresource[1].evict=true\nresource[2].idle_ms=4000\nresource[2].evict=false\nresource[3].idle_ms=0\nresource[3].evict=false\n"
+    },
+    {
+      "input": {
+        "scenario": "idle_ttl_predicate",
+        "ttl_ms": 0,
+        "idle_ms": [
+          1000,
+          0
+        ]
+      },
+      "expected_output": "resource[0].idle_ms=1000\nresource[0].evict=true\nresource[1].idle_ms=0\nresource[1].evict=true\n"
+    },
+    {
+      "input": {
+        "scenario": "idle_ttl_predicate",
+        "ttl_ms": 10000,
+        "idle_ms": [
+          10000,
+          1000
+        ]
+      },
+      "expected_output": "resource[0].idle_ms=10000\nresource[0].evict=true\nresource[1].idle_ms=1000\nresource[1].evict=false\n"
+    }
+  ]
+}

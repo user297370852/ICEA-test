@@ -1,0 +1,47 @@
+{
+  "description": "Boundary and logical-path coverage for signal-triggered shutdown: a signal with no registered workers (only the signal line is emitted), and alternate term-signal labels (SIGINT, SIGQUIT) over a leaf subset and a single root worker, confirming the reported signal label is echoed from the input and always precedes the dependency-ordered node lines.",
+  "cases": [
+    {
+      "input": {
+        "action": "signal_shutdown",
+        "signal": "SIGTERM",
+        "spawns": []
+      },
+      "expected_output": "signal=SIGTERM\n"
+    },
+    {
+      "input": {
+        "action": "signal_shutdown",
+        "signal": "SIGINT",
+        "spawns": [
+          {
+            "node": "AsyncFuse",
+            "marker": 1
+          },
+          {
+            "node": "Rpc",
+            "marker": 2
+          },
+          {
+            "node": "WriteBack",
+            "marker": 3
+          }
+        ]
+      },
+      "expected_output": "signal=SIGINT\nnode=AsyncFuse marker=1\nnode=Rpc marker=2\nnode=WriteBack marker=3\n"
+    },
+    {
+      "input": {
+        "action": "signal_shutdown",
+        "signal": "SIGQUIT",
+        "spawns": [
+          {
+            "node": "Root",
+            "marker": 77
+          }
+        ]
+      },
+      "expected_output": "signal=SIGQUIT\nnode=Root marker=77\n"
+    }
+  ]
+}

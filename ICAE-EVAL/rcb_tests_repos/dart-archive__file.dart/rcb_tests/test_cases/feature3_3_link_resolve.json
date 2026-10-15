@@ -1,0 +1,57 @@
+{
+  "description": "Resolve all symbolic links in a path to its canonical real path. A link to a directory resolves to the directory's path, including when the link is nested within a traversal. Resolving an empty path fails with a not-found category.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/foo"
+          },
+          {
+            "op": "create_link",
+            "path": "/bar",
+            "target": "/foo"
+          },
+          {
+            "op": "resolve",
+            "path": "/bar"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/foo\ncreated_link=/bar\nlink_target=/foo\nresolved=/foo\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/foo/bar",
+            "recursive": true
+          },
+          {
+            "op": "create_link",
+            "path": "/foo/baz",
+            "target": "/foo/bar"
+          },
+          {
+            "op": "resolve",
+            "path": "/foo/baz"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/foo/bar\ncreated_link=/foo/baz\nlink_target=/foo/bar\nresolved=/foo/bar\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "resolve",
+            "path": ""
+          }
+        ]
+      },
+      "expected_output": "error=no_such_file_or_directory\n"
+    }
+  ]
+}

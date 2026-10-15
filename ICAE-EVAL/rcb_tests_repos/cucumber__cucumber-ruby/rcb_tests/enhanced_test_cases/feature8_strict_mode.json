@@ -1,0 +1,49 @@
+{
+  "description": "Enhanced edge cases for strict mode: a strict run mixing a passing scenario with an undefined one (run-level escalates to failed), and a strict run where every scenario passes (stays ok).",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--strict"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Mixed\n  Scenario: Good\n    Given this step passes\n  Scenario: Bad\n    Given this step is undefined\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=1 failed=0 undefined=1 pending=0 skipped=0\nsteps total=2 passed=1 failed=0 undefined=1 pending=0 skipped=0\nscenario keyword=Scenario name=Good line=2 status=passed\nscenario keyword=Scenario name=Bad line=4 status=undefined\nresult=failed\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--strict"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: AllPass\n  Scenario: One\n    Given this step passes\n  Scenario: Two\n    Given this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nsteps total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=One line=2 status=passed\nscenario keyword=Scenario name=Two line=4 status=passed\nresult=ok\n"
+    }
+  ]
+}

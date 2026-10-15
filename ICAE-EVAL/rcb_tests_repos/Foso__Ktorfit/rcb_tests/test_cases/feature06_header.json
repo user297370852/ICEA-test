@@ -1,0 +1,33 @@
+{
+  "description": "Request header construction. A method may declare a fixed list of static headers, a single named header taken from a parameter, a repeated named header taken from a list parameter, or a set of named headers supplied as a map. Static and parameter-driven headers may be combined on one method. Map-valued header parameters must be maps keyed by string; other key or container types are rejected at generation time. The adapter prints the issued request's method, resolved URL, body kind, and every user-supplied header sorted by name, or a neutral error category.",
+  "cases": [
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "headers": ["x:y", "a:b"]},
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=a=b\nheader=x=y"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "header", "key": "testHeader", "name": "h"}], "args": ["val1"]},
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=testHeader=val1"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "header", "key": "testHeader", "name": "h", "type": "List<String>"}], "args": [["p", "q"]]},
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=testHeader=p,q"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "headerMap", "name": "h", "type": "Map<String, String>"}], "args": [{"H1": "a", "H2": "b"}]},
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=H1=a\nheader=H2=b"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "headers": ["x:y", "a:b"], "params": [{"kind": "header", "key": "testHeader", "name": "h", "type": "String?"}, {"kind": "headerMap", "name": "hm", "type": "Map<String,String>"}], "args": ["hv", {"M1": "m1"}]},
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=M1=m1\nheader=a=b\nheader=testHeader=hv\nheader=x=y"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "headerMap", "name": "h", "type": "String"}], "args": ["x"]},
+      "expected_output": "error=header_map_must_be_map"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "headerMap", "name": "h", "type": "Map<Int, String>"}], "args": [{"1": "a"}]},
+      "expected_output": "error=header_map_keys_must_be_string"
+    }
+  ]
+}

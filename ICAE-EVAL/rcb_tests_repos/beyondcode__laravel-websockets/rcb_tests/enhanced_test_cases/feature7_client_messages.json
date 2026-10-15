@@ -1,0 +1,117 @@
+{
+  "description": "Client-originated events are relayed to other subscribers only when the application has client messaging enabled, and the sender never receives its own client event back. The report shows received frames so the relay (or its absence) is visible from both the sender and a peer.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "1.1"
+          },
+          {
+            "name": "b",
+            "socket_id": "2.2"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "cm-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "b",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "cm-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "client-test",
+              "channel": "cm-channel",
+              "data": {
+                "client-event": "test"
+              }
+            }
+          }
+        ],
+        "report": {
+          "connections": [
+            "a"
+          ]
+        }
+      },
+      "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"cm-channel\"}\n"
+    },
+    {
+      "input": {
+        "action": "session",
+        "app": {
+          "client_messages_enabled": true
+        },
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "1.1"
+          },
+          {
+            "name": "b",
+            "socket_id": "2.2"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "cm-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "b",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "cm-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "client-test",
+              "channel": "cm-channel",
+              "data": {
+                "client-event": "test"
+              }
+            }
+          }
+        ],
+        "report": {
+          "connections": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"cm-channel\"}\n[b] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"cm-channel\"}\n{\"event\":\"client-test\",\"channel\":\"cm-channel\",\"data\":{\"client-event\":\"test\"}}\n"
+    }
+  ]
+}

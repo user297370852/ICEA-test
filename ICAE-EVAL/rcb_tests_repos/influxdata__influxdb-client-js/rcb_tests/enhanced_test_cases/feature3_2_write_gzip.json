@@ -1,0 +1,46 @@
+{
+  "description": "Gzip write boundary: compressed body with default tags and an integer field, verifying decompressed payload and gzip content-encoding on a us-precision route.",
+  "cases": [
+    {
+      "input": {
+        "domain": "write_request",
+        "destination": {
+          "org": "o",
+          "bucket": "b",
+          "precision": "us"
+        },
+        "server": {
+          "url": "http://fake:8086",
+          "token": "a",
+          "responses": [
+            204
+          ]
+        },
+        "write": {
+          "flush_interval_ms": 5,
+          "batch_size": 10,
+          "max_retries": 1,
+          "gzip_threshold": 0,
+          "default_tags": {
+            "dc": "east"
+          }
+        },
+        "points": [
+          {
+            "measurement": "m",
+            "fields": [
+              {
+                "key": "v",
+                "type": "integer",
+                "value": 5
+              }
+            ],
+            "timestamp": ""
+          }
+        ],
+        "expected_observed_lines": 1
+      },
+      "expected_output": "route=/api/v2/write?org=o&bucket=b&precision=us\nauthorization=Token a\ncontent_encoding=gzip\nrequest_count=1\nsuccess_lines=1\nfailed_lines=0\nbody_000=m,dc=east v=5i\n"
+    }
+  ]
+}

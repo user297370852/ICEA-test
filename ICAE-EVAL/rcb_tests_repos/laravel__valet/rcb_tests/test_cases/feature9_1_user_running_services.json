@@ -1,0 +1,13 @@
+{
+    "description": "List the package manager's currently running services as seen by the invoking (non-root) user. The adapter issues the service-listing command (filtering to started services and projecting their names), splits the raw multi-line output into individual service names, and drops blank lines. If the listing command exits with an error, a neutral 'services check failed' error is reported. The output echoes the issued listing command followed by one line per running service, in order; blank entries are omitted.",
+    "cases": [
+        {
+            "input": {"action": "user_running_services", "response": "service1\nservice2\n\nservice3\n"},
+            "expected_output": "cmd=brew services list | grep started | awk '{ print $1; }'\nservice=service1\nservice=service2\nservice=service3\n"
+        },
+        {
+            "input": {"action": "user_running_services", "fail": true, "error_output": "test error output"},
+            "expected_output": "cmd=brew services list | grep started | awk '{ print $1; }'\nerror=services_check_failed\n"
+        }
+    ]
+}

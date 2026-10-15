@@ -1,0 +1,110 @@
+{
+  "description": "Enhanced boundary coverage for provider discovery: multiple linked providers (comma-joined), an explicitly empty provider list, a response that omits the provider list entirely, alternate normalized error categories, and a backend error message that carries trailing detail after a space (only the leading code token is normalized).",
+  "cases": [
+    {
+      "input": {
+        "action": "fetch_providers",
+        "email": "multi@example.com",
+        "responses": {
+          "lookup": {
+            "status": 200,
+            "body": {
+              "allProviders": [
+                "password",
+                "google.com",
+                "github.com"
+              ],
+              "registered": true
+            }
+          }
+        }
+      },
+      "expected_output": "providers=password,google.com,github.com\n"
+    },
+    {
+      "input": {
+        "action": "fetch_providers",
+        "email": "empty-list@example.com",
+        "responses": {
+          "lookup": {
+            "status": 200,
+            "body": {
+              "allProviders": [],
+              "registered": false
+            }
+          }
+        }
+      },
+      "expected_output": "providers=\n"
+    },
+    {
+      "input": {
+        "action": "fetch_providers",
+        "email": "no-key@example.com",
+        "responses": {
+          "lookup": {
+            "status": 200,
+            "body": {
+              "registered": false
+            }
+          }
+        }
+      },
+      "expected_output": "providers=\n"
+    },
+    {
+      "input": {
+        "action": "fetch_providers",
+        "email": "bad email",
+        "responses": {
+          "lookup": {
+            "status": 400,
+            "body": {
+              "error": {
+                "code": 400,
+                "message": "INVALID_EMAIL"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=invalid-email\n"
+    },
+    {
+      "input": {
+        "action": "fetch_providers",
+        "email": "blocked@example.com",
+        "responses": {
+          "lookup": {
+            "status": 403,
+            "body": {
+              "error": {
+                "code": 403,
+                "message": "OPERATION_NOT_ALLOWED"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=operation-not-allowed\n"
+    },
+    {
+      "input": {
+        "action": "fetch_providers",
+        "email": "detail@example.com",
+        "responses": {
+          "lookup": {
+            "status": 400,
+            "body": {
+              "error": {
+                "code": 400,
+                "message": "INVALID_IDENTIFIER : the identifier is not a valid email"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=invalid-identifier\n"
+    }
+  ]
+}

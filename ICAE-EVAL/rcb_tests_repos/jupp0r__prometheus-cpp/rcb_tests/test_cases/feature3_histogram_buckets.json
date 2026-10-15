@@ -1,0 +1,152 @@
+{
+    "description": "Histogram samples expose total count, total sum, and cumulative bucket counts for configured upper bounds plus an infinity bucket.",
+    "cases": [
+        {
+            "input": {
+                "feature": "histogram",
+                "buckets": [],
+                "operations": []
+            },
+            "expected_output": "sample_count=0\nsample_sum=0\nbucket_le=+Inf count=0\n"
+        },
+        {
+            "input": {
+                "feature": "histogram",
+                "buckets": [
+                    1,
+                    2
+                ],
+                "operations": []
+            },
+            "expected_output": "sample_count=0\nsample_sum=0\nbucket_le=1 count=0\nbucket_le=2 count=0\nbucket_le=+Inf count=0\n"
+        },
+        {
+            "input": {
+                "feature": "histogram",
+                "buckets": [
+                    1,
+                    2
+                ],
+                "operations": [
+                    {
+                        "action": "observe",
+                        "value": 0
+                    },
+                    {
+                        "action": "observe",
+                        "value": 0.5
+                    },
+                    {
+                        "action": "observe",
+                        "value": 1
+                    },
+                    {
+                        "action": "observe",
+                        "value": 1.5
+                    },
+                    {
+                        "action": "observe",
+                        "value": 1.5
+                    },
+                    {
+                        "action": "observe",
+                        "value": 2
+                    },
+                    {
+                        "action": "observe",
+                        "value": 3
+                    }
+                ]
+            },
+            "expected_output": "sample_count=7\nsample_sum=9.5\nbucket_le=1 count=3\nbucket_le=2 count=6\nbucket_le=+Inf count=7\n"
+        },
+        {
+            "input": {
+                "feature": "histogram",
+                "buckets": [
+                    1,
+                    2
+                ],
+                "operations": [
+                    {
+                        "action": "observe_multiple",
+                        "bucket_increments": [
+                            5,
+                            9,
+                            3
+                        ],
+                        "sum_of_observations": 20
+                    },
+                    {
+                        "action": "observe_multiple",
+                        "bucket_increments": [
+                            0,
+                            20,
+                            6
+                        ],
+                        "sum_of_observations": 34
+                    }
+                ]
+            },
+            "expected_output": "sample_count=43\nsample_sum=54\nbucket_le=1 count=5\nbucket_le=2 count=34\nbucket_le=+Inf count=43\n"
+        },
+        {
+            "input": {
+                "feature": "histogram",
+                "buckets": [
+                    1,
+                    2
+                ],
+                "operations": [
+                    {
+                        "action": "observe_multiple",
+                        "bucket_increments": [
+                            5,
+                            9
+                        ],
+                        "sum_of_observations": 20
+                    }
+                ]
+            },
+            "expected_output": "error=invalid_bucket_increment_count\nexpected_buckets=3\n"
+        },
+        {
+            "input": {
+                "feature": "histogram",
+                "buckets": [
+                    1
+                ],
+                "operations": [
+                    {
+                        "action": "observe",
+                        "value": -10
+                    }
+                ]
+            },
+            "expected_output": "sample_count=1\nsample_sum=-10\nbucket_le=1 count=1\nbucket_le=+Inf count=1\n"
+        },
+        {
+            "input": {
+                "feature": "histogram",
+                "buckets": [
+                    1,
+                    2
+                ],
+                "operations": [
+                    {
+                        "action": "observe",
+                        "value": 1.5
+                    },
+                    {
+                        "action": "collect"
+                    },
+                    {
+                        "action": "observe",
+                        "value": 1.5
+                    }
+                ]
+            },
+            "expected_output": "sample_count=2\nsample_sum=3\nbucket_le=1 count=0\nbucket_le=2 count=2\nbucket_le=+Inf count=2\n"
+        }
+    ]
+}

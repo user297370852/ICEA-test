@@ -1,0 +1,85 @@
+{
+  "description": "Run a batch and inspect the ordered reply list it returns, covering a single-command batch, batches whose only replies are absent values, repeated writes to one key followed by a read, and an empty-string value reply.",
+  "cases": [
+    {
+      "input": {
+        "action": "replies",
+        "batch": [
+          [
+            "set",
+            "k",
+            "v"
+          ]
+        ]
+      },
+      "expected_output": "count:1\n0:str:OK\n"
+    },
+    {
+      "input": {
+        "action": "replies",
+        "batch": [
+          [
+            "get",
+            "nope"
+          ]
+        ]
+      },
+      "expected_output": "count:1\n0:nil\n"
+    },
+    {
+      "input": {
+        "action": "replies",
+        "batch": [
+          [
+            "get",
+            "a"
+          ],
+          [
+            "get",
+            "b"
+          ]
+        ]
+      },
+      "expected_output": "count:2\n0:nil\n1:nil\n"
+    },
+    {
+      "input": {
+        "action": "replies",
+        "batch": [
+          [
+            "set",
+            "k",
+            "v1"
+          ],
+          [
+            "set",
+            "k",
+            "v2"
+          ],
+          [
+            "get",
+            "k"
+          ]
+        ]
+      },
+      "expected_output": "count:3\n0:str:OK\n1:str:OK\n2:str:v2\n"
+    },
+    {
+      "input": {
+        "action": "replies",
+        "batch": [
+          [
+            "set",
+            "k",
+            ""
+          ],
+          [
+            "get",
+            "k"
+          ]
+        ]
+      },
+      "expected_output": "count:2\n0:str:OK\n1:str:\n"
+    }
+  ]
+}

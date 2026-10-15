@@ -1,0 +1,36 @@
+{
+  "description": "Declaration output generated from inline sources: empty input produces an empty default object, valid identifiers become named exports while dash/reserved-word names are excluded from named exports.",
+  "cases": [
+    {
+      "input": {
+        "behavior": "declaration output",
+        "stylesheet": {
+          "source": "",
+          "virtual_name": "input.module.css"
+        }
+      },
+      "expected_output": "declare let classes: {\n  \n};\nexport default classes;\n"
+    },
+    {
+      "input": {
+        "behavior": "declaration output",
+        "stylesheet": {
+          "source": ".valid { color: red; }\n.also_valid { color: red; }\n.dash-name { color: red; }\n.default { color: red; }\n.const { color: red; }",
+          "virtual_name": "input.module.css"
+        }
+      },
+      "expected_output": "declare let classes: {\n  'valid': string;\n  'also_valid': string;\n  'dash-name': string;\n  'default': string;\n  'const': string;\n};\nexport default classes;\nexport let valid: string;\nexport let also_valid: string;\n"
+    },
+    {
+      "input": {
+        "behavior": "declaration output",
+        "stylesheet": {
+          "source": ".a { color: red; }",
+          "virtual_name": "input.module.less"
+        },
+        "template": "append_all_class_names"
+      },
+      "expected_output": "/* eslint-disable */\ndeclare let classes: {\n  'a': string;\n};\nexport default classes;\nexport let a: string;\n\nexport const __cssModule: true;\nexport type AllClassNames = 'a';"
+    }
+  ]
+}

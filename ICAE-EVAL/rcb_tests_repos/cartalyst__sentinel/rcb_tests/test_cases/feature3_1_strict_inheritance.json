@@ -1,0 +1,9 @@
+{
+    "description": "Strict access resolution. Identical query semantics to the lenient policy, but the merge rule differs: under the strict policy the primary set does NOT override the accumulated secondary grants by replacement; instead every set (secondary first, then primary) is folded into one prepared map where an explicit denial always overrides a prior grant for the same key. The result is that a key denied by any contributing set stays denied. hasAccess requires all queried keys true; hasAnyAccess requires at least one queried key true.",
+    "cases": [
+        {
+            "input": {"op": "permissions", "mode": "strict", "permissions": {"foo": true, "bar": false, "fred": true}, "secondary": [{"bar": true}, {"qux": true}, {"fred": false}], "queries": [{"all": ["foo"]}, {"all": ["qux"]}, {"all": ["bar"]}, {"all": ["fred"]}, {"all": ["foo", "bar"]}, {"any": ["foo", "bar"]}, {"any": ["bar", "fred"]}]},
+            "expected_output": "mode=strict\nall[foo]=true\nall[qux]=true\nall[bar]=false\nall[fred]=false\nall[foo,bar]=false\nany[foo,bar]=true\nany[bar,fred]=false\n"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+  "description": "A renamed user annotation in a different package is accepted and generates its cross-module discovery marker, while a private contributing annotation (a non-public modifier other than internal) is rejected.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.widgets\n\nimport software.amazon.lastmile.kotlin.inject.anvil.extend.ContributingAnnotation\nimport kotlin.annotation.AnnotationTarget.CLASS\n\n@ContributingAnnotation\n@Target(CLASS)\nannotation class ContributesView\n"
+        ],
+        "annotation": [
+          "com.widgets.ContributesView"
+        ]
+      },
+      "expected_output": "status=compiled\ncontributing-annotation origin=com.widgets.ContributesView\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.widgets\n\nimport software.amazon.lastmile.kotlin.inject.anvil.extend.ContributingAnnotation\nimport kotlin.annotation.AnnotationTarget.CLASS\n\n@ContributingAnnotation\n@Target(CLASS)\nprivate annotation class ContributesView\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Contributing annotations must be public.\n"
+    }
+  ]
+}

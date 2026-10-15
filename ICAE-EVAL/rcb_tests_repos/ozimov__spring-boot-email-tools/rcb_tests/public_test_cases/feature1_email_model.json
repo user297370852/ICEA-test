@@ -1,0 +1,59 @@
+{
+    "description": "Compose a logical email value object from its parts. Sender, at least one primary recipient, subject and body are mandatory; omitting any of them is reported as a missing-required-field error naming the absent part. Supplied recipients and custom headers are echoed back; when no custom headers are given the email exposes an empty header set.",
+    "cases": [
+        {
+            "input": {
+                "op": "email.build",
+                "from": "marco@urbs.aeterna",
+                "to": [
+                    "roberto@gmail.com",
+                    "titus@de.natura"
+                ],
+                "cc": [
+                    "info@de.natura"
+                ],
+                "subject": "Laelius de amicitia",
+                "body": "Firmamentum autem stabilitatis.",
+                "customHeaders": {
+                    "K2": "V2",
+                    "K1": "V1"
+                }
+            },
+            "expected_output": "from=marco@urbs.aeterna\nto=roberto@gmail.com;titus@de.natura\ncc=info@de.natura\nbcc=\nsubject=Laelius de amicitia\nbody=Firmamentum autem stabilitatis.\ncustom_header_count=2\ncustom_header.K1=V1\ncustom_header.K2=V2\n"
+        },
+        {
+            "input": {
+                "op": "email.build",
+                "from": "marco@urbs.aeterna",
+                "to": [
+                    "roberto@gmail.com"
+                ],
+                "subject": "Hello",
+                "body": "Body text"
+            },
+            "expected_output": "from=marco@urbs.aeterna\nto=roberto@gmail.com\ncc=\nbcc=\nsubject=Hello\nbody=Body text\ncustom_header_count=0\n"
+        },
+        {
+            "input": {
+                "op": "email.build",
+                "to": [
+                    "roberto@gmail.com"
+                ],
+                "subject": "Hello",
+                "body": "Body text"
+            },
+            "expected_output": "error=missing_required_field\nfield=from\n"
+        },
+        {
+            "input": {
+                "op": "email.build",
+                "from": "marco@urbs.aeterna",
+                "to": [
+                    "roberto@gmail.com"
+                ],
+                "body": "Body text"
+            },
+            "expected_output": "error=missing_required_field\nfield=subject\n"
+        }
+    ]
+}

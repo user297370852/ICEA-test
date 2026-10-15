@@ -1,0 +1,17 @@
+{
+    "description": "Convert a map of request header fields into normalized HTTP header names and values. Only a fixed allow-list of content, conditional, ACL, storage-class and copy headers is kept; unrelated fields are dropped. Underscores become hyphens, null values are preserved as null, and a numeric range value is rendered as an HTTP byte range. The output lists each surviving header on its own line sorted by name, or a single empty marker line when nothing survives.",
+    "cases": [
+        {
+            "input": {"feature": "headers", "headers": {"accept": "text/*", "accept_charset": "iso-8859-2"}},
+            "expected_output": "headers=\n"
+        },
+        {
+            "input": {"feature": "headers", "headers": {"content_type": "text/html", "x_amz_acl": "public-read", "x_amz_storage_class": "STANDARD", "if_modified_since": "today", "if_unmodified_since": "tomorrow", "if_match": "1234", "if_none_match": "1243", "content_disposition": "inline", "content_encoding": "gzip"}},
+            "expected_output": "content-disposition=inline\ncontent-encoding=gzip\ncontent-type=text/html\nif-match=1234\nif-modified-since=today\nif-none-match=1243\nif-unmodified-since=tomorrow\nx-amz-acl=public-read\nx-amz-storage-class=STANDARD\n"
+        },
+        {
+            "input": {"feature": "headers", "headers": {"range": {"range": [0, 100]}}},
+            "expected_output": "range=bytes=0-100\n"
+        }
+    ]
+}

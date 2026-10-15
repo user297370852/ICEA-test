@@ -1,0 +1,132 @@
+{
+  "description": "Boundary coverage for state lifecycle callbacks: an exit-only callback registered on the state being left, an enter callback whose recorded value survives a later move into a state that has no exit callback, an inline state declared at construction time with an enter callback reached through an inline transition list, and reading the recorded message before any callback has ever fired.",
+  "cases": [
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B"
+          },
+          {
+            "op": "on_exit",
+            "state": "A",
+            "callback": "farewell"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nmessage=So long, suckers!\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B"
+          },
+          {
+            "op": "add_transition",
+            "trigger": "reverse",
+            "source": "B",
+            "dest": "A"
+          },
+          {
+            "op": "on_enter",
+            "state": "B",
+            "callback": "greet"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "get_message"
+          },
+          {
+            "op": "trigger",
+            "name": "reverse"
+          },
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nmessage=Hello World!\ntrigger=reverse result=true state=A\nmessage=Hello World!\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "S1",
+            {
+              "name": "S2",
+              "on_enter": "farewell"
+            }
+          ],
+          "initial": "S1",
+          "transitions": [
+            {
+              "trigger": "go",
+              "source": "S1",
+              "dest": "S2"
+            }
+          ]
+        },
+        "commands": [
+          {
+            "op": "trigger",
+            "name": "go"
+          },
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "trigger=go result=true state=S2\nmessage=So long, suckers!\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "get_message"
+          }
+        ]
+      },
+      "expected_output": "message=\n"
+    }
+  ]
+}

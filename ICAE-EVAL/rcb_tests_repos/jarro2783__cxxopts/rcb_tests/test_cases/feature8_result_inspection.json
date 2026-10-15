@@ -1,0 +1,37 @@
+{
+  "description": "Reading back parse results. A value not declared on the command line and lacking a default has no value: querying its typed value reports an option_has_no_value error. A value-bearing option may be queried defensively as optional, yielding the value when present and a none marker when absent. Iterating the result visits each present option in command-line order followed by any options that contributed a default value, exposing each as a key/value pair. Repeating a list-valued option (with and without the value attached to the token) accumulates all values in order.",
+  "cases": [
+    {
+      "input": {"program": "tester", "options": [{"opts": "nothing", "type": "string"}], "argv": [], "queries": [{"q": "count", "name": "nothing"}, {"q": "contains", "name": "nothing"}]},
+      "expected_output": "count[nothing]=0\ncontains[nothing]=false"
+    },
+    {
+      "input": {"program": "tester", "options": [{"opts": "nothing", "type": "string"}], "argv": [], "queries": [{"q": "value", "name": "nothing", "type": "string"}]},
+      "expected_output": "error=option_has_no_value\nparam=nothing"
+    },
+    {
+      "input": {"program": "options", "options": [{"opts": "int", "type": "int"}, {"opts": "float", "type": "float"}, {"opts": "string", "type": "string"}], "argv": ["--int", "42", "--float", "3.141", "--string", "Hello"], "queries": [{"q": "optional", "name": "int", "type": "int"}, {"q": "optional", "name": "float", "type": "float"}, {"q": "optional", "name": "string", "type": "string"}]},
+      "expected_output": "optional[int]=42\noptional[float]=3.141\noptional[string]=Hello"
+    },
+    {
+      "input": {"program": "options", "options": [{"opts": "int", "type": "int"}, {"opts": "float", "type": "float"}, {"opts": "string", "type": "string"}], "argv": [], "queries": [{"q": "optional", "name": "int", "type": "int"}, {"q": "optional", "name": "float", "type": "float"}, {"q": "optional", "name": "string", "type": "string"}]},
+      "expected_output": "optional[int]=<none>\noptional[float]=<none>\noptional[string]=<none>"
+    },
+    {
+      "input": {"program": "tester", "options": [{"opts": "long"}, {"opts": "s,short"}, {"opts": "a"}, {"opts": "value", "type": "string"}, {"opts": "default", "type": "int", "default": "42"}, {"opts": "nothing", "type": "string"}], "argv": ["--long", "-s", "-a", "--value", "value"], "queries": [{"q": "iterate"}]},
+      "expected_output": "iter=long:true\niter=short:true\niter=a:true\niter=value:value\niter=default:42\niter_end"
+    },
+    {
+      "input": {"program": "tester", "options": [{"opts": "value", "type": "string"}, {"opts": "default", "type": "int", "default": "42"}, {"opts": "nothing", "type": "string"}], "argv": [], "queries": [{"q": "iterate"}]},
+      "expected_output": "iter=default:42\niter_end"
+    },
+    {
+      "input": {"program": "param_follow_opt", "options": [{"opts": "j,job", "type": "vec_uint"}], "argv": ["-j", "9", "--job", "7", "--job=10", "-j5"], "queries": [{"q": "count", "name": "job"}, {"q": "value", "name": "job", "type": "vec_uint"}]},
+      "expected_output": "count[job]=4\nvalue[job]=[9,7,10,5]"
+    },
+    {
+      "input": {"program": "into_reference", "options": [{"opts": "ref", "type": "int"}, {"opts": "bool", "type": "bool"}], "argv": ["--ref", "42"], "queries": [{"q": "count", "name": "ref"}, {"q": "value", "name": "ref", "type": "int"}, {"q": "count", "name": "bool"}]},
+      "expected_output": "count[ref]=1\nvalue[ref]=42\ncount[bool]=0"
+    }
+  ]
+}

@@ -1,0 +1,303 @@
+{
+  "description": "Enhanced boundary coverage for single attribute-value decoding (disjoint from native cases). Exercises empty and multibyte-unicode strings, empty binary, negative and exponent-form numbers, false booleans, the null indicator regardless of the encoded boolean, empty and single-element sets of every kind, an empty list, a heterogeneous list of scalars, a list whose elements are themselves collections (whose inline scalar value is reported as empty), an empty map, and map key ordering (bytewise, uppercase before lowercase).",
+  "cases": [
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "S": ""
+        }
+      },
+      "expected_output": "type=String\nvalue=\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "S": "héllo, 世界 🌍"
+        }
+      },
+      "expected_output": "type=String\nvalue=héllo, 世界 🌍\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "N": "-0.5"
+        }
+      },
+      "expected_output": "type=Number\nvalue=-0.5\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "N": "1.5E3"
+        }
+      },
+      "expected_output": "type=Number\nvalue=1.5E3\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "BOOL": false
+        }
+      },
+      "expected_output": "type=Boolean\nvalue=false\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "B": ""
+        }
+      },
+      "expected_output": "type=Binary\nvalue=\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "NULL": false
+        }
+      },
+      "expected_output": "type=Null\nis_null=true\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "SS": [
+            "only"
+          ]
+        }
+      },
+      "expected_output": "type=StringSet\ncount=1\n[0]=only\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "NS": [
+            "-42"
+          ]
+        }
+      },
+      "expected_output": "type=NumberSet\ncount=1\n[0]=-42\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "NS": []
+        }
+      },
+      "expected_output": "type=NumberSet\ncount=0\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "BS": []
+        }
+      },
+      "expected_output": "type=BinarySet\ncount=0\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "BS": [
+            "QQ=="
+          ]
+        }
+      },
+      "expected_output": "type=BinarySet\ncount=1\n[0]=QQ==\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "L": []
+        }
+      },
+      "expected_output": "type=List\ncount=0\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "L": [
+            {
+              "BOOL": true
+            },
+            {
+              "B": "AAEqQQ=="
+            },
+            {
+              "NULL": true
+            }
+          ]
+        }
+      },
+      "expected_output": "type=List\ncount=3\n[0] type=Boolean value=true\n[1] type=Binary value=AAEqQQ==\n[2] type=Null value=null\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "L": [
+            {
+              "L": [
+                {
+                  "S": "x"
+                }
+              ]
+            },
+            {
+              "M": {
+                "k": {
+                  "S": "v"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "type=List\ncount=2\n[0] type=List value=\n[1] type=Map value=\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "M": {}
+        }
+      },
+      "expected_output": "type=Map\ncount=0\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "M": {
+            "zeta": {
+              "BOOL": false
+            },
+            "alpha": {
+              "N": "7"
+            },
+            "mid": {
+              "B": "AAEqQQ=="
+            }
+          }
+        }
+      },
+      "expected_output": "type=Map\ncount=3\nalpha: type=Number value=7\nmid: type=Binary value=AAEqQQ==\nzeta: type=Boolean value=false\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "M": {
+            "b": {
+              "NULL": true
+            },
+            "a": {
+              "S": "first"
+            }
+          }
+        }
+      },
+      "expected_output": "type=Map\ncount=2\na: type=String value=first\nb: type=Null value=null\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "S": "  spaced  "
+        }
+      },
+      "expected_output": "type=String\nvalue=  spaced  \n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "N": "0"
+        }
+      },
+      "expected_output": "type=Number\nvalue=0\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "N": "+5"
+        }
+      },
+      "expected_output": "type=Number\nvalue=+5\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "NS": [
+            "3.14",
+            "-2",
+            "0"
+          ]
+        }
+      },
+      "expected_output": "type=NumberSet\ncount=3\n[0]=3.14\n[1]=-2\n[2]=0\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "SS": [
+            "b",
+            "a",
+            "b"
+          ]
+        }
+      },
+      "expected_output": "type=StringSet\ncount=3\n[0]=b\n[1]=a\n[2]=b\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "L": [
+            {
+              "NS": [
+                "1",
+                "2"
+              ]
+            },
+            {
+              "BOOL": false
+            }
+          ]
+        }
+      },
+      "expected_output": "type=List\ncount=2\n[0] type=NumberSet value=\n[1] type=Boolean value=false\n"
+    },
+    {
+      "input": {
+        "action": "dynamodb_decode",
+        "value": {
+          "M": {
+            "A": {
+              "S": "x"
+            },
+            "a": {
+              "S": "y"
+            }
+          }
+        }
+      },
+      "expected_output": "type=Map\ncount=2\nA: type=String value=x\na: type=String value=y\n"
+    }
+  ]
+}

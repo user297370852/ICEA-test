@@ -1,0 +1,122 @@
+{
+  "description": "Force/clear ordering boundaries for the reboot voter: empty force reason, force after an error, repeated forces, force then clear then force again, a lone clear, and an error cleared then re-raised.",
+  "cases": [
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "force",
+            "reason": ""
+          }
+        ]
+      },
+      "expected_output": "forced_reboot_reason=\nshould_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "runtime"
+          },
+          {
+            "type": "force",
+            "reason": "manual after error"
+          }
+        ]
+      },
+      "expected_output": "forced_reboot_reason=manual after error\nshould_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "force",
+            "reason": "first"
+          },
+          {
+            "type": "force",
+            "reason": "second"
+          }
+        ]
+      },
+      "expected_output": "forced_reboot_reason=second\nshould_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "force",
+            "reason": "to be cleared"
+          },
+          {
+            "type": "clear"
+          },
+          {
+            "type": "force",
+            "reason": "after clear"
+          }
+        ]
+      },
+      "expected_output": "forced_reboot_reason=after clear\nshould_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "clear"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=false\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "runtime"
+          },
+          {
+            "type": "clear"
+          },
+          {
+            "type": "exception",
+            "category": "runtime"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=true\n"
+    }
+  ]
+}

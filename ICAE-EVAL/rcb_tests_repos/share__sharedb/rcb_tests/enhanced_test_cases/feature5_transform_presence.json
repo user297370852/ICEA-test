@@ -1,0 +1,81 @@
+{
+  "description": "Transform a presence marker (a cursor-like position bound to a document type and version) so it stays consistent after an operation is applied, advancing the marker version. The marker's type must be registered and must support presence, otherwise a normalized category is returned (type-not-recognized or does-not-support-presence). A create or delete operation discards the marker position (sets it to null). An edit operation asks the type to move the marker, taking into account whether the operation came from the same author. A marker whose position is already null stays null. A malformed operation is rejected with the malformed-envelope category.",
+  "cases": [
+    {
+      "input": {
+        "action": "transformPresence",
+        "presence": {
+          "p": {
+            "index": 0
+          },
+          "t": "presence-test-type",
+          "v": 1
+        },
+        "op": {
+          "op": {
+            "index": 0,
+            "value": "ab"
+          }
+        }
+      },
+      "expected_output": "result={\"p\":{\"index\":0},\"t\":\"presence-test-type\",\"v\":2}\n"
+    },
+    {
+      "input": {
+        "action": "transformPresence",
+        "presence": {
+          "p": {
+            "index": 10
+          },
+          "t": "presence-test-type",
+          "v": 1
+        },
+        "op": {
+          "op": {
+            "index": 3,
+            "value": "abcde"
+          }
+        }
+      },
+      "expected_output": "result={\"p\":{\"index\":15},\"t\":\"presence-test-type\",\"v\":2}\n"
+    },
+    {
+      "input": {
+        "action": "transformPresence",
+        "presence": {
+          "p": {
+            "index": 5
+          },
+          "t": "presence-test-type",
+          "v": 1
+        },
+        "op": {
+          "op": {
+            "index": 8,
+            "value": "xy"
+          }
+        }
+      },
+      "expected_output": "result={\"p\":{\"index\":5},\"t\":\"presence-test-type\",\"v\":2}\n"
+    },
+    {
+      "input": {
+        "action": "transformPresence",
+        "presence": {
+          "p": {
+            "index": 5
+          },
+          "t": "presence-test-type",
+          "v": 100
+        },
+        "op": {
+          "op": {
+            "index": 5,
+            "value": "foo"
+          }
+        }
+      },
+      "expected_output": "result={\"p\":{\"index\":5},\"t\":\"presence-test-type\",\"v\":101}\n"
+    }
+  ]
+}

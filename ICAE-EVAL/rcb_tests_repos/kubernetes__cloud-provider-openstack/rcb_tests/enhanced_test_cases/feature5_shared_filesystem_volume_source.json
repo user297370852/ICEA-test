@@ -1,0 +1,75 @@
+{
+  "description": "Export-location splitting boundaries: no-colon and leading-colon errors, trailing-colon empty rootPath, IPv6 bracketed monitors, and varied driver/mounter/namespace propagation.",
+  "cases": [
+    {
+      "input": {
+        "export_location": "no-colon-here",
+        "volume_handle": "pvc-a",
+        "share_id": "s-a",
+        "driver": "csi-cephfs",
+        "mounter": "fuse",
+        "os_secret_namespace": "default",
+        "share_secret_namespace": "default",
+        "secret_name": "manila-a",
+        "secret_namespace": "default"
+      },
+      "expected_output": "error=invalid_export_location\nexport_location=no-colon-here\n"
+    },
+    {
+      "input": {
+        "export_location": ":/leading-colon",
+        "volume_handle": "pvc-b",
+        "share_id": "s-b",
+        "driver": "csi-cephfs",
+        "mounter": "fuse",
+        "os_secret_namespace": "default",
+        "share_secret_namespace": "default",
+        "secret_name": "manila-b",
+        "secret_namespace": "default"
+      },
+      "expected_output": "error=invalid_export_location\nexport_location=:/leading-colon\n"
+    },
+    {
+      "input": {
+        "export_location": "addr1:6789:",
+        "volume_handle": "pvc-c",
+        "share_id": "s-c",
+        "driver": "csi-cephfs",
+        "mounter": "kernel",
+        "os_secret_namespace": "ns1",
+        "share_secret_namespace": "ns2",
+        "secret_name": "manila-c",
+        "secret_namespace": "kube-system"
+      },
+      "expected_output": "source_type=csi\ndriver=csi-cephfs\nvolume_handle=pvc-c\nattribute.monitors=addr1:6789\nattribute.mounter=kernel\nattribute.provisionVolume=false\nattribute.rootPath=\nsecret_name=manila-c\nsecret_namespace=kube-system\n"
+    },
+    {
+      "input": {
+        "export_location": "10.0.0.1:6789:/data",
+        "volume_handle": "pvc-d",
+        "share_id": "s-d",
+        "driver": "ceph.csi.driver",
+        "mounter": "fuse",
+        "os_secret_namespace": "default",
+        "share_secret_namespace": "default",
+        "secret_name": "manila-d",
+        "secret_namespace": "default"
+      },
+      "expected_output": "source_type=csi\ndriver=ceph.csi.driver\nvolume_handle=pvc-d\nattribute.monitors=10.0.0.1:6789\nattribute.mounter=fuse\nattribute.provisionVolume=false\nattribute.rootPath=/data\nsecret_name=manila-d\nsecret_namespace=default\n"
+    },
+    {
+      "input": {
+        "export_location": "[fe80::1]:6789:/v6path",
+        "volume_handle": "pvc-e",
+        "share_id": "s-e",
+        "driver": "csi-cephfs",
+        "mounter": "fuse",
+        "os_secret_namespace": "default",
+        "share_secret_namespace": "default",
+        "secret_name": "manila-e",
+        "secret_namespace": "default"
+      },
+      "expected_output": "source_type=csi\ndriver=csi-cephfs\nvolume_handle=pvc-e\nattribute.monitors=[fe80::1]:6789\nattribute.mounter=fuse\nattribute.provisionVolume=false\nattribute.rootPath=/v6path\nsecret_name=manila-e\nsecret_namespace=default\n"
+    }
+  ]
+}

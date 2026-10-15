@@ -1,0 +1,58 @@
+{
+  "description": "Multi-file upload construction edge cases. Covers a mixed list combining a (field, filename, mime) triple, a bare filename, and a (field, filename) pair; a list of bare filenames exercising mime inference including unknown/extension-less names that fall back to the generic binary type; and a single triple whose explicit mime type overrides any inference.",
+  "cases": [
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "MultiUploadTask",
+        "taskId": "m2",
+        "url": "http://x",
+        "files": [
+          [
+            "fld",
+            "x.dat",
+            "custom/type"
+          ],
+          "plain.txt",
+          [
+            "only",
+            "y.bin"
+          ]
+        ]
+      },
+      "expected_output": "fileFields=[\"fld\",\"plain\",\"only\"]\nfilenames=[\"x.dat\",\"plain.txt\",\"y.bin\"]\nmimeTypes=[\"custom/type\",\"text/plain\",\"application/octet-stream\"]\nfileField=[\"fld\",\"plain\",\"only\"]\nfilename=[\"x.dat\",\"plain.txt\",\"y.bin\"]\nmimeType=[\"custom/type\",\"text/plain\",\"application/octet-stream\"]\ntaskType=MultiUploadTask\n"
+    },
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "MultiUploadTask",
+        "taskId": "m",
+        "url": "http://x",
+        "files": [
+          "a.png",
+          "b.json",
+          "c.dat",
+          "d.unknownext",
+          "e"
+        ]
+      },
+      "expected_output": "fileFields=[\"a\",\"b\",\"c\",\"d\",\"e\"]\nfilenames=[\"a.png\",\"b.json\",\"c.dat\",\"d.unknownext\",\"e\"]\nmimeTypes=[\"image/png\",\"application/json\",\"application/octet-stream\",\"application/octet-stream\",\"application/octet-stream\"]\nfileField=[\"a\",\"b\",\"c\",\"d\",\"e\"]\nfilename=[\"a.png\",\"b.json\",\"c.dat\",\"d.unknownext\",\"e\"]\nmimeType=[\"image/png\",\"application/json\",\"application/octet-stream\",\"application/octet-stream\",\"application/octet-stream\"]\ntaskType=MultiUploadTask\n"
+    },
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "MultiUploadTask",
+        "taskId": "m3",
+        "url": "http://x",
+        "files": [
+          [
+            "f",
+            "img.png",
+            "application/x-custom"
+          ]
+        ]
+      },
+      "expected_output": "fileFields=[\"f\"]\nfilenames=[\"img.png\"]\nmimeTypes=[\"application/x-custom\"]\nfileField=[\"f\"]\nfilename=[\"img.png\"]\nmimeType=[\"application/x-custom\"]\ntaskType=MultiUploadTask\n"
+    }
+  ]
+}

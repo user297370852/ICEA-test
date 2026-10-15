@@ -1,0 +1,100 @@
+{
+  "description": "Boundary coverage for histogram group aggregation: an empty group definition producing no output, a group that lists the same endpoint more than once so its bucket counts are added once per listing, buckets contributed by several endpoints with overlapping and distinct upper-bounds presented out of order that must be merged and sorted ascending, and an empty group reported before a non-empty one to confirm group order is preserved. Counts at matching upper-bounds are summed.",
+  "cases": [
+    {
+      "input": {
+        "action": "aggregate_histogram",
+        "histograms": {
+          "/a": [
+            {
+              "count": 5,
+              "le": 0.01
+            }
+          ]
+        },
+        "groups": {}
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "aggregate_histogram",
+        "histograms": {
+          "/a": [
+            {
+              "count": 5,
+              "le": 0.01
+            },
+            {
+              "count": 8,
+              "le": 0.05
+            }
+          ]
+        },
+        "groups": {
+          "g": [
+            "/a",
+            "/a"
+          ]
+        }
+      },
+      "expected_output": "g\n0.01 10\n0.05 16\n"
+    },
+    {
+      "input": {
+        "action": "aggregate_histogram",
+        "histograms": {
+          "/a": [
+            {
+              "count": 3,
+              "le": 0.5
+            },
+            {
+              "count": 1,
+              "le": 0.01
+            }
+          ],
+          "/b": [
+            {
+              "count": 7,
+              "le": 0.5
+            },
+            {
+              "count": 2,
+              "le": 0.1
+            }
+          ]
+        },
+        "groups": {
+          "grp": [
+            "/a",
+            "/b"
+          ]
+        }
+      },
+      "expected_output": "grp\n0.01 1\n0.1 2\n0.5 10\n"
+    },
+    {
+      "input": {
+        "action": "aggregate_histogram",
+        "histograms": {
+          "/a": [
+            {
+              "count": 9,
+              "le": 0.1
+            }
+          ]
+        },
+        "groups": {
+          "first": [
+            "/x"
+          ],
+          "second": [
+            "/a"
+          ]
+        }
+      },
+      "expected_output": "first\nsecond\n0.1 9\n"
+    }
+  ]
+}

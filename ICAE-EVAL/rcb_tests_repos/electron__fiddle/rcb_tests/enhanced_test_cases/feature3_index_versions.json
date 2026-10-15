@@ -1,0 +1,52 @@
+{
+  "description": "Convert a list of release records into a lookup object keyed by each record's normalized version string (the version with any single leading prefix letter removed). Each entry maps the normalized key to the original, unmodified record. Later records sharing a normalized key overwrite earlier ones, and keys appear in the order the records were supplied. The output is the resulting object serialized as compact JSON followed by a trailing newline.",
+  "cases": [
+    {
+      "input": {
+        "op": "index_versions",
+        "versions": []
+      },
+      "expected_output": "{}\n"
+    },
+    {
+      "input": {
+        "op": "index_versions",
+        "versions": [
+          {
+            "version": "v1.0.0"
+          },
+          {
+            "version": "1.0.0"
+          }
+        ]
+      },
+      "expected_output": "{\"1.0.0\":{\"version\":\"1.0.0\"}}\n"
+    },
+    {
+      "input": {
+        "op": "index_versions",
+        "versions": [
+          {
+            "version": "v9.9.9",
+            "name": "x"
+          }
+        ]
+      },
+      "expected_output": "{\"9.9.9\":{\"version\":\"v9.9.9\",\"name\":\"x\"}}\n"
+    },
+    {
+      "input": {
+        "op": "index_versions",
+        "versions": [
+          {
+            "version": "4.5.6"
+          },
+          {
+            "version": "v7.8.9"
+          }
+        ]
+      },
+      "expected_output": "{\"4.5.6\":{\"version\":\"4.5.6\"},\"7.8.9\":{\"version\":\"v7.8.9\"}}\n"
+    }
+  ]
+}

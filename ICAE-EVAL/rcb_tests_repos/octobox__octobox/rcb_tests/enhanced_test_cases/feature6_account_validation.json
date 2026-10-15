@@ -1,0 +1,70 @@
+{
+  "description": "Validate a candidate account record before storage. All three of external id, access token, and login must be present; the external id and the access token must each be unique across stored accounts. The verdict is reported, and when invalid each offending field is named with a normalized failure category.",
+  "cases": [
+    {
+      "input": {
+        "action": "account_validation",
+        "attributes": {
+          "github_id": null,
+          "access_token": null,
+          "github_login": "andrew"
+        }
+      },
+      "expected_output": "valid=false\nfield=github_id error=blank\nfield=access_token error=blank\n"
+    },
+    {
+      "input": {
+        "action": "account_validation",
+        "attributes": {
+          "github_id": null,
+          "access_token": null,
+          "github_login": null
+        }
+      },
+      "expected_output": "valid=false\nfield=github_id error=blank\nfield=access_token error=blank\nfield=github_login error=blank\n"
+    },
+    {
+      "input": {
+        "action": "account_validation",
+        "attributes": {
+          "github_id": 0,
+          "access_token": "tok",
+          "github_login": "andrew"
+        }
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "action": "account_validation",
+        "existing": {
+          "github_id": 7,
+          "access_token": "dup",
+          "github_login": "seed"
+        },
+        "attributes": {
+          "github_id": 7,
+          "access_token": "dup",
+          "github_login": "andrew"
+        }
+      },
+      "expected_output": "valid=false\nfield=github_id error=taken\nfield=access_token error=taken\n"
+    },
+    {
+      "input": {
+        "action": "account_validation",
+        "existing": {
+          "github_id": 7,
+          "access_token": "dup",
+          "github_login": "seed"
+        },
+        "attributes": {
+          "github_id": 7,
+          "access_token": null,
+          "github_login": "andrew"
+        }
+      },
+      "expected_output": "valid=false\nfield=github_id error=taken\nfield=access_token error=blank\n"
+    }
+  ]
+}

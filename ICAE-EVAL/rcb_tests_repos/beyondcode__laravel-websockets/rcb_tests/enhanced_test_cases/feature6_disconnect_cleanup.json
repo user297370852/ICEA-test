@@ -1,0 +1,53 @@
+{
+  "description": "When a client disconnects it is removed from every channel it had joined. A channel still holding other subscribers remains tracked with the reduced subscriber count, while a channel left empty is discarded entirely.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "1.1"
+          },
+          {
+            "name": "b",
+            "socket_id": "2.2"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "keep-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "b",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "keep-channel"
+              }
+            }
+          },
+          {
+            "type": "close",
+            "conn": "a"
+          }
+        ],
+        "report": {
+          "connections": [],
+          "channels": [
+            "keep-channel"
+          ]
+        }
+      },
+      "expected_output": "[channel:keep-channel] occupied=true subscription_count=1\n"
+    }
+  ]
+}

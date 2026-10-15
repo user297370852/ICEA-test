@@ -1,0 +1,158 @@
+{
+  "description": "Additional whole-schema rendering cases: a single-Required-attribute schema, a Read-Only-only schema, an empty schema (just the '## Schema' heading), Sensitive/Deprecated inline markers in the Optional group, a schema with a nested block_type sub-section, and a schema with a single nested-object attribute sub-section.",
+  "cases": [
+    {
+      "input": {
+        "op": "render_schema",
+        "schema": {
+          "version": 0,
+          "block": {
+            "description_kind": "plain",
+            "attributes": {
+              "name": {
+                "description_kind": "plain",
+                "required": true,
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "## Schema\n\n### Required\n\n- `name` (String)"
+    },
+    {
+      "input": {
+        "op": "render_schema",
+        "schema": {
+          "version": 0,
+          "block": {
+            "description_kind": "plain",
+            "attributes": {
+              "only_ro": {
+                "computed": true,
+                "description_kind": "plain",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "## Schema\n\n### Read-Only\n\n- `only_ro` (String)"
+    },
+    {
+      "input": {
+        "op": "render_schema",
+        "schema": {
+          "version": 0,
+          "block": {
+            "description_kind": "plain",
+            "attributes": {}
+          }
+        }
+      },
+      "expected_output": "## Schema"
+    },
+    {
+      "input": {
+        "op": "render_schema",
+        "schema": {
+          "version": 0,
+          "block": {
+            "description_kind": "plain",
+            "attributes": {
+              "secret": {
+                "optional": true,
+                "sensitive": true,
+                "description_kind": "plain",
+                "type": "string"
+              },
+              "old": {
+                "optional": true,
+                "deprecated": true,
+                "description_kind": "plain",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "## Schema\n\n### Optional\n\n- `old` (String, Deprecated)\n- `secret` (String, Sensitive)"
+    },
+    {
+      "input": {
+        "op": "render_schema",
+        "schema": {
+          "version": 1,
+          "block": {
+            "description_kind": "plain",
+            "attributes": {
+              "name": {
+                "required": true,
+                "description_kind": "plain",
+                "type": "string"
+              },
+              "tags": {
+                "optional": true,
+                "description_kind": "plain",
+                "type": [
+                  "map",
+                  "string"
+                ]
+              }
+            },
+            "block_types": {
+              "settings": {
+                "nesting_mode": "list",
+                "max_items": 1,
+                "block": {
+                  "description_kind": "plain",
+                  "attributes": {
+                    "enabled": {
+                      "optional": true,
+                      "description_kind": "plain",
+                      "type": "bool"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "## Schema\n\n### Required\n\n- `name` (String)\n\n### Optional\n\n- `settings` (Block List, Max: 1) (see [below for nested schema](#nestedblock--settings))\n- `tags` (Map of String)\n\n<a id=\"nestedblock--settings\"></a>\n### Nested Schema for `settings`\n\nOptional:\n\n- `enabled` (Boolean)"
+    },
+    {
+      "input": {
+        "op": "render_schema",
+        "schema": {
+          "version": 0,
+          "block": {
+            "description_kind": "plain",
+            "attributes": {
+              "config": {
+                "optional": true,
+                "description_kind": "plain",
+                "nested_type": {
+                  "nesting_mode": "single",
+                  "attributes": {
+                    "host": {
+                      "required": true,
+                      "description_kind": "plain",
+                      "type": "string"
+                    },
+                    "port": {
+                      "optional": true,
+                      "description_kind": "plain",
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "## Schema\n\n### Optional\n\n- `config` (Attributes) (see [below for nested schema](#nestedatt--config))\n\n<a id=\"nestedatt--config\"></a>\n### Nested Schema for `config`\n\nRequired:\n\n- `host` (String)\n\nOptional:\n\n- `port` (Number)"
+    }
+  ]
+}

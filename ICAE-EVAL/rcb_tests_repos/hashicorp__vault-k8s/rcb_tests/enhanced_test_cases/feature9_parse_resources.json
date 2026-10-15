@@ -1,0 +1,135 @@
+{
+  "description": "[ENHANCED] Enhanced resource-quantity parsing: millicpu, decimal cpu, mixed SI/binary suffixes, large Ti/Pi units, single populated fields, and malformed tokens.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "250m",
+        "limits_mem": "512Mi",
+        "requests_cpu": "100m",
+        "requests_mem": "256Mi"
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"250m\",\"memory\":\"512Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "2",
+        "limits_mem": "1G",
+        "requests_cpu": "1",
+        "requests_mem": "512M"
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"2\",\"memory\":\"1G\"},\"requests\":{\"cpu\":\"1\",\"memory\":\"512M\"},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "1.5",
+        "limits_mem": "1.5Gi",
+        "requests_cpu": "0.5",
+        "requests_mem": "768Mi"
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"1500m\",\"memory\":\"1536Mi\"},\"requests\":{\"cpu\":\"500m\",\"memory\":\"768Mi\"},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "1000Gi",
+        "limits_mem": "1Ti",
+        "requests_cpu": "500Gi",
+        "requests_mem": "512Gi"
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"1000Gi\",\"memory\":\"1Ti\"},\"requests\":{\"cpu\":\"500Gi\",\"memory\":\"512Gi\"},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "0",
+        "limits_mem": "512Mi",
+        "requests_cpu": "0",
+        "requests_mem": "256Mi"
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"0\",\"memory\":\"512Mi\"},\"requests\":{\"cpu\":\"0\",\"memory\":\"256Mi\"},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "4",
+        "limits_mem": "",
+        "requests_cpu": "2",
+        "requests_mem": ""
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"4\"},\"requests\":{\"cpu\":\"2\"},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "",
+        "limits_mem": "2Gi",
+        "requests_cpu": "",
+        "requests_mem": ""
+      },
+      "expected_output": "{\"limits\":{\"memory\":\"2Gi\"},\"requests\":{},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "100m",
+        "limits_mem": "",
+        "requests_cpu": "",
+        "requests_mem": ""
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"100m\"},\"requests\":{},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "abc",
+        "limits_mem": "1Gi",
+        "requests_cpu": "1",
+        "requests_mem": "1Gi"
+      },
+      "expected_output": "{\"error\":\"invalid_quantity\",\"status\":\"error\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "1",
+        "limits_mem": "1Gi",
+        "requests_cpu": "1",
+        "requests_mem": "12x"
+      },
+      "expected_output": "{\"error\":\"invalid_quantity\",\"status\":\"error\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "1",
+        "limits_mem": "Mi",
+        "requests_cpu": "1",
+        "requests_mem": "1Gi"
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"1\",\"memory\":\"0\"},\"requests\":{\"cpu\":\"1\",\"memory\":\"1Gi\"},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "1 ",
+        "limits_mem": "1Gi",
+        "requests_cpu": "1",
+        "requests_mem": "1Gi"
+      },
+      "expected_output": "{\"error\":\"invalid_quantity\",\"status\":\"error\"}\n"
+    },
+    {
+      "input": {
+        "op": "parse_resources",
+        "limits_cpu": "1",
+        "limits_mem": "1Ki",
+        "requests_cpu": "1",
+        "requests_mem": "1Pi"
+      },
+      "expected_output": "{\"limits\":{\"cpu\":\"1\",\"memory\":\"1Ki\"},\"requests\":{\"cpu\":\"1\",\"memory\":\"1Pi\"},\"status\":\"ok\"}\n"
+    }
+  ]
+}

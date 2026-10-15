@@ -1,0 +1,83 @@
+{
+  "description": "Append-mode coverage: appending byte sequences accumulates content, three sequential text appends build up a string, and appending to a brand-new path creates and fills it.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "bytes": [
+              1,
+              2
+            ]
+          },
+          {
+            "op": "write",
+            "path": "/f",
+            "bytes": [
+              3,
+              4
+            ],
+            "mode": "append"
+          },
+          {
+            "op": "read",
+            "path": "/f",
+            "as": "bytes"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=2\nwrote_bytes=2\nbytes=1,2,3,4\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "a"
+          },
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "b",
+            "mode": "append"
+          },
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "c",
+            "mode": "append"
+          },
+          {
+            "op": "read",
+            "path": "/f"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=1\nwrote_bytes=1\nwrote_bytes=1\ntext=\"abc\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/new",
+            "text": "seed",
+            "mode": "append"
+          },
+          {
+            "op": "length",
+            "path": "/new"
+          },
+          {
+            "op": "read",
+            "path": "/new"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=4\nlength=4\ntext=\"seed\"\n"
+    }
+  ]
+}

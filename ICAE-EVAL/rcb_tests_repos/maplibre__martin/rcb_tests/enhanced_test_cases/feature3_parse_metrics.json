@@ -1,0 +1,33 @@
+{
+  "description": "Boundary coverage for request-duration sum and count parsing: an empty input text producing no output, repeated occurrences of the same endpoint across distinct label sets whose values accumulate, a value expressed in scientific notation, and a line with leading whitespace carrying a negative value. Only the recognized request-duration sum and count series are extracted.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_metrics",
+        "text": ""
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "parse_metrics",
+        "text": "martin_http_requests_duration_seconds_sum{endpoint=\"/a\",method=\"GET\",status=\"200\"} 1.5\nmartin_http_requests_duration_seconds_sum{endpoint=\"/a\",method=\"GET\",status=\"500\"} 2.5\nmartin_http_requests_duration_seconds_count{endpoint=\"/a\",method=\"GET\",status=\"200\"} 10\nmartin_http_requests_duration_seconds_count{endpoint=\"/a\",method=\"GET\",status=\"500\"} 5"
+      },
+      "expected_output": "sum /a 4\ncount /a 15\n"
+    },
+    {
+      "input": {
+        "action": "parse_metrics",
+        "text": "martin_http_requests_duration_seconds_sum{endpoint=\"/x\",method=\"GET\",status=\"200\"} 1.5e2\nmartin_http_requests_duration_seconds_count{endpoint=\"/x\",method=\"GET\",status=\"200\"} 3"
+      },
+      "expected_output": "sum /x 150\ncount /x 3\n"
+    },
+    {
+      "input": {
+        "action": "parse_metrics",
+        "text": "   martin_http_requests_duration_seconds_sum{endpoint=\"/y\",method=\"GET\",status=\"200\"} -3.5\nmartin_http_requests_duration_seconds_count{endpoint=\"/y\",method=\"GET\",status=\"200\"} 4"
+      },
+      "expected_output": "sum /y -3.5\ncount /y 4\n"
+    }
+  ]
+}

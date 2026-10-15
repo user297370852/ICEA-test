@@ -1,0 +1,113 @@
+{
+    "description": "Expand templates that call other templates, passing arguments through each level. Arguments are expanded in the calling scope before being handed to the inner template, and inner parser functions see the propagated values. When an argument is not supplied at the outermost call, the innermost reference that has no default remains as literal triple-brace text.",
+    "cases": [
+        {
+            "input": {
+                "wikitext": "{{testmod|zz}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "a{{testmod2|{{{1}}}}}b"
+                    },
+                    {
+                        "title": "Template:testmod2",
+                        "body": "x{{{1}}}y"
+                    }
+                ]
+            },
+            "expected_output": "axzzyb"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|zz}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "a{{testmod2|{{{1}}}}}b"
+                    },
+                    {
+                        "title": "Template:testmod2",
+                        "body": "{{#if:{{{1}}}|x|y}}"
+                    }
+                ]
+            },
+            "expected_output": "axb"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "a{{testmod2|{{{1}}}}}b"
+                    },
+                    {
+                        "title": "Template:testmod2",
+                        "body": "{{#if:{{{1}}}|x|y}}"
+                    }
+                ]
+            },
+            "expected_output": "ayb"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "a{{testmod2|{{{1}}}}}b"
+                    },
+                    {
+                        "title": "Template:testmod2",
+                        "body": "c{{testmod3|{{{1}}}}}d"
+                    },
+                    {
+                        "title": "Template:testmod3",
+                        "body": "f{{{1}}}g"
+                    }
+                ]
+            },
+            "expected_output": "acf{{{1}}}gdb"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "a{{testmod2|{{{1}}}}}b"
+                    },
+                    {
+                        "title": "Template:testmod2",
+                        "body": "c{{testmod3|{{{1}}}}}d"
+                    },
+                    {
+                        "title": "Template:testmod3",
+                        "body": "f{{{1}}}g"
+                    }
+                ]
+            },
+            "expected_output": "acfgdb"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|zz}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "a{{testmod2|{{{1}}}}}b"
+                    },
+                    {
+                        "title": "Template:testmod2",
+                        "body": "c{{testmod3|{{{1}}}}}d"
+                    },
+                    {
+                        "title": "Template:testmod3",
+                        "body": "f{{{1}}}g"
+                    }
+                ]
+            },
+            "expected_output": "acfzzgdb"
+        }
+    ]
+}

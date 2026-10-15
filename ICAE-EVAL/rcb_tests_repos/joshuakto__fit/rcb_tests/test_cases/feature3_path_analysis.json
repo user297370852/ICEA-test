@@ -1,0 +1,37 @@
+{
+  "description": "Workspace file paths are normalized and analyzed for filename, extension, hidden-path status, and Unicode diagnostic metadata.",
+  "cases": [
+    {
+      "description": "A normal ASCII file path reports its basename, extension, visibility, and byte counts.",
+      "input": {
+        "command": "path.analyze",
+        "path": "notes/daily/2024-01-01.md"
+      },
+      "expected_output": "path=notes/daily/2024-01-01.md\nname=2024-01-01.md\nextension=md\nhidden=false\nis_nfc=true\nis_nfd=true\nhas_non_ascii=false\nchar_length=25\nbyte_length=25\n"
+    },
+    {
+      "description": "A dotfile reports no extension and is considered hidden.",
+      "input": {
+        "command": "path.analyze",
+        "path": ".gitignore"
+      },
+      "expected_output": "path=.gitignore\nname=.gitignore\nextension=null\nhidden=true\nis_nfc=true\nis_nfd=true\nhas_non_ascii=false\nchar_length=10\nbyte_length=10\n"
+    },
+    {
+      "description": "A file inside a hidden directory is considered hidden while still reporting its file extension.",
+      "input": {
+        "command": "path.analyze",
+        "path": ".obsidian/app.json"
+      },
+      "expected_output": "path=.obsidian/app.json\nname=app.json\nextension=json\nhidden=true\nis_nfc=true\nis_nfd=true\nhas_non_ascii=false\nchar_length=18\nbyte_length=18\n"
+    },
+    {
+      "description": "A decomposed Unicode path is normalized before metadata is produced.",
+      "input": {
+        "command": "path.analyze",
+        "path": "dünya.md"
+      },
+      "expected_output": "path=dünya.md\nname=dünya.md\nextension=md\nhidden=false\nis_nfc=true\nis_nfd=false\nhas_non_ascii=true\nchar_length=8\nbyte_length=9\n"
+    }
+  ]
+}

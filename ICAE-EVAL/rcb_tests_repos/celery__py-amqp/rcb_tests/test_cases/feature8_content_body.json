@@ -1,0 +1,33 @@
+{
+    "description": "Reassemble a message body delivered as a sequence of chunks. The consumer tracks how many body bytes have arrived against the announced body size, buffering partial chunks; the message becomes ready only once the accumulated length reaches the announced size, at which point the buffered chunks are concatenated in arrival order into the final body. The output reports the readiness flag after each chunk is fed and then the final assembled body.",
+    "cases": [
+        {
+            "input": {
+                "op": "content_body",
+                "body_size": 16,
+                "received": 8,
+                "pending": [
+                    "746865",
+                    "717569636b"
+                ],
+                "chunks": [
+                    "62726f776e",
+                    "666f78"
+                ]
+            },
+            "expected_output": "ready=false\nready=true\nbody_hex=746865717569636b62726f776e666f78"
+        },
+        {
+            "input": {
+                "op": "content_body",
+                "body_size": 16,
+                "chunks": [
+                    {
+                        "str": "thequickbrownfox"
+                    }
+                ]
+            },
+            "expected_output": "ready=true\nbody_str=thequickbrownfox"
+        }
+    ]
+}

@@ -1,0 +1,117 @@
+{
+    "description": "Build inbound fulfillment shipment request parameters for item lists, ship-from addresses, shipment creation, labels, and transport operations.",
+    "cases": [
+        {
+            "input": {
+                "feature": "inbound_items",
+                "operation": "CreateInboundShipmentPlan",
+                "items": [
+                    {
+                        "sku": "somethingelse",
+                        "quantity": 56,
+                        "quantity_in_case": 12,
+                        "asin": "ANYTHING",
+                        "condition": "Used"
+                    },
+                    {
+                        "sku": "something",
+                        "quantity": 34
+                    }
+                ]
+            },
+            "expected_output": "{\"items\":[{\"ASIN\":\"ANYTHING\",\"Condition\":\"Used\",\"Quantity\":56,\"QuantityInCase\":12,\"SellerSKU\":\"somethingelse\"},{\"ASIN\":null,\"Condition\":null,\"Quantity\":34,\"QuantityInCase\":null,\"SellerSKU\":\"something\"}]}\n"
+        },
+        {
+            "input": {
+                "feature": "inbound_address",
+                "address": {
+                    "name": "Roland Deschain",
+                    "address_1": "500 Summat Cully Lane",
+                    "address_2": "Apartment 19",
+                    "city": "Gilead",
+                    "district_or_county": "West-Town",
+                    "state_or_province": "New Canaan",
+                    "postal_code": "13019",
+                    "country": "Mid-World"
+                }
+            },
+            "expected_output": "{\"ship_from_address\":{\"ShipFromAddress.AddressLine1\":\"500 Summat Cully Lane\",\"ShipFromAddress.AddressLine2\":\"Apartment 19\",\"ShipFromAddress.City\":\"Gilead\",\"ShipFromAddress.CountryCode\":\"Mid-World\",\"ShipFromAddress.DistrictOrCounty\":\"West-Town\",\"ShipFromAddress.Name\":\"Roland Deschain\",\"ShipFromAddress.PostalCode\":\"13019\",\"ShipFromAddress.StateOrProvinceCode\":\"New Canaan\"}}\n"
+        },
+        {
+            "input": {
+                "feature": "inbound_address",
+                "address": {
+                    "name": "Roland Deschain",
+                    "address_1": "500 Summat Cully Lane",
+                    "city": "Gilead"
+                }
+            },
+            "expected_output": "{\"ship_from_address\":{\"ShipFromAddress.AddressLine1\":\"500 Summat Cully Lane\",\"ShipFromAddress.AddressLine2\":null,\"ShipFromAddress.City\":\"Gilead\",\"ShipFromAddress.CountryCode\":\"US\",\"ShipFromAddress.DistrictOrCounty\":null,\"ShipFromAddress.Name\":\"Roland Deschain\",\"ShipFromAddress.PostalCode\":null,\"ShipFromAddress.StateOrProvinceCode\":null}}\n"
+        },
+        {
+            "input": {
+                "feature": "inbound_address",
+                "address": {}
+            },
+            "expected_output": "{\"error\":\"invalid_fulfillment_input\"}\n"
+        },
+        {
+            "input": {
+                "feature": "request_params",
+                "area": "inbound_shipments",
+                "operation": "CreateInboundShipmentPlan",
+                "from_address": {
+                    "name": "Roland Deschain",
+                    "address_1": "500 Summat Cully Lane",
+                    "city": "Gilead",
+                    "country": "Risa"
+                },
+                "arguments": {
+                    "items": [
+                        {
+                            "sku": "ievEKnILd3",
+                            "quantity": 6
+                        },
+                        {
+                            "sku": "9IfTM1aJVG",
+                            "quantity": 26
+                        }
+                    ],
+                    "country_code": "Risa",
+                    "subdivision_code": "Hotel California",
+                    "label_preference": "SELLER"
+                }
+            },
+            "expected_output": "{\"endpoint\":\"https://mws.amazonservices.com\",\"params\":{\"AWSAccessKeyId\":\"cred_access\",\"Action\":\"CreateInboundShipmentPlan\",\"InboundShipmentPlanRequestItems.member.1.Quantity\":\"6\",\"InboundShipmentPlanRequestItems.member.1.SellerSKU\":\"ievEKnILd3\",\"InboundShipmentPlanRequestItems.member.2.Quantity\":\"26\",\"InboundShipmentPlanRequestItems.member.2.SellerSKU\":\"9IfTM1aJVG\",\"LabelPrepPreference\":\"SELLER\",\"MWSAuthToken\":\"cred_token\",\"SellerId\":\"cred_account\",\"ShipFromAddress.AddressLine1\":\"500%20Summat%20Cully%20Lane\",\"ShipFromAddress.City\":\"Gilead\",\"ShipFromAddress.CountryCode\":\"Risa\",\"ShipFromAddress.Name\":\"Roland%20Deschain\",\"ShipToCountryCode\":\"Risa\",\"ShipToCountrySubdivisionCode\":\"Hotel%20California\",\"SignatureMethod\":\"HmacSHA256\",\"SignatureVersion\":\"2\",\"Timestamp\":\"<iso8601-url-encoded-utc-second>\",\"Version\":\"2010-10-01\"},\"path\":\"/FulfillmentInboundShipment/2010-10-01\",\"version\":\"2010-10-01\"}\n"
+        },
+        {
+            "input": {
+                "feature": "request_params",
+                "area": "inbound_shipments",
+                "operation": "GetPackageLabels",
+                "arguments": {
+                    "shipment_id": "FBA123",
+                    "num_labels": 10,
+                    "page_type": "PackageLabel_Letter_2"
+                }
+            },
+            "expected_output": "{\"endpoint\":\"https://mws.amazonservices.com\",\"params\":{\"AWSAccessKeyId\":\"cred_access\",\"Action\":\"GetPackageLabels\",\"MWSAuthToken\":\"cred_token\",\"NumberOfPackages\":\"10\",\"PageType\":\"PackageLabel_Letter_2\",\"SellerId\":\"cred_account\",\"ShipmentId\":\"FBA123\",\"SignatureMethod\":\"HmacSHA256\",\"SignatureVersion\":\"2\",\"Timestamp\":\"<iso8601-url-encoded-utc-second>\",\"Version\":\"2010-10-01\"},\"path\":\"/FulfillmentInboundShipment/2010-10-01\",\"version\":\"2010-10-01\"}\n"
+        },
+        {
+            "input": {
+                "feature": "request_params",
+                "area": "inbound_shipments",
+                "operation": "GetUniquePackageLabels",
+                "arguments": {
+                    "shipment_id": "FBA123",
+                    "page_type": "PackageLabel_Letter_2",
+                    "package_ids": [
+                        "PKG1",
+                        "PKG2"
+                    ]
+                }
+            },
+            "expected_output": "{\"endpoint\":\"https://mws.amazonservices.com\",\"params\":{\"AWSAccessKeyId\":\"cred_access\",\"Action\":\"GetUniquePackageLabels\",\"MWSAuthToken\":\"cred_token\",\"PackageLabelsToPrint.member.1\":\"PKG1\",\"PackageLabelsToPrint.member.2\":\"PKG2\",\"PageType\":\"PackageLabel_Letter_2\",\"SellerId\":\"cred_account\",\"ShipmentId\":\"FBA123\",\"SignatureMethod\":\"HmacSHA256\",\"SignatureVersion\":\"2\",\"Timestamp\":\"<iso8601-url-encoded-utc-second>\",\"Version\":\"2010-10-01\"},\"path\":\"/FulfillmentInboundShipment/2010-10-01\",\"version\":\"2010-10-01\"}\n"
+        }
+    ]
+}

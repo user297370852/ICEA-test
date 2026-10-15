@@ -1,0 +1,204 @@
+{
+  "description": "Enhanced numeric parsing: signed/unsigned width boundaries (int32, uint, int16, uint8), boundary-overflow rejection (uint8 256, int32 overflow, unsigned negative), uppercase 0X hex prefix, and floating-point scientific/decimal rendering.",
+  "cases": [
+    {
+      "input": {
+        "program": "i32",
+        "options": [
+          {
+            "opts": "n",
+            "type": "vec_int32"
+          }
+        ],
+        "positional": [
+          "n"
+        ],
+        "argv": [
+          "--",
+          "2147483647",
+          "-2147483648",
+          "0"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "n",
+            "type": "vec_int32"
+          }
+        ]
+      },
+      "expected_output": "error=parse_error"
+    },
+    {
+      "input": {
+        "program": "u32",
+        "options": [
+          {
+            "opts": "n",
+            "type": "vec_uint"
+          }
+        ],
+        "positional": [
+          "n"
+        ],
+        "argv": [
+          "--",
+          "0",
+          "4294967295"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "n",
+            "type": "vec_uint"
+          }
+        ]
+      },
+      "expected_output": "value[n]=[0,4294967295]"
+    },
+    {
+      "input": {
+        "program": "i16",
+        "options": [
+          {
+            "opts": "n",
+            "type": "vec_int16"
+          }
+        ],
+        "positional": [
+          "n"
+        ],
+        "argv": [
+          "--",
+          "32767",
+          "-32768"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "n",
+            "type": "vec_int16"
+          }
+        ]
+      },
+      "expected_output": "value[n]=[32767,-32768]"
+    },
+    {
+      "input": {
+        "program": "u8",
+        "options": [
+          {
+            "opts": "n",
+            "type": "vec_uint8"
+          }
+        ],
+        "positional": [
+          "n"
+        ],
+        "argv": [
+          "--",
+          "0",
+          "255"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "n",
+            "type": "vec_uint8"
+          }
+        ]
+      },
+      "expected_output": "error=parse_error"
+    },
+    {
+      "input": {
+        "program": "u8ovf",
+        "options": [
+          {
+            "opts": "n",
+            "type": "vec_uint8"
+          }
+        ],
+        "positional": [
+          "n"
+        ],
+        "argv": [
+          "--",
+          "256"
+        ],
+        "queries": []
+      },
+      "expected_output": "error=parse_error"
+    },
+    {
+      "input": {
+        "program": "i32ovf",
+        "options": [
+          {
+            "opts": "n",
+            "type": "vec_int32"
+          }
+        ],
+        "positional": [
+          "n"
+        ],
+        "argv": [
+          "--",
+          "2147483648"
+        ],
+        "queries": []
+      },
+      "expected_output": "error=parse_error"
+    },
+    {
+      "input": {
+        "program": "hexupper",
+        "options": [
+          {
+            "opts": "n",
+            "type": "vec_int"
+          }
+        ],
+        "positional": [
+          "n"
+        ],
+        "argv": [
+          "--",
+          "0XFF",
+          "0Xa"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "n",
+            "type": "vec_int"
+          }
+        ]
+      },
+      "expected_output": "error=incorrect_argument_type\nparam=0XFF"
+    },
+    {
+      "input": {
+        "program": "dbl",
+        "options": [
+          {
+            "opts": "d",
+            "type": "double"
+          }
+        ],
+        "argv": [
+          "--d",
+          "3.14159"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "d",
+            "type": "double"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_option_syntax\nparam=--d"
+    }
+  ]
+}

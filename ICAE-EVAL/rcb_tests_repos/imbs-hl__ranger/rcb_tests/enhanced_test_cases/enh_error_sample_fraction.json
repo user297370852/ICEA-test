@@ -1,0 +1,80 @@
+{
+  "description": "Sampling-fraction validation boundaries: scalar fractions just outside the half-open interval (0,1] (negative, exactly above 1) are out-of-range while values inside are accepted; per-class vectors on regression responses are rejected as classification-only; wrong-length and zero-sum vectors are rejected with their specific categories.",
+  "cases": [
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Species ~ .",
+        "num_trees": 5,
+        "sample_fraction": -0.5
+      },
+      "expected_output": "error=sample_fraction_out_of_range\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Species ~ .",
+        "num_trees": 5,
+        "sample_fraction": 2
+      },
+      "expected_output": "error=sample_fraction_out_of_range\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "veteran",
+        "formula": "age ~ .",
+        "num_trees": 5,
+        "sample_fraction": [
+          0.3,
+          0.4
+        ]
+      },
+      "expected_output": "error=sample_fraction_vector_requires_classification\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Species ~ .",
+        "num_trees": 5,
+        "sample_fraction": [
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ]
+      },
+      "expected_output": "error=sample_fraction_size_mismatch\nexpected=3\nprovided=4\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Species ~ .",
+        "num_trees": 5,
+        "sample_fraction": [
+          0.5
+        ]
+      },
+      "expected_output": "error=sample_fraction_size_mismatch\nexpected=3\nprovided=1\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "veteran",
+        "formula": "celltype ~ .",
+        "num_trees": 5,
+        "sample_fraction": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected_output": "error=sample_fraction_sum_zero\n"
+    }
+  ]
+}

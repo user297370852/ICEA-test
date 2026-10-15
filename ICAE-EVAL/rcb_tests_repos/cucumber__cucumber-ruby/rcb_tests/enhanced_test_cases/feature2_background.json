@@ -1,0 +1,73 @@
+{
+  "description": "Enhanced edge cases for shared background: a multi-step background contributing to every scenario, a passing background followed by an undefined scenario step, and a background combined with a passing then failing scenario step.",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Multi background\n  Background:\n    Given this step passes\n    And this step passes\n  Scenario: A\n    Given this step passes\n  Scenario: B\n    Given this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nsteps total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=A line=5 status=passed\nscenario keyword=Scenario name=B line=7 status=passed\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: BG then undefined\n  Background:\n    Given this step passes\n  Scenario: A\n    Given this step is undefined\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=0 undefined=1 pending=0 skipped=0\nsteps total=1 passed=0 failed=0 undefined=1 pending=0 skipped=0\nscenario keyword=Scenario name=A line=4 status=undefined\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          },
+          {
+            "pattern": "^this step fails$",
+            "outcome": "fail",
+            "message": "boom"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: BG pass scenario fail\n  Background:\n    Given this step passes\n  Scenario: A\n    Given this step fails\n    Then this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=1 undefined=0 pending=0 skipped=0\nsteps total=2 passed=0 failed=1 undefined=0 pending=0 skipped=1\nscenario keyword=Scenario name=A line=4 status=failed\nresult=failed\n"
+    }
+  ]
+}

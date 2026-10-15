@@ -1,0 +1,86 @@
+{
+  "description": "Resolve deferred handle values after a batch executes, covering distinct members each newly created, a repeated member that reports no change, handles created inside a nested batch, and string-typed members.",
+  "cases": [
+    {
+      "input": {
+        "action": "handles",
+        "batch": [
+          [
+            "sadd",
+            "s",
+            1
+          ],
+          [
+            "sadd",
+            "s",
+            2
+          ]
+        ]
+      },
+      "expected_output": "h0:bool:true\nh1:bool:true\n"
+    },
+    {
+      "input": {
+        "action": "handles",
+        "batch": [
+          [
+            "sadd",
+            "s",
+            1
+          ],
+          [
+            "sadd",
+            "s",
+            2
+          ],
+          [
+            "sadd",
+            "s",
+            1
+          ]
+        ]
+      },
+      "expected_output": "h0:bool:true\nh1:bool:true\nh2:bool:false\n"
+    },
+    {
+      "input": {
+        "action": "handles",
+        "batch": [
+          [
+            "sadd",
+            "s",
+            1
+          ],
+          {
+            "batch": [
+              [
+                "sadd",
+                "s",
+                2
+              ]
+            ]
+          }
+        ]
+      },
+      "expected_output": "h0:bool:true\nh1:bool:true\n"
+    },
+    {
+      "input": {
+        "action": "handles",
+        "batch": [
+          [
+            "sadd",
+            "s",
+            "alpha"
+          ],
+          [
+            "sadd",
+            "s",
+            "alpha"
+          ]
+        ]
+      },
+      "expected_output": "h0:bool:true\nh1:bool:false\n"
+    }
+  ]
+}

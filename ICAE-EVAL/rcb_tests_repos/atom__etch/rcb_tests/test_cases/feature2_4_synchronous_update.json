@@ -1,0 +1,69 @@
+{
+    "description": "Render a component that embeds a nested child component plus a sibling element, where both the child's input and the sibling's text derive from the parent's state. After mutating the parent state, apply a synchronous (immediately flushed) update. The synchronous update re-renders the parent and any child updates it triggers within the same flush, so the entire subtree reflects the new state at the next observation point. Identity tokens show the existing nodes are patched in place.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "components": {
+                    "Child": {
+                        "update": true,
+                        "render": {
+                            "el": "span",
+                            "children": [
+                                {
+                                    "var": "props.greeting"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "root": {
+                    "state": {
+                        "greeting": "Hello",
+                        "greeted": "World"
+                    },
+                    "render": {
+                        "el": "div",
+                        "children": [
+                            {
+                                "comp": "Child",
+                                "props": {
+                                    "greeting": {
+                                        "var": "greeting"
+                                    }
+                                }
+                            },
+                            " ",
+                            {
+                                "el": "span",
+                                "children": [
+                                    {
+                                        "var": "greeted"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "before"
+                    },
+                    {
+                        "set": {
+                            "greeting": "Goodnight",
+                            "greeted": "Moon"
+                        }
+                    },
+                    {
+                        "updateSync": true
+                    },
+                    {
+                        "probe": "after"
+                    }
+                ]
+            },
+            "expected_output": "== before ==\nelement=<div#n1><span#n2>Hello</span> <span#n3>World</span></div>\ntext=Hello World\n== after ==\nelement=<div#n1><span#n2>Goodnight</span> <span#n3>Moon</span></div>\ntext=Goodnight Moon\n"
+        }
+    ]
+}

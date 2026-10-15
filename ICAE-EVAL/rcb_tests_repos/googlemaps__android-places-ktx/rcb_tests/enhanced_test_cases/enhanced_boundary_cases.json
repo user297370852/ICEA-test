@@ -1,0 +1,301 @@
+{
+  "description": "Enhanced native-disjoint boundary and logical-path cases for Places KTX fluent builders: omitted versus partial optional fields, multi-element lists preserving order, boundary times and coordinates, all price-level mappings, and independent cancellation/session-token combinations.",
+  "cases": [
+    {
+      "input": {
+        "kind": "photo_metadata",
+        "photo_reference": "ref-wide",
+        "width": 4096
+      },
+      "expected_output": "attributions=\nwidth=4096\nheight=0\n"
+    },
+    {
+      "input": {
+        "kind": "photo_metadata",
+        "photo_reference": "ref-attrib",
+        "attributions": "© Example Photos",
+        "height": 1
+      },
+      "expected_output": "attributions=© Example Photos\nwidth=0\nheight=1\n"
+    },
+    {
+      "input": {
+        "kind": "plus_code",
+        "compound_code": "849VCWC8+R9",
+        "global_code": "849VCWC8+R9"
+      },
+      "expected_output": "compound_code=849VCWC8+R9\nglobal_code=849VCWC8+R9\n"
+    },
+    {
+      "input": {
+        "kind": "address_component",
+        "name": "San Francisco",
+        "types": [
+          "locality",
+          "political",
+          "locality"
+        ],
+        "short_name": "SF"
+      },
+      "expected_output": "name=San Francisco\nshort_name=SF\ntypes=[locality, political, locality]\n"
+    },
+    {
+      "input": {
+        "kind": "place",
+        "address": "1600 Amphitheatre Parkway",
+        "address_components": [
+          {
+            "name": "1600",
+            "types": [
+              "street_number"
+            ]
+          },
+          {
+            "name": "Amphitheatre Parkway",
+            "types": [
+              "route"
+            ],
+            "short_name": "Amphitheatre Pkwy"
+          },
+          {
+            "name": "Mountain View",
+            "types": [
+              "locality",
+              "political"
+            ],
+            "short_name": "MTV"
+          }
+        ]
+      },
+      "expected_output": "address=1600 Amphitheatre Parkway\naddress_component_count=3\naddress_component[0].name=1600\naddress_component[0].short_name=none\naddress_component[0].types=[street_number]\naddress_component[1].name=Amphitheatre Parkway\naddress_component[1].short_name=Amphitheatre Pkwy\naddress_component[1].types=[route]\naddress_component[2].name=Mountain View\naddress_component[2].short_name=MTV\naddress_component[2].types=[locality, political]\n"
+    },
+    {
+      "input": {
+        "kind": "place",
+        "address": "Only Address",
+        "address_components": []
+      },
+      "expected_output": "address=Only Address\naddress_component_count=0\n"
+    },
+    {
+      "input": {
+        "kind": "period",
+        "open": {
+          "day": "SUNDAY",
+          "hour": 23,
+          "minute": 59
+        },
+        "close": {
+          "day": "MONDAY",
+          "hour": 0,
+          "minute": 1
+        }
+      },
+      "expected_output": "open.day=SUNDAY\nopen.time=23:59\nclose.day=MONDAY\nclose.time=00:01\n"
+    },
+    {
+      "input": {
+        "kind": "opening_hours",
+        "periods": [
+          {
+            "open": {
+              "day": "FRIDAY",
+              "hour": 9,
+              "minute": 5
+            },
+            "close": {
+              "day": "FRIDAY",
+              "hour": 17,
+              "minute": 45
+            }
+          },
+          {
+            "open": {
+              "day": "SATURDAY",
+              "hour": 10,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_text": [
+          "Friday: 9:05 AM – 5:45 PM",
+          "Saturday: opens at 10:00 AM"
+        ]
+      },
+      "expected_output": "period_count=2\nperiod[0].open.day=FRIDAY\nperiod[0].open.time=09:05\nperiod[0].close.day=FRIDAY\nperiod[0].close.time=17:45\nperiod[1].open.day=SATURDAY\nperiod[1].open.time=10:00\nperiod[1].close=none\nweekday_text=[Friday: 9:05 AM – 5:45 PM, Saturday: opens at 10:00 AM]\n"
+    },
+    {
+      "input": {
+        "kind": "opening_hours",
+        "periods": [],
+        "weekday_text": []
+      },
+      "expected_output": "period_count=0\nweekday_text=[]\n"
+    },
+    {
+      "input": {
+        "kind": "autocomplete_prediction",
+        "place_id": "prediction-no-types"
+      },
+      "expected_output": "place_id=prediction-no-types\nplace_types=[]\n"
+    },
+    {
+      "input": {
+        "kind": "autocomplete_prediction",
+        "place_id": "prediction-many-types",
+        "place_types": [
+          "RESTAURANT",
+          "CAFE"
+        ]
+      },
+      "expected_output": "place_id=prediction-many-types\nplace_types=[RESTAURANT, CAFE]\n"
+    },
+    {
+      "input": {
+        "kind": "fetch_place_request",
+        "place_id": "place-session-only",
+        "place_fields": [
+          "ADDRESS",
+          "NAME"
+        ],
+        "session_token": true
+      },
+      "expected_output": "place_id=place-session-only\nplace_fields=[ADDRESS, NAME]\nsession_token_matches=true\ncancellation_token=absent\n"
+    },
+    {
+      "input": {
+        "kind": "fetch_place_request",
+        "place_id": "place-cancel-only",
+        "place_fields": [
+          "NAME",
+          "ADDRESS"
+        ],
+        "cancellation_token": true
+      },
+      "expected_output": "place_id=place-cancel-only\nplace_fields=[NAME, ADDRESS]\nsession_token=absent\ncancellation_requested_before_cancel=false\ncancellation_requested_after_cancel=true\n"
+    },
+    {
+      "input": {
+        "kind": "fetch_photo_request",
+        "photo_metadata": {
+          "photo_reference": "photo-rich",
+          "attributions": "Photo Credit",
+          "width": 640,
+          "height": 480
+        },
+        "max_width": 320
+      },
+      "expected_output": "photo_metadata.attributions=Photo Credit\nphoto_metadata.width=640\nphoto_metadata.height=480\nmax_width=320\nmax_height=none\ncancellation_token=absent\n"
+    },
+    {
+      "input": {
+        "kind": "fetch_photo_request",
+        "photo_metadata": {
+          "photo_reference": "photo-height",
+          "height": 720
+        },
+        "max_height": 720,
+        "cancellation_token": true
+      },
+      "expected_output": "photo_metadata.attributions=\nphoto_metadata.width=0\nphoto_metadata.height=720\nmax_width=none\nmax_height=720\ncancellation_requested_before_cancel=false\ncancellation_requested_after_cancel=true\n"
+    },
+    {
+      "input": {
+        "kind": "find_current_place_request",
+        "place_fields": [
+          "ADDRESS",
+          "NAME",
+          "ADDRESS"
+        ],
+        "cancellation_token": true
+      },
+      "expected_output": "place_fields=[ADDRESS, NAME, ADDRESS]\ncancellation_requested_before_cancel=false\ncancellation_requested_after_cancel=true\n"
+    },
+    {
+      "input": {
+        "kind": "autocomplete_predictions_request",
+        "query": "coffee near antimeridian",
+        "countries": [
+          "JP",
+          "US"
+        ],
+        "types_filter": [
+          "restaurant",
+          "ESTABLISHMENT"
+        ],
+        "location_bias": {
+          "southwest": {
+            "lat": -89.5,
+            "lng": -179.75
+          },
+          "northeast": {
+            "lat": 89.5,
+            "lng": 179.75
+          }
+        },
+        "cancellation_token": false
+      },
+      "expected_output": "query=coffee near antimeridian\ncountries=[JP, US]\ntypes_filter=[restaurant, establishment]\nlocation_bias.type=rectangular\nlocation_bias.southwest=-89.5,-179.75\nlocation_bias.northeast=89.5,179.75\ncancellation_token=absent\n"
+    },
+    {
+      "input": {
+        "kind": "search_by_text_request",
+        "text_query": "budget meals",
+        "place_fields": [
+          "ADDRESS",
+          "NAME"
+        ],
+        "price_levels": [
+          "FREE",
+          "INEXPENSIVE",
+          "MODERATE",
+          "EXPENSIVE",
+          "VERY_EXPENSIVE"
+        ]
+      },
+      "expected_output": "text_query=budget meals\nplace_fields=[ADDRESS, NAME]\nprice_levels=[0, 1, 2, 3, 4]\n"
+    },
+    {
+      "input": {
+        "kind": "search_by_text_request",
+        "text_query": "late restaurants",
+        "place_fields": [
+          "NAME"
+        ],
+        "included_type": "restaurant",
+        "is_open_now": false,
+        "min_rating": 0.0,
+        "rank_preference": "DISTANCE",
+        "region_code": "GB",
+        "location_bias": {
+          "center": {
+            "lat": 0.0,
+            "lng": 0.0
+          },
+          "radius": 1.0
+        }
+      },
+      "expected_output": "text_query=late restaurants\nplace_fields=[NAME]\nincluded_type=restaurant\nis_open_now=false\nmin_rating=0.0\nrank_preference=DISTANCE\nregion_code=GB\nlocation_bias.type=circular\nlocation_bias.center=0.0,0.0\nlocation_bias.radius=1.0\n"
+    },
+    {
+      "input": {
+        "kind": "search_by_text_request",
+        "text_query": "polar parks",
+        "place_fields": [
+          "NAME",
+          "ADDRESS",
+          "NAME"
+        ],
+        "min_rating": 5.0,
+        "location_bias": {
+          "center": {
+            "lat": 89.9999,
+            "lng": -179.9999
+          },
+          "radius": 50000.5
+        }
+      },
+      "expected_output": "text_query=polar parks\nplace_fields=[NAME, ADDRESS, NAME]\nmin_rating=5.0\nlocation_bias.type=circular\nlocation_bias.center=89.9999,-179.9999\nlocation_bias.radius=50000.5\n"
+    }
+  ]
+}

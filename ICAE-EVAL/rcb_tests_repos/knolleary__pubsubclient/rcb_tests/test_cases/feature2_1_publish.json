@@ -1,0 +1,103 @@
+{
+    "description": "A connected client publishes an application message to a topic by transmitting a PUBLISH control packet. The packet carries the topic and the raw payload bytes; the payload may be supplied as a text string or as an arbitrary byte sequence (including embedded zero bytes). An optional retained flag is encoded into the packet's fixed-header flags. Each case observes the exact PUBLISH bytes transmitted and the boolean outcome.",
+    "cases": [
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "publish",
+                        "topic": "topic",
+                        "payload": "payload"
+                    }
+                ]
+            },
+            "expected_output": "publish=1\nsent=30 0e 00 05 74 6f 70 69 63 70 61 79 6c 6f 61 64\n"
+        },
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "publish",
+                        "topic": "topic",
+                        "payload_bytes": "01 02 03 00 05"
+                    }
+                ]
+            },
+            "expected_output": "publish=1\nsent=30 0c 00 05 74 6f 70 69 63 01 02 03 00 05\n"
+        },
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "publish",
+                        "topic": "topic",
+                        "payload_bytes": "01 02 03 00 05",
+                        "retained": true
+                    }
+                ]
+            },
+            "expected_output": "publish=1\nsent=31 0c 00 05 74 6f 70 69 63 01 02 03 00 05\n"
+        },
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "publish",
+                        "topic": "topic",
+                        "payload": "ABCDE",
+                        "retained": true
+                    }
+                ]
+            },
+            "expected_output": "publish=1\nsent=31 0c 00 05 74 6f 70 69 63 41 42 43 44 45\n"
+        }
+    ]
+}

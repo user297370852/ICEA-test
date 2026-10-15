@@ -1,0 +1,187 @@
+{
+  "description": "Additional native-disjoint boundary and logical-path cases for response serialization, pagination, status validation, resource resolution, cursor pagination, exceptions, and framework JSON responses.",
+  "cases": [
+    {
+      "input": {
+        "operation": "serialize_success_resource",
+        "kind": "collection",
+        "data": []
+      },
+      "expected_output": "{\"data\":[]}\n"
+    },
+    {
+      "input": {
+        "operation": "serialize_success_resource",
+        "kind": "item",
+        "data": {
+          "id": 0,
+          "active": false,
+          "tags": [],
+          "profile": null
+        }
+      },
+      "expected_output": "{\"data\":{\"id\":0,\"active\":false,\"tags\":[],\"profile\":null}}\n"
+    },
+    {
+      "input": {
+        "operation": "serialize_success_pagination",
+        "pagination": "cursor",
+        "current": "cur-2",
+        "previous": null,
+        "next": "cur-3",
+        "count": 0
+      },
+      "expected_output": "{\"cursor\":{\"current\":\"cur-2\",\"previous\":null,\"next\":\"cur-3\",\"count\":0}}\n"
+    },
+    {
+      "input": {
+        "operation": "merge_included_resources",
+        "data": {
+          "id": 5,
+          "title": "Nested"
+        },
+        "included": {
+          "author": {
+            "data": null
+          },
+          "comments": {
+            "data": []
+          },
+          "stats": {
+            "data": {
+              "views": 0,
+              "liked": false
+            }
+          }
+        }
+      },
+      "expected_output": "{\"id\":5,\"title\":\"Nested\",\"author\":null,\"comments\":[],\"stats\":{\"views\":0,\"liked\":false}}\n"
+    },
+    {
+      "input": {
+        "operation": "serialize_error",
+        "code": "validation_failed",
+        "message": "Validation failed.",
+        "data": {
+          "fields": {
+            "email": [
+              "required",
+              "email"
+            ],
+            "age": [
+              "integer"
+            ]
+          },
+          "retryable": false
+        }
+      },
+      "expected_output": "{\"error\":{\"code\":\"validation_failed\",\"message\":\"Validation failed.\",\"fields\":{\"email\":[\"required\",\"email\"],\"age\":[\"integer\"]},\"retryable\":false}}\n"
+    },
+    {
+      "input": {
+        "operation": "build_success_response",
+        "data": {
+          "ok": true
+        },
+        "status": 399
+      },
+      "expected_output": "{\"status\":399,\"headers\":{},\"body\":{\"data\":{\"ok\":true}},\"content\":\"{\\\"data\\\":{\\\"ok\\\":true}}\"}\n"
+    },
+    {
+      "input": {
+        "operation": "build_success_response",
+        "data": {
+          "too_low": true
+        },
+        "status": 99
+      },
+      "expected_output": "error=invalid_status\n"
+    },
+    {
+      "input": {
+        "operation": "build_error_response",
+        "code": "server_error",
+        "message": "Server exploded.",
+        "status": 600
+      },
+      "expected_output": "error=invalid_status\n"
+    },
+    {
+      "input": {
+        "operation": "cursor_paginator",
+        "items": [],
+        "current": "abc",
+        "previous": null,
+        "next": null
+      },
+      "expected_output": "{\"current\":\"abc\",\"previous\":null,\"next\":null,\"items\":[],\"collection\":[]}\n"
+    },
+    {
+      "input": {
+        "operation": "resolve_cursor",
+        "name": "page[cursor]",
+        "setResolver": true
+      },
+      "expected_output": "{\"resolved\":\"page[cursor]\"}\n"
+    },
+    {
+      "input": {
+        "operation": "resource_key",
+        "dataType": "array_model"
+      },
+      "expected_output": "{\"resourceKey\":\"articles\"}\n"
+    },
+    {
+      "input": {
+        "operation": "resource_key",
+        "dataType": "unknown"
+      },
+      "expected_output": "{\"resourceKey\":null}\n"
+    },
+    {
+      "input": {
+        "operation": "resource_type",
+        "data": [],
+        "resourceKey": "empty_list"
+      },
+      "expected_output": "{\"resourceType\":\"collection\",\"resourceKey\":\"empty_list\",\"data\":[]}\n"
+    },
+    {
+      "input": {
+        "operation": "http_exception",
+        "type": "unauthenticated",
+        "message": "Login required."
+      },
+      "expected_output": "{\"error\":\"http_exception\",\"status\":401,\"code\":\"unauthenticated\",\"message\":\"Login required.\",\"data\":null,\"headers\":{}}\n"
+    },
+    {
+      "input": {
+        "operation": "laravel_json_response",
+        "data": [],
+        "status": 200,
+        "headers": {}
+      },
+      "expected_output": "{\"status\":200,\"headers\":{},\"body\":[],\"content\":\"[]\"}\n"
+    },
+    {
+      "input": {
+        "operation": "laravel_json_response",
+        "data": {
+          "nested": {
+            "a": 1
+          },
+          "list": [
+            1,
+            2
+          ]
+        },
+        "status": 418,
+        "headers": {
+          "x-trace": "brew",
+          "ignored": "no"
+        }
+      },
+      "expected_output": "{\"status\":418,\"headers\":{\"x-trace\":\"brew\"},\"body\":{\"nested\":{\"a\":1},\"list\":[1,2]},\"content\":\"{\\\"nested\\\":{\\\"a\\\":1},\\\"list\\\":[1,2]}\"}\n"
+    }
+  ]
+}

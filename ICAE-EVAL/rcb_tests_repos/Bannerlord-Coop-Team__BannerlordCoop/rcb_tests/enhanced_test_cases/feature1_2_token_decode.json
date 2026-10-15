@@ -1,0 +1,95 @@
+{
+  "description": "Enhanced boundary coverage for decoding a connection identity token. Exercises short (2- and 3-part) versions that round-trip, GUID canonicalization on decode (uppercase, dash-less, braced, leading-whitespace forms all normalize to canonical lowercase hyphenated), rejection of the all-zero identity, rejection of non-parseable GUID/version parts, rejection of a 5-part version, and the missing-token-property case (treated like a malformed token).",
+  "cases": [
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.2"
+      },
+      "expected_output": "client_id=8e8a09e4-eddf-4c33-a1d8-1e399b763fd4\nversion=1.2\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.2.3"
+      },
+      "expected_output": "client_id=8e8a09e4-eddf-4c33-a1d8-1e399b763fd4\nversion=1.2.3\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "00000000-0000-0000-0000-000000000000%1.2.3.4"
+      },
+      "expected_output": "error=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "ABCDEF01-2345-6789-ABCD-EF0123456789%2.0.0.0"
+      },
+      "expected_output": "client_id=abcdef01-2345-6789-abcd-ef0123456789\nversion=2.0.0.0\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "00112233445566778899aabbccddeeff%3.4.5.6"
+      },
+      "expected_output": "client_id=00112233-4455-6677-8899-aabbccddeeff\nversion=3.4.5.6\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.2.3.4.5"
+      },
+      "expected_output": "error=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%a.b.c.d"
+      },
+      "expected_output": "error=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "not-a-guid%1.2.3.4"
+      },
+      "expected_output": "error=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "%"
+      },
+      "expected_output": "error=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4"
+      },
+      "expected_output": "error=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "decode_token"
+      },
+      "expected_output": "error=invalid_token\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "  8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.2.3.4"
+      },
+      "expected_output": "client_id=8e8a09e4-eddf-4c33-a1d8-1e399b763fd4\nversion=1.2.3.4\n"
+    },
+    {
+      "input": {
+        "action": "decode_token",
+        "token": "{8e8a09e4-eddf-4c33-a1d8-1e399b763fd4}%1.2.3.4"
+      },
+      "expected_output": "client_id=8e8a09e4-eddf-4c33-a1d8-1e399b763fd4\nversion=1.2.3.4\n"
+    }
+  ]
+}

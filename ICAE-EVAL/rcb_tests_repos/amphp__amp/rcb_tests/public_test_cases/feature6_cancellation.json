@@ -1,0 +1,30 @@
+{
+    "description": "Coordinate cooperative cancellation through a cancellation source and its token. Handlers subscribe to the token to be notified when cancellation is requested; each notified handler receives a neutral cancellation signal. Before any request the token reports not-requested; after a request it reports requested. Requesting cancellation more than once notifies each handler at most once. A handler that unsubscribes before the request is never notified. A handler that subscribes after cancellation has already been requested is notified immediately. The result lists, in subscription order, the labels of the handlers that were notified.",
+    "cases": [
+        {
+            "input": {
+                "op": "cancellation",
+                "subscribe": [
+                    "s1",
+                    "s2"
+                ],
+                "unsubscribe": [
+                    "s1"
+                ],
+                "cancel_times": 1
+            },
+            "expected_output": "requested_before=false\nrequested_after=true\nfired=[\"s2\"]\nreason=cancelled\n"
+        },
+        {
+            "input": {
+                "op": "cancellation",
+                "subscribe": [],
+                "cancel_times": 1,
+                "subscribe_after": [
+                    "late"
+                ]
+            },
+            "expected_output": "requested_before=false\nrequested_after=true\nfired=[\"late\"]\nreason=cancelled\n"
+        }
+    ]
+}

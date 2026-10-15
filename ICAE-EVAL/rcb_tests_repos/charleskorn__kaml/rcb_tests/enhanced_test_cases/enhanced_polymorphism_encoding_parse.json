@@ -1,0 +1,187 @@
+{
+  "description": "Enhanced native-disjoint polymorphism, encoding, and generic parse cases covering nullable polymorphic values, mixed shape lists, empty and indented sequence encoding, escaping, object boundary encoding, custom polymorphism emission, and nested parse trees.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "shape": "shape",
+        "document": "!<sealedString>\nvalue: null",
+        "config": {
+          "polymorphismStyle": "tag"
+        }
+      },
+      "expected_output": "{\"kind\":\"sealedString\",\"value\":null}"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "shape": "shape-list",
+        "document": "- !<sealedInt>\n  value: 7\n- null\n- !<sealedString>\n  value: hi",
+        "config": {
+          "polymorphismStyle": "tag"
+        }
+      },
+      "expected_output": "[{\"kind\":\"sealedInt\",\"value\":7},null,{\"kind\":\"sealedString\",\"value\":\"hi\"}]"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "int-list",
+        "value": []
+      },
+      "expected_output": "[]"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "nullable-string-list",
+        "value": [
+          null,
+          "x"
+        ],
+        "config": {
+          "sequenceStyle": "flow"
+        }
+      },
+      "expected_output": "[null, \"x\"]"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "group",
+        "value": {
+          "members": [
+            "a",
+            "b"
+          ]
+        },
+        "config": {
+          "sequenceBlockIndent": 2
+        }
+      },
+      "expected_output": "members:\n  - \"a\"\n  - \"b\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "string",
+        "value": "quote \" and backslash \\"
+      },
+      "expected_output": "\"quote \\\" and backslash \\\\\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "string",
+        "value": "Bob's value",
+        "config": {
+          "singleLineStringStyle": "single"
+        }
+      },
+      "expected_output": "'Bob''s value'"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "string",
+        "value": "null",
+        "config": {
+          "singleLineStringStyle": "plain-except-ambiguous"
+        }
+      },
+      "expected_output": "\"null\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "complex",
+        "value": {
+          "string": "Edge",
+          "byte": -128,
+          "short": -32768,
+          "int": -2147483648,
+          "long": -9223372036854775808,
+          "float": -1.5,
+          "double": 2.5,
+          "enum": "Value2",
+          "boolean": false,
+          "char": "Z",
+          "nullable": null
+        }
+      },
+      "expected_output": "string: \"Edge\"\nbyte: -128\nshort: -32768\nint: -2147483648\nlong: -9223372036854775808\nfloat: -1.5\ndouble: 2.5\nenum: \"Value2\"\nboolean: false\nchar: \"Z\"\nnullable: null"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "long-naming",
+        "value": {
+          "reallyLongSerialName": "value"
+        },
+        "config": {
+          "namingStrategy": "camel"
+        }
+      },
+      "expected_output": "reallyLongSerialName: \"value\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "shape-list",
+        "value": [
+          {
+            "kind": "sealedInt",
+            "value": 1
+          },
+          null,
+          {
+            "kind": "sealedString",
+            "value": "x"
+          }
+        ],
+        "config": {
+          "polymorphismStyle": "tag"
+        }
+      },
+      "expected_output": "- !<sealedInt>\n  value: 1\n- null\n- !<sealedString>\n  value: \"x\""
+    },
+    {
+      "input": {
+        "op": "encode",
+        "shape": "shape-wrapper",
+        "value": {
+          "element": {
+            "kind": "sealedInt",
+            "value": 9
+          }
+        },
+        "config": {
+          "polymorphismStyle": "property",
+          "polymorphismPropertyName": "kind"
+        }
+      },
+      "expected_output": "element:\n  kind: \"sealedInt\"\n  value: 9"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "document": "emptyList: []\nemptyMap: {}"
+      },
+      "expected_output": "map (size: 2)\nkey 'emptyList'\n  list (size: 0)\nkey 'emptyMap'\n  map (size: 0)"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "document": "root:\n  - name: Alex\n  - null\n  - [1, two]"
+      },
+      "expected_output": "map (size: 1)\nkey 'root'\n  list (size: 3)\n  - [0]\n    map (size: 1)\n    key 'name'\n      scalar 'Alex'\n  - [1]\n    null\n  - [2]\n    list (size: 2)\n    - [0]\n      scalar '1'\n    - [1]\n      scalar 'two'"
+    },
+    {
+      "input": {
+        "op": "parse",
+        "document": "!myseq\n- a\n- b"
+      },
+      "expected_output": "tagged !!myseq\n  list (size: 2)\n  - [0]\n    scalar 'a'\n  - [1]\n    scalar 'b'"
+    }
+  ]
+}

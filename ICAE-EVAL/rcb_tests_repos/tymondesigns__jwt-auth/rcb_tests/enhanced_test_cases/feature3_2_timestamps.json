@@ -1,0 +1,95 @@
+{
+  "description": "Boundary coverage for time-window validation: an expiration exactly at the reference time, an expiration just past it, a not-before exactly at the reference time, a not-before just after it, an issued-at exactly at the reference time, and an issued-at just after it.",
+  "cases": [
+    {
+      "input": {
+        "op": "validate_payload",
+        "now": 123,
+        "payload": {
+          "iss": "http://example.com",
+          "iat": 100,
+          "nbf": 100,
+          "exp": 123,
+          "sub": 1,
+          "jti": "foo"
+        }
+      },
+      "expected_output": "status=valid\n"
+    },
+    {
+      "input": {
+        "op": "validate_payload",
+        "now": 123,
+        "payload": {
+          "iss": "http://example.com",
+          "iat": 100,
+          "nbf": 100,
+          "exp": 122,
+          "sub": 1,
+          "jti": "foo"
+        }
+      },
+      "expected_output": "error=token_expired\n"
+    },
+    {
+      "input": {
+        "op": "validate_payload",
+        "now": 123,
+        "payload": {
+          "iss": "http://example.com",
+          "iat": 100,
+          "nbf": 123,
+          "exp": 3700,
+          "sub": 1,
+          "jti": "foo"
+        }
+      },
+      "expected_output": "status=valid\n"
+    },
+    {
+      "input": {
+        "op": "validate_payload",
+        "now": 123,
+        "payload": {
+          "iss": "http://example.com",
+          "iat": 100,
+          "nbf": 124,
+          "exp": 3700,
+          "sub": 1,
+          "jti": "foo"
+        }
+      },
+      "expected_output": "error=token_invalid\n"
+    },
+    {
+      "input": {
+        "op": "validate_payload",
+        "now": 123,
+        "payload": {
+          "iss": "http://example.com",
+          "iat": 123,
+          "nbf": 100,
+          "exp": 3700,
+          "sub": 1,
+          "jti": "foo"
+        }
+      },
+      "expected_output": "status=valid\n"
+    },
+    {
+      "input": {
+        "op": "validate_payload",
+        "now": 123,
+        "payload": {
+          "iss": "http://example.com",
+          "iat": 124,
+          "nbf": 100,
+          "exp": 3700,
+          "sub": 1,
+          "jti": "foo"
+        }
+      },
+      "expected_output": "error=token_invalid\n"
+    }
+  ]
+}

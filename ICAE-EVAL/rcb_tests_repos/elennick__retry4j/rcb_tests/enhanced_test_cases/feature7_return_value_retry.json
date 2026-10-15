@@ -1,0 +1,130 @@
+{
+  "description": "Enhanced coverage for return-value retry triggers across value types and mixed exception paths.",
+  "cases": [
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception",
+          "retry_on_value": 0
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": 0
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception",
+          "retry_on_value": 0
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": 7
+            }
+          ]
+        }
+      },
+      "expected_output": "result=7.0\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 5,
+          "backoff": "no_wait",
+          "retry_on": "any_exception",
+          "retry_on_value": "retry"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": "retry"
+            },
+            {
+              "return": "retry"
+            },
+            {
+              "return": "final"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=final\nsuccessful=true\ncall_name=\ntotal_tries=3\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception",
+          "retry_on_value": true
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": true
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=2\nlast_exception=\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 4,
+          "backoff": "no_wait",
+          "retry_on": "any_exception",
+          "retry_on_value": {
+            "label": "x"
+          }
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": {
+                "label": "x"
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=4\nlast_exception=\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception",
+          "retry_on_value": "v"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "return": "v"
+            },
+            {
+              "throw": "io_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=io_error\n"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "description": "Disabling or enabling an unknown project surfaces a not-found / no-history error.",
+  "cases": [
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "foo"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { enableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "foo"
+            }
+          }
+        ]
+      },
+      "expected_output": "--- operation 1 ---\nerrors:\n  - Project foo not found\ndata:\nnull\n--- operation 2 ---\nerrors:\n  - No historical entries for project foo\ndata:\nnull\n"
+    }
+  ]
+}

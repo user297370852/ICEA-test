@@ -1,0 +1,35 @@
+{
+  "description": "Additional compile-failure boundaries: an empty byte buffer, a buffer that is too short to contain the WASM signature, and a buffer that begins with the correct magic but has a wrong/garbage version word are each rejected with a normalized compile-failure category and the runtime's validation detail.",
+  "cases": [
+    {
+      "input": {
+        "module": ""
+      },
+      "expected_output": "error=compile_failed\ndetail=Validation error: Unexpected EOF (at offset 0)\u0000\n"
+    },
+    {
+      "input": {
+        "module": "00"
+      },
+      "expected_output": "error=compile_failed\ndetail=Validation error: Unexpected EOF (at offset 0)\u0000\n"
+    },
+    {
+      "input": {
+        "module": "0061736d"
+      },
+      "expected_output": "error=compile_failed\ndetail=Validation error: Unexpected EOF (at offset 4)\u0000\n"
+    },
+    {
+      "input": {
+        "module": "0061736d99999999"
+      },
+      "expected_output": "error=compile_failed\ndetail=Validation error: Bad version number (at offset 4)\u0000\n"
+    },
+    {
+      "input": {
+        "module": "deadbeef0100000000"
+      },
+      "expected_output": "error=compile_failed\ndetail=Validation error: Bad magic number (at offset 0)\u0000\n"
+    }
+  ]
+}

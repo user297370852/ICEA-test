@@ -1,0 +1,137 @@
+{
+    "description": "A configured value ending in a trailing wildcard marker matches any request value that shares the prefix before the marker, and every matching value resolves to the same limit. Wildcard matching applies only to a trailing marker: a configured value without the marker is not matched by prefix, a marker placed in the middle of a value is not treated specially, and request values outside the prefix do not match.",
+    "cases": [
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  - key: wild\n    value: foo*\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noWild\n    value: foo\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noVal\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: midWild\n    value: bar*b\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "wild",
+                            "value": "foo1"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.wild_foo*\nrequests_per_unit=20\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  - key: wild\n    value: foo*\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noWild\n    value: foo\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noVal\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: midWild\n    value: bar*b\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "wild",
+                            "value": "foo2"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.wild_foo*\nrequests_per_unit=20\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  - key: wild\n    value: foo*\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noWild\n    value: foo\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noVal\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: midWild\n    value: bar*b\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "wild",
+                            "value": "bar"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  - key: wild\n    value: foo*\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noWild\n    value: foo\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noVal\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: midWild\n    value: bar*b\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "noWild",
+                            "value": "foo1"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  - key: wild\n    value: foo*\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noWild\n    value: foo\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noVal\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: midWild\n    value: bar*b\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "noVal",
+                            "value": "foo1"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.noVal\nrequests_per_unit=20\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  - key: wild\n    value: foo*\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noWild\n    value: foo\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: noVal\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n  - key: midWild\n    value: bar*b\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "midWild",
+                            "value": "barab"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=false\n"
+        }
+    ]
+}

@@ -1,0 +1,121 @@
+{
+    "description": "Evaluates whether request context satisfies source identity, source tags, header operators, and referenced request policies.",
+    "cases": [
+        {
+            "input": {
+                "match": {
+                    "source": "service",
+                    "sourceTags": {
+                        "tag1": "v1"
+                    },
+                    "httpHeaders": {
+                        "cookie": {
+                            "regex": "((abc.)def.)ghi"
+                        },
+                        "age": {
+                            "greater": "10"
+                        }
+                    }
+                },
+                "headers": {
+                    "cookie": "abc-def-ghi",
+                    "age": "15"
+                },
+                "source": {
+                    "name": "service",
+                    "tags": {
+                        "app": "app",
+                        "version": "0.1",
+                        "tag1": "v1"
+                    }
+                }
+            },
+            "expected_output": "matched=true\n"
+        },
+        {
+            "input": {
+                "match": {
+                    "source": "service",
+                    "sourceTags": {
+                        "tag1": "v1"
+                    },
+                    "httpHeaders": {
+                        "cookie": {
+                            "regex": "((abc.)def.)ghi"
+                        },
+                        "age": {
+                            "greater": "10"
+                        }
+                    }
+                },
+                "headers": {
+                    "cookie": "abc-def-ghi"
+                },
+                "source": {
+                    "name": "service",
+                    "tags": {
+                        "app": "app",
+                        "version": "0.1",
+                        "tag1": "v1"
+                    }
+                }
+            },
+            "expected_output": "matched=false\n"
+        },
+        {
+            "input": {
+                "match": {
+                    "source": "service",
+                    "sourceTags": {
+                        "tag1": "v1"
+                    },
+                    "httpHeaders": {
+                        "cookie": {
+                            "regex": "((abc.)def.)ghi"
+                        },
+                        "age": {
+                            "greater": "10"
+                        }
+                    }
+                },
+                "headers": {
+                    "cookie": "7gh",
+                    "age": "15"
+                },
+                "source": {
+                    "name": "service",
+                    "tags": {
+                        "app": "app",
+                        "version": "0.1",
+                        "tag1": "v1"
+                    }
+                }
+            },
+            "expected_output": "matched=false\n"
+        },
+        {
+            "input": {
+                "match": {
+                    "refer": "testMarker"
+                },
+                "request": {
+                    "method": "GET",
+                    "url": "some/api"
+                },
+                "reference": "testMarker",
+                "policy": "\nmatches:\n  - apiPath:\n      contains: \"some/api\"\n    method: [GET]\n"
+            },
+            "expected_output": "matched=true\nreference=testMarker\n"
+        },
+        {
+            "input": {
+                "match": {
+                    "refer": "testMarker"
+                },
+                "reference": "testMarker",
+                "policy": "\nmatches:\n  - apiPath:\n      contains: \"some/api\"\n    method: [GET]\n"
+            },
+            "expected_output": "matched=false\nreference=testMarker\n"
+        }
+    ]
+}

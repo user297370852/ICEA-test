@@ -1,0 +1,13 @@
+{
+    "description": "Resolve the effective user id and group id by running two probe commands in sequence (one for the user id, one for the group id). Each probe reports whether it executed, an exit code, captured output, and captured error. When both probes succeed and emit numeric output, the resolved user id and group id are returned. When a probe fails (non-zero exit), a diagnostic line describing the failed probe is recorded, a warning notes which value could not be obtained, and the user is reported as unresolved.",
+    "cases": [
+        {
+            "input": {"id_results": [{"executed": true, "exit_code": 0, "output": "998", "error": ""}, {"executed": true, "exit_code": 0, "output": "999", "error": ""}]},
+            "expected_output": "user_id=998\ngroup_id=999\n"
+        },
+        {
+            "input": {"id_results": [{"executed": true, "exit_code": 0, "output": "998", "error": ""}, {"executed": true, "exit_code": -1, "output": "", "error": "Sad trombones"}]},
+            "expected_output": "Error executing \"id -g\" - exit code -1 Sad trombones\nWarning: Unable to get effective group from \"id -g\"\nuser_resolved=false\n"
+        }
+    ]
+}

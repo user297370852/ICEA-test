@@ -1,0 +1,81 @@
+{
+  "description": "An unsubscribe on a live session transmits an UNSUBSCRIBE packet carrying an incrementing packet identifier and the topic filter. These cases exercise the packet-identifier advance after a prior subscribe, an empty topic filter and unsubscribing after the session has been disconnected.",
+  "cases": [
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "subscribe",
+            "topic": "alpha"
+          },
+          {
+            "op": "unsubscribe",
+            "topic": "alpha"
+          }
+        ]
+      },
+      "expected_output": "subscribe=1\nsent=82 0a 00 02 00 05 61 6c 70 68 61 00\nunsubscribe=1\nsent=a2 09 00 03 00 05 61 6c 70 68 61\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "unsubscribe",
+            "topic": ""
+          }
+        ]
+      },
+      "expected_output": "unsubscribe=1\nsent=a2 04 00 02 00 00\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "disconnect"
+          },
+          {
+            "op": "unsubscribe",
+            "topic": "topic"
+          }
+        ]
+      },
+      "expected_output": "disconnect\nconnected=0\nstate=-1\nsent=e0 00\nunsubscribe=0\nsent=\n"
+    }
+  ]
+}

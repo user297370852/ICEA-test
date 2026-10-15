@@ -1,0 +1,87 @@
+{
+  "description": "Markdown rendering mode. The header and section titles switch to Markdown headings, the table name is wrapped in code formatting, and columns render as a Markdown table with aligned name, type and attribute cells. Index and foreign-key sections render as Markdown lists.",
+  "cases": [
+    {
+      "input": {
+        "table_name": "users",
+        "primary_key": "id",
+        "options": {
+          "format_markdown": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "limit": 255
+          }
+        ]
+      },
+      "expected_output": "# ## Schema Information\n#\n# Table name: `users`\n#\n# ### Columns\n#\n# Name         | Type               | Attributes\n# ------------ | ------------------ | ---------------------------\n# **`id`**     | `integer`          | `not null, primary key`\n# **`email`**  | `string(255)`      | `not null`\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "users",
+        "primary_key": "id",
+        "options": {
+          "format_markdown": true,
+          "show_indexes": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "limit": 255
+          }
+        ],
+        "indexes": [
+          {
+            "name": "index_users_on_email",
+            "columns": [
+              "email"
+            ],
+            "unique": true
+          }
+        ]
+      },
+      "expected_output": "# ## Schema Information\n#\n# Table name: `users`\n#\n# ### Columns\n#\n# Name         | Type               | Attributes\n# ------------ | ------------------ | ---------------------------\n# **`id`**     | `integer`          | `not null, primary key`\n# **`email`**  | `string(255)`      | `not null`\n#\n# ### Indexes\n#\n# * `index_users_on_email` (_unique_):\n#     * **`email`**\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "orders",
+        "primary_key": "id",
+        "options": {
+          "format_markdown": true,
+          "show_foreign_keys": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "user_id",
+            "type": "integer",
+            "null": true
+          }
+        ],
+        "foreign_keys": [
+          {
+            "name": "fk_users",
+            "column": "user_id",
+            "to_table": "users",
+            "on_delete": "cascade"
+          }
+        ]
+      },
+      "expected_output": "# ## Schema Information\n#\n# Table name: `orders`\n#\n# ### Columns\n#\n# Name           | Type               | Attributes\n# -------------- | ------------------ | ---------------------------\n# **`id`**       | `integer`          | `not null, primary key`\n# **`user_id`**  | `integer`          |\n#\n# ### Foreign Keys\n#\n# * `fk_users` (_ON DELETE => cascade_):\n#     * **`user_id => users.id`**\n#\n"
+    }
+  ]
+}

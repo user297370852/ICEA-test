@@ -1,0 +1,52 @@
+{
+    "description": "When the audience claim contains multiple values, verification requires an authorized-party claim that is a present string equal to the expected audience. A missing authorized party yields an azp-missing category; a non-matching authorized party yields an azp-mismatch category carrying the expected and actual values as separate fields.",
+    "cases": [
+        {
+            "input": {
+                "op": "verify",
+                "header": {
+                    "alg": "RS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|abc",
+                    "aud": [
+                        "sample-client",
+                        "other-client"
+                    ],
+                    "exp": 9999999999,
+                    "iat": 1000000000
+                },
+                "options": {
+                    "iss": "https://login.example.com/",
+                    "aud": "sample-client"
+                }
+            },
+            "expected_output": "error=azp_missing\n"
+        },
+        {
+            "input": {
+                "op": "verify",
+                "header": {
+                    "alg": "RS256"
+                },
+                "payload": {
+                    "iss": "https://login.example.com/",
+                    "sub": "user|abc",
+                    "aud": [
+                        "sample-client",
+                        "other-client"
+                    ],
+                    "exp": 9999999999,
+                    "iat": 1000000000,
+                    "azp": "sample-client"
+                },
+                "options": {
+                    "iss": "https://login.example.com/",
+                    "aud": "other-client"
+                }
+            },
+            "expected_output": "error=azp_mismatch\nexpected=other-client\nactual=sample-client\n"
+        }
+    ]
+}

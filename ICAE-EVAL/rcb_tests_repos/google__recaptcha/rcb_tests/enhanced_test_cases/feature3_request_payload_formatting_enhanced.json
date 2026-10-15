@@ -1,0 +1,51 @@
+{
+  "description": "Payload formatting edge cases: partial optional fields and URL-encoding of special characters.",
+  "cases": [
+    {
+      "input": {
+        "operation": "build_request",
+        "secret": "SECRET",
+        "response": "RESPONSE"
+      },
+      "expected_output": "fields={\"secret\":\"SECRET\",\"response\":\"RESPONSE\"}\nquery=secret=SECRET&response=RESPONSE\n"
+    },
+    {
+      "input": {
+        "operation": "build_request",
+        "secret": "SECRET",
+        "response": "RESPONSE",
+        "remote_ip": "1.2.3.4",
+        "client_version": null
+      },
+      "expected_output": "fields={\"secret\":\"SECRET\",\"response\":\"RESPONSE\",\"remoteip\":\"1.2.3.4\"}\nquery=secret=SECRET&response=RESPONSE&remoteip=1.2.3.4\n"
+    },
+    {
+      "input": {
+        "operation": "build_request",
+        "secret": "SECRET",
+        "response": "RESPONSE",
+        "remote_ip": null,
+        "client_version": "php_1.2"
+      },
+      "expected_output": "fields={\"secret\":\"SECRET\",\"response\":\"RESPONSE\",\"version\":\"php_1.2\"}\nquery=secret=SECRET&response=RESPONSE&version=php_1.2\n"
+    },
+    {
+      "input": {
+        "operation": "build_request",
+        "secret": "a b&c=d",
+        "response": "x/y+z",
+        "remote_ip": "::1",
+        "client_version": "v 1"
+      },
+      "expected_output": "fields={\"secret\":\"a b&c=d\",\"response\":\"x/y+z\",\"remoteip\":\"::1\",\"version\":\"v 1\"}\nquery=secret=a+b%26c%3Dd&response=x%2Fy%2Bz&remoteip=%3A%3A1&version=v+1\n"
+    },
+    {
+      "input": {
+        "operation": "build_request",
+        "secret": "SECRET",
+        "response": ""
+      },
+      "expected_output": "fields={\"secret\":\"SECRET\",\"response\":\"\"}\nquery=secret=SECRET&response=\n"
+    }
+  ]
+}

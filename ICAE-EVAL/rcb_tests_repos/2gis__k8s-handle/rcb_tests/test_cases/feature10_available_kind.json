@@ -1,0 +1,47 @@
+{
+    "description": "Determines whether a specific kind is available for a given apiVersion across a collection of cluster catalogs, where each catalog advertises a fixed set of kinds for one version. A kind is available only when some catalog both handles that apiVersion's shape and lists that kind; a kind listed under a different version, or not listed at all, is unavailable. Each query prints an 'api_version=... kind=... available=' line.",
+    "cases": [
+        {
+            "input": {
+                "op": "available_kind",
+                "catalogs": [
+                    {
+                        "style": "core",
+                        "group_version": "v1",
+                        "kinds": [
+                            "Pod",
+                            "CronJob"
+                        ]
+                    },
+                    {
+                        "style": "regular",
+                        "group_version": "app/v1",
+                        "kinds": [
+                            "Deployment",
+                            "Service"
+                        ]
+                    }
+                ],
+                "queries": [
+                    {
+                        "api_version": "v1",
+                        "kind": "Pod"
+                    },
+                    {
+                        "api_version": "app/v1",
+                        "kind": "Service"
+                    },
+                    {
+                        "api_version": "v1",
+                        "kind": "Deployment"
+                    },
+                    {
+                        "api_version": "app/v1",
+                        "kind": "CronJob"
+                    }
+                ]
+            },
+            "expected_output": "api_version=v1 kind=Pod available=true\napi_version=app/v1 kind=Service available=true\napi_version=v1 kind=Deployment available=false\napi_version=app/v1 kind=CronJob available=false\n"
+        }
+    ]
+}

@@ -1,0 +1,89 @@
+{
+  "description": "When configured to use a named path parameter as the path, route to that parameter value instead of the full request/raw path, for both proxy-integration event shapes.",
+  "cases": [
+    {
+      "input": {
+        "options": {
+          "pathParameterUsedAsPath": "proxy"
+        },
+        "route": {
+          "method": "GET",
+          "path": "/projects",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "version": "2.0",
+          "rawPath": "/prod/projects",
+          "requestContext": {
+            "http": {
+              "method": "GET",
+              "path": "/prod/projects"
+            }
+          },
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          },
+          "queryStringParameters": {
+            "t": "1698604776681"
+          },
+          "pathParameters": {
+            "proxy": "projects"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/projects?t=1698604776681\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "options": {
+          "pathParameterUsedAsPath": "proxy"
+        },
+        "route": {
+          "method": "GET",
+          "path": "/projects",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "path": "/area/projects",
+          "httpMethod": "GET",
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          },
+          "queryStringParameters": {
+            "t": "1698604776681"
+          },
+          "pathParameters": {
+            "proxy": "projects"
+          },
+          "requestContext": {
+            "resourcePath": "/area/{proxy+}",
+            "httpMethod": "GET",
+            "path": "/dev/area/projects",
+            "stage": "dev"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/projects?t=1698604776681\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

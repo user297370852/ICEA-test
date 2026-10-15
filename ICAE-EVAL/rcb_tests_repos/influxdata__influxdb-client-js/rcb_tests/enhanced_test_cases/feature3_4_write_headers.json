@@ -1,0 +1,35 @@
+{
+  "description": "Custom write header boundary: caller-supplied authorization header overrides the default token while writing a raw record.",
+  "cases": [
+    {
+      "input": {
+        "domain": "write_request",
+        "destination": {
+          "org": "org",
+          "bucket": "bucket",
+          "precision": "ns"
+        },
+        "server": {
+          "url": "http://fake:8086",
+          "token": "a",
+          "responses": [
+            204
+          ]
+        },
+        "write": {
+          "flush_interval_ms": 0,
+          "batch_size": 10,
+          "max_retries": 0,
+          "headers": {
+            "authorization": "Token override"
+          }
+        },
+        "records": [
+          "rec value=9"
+        ],
+        "expected_observed_lines": 1
+      },
+      "expected_output": "route=/api/v2/write?org=org&bucket=bucket&precision=ns\nauthorization=Token override\ncontent_encoding=identity\nrequest_count=1\nsuccess_lines=1\nfailed_lines=0\nbody_000=rec value=9\n"
+    }
+  ]
+}

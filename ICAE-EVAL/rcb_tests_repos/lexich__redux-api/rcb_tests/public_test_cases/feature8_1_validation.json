@@ -1,0 +1,55 @@
+{
+  "description": "A validation hook runs against the response before success is committed. If validation accepts the data, the lifecycle completes with success and the data is stored. If validation rejects, a fail action is emitted carrying the neutral rejection reason and the slice keeps its previous data with loading cleared.",
+  "cases": [
+    {
+      "input": {
+        "op": "call_endpoint",
+        "endpoints": {
+          "test": {
+            "url": "/test/:id",
+            "validation": "accept"
+          }
+        },
+        "fetch": {
+          "fixed": {
+            "msg": "hello"
+          }
+        },
+        "calls": [
+          {
+            "endpoint": "test",
+            "pathvars": {
+              "id": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "action type=@@redux-api@test syncing=false request={\"params\":null,\"pathvars\":{\"id\":1}}\naction type=@@redux-api@test_success syncing=false request={\"params\":null,\"pathvars\":{\"id\":1}} data={\"msg\":\"hello\"}\nstate test={\"data\":{\"msg\":\"hello\"},\"error\":null,\"loading\":false,\"sync\":true,\"syncing\":false}\n"
+    },
+    {
+      "input": {
+        "op": "call_endpoint",
+        "endpoints": {
+          "test": {
+            "url": "/test/:id",
+            "validation": "reject"
+          }
+        },
+        "fetch": {
+          "fixed": {
+            "msg": "hello"
+          }
+        },
+        "calls": [
+          {
+            "endpoint": "test",
+            "pathvars": {
+              "id": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "action type=@@redux-api@test syncing=false request={\"params\":null,\"pathvars\":{\"id\":1}}\naction type=@@redux-api@test_fail syncing=false request={\"params\":null,\"pathvars\":{\"id\":1}} error=rejected reason=invalid\nstate test={\"data\":{},\"error\":\"invalid\",\"loading\":false,\"sync\":false,\"syncing\":false}\n"
+    }
+  ]
+}

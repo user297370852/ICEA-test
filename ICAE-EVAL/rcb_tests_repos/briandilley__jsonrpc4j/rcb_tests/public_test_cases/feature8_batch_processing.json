@@ -1,0 +1,61 @@
+{
+  "description": "Batch processing: an array of requests produces an array of correlated responses, each keyed to its request id; successful and failing sub-requests coexist in one batch, each carrying its own result or error.",
+  "cases": [
+    {
+      "description": "all sub-requests succeed",
+      "input": {
+        "transport": "raw",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "echo",
+            "params": [
+              "a"
+            ]
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "overloadedMethod",
+            "params": [
+              5
+            ]
+          }
+        ]
+      },
+      "expected_output": "batch_size=2\n--\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"a\"\n--\njsonrpc=2.0\nid=2\noutcome=success\nresult=\"overloaded:int:5\"\n"
+    },
+    {
+      "description": "mixed success and error in one batch",
+      "input": {
+        "transport": "raw",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "overloadedMethod",
+            "params": [
+              "a"
+            ]
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "throwsUnmapped",
+            "params": []
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "echo",
+            "params": [
+              "c"
+            ]
+          }
+        ]
+      },
+      "expected_output": "batch_size=3\n--\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"overloaded:string:a\"\n--\njsonrpc=2.0\nid=2\noutcome=error\nerror_code=-32001\nerror_category=error_not_handled\n--\njsonrpc=2.0\nid=3\noutcome=success\nresult=\"c\"\n"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "description": "Boundary coverage for automatic convenience transitions: firing the convenience trigger that targets the already-active state on a single-state machine, firing the convenience trigger that targets the active state and then one that moves elsewhere, attempting several convenience triggers when automatic generation is disabled so each is reported as missing, and walking the convenience triggers across a larger set of states.",
+  "cases": [
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "only"
+          ],
+          "initial": "only",
+          "auto_transitions": true
+        },
+        "commands": [
+          {
+            "op": "trigger",
+            "name": "to_only"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=to_only result=true state=only\nstate=only\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "B",
+          "auto_transitions": true
+        },
+        "commands": [
+          {
+            "op": "trigger",
+            "name": "to_B"
+          },
+          {
+            "op": "state"
+          },
+          {
+            "op": "trigger",
+            "name": "to_A"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=to_B result=true state=B\nstate=B\ntrigger=to_A result=true state=A\nstate=A\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B"
+          ],
+          "initial": "A",
+          "auto_transitions": false
+        },
+        "commands": [
+          {
+            "op": "trigger",
+            "name": "to_A"
+          },
+          {
+            "op": "trigger",
+            "name": "to_B"
+          }
+        ]
+      },
+      "expected_output": "error=no_trigger trigger=to_A\nerror=no_trigger trigger=to_B\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "initial": "A",
+          "auto_transitions": true
+        },
+        "commands": [
+          {
+            "op": "trigger",
+            "name": "to_D"
+          },
+          {
+            "op": "state"
+          },
+          {
+            "op": "trigger",
+            "name": "to_B"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=to_D result=true state=D\nstate=D\ntrigger=to_B result=true state=B\nstate=B\n"
+    }
+  ]
+}

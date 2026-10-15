@@ -1,0 +1,54 @@
+{
+  "op": "token_expiration",
+  "description": "Enhanced boundary coverage for deriving the absolute expiration instant from an 'exp' claim, disjoint from the native suite: the Unix epoch itself (exp=0), a negative exp (pre-epoch 1969), a fractional exp (truncated to whole seconds with zero milliseconds), the signed 32-bit maximum (2038-01-19 'Year 2038' boundary), a far-future timestamp, and the maximum representable year 9999 timestamp.",
+  "cases": [
+    {
+      "input": {
+        "claims": {
+          "exp": 0
+        }
+      },
+      "expected_output": "has_exp=true\nexp_utc=1970-01-01T00:00:00.000Z\n"
+    },
+    {
+      "input": {
+        "claims": {
+          "exp": -5
+        }
+      },
+      "expected_output": "has_exp=true\nexp_utc=1969-12-31T23:59:55.000Z\n"
+    },
+    {
+      "input": {
+        "claims": {
+          "exp": 1.5
+        }
+      },
+      "expected_output": "has_exp=true\nexp_utc=1970-01-01T00:00:01.000Z\n"
+    },
+    {
+      "input": {
+        "claims": {
+          "exp": 2147483647
+        }
+      },
+      "expected_output": "has_exp=true\nexp_utc=2038-01-19T03:14:07.000Z\n"
+    },
+    {
+      "input": {
+        "claims": {
+          "exp": 9999999999
+        }
+      },
+      "expected_output": "has_exp=true\nexp_utc=2286-11-20T17:46:39.000Z\n"
+    },
+    {
+      "input": {
+        "claims": {
+          "exp": 253402300799
+        }
+      },
+      "expected_output": "has_exp=true\nexp_utc=9999-12-31T23:59:59.000Z\n"
+    }
+  ]
+}

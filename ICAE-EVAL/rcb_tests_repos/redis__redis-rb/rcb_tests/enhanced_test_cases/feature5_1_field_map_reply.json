@@ -1,0 +1,86 @@
+{
+  "description": "A field/value command run inside a batch decodes into a map ordered by key, covering several fields, an insertion order that differs from key order, and the boundary case of an absent hash that yields an empty map.",
+  "cases": [
+    {
+      "input": {
+        "action": "typed",
+        "setup": [
+          [
+            "hmset",
+            "h",
+            "f1",
+            "v1",
+            "f2",
+            "v2",
+            "f3",
+            "v3"
+          ]
+        ],
+        "batch": [
+          [
+            "hgetall",
+            "h"
+          ]
+        ]
+      },
+      "expected_output": "map:3\nf1=str:v1\nf2=str:v2\nf3=str:v3\n"
+    },
+    {
+      "input": {
+        "action": "typed",
+        "setup": [
+          [
+            "hmset",
+            "h",
+            "name",
+            "alice"
+          ]
+        ],
+        "batch": [
+          [
+            "hgetall",
+            "h"
+          ]
+        ]
+      },
+      "expected_output": "map:1\nname=str:alice\n"
+    },
+    {
+      "input": {
+        "action": "typed",
+        "setup": [
+          [
+            "hmset",
+            "h",
+            "b",
+            "2",
+            "a",
+            "1",
+            "c",
+            "3"
+          ]
+        ],
+        "batch": [
+          [
+            "hgetall",
+            "h"
+          ]
+        ]
+      },
+      "expected_output": "map:3\na=str:1\nb=str:2\nc=str:3\n"
+    },
+    {
+      "input": {
+        "action": "typed",
+        "setup": [],
+        "batch": [
+          [
+            "hgetall",
+            "missing"
+          ]
+        ]
+      },
+      "expected_output": "map:0\n"
+    }
+  ]
+}

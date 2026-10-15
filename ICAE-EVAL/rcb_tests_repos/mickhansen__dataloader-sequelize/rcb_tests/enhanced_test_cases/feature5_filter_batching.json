@@ -1,0 +1,109 @@
+{
+  "description": "Boundary coverage for per-request filters under batching. Only loads whose filter (and any row cap) match can be batched together; differently-filtered loads run in separate round-trips, and each owner receives only its links satisfying that load's filter. The reported signals are the number of round-trips, the owner-key set per round-trip, and the filtered id set per owner, covering owners that share one filter (single batch), a filter applied to an empty owner, and a filter that selects no links for an otherwise-populated owner.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": true
+              }
+            }
+          },
+          {
+            "project": 3,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": true
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,3\nr0.op0=members=102,103\nr0.op1=members=107,108,109\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 4,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": true
+              }
+            }
+          },
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": false
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=2\nbatch=1\nbatch=4\nr0.op0=members=\nr0.op1=members=101,104\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": false
+              }
+            }
+          },
+          {
+            "project": 2,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": false
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2\nr0.op0=members=101,104\nr0.op1=members=104,106\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 3,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": false
+              }
+            }
+          },
+          {
+            "project": 1,
+            "as": "members",
+            "options": {
+              "where": {
+                "awesome": false
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,3\nr0.op0=members=\nr0.op1=members=101,104\n"
+    }
+  ]
+}

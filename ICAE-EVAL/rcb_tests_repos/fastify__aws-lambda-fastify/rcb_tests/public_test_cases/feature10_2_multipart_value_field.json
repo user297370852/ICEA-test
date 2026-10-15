@@ -1,0 +1,33 @@
+{
+  "description": "Parse a multipart/form-data text field and expose its decoded value to the handler.",
+  "cases": [
+    {
+      "input": {
+        "multipart": true,
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoMultipart",
+              "fields": [
+                "html"
+              ]
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "content-type": "multipart/form-data; boundary=xYzZY"
+          },
+          "body": "--xYzZY\r\nContent-Disposition: form-data; name=\"html\"\r\n\r\n<p>Hello World</p>\r\n--xYzZY--\r\n",
+          "isBase64Encoded": false
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"html\":{\"fieldname\":\"html\",\"encoding\":\"7bit\",\"mimetype\":\"text/plain\",\"value\":\"<p>Hello World</p>\"}}\nheader.connection=keep-alive\nheader.content-length=100\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "description": "ENHANCED: Streaming chunked-decode robustness — an empty chunk list, a single chunk equivalent to a single-shot decode, empty-string chunks interspersed, a field split mid-token, a quoted field whose closing quote is split from its trailing delimiter, a CRLF split across three chunks, a multi-character delimiter split with extra leading character context, and single-character feeding with an explicit delimiter.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": []
+      },
+      "expected_output": "rows=0\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": [
+          "a,b,c"
+        ]
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\" | str=\"b\" | str=\"c\"\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": [
+          "a,",
+          "",
+          "b",
+          "",
+          ",c"
+        ]
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\" | str=\"b\" | str=\"c\"\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": [
+          "hel",
+          "lo,wor",
+          "ld"
+        ]
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"hello\" | str=\"world\"\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": [
+          "a,\"bc\"",
+          ",d"
+        ]
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\" | str=\"bc\" | str=\"d\"\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": [
+          "x\r",
+          "",
+          "\ny"
+        ]
+      },
+      "expected_output": "rows=2\nrow[0]: str=\"x\"\nrow[1]: str=\"y\"\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": "::"
+        },
+        "chunks": [
+          "ab:",
+          ":cd"
+        ]
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"ab\" | str=\"cd\"\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": [
+          "1",
+          ",",
+          "2",
+          ",",
+          "3"
+        ]
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"1\" | str=\"2\" | str=\"3\"\n"
+    },
+    {
+      "input": {
+        "op": "decode_chunks",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "chunks": [
+          "a,\"b\"\"",
+          "c\",d"
+        ]
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\" | str=\"b\\\"c\" | str=\"d\"\n"
+    }
+  ]
+}

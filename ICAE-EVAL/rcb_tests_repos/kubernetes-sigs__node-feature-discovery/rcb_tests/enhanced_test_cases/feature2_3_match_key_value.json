@@ -1,0 +1,115 @@
+{
+  "description": "Boundary evaluation of a single expression against a map of attribute names to values: membership with extra unrelated keys, regex match on a present value, large integer comparison, the range operator at its exclusive upper bound, presence of an empty-string value, absence among several keys, the literal false test, and a numeric comparison against a non-integer value reporting the neutral numeric error.",
+  "cases": [
+    {
+      "input": {
+        "action": "match_values",
+        "op": "In",
+        "values": [
+          "x",
+          "y"
+        ],
+        "name": "k",
+        "input": {
+          "k": "y",
+          "other": "z"
+        }
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match_values",
+        "op": "InRegexp",
+        "values": [
+          "^v[0-9]+$"
+        ],
+        "name": "k",
+        "input": {
+          "k": "v123"
+        }
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match_values",
+        "op": "Gt",
+        "values": [
+          "1000"
+        ],
+        "name": "n",
+        "input": {
+          "n": "999999"
+        }
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match_values",
+        "op": "GtLt",
+        "values": [
+          "0",
+          "10"
+        ],
+        "name": "n",
+        "input": {
+          "n": "10"
+        }
+      },
+      "expected_output": "match=false\n"
+    },
+    {
+      "input": {
+        "action": "match_values",
+        "op": "Exists",
+        "values": [],
+        "name": "present",
+        "input": {
+          "present": ""
+        }
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match_values",
+        "op": "DoesNotExist",
+        "values": [],
+        "name": "absent",
+        "input": {
+          "x": "1",
+          "y": "2"
+        }
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match_values",
+        "op": "IsFalse",
+        "values": [],
+        "name": "f",
+        "input": {
+          "f": "false"
+        }
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match_values",
+        "op": "Gt",
+        "values": [
+          "2"
+        ],
+        "name": "k",
+        "input": {
+          "k": "abc"
+        }
+      },
+      "expected_output": "error=not_a_number\n"
+    }
+  ]
+}

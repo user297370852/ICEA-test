@@ -1,0 +1,77 @@
+{
+  "description": "Boundary coverage for batched counting. Concurrent count loads are folded into a single aggregated round-trip that returns each owner's link total, with an owner that has no links reporting zero. The reported signals are the number of round-trips, the owner-key set folded into the batch, and the numeric count returned for each owner, including a single-owner wave, an owner requested more than once, and the empty owner.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members",
+            "kind": "count"
+          },
+          {
+            "project": 2,
+            "as": "members",
+            "kind": "count"
+          },
+          {
+            "project": 3,
+            "as": "members",
+            "kind": "count"
+          },
+          {
+            "project": 4,
+            "as": "members",
+            "kind": "count"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2,3,4\nr0.op0=count=4\nr0.op1=count=4\nr0.op2=count=3\nr0.op3=count=0\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 3,
+            "as": "members",
+            "kind": "count"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=3\nr0.op0=count=3\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 4,
+            "as": "members",
+            "kind": "count"
+          },
+          {
+            "project": 4,
+            "as": "members",
+            "kind": "count"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=4,4\nr0.op0=count=0\nr0.op1=count=0\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 2,
+            "as": "members",
+            "kind": "count"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=2\nr0.op0=count=4\n"
+    }
+  ]
+}

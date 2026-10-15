@@ -1,0 +1,39 @@
+{
+  "description": "Additional strict-mode unset-variable failures: an unset env placeholder wrapped in literal prefix/suffix text, an unset variable reached through a single file include, an unset variable reached through a two-level include chain, and an unset variable located inside a list value of the section. Each enables strict mode and prints 'error=env_not_set' with the offending variable name.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve",
+        "section": "wrapped",
+        "strict": true,
+        "config": "common:\n  k8s_namespace: ns\nwrapped:\n  url: \"https://{{ env='MISSING_HOST' }}/path\"\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "error=env_not_set\nvar=MISSING_HOST\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "via_include",
+        "strict": true,
+        "aux_files": {
+          "inc.yaml": "---\nval: \"{{ env='INC_MISSING' }}\"\n"
+        },
+        "config": "common:\n  k8s_namespace: ns\nvia_include:\n  data: \"{{ file='inc.yaml' }}\"\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "error=env_not_set\nvar=INC_MISSING\n"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "deep_chain",
+        "strict": true,
+        "aux_files": {
+          "level1.yaml": "---\nnext: \"{{ file='level2.yaml' }}\"\n",
+          "level2.yaml": "---\nleaf: \"{{ env='DEEP_MISSING' }}\"\n"
+        },
+        "config": "common:\n  k8s_namespace: ns\ndeep_chain:\n  data: \"{{ file='level1.yaml' }}\"\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "error=env_not_set\nvar=DEEP_MISSING\n"
+    }
+  ]
+}

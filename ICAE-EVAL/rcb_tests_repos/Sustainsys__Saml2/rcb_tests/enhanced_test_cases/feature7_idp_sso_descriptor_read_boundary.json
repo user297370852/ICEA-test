@@ -1,0 +1,19 @@
+{
+  "description": "Parse the identity-provider role descriptor from a metadata entity-descriptor, exercising the want-authn-requests-signed flag set true and multiple single-sign-on service endpoints. Surfaced fields include the protocol support enumeration, the signing flag, and the indexed endpoints with their binding and location.",
+  "cases": [
+    {
+      "input": {
+        "action": "read_idp_sso_descriptor",
+        "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://stubidp.example.com/Metadata\"><IDPSSODescriptor WantAuthnRequestsSigned=\"true\" protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\"><SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://stubidp.example.com/\" /></IDPSSODescriptor></EntityDescriptor>"
+      },
+      "expected_output": "protocolSupportEnumeration=urn:oasis:names:tc:SAML:2.0:protocol\nwantAuthnRequestsSigned=true\nsingleSignOnService[0].binding=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\nsingleSignOnService[0].location=https://stubidp.example.com/\n"
+    },
+    {
+      "input": {
+        "action": "read_idp_sso_descriptor",
+        "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://stubidp.example.com/Metadata\"><IDPSSODescriptor protocolSupportEnumeration=\"urn:oasis:names:tc:SAML:2.0:protocol\"><SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" Location=\"https://stubidp.example.com/redirect\" /><SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\" Location=\"https://stubidp.example.com/post\" /></IDPSSODescriptor></EntityDescriptor>"
+      },
+      "expected_output": "protocolSupportEnumeration=urn:oasis:names:tc:SAML:2.0:protocol\nwantAuthnRequestsSigned=false\nsingleSignOnService[0].binding=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\nsingleSignOnService[0].location=https://stubidp.example.com/redirect\nsingleSignOnService[1].binding=urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\nsingleSignOnService[1].location=https://stubidp.example.com/post\n"
+    }
+  ]
+}

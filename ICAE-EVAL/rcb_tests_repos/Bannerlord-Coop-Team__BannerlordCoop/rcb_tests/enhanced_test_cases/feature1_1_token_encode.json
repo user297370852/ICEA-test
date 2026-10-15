@@ -1,0 +1,83 @@
+{
+  "description": "Enhanced boundary coverage for encoding a connection identity token. Exercises the empty-identity-before-missing-version precedence, an absent/garbage client_id field, version values rejected by parsing (empty, single number, non-numeric) which surface as argument_null on the version field, and GUID/version canonicalization on success (uppercase and dash-less GUID forms normalize to canonical lowercase hyphenated form; short versions are emitted as parsed).",
+  "cases": [
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "00000000-0000-0000-0000-000000000000"
+      },
+      "expected_output": "error=argument_null\nparam=client_id\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "version": "1.2.3.4"
+      },
+      "expected_output": "error=argument_null\nparam=client_id\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "not-a-valid-guid",
+        "version": "1.2.3.4"
+      },
+      "expected_output": "error=argument_null\nparam=client_id\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4",
+        "version": ""
+      },
+      "expected_output": "error=argument_null\nparam=version\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4",
+        "version": "5"
+      },
+      "expected_output": "error=argument_null\nparam=version\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4",
+        "version": "a.b.c.d"
+      },
+      "expected_output": "error=argument_null\nparam=version\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "ABCDEF01-2345-6789-ABCD-EF0123456789",
+        "version": "1.2.3.4"
+      },
+      "expected_output": "token=abcdef01-2345-6789-abcd-ef0123456789%1.2.3.4\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "00112233445566778899aabbccddeeff",
+        "version": "1.0.0.0"
+      },
+      "expected_output": "token=00112233-4455-6677-8899-aabbccddeeff%1.0.0.0\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4",
+        "version": "1.2"
+      },
+      "expected_output": "token=8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.2\n"
+    },
+    {
+      "input": {
+        "action": "encode_token",
+        "client_id": "8e8a09e4-eddf-4c33-a1d8-1e399b763fd4",
+        "version": "1.2.3"
+      },
+      "expected_output": "token=8e8a09e4-eddf-4c33-a1d8-1e399b763fd4%1.2.3\n"
+    }
+  ]
+}

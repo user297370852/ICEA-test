@@ -1,0 +1,33 @@
+{
+    "description": "When a logging call supplies an error object but no message, the error's rendered representation becomes the message itself: the delivered record's text is exactly the serialized rendering, whose leading line is the error's label. This works at every severity, and an explicit tag, if set before each call, is observed on the record. The input logs an error object alone across all severities (optionally with an explicit tag); the output reports each record's numeric severity, tag, the head line (the error label), and that serialization occurred.",
+    "cases": [
+        {
+            "input": {
+                "action": "throwable",
+                "steps": [
+                    {"level": "verbose", "label": "err-a"},
+                    {"level": "info", "label": "err-b"},
+                    {"level": "debug", "label": "err-c"},
+                    {"level": "warn", "label": "err-d"},
+                    {"level": "error", "label": "err-e"},
+                    {"level": "assert", "label": "err-f"}
+                ]
+            },
+            "expected_output": "priority=2 tag= head=err-a serialized=true\npriority=4 tag= head=err-b serialized=true\npriority=3 tag= head=err-c serialized=true\npriority=5 tag= head=err-d serialized=true\npriority=6 tag= head=err-e serialized=true\npriority=7 tag= head=err-f serialized=true\n"
+        },
+        {
+            "input": {
+                "action": "throwable",
+                "steps": [
+                    {"tag": "Custom", "level": "verbose", "label": "err-a"},
+                    {"tag": "Custom", "level": "info", "label": "err-b"},
+                    {"tag": "Custom", "level": "debug", "label": "err-c"},
+                    {"tag": "Custom", "level": "warn", "label": "err-d"},
+                    {"tag": "Custom", "level": "error", "label": "err-e"},
+                    {"tag": "Custom", "level": "assert", "label": "err-f"}
+                ]
+            },
+            "expected_output": "priority=2 tag=Custom head=err-a serialized=true\npriority=4 tag=Custom head=err-b serialized=true\npriority=3 tag=Custom head=err-c serialized=true\npriority=5 tag=Custom head=err-d serialized=true\npriority=6 tag=Custom head=err-e serialized=true\npriority=7 tag=Custom head=err-f serialized=true\n"
+        }
+    ]
+}

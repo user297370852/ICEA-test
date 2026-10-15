@@ -1,0 +1,13 @@
+{
+    "description": "Validate the configuration of the metrics-collection component after provisioning. When collection is disabled, validation always passes regardless of any other setting. When collection is enabled, the following rules are checked in order: the metrics namespace must not be empty; every gathered metric must have a non-empty name; every gathered metric must carry a read function that supplies its current value; and metric names must be unique across all gathered metrics. The first violated rule determines the outcome. A passing configuration reports validity; a failing one reports invalidity together with a neutral category identifying which rule was broken (empty namespace, empty metric name, missing read function, or duplicate metric name).",
+    "cases": [
+        {
+            "input": {"operation": "validate", "namespace": "app", "providers": [{"id": "alpha", "metrics": [{"name": "jobs", "has_read": true}, {"name": "queue", "has_read": true}]}]},
+            "expected_output": "valid=true\n"
+        },
+        {
+            "input": {"operation": "validate", "namespace": "app", "providers": [{"id": "alpha", "metrics": [{"name": "jobs", "has_read": true}, {"name": "jobs", "has_read": true}]}]},
+            "expected_output": "valid=false\nerror=metric_duplicate\n"
+        }
+    ]
+}

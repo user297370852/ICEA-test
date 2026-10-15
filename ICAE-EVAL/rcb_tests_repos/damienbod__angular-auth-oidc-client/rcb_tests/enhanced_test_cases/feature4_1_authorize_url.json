@@ -1,0 +1,64 @@
+{
+  "op": "authorize_url",
+  "description": "Enhanced edge coverage for authorization-request URL building, disjoint from the native suite: a 'prompt' value (with a space) appended after the fixed parameters and percent-encoded, an 'hd_param' config that appends the 'hd' parameter, an endpoint already carrying MULTIPLE pre-existing query parameters (all preserved before the appended ones), and a stress case where the client_id, redirect_uri, scope (empty), nonce and state all contain reserved characters (&, /, =, ?, space) requiring percent-encoding.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "client_id": "myid",
+          "response_type": "id_token token",
+          "scope": "openid email profile"
+        },
+        "redirect_url": "https://localhost:44386",
+        "nonce": "nonce",
+        "state": "state",
+        "authorization_endpoint": "http://example",
+        "prompt": "login consent"
+      },
+      "expected_output": "url=http://example?client_id=myid&redirect_uri=https%3A%2F%2Flocalhost%3A44386&response_type=id_token%20token&scope=openid%20email%20profile&nonce=nonce&state=state&prompt=login%20consent\n"
+    },
+    {
+      "input": {
+        "config": {
+          "client_id": "myid",
+          "response_type": "id_token token",
+          "scope": "openid email profile",
+          "hd_param": "example.com"
+        },
+        "redirect_url": "https://localhost:44386",
+        "nonce": "nonce",
+        "state": "state",
+        "authorization_endpoint": "http://example"
+      },
+      "expected_output": "url=http://example?client_id=myid&redirect_uri=https%3A%2F%2Flocalhost%3A44386&response_type=id_token%20token&scope=openid%20email%20profile&nonce=nonce&state=state&hd=example.com\n"
+    },
+    {
+      "input": {
+        "config": {
+          "client_id": "myid",
+          "response_type": "id_token token",
+          "scope": "openid email profile"
+        },
+        "redirect_url": "https://localhost:44386",
+        "nonce": "nonce",
+        "state": "state",
+        "authorization_endpoint": "http://example?foo=bar&baz=qux"
+      },
+      "expected_output": "url=http://example?foo=bar&baz=qux&client_id=myid&redirect_uri=https%3A%2F%2Flocalhost%3A44386&response_type=id_token%20token&scope=openid%20email%20profile&nonce=nonce&state=state\n"
+    },
+    {
+      "input": {
+        "config": {
+          "client_id": "my id&x",
+          "response_type": "id_token token",
+          "scope": ""
+        },
+        "redirect_url": "https://localhost:44386/cb?a=b",
+        "nonce": "n/n",
+        "state": "st=at",
+        "authorization_endpoint": "http://example"
+      },
+      "expected_output": "url=http://example?client_id=my%20id%26x&redirect_uri=https%3A%2F%2Flocalhost%3A44386%2Fcb%3Fa%3Db&response_type=id_token%20token&scope=&nonce=n%2Fn&state=st%3Dat\n"
+    }
+  ]
+}

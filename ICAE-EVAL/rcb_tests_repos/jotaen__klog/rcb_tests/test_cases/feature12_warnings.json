@@ -1,0 +1,45 @@
+{
+    "description": "Scan records against a reference timestamp for likely mistakes and report each warning's neutral kind and the date of the offending record. Checks cover unclosed open ranges in the past, entries dated in the future, overlapping time ranges within a record, and records whose total exceeds 24 hours.",
+    "cases": [
+        {
+            "input": {
+                "action": "warnings",
+                "now": "2000-03-05T12:00:00-0000",
+                "text": "2000-03-03\n    8:00 - ?\n\n2000-03-05"
+            },
+            "expected_output": "warnings=1\nwarning[0].kind=unclosed_open_range\nwarning[0].date=2000-03-03\n"
+        },
+        {
+            "input": {
+                "action": "warnings",
+                "now": "2000-03-05T12:00:00-0000",
+                "text": "2000-03-05\n    8:00 - 9:00\n    8:30 - 9:30"
+            },
+            "expected_output": "warnings=1\nwarning[0].kind=overlapping_ranges\nwarning[0].date=2000-03-05\n"
+        },
+        {
+            "input": {
+                "action": "warnings",
+                "now": "2000-03-05T12:00:00-0000",
+                "text": "2000-03-06\n    2h"
+            },
+            "expected_output": "warnings=1\nwarning[0].kind=future_entry\nwarning[0].date=2000-03-06\n"
+        },
+        {
+            "input": {
+                "action": "warnings",
+                "now": "2000-03-05T12:00:00-0000",
+                "text": "2000-03-05\n    20h\n    5h"
+            },
+            "expected_output": "warnings=1\nwarning[0].kind=exceeds_24h\nwarning[0].date=2000-03-05\n"
+        },
+        {
+            "input": {
+                "action": "warnings",
+                "now": "2000-03-05T12:00:00-0000",
+                "text": "2000-03-05\n    8:00 - 9:00"
+            },
+            "expected_output": "warnings=0\n"
+        }
+    ]
+}

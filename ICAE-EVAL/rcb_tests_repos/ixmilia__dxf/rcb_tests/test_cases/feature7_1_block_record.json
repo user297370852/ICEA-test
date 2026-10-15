@@ -1,0 +1,66 @@
+{
+    "description": "Block records are table entries that may carry extended application data (XData) and raw bitmap preview bytes. XData preserves an application name and an ordered list of typed items (strings, integers, and nested brace-delimited control groups). Bitmap bytes are emitted as a hex string. Both reading and programmatic creation are supported.",
+    "cases": [
+        {
+            "input": {
+                "op": "read_block_records",
+                "dxf": "  0\nTABLE\n  2\nBLOCK_RECORD\n  0\nBLOCK_RECORD\n  2\n<name>\n1001\nACAD\n1000\nDesignCenter Data\n1002\n{\n1070\n0\n1070\n1\n1070\n2\n1002\n}\n  0\nENDTAB\n"
+            },
+            "expected_output": "block_record_count=1\nname=<name>\nlayout_handle=0\nbitmap_data=\nxdata.application=ACAD\nxdata.item_count=2\nxdata.item.0.type=String\nxdata.item.0.value=DesignCenter Data\nxdata.item.1.type=ControlString\nxdata.item.1.item_count=3\nxdata.item.1.item.0.type=Integer\nxdata.item.1.item.0.value=0\nxdata.item.1.item.1.type=Integer\nxdata.item.1.item.1.value=1\nxdata.item.1.item.2.type=Integer\nxdata.item.1.item.2.value=2\n"
+        },
+        {
+            "input": {
+                "op": "write_block_record",
+                "version": "R2000",
+                "name": "<name>",
+                "xdata": {
+                    "application": "ACAD",
+                    "items": [
+                        {
+                            "type": "string",
+                            "value": "DesignCenter Data"
+                        },
+                        {
+                            "type": "control_group",
+                            "items": [
+                                {
+                                    "type": "integer",
+                                    "value": 0
+                                },
+                                {
+                                    "type": "integer",
+                                    "value": 1
+                                },
+                                {
+                                    "type": "integer",
+                                    "value": 2
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "bitmap_data": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                ]
+            },
+            "expected_output": "  0\nTABLE\n  2\nBLOCK_RECORD\n  5\n2\n330\n0\n100\nAcDbSymbolTable\n 70\n0\n  0\nBLOCK_RECORD\n  5\nA\n330\n0\n100\nAcDbSymbolTableRecord\n100\nAcDbBlockTableRecord\n  2\n<name>\n340\n0\n310\n010203040506070809010203040506070809\n1001\nACAD\n1000\nDesignCenter Data\n1002\n{\n1070\n0\n1070\n1\n1070\n2\n1002\n}\n  0\nENDTAB\n"
+        }
+    ]
+}

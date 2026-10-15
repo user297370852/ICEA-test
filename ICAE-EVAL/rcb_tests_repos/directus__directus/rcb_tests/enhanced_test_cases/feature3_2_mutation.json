@@ -1,0 +1,128 @@
+{
+  "description": "The local filesystem backend supports mutating operations: delete, move, copy, append, and prepend. The request drives a fresh, empty root through one such mutation scenario per case and reports the observable result.",
+  "cases": [
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "src_file",
+            "content": "abc"
+          },
+          {
+            "action": "copy",
+            "src": "src_file",
+            "dest": "dst_file"
+          },
+          {
+            "action": "get",
+            "location": "dst_file"
+          },
+          {
+            "action": "get",
+            "location": "src_file"
+          }
+        ]
+      },
+      "expected_output": "put=src_file\ncopied=src_file->dst_file\ncontent=abc\ncontent=abc\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "log",
+            "content": "line1"
+          },
+          {
+            "action": "append",
+            "location": "log",
+            "content": "-line2"
+          },
+          {
+            "action": "append",
+            "location": "log",
+            "content": "-line3"
+          },
+          {
+            "action": "get",
+            "location": "log"
+          }
+        ]
+      },
+      "expected_output": "put=log\nappended=log\nappended=log\ncontent=line1-line2-line3\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "append",
+            "location": "fresh",
+            "content": "created-by-append"
+          },
+          {
+            "action": "get",
+            "location": "fresh"
+          }
+        ]
+      },
+      "expected_output": "appended=fresh\ncontent=created-by-append\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "p",
+            "content": "B"
+          },
+          {
+            "action": "prepend",
+            "location": "p",
+            "content": "A"
+          },
+          {
+            "action": "prepend",
+            "location": "p",
+            "content": "0"
+          },
+          {
+            "action": "get",
+            "location": "p"
+          }
+        ]
+      },
+      "expected_output": "put=p\nprepended=p\nprepended=p\ncontent=0AB\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "orig",
+            "content": "data"
+          },
+          {
+            "action": "move",
+            "src": "orig",
+            "dest": "nested/moved"
+          },
+          {
+            "action": "get",
+            "location": "nested/moved"
+          },
+          {
+            "action": "exists",
+            "location": "orig"
+          }
+        ]
+      },
+      "expected_output": "put=orig\nmoved=orig->nested/moved\ncontent=data\nexists=false\n"
+    }
+  ]
+}

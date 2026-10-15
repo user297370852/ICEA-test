@@ -1,0 +1,135 @@
+{
+    "description": "Build a read request for a single addressable resource or relationship action. Each operation routes a GET to its own fixed endpoint path and supplies a small, fixed set of query parameters: identifier parameters taken from the caller plus, where the operation has paired complementary forms, a constant discriminator value that distinguishes the two directions of the action. The server's JSON reply is parsed (preserving oversized integers) and returned. The output describes the HTTP method, endpoint path, the query parameters sent, and the parsed response.",
+    "cases": [
+        {
+            "input": {
+                "action": "request",
+                "operation": "get_user_profile",
+                "args": {
+                    "user_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"user\":{\"uid\":9999999999999999999,\"nickname\":\"example nickname\"}}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"user_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/user/\",\"response\":{\"status_code\":0,\"user\":{\"nickname\":\"example nickname\",\"uid\":\"9999999999999999999\"}}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "get_post",
+                "args": {
+                    "post_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"aweme_detail\":{\"aweme_id\":9999999999999999999}}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"aweme_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/aweme/detail/\",\"response\":{\"aweme_detail\":{\"aweme_id\":\"9999999999999999999\"},\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "follow_user",
+                "args": {
+                    "user_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"follow_status\":1,\"watch_status\":0}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"type\":1,\"user_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/commit/follow/user/\",\"response\":{\"follow_status\":1,\"status_code\":0,\"watch_status\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "unfollow_user",
+                "args": {
+                    "user_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"follow_status\":0,\"watch_status\":0}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"type\":0,\"user_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/commit/follow/user/\",\"response\":{\"follow_status\":0,\"status_code\":0,\"watch_status\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "like_post",
+                "args": {
+                    "post_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"is_digg\":0}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"aweme_id\":\"9999999999999999999\",\"type\":1},\"path\":\"aweme/v1/commit/item/digg/\",\"response\":{\"is_digg\":0,\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "unlike_post",
+                "args": {
+                    "post_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"is_digg\":1}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"aweme_id\":\"9999999999999999999\",\"type\":0},\"path\":\"aweme/v1/commit/item/digg/\",\"response\":{\"is_digg\":1,\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "approve_follow_request",
+                "args": {
+                    "user_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"approve_status\":0}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"from_user_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/commit/follow/request/approve/\",\"response\":{\"approve_status\":0,\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "reject_follow_request",
+                "args": {
+                    "user_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"reject_status\":0}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"from_user_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/commit/follow/request/reject/\",\"response\":{\"reject_status\":0,\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "join_live_stream",
+                "args": {
+                    "room_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0,\"room\":{\"room_id\":9999999999999999999}}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"room_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/room/enter/\",\"response\":{\"room\":{\"room_id\":\"9999999999999999999\"},\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "leave_live_stream",
+                "args": {
+                    "room_id": "9999999999999999999"
+                },
+                "response": "{\"status_code\":0}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"room_id\":\"9999999999999999999\"},\"path\":\"aweme/v1/room/leave/\",\"response\":{\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "can_start_live_stream",
+                "response": "{\"status_code\":0,\"can_be_live_podcast\":true}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{},\"path\":\"aweme/v1/live/podcast/\",\"response\":{\"can_be_live_podcast\":true,\"status_code\":0}}\n"
+        },
+        {
+            "input": {
+                "action": "request",
+                "operation": "end_live_stream",
+                "args": {
+                    "room_id": "9999999999999999999",
+                    "stream_id": "9000000000000000000"
+                },
+                "response": "{\"status_code\":0}"
+            },
+            "expected_output": "{\"method\":\"GET\",\"params\":{\"reason_no\":1,\"room_id\":\"9999999999999999999\",\"status\":4,\"stream_id\":\"9000000000000000000\"},\"path\":\"aweme/v1/room/update/status/\",\"response\":{\"status_code\":0}}\n"
+        }
+    ]
+}

@@ -1,0 +1,71 @@
+{
+  "description": "Enhanced boundary coverage for full-value masking. Covers: a message with no recognized field (pure passthrough); case sensitivity (uppercase PASSWORD is NOT matched because the configured alternation is lowercase); whitespace tolerance around the '=' separator (the value run after optional spaces is masked); and a greedy-match logical edge where the complete-mask value pattern consumes the rest of an unquoted comma-separated line, so a 'password=...' prefix swallows the trailing fields into a single mask. Also covers a value embedded mid-sentence and the second matched group (signature) being masked when it appears before a password field.",
+  "cases": [
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "no sensitive fields here"
+      },
+      "expected_output": "masked=no sensitive fields here\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "PASSWORD=abc123"
+      },
+      "expected_output": "masked=PASSWORD=abc123\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "password = abc123"
+      },
+      "expected_output": "masked=password = *****\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "password=abc123,username=johndoe,orderNumber=987654321,email=a@b.com"
+      },
+      "expected_output": "masked=password=*****\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "text before password=secret after"
+      },
+      "expected_output": "masked=text before password=*****\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "signature=foo,password=bar"
+      },
+      "expected_output": "masked=signature=*****\n"
+    }
+  ]
+}

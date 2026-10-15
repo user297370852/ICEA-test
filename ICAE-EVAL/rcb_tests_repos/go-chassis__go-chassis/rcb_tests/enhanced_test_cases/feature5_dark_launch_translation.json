@@ -1,0 +1,122 @@
+{
+  "description": "Enhanced rollout-translation logical paths: RATE with comma-split versions dividing weight, RATE with multiple policy items collapsing into one rule, RULE generating noEqu/greater/noGreater header operators, RULE with case-insensitive underscore-to-CamelCase header key, RULE producing multiple rules, and an unknown policy type producing zero rules.",
+  "cases": [
+    {
+      "input": {
+        "rule": {
+          "policyType": "RATE",
+          "ruleItems": [
+            {
+              "groupCondition": "version=1.0,2.0",
+              "policyCondition": "80"
+            }
+          ]
+        }
+      },
+      "expected_output": "rules=1\nrule_index=0 precedence=1 routes=2\nroute_index=0 weight=40 version=1.0\nroute_index=1 weight=40 version=2.0\n"
+    },
+    {
+      "input": {
+        "rule": {
+          "policyType": "RATE",
+          "ruleItems": [
+            {
+              "groupCondition": "version=1.0",
+              "policyCondition": "30"
+            },
+            {
+              "groupCondition": "version=2.0",
+              "policyCondition": "70"
+            }
+          ]
+        }
+      },
+      "expected_output": "rules=1\nrule_index=0 precedence=1 routes=2\nroute_index=0 weight=30 version=1.0\nroute_index=1 weight=70 version=2.0\n"
+    },
+    {
+      "input": {
+        "rule": {
+          "policyType": "RULE",
+          "ruleItems": [
+            {
+              "groupCondition": "version=1.0",
+              "policyCondition": "foo!=bar",
+              "versions": [
+                "1.0"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "rules=1\nrule_index=0 precedence=1 routes=1\nroute_index=0 weight=100 version=1.0\nheader=Foo caseInsensitive=false\nheader=Foo noEqu=bar\n"
+    },
+    {
+      "input": {
+        "rule": {
+          "policyType": "RULE",
+          "ruleItems": [
+            {
+              "groupCondition": "version=1.0",
+              "policyCondition": "age>18",
+              "versions": [
+                "1.0"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "rules=1\nrule_index=0 precedence=1 routes=1\nroute_index=0 weight=100 version=1.0\nheader=Age caseInsensitive=false\nheader=Age greater=18\n"
+    },
+    {
+      "input": {
+        "rule": {
+          "policyType": "RULE",
+          "ruleItems": [
+            {
+              "groupCondition": "version=1.0",
+              "policyCondition": "x_y=z",
+              "caseInsensitive": true,
+              "versions": [
+                "1.0"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "rules=1\nrule_index=0 precedence=1 routes=1\nroute_index=0 weight=100 version=1.0\nheader=XY caseInsensitive=true\nheader=XY exact=z\n"
+    },
+    {
+      "input": {
+        "rule": {
+          "policyType": "RULE",
+          "ruleItems": [
+            {
+              "groupCondition": "version=1.0",
+              "policyCondition": "a=b",
+              "versions": [
+                "1.0"
+              ]
+            },
+            {
+              "groupCondition": "version=2.0",
+              "policyCondition": "c<=5",
+              "versions": [
+                "2.0"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "rules=2\nrule_index=0 precedence=1 routes=1\nroute_index=0 weight=100 version=1.0\nheader=A caseInsensitive=false\nheader=A exact=b\nrule_index=1 precedence=1 routes=1\nroute_index=0 weight=100 version=2.0\nheader=C caseInsensitive=false\nheader=C noGreater=5\n"
+    },
+    {
+      "input": {
+        "rule": {
+          "policyType": "FOO",
+          "ruleItems": []
+        }
+      },
+      "expected_output": "rules=0\n"
+    }
+  ]
+}

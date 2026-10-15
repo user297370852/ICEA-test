@@ -1,0 +1,51 @@
+{
+  "description": "Compose middleware around an inner handler with a pipeline. Each middleware may inspect the request before the inner handler runs and the response afterwards; request processing runs outermost-first and response processing runs innermost-first. A middleware request phase may short-circuit by returning a response, in which case the inner handler and response phase are skipped. A response phase may replace the response. An error thrown by the inner handler is offered to a middleware error phase, which may produce a replacement response or rethrow; errors from the request or response phases bypass the error phase. A hijack signal always propagates untouched.",
+  "cases": [
+    {
+      "input": {
+        "action": "pipeline",
+        "middlewares": [
+          {
+            "name": "A",
+            "request": "pass",
+            "response": "pass"
+          },
+          {
+            "name": "B",
+            "request": "pass",
+            "response": "pass"
+          }
+        ],
+        "handler": {
+          "type": "trace",
+          "body": "ok"
+        }
+      },
+      "expected_output": "request:A\nrequest:B\nhandler\nresponse:B\nresponse:A\nstatus=200\nbody=ok\n"
+    },
+    {
+      "input": {
+        "action": "pipeline",
+        "middlewares": [
+          {
+            "name": "A",
+            "request": {
+              "respond": {
+                "status": 200,
+                "headers": {
+                  "from": "middleware"
+                },
+                "body": "middleware content"
+              }
+            },
+            "response": "pass"
+          }
+        ],
+        "handler": {
+          "type": "fail"
+        }
+      },
+      "expected_output": "request:A\nstatus=200\nfrom=middleware\nbody=middleware content\n"
+    }
+  ]
+}

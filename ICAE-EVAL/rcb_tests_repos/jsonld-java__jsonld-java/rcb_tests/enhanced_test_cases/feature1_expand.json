@@ -1,0 +1,66 @@
+{
+  "description": "Enhanced expansion edge cases: aliased type coercion, @type=@id IRI coercion with multi-valued native arrays, and explicit typed value objects. Disjoint from native cases.",
+  "cases": [
+    {
+      "input": {
+        "options": {},
+        "document": {
+          "@context": {
+            "name": "http://example.com/name",
+            "age": "http://example.com/age",
+            "Person": "http://example.com/Person"
+          },
+          "@id": "http://example.com/alice",
+          "@type": "Person",
+          "name": "Alice",
+          "age": 30
+        },
+        "algorithm": "expand",
+        "base": "http://json-ld.org/test-suite/tests/expand-enh-0001-in.jsonld"
+      },
+      "expected_output": "[ {\n  \"@id\" : \"http://example.com/alice\",\n  \"@type\" : [ \"http://example.com/Person\" ],\n  \"http://example.com/name\" : [ {\n    \"@value\" : \"Alice\"\n  } ],\n  \"http://example.com/age\" : [ {\n    \"@value\" : 30\n  } ]\n} ]\n"
+    },
+    {
+      "input": {
+        "options": {},
+        "document": {
+          "@context": {
+            "homepage": {
+              "@id": "http://example.com/homepage",
+              "@type": "@id"
+            },
+            "count": "http://example.com/count"
+          },
+          "@id": "http://example.com/x",
+          "homepage": "http://example.com/page",
+          "count": [
+            1,
+            2,
+            3
+          ]
+        },
+        "algorithm": "expand",
+        "base": "http://json-ld.org/test-suite/tests/expand-enh-0002-in.jsonld"
+      },
+      "expected_output": "[ {\n  \"@id\" : \"http://example.com/x\",\n  \"http://example.com/homepage\" : [ {\n    \"@id\" : \"http://example.com/page\"\n  } ],\n  \"http://example.com/count\" : [ {\n    \"@value\" : 1\n  }, {\n    \"@value\" : 2\n  }, {\n    \"@value\" : 3\n  } ]\n} ]\n"
+    },
+    {
+      "input": {
+        "options": {},
+        "document": {
+          "@context": {
+            "ex": "http://example.org/"
+          },
+          "@id": "http://example.org/sensor",
+          "ex:temp": {
+            "@value": "21",
+            "@type": "http://example.org/celsius"
+          }
+        },
+        "algorithm": "expand",
+        "base": "http://json-ld.org/test-suite/tests/expand-enh-0003-in.jsonld"
+      },
+      "expected_output": "[ {\n  \"@id\" : \"http://example.org/sensor\",\n  \"http://example.org/temp\" : [ {\n    \"@type\" : \"http://example.org/celsius\",\n    \"@value\" : \"21\"\n  } ]\n} ]\n"
+    }
+  ]
+}

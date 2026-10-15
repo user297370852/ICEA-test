@@ -1,0 +1,101 @@
+{
+  "description": "Additional native-disjoint scanner cases covering EOF boundaries, whitespace spans, comments, include strings, event indexed parameters, array zero size, lexical errors, macro-body context, and built-ins.",
+  "cases": [
+    {
+      "input": {
+        "source": "",
+        "skip_whitespace": true,
+        "include_eof": true
+      },
+      "expected_output": "token=eof span=0..0\n"
+    },
+    {
+      "input": {
+        "source": "\t \n",
+        "skip_whitespace": true,
+        "include_eof": true
+      },
+      "expected_output": "token=eof span=3..3\n"
+    },
+    {
+      "input": {
+        "source": "#define\tmacro\nTEST",
+        "skip_whitespace": false,
+        "include_eof": true
+      },
+      "expected_output": "token=directive:#define span=0..7\ntoken=whitespace span=7..8\ntoken=keyword:macro span=8..13\ntoken=whitespace span=13..14\ntoken=ident:TEST span=14..18\ntoken=eof span=18..18\n"
+    },
+    {
+      "input": {
+        "source": "/* head\n tail */\n#define event E()",
+        "skip_whitespace": false,
+        "include_eof": false
+      },
+      "expected_output": "token=comment:/* head\n tail */ span=0..16\ntoken=whitespace span=16..17\ntoken=directive:#define span=17..24\ntoken=whitespace span=24..25\ntoken=keyword:event span=25..30\ntoken=whitespace span=30..31\ntoken=ident:E span=31..32\ntoken=symbol:( span=32..33\ntoken=symbol:) span=33..34\n"
+    },
+    {
+      "input": {
+        "source": "/* never closes",
+        "skip_whitespace": true,
+        "include_eof": false
+      },
+      "expected_output": "token=comment:/* never closes span=0..15\n"
+    },
+    {
+      "input": {
+        "source": "#include ''",
+        "skip_whitespace": false,
+        "include_eof": false
+      },
+      "expected_output": "token=directive:#include span=0..8\ntoken=whitespace span=8..9\ntoken=string: span=9..11\n"
+    },
+    {
+      "input": {
+        "source": "#define event Transfer(address indexed,uint256 indexed)",
+        "skip_whitespace": true,
+        "include_eof": false
+      },
+      "expected_output": "token=directive:#define span=0..7\ntoken=keyword:event span=8..13\ntoken=ident:Transfer span=14..22\ntoken=symbol:( span=22..23\ntoken=type:address span=23..30\ntoken=keyword:indexed span=31..38\ntoken=symbol:, span=38..39\ntoken=type:uint256 span=39..46\ntoken=keyword:indexed span=47..54\ntoken=symbol:) span=54..55\n"
+    },
+    {
+      "input": {
+        "source": "#define function zero(address[0]) view returns (uint256)",
+        "skip_whitespace": true,
+        "include_eof": false
+      },
+      "expected_output": "token=directive:#define span=0..7\ntoken=keyword:function span=8..16\ntoken=ident:zero span=17..21\ntoken=symbol:( span=21..22\ntoken=array:address[] span=22..32\ntoken=symbol:) span=32..33\ntoken=keyword:view span=34..38\ntoken=keyword:returns span=39..46\ntoken=symbol:( span=47..48\ntoken=type:uint256 span=48..55\ntoken=symbol:) span=55..56\n"
+    },
+    {
+      "input": {
+        "source": "valid @ invalid",
+        "skip_whitespace": true,
+        "include_eof": false
+      },
+      "expected_output": "token=ident:valid span=0..5\nerror=invalid_character char=@ span=6..7\n"
+    },
+    {
+      "input": {
+        "source": "#define macro FLOW() = takes(12) returns(34) {\nstart: dup2 push10 0xabcdef jumpi\n// done\n}",
+        "skip_whitespace": true,
+        "include_eof": true
+      },
+      "expected_output": "token=directive:#define span=0..7\ntoken=keyword:macro span=8..13\ntoken=ident:FLOW span=14..18\ntoken=symbol:( span=18..19\ntoken=symbol:) span=19..20\ntoken=symbol:= span=21..22\ntoken=keyword:takes span=23..28\ntoken=symbol:( span=28..29\ntoken=number:12 span=29..31\ntoken=symbol:) span=31..32\ntoken=keyword:returns span=33..40\ntoken=symbol:( span=40..41\ntoken=number:34 span=41..43\ntoken=symbol:) span=43..44\ntoken=symbol:{ span=45..46\ntoken=label:start span=47..53\ntoken=opcode:81:0x81 span=54..58\ntoken=opcode:69:0x69 span=59..65\ntoken=literal:0x6162636465660000000000000000000000000000000000000000000000000000 span=68..74\ntoken=opcode:57:0x57 span=75..80\ntoken=comment:// done span=81..88\ntoken=symbol:} span=89..90\ntoken=eof span=90..90\n"
+    },
+    {
+      "input": {
+        "source": "#define macro BODY() = takes(0) returns(0) { unknown_opcode stop }",
+        "skip_whitespace": true,
+        "include_eof": false
+      },
+      "expected_output": "token=directive:#define span=0..7\ntoken=keyword:macro span=8..13\ntoken=ident:BODY span=14..18\ntoken=symbol:( span=18..19\ntoken=symbol:) span=19..20\ntoken=symbol:= span=21..22\ntoken=keyword:takes span=23..28\ntoken=symbol:( span=28..29\ntoken=number:0 span=29..30\ntoken=symbol:) span=30..31\ntoken=keyword:returns span=32..39\ntoken=symbol:( span=39..40\ntoken=number:0 span=40..41\ntoken=symbol:) span=41..42\ntoken=symbol:{ span=43..44\ntoken=ident:unknown_opcode span=45..59\ntoken=opcode:00:0x00 span=60..64\ntoken=symbol:} span=65..66\n"
+    },
+    {
+      "input": {
+        "source": "FREE_STORAGE_POINTER()\t+\n1",
+        "skip_whitespace": false,
+        "include_eof": true
+      },
+      "expected_output": "token=builtin:FREE_STORAGE_POINTER() span=0..22\ntoken=whitespace span=22..23\ntoken=symbol:+ span=23..24\ntoken=whitespace span=24..25\ntoken=number:1 span=25..26\ntoken=eof span=26..26\n"
+    }
+  ]
+}

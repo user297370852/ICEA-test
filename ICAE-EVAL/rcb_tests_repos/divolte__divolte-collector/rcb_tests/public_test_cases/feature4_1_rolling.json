@@ -1,0 +1,90 @@
+{
+  "description": "Rolling file sink: records written under a time-based rolling strategy accumulate in a single in-flight file, published on clean shutdown; an in-flight file that has not been finalized is not yet a readable container; forcing rolls between batches publishes one file per interval.",
+  "cases": [
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "simple",
+        "roll_every": "1 day",
+        "records": [
+          {
+            "ts": 0
+          },
+          {
+            "ts": 1
+          },
+          {
+            "ts": 2
+          },
+          {
+            "ts": 3
+          },
+          {
+            "ts": 4
+          },
+          {
+            "ts": 5
+          },
+          {
+            "ts": 6
+          },
+          {
+            "ts": 7
+          },
+          {
+            "ts": 8
+          },
+          {
+            "ts": 9
+          }
+        ]
+      },
+      "expected_output": "published_files=1\ninflight_files=0\npublished[0]=.avro|0,1,2,3,4,5,6,7,8,9\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "simple",
+        "roll_every": "1 day",
+        "cleanup": false,
+        "records": [
+          {
+            "ts": 0
+          },
+          {
+            "ts": 1
+          },
+          {
+            "ts": 2
+          }
+        ]
+      },
+      "expected_output": "published_files=0\ninflight_files=1\ninflight[0]=.avro.partial|<unreadable>\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "simple",
+        "roll_every": "1 second",
+        "records": [
+          {
+            "ts": 0
+          },
+          {
+            "ts": 1
+          }
+        ],
+        "rolls": 2,
+        "records2": [
+          {
+            "ts": 2
+          },
+          {
+            "ts": 3
+          }
+        ]
+      },
+      "expected_output": "published_files=2\ninflight_files=0\npublished[0]=.avro|0,1\npublished[1]=.avro|2,3\n"
+    }
+  ]
+}

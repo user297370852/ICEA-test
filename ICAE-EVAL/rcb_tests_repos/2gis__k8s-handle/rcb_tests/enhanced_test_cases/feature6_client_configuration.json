@@ -1,0 +1,47 @@
+{
+  "description": "Additional client-configuration assembly coverage: a successful build sourcing master URI and token purely from the environment (no CA, so ca_cert is none), a successful build from CLI with a context debug flag enabling debug and a base64 CA decoded to plain text, a missing-token rejection when only a master URI is supplied via the environment, and a missing-master-uri rejection when only a token is supplied via CLI.",
+  "cases": [
+    {
+      "input": {
+        "op": "client_configuration",
+        "env": {
+          "K8S_MASTER_URI": "https://api.example",
+          "K8S_TOKEN": "env_tok"
+        }
+      },
+      "expected_output": "host=https://api.example\nauthorization=Bearer env_tok\ndebug=false\nca_cert=none\n"
+    },
+    {
+      "input": {
+        "op": "client_configuration",
+        "cli": {
+          "k8s_master_uri": "https://cli.example",
+          "k8s_token": "cli_tok",
+          "k8s_ca_base64": "aGk="
+        },
+        "context": {
+          "k8s_handle_debug": "True"
+        }
+      },
+      "expected_output": "host=https://cli.example\nauthorization=Bearer cli_tok\ndebug=true\nca_cert=hi\n"
+    },
+    {
+      "input": {
+        "op": "client_configuration",
+        "env": {
+          "K8S_MASTER_URI": "https://api.example"
+        }
+      },
+      "expected_output": "error=missing_token\n"
+    },
+    {
+      "input": {
+        "op": "client_configuration",
+        "cli": {
+          "k8s_token": "cli_tok"
+        }
+      },
+      "expected_output": "error=missing_master_uri\n"
+    }
+  ]
+}

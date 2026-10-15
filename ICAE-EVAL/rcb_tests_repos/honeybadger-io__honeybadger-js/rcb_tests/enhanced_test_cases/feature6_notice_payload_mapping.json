@@ -1,0 +1,56 @@
+{
+  "description": "Boundary coverage for notice payload mapping: URL and param filtering, config-sourced metadata, and extra-supplied session data with custom error class.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "apiKey": "testing",
+          "filters": [
+            "password"
+          ]
+        },
+        "notice": {
+          "message": "err",
+          "url": "https://x.com/?password=1&ok=2",
+          "params": {
+            "password": "p",
+            "ok": "o"
+          }
+        }
+      },
+      "expected_output": "class=Error\nmessage=err\nurl=https://x.com/?password=[FILTERED]&ok=2\ncomponent=null\naction=null\nenvironment=null\nrevision=null\ncontext={}\nparams={\"ok\":\"o\",\"password\":\"[FILTERED]\"}\ncgi_data={}\nsession={}\ndetails={}\n"
+    },
+    {
+      "input": {
+        "config": {
+          "apiKey": "testing",
+          "environment": "staging",
+          "component": "web",
+          "action": "index",
+          "revision": "abc123"
+        },
+        "notice": {
+          "message": "m"
+        }
+      },
+      "expected_output": "class=Error\nmessage=m\nurl=none\ncomponent=web\naction=index\nenvironment=staging\nrevision=abc123\ncontext={}\nparams={}\ncgi_data={}\nsession={}\ndetails={}\n"
+    },
+    {
+      "input": {
+        "config": {
+          "apiKey": "testing"
+        },
+        "notice": {
+          "name": "CustomError",
+          "message": "boom"
+        },
+        "extra": {
+          "session": {
+            "sid": "s1"
+          }
+        }
+      },
+      "expected_output": "class=CustomError\nmessage=boom\nurl=none\ncomponent=null\naction=null\nenvironment=null\nrevision=null\ncontext={}\nparams={}\ncgi_data={}\nsession={\"sid\":\"s1\"}\ndetails={}\n"
+    }
+  ]
+}

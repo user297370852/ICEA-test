@@ -1,0 +1,143 @@
+{
+  "description": "Boundary and logical-path coverage for configuration validation: a completely empty config reports every missing required setting plus the missing-email-validation problem, in order; omitting email_domains alone reports only the email-validation problem; a fully valid config with a proper-length cookie secret plus a non-zero cookie refresh (less than the expiry) validates; pass_access_token with a valid 32-byte secret validates; combined problems (missing cookie secret AND an invalid regex) are all reported; group restriction requested with a non-existent credentials file and no admin email reports both the invalid-credentials-file and missing-admin problems; a valid config with both a redirect URL and skip-auth regexes reports the redirect, upstream, and each compiled pattern.",
+  "cases": [
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {}
+      },
+      "expected_output": "valid=false\nerror=missing_setting setting=upstream\nerror=missing_setting setting=cookie-secret\nerror=missing_setting setting=client-id\nerror=missing_setting setting=client-secret\nerror=missing_email_validation\nerror=other\n"
+    },
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {
+          "upstreams": [
+            "http://127.0.0.1:8080/"
+          ],
+          "cookie_secret": "foobar",
+          "client_id": "bazquux",
+          "client_secret": "xyzzyplugh"
+        }
+      },
+      "expected_output": "valid=false\nerror=missing_email_validation\nerror=other\n"
+    },
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {
+          "upstreams": [
+            "http://127.0.0.1:8080/"
+          ],
+          "cookie_secret": "0123456789abcdef",
+          "client_id": "bazquux",
+          "client_secret": "xyzzyplugh",
+          "email_domains": [
+            "*"
+          ],
+          "cookie_refresh_seconds": 3600,
+          "cookie_expire_seconds": 604800
+        }
+      },
+      "expected_output": "valid=true\nupstream=http|127.0.0.1:8080|/\n"
+    },
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {
+          "upstreams": [
+            "http://127.0.0.1:8080/"
+          ],
+          "cookie_secret": "0123456789abcdefghijklmnopqrstuv",
+          "client_id": "bazquux",
+          "client_secret": "xyzzyplugh",
+          "email_domains": [
+            "*"
+          ],
+          "pass_access_token": true
+        }
+      },
+      "expected_output": "valid=true\nupstream=http|127.0.0.1:8080|/\n"
+    },
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {
+          "upstreams": [
+            "http://127.0.0.1:8080/"
+          ],
+          "client_id": "bazquux",
+          "client_secret": "xyzzyplugh",
+          "email_domains": [
+            "*"
+          ],
+          "skip_auth_regex": [
+            "(unbalanced"
+          ]
+        }
+      },
+      "expected_output": "valid=false\nerror=missing_setting setting=cookie-secret\nerror=invalid_regex\n"
+    },
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {
+          "upstreams": [
+            "http://127.0.0.1:8080/"
+          ],
+          "cookie_secret": "foobar",
+          "client_id": "bazquux",
+          "client_secret": "xyzzyplugh",
+          "email_domains": [
+            "*"
+          ],
+          "google_groups": [
+            "grp"
+          ],
+          "google_service_account_json": "no_such_creds_file.json"
+        }
+      },
+      "expected_output": "valid=false\nerror=invalid_credentials_file\nerror=missing_setting setting=google-admin-email\n"
+    },
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {
+          "upstreams": [
+            "http://127.0.0.1:8080/api"
+          ],
+          "cookie_secret": "foobar",
+          "client_id": "bazquux",
+          "client_secret": "xyzzyplugh",
+          "email_domains": [
+            "*"
+          ],
+          "redirect_url": "https://gw.example.com/oauth2/callback",
+          "skip_auth_regex": [
+            "^/public/.*$",
+            "/health"
+          ]
+        }
+      },
+      "expected_output": "valid=true\nredirect=https|gw.example.com|/oauth2/callback\nupstream=http|127.0.0.1:8080|/api\nskip_auth_regex=^/public/.*$\nskip_auth_regex=/health\n"
+    },
+    {
+      "input": {
+        "action": "validate_config",
+        "config": {
+          "upstreams": [
+            "https://a.internal:9000/svc",
+            "http://b.internal:7000"
+          ],
+          "cookie_secret": "foobar",
+          "client_id": "bazquux",
+          "client_secret": "xyzzyplugh",
+          "email_domains": [
+            "*"
+          ]
+        }
+      },
+      "expected_output": "valid=true\nupstream=https|a.internal:9000|/svc\nupstream=http|b.internal:7000|/\n"
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "description": "Trailing-wildcard value matching at the boundaries: a request value exactly equal to the configured prefix, a longer value sharing the prefix, a value shorter than the prefix, a value differing only in letter case, and a bare wildcard value that shares an empty prefix with any request value including an empty one.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: w\n    value: pre*\n    rate_limit:\n      unit: second\n      requests_per_unit: 4\n  - key: star\n    value: \"*\"\n    rate_limit:\n      unit: minute\n      requests_per_unit: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "w",
+              "value": "pre"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.w_pre*\nrequests_per_unit=4\nunit=SECOND\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: w\n    value: pre*\n    rate_limit:\n      unit: second\n      requests_per_unit: 4\n  - key: star\n    value: \"*\"\n    rate_limit:\n      unit: minute\n      requests_per_unit: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "w",
+              "value": "prefixlong"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.w_pre*\nrequests_per_unit=4\nunit=SECOND\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: w\n    value: pre*\n    rate_limit:\n      unit: second\n      requests_per_unit: 4\n  - key: star\n    value: \"*\"\n    rate_limit:\n      unit: minute\n      requests_per_unit: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "w",
+              "value": "pr"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: w\n    value: pre*\n    rate_limit:\n      unit: second\n      requests_per_unit: 4\n  - key: star\n    value: \"*\"\n    rate_limit:\n      unit: minute\n      requests_per_unit: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "w",
+              "value": "PRE"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: w\n    value: pre*\n    rate_limit:\n      unit: second\n      requests_per_unit: 4\n  - key: star\n    value: \"*\"\n    rate_limit:\n      unit: minute\n      requests_per_unit: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "star",
+              "value": "anything"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.star_*\nrequests_per_unit=5\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: w\n    value: pre*\n    rate_limit:\n      unit: second\n      requests_per_unit: 4\n  - key: star\n    value: \"*\"\n    rate_limit:\n      unit: minute\n      requests_per_unit: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "star",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.star_*\nrequests_per_unit=5\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+    }
+  ]
+}

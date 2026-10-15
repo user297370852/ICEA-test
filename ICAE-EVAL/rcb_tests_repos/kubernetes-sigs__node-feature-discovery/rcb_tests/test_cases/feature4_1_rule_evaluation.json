@@ -1,0 +1,489 @@
+{
+    "description": "Execute a customization rule against a collection of features grouped by domain. A rule carries static labels/vars plus optional matchers. matchFeatures is a logical AND of per-feature-set requirements; matchAny is a logical OR of such groups. A feature reference is '<domain>.<featureset>'; the feature set may be a name set, a key-value set, or an instance set. When the rule matches, its static labels and vars are produced (reported as sorted key=value lines under labels: and vars: sections); when it does not match, both sections are empty. Referencing an unknown domain, an unknown feature set, or a malformed reference reports a neutral error.",
+    "cases": [
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-1": "",
+                        "label-2": "true"
+                    }
+                },
+                "features": {}
+            },
+            "expected_output": "labels:\nlabel-1=\nlabel-2=true\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-1": "label-val-1"
+                    },
+                    "vars": {
+                        "var-1": "var-val-1"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.kf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {}
+            },
+            "expected_output": "error=unknown_domain\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-1": "label-val-1"
+                    },
+                    "vars": {
+                        "var-1": "var-val-1"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.kf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {}
+                }
+            },
+            "expected_output": "error=unknown_feature\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-1": "label-val-1"
+                    },
+                    "vars": {
+                        "var-1": "var-val-1"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.kf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-x"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-x"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-1": "label-val-1"
+                    },
+                    "vars": {
+                        "var-1": "var-val-1"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.kf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-1",
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-1"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nlabel-1=label-val-1\nvars:\nvar-1=var-val-1\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-3": "label-val-3",
+                        "empty": ""
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.vf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-x"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-x"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-3": "label-val-3",
+                        "empty": ""
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.vf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-1",
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-1"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nempty=\nlabel-3=label-val-3\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-4": "label-val-4"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.if-1",
+                            "matchExpressions": {
+                                "attr-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-x"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-x"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-4": "label-val-4"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.if-1",
+                            "matchExpressions": {
+                                "attr-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-1",
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-1"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nlabel-4=label-val-4\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-5": "label-val-5"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.vf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "feature": "domain-1.if-1",
+                            "matchExpressions": {
+                                "attr-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-1",
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-1"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nlabel-5=label-val-5\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-5": "label-val-5"
+                    },
+                    "matchFeatures": [
+                        {
+                            "feature": "domain-1.vf-1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1"
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    "matchAny": [
+                        {
+                            "matchFeatures": [
+                                {
+                                    "feature": "domain-1.kf-1",
+                                    "matchExpressions": {
+                                        "key-na": {
+                                            "op": "Exists"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "matchFeatures": [
+                                {
+                                    "feature": "domain-1.kf-1",
+                                    "matchExpressions": {
+                                        "key-1": {
+                                            "op": "Exists"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "features": {
+                    "domain-1": {
+                        "keys": {
+                            "kf-1": [
+                                "key-1",
+                                "key-x"
+                            ]
+                        },
+                        "values": {
+                            "vf-1": {
+                                "key-1": "val-1"
+                            }
+                        },
+                        "instances": {
+                            "if-1": [
+                                {
+                                    "attr-1": "val-1"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nlabel-5=label-val-5\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "matchFeatures": [
+                        {
+                            "feature": "nodot",
+                            "matchExpressions": {}
+                        }
+                    ]
+                },
+                "features": {}
+            },
+            "expected_output": "error=invalid_feature_reference\n"
+        }
+    ]
+}

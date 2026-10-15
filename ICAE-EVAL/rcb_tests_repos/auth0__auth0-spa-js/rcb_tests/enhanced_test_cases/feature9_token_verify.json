@@ -1,0 +1,56 @@
+{
+  "description": "Edge cases for identity-token verification: leeway extends validity for an otherwise-expired token; an nbf in the past passes the not-before check; check-ordering precedence (algorithm is checked before nonce); and a valid token carrying extra profile claims.",
+  "cases": [
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwiZXhwIjoxNjAwMDAwMDAwLCJpYXQiOjE1MDAwMDAwMDB9.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC",
+        "leeway": 9999999999
+      },
+      "expected_output": "valid=true\nclaims={\"__raw\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwiZXhwIjoxNjAwMDAwMDAwLCJpYXQiOjE1MDAwMDAwMDB9.c2lnbmF0dXJl\",\"iss\":\"https://tenant.example.com/\",\"aud\":\"CLIENTID123\",\"nonce\":\"n0nce-AbC\",\"exp\":1600000000,\"iat\":1500000000}\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwiZXhwIjoyMDAwMDAwMDAwLCJpYXQiOjE1MDAwMDAwMDAsIm5iZiI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "valid=true\nclaims={\"__raw\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwiZXhwIjoyMDAwMDAwMDAwLCJpYXQiOjE1MDAwMDAwMDAsIm5iZiI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl\",\"iss\":\"https://tenant.example.com/\",\"aud\":\"CLIENTID123\",\"nonce\":\"n0nce-AbC\",\"exp\":2000000000,\"iat\":1500000000,\"nbf\":1500000000}\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwiZXhwIjoyMDAwMDAwMDAwLCJpYXQiOjE1MDAwMDAwMDB9.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "WRONG"
+      },
+      "expected_output": "error=invalid_algorithm\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwiZXhwIjoyMDAwMDAwMDAwLCJpYXQiOjE1MDAwMDAwMDB9.c2lnbmF0dXJl",
+        "iss": "https://evil.example.com/",
+        "aud": "WRONG",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "error=invalid_issuer\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8NDIiLCJuYW1lIjoiQWwiLCJlbWFpbCI6ImFsQHguaW8iLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "valid=true\nclaims={\"__raw\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8NDIiLCJuYW1lIjoiQWwiLCJlbWFpbCI6ImFsQHguaW8iLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl\",\"iss\":\"https://tenant.example.com/\",\"aud\":\"CLIENTID123\",\"nonce\":\"n0nce-AbC\",\"sub\":\"auth0|42\",\"name\":\"Al\",\"email\":\"al@x.io\",\"exp\":2000000000,\"iat\":1500000000}\n"
+    }
+  ]
+}

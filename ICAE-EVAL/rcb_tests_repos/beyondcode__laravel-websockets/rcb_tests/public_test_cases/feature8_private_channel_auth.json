@@ -1,0 +1,55 @@
+{
+    "description": "A restricted (private) channel requires an authentication token on subscribe. The token is the application key, a colon, and the hex HMAC-SHA256 of the string '<socket_id>:<channel>' keyed by the application secret. When the token's signature matches, the subscription is acknowledged. When it does not match, the subscription is rejected with a signature error (carrying the protocol error code) and the client receives no acknowledgement.",
+    "cases": [
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "200.2"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "private-channel",
+                                "auth": "TestKey:d08ef786d54c1fee10dd22741270f8134bd375acd67667a90f0501f0765a8ab2"
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"private-channel\"}\n"
+        },
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "200.2"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "private-channel",
+                                "auth": "invalid"
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "error=invalid_signature\ncode=4009\n[a] received 0\n"
+        }
+    ]
+}

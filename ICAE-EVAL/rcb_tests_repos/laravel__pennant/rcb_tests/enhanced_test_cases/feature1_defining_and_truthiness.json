@@ -1,0 +1,109 @@
+{
+  "description": "Define feature flags with constant resolvers carrying boundary value payloads and confirm the active/inactive contract together with the concrete value. Every resolved value other than exactly boolean false counts as active, including negative numbers, very large integers, an empty collection, and deeply nested structured values; the stored payload is reported verbatim.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "neg",
+            "resolver": {
+              "type": "const",
+              "value": -7
+            }
+          },
+          {
+            "op": "define",
+            "feature": "big",
+            "resolver": {
+              "type": "const",
+              "value": 2147483648
+            }
+          },
+          {
+            "op": "define",
+            "feature": "arr",
+            "resolver": {
+              "type": "const",
+              "value": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          {
+            "op": "active",
+            "feature": "neg"
+          },
+          {
+            "op": "active",
+            "feature": "big"
+          },
+          {
+            "op": "active",
+            "feature": "arr"
+          },
+          {
+            "op": "value",
+            "feature": "neg"
+          },
+          {
+            "op": "value",
+            "feature": "big"
+          },
+          {
+            "op": "value",
+            "feature": "arr"
+          }
+        ]
+      },
+      "expected_output": "active neg = true\nactive big = true\nactive arr = true\nvalue neg = -7\nvalue big = 2147483648\nvalue arr = [1,2,3]\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "emptyarr",
+            "resolver": {
+              "type": "const",
+              "value": []
+            }
+          },
+          {
+            "op": "define",
+            "feature": "nested",
+            "resolver": {
+              "type": "const",
+              "value": {
+                "a": {
+                  "b": {
+                    "c": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "op": "active",
+            "feature": "emptyarr"
+          },
+          {
+            "op": "active",
+            "feature": "nested"
+          },
+          {
+            "op": "value",
+            "feature": "emptyarr"
+          },
+          {
+            "op": "value",
+            "feature": "nested"
+          }
+        ]
+      },
+      "expected_output": "active emptyarr = true\nactive nested = true\nvalue emptyarr = []\nvalue nested = {\"a\":{\"b\":{\"c\":1}}}\n"
+    }
+  ]
+}

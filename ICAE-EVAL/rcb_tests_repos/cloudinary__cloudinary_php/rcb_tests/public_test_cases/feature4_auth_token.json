@@ -1,0 +1,9 @@
+{
+    "description": "Generate a signed authentication token used to deliver access-controlled media. The adapter accepts a token config (signing key, optional start_time, duration or expiration, optional acl/ip) plus an optional URL path, and renders the result prefixed as 'token=<token>'. The token is a tilde-separated list under the name '__cld_token__', containing the start time (st), expiry (exp = start + duration when only duration is given), an optional lowercased+escaped acl, and an HMAC-SHA256 digest (hmac) over the signed parts. When an acl is present the URL path is ignored; otherwise the path is folded into the signed payload, producing a different hmac. Omitting both duration and expiration is an error, normalized to 'error=missing_token_lifetime'.",
+    "cases": [
+        {"input": {"op": "auth_token", "config": {"key": "00112233FF99", "start_time": 1111111111, "duration": 300, "acl": "/image/*"}}, "expected_output": "token=__cld_token__=st=1111111111~exp=1111111411~acl=%2fimage%2f*~hmac=1751370bcc6cfe9e03f30dd1a9722ba0f2cdca283fa3e6df3342a00a7528cc51\n"},
+        {"input": {"op": "auth_token", "config": {"key": "00112233FF99", "start_time": 1111111111, "duration": 300}, "path": "sample.jpg"}, "expected_output": "token=__cld_token__=st=1111111111~exp=1111111411~hmac=1b191b2c76e58f0e65f76224c22490a6fa361681570b15eece7b9e9f4ad3d5e4\n"},
+        {"input": {"op": "auth_token", "config": {"key": "00112233FF99", "start_time": 1111111111, "duration": 300, "acl": "/image/*"}, "path": "sample.jpg"}, "expected_output": "token=__cld_token__=st=1111111111~exp=1111111411~acl=%2fimage%2f*~hmac=1751370bcc6cfe9e03f30dd1a9722ba0f2cdca283fa3e6df3342a00a7528cc51\n"},
+        {"input": {"op": "auth_token", "config": {"key": "00112233FF99"}}, "expected_output": "error=missing_token_lifetime\n"}
+    ]
+}

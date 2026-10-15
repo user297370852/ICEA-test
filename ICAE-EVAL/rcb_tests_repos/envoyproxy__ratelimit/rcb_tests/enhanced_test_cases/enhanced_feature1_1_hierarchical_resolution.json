@@ -1,0 +1,197 @@
+{
+  "description": "Resolve an ordered request descriptor against a hierarchical rate-limit configuration, exercising boundary paths: a key-only default match, an intermediate node carrying no limit, a nested default beneath a value-qualified parent, a request whose first entry matches no value and no default, a descriptor that runs past a leaf with extra entries, resolution against an unknown domain, and an intermediate node that both carries a limit and owns deeper descriptors.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "a",
+              "value": "anything"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.a\nrequests_per_unit=1\nunit=SECOND\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "b",
+              "value": "v"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "b",
+              "value": "v"
+            },
+            {
+              "key": "c",
+              "value": "x"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.b_v.c\nrequests_per_unit=2\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "b",
+              "value": "other"
+            },
+            {
+              "key": "c",
+              "value": "x"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "a",
+              "value": "x"
+            },
+            {
+              "key": "deeper",
+              "value": "y"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "nope",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "a",
+              "value": "x"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "e",
+              "value": "ev"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.e_ev\nrequests_per_unit=3\nunit=HOUR\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: a\n    rate_limit:\n      unit: second\n      requests_per_unit: 1\n  - key: b\n    value: v\n    descriptors:\n      - key: c\n        rate_limit:\n          unit: minute\n          requests_per_unit: 2\n  - key: e\n    value: ev\n    rate_limit:\n      unit: hour\n      requests_per_unit: 3\n    descriptors:\n      - key: f\n        rate_limit:\n          unit: day\n          requests_per_unit: 4\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "e",
+              "value": "ev"
+            },
+            {
+              "key": "f",
+              "value": "z"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.e_ev.f\nrequests_per_unit=4\nunit=DAY\nunlimited=false\nshadow_mode=false\n"
+    }
+  ]
+}

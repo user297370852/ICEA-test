@@ -1,0 +1,49 @@
+{
+  "description": "Enhanced adapter robustness cases: invalid or unsupported requests must render a neutral, language-neutral error=<category> line rather than crashing or leaking host-language exception text. Covered categories: unknown op, missing dict, missing words, missing word, missing text, and a request lacking the op field entirely. The request is a single JSON object on stdin.",
+  "cases": [
+    {
+      "input": {
+        "op": "bogus",
+        "text": "hi"
+      },
+      "expected_output": "error=unknown_op\n"
+    },
+    {
+      "input": {
+        "op": "check",
+        "words": [
+          "x"
+        ]
+      },
+      "expected_output": "error=missing_dict\n"
+    },
+    {
+      "input": {
+        "op": "check",
+        "dict": [
+          "x"
+        ]
+      },
+      "expected_output": "error=missing_words\n"
+    },
+    {
+      "input": {
+        "op": "suggest"
+      },
+      "expected_output": "error=missing_word\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text"
+      },
+      "expected_output": "error=missing_text\n"
+    },
+    {
+      "input": {
+        "text": "no op field"
+      },
+      "expected_output": "error=op\n"
+    }
+  ]
+}

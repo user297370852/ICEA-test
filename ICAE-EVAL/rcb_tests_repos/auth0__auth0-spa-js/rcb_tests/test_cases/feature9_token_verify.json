@@ -1,0 +1,85 @@
+{
+  "description": "Validate a decoded identity token against the expected issuer, expected audience, expected nonce, required signing algorithm, and time-based constraints (expiry, issued-at, and not-before, each with a small clock-skew allowance). On success, report that the token is valid together with its decoded claims. On failure, report a single neutral error category identifying which check failed: wrong issuer, wrong audience, wrong signing algorithm, wrong nonce, expired token, token issued in the future, or token not yet valid.",
+  "cases": [
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "valid=true\nclaims={\"__raw\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl\",\"iss\":\"https://tenant.example.com/\",\"aud\":\"CLIENTID123\",\"nonce\":\"n0nce-AbC\",\"sub\":\"auth0|0123456789\",\"name\":\"Jane Doe\",\"email\":\"jane@example.com\",\"email_verified\":true,\"exp\":2000000000,\"iat\":1500000000}\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://evil.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "error=invalid_issuer\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "WRONG",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "error=invalid_audience\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "error=invalid_algorithm\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIwMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "bad-nonce"
+      },
+      "expected_output": "error=invalid_nonce\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjEwMDAwMDAwMDAsImlhdCI6OTAwMDAwMDAwfQ.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "error=expired\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIxMDAwMDAwMDAsImlhdCI6MjAwMDAwMDAwMH0.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "error=future_issued\n"
+    },
+    {
+      "input": {
+        "op": "verify_token",
+        "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3RlbmFudC5leGFtcGxlLmNvbS8iLCJhdWQiOiJDTElFTlRJRDEyMyIsIm5vbmNlIjoibjBuY2UtQWJDIiwic3ViIjoiYXV0aDB8MDEyMzQ1Njc4OSIsIm5hbWUiOiJKYW5lIERvZSIsImVtYWlsIjoiamFuZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjIxMDAwMDAwMDAsImlhdCI6MTUwMDAwMDAwMCwibmJmIjoyMDAwMDAwMDAwfQ.c2lnbmF0dXJl",
+        "iss": "https://tenant.example.com/",
+        "aud": "CLIENTID123",
+        "nonce": "n0nce-AbC"
+      },
+      "expected_output": "error=not_yet_valid\n"
+    }
+  ]
+}

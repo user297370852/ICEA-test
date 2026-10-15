@@ -1,0 +1,250 @@
+{
+  "description": "Forward serialization of an application record into the storage attribute-value form, driven by the schema's derived type map. Scalars pass through; numeric zero is preserved. Boolean-typed attributes are coerced from loose inputs to a true/false value. Date-typed attributes render as an ISO-8601 instant. Binary-typed attributes render as an opaque byte payload. Typed-set attributes (string/number/binary) render as set-tagged value collections, accepting either a single element or a collection. Nested object attributes are serialized recursively. An optional expectation mode wraps each produced attribute in a value envelope, while passing through any caller-provided existence guard unchanged. Attributes whose value is null are omitted from the output, and serializing a null record yields a null result.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string"
+          }
+        },
+        "item": {
+          "name": "Tim Tester"
+        }
+      },
+      "expected_output": "{\"name\":\"Tim Tester\"}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "age",
+          "schema": {
+            "age": "number"
+          }
+        },
+        "item": {
+          "age": 0
+        }
+      },
+      "expected_output": "{\"age\":0}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "agree",
+          "schema": {
+            "agree": "boolean"
+          }
+        },
+        "item": {
+          "agree": "false"
+        }
+      },
+      "expected_output": "{\"agree\":false}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "time",
+          "schema": {
+            "time": "date"
+          }
+        },
+        "item": {
+          "time": {
+            "__date__": "2021-01-02T03:04:05.000Z"
+          }
+        }
+      },
+      "expected_output": "{\"time\":\"2021-01-02T03:04:05.000Z\"}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "names": {
+              "set": "string"
+            }
+          }
+        },
+        "item": {
+          "names": [
+            "Tim",
+            "Steve",
+            "Bob"
+          ]
+        }
+      },
+      "expected_output": "{\"names\":{\"SS\":[\"Tim\",\"Steve\",\"Bob\"]}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "scores": {
+              "set": "number"
+            }
+          }
+        },
+        "item": {
+          "scores": [
+            2,
+            4,
+            6,
+            8
+          ]
+        }
+      },
+      "expected_output": "{\"scores\":{\"NS\":[2,4,6,8]}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "data",
+          "schema": {
+            "data": "binary"
+          }
+        },
+        "item": {
+          "data": "hello"
+        }
+      },
+      "expected_output": "{\"data\":{\"B\":\"aGVsbG8=\"}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "data": {
+              "set": "binary"
+            }
+          }
+        },
+        "item": {
+          "data": [
+            "hello",
+            "world"
+          ]
+        }
+      },
+      "expected_output": "{\"data\":{\"BS\":[{\"B\":\"aGVsbG8=\"},{\"B\":\"d29ybGQ=\"}]}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string",
+            "data": {
+              "object": {
+                "first": "string",
+                "flag": "boolean",
+                "nicks": {
+                  "set": "string"
+                }
+              }
+            }
+          }
+        },
+        "item": {
+          "name": "Foo Bar",
+          "data": {
+            "first": "Test",
+            "flag": true,
+            "nicks": [
+              "a",
+              "b",
+              "c"
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"data\":{\"first\":\"Test\",\"flag\":true,\"nicks\":{\"SS\":[\"a\",\"b\",\"c\"]}},\"name\":\"Foo Bar\"}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string"
+          }
+        },
+        "item": {
+          "name": "Tim Tester"
+        },
+        "options": {
+          "expected": true
+        }
+      },
+      "expected_output": "{\"name\":{\"Value\":\"Tim Tester\"}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string"
+          }
+        },
+        "item": {
+          "name": {
+            "Exists": false
+          }
+        },
+        "options": {
+          "expected": true
+        }
+      },
+      "expected_output": "{\"name\":{\"Exists\":false}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": "string",
+            "names": {
+              "set": "string"
+            }
+          }
+        },
+        "item": {
+          "names": null
+        }
+      },
+      "expected_output": "{}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": "string"
+          }
+        },
+        "item": null
+      },
+      "expected_output": "null\n"
+    }
+  ]
+}

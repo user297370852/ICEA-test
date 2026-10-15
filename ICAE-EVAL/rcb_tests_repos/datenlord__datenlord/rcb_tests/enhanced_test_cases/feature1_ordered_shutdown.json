@@ -1,0 +1,180 @@
+{
+  "description": "Boundary and logical-path coverage for dependency-ordered graceful shutdown: an empty registration (no workers, no output), single-node registrations at the root and at a leaf, the full 8-node set supplied in shuffled input order to prove output follows the fixed graph shutdown order rather than insertion order, i64 marker boundary values (min/max/negative), several workers registered on one node, and assorted subsets (leaf consumers, mid-graph producers, first-tier nodes) each emitting in the canonical teardown order.",
+  "cases": [
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "Root",
+            "marker": 42
+          }
+        ]
+      },
+      "expected_output": "node=Root marker=42\n"
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "WriteBack",
+            "marker": 99
+          }
+        ]
+      },
+      "expected_output": "node=WriteBack marker=99\n"
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "WriteBack",
+            "marker": 7
+          },
+          {
+            "node": "Rpc",
+            "marker": 6
+          },
+          {
+            "node": "AsyncFuse",
+            "marker": 5
+          },
+          {
+            "node": "FuseRequest",
+            "marker": 4
+          },
+          {
+            "node": "SchedulerExtender",
+            "marker": 3
+          },
+          {
+            "node": "BlockFlush",
+            "marker": 2
+          },
+          {
+            "node": "Metrics",
+            "marker": 1
+          },
+          {
+            "node": "Root",
+            "marker": 0
+          }
+        ]
+      },
+      "expected_output": "node=Root marker=0\nnode=Metrics marker=1\nnode=BlockFlush marker=2\nnode=SchedulerExtender marker=3\nnode=FuseRequest marker=4\nnode=AsyncFuse marker=5\nnode=Rpc marker=6\nnode=WriteBack marker=7\n"
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "Root",
+            "marker": -9223372036854775808
+          },
+          {
+            "node": "Rpc",
+            "marker": 9223372036854775807
+          },
+          {
+            "node": "WriteBack",
+            "marker": -1
+          }
+        ]
+      },
+      "expected_output": "node=Root marker=-9223372036854775808\nnode=Rpc marker=9223372036854775807\nnode=WriteBack marker=-1\n"
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "Metrics",
+            "marker": 5
+          },
+          {
+            "node": "Metrics",
+            "marker": 5
+          },
+          {
+            "node": "Metrics",
+            "marker": 5
+          }
+        ]
+      },
+      "expected_output": "node=Metrics marker=5\nnode=Metrics marker=5\nnode=Metrics marker=5\n"
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "AsyncFuse",
+            "marker": 11
+          },
+          {
+            "node": "Rpc",
+            "marker": 22
+          },
+          {
+            "node": "WriteBack",
+            "marker": 33
+          }
+        ]
+      },
+      "expected_output": "node=AsyncFuse marker=11\nnode=Rpc marker=22\nnode=WriteBack marker=33\n"
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "BlockFlush",
+            "marker": 100
+          },
+          {
+            "node": "FuseRequest",
+            "marker": 200
+          },
+          {
+            "node": "AsyncFuse",
+            "marker": 300
+          }
+        ]
+      },
+      "expected_output": "node=BlockFlush marker=100\nnode=FuseRequest marker=200\nnode=AsyncFuse marker=300\n"
+    },
+    {
+      "input": {
+        "action": "ordered_shutdown",
+        "spawns": [
+          {
+            "node": "Root",
+            "marker": 1
+          },
+          {
+            "node": "Metrics",
+            "marker": 2
+          },
+          {
+            "node": "BlockFlush",
+            "marker": 3
+          },
+          {
+            "node": "SchedulerExtender",
+            "marker": 4
+          }
+        ]
+      },
+      "expected_output": "node=Root marker=1\nnode=Metrics marker=2\nnode=BlockFlush marker=3\nnode=SchedulerExtender marker=4\n"
+    }
+  ]
+}

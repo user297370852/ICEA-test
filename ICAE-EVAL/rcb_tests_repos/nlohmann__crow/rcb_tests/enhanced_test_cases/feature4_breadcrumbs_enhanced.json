@@ -1,0 +1,91 @@
+{
+  "description": "Breadcrumb-trail boundary coverage: a single typeless breadcrumb defaults its type to 'default'; a longer ordered trail mixes explicit and defaulted types and preserves a data object verbatim with deterministic (sorted) key ordering and non-string values; a five-element trail confirms ordering at scale; and breadcrumbs attach equally to an exception event (emitted after the exception fields), where a data-only breadcrumb still defaults its type.",
+  "cases": [
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "breadcrumbs": [
+          {
+            "message": "only one"
+          }
+        ],
+        "event": {
+          "message": "m"
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nmessage=m\nbreadcrumb_count=1\nbreadcrumb[0].message=only one\nbreadcrumb[0].type=default\nevent_id_length=32\nlast_event_id=0\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "breadcrumbs": [
+          {
+            "message": "b1",
+            "type": "http"
+          },
+          {
+            "message": "b2"
+          },
+          {
+            "message": "b3",
+            "type": "navigation",
+            "data": {
+              "to": "x",
+              "from": "y",
+              "page": 2,
+              "ok": true
+            }
+          }
+        ],
+        "event": {
+          "message": "m"
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nmessage=m\nbreadcrumb_count=3\nbreadcrumb[0].message=b1\nbreadcrumb[0].type=http\nbreadcrumb[1].message=b2\nbreadcrumb[1].type=default\nbreadcrumb[2].message=b3\nbreadcrumb[2].type=navigation\nbreadcrumb[2].data={\"from\":\"y\",\"ok\":true,\"page\":2,\"to\":\"x\"}\nevent_id_length=32\nlast_event_id=0\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "breadcrumbs": [
+          {
+            "message": "a"
+          },
+          {
+            "message": "b"
+          },
+          {
+            "message": "c"
+          },
+          {
+            "message": "d"
+          },
+          {
+            "message": "e"
+          }
+        ],
+        "event": {
+          "message": "final"
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nmessage=final\nbreadcrumb_count=5\nbreadcrumb[0].message=a\nbreadcrumb[0].type=default\nbreadcrumb[1].message=b\nbreadcrumb[1].type=default\nbreadcrumb[2].message=c\nbreadcrumb[2].type=default\nbreadcrumb[3].message=d\nbreadcrumb[3].type=default\nbreadcrumb[4].message=e\nbreadcrumb[4].type=default\nevent_id_length=32\nlast_event_id=0\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "breadcrumbs": [
+          {
+            "message": "step",
+            "data": {
+              "k": "v"
+            }
+          }
+        ],
+        "event": {
+          "value": "crash",
+          "handled": false
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nexception_count=1\nexception.value=crash\nexception.handled=false\nexception.mechanism=unhandled exception\nbreadcrumb_count=1\nbreadcrumb[0].message=step\nbreadcrumb[0].type=default\nbreadcrumb[0].data={\"k\":\"v\"}\nevent_id_length=32\nlast_event_id=0\n"
+    }
+  ]
+}

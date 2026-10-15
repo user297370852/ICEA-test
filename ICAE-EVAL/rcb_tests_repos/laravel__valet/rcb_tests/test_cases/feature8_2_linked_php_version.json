@@ -1,0 +1,13 @@
+{
+    "description": "Determine which supported PHP version is currently linked, by reading the target of the package manager's php symlink and normalizing it to one of the supported version identifiers. The symlink target embeds a PHP version somewhere in its path (in either the dotted or legacy compact naming style); the version is extracted and matched, by its digits, against the supported set, and the canonical dotted identifier (for example 'php@7.4') is returned. If nothing is linked, a neutral 'not linked' error is reported. If a version is linked but it is not among the supported versions, a neutral 'unsupported version' error is reported. The output is the resolved version identifier, or a neutral error category line.",
+    "cases": [
+        {"input": {"action": "linked_php_version", "is_link": true, "link_target": "/test/path/php/7.4.0/test"}, "expected_output": "version=php@7.4\n"},
+        {"input": {"action": "linked_php_version", "is_link": true, "link_target": "/test/path/php/7.3.0/test"}, "expected_output": "version=php@7.3\n"},
+        {"input": {"action": "linked_php_version", "is_link": true, "link_target": "/test/path/php@7.2/7.2.13/test"}, "expected_output": "version=php@7.2\n"},
+        {"input": {"action": "linked_php_version", "is_link": true, "link_target": "/test/path/php/7.2.9_2/test"}, "expected_output": "version=php@7.2\n"},
+        {"input": {"action": "linked_php_version", "is_link": true, "link_target": "/test/path/php72/7.2.9_2/test"}, "expected_output": "version=php@7.2\n"},
+        {"input": {"action": "linked_php_version", "is_link": true, "link_target": "/test/path/php56/test"}, "expected_output": "version=php@5.6\n"},
+        {"input": {"action": "linked_php_version", "is_link": false}, "expected_output": "error=php_not_linked\n"},
+        {"input": {"action": "linked_php_version", "is_link": true, "link_target": "/test/path/php/5.4.14/test"}, "expected_output": "error=unsupported_php_version\n"}
+    ]
+}

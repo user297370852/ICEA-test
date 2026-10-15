@@ -1,0 +1,13 @@
+{
+  "description": "Additional duplicate-argument analysis for triples, repeated function calls, repeated named values, and repeated literals.",
+  "cases": [
+    {
+      "input": {
+        "command": "analyze_rule",
+        "rule": "duplicate-arguments",
+        "code": "void send(String a, String b, String c, {String? left, String? right, String? tag}) {}\n\nvoid main() {\n  final value = compute();\n  send(value, value, value);\n  send(\n    compute(),\n    compute(),\n    other(),\n  );\n  send(\n    left: value,\n    right: value,\n    tag: value,\n  );\n  send(\n    \"literal\",\n    \"literal\",\n    3.toString(),\n  );\n}\nString compute() => \"x\";\nString other() => \"y\";\n"
+      },
+      "expected_output": "rule=no-equal-arguments\nseverity=warning\nissue_count=5\nissue[0].line=5\nissue[0].column=22\nissue[0].text=value\nissue[0].message=The argument has already been passed.\nissue[1].line=5\nissue[1].column=22\nissue[1].text=value\nissue[1].message=The argument has already been passed.\nissue[2].line=8\nissue[2].column=5\nissue[2].text=compute()\nissue[2].message=The argument has already been passed.\nissue[3].line=14\nissue[3].column=5\nissue[3].text=tag: value\nissue[3].message=The argument has already been passed.\nissue[4].line=14\nissue[4].column=5\nissue[4].text=tag: value\nissue[4].message=The argument has already been passed.\n"
+    }
+  ]
+}

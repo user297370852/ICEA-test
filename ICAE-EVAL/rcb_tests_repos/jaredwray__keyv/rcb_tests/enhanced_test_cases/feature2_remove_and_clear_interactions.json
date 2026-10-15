@@ -1,0 +1,106 @@
+{
+  "description": "Additional removal cases cover deleting after overwrite, removing expired entries after lazy cleanup, and removing keys after a namespace clear.",
+  "cases": [
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "save",
+            "key": "item",
+            "value": "one"
+          },
+          {
+            "action": "save",
+            "key": "item",
+            "value": "two"
+          },
+          {
+            "action": "remove",
+            "key": "item",
+            "label": "removed_after_overwrite"
+          },
+          {
+            "action": "read",
+            "key": "item",
+            "label": "after_remove"
+          },
+          {
+            "action": "remove",
+            "key": "item",
+            "label": "removed_again"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nremoved_after_overwrite=true\nafter_remove=undefined\nremoved_again=false\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "save",
+            "key": "ttl_key",
+            "value": "temporary",
+            "lifetime_ms": 5
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 10
+          },
+          {
+            "action": "read",
+            "key": "ttl_key",
+            "label": "after_expiry_read"
+          },
+          {
+            "action": "remove",
+            "key": "ttl_key",
+            "label": "remove_after_expiry"
+          },
+          {
+            "action": "store_entries",
+            "label": "entries"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nafter_expiry_read=undefined\nremove_after_expiry=false\nentries=0\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "save",
+            "key": "a",
+            "value": "A"
+          },
+          {
+            "action": "save",
+            "key": "b",
+            "value": "B"
+          },
+          {
+            "action": "clear",
+            "label": "clear_all"
+          },
+          {
+            "action": "remove",
+            "key": "a",
+            "label": "remove_a_after_clear"
+          },
+          {
+            "action": "remove",
+            "key": "b",
+            "label": "remove_b_after_clear"
+          },
+          {
+            "action": "store_entries",
+            "label": "entries"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nclear_all=undefined\nremove_a_after_clear=false\nremove_b_after_clear=false\nentries=0\n"
+    }
+  ]
+}

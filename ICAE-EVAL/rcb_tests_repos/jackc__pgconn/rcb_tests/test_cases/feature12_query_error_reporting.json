@@ -1,0 +1,21 @@
+{
+    "description": "Return a server error code while preserving successful results produced before a failing simple query.",
+    "cases": [
+        {
+            "input": {
+                "operation": "query_error_summary",
+                "sql": "select 1; select 1/0; select 1"
+            },
+            "expected_output": "error=server_error\nsqlstate=22012\nresult_count=1\nresult.0.command_tag=SELECT 1\nresult.0.row_count=1\nresult.0.row.0=1\n"
+        },
+        {
+            "input": {
+                "operation": "prepared_query_results",
+                "statement_name": "bad",
+                "sql": "SYNTAX ERROR",
+                "parameters": []
+            },
+            "expected_output": "error=server_error\nsqlstate=42601\n"
+        }
+    ]
+}

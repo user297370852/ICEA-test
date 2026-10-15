@@ -1,0 +1,64 @@
+{
+    "description": "Payload data is sanitized by limiting nesting depth, dropping absent object fields, and replacing recursive or non-serializable values with neutral markers.",
+    "cases": [
+        {
+            "input": {
+                "data": {
+                    "one": {
+                        "two": {
+                            "three": {
+                                "four": "five"
+                            }
+                        }
+                    }
+                },
+                "maxDepth": 3
+            },
+            "expected_output": "data={\"one\":{\"two\":{\"three\":\"[DEPTH]\"}}}\n"
+        },
+        {
+            "input": {
+                "data": {
+                    "obj": [
+                        "first",
+                        null
+                    ]
+                },
+                "maxDepth": 6
+            },
+            "expected_output": "data={\"obj\":[\"first\",\"[object Null]\"]}\n"
+        },
+        {
+            "input": {
+                "data": {
+                    "one": [
+                        "two",
+                        [
+                            "three",
+                            [
+                                "four",
+                                [
+                                    "five",
+                                    [
+                                        "six",
+                                        [
+                                            "seven",
+                                            [
+                                                "eight",
+                                                [
+                                                    "nine"
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                },
+                "maxDepth": 6
+            },
+            "expected_output": "data={\"one\":[\"two\",[\"three\",[\"four\",[\"five\",[\"[DEPTH]\",\"[DEPTH]\"]]]]]}\n"
+        }
+    ]
+}

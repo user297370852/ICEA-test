@@ -1,0 +1,60 @@
+{
+  "description": "Additional session identity cases covering exact lifetime rotation, post-rotation stability, and timeout-driven rotation independent of elapsed time.",
+  "cases": [
+    {
+      "input": {
+        "lifetime_ms": 1000,
+        "timeout_sequence": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "events": [
+          {
+            "op": "get"
+          },
+          {
+            "op": "advance",
+            "ms": 999
+          },
+          {
+            "op": "get"
+          },
+          {
+            "op": "advance",
+            "ms": 1
+          },
+          {
+            "op": "get"
+          },
+          {
+            "op": "get"
+          }
+        ]
+      },
+      "expected_output": "session_index=0\nformat=hex32\nrelation=new\nsession_index=1\nformat=hex32\nrelation=same\nsession_index=2\nformat=hex32\nrelation=changed\nsession_index=3\nformat=hex32\nrelation=same\n"
+    },
+    {
+      "input": {
+        "lifetime_ms": 60000,
+        "timeout_sequence": [
+          true,
+          false
+        ],
+        "events": [
+          {
+            "op": "get"
+          },
+          {
+            "op": "get"
+          },
+          {
+            "op": "get"
+          }
+        ]
+      },
+      "expected_output": "session_index=0\nformat=hex32\nrelation=new\nsession_index=1\nformat=hex32\nrelation=changed\nsession_index=2\nformat=hex32\nrelation=same\n"
+    }
+  ]
+}

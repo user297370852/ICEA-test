@@ -1,0 +1,68 @@
+{
+  "description": "Ignore configuration variants: ignoring a single nested file but keeping its sibling, ignoring an entire directory subtree, and a glob that matches multiple extensions-style suffixes while leaving non-matching files available.",
+  "cases": [
+    {
+      "input": {
+        "operation": "ignored_paths",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "lib/keep.rb": "Lib::Keep = true",
+          "lib/drop.rb": "Lib::Drop = true"
+        },
+        "ignore": [
+          "lib/drop.rb"
+        ],
+        "access": [
+          "Lib::Keep",
+          "Lib::Drop"
+        ]
+      },
+      "expected_output": "constant=Lib::Keep\navailable=yes\nvalue=true\nconstant=Lib::Drop\navailable=no\n"
+    },
+    {
+      "input": {
+        "operation": "ignored_paths",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "keep.rb": "Keep = true",
+          "generated/a.rb": "Generated::A = true",
+          "generated/sub/b.rb": "Generated::Sub::B = true"
+        },
+        "ignore": [
+          "generated"
+        ],
+        "access": [
+          "Keep",
+          "Generated"
+        ]
+      },
+      "expected_output": "constant=Keep\navailable=yes\nvalue=true\nconstant=Generated\navailable=no\n"
+    },
+    {
+      "input": {
+        "operation": "ignored_paths",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "user.rb": "User = true",
+          "user_spec.rb": "UserSpec = true",
+          "order_spec.rb": "OrderSpec = true"
+        },
+        "ignore": [
+          "*_spec.rb"
+        ],
+        "access": [
+          "User",
+          "UserSpec",
+          "OrderSpec"
+        ]
+      },
+      "expected_output": "constant=User\navailable=yes\nvalue=true\nconstant=UserSpec\navailable=no\nconstant=OrderSpec\navailable=no\n"
+    }
+  ]
+}

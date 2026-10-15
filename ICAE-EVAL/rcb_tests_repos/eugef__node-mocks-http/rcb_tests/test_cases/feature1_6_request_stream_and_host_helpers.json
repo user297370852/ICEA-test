@@ -1,0 +1,81 @@
+{
+    "description": "A mock request can emit supplied body payloads as stream data and derives hostname and subdomain information from the host header unless an explicit hostname is provided.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "request_body_stream",
+                "payload": {
+                    "kind": "value",
+                    "value": "test data"
+                }
+            },
+            "expected_output": "data=test data\nended=true\n"
+        },
+        {
+            "input": {
+                "scenario": "request_body_stream",
+                "payload": {
+                    "kind": "value",
+                    "value": {
+                        "key": "value"
+                    }
+                }
+            },
+            "expected_output": "data={\"key\":\"value\"}\nended=true\n"
+        },
+        {
+            "input": {
+                "scenario": "request_body_stream",
+                "payload": {
+                    "kind": "value",
+                    "value": 35
+                }
+            },
+            "expected_output": "data=35\nended=true\n"
+        },
+        {
+            "input": {
+                "scenario": "request_body_stream",
+                "payload": {
+                    "kind": "buffer",
+                    "value": "buffer data"
+                }
+            },
+            "expected_output": "data=buffer data\nended=true\n"
+        },
+        {
+            "input": {
+                "scenario": "request_host_information",
+                "options": {
+                    "headers": {
+                        "host": "tobi.ferrets.example.com:5000"
+                    }
+                }
+            },
+            "expected_output": "hostname=tobi.ferrets.example.com\nsubdomains=[\"ferrets\",\"tobi\"]\n"
+        },
+        {
+            "input": {
+                "scenario": "request_host_information",
+                "options": {
+                    "headers": {
+                        "host": "example.com"
+                    }
+                }
+            },
+            "expected_output": "hostname=example.com\nsubdomains=[]\n"
+        },
+        {
+            "input": {
+                "scenario": "request_host_information",
+                "options": {
+                    "hostname": "predefined.host.com",
+                    "headers": {
+                        "host": "other.host"
+                    }
+                }
+            },
+            "expected_output": "hostname=predefined.host.com\nsubdomains=[]\n"
+        }
+    ]
+}

@@ -1,0 +1,45 @@
+{
+    "cases": [
+        {
+            "expected_output": "[__COMMENTS__]\n",
+            "input": {
+                "action": "preprocess",
+                "operation": "config_comments",
+                "text": ""
+            }
+        },
+        {
+            "expected_output": "[__COMMENTS__]\n[section]\nfoo = bar\n__INLINE0__ = baz\n",
+            "input": {
+                "action": "preprocess",
+                "operation": "config_comments",
+                "text": "[section]\nfoo = bar ; baz"
+            }
+        },
+        {
+            "expected_output": "[__COMMENTS__]\n__HASH0__ = comments before first section should work\n__BLANK1__ =\n[section]\n__SECTION2__ = anything goes\n__INLINE3__ = after the [] block it seems.\n__SEMICOLON4__ = this is a valid comment\nthis-should-equal-baz = baz\n__INLINE5__ = as this is a comment\nthis-should-equal-everything = baz # as this is not a comment\n",
+            "input": {
+                "action": "preprocess",
+                "operation": "config_comments",
+                "text": "# comments before first section should work\n\n[section] anything goes ; after the [] block it seems.\n; this is a valid comment\nthis-should-equal-baz = baz ; as this is a comment\nthis-should-equal-everything = baz # as this is not a comment"
+            }
+        },
+        {
+            "expected_output": "[section]\nfoo = bar ; baz\n",
+            "input": {
+                "action": "postprocess",
+                "operation": "config_comments",
+                "text": "[__COMMENTS__]\n[section]\nfoo = bar\n__INLINE0__ = baz"
+            }
+        },
+        {
+            "expected_output": "# comments before first section should work\n\n[section] anything goes ; after the [] block it seems.\n; this is a valid comment\nthis-should-equal-baz = baz ; as this is a comment\nthis-should-equal-everything = baz # as this is not a comment\n",
+            "input": {
+                "action": "postprocess",
+                "operation": "config_comments",
+                "text": "[__COMMENTS__]\n__HASH0__ = comments before first section should work\n__BLANK1__ =\n[section]\n__SECTION2__ = anything goes\n__INLINE3__ = after the [] block it seems.\n__SEMICOLON4__ = this is a valid comment\nthis-should-equal-baz = baz\n__INLINE5__ = as this is a comment\nthis-should-equal-everything = baz # as this is not a comment"
+            }
+        }
+    ],
+    "description": "Configuration text preserves initial comments, section suffixes, blank lines, and semicolon inline comments across a reversible normalization."
+}

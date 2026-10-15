@@ -1,0 +1,54 @@
+{
+    "description": "Rejects mount configurations that are missing required fields or contain ambiguous duplicate output object names.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_mount_configuration",
+                "target_path": "/some/path",
+                "default_file_permission": 420,
+                "parameters": {
+                    "vaultSkipTLSVerify": "true",
+                    "objects": "-\n  secretPath: \"v1/secret/foo1\"\n  objectName: \"bar1\"\n  filePermission: 0600"
+                }
+            },
+            "expected_output": "error=missing_role_name\n"
+        },
+        {
+            "input": {
+                "action": "parse_mount_configuration",
+                "target_path": "/some/path",
+                "default_file_permission": 420,
+                "parameters": {
+                    "roleName": "example-role",
+                    "vaultSkipTLSVerify": "true",
+                    "objects": ""
+                }
+            },
+            "expected_output": "error=no_secrets_configured\n"
+        },
+        {
+            "input": {
+                "action": "parse_mount_configuration",
+                "target_path": "",
+                "default_file_permission": 420,
+                "parameters": {
+                    "roleName": "example-role",
+                    "objects": "-\n  secretPath: \"v1/secret/foo1\"\n  objectName: \"bar1\"\n  filePermission: 0600"
+                }
+            },
+            "expected_output": "error=missing_target_path\n"
+        },
+        {
+            "input": {
+                "action": "parse_mount_configuration",
+                "target_path": "/some/path",
+                "default_file_permission": 420,
+                "parameters": {
+                    "roleName": "example-role",
+                    "objects": "- objectName: \"foo\"\n  secretPath: \"path/one\"\n- objectName: \"foo\"\n  secretPath: \"path/two\""
+                }
+            },
+            "expected_output": "error=duplicate_object_name\n"
+        }
+    ]
+}

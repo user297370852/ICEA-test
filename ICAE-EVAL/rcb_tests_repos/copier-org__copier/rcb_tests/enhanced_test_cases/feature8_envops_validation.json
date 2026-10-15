@@ -1,0 +1,48 @@
+{
+  "description": "Boundary coverage for templating-engine option validation: an empty envops echoing resolved defaults, a partial override of a single delimiter, a non-text (numeric) delimiter, a null variable_end_string, and a non-boolean keep_trailing_newline.",
+  "cases": [
+    {
+      "input": {
+        "op": "check_envops",
+        "envops": {}
+      },
+      "expected_output": "valid=true\nautoescape=false\nblock_end_string=\"%]\"\nblock_start_string=\"[%\"\nkeep_trailing_newline=true\nvariable_end_string=\"]]\"\nvariable_start_string=\"[[\"\n"
+    },
+    {
+      "input": {
+        "op": "check_envops",
+        "envops": {
+          "variable_start_string": "${"
+        }
+      },
+      "expected_output": "valid=true\nautoescape=false\nblock_end_string=\"%]\"\nblock_start_string=\"[%\"\nkeep_trailing_newline=true\nvariable_end_string=\"]]\"\nvariable_start_string=\"${\"\n"
+    },
+    {
+      "input": {
+        "op": "check_envops",
+        "envops": {
+          "block_end_string": 123
+        }
+      },
+      "expected_output": "valid=true\nautoescape=false\nblock_end_string=\"123\"\nblock_start_string=\"[%\"\nkeep_trailing_newline=true\nvariable_end_string=\"]]\"\nvariable_start_string=\"[[\"\n"
+    },
+    {
+      "input": {
+        "op": "check_envops",
+        "envops": {
+          "variable_end_string": null
+        }
+      },
+      "expected_output": "error=invalid_envops\nfield=variable_end_string reason=type\n"
+    },
+    {
+      "input": {
+        "op": "check_envops",
+        "envops": {
+          "keep_trailing_newline": "nope"
+        }
+      },
+      "expected_output": "error=invalid_envops\nfield=keep_trailing_newline reason=value\n"
+    }
+  ]
+}

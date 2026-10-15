@@ -1,0 +1,45 @@
+{
+    "description": "A command issued inside a batch returns a deferred handle rather than an immediate value. After the batch executes, each handle resolves to the reply of its command. The batch here adds the same member to a set twice; the first add reports success (member created) and the second reports no change (member already present), demonstrating that handles carry per-command boolean replies. Nested batches contribute handles too.",
+    "cases": [
+        {
+            "input": {
+                "action": "handles",
+                "batch": [
+                    [
+                        "sadd",
+                        "foo",
+                        1
+                    ],
+                    [
+                        "sadd",
+                        "foo",
+                        1
+                    ]
+                ]
+            },
+            "expected_output": "h0:bool:true\nh1:bool:false\n"
+        },
+        {
+            "input": {
+                "action": "handles",
+                "batch": [
+                    [
+                        "sadd",
+                        "foo",
+                        1
+                    ],
+                    {
+                        "batch": [
+                            [
+                                "sadd",
+                                "foo",
+                                1
+                            ]
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "h0:bool:true\nh1:bool:false\n"
+        }
+    ]
+}

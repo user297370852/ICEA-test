@@ -1,0 +1,56 @@
+{
+    "description": "Producing one or more messages to a single topic emits one PRODUCER span per message, each named after the topic and carrying the messaging system/destination attributes; the client send result is passed back unchanged and each outgoing message is stamped with the span trace context.",
+    "cases": [
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "testing message content"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "success",
+                            "records": [
+                                {
+                                    "topicName": "topic-name-1",
+                                    "partition": 0,
+                                    "offset": "18"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=ok result_records=1\n  record 0 topicName=topic-name-1 partition=0 offset=18\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n"
+        },
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "message1"
+                            },
+                            {
+                                "value": "message2"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "success",
+                            "records": []
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=ok result_records=0\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\nspans=2\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 1 kind=producer name=topic-name-1 trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n"
+        }
+    ]
+}

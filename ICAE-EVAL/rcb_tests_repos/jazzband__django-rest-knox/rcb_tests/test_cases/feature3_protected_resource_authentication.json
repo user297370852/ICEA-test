@@ -1,0 +1,48 @@
+{
+    "description": "Protected resource requests accept valid session tokens and configured authorization schemes.",
+    "cases": [
+        {
+            "description": "A request to a protected resource with a valid session token succeeds through the HTTP authentication layer.",
+            "input": {
+                "operation": "authenticated_request"
+            },
+            "expected_output": "request1.status=200\nrequest1.url=/api/\nrequest1.body=User is authenticated.\n"
+        },
+        {
+            "description": "When a custom authorization scheme is configured, the default scheme is rejected and the configured scheme is accepted for the same token.",
+            "input": {
+                "operation": "authenticated_request",
+                "settings": {
+                    "authorization_scheme": "Baerer"
+                },
+                "header_prefixes": [
+                    "Token",
+                    "Baerer"
+                ]
+            },
+            "expected_output": "request1.status=401\nrequest1.url=/api/\nrequest1.detail=Authentication credentials were not provided.\nrequest2.status=200\nrequest2.url=/api/\nrequest2.body=User is authenticated.\n"
+        },
+        {
+            "description": "A token issued with a configured token prefix is accepted when presented to a protected resource.",
+            "input": {
+                "operation": "authenticated_request",
+                "settings": {
+                    "issued_token_prefix": "TEST_"
+                },
+                "token_prefix": "TEST_"
+            },
+            "expected_output": "request1.status=200\nrequest1.url=/api/\nrequest1.body=User is authenticated.\n"
+        },
+        {
+            "description": "A token issued before a token-prefix configuration change remains accepted after the configuration change.",
+            "input": {
+                "operation": "authenticated_request",
+                "token_source": "login_before_settings",
+                "settings": {
+                    "issued_token_prefix": "TEST_"
+                }
+            },
+            "expected_output": "request1.status=200\nrequest1.url=/api/\nrequest1.body=User is authenticated.\n"
+        }
+    ]
+}

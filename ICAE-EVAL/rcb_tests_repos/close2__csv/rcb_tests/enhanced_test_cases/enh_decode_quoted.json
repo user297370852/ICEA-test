@@ -1,0 +1,116 @@
+{
+  "description": "ENHANCED: Decoding quoted-field edge cases — an empty quoted field, a quoted field holding only a delimiter, a quoted field containing CRLF, adjacent quoted fields, a quoted field followed immediately by EOF, a field that opens with a quote only after content (treated literally), and a fully quoted single field.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "a,\"\",c"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\" | str=\"\" | str=\"c\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "\"\""
+      },
+      "expected_output": "rows=0\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "\"a,b\""
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a,b\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "\"a\r\nb\",c"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\\r\\nb\" | str=\"c\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "\"a\",\"b\",\"c\""
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\" | str=\"b\" | str=\"c\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "\"only\""
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"only\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "ab\"cd,e"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"ab\\\"cd\" | str=\"e\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "\"\"\"\""
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"\\\"\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "\"a\"\"\",b"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\\\"\" | str=\"b\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "escapeCharacter": "\\"
+        },
+        "input": "\"a\\\"b\",c"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"a\\\"b\" | str=\"c\"\n"
+    }
+  ]
+}

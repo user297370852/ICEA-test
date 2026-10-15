@@ -1,0 +1,40 @@
+{
+  "description": "Scan a complete block of Python source text and extract every top-level function definition, ignoring all non-function lines. Function headers that span multiple physical lines, headers that carry a trailing inline comment after the colon, headers with trailing whitespace after the colon, and a final header that is not followed by a blank line must all be recognized. Output first reports the count of recognized functions, then one line per function (in source order), then it reports the count of parse errors, followed by one line per error.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_module",
+        "source": "def one(a: int) -> int:\n    pass\n\ndef two(b: str) -> str:\n    pass\n\ndef three(c: float) -> float:\n    pass\n"
+      },
+      "expected_output": "functions=3\ndef one(a:int) -> int\ndef two(b:str) -> str\ndef three(c:float) -> float\nerrors=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_module",
+        "source": "def no_ret(a: int):\n    pass\n"
+      },
+      "expected_output": "functions=1\ndef no_ret(a:int) -> Any\nerrors=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_module",
+        "source": "# just a comment\nx = 1\ny = 2\n"
+      },
+      "expected_output": "functions=0\nerrors=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_module",
+        "source": "def spans(a: int,\n          b: str,\n          c: float) -> None:\n    pass\n"
+      },
+      "expected_output": "functions=1\ndef spans(a:int, b:str, c:float) -> None\nerrors=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_module",
+        "source": "import os\nimport sys\n\ndef solo(data: list[int]) -> int:\n    return 0"
+      },
+      "expected_output": "functions=1\ndef solo(data:list[int]) -> int\nerrors=0\n"
+    }
+  ]
+}

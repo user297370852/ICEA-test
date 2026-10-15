@@ -1,0 +1,137 @@
+{
+  "description": "Enhanced listener registry cases covering duplicate adds, empty notifications to active listeners, id-order reporting, remove of absent ids, and re-adding after remove_all.",
+  "cases": [
+    {
+      "input": {
+        "op": "listener_registry",
+        "ops": [
+          {
+            "action": "add",
+            "id": "A"
+          },
+          {
+            "action": "add",
+            "id": "A"
+          },
+          {
+            "action": "notify",
+            "result": [
+              {
+                "type": "request_required",
+                "permission": "p"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "notify[0]_recipients=1\nlisteners=1\nreceived[A]_count=1\nreceived[A][0]=request_required:p\n"
+    },
+    {
+      "input": {
+        "op": "listener_registry",
+        "ops": [
+          {
+            "action": "add",
+            "id": "B"
+          },
+          {
+            "action": "add",
+            "id": "A"
+          },
+          {
+            "action": "notify",
+            "result": []
+          },
+          {
+            "action": "remove",
+            "id": "B"
+          },
+          {
+            "action": "notify",
+            "result": [
+              {
+                "type": "should_show_rationale",
+                "permission": "q"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "notify[0]_recipients=2\nnotify[1]_recipients=1\nlisteners=1\nreceived[A]_count=2\nreceived[A][0]=<empty>\nreceived[A][1]=should_show_rationale:q\nreceived[B]_count=1\nreceived[B][0]=<empty>\n"
+    },
+    {
+      "input": {
+        "op": "listener_registry",
+        "ops": [
+          {
+            "action": "remove",
+            "id": "Z"
+          },
+          {
+            "action": "add",
+            "id": "C"
+          },
+          {
+            "action": "remove",
+            "id": "C"
+          },
+          {
+            "action": "notify",
+            "result": [
+              {
+                "type": "granted",
+                "permission": "p"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "notify[0]_recipients=0\nlisteners=0\nreceived[C]_count=0\nreceived[Z]_count=0\n"
+    },
+    {
+      "input": {
+        "op": "listener_registry",
+        "ops": [
+          {
+            "action": "add",
+            "id": "C"
+          },
+          {
+            "action": "add",
+            "id": "A"
+          },
+          {
+            "action": "add",
+            "id": "B"
+          },
+          {
+            "action": "notify",
+            "result": [
+              {
+                "type": "permanently_denied",
+                "permission": "x"
+              }
+            ]
+          },
+          {
+            "action": "remove_all"
+          },
+          {
+            "action": "add",
+            "id": "A"
+          },
+          {
+            "action": "notify",
+            "result": [
+              {
+                "type": "granted",
+                "permission": "y"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "notify[0]_recipients=3\nnotify[1]_recipients=1\nlisteners=1\nreceived[A]_count=2\nreceived[A][0]=permanently_denied:x\nreceived[A][1]=granted:y\nreceived[B]_count=1\nreceived[B][0]=permanently_denied:x\nreceived[C]_count=1\nreceived[C][0]=permanently_denied:x\n"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "description": "List the immediate children of a directory, or recursively list all descendants. Each entry is reported as its kind (file/directory/link) and its path. Entries are emitted in a stable, lexicographically sorted order and the total count is reported first.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/d"
+          },
+          {
+            "op": "create_file",
+            "path": "/d/b"
+          },
+          {
+            "op": "create_file",
+            "path": "/d/a"
+          },
+          {
+            "op": "create_directory",
+            "path": "/d/sub"
+          },
+          {
+            "op": "list",
+            "path": "/d"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/d\ncreated_file=/d/b\ncreated_file=/d/a\ncreated_directory=/d/sub\nentry_count=3\nentry=directory:/d/sub\nentry=file:/d/a\nentry=file:/d/b\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/a/b/c",
+            "recursive": true
+          },
+          {
+            "op": "create_file",
+            "path": "/a/b/c/f.txt"
+          },
+          {
+            "op": "list",
+            "path": "/a",
+            "recursive": true
+          }
+        ]
+      },
+      "expected_output": "created_directory=/a/b/c\ncreated_file=/a/b/c/f.txt\nentry_count=3\nentry=directory:/a/b\nentry=directory:/a/b/c\nentry=file:/a/b/c/f.txt\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/empty"
+          },
+          {
+            "op": "list",
+            "path": "/empty"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/empty\nentry_count=0\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "list",
+            "path": "/nope"
+          }
+        ]
+      },
+      "expected_output": "error=no_such_file_or_directory\n"
+    }
+  ]
+}

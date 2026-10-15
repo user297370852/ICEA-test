@@ -1,0 +1,124 @@
+{
+  "description": "Loading invalid configuration is rejected with a categorized error, exercised with additional malformed inputs: an explicitly empty domain value, an unrecognized time-unit name, a descriptor list entry missing its key, a composite key duplicated under distinct names, an unrecognized configuration key, a unit specified together with unlimited, and configuration text that cannot be parsed.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "x",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: ''\ndescriptors:\n"
+          }
+        ],
+        "descriptor": {
+          "entries": []
+        }
+      },
+      "expected_output": "error=empty_domain\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "x",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: dd\ndescriptors:\n  - key: kk\n    value: vv\n    rate_limit:\n      unit: fortnight\n      requests_per_unit: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": []
+        }
+      },
+      "expected_output": "error=invalid_unit\nunit=fortnight\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "x",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: dd\ndescriptors:\n  - key: kk\n    descriptors:\n      - value: childval\n"
+          }
+        ],
+        "descriptor": {
+          "entries": []
+        }
+      },
+      "expected_output": "error=empty_key\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "x",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: dd\ndescriptors:\n  - key: dup\n    value: dv\n  - key: dup\n    value: dv\n"
+          }
+        ],
+        "descriptor": {
+          "entries": []
+        }
+      },
+      "expected_output": "error=duplicate_key\nkey=dd.dup_dv\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "x",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: dd\ndescriptors:\n  - key: kk\n    value: vv\n    rate_limit:\n      unit: day\n      reqs: 5\n"
+          }
+        ],
+        "descriptor": {
+          "entries": []
+        }
+      },
+      "expected_output": "error=unknown_key\nkey=reqs\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "x",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: dd\ndescriptors:\n  - key: kk\n    rate_limit:\n      unlimited: true\n      unit: minute\n      requests_per_unit: 7\n"
+          }
+        ],
+        "descriptor": {
+          "entries": []
+        }
+      },
+      "expected_output": "error=unlimited_with_unit\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "x",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: dd\ndescriptors:\n  - key: kk\n    value: [unbalanced\n"
+          }
+        ],
+        "descriptor": {
+          "entries": []
+        }
+      },
+      "expected_output": "error=parse_error\n"
+    }
+  ]
+}

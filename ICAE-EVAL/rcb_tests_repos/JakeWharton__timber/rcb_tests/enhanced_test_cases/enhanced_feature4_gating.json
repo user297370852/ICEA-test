@@ -1,0 +1,112 @@
+{
+  "description": "Boundary coverage for conditional logging: a severity gate that accepts only the highest severity (assert), a minimum-severity threshold that admits the boundary level and above while dropping below it, a tag gate where a later call carries the accepted tag, and a one-time tag consumed across multiple skipped calls so it never leaks onto a later accepted call.",
+  "cases": [
+    {
+      "input": {
+        "action": "dispatch",
+        "tree": {
+          "only_priority": "assert"
+        },
+        "steps": [
+          {
+            "tag": "T",
+            "level": "verbose",
+            "message": "m"
+          },
+          {
+            "tag": "T",
+            "level": "warn",
+            "message": "m"
+          },
+          {
+            "tag": "T",
+            "level": "assert",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "priority=7 tag=T message=m\n"
+    },
+    {
+      "input": {
+        "action": "dispatch",
+        "tree": {
+          "min_priority": "error"
+        },
+        "steps": [
+          {
+            "tag": "T",
+            "level": "info",
+            "message": "m"
+          },
+          {
+            "tag": "T",
+            "level": "warn",
+            "message": "m"
+          },
+          {
+            "tag": "T",
+            "level": "error",
+            "message": "m"
+          },
+          {
+            "tag": "T",
+            "level": "assert",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "priority=6 tag=T message=m\npriority=7 tag=T message=m\n"
+    },
+    {
+      "input": {
+        "action": "dispatch",
+        "tree": {
+          "only_tag": "KEEP"
+        },
+        "steps": [
+          {
+            "tag": "DROP",
+            "level": "info",
+            "message": "m"
+          },
+          {
+            "level": "info",
+            "message": "m"
+          },
+          {
+            "tag": "KEEP",
+            "level": "error",
+            "message": "m"
+          }
+        ]
+      },
+      "expected_output": "priority=6 tag=KEEP message=m\n"
+    },
+    {
+      "input": {
+        "action": "dispatch",
+        "tree": {
+          "min_priority": "warn"
+        },
+        "steps": [
+          {
+            "tag": "Leak1",
+            "level": "verbose",
+            "message": "skip"
+          },
+          {
+            "tag": "Leak2",
+            "level": "debug",
+            "message": "skip"
+          },
+          {
+            "level": "error",
+            "message": "kept"
+          }
+        ]
+      },
+      "expected_output": "priority=6 tag= message=kept\n"
+    }
+  ]
+}

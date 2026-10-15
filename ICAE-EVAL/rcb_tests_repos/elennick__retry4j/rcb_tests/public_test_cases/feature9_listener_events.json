@@ -1,0 +1,118 @@
+{
+    "description": "Attach lifecycle listeners to a synchronous execution and report listener invocation counts and final status signals.",
+    "cases": [
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 5,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception"
+                },
+                "listeners": [
+                    "after_failed_try"
+                ],
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "runtime_error"
+                        },
+                        {
+                            "throw": "runtime_error"
+                        },
+                        {
+                            "return": "success!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=success!\nsuccessful=true\ntotal_tries=3\nafter_failed_try=2\nbefore_next_try=0\non_success=0\non_failure=0\non_completion=0\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 5,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception"
+                },
+                "listeners": [
+                    "before_next_try"
+                ],
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "runtime_error"
+                        },
+                        {
+                            "throw": "runtime_error"
+                        },
+                        {
+                            "return": "success!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=success!\nsuccessful=true\ntotal_tries=3\nafter_failed_try=0\nbefore_next_try=2\non_success=0\non_failure=0\non_completion=0\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 5,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception"
+                },
+                "listeners": [
+                    "on_success",
+                    "on_failure",
+                    "on_completion",
+                    "after_failed_try",
+                    "before_next_try"
+                ],
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": "success!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=success!\nsuccessful=true\ntotal_tries=1\nafter_failed_try=0\nbefore_next_try=0\non_success=1\non_failure=0\non_completion=1\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 5,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception"
+                },
+                "listeners": [
+                    "on_success",
+                    "on_failure",
+                    "on_completion",
+                    "after_failed_try",
+                    "before_next_try"
+                ],
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "runtime_error"
+                        },
+                        {
+                            "throw": "runtime_error"
+                        },
+                        {
+                            "throw": "runtime_error"
+                        },
+                        {
+                            "return": "success!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=success!\nsuccessful=true\ntotal_tries=4\nafter_failed_try=3\nbefore_next_try=3\non_success=1\non_failure=0\non_completion=1\n"
+        }
+    ]
+}

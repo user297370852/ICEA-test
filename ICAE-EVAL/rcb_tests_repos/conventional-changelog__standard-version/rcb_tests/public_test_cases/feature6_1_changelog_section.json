@@ -1,0 +1,51 @@
+{
+    "description": "Changelog section rendering for a single release. After a previous release tag exists, a new release's changelog document is generated. The document opens with the configured header line, then a release-section heading carrying the new version as a comparison link (whose URL is built from a configurable compare format and the previous/current tags) and a date, then grouped subsections of changes. Fix commits appear under a 'Bug Fixes' subsection and feature commits under a 'Features' subsection, each entry being the commit description followed by its short hash. Dates are rendered as the literal DATE and commit short hashes as the literal HASH to keep output stable. Input describes the manifest state, a seed changelog, the commit/tag history, and changelog formatting arguments; output is the rendered changelog document.",
+    "cases": [
+        {
+            "input": {
+                "kind": "changelog",
+                "packageVersion": null,
+                "changelogSeed": "",
+                "ops": [
+                    {
+                        "commit": "feat: first commit"
+                    },
+                    {
+                        "tag": "v1.0.0"
+                    },
+                    {
+                        "commit": "fix: patch release"
+                    }
+                ],
+                "args": [
+                    "--changelogHeader=# Release Notes",
+                    "--compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}"
+                ]
+            },
+            "expected_output": "# Release Notes\n### [1.0.1](/compare/v1.0.0...v1.0.1) (DATE)\n\n\n### Bug Fixes\n\n* patch release HASH\n"
+        },
+        {
+            "input": {
+                "kind": "changelog",
+                "packageVersion": null,
+                "changelogSeed": "",
+                "ops": [
+                    {
+                        "commit": "feat: first commit"
+                    },
+                    {
+                        "tag": "v1.0.0"
+                    },
+                    {
+                        "commit": "feat: a new feature"
+                    }
+                ],
+                "args": [
+                    "--changelogHeader=# Release Notes",
+                    "--compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}"
+                ]
+            },
+            "expected_output": "# Release Notes\n## [1.1.0](/compare/v1.0.0...v1.1.0) (DATE)\n\n\n### Features\n\n* a new feature HASH\n"
+        }
+    ]
+}

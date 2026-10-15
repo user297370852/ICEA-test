@@ -1,0 +1,42 @@
+{
+  "description": "Explicit namespace file cooperating with its directory across multiple nested constants and a constant defined inside the namespace file, ensuring both the file body and the directory children resolve.",
+  "cases": [
+    {
+      "input": {
+        "operation": "explicit_namespace_loading",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "shipping.rb": "module Shipping; RATE = 5; end",
+          "shipping/carrier.rb": "class Shipping::Carrier; end",
+          "shipping/label.rb": "class Shipping::Label; end"
+        },
+        "access": [
+          "Shipping",
+          "Shipping::RATE",
+          "Shipping::Carrier",
+          "Shipping::Label"
+        ]
+      },
+      "expected_output": "constant=Shipping\nvalue=module\nconstant=Shipping::RATE\nvalue=5\nconstant=Shipping::Carrier\nvalue=class\nconstant=Shipping::Label\nvalue=class\n"
+    },
+    {
+      "input": {
+        "operation": "explicit_namespace_loading",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "outer.rb": "module Outer; end",
+          "outer/inner.rb": "module Outer::Inner; end",
+          "outer/inner/leaf.rb": "class Outer::Inner::Leaf; end"
+        },
+        "access": [
+          "Outer::Inner::Leaf"
+        ]
+      },
+      "expected_output": "constant=Outer::Inner::Leaf\nvalue=class\n"
+    }
+  ]
+}

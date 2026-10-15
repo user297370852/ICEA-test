@@ -1,0 +1,63 @@
+{
+  "description": "Boundary coverage for assembling a payload: the caller supplying every standard claim so nothing is generated, a different reference time and issuer URL, a caller-supplied custom claim with a nested value, and a reference time of zero.",
+  "cases": [
+    {
+      "input": {
+        "op": "make_payload",
+        "now": 1000,
+        "url": "http://host.test/issuer",
+        "claims": {
+          "sub": 5,
+          "jti": "abc",
+          "iat": 1000,
+          "nbf": 1000,
+          "exp": 4600,
+          "iss": "http://host.test/issuer"
+        }
+      },
+      "expected_output": "{\"sub\":5,\"jti\":\"abc\",\"iat\":1000,\"nbf\":1000,\"exp\":4600,\"iss\":\"http:\\/\\/host.test\\/issuer\"}\n"
+    },
+    {
+      "input": {
+        "op": "make_payload",
+        "now": 500,
+        "url": "https://api.example.org/v1",
+        "claims": {
+          "sub": 42
+        }
+      },
+      "expected_output": "{\"sub\":42,\"iss\":\"https:\\/\\/api.example.org\\/v1\",\"iat\":500,\"exp\":4100,\"nbf\":500,\"jti\":\"b9d7d26edf13a219c1fedda22fe477fa\"}\n"
+    },
+    {
+      "input": {
+        "op": "make_payload",
+        "now": 123,
+        "url": "http://example.com/foo",
+        "claims": {
+          "sub": 1,
+          "data": {
+            "roles": [
+              "a",
+              "b"
+            ],
+            "n": 3
+          }
+        }
+      },
+      "expected_output": "{\"sub\":1,\"data\":{\"roles\":[\"a\",\"b\"],\"n\":3},\"iss\":\"http:\\/\\/example.com\\/foo\",\"iat\":123,\"exp\":3723,\"nbf\":123,\"jti\":\"d1f6bff329cfc64b2503d2fc3e259583\"}\n"
+    },
+    {
+      "input": {
+        "op": "make_payload",
+        "now": 0,
+        "url": "http://example.com/foo",
+        "claims": {
+          "sub": 1,
+          "jti": "z",
+          "iat": 0
+        }
+      },
+      "expected_output": "{\"sub\":1,\"jti\":\"z\",\"iat\":0,\"iss\":\"http:\\/\\/example.com\\/foo\",\"exp\":3600,\"nbf\":0}\n"
+    }
+  ]
+}

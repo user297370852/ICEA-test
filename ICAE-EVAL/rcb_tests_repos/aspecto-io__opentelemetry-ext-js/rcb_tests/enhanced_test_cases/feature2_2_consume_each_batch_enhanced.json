@@ -1,0 +1,57 @@
+{
+  "description": "Enhanced per-batch consume coverage at the size boundaries: a batch of exactly one message still emits a receiving span plus a single child processing span, and a batch of three messages emits one receiving span plus three child processing spans, all sharing the batch trace.",
+  "cases": [
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "consume_batch",
+            "topic": "topic-name-1",
+            "partition": 5,
+            "messages": [
+              {
+                "value": "lone",
+                "offset": "200"
+              }
+            ],
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_batch topic=topic-name-1 delivered=ok error=none\nspans=2\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "consume_batch",
+            "topic": "topic-name-1",
+            "partition": 0,
+            "messages": [
+              {
+                "value": "b1",
+                "offset": "1"
+              },
+              {
+                "value": "b2",
+                "offset": "2"
+              },
+              {
+                "value": "b3",
+                "offset": "3"
+              }
+            ],
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_batch topic=topic-name-1 delivered=ok error=none\nspans=4\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\nspan 2 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\nspan 3 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    }
+  ]
+}

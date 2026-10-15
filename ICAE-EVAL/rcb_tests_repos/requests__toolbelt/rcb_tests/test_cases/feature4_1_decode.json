@@ -1,0 +1,29 @@
+{
+    "description": "Parse a multipart body into an ordered tuple of parts. The boundary is taken from the content-type parameters (case-insensitively). Each part exposes its headers (preserving order) and its raw content with the leading/trailing boundary framing and the header/body separator removed; a part with no headers yields an empty header set. Content that spans multiple lines is preserved verbatim.",
+    "cases": [
+        {
+            "input": {
+                "action": "multipart_decode",
+                "content_type": "multipart/related; boundary=\"samp1\"",
+                "content": "\r\n--samp1\r\nHeader-1: Header-Value-1\r\nHeader-2: Header-Value-2\r\n\r\nBody 1, Line 1\r\nBody 1, Line 2\r\n--samp1\r\n\r\nBody 2, Line 1\r\n--samp1--\r\n"
+            },
+            "expected_output": "parts=2\npart0.header.Header-1=Header-Value-1\npart0.header.Header-2=Header-Value-2\npart0.content=Body 1, Line 1\r\nBody 1, Line 2\npart1.content=Body 2, Line 1\n"
+        },
+        {
+            "input": {
+                "action": "multipart_decode",
+                "content_type": "Multipart/Related; boundary=\"samp1\"",
+                "content": "\r\n--samp1\r\nHeader-1: Header-Value-1\r\nHeader-2: Header-Value-2\r\n\r\nBody 1, Line 1\r\nBody 1, Line 2\r\n--samp1\r\n\r\nBody 2, Line 1\r\n--samp1--\r\n"
+            },
+            "expected_output": "parts=2\npart0.header.Header-1=Header-Value-1\npart0.header.Header-2=Header-Value-2\npart0.content=Body 1, Line 1\r\nBody 1, Line 2\npart1.content=Body 2, Line 1\n"
+        },
+        {
+            "input": {
+                "action": "multipart_decode",
+                "content_type": "multipart/form-data; boundary=test boundary",
+                "content": "--test boundary\r\nContent-Disposition: form-data; name=\"field 1\"\r\n\r\nvalue 1\r\n--test boundary\r\nContent-Disposition: form-data; name=\"field 2\"\r\n\r\nvalue 2\r\n--test boundary\r\nContent-Disposition: form-data; name=\"field 3\"\r\n\r\nvalue 3\r\n--test boundary\r\nContent-Disposition: form-data; name=\"field 4\"\r\n\r\nvalue 4\r\n--test boundary--\r\n"
+            },
+            "expected_output": "parts=4\npart0.header.Content-Disposition=form-data; name=\"field 1\"\npart0.content=value 1\npart1.header.Content-Disposition=form-data; name=\"field 2\"\npart1.content=value 2\npart2.header.Content-Disposition=form-data; name=\"field 3\"\npart2.content=value 3\npart3.header.Content-Disposition=form-data; name=\"field 4\"\npart3.content=value 4\n"
+        }
+    ]
+}

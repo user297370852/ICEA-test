@@ -1,0 +1,88 @@
+{
+  "description": "Normalize a transport-level failure into a compact response object before handing it to the caller-supplied error callback. The failure carries a raw response body, an HTTP status code, and response headers. The wrapped handler produces an object with two fields: the status code and the body. By default the body is the raw response text; when the response advertises a JSON content type, the body is parsed into a structured value instead. The reported result shows the status and the resulting body (a quoted raw string when left unparsed, a structured object when parsed).",
+  "cases": [
+    {
+      "input": {
+        "op": "client_sync_error",
+        "method": "read",
+        "id": 0,
+        "urlRoot": "/listings",
+        "headers": {
+          "foo": "bar"
+        },
+        "xhr": {
+          "responseText": "Not Found",
+          "status": 404
+        }
+      },
+      "expected_output": "status=404\nbody=\"Not Found\"\n"
+    },
+    {
+      "input": {
+        "op": "client_sync_error",
+        "method": "read",
+        "id": 0,
+        "urlRoot": "/listings",
+        "headers": {
+          "foo": "bar"
+        },
+        "xhr": {
+          "responseText": "oops",
+          "status": 500,
+          "contentType": "text/plain"
+        }
+      },
+      "expected_output": "status=500\nbody=\"oops\"\n"
+    },
+    {
+      "input": {
+        "op": "client_sync_error",
+        "method": "read",
+        "id": 0,
+        "urlRoot": "/listings",
+        "headers": {
+          "foo": "bar"
+        },
+        "xhr": {
+          "responseText": "[1,2,3]",
+          "status": 400,
+          "contentType": "application/json"
+        }
+      },
+      "expected_output": "status=400\nbody=[1,2,3]\n"
+    },
+    {
+      "input": {
+        "op": "client_sync_error",
+        "method": "read",
+        "id": 0,
+        "urlRoot": "/listings",
+        "headers": {
+          "foo": "bar"
+        },
+        "xhr": {
+          "responseText": "{\"a\": 1}",
+          "status": 422,
+          "contentType": "application/json; charset=utf-8"
+        }
+      },
+      "expected_output": "status=422\nbody={\"a\":1}\n"
+    },
+    {
+      "input": {
+        "op": "client_sync_error",
+        "method": "read",
+        "id": 0,
+        "urlRoot": "/listings",
+        "headers": {
+          "foo": "bar"
+        },
+        "xhr": {
+          "responseText": "",
+          "status": 204
+        }
+      },
+      "expected_output": "status=204\nbody=\"\"\n"
+    }
+  ]
+}

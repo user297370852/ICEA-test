@@ -1,0 +1,78 @@
+{
+  "description": "Event-with-acknowledgement encoding edge cases: protocol v3, packet id zero with named namespace, large packet ids, empty data arrays, and binary arguments combined with an ack id.",
+  "cases": [
+    {
+      "input": {
+        "op": "encode_event_ack",
+        "eio": 3,
+        "event": "e",
+        "packet_id": 5,
+        "namespace": "/n",
+        "data": [
+          "x"
+        ]
+      },
+      "expected_output": "frame=42/n,5[\"e\",\"x\"]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event_ack",
+        "eio": 4,
+        "event": "e",
+        "packet_id": 0,
+        "namespace": "/test",
+        "data": []
+      },
+      "expected_output": "frame=42/test,0[\"e\"]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event_ack",
+        "eio": 4,
+        "event": "e",
+        "packet_id": 2147483647,
+        "namespace": null,
+        "data": [
+          1
+        ]
+      },
+      "expected_output": "frame=422147483647[\"e\",1]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event_ack",
+        "eio": 4,
+        "event": "bin",
+        "packet_id": 7,
+        "namespace": "/n",
+        "data": [
+          {
+            "$bytes": [
+              1,
+              2
+            ]
+          },
+          {
+            "$bytes": [
+              3
+            ]
+          }
+        ]
+      },
+      "expected_output": "frame=452-/n,7[\"bin\",{\"_placeholder\":true,\"num\":0},{\"_placeholder\":true,\"num\":1}]\nattachment=1,2\nattachment=3\n"
+    },
+    {
+      "input": {
+        "op": "encode_event_ack",
+        "eio": 4,
+        "event": "e",
+        "packet_id": 42,
+        "namespace": "",
+        "data": [
+          "only"
+        ]
+      },
+      "expected_output": "frame=4242[\"e\",\"only\"]\n"
+    }
+  ]
+}

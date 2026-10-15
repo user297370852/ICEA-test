@@ -1,0 +1,24 @@
+{
+    "description": "Parse a single Python function parameter from its textual form and report its structural components. A parameter has a name, an optional type annotation, and an optional default value. When a type annotation is present its rendered form is reported and the annotation flag is true; when absent the type defaults to the dynamic-any placeholder and the annotation flag is false. A default value, when present, is reported in its canonical textual form (numbers as written, quoted strings with the quotes stripped, the boolean and none constants by name). Output reports, one per line: name, type, the annotated flag (true/false), and, only when a default exists, the default value.",
+    "cases": [
+        {"input": {"action": "parse_parameter", "text": "a: int"}, "expected_output": "name=a\ntype=int\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "abc123_xyz: int"}, "expected_output": "name=abc123_xyz\ntype=int\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "c: float"}, "expected_output": "name=c\ntype=float\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "d: bool"}, "expected_output": "name=d\ntype=bool\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "e: list[int]"}, "expected_output": "name=e\ntype=list[int]\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "f: tuple[str, str]"}, "expected_output": "name=f\ntype=tuple[str, str]\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "g: dict[str, int]"}, "expected_output": "name=g\ntype=dict[str, int]\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "nest: list[tuple[int, int]]"}, "expected_output": "name=nest\ntype=list[tuple[int, int]]\nannotated=true\n"},
+        {"input": {"action": "parse_parameter", "text": "max_length: int = 50"}, "expected_output": "name=max_length\ntype=int\nannotated=true\ndefault=50\n"},
+        {"input": {"action": "parse_parameter", "text": "a"}, "expected_output": "name=a\ntype=Any\nannotated=false\n"},
+        {"input": {"action": "parse_parameter", "text": "a = 1"}, "expected_output": "name=a\ntype=Any\nannotated=false\ndefault=1\n"},
+        {"input": {"action": "parse_parameter", "text": "a = -1"}, "expected_output": "name=a\ntype=Any\nannotated=false\ndefault=-1\n"},
+        {"input": {"action": "parse_parameter", "text": "a = 'hello'"}, "expected_output": "name=a\ntype=Any\nannotated=false\ndefault=hello\n"},
+        {"input": {"action": "parse_parameter", "text": "a = \"hello\""}, "expected_output": "name=a\ntype=Any\nannotated=false\ndefault=hello\n"},
+        {"input": {"action": "parse_parameter", "text": "a: float = -1.1"}, "expected_output": "name=a\ntype=float\nannotated=true\ndefault=-1.1\n"},
+        {"input": {"action": "parse_parameter", "text": "a: int = 1234"}, "expected_output": "name=a\ntype=int\nannotated=true\ndefault=1234\n"},
+        {"input": {"action": "parse_parameter", "text": "a: bool = True"}, "expected_output": "name=a\ntype=bool\nannotated=true\ndefault=True\n"},
+        {"input": {"action": "parse_parameter", "text": "a: bool = False"}, "expected_output": "name=a\ntype=bool\nannotated=true\ndefault=False\n"},
+        {"input": {"action": "parse_parameter", "text": "a: bool = None"}, "expected_output": "name=a\ntype=bool\nannotated=true\ndefault=None\n"}
+    ]
+}

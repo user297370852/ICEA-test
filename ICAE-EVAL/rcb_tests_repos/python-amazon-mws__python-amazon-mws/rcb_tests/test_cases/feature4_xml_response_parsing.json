@@ -1,0 +1,82 @@
+{
+    "description": "Parse XML response bytes after removing namespaces while preserving attributes, repeated elements, and non-UTF control characters.",
+    "cases": [
+        {
+            "input": {
+                "feature": "xml_response",
+                "xml": "<?xml version=\"1.0\"?><ListMatchingProductsResponse xmlns=\"http://mws.amazonservices.com/schema/Products/2011-10-01\"><ListMatchingProductsResult><Products xmlns:ns2=\"http://mws.amazonservices.com/schema/Products/2011-10-01/default.xsd\"><Product><Identifiers><MarketplaceASIN><MarketplaceId>APJ6JRA9NG5V4</MarketplaceId><ASIN>8891808660</ASIN></MarketplaceASIN></Identifiers><AttributeSets><ns2:ItemAttributes xml:lang=\"it-IT\"><ns2:Creator Role=\"Autore\">Mizielinska, Aleksandra</ns2:Creator><ns2:Creator Role=\"Autore\">Mizielinski, Daniel</ns2:Creator><ns2:Title>Mappe. Un atlante per viaggiare tra terra, mari e culture del mondo</ns2:Title></ns2:ItemAttributes></AttributeSets><Relationships/></Product><Product><Identifiers><MarketplaceASIN><MarketplaceId>APJ6JRA9NG5V4</MarketplaceId><ASIN>8832706571</ASIN></MarketplaceASIN></Identifiers><AttributeSets><ns2:ItemAttributes xml:lang=\"it-IT\"><ns2:Creator Role=\"Autore\">aa.vv.</ns2:Creator><ns2:Title>Concorso Magistratura 2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo</ns2:Title></ns2:ItemAttributes></AttributeSets><SalesRankings><SalesRank><ProductCategoryId>book_display_on_website</ProductCategoryId><Rank>62044</Rank></SalesRank></SalesRankings></Product></Products></ListMatchingProductsResult><ResponseMetadata><RequestId>d384713e-7c79-4a6d-81cd-d0aa68c7b409</RequestId></ResponseMetadata></ListMatchingProductsResponse>",
+                "encoding": "iso-8859-1",
+                "signals": {
+                    "first_asin": [
+                        "ListMatchingProductsResult",
+                        "Products",
+                        "Product",
+                        0,
+                        "Identifiers",
+                        "MarketplaceASIN",
+                        "ASIN",
+                        "value"
+                    ],
+                    "first_creator_role": [
+                        "ListMatchingProductsResult",
+                        "Products",
+                        "Product",
+                        0,
+                        "AttributeSets",
+                        "ItemAttributes",
+                        "Creator",
+                        0,
+                        "Role",
+                        "value"
+                    ],
+                    "second_rank": [
+                        "ListMatchingProductsResult",
+                        "Products",
+                        "Product",
+                        1,
+                        "SalesRankings",
+                        "SalesRank",
+                        "Rank",
+                        "value"
+                    ],
+                    "request_id": [
+                        "ResponseMetadata",
+                        "RequestId",
+                        "value"
+                    ]
+                }
+            },
+            "expected_output": "{\"parsed_signals\":{\"first_asin\":\"8891808660\",\"first_creator_role\":\"Autore\",\"request_id\":\"d384713e-7c79-4a6d-81cd-d0aa68c7b409\",\"second_rank\":\"62044\"}}\n"
+        },
+        {
+            "input": {
+                "feature": "xml_response",
+                "xml": "<?xml version=\"1.0\"?><ListMatchingProductsResponse xmlns=\"http://mws.amazonservices.com/schema/Products/2011-10-01\"><ListMatchingProductsResult><Products xmlns:ns2=\"http://mws.amazonservices.com/schema/Products/2011-10-01/default.xsd\"><Product><Identifiers><MarketplaceASIN><MarketplaceId>APJ6JRA9NG5V4</MarketplaceId><ASIN>8891808660</ASIN></MarketplaceASIN></Identifiers><AttributeSets><ns2:ItemAttributes xml:lang=\"it-IT\"><ns2:Creator Role=\"Autore\">Mizielinska, Aleksandra</ns2:Creator><ns2:Creator Role=\"Autore\">Mizielinski, Daniel</ns2:Creator><ns2:Title>Mappe.Un atlante per viaggiare tra terra, mari e culture del mondo</ns2:Title></ns2:ItemAttributes></AttributeSets><Relationships/></Product><Product><Identifiers><MarketplaceASIN><MarketplaceId>APJ6JRA9NG5V4</MarketplaceId><ASIN>8832706571</ASIN></MarketplaceASIN></Identifiers><AttributeSets><ns2:ItemAttributes xml:lang=\"it-IT\"><ns2:Creator Role=\"Autore\">aa.vv.</ns2:Creator><ns2:Title>Concorso Magistratura2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo</ns2:Title></ns2:ItemAttributes></AttributeSets><SalesRankings><SalesRank><ProductCategoryId>book_display_on_website</ProductCategoryId><Rank>62044</Rank></SalesRank></SalesRankings></Product></Products></ListMatchingProductsResult><ResponseMetadata><RequestId>d384713e-7c79-4a6d-81cd-d0aa68c7b409</RequestId></ResponseMetadata></ListMatchingProductsResponse>",
+                "encoding": "iso-8859-1",
+                "signals": {
+                    "first_title": [
+                        "ListMatchingProductsResult",
+                        "Products",
+                        "Product",
+                        0,
+                        "AttributeSets",
+                        "ItemAttributes",
+                        "Title",
+                        "value"
+                    ],
+                    "second_title": [
+                        "ListMatchingProductsResult",
+                        "Products",
+                        "Product",
+                        1,
+                        "AttributeSets",
+                        "ItemAttributes",
+                        "Title",
+                        "value"
+                    ]
+                }
+            },
+            "expected_output": "{\"parsed_signals\":{\"first_title\":\"Mappe.Un atlante per viaggiare tra terra, mari e culture del mondo\",\"second_title\":\"Concorso Magistratura2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo\"}}\n"
+        }
+    ]
+}

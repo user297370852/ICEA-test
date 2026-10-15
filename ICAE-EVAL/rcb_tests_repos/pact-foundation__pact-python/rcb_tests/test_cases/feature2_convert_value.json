@@ -1,0 +1,52 @@
+{
+    "description": "Convert ordinary JSON-compatible values and nested flexible expectations into the JSON representation sent to the mock server.",
+    "cases": [
+        {
+            "input": {
+                "value": {
+                    "administrator": false,
+                    "id": 123,
+                    "username": "user"
+                }
+            },
+            "expected_output": "json={\"administrator\":false,\"id\":123,\"username\":\"user\"}\n"
+        },
+        {
+            "input": {
+                "value": null
+            },
+            "expected_output": "json=null\n"
+        },
+        {
+            "input": {
+                "value": [
+                    {
+                        "expectation": "array_items_similar",
+                        "value": {
+                            "username": {
+                                "expectation": "regex_match",
+                                "regex": "[a-zA-Z]+",
+                                "example": "firstlast"
+                            },
+                            "id": {
+                                "expectation": "same_type",
+                                "value": 123
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "json=[{\"contents\":{\"id\":{\"contents\":123,\"json_class\":\"Pact::SomethingLike\"},\"username\":{\"data\":{\"generate\":\"firstlast\",\"matcher\":{\"json_class\":\"Regexp\",\"o\":0,\"s\":\"[a-zA-Z]+\"}},\"json_class\":\"Pact::Term\"}},\"json_class\":\"Pact::ArrayLike\",\"min\":1}]\n"
+        },
+        {
+            "input": {
+                "value": {
+                    "expectation": "regex_match",
+                    "regex": "[a-f0-9]+",
+                    "example": "abc123"
+                }
+            },
+            "expected_output": "json={\"data\":{\"generate\":\"abc123\",\"matcher\":{\"json_class\":\"Regexp\",\"o\":0,\"s\":\"[a-f0-9]+\"}},\"json_class\":\"Pact::Term\"}\n"
+        }
+    ]
+}

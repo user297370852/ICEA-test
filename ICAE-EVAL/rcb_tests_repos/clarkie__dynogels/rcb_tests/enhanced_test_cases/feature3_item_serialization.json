@@ -1,0 +1,180 @@
+{
+  "description": "ENHANCED forward-serialization edge cases: a single scalar accepted as a one-element typed set, boolean coercion from loose truthy/falsey inputs (numeric zero -> false, non-empty numeric string -> true), a date parsed from an epoch-millis number, a number set carrying negatives and zero, a single-element binary set, an attribute absent from the schema passing through untyped, the returnNulls option retaining a null attribute, an empty record yielding an empty object, and nested numeric zero being preserved.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "names": {
+              "set": "string"
+            }
+          }
+        },
+        "item": {
+          "names": "solo"
+        }
+      },
+      "expected_output": "{\"names\":{\"SS\":[\"solo\"]}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "flag",
+          "schema": {
+            "flag": "boolean"
+          }
+        },
+        "item": {
+          "flag": 0
+        }
+      },
+      "expected_output": "{\"flag\":false}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "flag",
+          "schema": {
+            "flag": "boolean"
+          }
+        },
+        "item": {
+          "flag": "0"
+        }
+      },
+      "expected_output": "{\"flag\":true}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "when",
+          "schema": {
+            "when": "date"
+          }
+        },
+        "item": {
+          "when": 0
+        }
+      },
+      "expected_output": "{\"when\":\"1970-01-01T00:00:00.000Z\"}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "scores": {
+              "set": "number"
+            }
+          }
+        },
+        "item": {
+          "scores": [
+            -3,
+            0,
+            7
+          ]
+        }
+      },
+      "expected_output": "{\"scores\":{\"NS\":[-3,0,7]}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "data": {
+              "set": "binary"
+            }
+          }
+        },
+        "item": {
+          "data": "solo"
+        }
+      },
+      "expected_output": "{\"data\":{\"BS\":[{\"B\":\"c29sbw==\"}]}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string"
+          }
+        },
+        "item": {
+          "id": "x",
+          "untyped": "passthrough"
+        }
+      },
+      "expected_output": "{\"id\":\"x\",\"untyped\":\"passthrough\"}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "nickname": "string"
+          }
+        },
+        "item": {
+          "id": "x",
+          "nickname": null
+        },
+        "options": {
+          "returnNulls": true
+        }
+      },
+      "expected_output": "{\"id\":\"x\",\"nickname\":null}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string"
+          }
+        },
+        "item": {}
+      },
+      "expected_output": "{}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_item",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "data": {
+              "object": {
+                "count": "number"
+              }
+            }
+          }
+        },
+        "item": {
+          "id": "x",
+          "data": {
+            "count": 0
+          }
+        }
+      },
+      "expected_output": "{\"data\":{\"count\":0},\"id\":\"x\"}\n"
+    }
+  ]
+}

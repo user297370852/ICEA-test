@@ -1,0 +1,21 @@
+{
+    "description": "Evaluate whether a set of key/value labels satisfies a label selector. A selector may contain set-based 'matchExpressions' and/or an equality-based 'matchLabels' map; an object matches only if ALL requirements hold. Each expression has a key, an operator, and an optional list of values. The operators are: 'In' (key present and its value is one of the listed values), 'NotIn' (key absent, or present with a value not in the list), 'Exists' (key present), 'DoesNotExist' (key absent). 'In'/'NotIn' require a non-empty values list and 'Exists'/'DoesNotExist' require NO values list; violating that makes the expression malformed. The 'matchLabels' map requires each listed key to be present with exactly the listed value. Output is 'matched=true' or 'matched=false' for a valid evaluation, or the normalized error 'error=malformed_label_selector' when an expression breaks the values-presence rule.",
+    "cases": [
+        {
+            "input": {"action": "label_match", "labels": {"foo": "bar"}, "selector": {"matchExpressions": [{"key": "foo", "operator": "In", "values": ["bar"]}]}},
+            "expected_output": "matched=true\n"
+        },
+        {
+            "input": {"action": "label_match", "labels": {"foo": "bar"}, "selector": {"matchExpressions": [{"key": "foo", "operator": "In"}]}},
+            "expected_output": "error=malformed_label_selector\n"
+        },
+        {
+            "input": {"action": "label_match", "labels": {"foo": "bar"}, "selector": {"matchExpressions": [{"key": "baz", "operator": "Exists"}]}},
+            "expected_output": "matched=false\n"
+        },
+        {
+            "input": {"action": "label_match", "labels": {"foo": "bar"}, "selector": {"matchLabels": {"foo": "bar"}}},
+            "expected_output": "matched=true\n"
+        }
+    ]
+}

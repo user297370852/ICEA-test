@@ -1,0 +1,192 @@
+{
+    "description": "Compile a single attribute condition into an LDAP search filter. A condition names an attribute, a match kind, and (for value-bearing matches) a value. The output reports two lines: \"query=\" carries the wire filter with the value escaped byte-by-byte for transmission, and \"unescaped=\" carries the same filter with values shown in their readable form. Equality wraps as (attr=value); negated equality wraps as (!(attr=value)); approximate, greater-or-equal and less-or-equal use ~=, >= and <=; presence tests use (attr=*) and its negation (!(attr=*)); substring matches place a wildcard before, after, or on both sides of the value, each with a negated variant. When no condition is supplied a default presence filter on the object-class attribute is produced. Attribute names containing reserved characters are themselves escaped.",
+    "cases": [
+        {
+            "input": {
+                "op": "filter",
+                "terms": []
+            },
+            "expected_output": "query=(objectclass=*)\nunescaped=(objectclass=*)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "cn",
+                        "match": "equals",
+                        "value": "test"
+                    }
+                ]
+            },
+            "expected_output": "query=(cn=\\74\\65\\73\\74)\nunescaped=(cn=test)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "not_equals",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(!(field=\\76\\61\\6c\\75\\65))\nunescaped=(!(field=value))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "approx",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(field~=\\76\\61\\6c\\75\\65)\nunescaped=(field~=value)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "gte",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(field>=\\76\\61\\6c\\75\\65)\nunescaped=(field>=value)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "lte",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(field<=\\76\\61\\6c\\75\\65)\nunescaped=(field<=value)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "present"
+                    }
+                ]
+            },
+            "expected_output": "query=(field=*)\nunescaped=(field=*)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "absent"
+                    }
+                ]
+            },
+            "expected_output": "query=(!(field=*))\nunescaped=(!(field=*))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "cn",
+                        "match": "starts_with",
+                        "value": "test"
+                    }
+                ]
+            },
+            "expected_output": "query=(cn=\\74\\65\\73\\74*)\nunescaped=(cn=test*)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "cn",
+                        "match": "not_starts_with",
+                        "value": "test"
+                    }
+                ]
+            },
+            "expected_output": "query=(!(cn=\\74\\65\\73\\74*))\nunescaped=(!(cn=test*))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "cn",
+                        "match": "ends_with",
+                        "value": "test"
+                    }
+                ]
+            },
+            "expected_output": "query=(cn=*\\74\\65\\73\\74)\nunescaped=(cn=*test)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "cn",
+                        "match": "not_ends_with",
+                        "value": "test"
+                    }
+                ]
+            },
+            "expected_output": "query=(!(cn=*\\74\\65\\73\\74))\nunescaped=(!(cn=*test))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "cn",
+                        "match": "contains",
+                        "value": "test"
+                    }
+                ]
+            },
+            "expected_output": "query=(cn=*\\74\\65\\73\\74*)\nunescaped=(cn=*test*)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "not_contains",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(!(field=*\\76\\61\\6c\\75\\65*))\nunescaped=(!(field=*value*))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "(foo)",
+                        "match": "equals",
+                        "value": "bar"
+                    }
+                ]
+            },
+            "expected_output": "query=(\\28foo\\29=\\62\\61\\72)\nunescaped=((foo)=bar)\n"
+        }
+    ]
+}

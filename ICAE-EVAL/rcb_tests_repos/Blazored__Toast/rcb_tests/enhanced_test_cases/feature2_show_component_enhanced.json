@@ -1,0 +1,115 @@
+{
+  "description": "Boundary and edge coverage for the show-component event beyond the native matrix: the component target defaults to valid when omitted and any non-'invalid' string is accepted, the empty-parameter-bag attachment rule under an explicit with_parameters=false, default settings values (timeout falls back to 5 and show_progress_bar to false when those fields are missing while settings are attached), integer timeout boundaries (zero, negative, int32 max and min), a non-integer timeout falling back to the default, and the invalid-component rejection ignoring any extra fields and raising no event.",
+  "cases": [
+    {
+      "input": {
+        "action": "show_component"
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=present\nsettings=absent"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "MyToastView"
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=present\nsettings=absent"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_parameters": false
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=present\nsettings=absent"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "anything",
+        "with_settings": true
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=absent\nsettings=present\ntimeout=5\nshow_progress_bar=false"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_settings": true,
+        "show_progress_bar": true
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=absent\nsettings=present\ntimeout=5\nshow_progress_bar=true"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_settings": true,
+        "timeout": 0,
+        "show_progress_bar": false
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=absent\nsettings=present\ntimeout=0\nshow_progress_bar=false"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_settings": true,
+        "timeout": -1,
+        "show_progress_bar": true
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=absent\nsettings=present\ntimeout=-1\nshow_progress_bar=true"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_settings": true,
+        "timeout": 2147483647,
+        "show_progress_bar": false
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=absent\nsettings=present\ntimeout=2147483647\nshow_progress_bar=false"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_settings": true,
+        "timeout": -2147483648,
+        "show_progress_bar": true
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=absent\nsettings=present\ntimeout=-2147483648\nshow_progress_bar=true"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_settings": true,
+        "timeout": 2.5,
+        "show_progress_bar": false
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=absent\nsettings=present\ntimeout=5\nshow_progress_bar=false"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "valid",
+        "with_parameters": true,
+        "with_settings": true,
+        "timeout": 0,
+        "show_progress_bar": false
+      },
+      "expected_output": "event=show_component\ncomponent=present\nparameters=present\nsettings=present\ntimeout=0\nshow_progress_bar=false"
+    },
+    {
+      "input": {
+        "action": "show_component",
+        "component": "invalid",
+        "with_parameters": true,
+        "with_settings": true,
+        "timeout": 9,
+        "show_progress_bar": true
+      },
+      "expected_output": "error=invalid_component_type"
+    }
+  ]
+}

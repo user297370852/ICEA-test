@@ -1,0 +1,121 @@
+{
+  "description": "Boundary coverage for the composite update-target selector, exercising layers the native suite omits: the scope restriction inside the chain, the precedence of the always-on opt-out exclusion (a container that explicitly opts out is rejected before name/scope/opt-in are consulted, even when it would otherwise match), and an empty name allow-list (no name restriction) combined with a required opt-in marker. Output lists each candidate as its name and whether it survived the full chain.",
+  "cases": [
+    {
+      "input": {
+        "action": "filter",
+        "mode": "build",
+        "names": [
+          "test"
+        ],
+        "enable_label": false,
+        "scope": "myscope",
+        "containers": [
+          {
+            "name": "test",
+            "scope": {
+              "value": "myscope",
+              "present": true
+            }
+          },
+          {
+            "name": "test",
+            "scope": {
+              "value": "other",
+              "present": true
+            }
+          },
+          {
+            "name": "nomatch",
+            "scope": {
+              "value": "myscope",
+              "present": true
+            }
+          },
+          {
+            "name": "test",
+            "scope": {
+              "value": "myscope",
+              "present": true
+            },
+            "enabled": {
+              "value": false,
+              "present": true
+            }
+          },
+          {
+            "name": "test"
+          }
+        ]
+      },
+      "expected_output": "container=test included=true\ncontainer=test included=false\ncontainer=nomatch included=false\ncontainer=test included=false\ncontainer=test included=false\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "build",
+        "names": [],
+        "enable_label": true,
+        "scope": "",
+        "containers": [
+          {
+            "name": "a",
+            "enabled": {
+              "value": true,
+              "present": true
+            }
+          },
+          {
+            "name": "b",
+            "enabled": {
+              "value": false,
+              "present": true
+            }
+          },
+          {
+            "name": "c",
+            "enabled": {
+              "value": false,
+              "present": false
+            }
+          },
+          {
+            "name": "d"
+          }
+        ]
+      },
+      "expected_output": "container=a included=true\ncontainer=b included=false\ncontainer=c included=false\ncontainer=d included=false\n"
+    },
+    {
+      "input": {
+        "action": "filter",
+        "mode": "build",
+        "names": [
+          "keep"
+        ],
+        "enable_label": false,
+        "scope": "",
+        "containers": [
+          {
+            "name": "keep",
+            "enabled": {
+              "value": false,
+              "present": true
+            }
+          },
+          {
+            "name": "keep",
+            "enabled": {
+              "value": true,
+              "present": true
+            }
+          },
+          {
+            "name": "keep"
+          }
+        ]
+      },
+      "expected_output": "container=keep included=false\ncontainer=keep included=true\ncontainer=keep included=true\n"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+    "description": "Expand compact JSON-LD documents into full IRI-based node objects while applying context aliases, type coercion, and default language rules.",
+    "cases": [
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@context": {
+                        "t1": "http://example.com/t1",
+                        "t2": "http://example.com/t2",
+                        "term1": "http://example.com/term1",
+                        "term2": "http://example.com/term2",
+                        "term3": "http://example.com/term3",
+                        "term4": "http://example.com/term4",
+                        "term5": "http://example.com/term5"
+                    },
+                    "@id": "http://example.com/id1",
+                    "@type": "t1",
+                    "term1": "v1",
+                    "term2": {
+                        "@value": "v2",
+                        "@type": "t2"
+                    },
+                    "term3": {
+                        "@value": "v3",
+                        "@language": "en"
+                    },
+                    "term4": 4,
+                    "term5": [
+                        50,
+                        51
+                    ]
+                },
+                "algorithm": "expand",
+                "base": "http://json-ld.org/test-suite/tests/expand-0002-in.jsonld"
+            },
+            "expected_output": "[ {\n  \"@id\" : \"http://example.com/id1\",\n  \"@type\" : [ \"http://example.com/t1\" ],\n  \"http://example.com/term1\" : [ {\n    \"@value\" : \"v1\"\n  } ],\n  \"http://example.com/term2\" : [ {\n    \"@type\" : \"http://example.com/t2\",\n    \"@value\" : \"v2\"\n  } ],\n  \"http://example.com/term3\" : [ {\n    \"@language\" : \"en\",\n    \"@value\" : \"v3\"\n  } ],\n  \"http://example.com/term4\" : [ {\n    \"@value\" : 4\n  } ],\n  \"http://example.com/term5\" : [ {\n    \"@value\" : 50\n  }, {\n    \"@value\" : 51\n  } ]\n} ]\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@context": {
+                        "http://example.org/test#property1": {
+                            "@type": "@id"
+                        },
+                        "http://example.org/test#property2": {
+                            "@type": "@id"
+                        },
+                        "uri": "@id"
+                    },
+                    "http://example.org/test#property1": {
+                        "http://example.org/test#property4": "foo",
+                        "uri": "http://example.org/test#example2"
+                    },
+                    "http://example.org/test#property2": "http://example.org/test#example3",
+                    "http://example.org/test#property3": {
+                        "uri": "http://example.org/test#example4"
+                    },
+                    "uri": "http://example.org/test#example1"
+                },
+                "algorithm": "expand",
+                "base": "http://json-ld.org/test-suite/tests/expand-0006-in.jsonld"
+            },
+            "expected_output": "[ {\n  \"http://example.org/test#property1\" : [ {\n    \"http://example.org/test#property4\" : [ {\n      \"@value\" : \"foo\"\n    } ],\n    \"@id\" : \"http://example.org/test#example2\"\n  } ],\n  \"http://example.org/test#property2\" : [ {\n    \"@id\" : \"http://example.org/test#example3\"\n  } ],\n  \"http://example.org/test#property3\" : [ {\n    \"@id\" : \"http://example.org/test#example4\"\n  } ],\n  \"@id\" : \"http://example.org/test#example1\"\n} ]\n"
+        }
+    ]
+}

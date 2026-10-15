@@ -1,0 +1,13 @@
+{
+    "description": "Manage the listener registry of a permission request and notify all currently attached listeners. A request keeps a set of listeners; each `notify` delivers a result to exactly the listeners attached at that moment. Listeners are identified by a stable id; adding the same id twice has no extra effect (a set, not a multiset); a listener can be detached individually, or every listener can be detached at once. The input is an ordered list of operations: attach a listener (`add`), detach one (`remove`), detach all (`remove_all`), or emit a result to current listeners (`notify`). The output reports, for each notify, how many listeners received it; then the final listener count; then, per listener id, how many results it received and the content of each received result. A detached listener stops receiving results from that point on, and after detaching all, a subsequent notify reaches nobody.",
+    "cases": [
+        {
+            "input": {"op": "listener_registry", "ops": [{"action": "add", "id": "A"}, {"action": "add", "id": "B"}, {"action": "notify", "result": [{"type": "granted", "permission": "android.permission.ACCESS_FINE_LOCATION"}, {"type": "permanently_denied", "permission": "android.permission.SEND_SMS"}]}]},
+            "expected_output": "notify[0]_recipients=2\nlisteners=2\nreceived[A]_count=1\nreceived[A][0]=granted:android.permission.ACCESS_FINE_LOCATION,permanently_denied:android.permission.SEND_SMS\nreceived[B]_count=1\nreceived[B][0]=granted:android.permission.ACCESS_FINE_LOCATION,permanently_denied:android.permission.SEND_SMS\n"
+        },
+        {
+            "input": {"op": "listener_registry", "ops": [{"action": "add", "id": "A"}, {"action": "add", "id": "B"}, {"action": "notify", "result": [{"type": "granted", "permission": "p"}]}, {"action": "remove", "id": "A"}, {"action": "notify", "result": [{"type": "granted", "permission": "p"}]}]},
+            "expected_output": "notify[0]_recipients=2\nnotify[1]_recipients=1\nlisteners=1\nreceived[A]_count=1\nreceived[A][0]=granted:p\nreceived[B]_count=2\nreceived[B][0]=granted:p\nreceived[B][1]=granted:p\n"
+        }
+    ]
+}

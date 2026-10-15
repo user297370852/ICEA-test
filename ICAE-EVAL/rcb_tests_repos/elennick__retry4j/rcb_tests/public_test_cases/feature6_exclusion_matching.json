@@ -1,0 +1,68 @@
+{
+    "description": "Retry all failures except configured excluded categories, using inheritance-aware matching for excluded categories.",
+    "cases": [
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 1,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception_excluding",
+                    "exceptions": [
+                        "unsupported_operation"
+                    ]
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "unsupported_operation"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=unexpected_exception\nexception=unsupported_operation\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 1,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception_excluding",
+                    "exceptions": [
+                        "io_error"
+                    ]
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "file_not_found"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=unexpected_exception\nexception=file_not_found\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 5,
+                    "backoff": "no_wait",
+                    "retry_on": "any_exception_excluding",
+                    "exceptions": [
+                        "argument_error",
+                        "unsupported_operation"
+                    ]
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "null_reference"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=5\nlast_exception=null_reference\n"
+        }
+    ]
+}

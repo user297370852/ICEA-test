@@ -1,0 +1,46 @@
+{
+    "description": "Feed a sequence of inbound frames through the frame assembler and report what it dispatches. A standalone method frame for a non-content method is dispatched immediately. A content-bearing method (such as a delivery) is held until its content-header frame arrives; if the announced body size is zero the message is dispatched right away, otherwise the assembler waits for body frames and dispatches once the whole body has been collected. A heartbeat frame is consumed without dispatching anything. Receiving a frame whose type is not the one currently expected on a channel is a protocol violation, reported as a normalized error. For each frame the output reports whether it completed a dispatchable unit, and for each dispatch the channel, the method signature, and the message body (or that there was no content).",
+    "cases": [
+        {
+            "input": {
+                "op": "frame_handler",
+                "frames": [
+                    {
+                        "type": 1,
+                        "channel": 1,
+                        "payload_hex": "003c0033"
+                    }
+                ]
+            },
+            "expected_output": "complete=true\ndispatch channel=1 method=60,51 content=no"
+        },
+        {
+            "input": {
+                "op": "frame_handler",
+                "frames": [
+                    {
+                        "type": 1,
+                        "channel": 1,
+                        "payload_hex": "003c003c"
+                    },
+                    {
+                        "type": 2,
+                        "channel": 1,
+                        "payload_hex": "003c000000000000000000100000"
+                    },
+                    {
+                        "type": 3,
+                        "channel": 1,
+                        "payload_hex": "746865717569636b"
+                    },
+                    {
+                        "type": 3,
+                        "channel": 1,
+                        "payload_hex": "62726f776e666f78"
+                    }
+                ]
+            },
+            "expected_output": "complete=false\ncomplete=false\ncomplete=false\ncomplete=true\ndispatch channel=1 method=60,60 body=bytes:746865717569636b62726f776e666f78"
+        }
+    ]
+}

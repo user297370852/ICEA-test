@@ -1,0 +1,72 @@
+{
+  "description": "Boundary coverage for suppressing consecutive duplicate values for a single observer: setting a value identical to the default immediately after the initial default emission (write delegated, but no new emission), alternating strictly between two distinct values so every set produces an emission, and re-setting a value that was previously cleared so that crossing through the default re-enables the emission of the repeated value. Every set still delegates its write to the store.",
+  "cases": [
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "default value"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore write key=key value=default value\nput ok=true\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "a"
+          },
+          {
+            "op": "put",
+            "value": "b"
+          },
+          {
+            "op": "put",
+            "value": "a"
+          },
+          {
+            "op": "put",
+            "value": "b"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore write key=key value=a\nput ok=true\nemit[0] a\nstore write key=key value=b\nput ok=true\nemit[0] b\nstore write key=key value=a\nput ok=true\nemit[0] a\nstore write key=key value=b\nput ok=true\nemit[0] b\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "x"
+          },
+          {
+            "op": "remove"
+          },
+          {
+            "op": "put",
+            "value": "x"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore write key=key value=x\nput ok=true\nemit[0] x\nstore remove key=key\nremove ok=true\nemit[0] default value\nstore write key=key value=x\nput ok=true\nemit[0] x\n"
+    }
+  ]
+}

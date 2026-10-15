@@ -1,0 +1,53 @@
+{
+  "description": "Additional native-disjoint delivery and routing cases covering mixed comma/semicolon/space fan-out, all-request non-200 failure, bot routing without a leading hash, and bot thread routing with a failing transport.",
+  "cases": [
+    {
+      "input": {
+        "op": "publish",
+        "mode": "webhook",
+        "base_url": "",
+        "team_domain": "team-x",
+        "token": "tok-123",
+        "channel": "#a;#b #c",
+        "status": 200
+      },
+      "expected_output": "requests=3\ndelivered=true\nrequest_1_url=https://team-x.slack.com/services/hooks/jenkins-ci?token=tok-123\nrequest_2_url=https://team-x.slack.com/services/hooks/jenkins-ci?token=tok-123\nrequest_3_url=https://team-x.slack.com/services/hooks/jenkins-ci?token=tok-123\n"
+    },
+    {
+      "input": {
+        "op": "publish",
+        "mode": "webhook",
+        "base_url": "",
+        "team_domain": "domain",
+        "token": "token",
+        "channel": "#a #b;#c,#d",
+        "status": 500
+      },
+      "expected_output": "requests=4\ndelivered=false\nrequest_1_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\nrequest_2_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\nrequest_3_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\nrequest_4_url=https://domain.slack.com/services/hooks/jenkins-ci?token=token\n"
+    },
+    {
+      "input": {
+        "op": "publish",
+        "mode": "bot",
+        "base_url": "",
+        "team_domain": "domain",
+        "token": "T",
+        "channel": "room-no-hash",
+        "status": 200
+      },
+      "expected_output": "requests=1\ndelivered=true\nrequest_1_url=https://slack.com/api/chat.postMessage?token=T&channel=room-no-hash&link_names=1&as_user=true\n"
+    },
+    {
+      "input": {
+        "op": "publish",
+        "mode": "bot",
+        "base_url": "",
+        "team_domain": "domain",
+        "token": "T",
+        "channel": "#chan:123.456",
+        "status": 500
+      },
+      "expected_output": "requests=1\ndelivered=false\nrequest_1_url=https://slack.com/api/chat.postMessage?token=T&channel=chan&link_names=1&as_user=true&thread_ts=123.456\n"
+    }
+  ]
+}

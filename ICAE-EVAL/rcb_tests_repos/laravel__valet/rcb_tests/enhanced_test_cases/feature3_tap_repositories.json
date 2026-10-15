@@ -1,0 +1,44 @@
+{
+  "description": "Register one or more external package repositories ('taps') with the system package manager. Given an ordered list of repository identifiers, the adapter issues one tap command per identifier, in the order supplied, each run as the invoking (non-root) user via a sudo-as-user wrapper. The output lists each issued command verbatim, preserving order and any repeats; an empty list issues no commands. The invoking user name is a fixed deterministic value in this environment.",
+  "cases": [
+    {
+      "input": {
+        "action": "tap",
+        "formulas": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "tap",
+        "formulas": [
+          "homebrew/dupes"
+        ]
+      },
+      "expected_output": "cmd=sudo -u \"testuser\" brew tap homebrew/dupes\n"
+    },
+    {
+      "input": {
+        "action": "tap",
+        "formulas": [
+          "acme/repo",
+          "acme/repo"
+        ]
+      },
+      "expected_output": "cmd=sudo -u \"testuser\" brew tap acme/repo\ncmd=sudo -u \"testuser\" brew tap acme/repo\n"
+    },
+    {
+      "input": {
+        "action": "tap",
+        "formulas": [
+          "a/one",
+          "b/two",
+          "c/three",
+          "d/four",
+          "e/five"
+        ]
+      },
+      "expected_output": "cmd=sudo -u \"testuser\" brew tap a/one\ncmd=sudo -u \"testuser\" brew tap b/two\ncmd=sudo -u \"testuser\" brew tap c/three\ncmd=sudo -u \"testuser\" brew tap d/four\ncmd=sudo -u \"testuser\" brew tap e/five\n"
+    }
+  ]
+}

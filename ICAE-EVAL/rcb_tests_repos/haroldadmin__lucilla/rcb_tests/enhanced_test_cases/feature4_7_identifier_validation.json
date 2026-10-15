@@ -1,0 +1,80 @@
+{
+  "description": "Validate that every document carries exactly one integer identifier, exercising a document with no identifier field, a document whose identifier is a non-integer string, a document declaring more than one identifier field, and a sequence in which a valid document is added alongside an invalid one so the rejection is reported while the valid document is counted.",
+  "cases": [
+    {
+      "input": {
+        "op": "index",
+        "actions": [
+          {
+            "action": "add",
+            "doc": {
+              "type": "no_id",
+              "title": "Untitled"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=missing_id\n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "actions": [
+          {
+            "action": "add",
+            "doc": {
+              "type": "string_id",
+              "id": "123",
+              "title": "Numeric String"
+            }
+          }
+        ]
+      },
+      "expected_output": "error=invalid_id_type\n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "actions": [
+          {
+            "action": "add",
+            "doc": {
+              "type": "two_id",
+              "a": 5,
+              "b": 9
+            }
+          }
+        ]
+      },
+      "expected_output": "error=multiple_ids\n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "actions": [
+          {
+            "action": "add",
+            "doc": {
+              "type": "book",
+              "id": 1,
+              "title": "Valid",
+              "author": "A",
+              "publisher": "P"
+            }
+          },
+          {
+            "action": "add",
+            "doc": {
+              "type": "no_id",
+              "title": "Bad"
+            }
+          },
+          {
+            "action": "size"
+          }
+        ]
+      },
+      "expected_output": "error=missing_id\nsize=1\n"
+    }
+  ]
+}

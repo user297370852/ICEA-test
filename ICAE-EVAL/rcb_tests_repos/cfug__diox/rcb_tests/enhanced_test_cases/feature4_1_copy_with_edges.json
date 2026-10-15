@@ -1,0 +1,131 @@
+{
+  "description": "Copy-with-override coverage across the three configuration tiers with empty and partial overrides: a base config copied with an empty override (all fields inherited, GET/true defaults applied, durations rendered as <n>s, absent header/extra/query read as null), an options tier with only a method override, a request tier overriding only data/path, and inheritance of headers/extra maps when not replaced. Demonstrates default-value resolution (method=GET, followRedirects/persistentConnection default true), duration rendering, and case-insensitive header read-then-write on the request tier.",
+  "cases": [
+    {
+      "input": {
+        "op": "copy_with",
+        "kind": "options",
+        "init": {
+          "method": "get"
+        },
+        "with": {}
+      },
+      "expected_output": "method=get\nreceiveTimeout=null\nfollowRedirects=null\npersistentConnection=null\nheader_b=null\nextra_b=null\ncontentType=null\n"
+    },
+    {
+      "input": {
+        "op": "copy_with",
+        "kind": "base",
+        "init": {
+          "connectTimeout": 10,
+          "receiveTimeout": 5,
+          "baseUrl": "http://a.com",
+          "headers": {
+            "x": "1"
+          }
+        },
+        "with": {}
+      },
+      "expected_output": "method=GET\nconnectTimeout=10s\nreceiveTimeout=5s\nfollowRedirects=true\npersistentConnection=true\nbaseUrl=http://a.com\nheader_b=null\nextra_b=null\nquery_b=null\ncontentType=null\n"
+    },
+    {
+      "input": {
+        "op": "copy_with",
+        "kind": "base",
+        "init": {
+          "connectTimeout": 1,
+          "baseUrl": "http://localhost",
+          "headers": {
+            "b": "orig"
+          },
+          "extra": {
+            "b": "orig"
+          },
+          "queryParameters": {
+            "b": "q"
+          }
+        },
+        "with": {
+          "baseUrl": "https://new.dev"
+        }
+      },
+      "expected_output": "method=GET\nconnectTimeout=1s\nreceiveTimeout=null\nfollowRedirects=true\npersistentConnection=true\nbaseUrl=https://new.dev\nheader_b=orig\nextra_b=orig\nquery_b=q\ncontentType=null\n"
+    },
+    {
+      "input": {
+        "op": "copy_with",
+        "kind": "options",
+        "init": {
+          "method": "get",
+          "receiveTimeout": 7,
+          "headers": {
+            "b": "h"
+          },
+          "extra": {
+            "b": "e"
+          },
+          "followRedirects": true,
+          "persistentConnection": true
+        },
+        "with": {
+          "method": "PUT"
+        }
+      },
+      "expected_output": "method=PUT\nreceiveTimeout=7s\nfollowRedirects=true\npersistentConnection=true\nheader_b=h\nextra_b=e\ncontentType=null\n"
+    },
+    {
+      "input": {
+        "op": "copy_with",
+        "kind": "request",
+        "init": {
+          "path": "/orig",
+          "sendTimeout": 9,
+          "followRedirects": true,
+          "persistentConnection": false
+        },
+        "with": {
+          "data": "payload",
+          "headers": {
+            "b": "6"
+          },
+          "extra": {
+            "b": "6"
+          },
+          "receiveTimeout": 4
+        }
+      },
+      "expected_output": "method=GET\nreceiveTimeout=4s\nfollowRedirects=true\npersistentConnection=false\ncontentType=null\nheader_b=6\nextra_b=6\ndata=payload\npath=/orig\nheader_B_case_insensitive=6\nheader_b_after_set_B=9\n"
+    },
+    {
+      "input": {
+        "op": "copy_with",
+        "kind": "base",
+        "init": {
+          "connectTimeout": 30,
+          "receiveTimeout": 30,
+          "sendTimeout": 30,
+          "baseUrl": "https://h.io",
+          "contentType": "application/json",
+          "headers": {
+            "a": "1"
+          },
+          "extra": {
+            "a": "1"
+          },
+          "followRedirects": true,
+          "persistentConnection": true
+        },
+        "with": {
+          "contentType": "text/plain",
+          "headers": {
+            "b": "6"
+          },
+          "extra": {
+            "b": "6"
+          }
+        }
+      },
+      "expected_output": "method=GET\nconnectTimeout=30s\nreceiveTimeout=30s\nfollowRedirects=true\npersistentConnection=true\nbaseUrl=https://h.io\nheader_b=6\nextra_b=6\nquery_b=null\ncontentType=text/plain\n"
+    }
+  ]
+}

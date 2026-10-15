@@ -1,0 +1,52 @@
+{
+    "description": "Handle URLs whose path is opaque (a scheme directly followed by a non-hierarchical, non-slash-prefixed body). Such a URL reports an opaque path, exposes its scheme and the opaque body as the path, and serializes them back unchanged. Resolving a relative reference that contributes only a fragment against an opaque-path base keeps the opaque body intact and applies the fragment.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "a:b",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    },
+                    {
+                        "op": "get",
+                        "field": "protocol"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_opaque_path"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=a:b\nprotocol=a:\npathname=b\nhas_opaque_path=true\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "..#",
+                "base": "a:b",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "has_opaque_path"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=a:b#\npathname=b\nhas_opaque_path=true\n"
+        }
+    ]
+}

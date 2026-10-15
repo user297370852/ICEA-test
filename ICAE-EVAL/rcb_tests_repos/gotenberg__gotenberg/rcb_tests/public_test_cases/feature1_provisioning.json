@@ -1,0 +1,13 @@
+{
+    "description": "Provision the metrics-collection component. When collection is enabled, the component gathers metrics from every registered provider component before it can run; provisioning happens in two ordered stages. First each provider is initialized and self-validated; if any provider reports itself invalid, provisioning fails at the provider-validation stage. Then each valid provider is asked for its list of metrics; if any provider fails to produce its metrics, provisioning fails at the metrics-collection stage. When all providers validate and yield their metrics, provisioning succeeds with collection enabled. When collection is disabled, provisioning succeeds immediately without consulting any provider. The result reports whether provisioning succeeded, and on success the collection mode, and on failure a neutral category naming the stage that failed.",
+    "cases": [
+        {
+            "input": {"operation": "provision", "namespace": "app", "providers": [{"id": "alpha", "metrics": [{"name": "jobs", "description": "Number of jobs.", "has_read": true}]}]},
+            "expected_output": "provisioned=true\ncollect=enabled\n"
+        },
+        {
+            "input": {"operation": "provision", "namespace": "app", "providers": [{"id": "alpha", "validate_error": "boom", "metrics": []}]},
+            "expected_output": "provisioned=false\nerror=provider_validation\n"
+        }
+    ]
+}

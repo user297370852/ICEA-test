@@ -1,0 +1,47 @@
+{
+  "description": "Enhanced configuration-loading paths: a darklaunch-prefixed JSON rule fetched alongside a missing destination reporting zero, two YAML route-rule destinations with differing rule counts, and a runtime create action adding a darklaunch destination then fetched.",
+  "cases": [
+    {
+      "input": {
+        "initial": {
+          "servicecomb.darklaunch.policy.foo": "{\"policyType\":\"RULE\",\"ruleItems\":[{\"groupCondition\":\"version=1.0\",\"policyCondition\":\"a=b\",\"versions\":[\"1.0\"]}]}"
+        },
+        "fetch": [
+          "foo",
+          "missing"
+        ]
+      },
+      "expected_output": "service=foo rules=1\nservice=missing rules=0\n"
+    },
+    {
+      "input": {
+        "initial": {
+          "servicecomb.routeRule.a": "\n      - precedence: 1\n        route:\n        - tags:\n            version: 1.0\n          weight: 100\n",
+          "servicecomb.routeRule.b": "\n      - precedence: 1\n        route:\n        - tags:\n            version: 1.0\n          weight: 100\n      - precedence: 2\n        route:\n        - tags:\n            version: 2.0\n          weight: 100\n"
+        },
+        "fetch": [
+          "a",
+          "b"
+        ]
+      },
+      "expected_output": "service=a rules=1\nservice=b rules=2\n"
+    },
+    {
+      "input": {
+        "initial": {},
+        "actions": [
+          {
+            "action": "set",
+            "key": "servicecomb.darklaunch.policy.pay",
+            "value": "{\"policyType\":\"RATE\",\"ruleItems\":[{\"groupName\":\"s0\"}]}",
+            "service": "pay"
+          }
+        ],
+        "fetch": [
+          "pay"
+        ]
+      },
+      "expected_output": "after=set service=pay rules=1\nservice=pay rules=1\n"
+    }
+  ]
+}

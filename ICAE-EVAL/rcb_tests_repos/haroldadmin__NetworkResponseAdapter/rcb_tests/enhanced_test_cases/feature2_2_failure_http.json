@@ -1,0 +1,32 @@
+{
+  "description": "A request fails by raising an HTTP-protocol failure that still carries the server's response (a status code plus an error payload). The mapping unwraps that carried response into a server-error outcome, preserving the numeric status code and decoding the error payload content as the error body, so an error surfaced via a raised failure is treated identically to an error received as a direct response. These cases probe a client-side code, a high service-unavailable code, and a carried response whose payload is explicitly empty.",
+  "cases": [
+    {
+      "input": {
+        "action": "map_failure",
+        "kind": "http",
+        "code": 400,
+        "body": "Bad Request"
+      },
+      "expected_output": "result=server_error\ncode=400\nbody=Bad Request\n"
+    },
+    {
+      "input": {
+        "action": "map_failure",
+        "kind": "http",
+        "code": 503,
+        "body": "Unavailable"
+      },
+      "expected_output": "result=server_error\ncode=503\nbody=Unavailable\n"
+    },
+    {
+      "input": {
+        "action": "map_failure",
+        "kind": "http",
+        "code": 404,
+        "body": ""
+      },
+      "expected_output": "result=server_error\ncode=404\nbody=<null>\n"
+    }
+  ]
+}

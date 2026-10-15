@@ -1,0 +1,34 @@
+{
+  "description": "Filesystem tracing span edge cases: a single write produces one extra span, and read-existence checks (exists) create a file.exists span with the returned boolean.",
+  "cases": [
+    {
+      "input": {
+        "feature": "filesystem_observability",
+        "record_spans": true,
+        "record_breadcrumbs": false,
+        "operations": [
+          {
+            "action": "put",
+            "path": "a.txt",
+            "content": "hello world"
+          }
+        ]
+      },
+      "expected_output": "span_count=2\nspan1_op=file.put\nspan1_description=a.txt (11 B)\nspan1_data={\"path\":\"a.txt\",\"options\":[],\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb_count=0\n"
+    },
+    {
+      "input": {
+        "feature": "filesystem_observability",
+        "record_spans": true,
+        "record_breadcrumbs": false,
+        "operations": [
+          {
+            "action": "exists",
+            "path": "nope"
+          }
+        ]
+      },
+      "expected_output": "file_exists=false\nspan_count=2\nspan1_op=file.exists\nspan1_description=nope\nspan1_data={\"path\":\"nope\",\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb_count=0\n"
+    }
+  ]
+}

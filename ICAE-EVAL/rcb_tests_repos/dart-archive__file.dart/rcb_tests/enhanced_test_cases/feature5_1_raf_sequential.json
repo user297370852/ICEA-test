@@ -1,0 +1,117 @@
+{
+  "description": "Sequential handle coverage: writing a byte list through a handle, accumulating length across two writes, and flushing a handle reports a flushed acknowledgement.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/f"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "write"
+          },
+          {
+            "op": "raf_write",
+            "handle": "h",
+            "bytes": [
+              10,
+              20,
+              30
+            ]
+          },
+          {
+            "op": "raf_length",
+            "handle": "h"
+          },
+          {
+            "op": "raf_close",
+            "handle": "h"
+          },
+          {
+            "op": "read",
+            "path": "/f",
+            "as": "bytes"
+          }
+        ]
+      },
+      "expected_output": "created_file=/f\nopened=/f\nwrote_bytes=3\nlength=3\nclosed=h\nbytes=10,20,30\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/f"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "write"
+          },
+          {
+            "op": "raf_write",
+            "handle": "h",
+            "text": "ab"
+          },
+          {
+            "op": "raf_write",
+            "handle": "h",
+            "text": "cde"
+          },
+          {
+            "op": "raf_length",
+            "handle": "h"
+          },
+          {
+            "op": "raf_close",
+            "handle": "h"
+          },
+          {
+            "op": "read",
+            "path": "/f"
+          }
+        ]
+      },
+      "expected_output": "created_file=/f\nopened=/f\nwrote_bytes=2\nwrote_bytes=3\nlength=5\nclosed=h\ntext=\"abcde\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/f"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "write"
+          },
+          {
+            "op": "raf_write",
+            "handle": "h",
+            "text": "data"
+          },
+          {
+            "op": "raf_flush",
+            "handle": "h"
+          },
+          {
+            "op": "raf_close",
+            "handle": "h"
+          },
+          {
+            "op": "read",
+            "path": "/f"
+          }
+        ]
+      },
+      "expected_output": "created_file=/f\nopened=/f\nwrote_bytes=4\nflushed=h\nclosed=h\ntext=\"data\"\n"
+    }
+  ]
+}

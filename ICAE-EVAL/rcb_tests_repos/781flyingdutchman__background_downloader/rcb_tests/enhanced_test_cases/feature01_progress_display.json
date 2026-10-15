@@ -1,0 +1,62 @@
+{
+  "description": "Boundary and rendering edge cases for the progress-update display fields. Covers the zero boundaries (expectedFileSize=0, networkSpeed=0, timeRemaining=0 are all 'available' yet the speed/time strings show placeholders), the kB/s vs MB/s switch at exactly 1, sub-1 rounding down to 0 kB/s, the MM:SS vs H:MM:SS switch at exactly 3600 seconds, and multi-hour formatting.",
+  "cases": [
+    {
+      "input": {
+        "action": "progress_display",
+        "progress": 0.5,
+        "expectedFileSize": 0,
+        "networkSpeed": 0,
+        "timeRemaining": 0
+      },
+      "expected_output": "hasExpectedFileSize=true\nhasNetworkSpeed=true\nhasTimeRemaining=true\nnetworkSpeed=-- MB/s\ntimeRemaining=--:--\n"
+    },
+    {
+      "input": {
+        "action": "progress_display",
+        "progress": 0.3,
+        "networkSpeed": 0.5,
+        "timeRemaining": 3599
+      },
+      "expected_output": "hasExpectedFileSize=false\nhasNetworkSpeed=true\nhasTimeRemaining=true\nnetworkSpeed=500 kB/s\ntimeRemaining=59:59\n"
+    },
+    {
+      "input": {
+        "action": "progress_display",
+        "progress": 0.4,
+        "expectedFileSize": 999,
+        "networkSpeed": 1.5,
+        "timeRemaining": 3600
+      },
+      "expected_output": "hasExpectedFileSize=true\nhasNetworkSpeed=true\nhasTimeRemaining=true\nnetworkSpeed=2 MB/s\ntimeRemaining=1:00:00\n"
+    },
+    {
+      "input": {
+        "action": "progress_display",
+        "progress": 0.4,
+        "networkSpeed": 1,
+        "timeRemaining": 7325
+      },
+      "expected_output": "hasExpectedFileSize=false\nhasNetworkSpeed=true\nhasTimeRemaining=true\nnetworkSpeed=1 MB/s\ntimeRemaining=2:02:05\n"
+    },
+    {
+      "input": {
+        "action": "progress_display",
+        "progress": 0.4,
+        "networkSpeed": 0.0001,
+        "timeRemaining": 60
+      },
+      "expected_output": "hasExpectedFileSize=false\nhasNetworkSpeed=true\nhasTimeRemaining=true\nnetworkSpeed=0 kB/s\ntimeRemaining=01:00\n"
+    },
+    {
+      "input": {
+        "action": "progress_display",
+        "progress": 0.4,
+        "expectedFileSize": 5,
+        "networkSpeed": 36,
+        "timeRemaining": 36000
+      },
+      "expected_output": "hasExpectedFileSize=true\nhasNetworkSpeed=true\nhasTimeRemaining=true\nnetworkSpeed=36 MB/s\ntimeRemaining=10:00:00\n"
+    }
+  ]
+}

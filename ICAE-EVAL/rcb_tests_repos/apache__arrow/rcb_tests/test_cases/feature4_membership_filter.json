@@ -1,0 +1,32 @@
+{
+    "description": "Filter a record batch with a compiled membership condition that keeps rows whose value belongs to a fixed set of candidate constants (an IN-set test). The single column may be textual or signed integer; the candidate set is supplied as part of the expression and is typed to match the column. Filtering yields a selection vector of zero-based positions (an unsigned 32-bit index list) of the matching rows in ascending order. The adapter reports the operation, the selection index element type, the number of matching rows, and the matching positions as an ordered index list.",
+    "cases": [
+        {
+            "input": {
+                "operation": "filter",
+                "schema": [{"name": "a", "type": "string"}],
+                "columns": {"a": ["ga", "an", "nd", "di", "iv", "va"]},
+                "condition": {"node": "in", "expr": {"node": "field", "name": "a"}, "values": ["an", "nd"], "type": "string"}
+            },
+            "expected_output": "op=filter\nselection_type=uint32\nlength=2\nindices=[1, 2]\n"
+        },
+        {
+            "input": {
+                "operation": "filter",
+                "schema": [{"name": "a", "type": "int32"}],
+                "columns": {"a": [3, 1, 4, 1, 5, 9, 2, 6, 5, 4]},
+                "condition": {"node": "in", "expr": {"node": "field", "name": "a"}, "values": [1, 5], "type": "int32"}
+            },
+            "expected_output": "op=filter\nselection_type=uint32\nlength=4\nindices=[1, 3, 4, 8]\n"
+        },
+        {
+            "input": {
+                "operation": "filter",
+                "schema": [{"name": "a", "type": "int64"}],
+                "columns": {"a": [3, 1, 4, 1, 5, 9, 2, 6, 5, 4]},
+                "condition": {"node": "in", "expr": {"node": "field", "name": "a"}, "values": [1, 5], "type": "int64"}
+            },
+            "expected_output": "op=filter\nselection_type=uint32\nlength=4\nindices=[1, 3, 4, 8]\n"
+        }
+    ]
+}

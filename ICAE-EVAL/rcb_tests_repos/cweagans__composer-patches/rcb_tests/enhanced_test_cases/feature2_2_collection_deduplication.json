@@ -1,0 +1,111 @@
+{
+  "description": "De-duplication logical-path coverage: two distinct patches (different url AND different sha) both survive; the same URL collides even when only the later patch carries a sha256; identical URL across two DIFFERENT packages does NOT collide (dedup is scoped per package); a later duplicate-by-url is dropped while a third unique patch survives (order preserved); and shared sha256 across differing urls collides while a third patch with a different sha survives.",
+  "cases": [
+    {
+      "input": {
+        "op": "collection_dedupe",
+        "add": [
+          {
+            "package": "some/package",
+            "description": "p1",
+            "url": "https://a.com",
+            "sha256": "h1"
+          },
+          {
+            "package": "some/package",
+            "description": "p2",
+            "url": "https://b.com",
+            "sha256": "h2"
+          }
+        ]
+      },
+      "expected_output": "some/package patches=2\nsome/package descriptions=p1,p2\n"
+    },
+    {
+      "input": {
+        "op": "collection_dedupe",
+        "add": [
+          {
+            "package": "some/package",
+            "description": "p1",
+            "url": "https://a.com"
+          },
+          {
+            "package": "some/package",
+            "description": "p2",
+            "url": "https://a.com",
+            "sha256": "x"
+          }
+        ]
+      },
+      "expected_output": "some/package patches=1\nsome/package descriptions=p1\n"
+    },
+    {
+      "input": {
+        "op": "collection_dedupe",
+        "add": [
+          {
+            "package": "p/one",
+            "description": "d1",
+            "url": "shared"
+          },
+          {
+            "package": "p/two",
+            "description": "d2",
+            "url": "shared"
+          }
+        ]
+      },
+      "expected_output": "p/one patches=1\np/one descriptions=d1\np/two patches=1\np/two descriptions=d2\n"
+    },
+    {
+      "input": {
+        "op": "collection_dedupe",
+        "add": [
+          {
+            "package": "some/package",
+            "description": "p1",
+            "url": "u1"
+          },
+          {
+            "package": "some/package",
+            "description": "p2",
+            "url": "u2"
+          },
+          {
+            "package": "some/package",
+            "description": "p3",
+            "url": "u1"
+          }
+        ]
+      },
+      "expected_output": "some/package patches=2\nsome/package descriptions=p1,p2\n"
+    },
+    {
+      "input": {
+        "op": "collection_dedupe",
+        "add": [
+          {
+            "package": "some/package",
+            "description": "p1",
+            "url": "u1",
+            "sha256": "same"
+          },
+          {
+            "package": "some/package",
+            "description": "p2",
+            "url": "u2",
+            "sha256": "same"
+          },
+          {
+            "package": "some/package",
+            "description": "p3",
+            "url": "u3",
+            "sha256": "other"
+          }
+        ]
+      },
+      "expected_output": "some/package patches=2\nsome/package descriptions=p1,p3\n"
+    }
+  ]
+}

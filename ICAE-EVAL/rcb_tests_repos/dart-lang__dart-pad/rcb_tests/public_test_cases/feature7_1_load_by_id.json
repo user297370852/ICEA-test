@@ -1,0 +1,27 @@
+{
+    "description": "Loads a saved code document by its identifier over an HTTP boundary. A valid identifier returns the document and its primary file content; an unknown identifier and an over-quota response are surfaced as normalized error categories. The output reports the requested URL, the HTTP status observed, and either the primary file content or the error category.",
+    "cases": [
+        {
+            "input": {
+                "action": "load_gist",
+                "id": "12345678901234567890123456789012"
+            },
+            "expected_output": "request=https://api.github.com/gists/12345678901234567890123456789012\nstatus=200\nmain.dart=This is some dart code!\n"
+        },
+        {
+            "input": {
+                "action": "load_gist",
+                "id": "12345678901234567890123456789000"
+            },
+            "expected_output": "request=https://api.github.com/gists/12345678901234567890123456789000\nstatus=404\nerror=content_not_found\n"
+        },
+        {
+            "input": {
+                "action": "load_gist",
+                "id": "12345678901234567890123456789012",
+                "rate_limited": true
+            },
+            "expected_output": "request=https://api.github.com/gists/12345678901234567890123456789012\nstatus=403\nerror=rate_limit_exceeded\n"
+        }
+    ]
+}

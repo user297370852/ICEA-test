@@ -1,0 +1,79 @@
+{
+    "description": "Field paths can be constructed from path segments, parsed from dotted text, escaped for wire masks, and rejected when invalid.",
+    "cases": [
+        {
+            "input": {
+                "feature": "field_paths",
+                "operation": "segments_to_path",
+                "segments": [
+                    "foo",
+                    "bar",
+                    "hello",
+                    "world"
+                ]
+            },
+            "expected_output": "{\n    \"segments\": [\n        \"foo\",\n        \"bar\",\n        \"hello\",\n        \"world\"\n    ],\n    \"path\": [\n        \"foo\",\n        \"bar\",\n        \"hello\",\n        \"world\"\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "field_paths",
+                "operation": "string_to_segments",
+                "path": "foo.bar.hello.world"
+            },
+            "expected_output": "{\n    \"path\": \"foo.bar.hello.world\",\n    \"segments\": [\n        \"foo\",\n        \"bar\",\n        \"hello\",\n        \"world\"\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "field_paths",
+                "operation": "escape",
+                "value": "foo.bar.bar.bar.baz.whatever"
+            },
+            "expected_output": "{\n    \"input\": \"foo.bar.bar.bar.baz.whatever\",\n    \"escaped\": \"foo.bar.bar.bar.baz.whatever\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "field_paths",
+                "operation": "escape",
+                "value": {
+                    "kind": "field_path",
+                    "segments": [
+                        "hello.world"
+                    ]
+                }
+            },
+            "expected_output": "{\n    \"input\": {\n        \"kind\": \"field_path\",\n        \"segments\": [\n            \"hello.world\"\n        ]\n    },\n    \"escaped\": \"`hello.world`\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "field_paths",
+                "operation": "escape",
+                "value": {
+                    "kind": "field_path",
+                    "segments": [
+                        "get",
+                        "$$$$",
+                        "do",
+                        "things#"
+                    ]
+                }
+            },
+            "expected_output": "{\n    \"input\": {\n        \"kind\": \"field_path\",\n        \"segments\": [\n            \"get\",\n            \"$$$$\",\n            \"do\",\n            \"things#\"\n        ]\n    },\n    \"escaped\": \"get.`$$$$`.do.`things#`\"\n}\n"
+        },
+        {
+            "input": {
+                "feature": "field_paths",
+                "operation": "escape",
+                "value": "hello..world"
+            },
+            "expected_output": "error=error\n"
+        },
+        {
+            "input": {
+                "feature": "field_paths",
+                "operation": "escape",
+                "value": "hello*"
+            },
+            "expected_output": "error=error\n"
+        }
+    ]
+}

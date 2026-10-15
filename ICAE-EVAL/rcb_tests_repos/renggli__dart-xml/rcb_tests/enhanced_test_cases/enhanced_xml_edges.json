@@ -1,0 +1,271 @@
+{
+  "description": "Additional synthetic XML toolkit cases covering mixed content serialization, pretty-printing with CDATA/comments/custom indentation, multi-attribute decoding and serialization, entity mapping edge cases, namespace-qualified direct and recursive queries, parse diagnostics, and programmatic builder escaping/ordering. These cases are newly generated and native-disjoint.",
+  "cases": [
+    {
+      "input": {
+        "action": "serialize",
+        "xml": "<root   a=\"1\" b='2'   ><child>Tom &amp; Jerry</child><empty /></root>"
+      },
+      "expected_output": "<root a=\"1\" b='2'><child>Tom &amp; Jerry</child><empty/></root>\n"
+    },
+    {
+      "input": {
+        "action": "serialize",
+        "xml": "<root><?target data?><![CDATA[x<y]]><!--tail--><item attr='&quot;'/></root>"
+      },
+      "expected_output": "<root><?target data?><![CDATA[x<y]]><!--tail--><item attr='\"'/></root>\n"
+    },
+    {
+      "input": {
+        "action": "pretty",
+        "xml": "<root><a/><b><!--c--><d><![CDATA[z]]></d></b></root>",
+        "indent": "\t"
+      },
+      "expected_output": "<root>\n\t<a/>\n\t<b>\n\t\t<!--c-->\n\t\t<d>\n\t\t\t<![CDATA[z]]>\n\t\t</d>\n\t</b>\n</root>\n"
+    },
+    {
+      "input": {
+        "action": "pretty",
+        "xml": "<root>hello<em>XML</em>world</root>"
+      },
+      "expected_output": "<root>\n  hello\n  <em>XML</em>\n  world\n</root>\n"
+    },
+    {
+      "input": {
+        "action": "inspect_element",
+        "xml": "<root a=\"1\"><child b=\"2\">A<![CDATA[B]]></child><!--c--><empty/></root>"
+      },
+      "expected_output": "kind=element\nname=root\nattributes=1\nchildren=3\ndescendants=7\ntext=AB\nself_closing=true\nserialized=<root a=\"1\"><child b=\"2\">A<![CDATA[B]]></child><!--c--><empty/></root>\n"
+    },
+    {
+      "input": {
+        "action": "inspect_element",
+        "xml": "<root>left<child/>right</root>"
+      },
+      "expected_output": "kind=element\nname=root\nattributes=0\nchildren=3\ndescendants=3\ntext=leftright\nself_closing=true\nserialized=<root>left<child/>right</root>\n"
+    },
+    {
+      "input": {
+        "action": "attributes",
+        "xml": "<data first=\"1\" second='two &amp; three' xml:lang=\"en\" />"
+      },
+      "expected_output": "count=3\nname=first\nvalue=1\nquote=double\nserialized=first=\"1\"\nname=second\nvalue=two & three\nquote=single\nserialized=second='two &amp; three'\nname=xml:lang\nvalue=en\nquote=double\nserialized=xml:lang=\"en\"\n"
+    },
+    {
+      "input": {
+        "action": "attributes",
+        "xml": "<data a='He said \"yes\"' b=\"It&apos;s &lt;ok&gt;\" />"
+      },
+      "expected_output": "count=2\nname=a\nvalue=He said \"yes\"\nquote=single\nserialized=a='He said \"yes\"'\nname=b\nvalue=It's <ok>\nquote=double\nserialized=b=\"It's &lt;ok>\"\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "mapping": "xml",
+        "input": "start &#65;&#x42;&#X43; end"
+      },
+      "expected_output": "start ABC end\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "mapping": "html5",
+        "input": "&NotEqualTilde;&copy;&unknown;"
+      },
+      "expected_output": "≂̸©&unknown;\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "mapping": "none",
+        "input": "plain &lt; &#x1F600;"
+      },
+      "expected_output": "plain &lt; &#x1F600;\n"
+    },
+    {
+      "input": {
+        "action": "encode_text",
+        "mapping": "xml",
+        "input": "5 < 6 && \"quotes\" 'stay'\nline"
+      },
+      "expected_output": "5 &lt; 6 &amp;&amp; \"quotes\" 'stay'\nline\n"
+    },
+    {
+      "input": {
+        "action": "encode_text",
+        "mapping": "xml",
+        "input": ""
+      },
+      "expected_output": "\n"
+    },
+    {
+      "input": {
+        "action": "encode_attribute",
+        "mapping": "xml",
+        "quote": "double",
+        "input": "<>&'\"\t\n\r"
+      },
+      "expected_output": "&lt;>&amp;'&quot;&#x9;&#xA;&#xD;\n"
+    },
+    {
+      "input": {
+        "action": "encode_attribute",
+        "mapping": "xml",
+        "quote": "single",
+        "input": "<>&'\"\t\n\r"
+      },
+      "expected_output": "&lt;>&amp;&apos;\"&#x9;&#xA;&#xD;\n"
+    },
+    {
+      "input": {
+        "action": "find_elements",
+        "from_root": true,
+        "name": "a",
+        "namespace": "urn:default",
+        "xml": "<root xmlns=\"urn:default\" xmlns:x=\"urn:x\"><a/><x:a/><group><a/></group></root>"
+      },
+      "expected_output": "count=1\nname=a\n"
+    },
+    {
+      "input": {
+        "action": "find_elements",
+        "from_root": true,
+        "name": "x:a",
+        "xml": "<root xmlns:x=\"urn:x\"><a/><x:a/><group><x:a/></group></root>"
+      },
+      "expected_output": "count=1\nname=x:a\n"
+    },
+    {
+      "input": {
+        "action": "find_all_elements",
+        "name": "*",
+        "namespace": "urn:x",
+        "xml": "<root xmlns=\"urn:default\" xmlns:x=\"urn:x\"><a/><x:a><x:b/></x:a><group><x:a/></group></root>"
+      },
+      "expected_output": "count=3\nname=x:a\nname=x:b\nname=x:a\n"
+    },
+    {
+      "input": {
+        "action": "find_all_elements",
+        "name": "b",
+        "namespace": "*",
+        "xml": "<root xmlns:p=\"u1\" xmlns:q=\"u2\"><p:b/><q:b/><b/></root>"
+      },
+      "expected_output": "count=3\nname=p:b\nname=q:b\nname=b\n"
+    },
+    {
+      "input": {
+        "action": "parse_error",
+        "xml": "<root><unclosed></root>"
+      },
+      "expected_output": "error=parse\nmessage=Expected </unclosed>, but found </root>\nposition=16\n"
+    },
+    {
+      "input": {
+        "action": "parse_error",
+        "xml": "<root attr=\"value></root>"
+      },
+      "expected_output": "error=parse\nmessage=\">\" expected\nposition=6\n"
+    },
+    {
+      "input": {
+        "action": "parse_error",
+        "xml": "text<root/>"
+      },
+      "expected_output": "error=parse\nmessage=\"<\" expected\nposition=0\n"
+    },
+    {
+      "input": {
+        "action": "build",
+        "ops": [
+          {
+            "op": "element",
+            "name": "root",
+            "children": [
+              {
+                "op": "attribute",
+                "name": "a",
+                "value": "<>&'\"\t\n\r",
+                "attribute_type": "single"
+              },
+              {
+                "op": "text",
+                "text": "one & two < three"
+              },
+              {
+                "op": "text",
+                "text": " plus more"
+              },
+              {
+                "op": "element",
+                "name": "child",
+                "attributes": {
+                  "k": "v&v"
+                },
+                "text": "<inside>"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "<root a='&lt;>&amp;&apos;\"&#x9;&#xA;&#xD;'>one &amp; two &lt; three plus more<child k=\"v&amp;v\">&lt;inside></child></root>\n"
+    },
+    {
+      "input": {
+        "action": "build",
+        "ops": [
+          {
+            "op": "comment",
+            "text": "top"
+          },
+          {
+            "op": "element",
+            "name": "root",
+            "children": [
+              {
+                "op": "processing",
+                "target": "go",
+                "text": "now"
+              },
+              {
+                "op": "cdata",
+                "text": "<raw>&data"
+              },
+              {
+                "op": "element",
+                "name": "empty",
+                "is_self_closing": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "<!--top--><root><?go now?><![CDATA[<raw>&data]]><empty></empty></root>\n"
+    },
+    {
+      "input": {
+        "action": "build",
+        "optimize_namespaces": true,
+        "ops": [
+          {
+            "op": "element",
+            "name": "x:root",
+            "attributes": {
+              "xmlns:x": "urn:x"
+            },
+            "children": [
+              {
+                "op": "element",
+                "name": "x:child",
+                "attributes": {
+                  "xmlns:x": "urn:x"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "<x:root xmlns:x=\"urn:x\"><x:child xmlns:x=\"urn:x\"/></x:root>\n"
+    }
+  ]
+}

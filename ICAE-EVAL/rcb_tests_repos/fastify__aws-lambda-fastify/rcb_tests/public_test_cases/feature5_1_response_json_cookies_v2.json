@@ -1,0 +1,36 @@
+{
+  "description": "Render a JSON handler response into a proxy result; for protocol v2, Set-Cookie headers are returned as a dedicated cookie list rather than response headers.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "headers": {
+              "Set-Cookie": [
+                "qwerty=one",
+                "qwerty=two"
+              ]
+            },
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\ncookies=qwerty=one,qwerty=two\n"
+    }
+  ]
+}

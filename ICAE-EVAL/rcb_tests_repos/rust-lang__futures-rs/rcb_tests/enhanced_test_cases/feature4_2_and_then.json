@@ -1,0 +1,94 @@
+{
+  "description": "Each successful item is passed to a fallible transform whose own outcome replaces the item; in the succeeding form the transform adds a constant and yields a new item. Error outcomes pass through unchanged and stop the gathered stream.",
+  "cases": [
+    {
+      "input": {
+        "source": [],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "and_then",
+            "add": 1
+          }
+        ]
+      },
+      "expected_output": "end\n"
+    },
+    {
+      "input": {
+        "source": [
+          -1,
+          -2
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "and_then",
+            "add": 1
+          }
+        ]
+      },
+      "expected_output": "item=0\nitem=-1\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          1,
+          {
+            "err": 4
+          },
+          2
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "and_then",
+            "add": 1
+          }
+        ]
+      },
+      "expected_output": "error=4\n"
+    },
+    {
+      "input": {
+        "source": [
+          100
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "and_then",
+            "add": 1000
+          }
+        ]
+      },
+      "expected_output": "item=1100\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          5,
+          6
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "and_then",
+            "add": 0
+          }
+        ]
+      },
+      "expected_output": "item=5\nitem=6\nend\n"
+    }
+  ]
+}

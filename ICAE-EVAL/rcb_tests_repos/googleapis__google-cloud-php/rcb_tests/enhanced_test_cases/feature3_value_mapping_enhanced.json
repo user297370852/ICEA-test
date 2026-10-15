@@ -1,0 +1,146 @@
+{
+  "description": "Enhanced value mapping cases for scalar wire decoding, timestamp and geo descriptors, nested encoding, document references, streams, and sentinel extraction at multiple levels.",
+  "cases": [
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "decode",
+        "wire": {
+          "nullValue": null
+        }
+      },
+      "expected_output": "{\n    \"decoded\": null\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "decode",
+        "wire": {
+          "booleanValue": false
+        }
+      },
+      "expected_output": "{\n    \"decoded\": false\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "decode",
+        "wire": {
+          "doubleValue": 3.5
+        }
+      },
+      "expected_output": "{\n    \"decoded\": 3.5\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "decode",
+        "wire": {
+          "timestampValue": {
+            "seconds": 123,
+            "nanos": 456
+          }
+        }
+      },
+      "expected_output": "{\n    \"decoded\": {\n        \"type\": \"timestamp\",\n        \"seconds\": 123,\n        \"nanos\": 456\n    }\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "decode",
+        "wire": {
+          "geoPointValue": {
+            "latitude": -12.5,
+            "longitude": 179.75
+          }
+        }
+      },
+      "expected_output": "{\n    \"decoded\": {\n        \"type\": \"geo_point\",\n        \"latitude\": -12.5,\n        \"longitude\": 179.75\n    }\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "encode",
+        "value": -42
+      },
+      "expected_output": "{\n    \"wire\": {\n        \"integerValue\": -42\n    }\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "encode",
+        "value": 1.25
+      },
+      "expected_output": "{\n    \"wire\": {\n        \"doubleValue\": 1.25\n    }\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "encode",
+        "value": {
+          "kind": "document_reference",
+          "name": "projects/example_project/databases/(default)/documents/users/alice"
+        }
+      },
+      "expected_output": "{\n    \"wire\": {\n        \"referenceValue\": \"projects/example_project/databases/(default)/documents/users/alice\"\n    }\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "encode",
+        "value": {
+          "nested": {
+            "count": 2,
+            "active": false
+          },
+          "items": [
+            "x",
+            {
+              "kind": "geo_point",
+              "latitude": 1,
+              "longitude": 2
+            }
+          ]
+        }
+      },
+      "expected_output": "{\n    \"wire\": {\n        \"mapValue\": {\n            \"fields\": {\n                \"nested\": {\n                    \"mapValue\": {\n                        \"fields\": {\n                            \"count\": {\n                                \"integerValue\": 2\n                            },\n                            \"active\": {\n                                \"booleanValue\": false\n                            }\n                        }\n                    }\n                },\n                \"items\": {\n                    \"arrayValue\": {\n                        \"values\": [\n                            {\n                                \"stringValue\": \"x\"\n                            },\n                            {\n                                \"geoPointValue\": {\n                                    \"latitude\": 1,\n                                    \"longitude\": 2\n                                }\n                            }\n                        ]\n                    }\n                }\n            }\n        }\n    }\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "document_field_paths",
+        "document": {
+          "profile": {
+            "name": "Ada",
+            "stats": {
+              "score": 99
+            }
+          },
+          "tags": [
+            "x",
+            "y"
+          ]
+        }
+      },
+      "expected_output": "{\n    \"field_paths\": [\n        \"profile.name\",\n        \"profile.stats.score\",\n        \"tags\"\n    ]\n}\n"
+    },
+    {
+      "input": {
+        "feature": "value_mapping",
+        "operation": "extract_sentinels",
+        "document": {
+          "topDelete": {
+            "kind": "delete_field"
+          },
+          "nested": {
+            "stamp": {
+              "kind": "server_timestamp"
+            },
+            "keep": 7
+          }
+        }
+      },
+      "expected_output": "{\n    \"remaining_fields\": {\n        \"nested\": {\n            \"keep\": 7\n        }\n    },\n    \"server_timestamps\": [\n        \"nested.stamp\"\n    ],\n    \"deletes\": [\n        \"topDelete\"\n    ]\n}\n"
+    }
+  ]
+}

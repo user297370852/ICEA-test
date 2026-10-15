@@ -1,0 +1,71 @@
+{
+    "description": "Enhanced failing-result coverage: a trace with no in-file frame (location falls back to the item position, line 0), multiple in-file frames where the last one in stream order anchors the diagnostic, non-frame header text carrying angle brackets that must be HTML-escaped, an inner-class frame whose '$' is preserved in the navigable link, an assertion-style 'expected:<x> but was:<y>' header, and blank lines embedded in the trace block that must be dropped.",
+    "cases": [
+        {
+            "input": {
+                "testKind": "JUnit",
+                "item": {
+                    "id": "lib@p.LibOnlyTest#fails",
+                    "uri": "/mock/test/LibOnlyTest.java"
+                },
+                "runnerOutput": "%TESTC  1 v2\n%TSTTREE1,fails(p.LibOnlyTest),false,1,false,-1,fails(p.LibOnlyTest),,\n%TESTS  1,fails(p.LibOnlyTest)\n%FAILED 1,fails(p.LibOnlyTest)\n%TRACES \njava.lang.AssertionError: boom\nat org.junit.Assert.fail(Assert.java:100)\nat org.junit.Assert.assertEquals(Assert.java:115)\n%TRACEE \n%TESTE  1,fails(p.LibOnlyTest)\n%RUNTIME9"
+            },
+            "expected_output": "started=lib@p.LibOnlyTest#fails\nfailed=lib@p.LibOnlyTest#fails\nmessage.location.line=0\nmessage:\njava.lang.AssertionError: boom\nat org.junit.Assert.fail([Assert.java:100](command:_java.test.openStackTrace?%5B%22at%20org.junit.Assert.fail(Assert.java%3A100)%22%2C%22lib%22%5D))\nat org.junit.Assert.assertEquals([Assert.java:115](command:_java.test.openStackTrace?%5B%22at%20org.junit.Assert.assertEquals(Assert.java%3A115)%22%2C%22lib%22%5D))\n"
+        },
+        {
+            "input": {
+                "testKind": "JUnit",
+                "item": {
+                    "id": "deep@p.DeepTest#deep",
+                    "uri": "/mock/test/DeepTest.java"
+                },
+                "runnerOutput": "%TESTC  1 v2\n%TSTTREE1,deep(p.DeepTest),false,1,false,-1,deep(p.DeepTest),,\n%TESTS  1,deep(p.DeepTest)\n%FAILED 1,deep(p.DeepTest)\n%TRACES \njava.lang.AssertionError\nat p.DeepTest.helper(DeepTest.java:50)\nat p.DeepTest.deep(DeepTest.java:30)\n%TRACEE \n%TESTE  1,deep(p.DeepTest)\n%RUNTIME10"
+            },
+            "expected_output": "started=deep@p.DeepTest#deep\nfailed=deep@p.DeepTest#deep\nmessage.location.line=29\nmessage:\njava.lang.AssertionError\nat p.DeepTest.helper([DeepTest.java:50](command:_java.test.openStackTrace?%5B%22at%20p.DeepTest.helper(DeepTest.java%3A50)%22%2C%22deep%22%5D))\nat p.DeepTest.deep([DeepTest.java:30](command:_java.test.openStackTrace?%5B%22at%20p.DeepTest.deep(DeepTest.java%3A30)%22%2C%22deep%22%5D))\n"
+        },
+        {
+            "input": {
+                "testKind": "JUnit",
+                "item": {
+                    "id": "esc@p.EscapeTest#t",
+                    "uri": "/mock/test/EscapeTest.java"
+                },
+                "runnerOutput": "%TESTC  1 v2\n%TSTTREE1,t(p.EscapeTest),false,1,false,-1,t(p.EscapeTest),,\n%TESTS  1,t(p.EscapeTest)\n%FAILED 1,t(p.EscapeTest)\n%TRACES \njava.lang.RuntimeException: got <null> inside <List>\nat p.EscapeTest.t(EscapeTest.java:21)\n%TRACEE \n%TESTE  1,t(p.EscapeTest)\n%RUNTIME8"
+            },
+            "expected_output": "started=esc@p.EscapeTest#t\nfailed=esc@p.EscapeTest#t\nmessage.location.line=20\nmessage:\njava.lang.RuntimeException: got &lt;null&gt; inside &lt;List&gt;\nat p.EscapeTest.t([EscapeTest.java:21](command:_java.test.openStackTrace?%5B%22at%20p.EscapeTest.t(EscapeTest.java%3A21)%22%2C%22esc%22%5D))\n"
+        },
+        {
+            "input": {
+                "testKind": "JUnit",
+                "item": {
+                    "id": "inner@p.OuterT$InnerT#run",
+                    "uri": "/mock/test/OuterT.java"
+                },
+                "runnerOutput": "%TESTC  1 v2\n%TSTTREE1,run(p.OuterT$InnerT),false,1,false,-1,run(p.OuterT$InnerT),,\n%TESTS  1,run(p.OuterT$InnerT)\n%FAILED 1,run(p.OuterT$InnerT)\n%TRACES \njava.lang.AssertionError\nat p.OuterT$InnerT.run(OuterT.java:12)\n%TRACEE \n%TESTE  1,run(p.OuterT$InnerT)\n%RUNTIME5"
+            },
+            "expected_output": "started=inner@p.OuterT$InnerT#run\nfailed=inner@p.OuterT$InnerT#run\nmessage.location.line=11\nmessage:\njava.lang.AssertionError\nat p.OuterT$InnerT.run([OuterT.java:12](command:_java.test.openStackTrace?%5B%22at%20p.OuterT%24InnerT.run(OuterT.java%3A12)%22%2C%22inner%22%5D))\n"
+        },
+        {
+            "input": {
+                "testKind": "JUnit",
+                "item": {
+                    "id": "cmp@p.AssertTest#cmp",
+                    "uri": "/mock/test/AssertTest.java"
+                },
+                "runnerOutput": "%TESTC  1 v2\n%TSTTREE1,cmp(p.AssertTest),false,1,false,-1,cmp(p.AssertTest),,\n%TESTS  1,cmp(p.AssertTest)\n%FAILED 1,cmp(p.AssertTest)\n%TRACES \norg.junit.ComparisonFailure: expected:<42> but was:<43>\nat p.AssertTest.cmp(AssertTest.java:20)\n%TRACEE \n%TESTE  1,cmp(p.AssertTest)\n%RUNTIME13"
+            },
+            "expected_output": "started=cmp@p.AssertTest#cmp\nfailed=cmp@p.AssertTest#cmp\nmessage.location.line=19\nmessage:\norg.junit.ComparisonFailure: expected:&lt;42&gt; but was:&lt;43&gt;\nat p.AssertTest.cmp([AssertTest.java:20](command:_java.test.openStackTrace?%5B%22at%20p.AssertTest.cmp(AssertTest.java%3A20)%22%2C%22cmp%22%5D))\n"
+        },
+        {
+            "input": {
+                "testKind": "JUnit",
+                "item": {
+                    "id": "blank@p.BlankTraceTest#b",
+                    "uri": "/mock/test/BlankTraceTest.java"
+                },
+                "runnerOutput": "%TESTC  1 v2\n%TSTTREE1,b(p.BlankTraceTest),false,1,false,-1,b(p.BlankTraceTest),,\n%TESTS  1,b(p.BlankTraceTest)\n%FAILED 1,b(p.BlankTraceTest)\n%TRACES \njava.lang.AssertionError\n\nat p.BlankTraceTest.b(BlankTraceTest.java:33)\n\n%TRACEE \n%TESTE  1,b(p.BlankTraceTest)\n%RUNTIME6"
+            },
+            "expected_output": "started=blank@p.BlankTraceTest#b\nfailed=blank@p.BlankTraceTest#b\nmessage.location.line=32\nmessage:\njava.lang.AssertionError\nat p.BlankTraceTest.b([BlankTraceTest.java:33](command:_java.test.openStackTrace?%5B%22at%20p.BlankTraceTest.b(BlankTraceTest.java%3A33)%22%2C%22blank%22%5D))\n"
+        }
+    ]
+}

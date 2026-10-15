@@ -1,0 +1,75 @@
+{
+  "description": "Disjoint write request variations: payload separation of reserved sudo option, plain bodies without impersonation, DELETE query placement of non-reserved fields, empty payloads, and multipart form rendering for create and replace.",
+  "cases": [
+    {
+      "input": {
+        "feature": "write requests",
+        "verb": "create",
+        "payload": {
+          "sudo": "admin",
+          "title": "hi"
+        }
+      },
+      "expected_output": "http_method=POST\nurl=test\nquery=\nbody={\"title\":\"hi\"}\nsudo=admin\nresult={\"accepted\":true}\n"
+    },
+    {
+      "input": {
+        "feature": "write requests",
+        "verb": "replace",
+        "payload": {
+          "name": "X"
+        }
+      },
+      "expected_output": "http_method=PUT\nurl=test\nquery=\nbody={\"name\":\"X\"}\nsudo=\nresult={\"accepted\":true}\n"
+    },
+    {
+      "input": {
+        "feature": "write requests",
+        "verb": "delete",
+        "payload": {
+          "reason": "cleanup"
+        }
+      },
+      "expected_output": "http_method=DELETE\nurl=test\nquery={\"reason\":\"cleanup\"}\nbody=\nsudo=\nresult={\"accepted\":true}\n"
+    },
+    {
+      "input": {
+        "feature": "write requests",
+        "verb": "create",
+        "payload": {}
+      },
+      "expected_output": "http_method=POST\nurl=test\nquery=\nbody={}\nsudo=\nresult={\"accepted\":true}\n"
+    },
+    {
+      "input": {
+        "feature": "write requests",
+        "verb": "delete",
+        "payload": {}
+      },
+      "expected_output": "http_method=DELETE\nurl=test\nquery={}\nbody=\nsudo=\nresult={\"accepted\":true}\n"
+    },
+    {
+      "input": {
+        "feature": "write requests",
+        "verb": "create",
+        "payload": {
+          "isForm": true,
+          "name": "file",
+          "data": "x"
+        }
+      },
+      "expected_output": "http_method=POST\nurl=test\nquery=\nbody=\"[multipart_form]\"\nsudo=\nresult={\"accepted\":true}\n"
+    },
+    {
+      "input": {
+        "feature": "write requests",
+        "verb": "replace",
+        "payload": {
+          "isForm": true,
+          "x": 1
+        }
+      },
+      "expected_output": "http_method=PUT\nurl=test\nquery=\nbody=\"[multipart_form]\"\nsudo=\nresult={\"accepted\":true}\n"
+    }
+  ]
+}

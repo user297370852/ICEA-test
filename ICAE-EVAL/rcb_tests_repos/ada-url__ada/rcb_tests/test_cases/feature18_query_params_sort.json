@@ -1,0 +1,127 @@
+{
+    "description": "Stably sort query parameters by key using a comparison over Unicode code units, preserving the relative order of pairs that share a key. After sorting, the pairs are observable in key order, with equal keys keeping their original insertion order and empty keys or empty values handled like any other.",
+    "cases": [
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "bbb",
+                        "value": "second"
+                    },
+                    {
+                        "op": "append",
+                        "key": "aaa",
+                        "value": "first"
+                    },
+                    {
+                        "op": "append",
+                        "key": "ccc",
+                        "value": "third"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "sort"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "size=3\nto_string=aaa=first&bbb=second&ccc=third\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "z=b&a=b&z=a&a=a",
+                "steps": [
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "sort"
+                    },
+                    {
+                        "op": "entries"
+                    }
+                ]
+            },
+            "expected_output": "size=4\nentries\na=b\na=a\nz=b\nz=a\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "bbb&bb&aaa&aa=x&aa=y",
+                "steps": [
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "sort"
+                    },
+                    {
+                        "op": "entries"
+                    }
+                ]
+            },
+            "expected_output": "size=5\nentries\naa=x\naa=y\naaa=\nbb=\nbbb=\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "z=z&=f&=t&=x",
+                "steps": [
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "sort"
+                    },
+                    {
+                        "op": "entries"
+                    }
+                ]
+            },
+            "expected_output": "size=4\nentries\n=f\n=t\n=x\nz=z\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g",
+                "steps": [
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "sort"
+                    },
+                    {
+                        "op": "entries"
+                    }
+                ]
+            },
+            "expected_output": "size=14\nentries\na=a\na=b\na=c\na=d\na=e\na=f\na=g\nz=z\nz=y\nz=x\nz=w\nz=v\nz=u\nz=t\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "ﬃ&🌈",
+                "steps": [
+                    {
+                        "op": "sort"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "keys"
+                    }
+                ]
+            },
+            "expected_output": "size=2\nkeys=🌈\nﬃ\n"
+        }
+    ]
+}

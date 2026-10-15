@@ -1,0 +1,34 @@
+{
+    "description": "A relationship may be declared with a built-in scope, i.e. a fixed filter baked into the relationship itself so that loading it only ever returns linked records matching that filter. Loads of a scoped relationship batch together (one round-trip) just like an unscoped one and honor row caps the same way (mixed caps split into separate round-trips). A scoped load may also be requested in raw mode, which cannot share a round-trip with a non-raw load. Two DIFFERENT relationships between the same pair of records (e.g. the scoped one and the unscoped one) never share a round-trip. The reported signals are the round-trip count, the owner-key set per round-trip, and the id set returned to each owner (raw rows are reported by their ids just like hydrated records).",
+    "cases": [
+        {
+            "input": {
+                "scenario": "scope_target",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "awesomeMembers",
+                        "options": {
+                            "limit": 10
+                        }
+                    },
+                    {
+                        "project": 2,
+                        "as": "awesomeMembers",
+                        "options": {
+                            "limit": 10
+                        }
+                    },
+                    {
+                        "project": 3,
+                        "as": "awesomeMembers",
+                        "options": {
+                            "limit": 2
+                        }
+                    }
+                ]
+            },
+            "expected_output": "queries=2\nbatch=1,2\nbatch=3\nr0.op0=members=102,103\nr0.op1=members=105,107\nr0.op2=members=107,108\n"
+        }
+    ]
+}

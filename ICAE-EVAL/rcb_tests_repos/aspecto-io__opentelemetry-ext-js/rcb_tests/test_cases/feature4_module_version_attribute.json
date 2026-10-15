@@ -1,0 +1,49 @@
+{
+    "description": "When a module-version attribute name is configured, every emitted span (producer and consumer alike) carries an attribute under that name whose value is the instrumented client library version string.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "moduleVersionAttribute": "module.version"
+                },
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "testing message content"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "success",
+                            "records": []
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=ok result_records=0\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  module.version=<version>\n"
+        },
+        {
+            "input": {
+                "config": {
+                    "moduleVersionAttribute": "module.version"
+                },
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "resolve"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=ok error=none\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n  module.version=<version>\n"
+        }
+    ]
+}

@@ -1,0 +1,50 @@
+{
+  "description": "Boundary coverage for global error events: provided columns, missing URLs, string and object rejection reasons, and the optional-period cross-origin script-error placeholder.",
+  "cases": [
+    {
+      "input": {
+        "kind": "global_error",
+        "message": "fallback msg",
+        "url": "https://site.test/app.js",
+        "line": "42",
+        "column": "7"
+      },
+      "expected_output": "notify_count=1\nname=window.onerror\nmessage=fallback msg\nstack=fallback msg\n    at ? (https://site.test/app.js:42:7)\nbreadcrumb_count=1\nbreadcrumb_message=window.onerror\nbreadcrumb_category=error\n"
+    },
+    {
+      "input": {
+        "kind": "unhandled_rejection",
+        "reasonSpecified": true,
+        "reason": "plain string reason"
+      },
+      "expected_output": "notify_count=1\nname=window.onunhandledrejection\nmessage=UnhandledPromiseRejectionWarning: plain string reason\nstack=none\nbreadcrumb_count=0\nbreadcrumb_message=none\nbreadcrumb_category=none\n"
+    },
+    {
+      "input": {
+        "kind": "global_error",
+        "message": "Script error.",
+        "url": "https://x.test/",
+        "line": 0
+      },
+      "expected_output": "notify_count=0\nname=none\nmessage=none\nstack=none\nbreadcrumb_count=0\nbreadcrumb_message=none\nbreadcrumb_category=none\n"
+    },
+    {
+      "input": {
+        "kind": "global_error",
+        "message": "no url err",
+        "line": "9"
+      },
+      "expected_output": "notify_count=1\nname=window.onerror\nmessage=no url err\nstack=no url err\n    at ? (unknown:9:0)\nbreadcrumb_count=1\nbreadcrumb_message=window.onerror\nbreadcrumb_category=error\n"
+    },
+    {
+      "input": {
+        "kind": "unhandled_rejection",
+        "reasonSpecified": true,
+        "reason": {
+          "code": 42
+        }
+      },
+      "expected_output": "notify_count=1\nname=window.onunhandledrejection\nmessage=UnhandledPromiseRejectionWarning: {\"code\":42}\nstack=none\nbreadcrumb_count=0\nbreadcrumb_message=none\nbreadcrumb_category=none\n"
+    }
+  ]
+}

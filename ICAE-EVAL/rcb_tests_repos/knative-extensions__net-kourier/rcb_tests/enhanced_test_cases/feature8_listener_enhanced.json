@@ -1,0 +1,45 @@
+{
+  "description": "Enhanced listener coverage for low and high port boundaries, verbatim TLS material containing PEM-like delimiters, and SNI sorting with multi-host matches and non-input-order server names.",
+  "cases": [
+    {
+      "input": {
+        "op": "http_listener",
+        "port": 1
+      },
+      "expected_output": "listener=listener_1\nprotocol=TCP\naddress=0.0.0.0\nport=1\ntls=false\n"
+    },
+    {
+      "input": {
+        "op": "https_listener",
+        "port": 65535,
+        "certificate_chain": "-----BEGIN CERT-----ABC123-----END CERT-----",
+        "private_key": "-----BEGIN KEY-----XYZ789-----END KEY-----"
+      },
+      "expected_output": "listener=listener_65535\nprotocol=TCP\naddress=0.0.0.0\nport=65535\ntls=true\ncertificate_chain=-----BEGIN CERT-----ABC123-----END CERT-----\nprivate_key=-----BEGIN KEY-----XYZ789-----END KEY-----\n"
+    },
+    {
+      "input": {
+        "op": "sni_listener",
+        "port": 9443,
+        "sni_matches": [
+          {
+            "hosts": [
+              "z.example.com",
+              "a.example.com"
+            ],
+            "certificate_chain": "cert-z",
+            "private_key": "key-z"
+          },
+          {
+            "hosts": [
+              "m.example.com"
+            ],
+            "certificate_chain": "cert-m",
+            "private_key": "key-m"
+          }
+        ]
+      },
+      "expected_output": "listener=listener_9443\nprotocol=TCP\naddress=0.0.0.0\nport=9443\ntls_inspector=true\nsni server_names=m.example.com certificate_chain=cert-m private_key=key-m\nsni server_names=z.example.com,a.example.com certificate_chain=cert-z private_key=key-z\n"
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "description": "Boundary and edge serialization of positional AMQP method arguments: min/max fixed-width integers (octet, short, long, long-long), empty short/long strings and byte arrays, bit-packing run flush at exactly 8 bits and across a byte boundary, a single trailing bit, bit runs that do not start the stream, negative/zero floats, and the epoch timestamp.",
+  "cases": [
+    {
+      "input": {
+        "op": "encode",
+        "format": "oBlL",
+        "values": [
+          {
+            "t": "int",
+            "v": 0
+          },
+          {
+            "t": "int",
+            "v": 0
+          },
+          {
+            "t": "int",
+            "v": 0
+          },
+          {
+            "t": "int",
+            "v": 0
+          }
+        ]
+      },
+      "expected_output": "wire=000000000000000000000000000000"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "oBlL",
+        "values": [
+          {
+            "t": "int",
+            "v": 255
+          },
+          {
+            "t": "int",
+            "v": 65535
+          },
+          {
+            "t": "int",
+            "v": 4294967295
+          },
+          {
+            "t": "int",
+            "v": 281474976710655
+          }
+        ]
+      },
+      "expected_output": "wire=ffffffffffffff0000ffffffffffff"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "sSx",
+        "values": [
+          {
+            "t": "str",
+            "v": ""
+          },
+          {
+            "t": "str",
+            "v": ""
+          },
+          {
+            "t": "bytes",
+            "v": ""
+          }
+        ]
+      },
+      "expected_output": "wire=000000000000000000"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "bbbbbbbbo",
+        "values": [
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "int",
+            "v": 1
+          }
+        ]
+      },
+      "expected_output": "wire=ff01"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "bbbbbbbbb",
+        "values": [
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": true
+          }
+        ]
+      },
+      "expected_output": "wire=ff01"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "ob",
+        "values": [
+          {
+            "t": "int",
+            "v": 7
+          },
+          {
+            "t": "bool",
+            "v": true
+          }
+        ]
+      },
+      "expected_output": "wire=0701"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "Bbbbl",
+        "values": [
+          {
+            "t": "int",
+            "v": 513
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "bool",
+            "v": false
+          },
+          {
+            "t": "bool",
+            "v": true
+          },
+          {
+            "t": "int",
+            "v": 66
+          }
+        ]
+      },
+      "expected_output": "wire=02010500000042"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "ff",
+        "values": [
+          {
+            "t": "float",
+            "v": -1.5
+          },
+          {
+            "t": "float",
+            "v": 0.0
+          }
+        ]
+      },
+      "expected_output": "wire=bfc0000000000000"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "T",
+        "values": [
+          {
+            "t": "datetime",
+            "v": "1970-01-01T00:00:00"
+          }
+        ]
+      },
+      "expected_output": "wire=0000000000000000"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "s",
+        "values": [
+          {
+            "t": "str",
+            "v": "éèê"
+          }
+        ]
+      },
+      "expected_output": "wire=06c3a9c3a8c3aa"
+    }
+  ]
+}

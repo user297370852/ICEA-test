@@ -1,0 +1,38 @@
+{
+    "description": "With tag-based polymorphism, the concrete type of a value is selected from a YAML type tag (!<typeName>); the matching subtype is decoded, an untagged value fails with a normalized missing-type-tag signal, and an unrecognized tag fails with a normalized unknown-type error listing known types.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "shape": "shape",
+                "document": "!<sealedString>\nvalue: \"asdfg\"",
+                "config": {
+                    "polymorphismStyle": "tag"
+                }
+            },
+            "expected_output": "{\"kind\":\"sealedString\",\"value\":\"asdfg\"}"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "shape-wrapper",
+                "document": "element:\n  value: \"asdfg\"",
+                "config": {
+                    "polymorphismStyle": "tag"
+                }
+            },
+            "expected_output": "error=invalid_property_value\nproperty=element\nreason=Value is missing a type tag (eg. !<type>)\nline=2\ncolumn=3\ncause=missing_type_tag"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "shape",
+                "document": "!<someOtherType> 42",
+                "config": {
+                    "polymorphismStyle": "tag"
+                }
+            },
+            "expected_output": "error=unknown_type\ntype=someOtherType\nknown=inlineString, sealedInt, sealedString\nline=1\ncolumn=1"
+        }
+    ]
+}

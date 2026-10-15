@@ -1,0 +1,118 @@
+{
+  "description": "Enhanced result inspection: a defensive optional read of a present scalar, iteration that lists present options in command-line order followed by a default-supplying option, repeated scalar option counting with last-value-wins, and a strict typed read of an unset option reported as option_has_no_value.",
+  "cases": [
+    {
+      "input": {
+        "program": "optpresent",
+        "options": [
+          {
+            "opts": "num",
+            "type": "int"
+          },
+          {
+            "opts": "miss",
+            "type": "int"
+          }
+        ],
+        "argv": [
+          "--num",
+          "7"
+        ],
+        "queries": [
+          {
+            "q": "optional",
+            "name": "num",
+            "type": "int"
+          },
+          {
+            "q": "optional",
+            "name": "miss",
+            "type": "int"
+          }
+        ]
+      },
+      "expected_output": "optional[num]=7\noptional[miss]=<none>"
+    },
+    {
+      "input": {
+        "program": "iter",
+        "options": [
+          {
+            "opts": "one"
+          },
+          {
+            "opts": "two",
+            "type": "string"
+          },
+          {
+            "opts": "def",
+            "type": "int",
+            "default": "5"
+          }
+        ],
+        "argv": [
+          "--two",
+          "x",
+          "--one"
+        ],
+        "queries": [
+          {
+            "q": "iterate"
+          }
+        ]
+      },
+      "expected_output": "iter=two:x\niter=one:true\niter=def:5\niter_end"
+    },
+    {
+      "input": {
+        "program": "repeat",
+        "options": [
+          {
+            "opts": "k",
+            "type": "int"
+          }
+        ],
+        "argv": [
+          "-k",
+          "1",
+          "-k",
+          "2",
+          "-k",
+          "3"
+        ],
+        "queries": [
+          {
+            "q": "count",
+            "name": "k"
+          },
+          {
+            "q": "value",
+            "name": "k",
+            "type": "int"
+          }
+        ]
+      },
+      "expected_output": "count[k]=3\nvalue[k]=3"
+    },
+    {
+      "input": {
+        "program": "novalue",
+        "options": [
+          {
+            "opts": "empty",
+            "type": "double"
+          }
+        ],
+        "argv": [],
+        "queries": [
+          {
+            "q": "value",
+            "name": "empty",
+            "type": "double"
+          }
+        ]
+      },
+      "expected_output": "error=option_has_no_value\nparam=empty"
+    }
+  ]
+}

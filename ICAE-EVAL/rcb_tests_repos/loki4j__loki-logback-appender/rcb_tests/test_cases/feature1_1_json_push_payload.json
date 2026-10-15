@@ -1,0 +1,86 @@
+{
+    "description": "Serializes log records into the JSON push wire format, grouping records by equal label sets and preserving each record timestamp and line.",
+    "cases": [
+        {
+            "input": {
+                "operation": "json_batch",
+                "capacity": 1000,
+                "records": [
+                    {
+                        "timestamp_ms": 3000,
+                        "nanos": 1,
+                        "labels": {
+                            "level": "DEBUG",
+                            "app": "my-app"
+                        },
+                        "message": "l=DEBUG c=test.TestApp t=thread-2 | Test message 2"
+                    },
+                    {
+                        "timestamp_ms": 1000,
+                        "nanos": 2,
+                        "labels": {
+                            "level": "INFO",
+                            "app": "my-app"
+                        },
+                        "message": "l=INFO c=test.TestApp t=thread-1 | Test message 1"
+                    },
+                    {
+                        "timestamp_ms": 2000,
+                        "nanos": 3,
+                        "labels": {
+                            "level": "INFO",
+                            "app": "my-app"
+                        },
+                        "message": "l=INFO c=test.TestApp t=thread-3 | Test message 4"
+                    },
+                    {
+                        "timestamp_ms": 5000,
+                        "nanos": 4,
+                        "labels": {
+                            "level": "INFO",
+                            "app": "my-app"
+                        },
+                        "message": "l=INFO c=test.TestApp t=thread-1 | Test message 3"
+                    }
+                ]
+            },
+            "expected_output": "{\"streams\":[{\"stream\":{\"level\":\"DEBUG\",\"app\":\"my-app\"},\"values\":[[\"3000000001\",\"l=DEBUG c=test.TestApp t=thread-2 | Test message 2\"]]},{\"stream\":{\"level\":\"INFO\",\"app\":\"my-app\"},\"values\":[[\"1000000002\",\"l=INFO c=test.TestApp t=thread-1 | Test message 1\"],[\"2000000003\",\"l=INFO c=test.TestApp t=thread-3 | Test message 4\"],[\"5000000004\",\"l=INFO c=test.TestApp t=thread-1 | Test message 3\"]]}]}"
+        },
+        {
+            "input": {
+                "operation": "json_batch",
+                "capacity": 1000,
+                "records": [
+                    {
+                        "timestamp_ms": 100,
+                        "nanos": 0,
+                        "labels": {
+                            "level": "INFO",
+                            "app": "my-app"
+                        },
+                        "message": "l=INFO c=test.TestApp t=thread-1 | Test message"
+                    }
+                ]
+            },
+            "expected_output": "{\"streams\":[{\"stream\":{\"level\":\"INFO\",\"app\":\"my-app\"},\"values\":[[\"100000000\",\"l=INFO c=test.TestApp t=thread-1 | Test message\"]]}]}"
+        },
+        {
+            "input": {
+                "operation": "json_batch",
+                "capacity": 1000,
+                "records": [
+                    {
+                        "timestamp_ms": 100,
+                        "nanos": 0,
+                        "labels": {
+                            "level": "INFO",
+                            "app": "my-app"
+                        },
+                        "message": "спец !@#$%^&*()\" \n\tсимволы <>?/\\№ё:{}[]🏁"
+                    }
+                ]
+            },
+            "expected_output": "{\"streams\":[{\"stream\":{\"level\":\"INFO\",\"app\":\"my-app\"},\"values\":[[\"100000000\",\"спец !@#$%^&*()\\\" \\n\\tсимволы <>?/\\\\№ё:{}[]🏁\"]]}]}"
+        }
+    ]
+}

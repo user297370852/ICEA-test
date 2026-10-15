@@ -1,0 +1,191 @@
+{
+  "description": "Enhanced boundary coverage for typed argument parsing: booleans parsed case-insensitively but rendered lowercase, negative and maximum int values, an unmatched declared option dropped from the result, multiple options matched and reported in declaration order, case-insensitive matching of both short and long switches, the same option supplied twice with the last value winning, and no matching tokens yielding a zero count.",
+  "cases": [
+    {
+      "input": {
+        "options": [
+          {
+            "name": "MyBool",
+            "short": "-b",
+            "switch": "--bool",
+            "type": "bool"
+          }
+        ],
+        "args": [
+          "-b",
+          "True"
+        ]
+      },
+      "expected_output": "count=1\nname=MyBool\ntype=bool\nvalue=true\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "MyBool",
+            "short": "-b",
+            "switch": "--bool",
+            "type": "bool"
+          }
+        ],
+        "args": [
+          "--bool",
+          "FALSE"
+        ]
+      },
+      "expected_output": "count=1\nname=MyBool\ntype=bool\nvalue=false\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "MyInt",
+            "short": "-i",
+            "switch": "--integer",
+            "type": "int"
+          }
+        ],
+        "args": [
+          "-i",
+          "-42"
+        ]
+      },
+      "expected_output": "count=1\nname=MyInt\ntype=int\nvalue=-42\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "MyInt",
+            "short": "-i",
+            "switch": "--integer",
+            "type": "int"
+          }
+        ],
+        "args": [
+          "--integer",
+          "2147483647"
+        ]
+      },
+      "expected_output": "count=1\nname=MyInt\ntype=int\nvalue=2147483647\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "Configuration",
+            "short": "-c",
+            "switch": "--configuration",
+            "type": "string"
+          },
+          {
+            "name": "MyInt",
+            "short": "-i",
+            "switch": "--integer",
+            "type": "int"
+          }
+        ],
+        "args": [
+          "-c",
+          "Release"
+        ]
+      },
+      "expected_output": "count=1\nname=Configuration\ntype=string\nvalue=Release\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "Configuration",
+            "short": "-c",
+            "switch": "--configuration",
+            "type": "string"
+          },
+          {
+            "name": "MyInt",
+            "short": "-i",
+            "switch": "--integer",
+            "type": "int"
+          }
+        ],
+        "args": [
+          "--configuration",
+          "Debug",
+          "-i",
+          "7"
+        ]
+      },
+      "expected_output": "count=2\nname=Configuration\ntype=string\nvalue=Debug\nname=MyInt\ntype=int\nvalue=7\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "Configuration",
+            "short": "-c",
+            "switch": "--configuration",
+            "type": "string"
+          }
+        ],
+        "args": [
+          "-C",
+          "Release"
+        ]
+      },
+      "expected_output": "count=1\nname=Configuration\ntype=string\nvalue=Release\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "Configuration",
+            "short": "-c",
+            "switch": "--configuration",
+            "type": "string"
+          }
+        ],
+        "args": [
+          "--CONFIGURATION",
+          "Release"
+        ]
+      },
+      "expected_output": "count=1\nname=Configuration\ntype=string\nvalue=Release\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "Configuration",
+            "short": "-c",
+            "switch": "--configuration",
+            "type": "string"
+          }
+        ],
+        "args": [
+          "-c",
+          "First",
+          "-c",
+          "Second"
+        ]
+      },
+      "expected_output": "count=1\nname=Configuration\ntype=string\nvalue=Second\n"
+    },
+    {
+      "input": {
+        "options": [
+          {
+            "name": "Configuration",
+            "short": "-c",
+            "switch": "--configuration",
+            "type": "string"
+          }
+        ],
+        "args": [
+          "foo",
+          "bar"
+        ]
+      },
+      "expected_output": "count=0\n"
+    }
+  ]
+}

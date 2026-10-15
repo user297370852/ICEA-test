@@ -1,0 +1,78 @@
+{
+  "description": "Boundary coverage for route reduction: a lone lock state, multiple navigation routes recorded without de-duplication, an OpenWebsite SystemIntent still emitted to subscribers before being trimmed from history, a repeated welcome/item_list/welcome sequence, and interleaved data states mapped to screens.",
+  "cases": [
+    {
+      "input": {
+        "feature": "route_reducer",
+        "events": [
+          {
+            "event": "state_locked"
+          }
+        ]
+      },
+      "expected_output": "routes=lock_screen\n"
+    },
+    {
+      "input": {
+        "feature": "route_reducer",
+        "events": [
+          {
+            "event": "route_item_list"
+          },
+          {
+            "event": "route_welcome"
+          }
+        ]
+      },
+      "expected_output": "routes=item_list,welcome\n"
+    },
+    {
+      "input": {
+        "feature": "route_reducer",
+        "events": [
+          {
+            "event": "open_website"
+          },
+          {
+            "event": "route_welcome"
+          }
+        ]
+      },
+      "expected_output": "routes=open_website,welcome\n"
+    },
+    {
+      "input": {
+        "feature": "route_reducer",
+        "events": [
+          {
+            "event": "route_welcome"
+          },
+          {
+            "event": "route_item_list"
+          },
+          {
+            "event": "route_welcome"
+          }
+        ]
+      },
+      "expected_output": "routes=welcome,item_list,welcome\n"
+    },
+    {
+      "input": {
+        "feature": "route_reducer",
+        "events": [
+          {
+            "event": "state_unprepared"
+          },
+          {
+            "event": "state_locked"
+          },
+          {
+            "event": "state_unlocked"
+          }
+        ]
+      },
+      "expected_output": "routes=welcome,lock_screen,item_list\n"
+    }
+  ]
+}

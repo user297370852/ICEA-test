@@ -1,0 +1,166 @@
+{
+    "description": "Compose nested filter groups and inject pre-built raw filter fragments. A group request wraps a set of inner conditions inside a single logical operator: \"all\" yields an AND group, \"any\" yields an OR group, and \"none\" yields a NOT group. Groups may be combined with each other and with top-level conditions, producing properly nested wire output. A raw fragment is inserted verbatim with no escaping, and raw fragments combine with ordinary conditions following the same conjunction/disjunction wrapping rules. Output reports the escaped wire filter and its unescaped readable form.",
+    "cases": [
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "group": "any",
+                        "terms": [
+                            {
+                                "field": "one",
+                                "match": "equals",
+                                "value": "one"
+                            },
+                            {
+                                "field": "two",
+                                "match": "equals",
+                                "value": "two"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "query=(|(one=\\6f\\6e\\65)(two=\\74\\77\\6f))\nunescaped=(|(one=one)(two=two))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "group": "all",
+                        "terms": [
+                            {
+                                "field": "one",
+                                "match": "equals",
+                                "value": "one"
+                            },
+                            {
+                                "field": "two",
+                                "match": "equals",
+                                "value": "two"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "query=(&(one=\\6f\\6e\\65)(two=\\74\\77\\6f))\nunescaped=(&(one=one)(two=two))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "group": "none",
+                        "terms": [
+                            {
+                                "field": "one",
+                                "match": "equals",
+                                "value": "one"
+                            },
+                            {
+                                "field": "two",
+                                "match": "equals",
+                                "value": "two"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "query=(!(one=\\6f\\6e\\65)(two=\\74\\77\\6f))\nunescaped=(!(one=one)(two=two))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "group": "any",
+                        "terms": [
+                            {
+                                "field": "one",
+                                "match": "equals",
+                                "value": "one"
+                            },
+                            {
+                                "field": "two",
+                                "match": "equals",
+                                "value": "two"
+                            }
+                        ]
+                    },
+                    {
+                        "group": "all",
+                        "terms": [
+                            {
+                                "field": "three",
+                                "match": "equals",
+                                "value": "three"
+                            },
+                            {
+                                "field": "four",
+                                "match": "equals",
+                                "value": "four"
+                            }
+                        ]
+                    },
+                    {
+                        "field": "five",
+                        "match": "equals",
+                        "value": "five"
+                    },
+                    {
+                        "field": "six",
+                        "match": "equals",
+                        "value": "six"
+                    }
+                ]
+            },
+            "expected_output": "query=(&(|(one=\\6f\\6e\\65)(two=\\74\\77\\6f))(&(three=\\74\\68\\72\\65\\65)(four=\\66\\6f\\75\\72))(five=\\66\\69\\76\\65)(six=\\73\\69\\78))\nunescaped=(&(|(one=one)(two=two))(&(three=three)(four=four))(five=five)(six=six))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "raw": "(field=value)"
+                    }
+                ]
+            },
+            "expected_output": "query=(field=value)\nunescaped=(field=value)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "raw": "(raw=value)"
+                    },
+                    {
+                        "field": "foo",
+                        "match": "equals",
+                        "value": "bar"
+                    },
+                    {
+                        "field": "fee",
+                        "match": "equals",
+                        "value": "lar"
+                    },
+                    {
+                        "bool": "or",
+                        "field": "baz",
+                        "match": "equals",
+                        "value": "zax"
+                    },
+                    {
+                        "bool": "or",
+                        "field": "far",
+                        "match": "equals",
+                        "value": "zue"
+                    }
+                ]
+            },
+            "expected_output": "query=(&(raw=value)(foo=\\62\\61\\72)(fee=\\6c\\61\\72)(|(baz=\\7a\\61\\78)(far=\\7a\\75\\65)))\nunescaped=(&(raw=value)(foo=bar)(fee=lar)(|(baz=zax)(far=zue)))\n"
+        }
+    ]
+}

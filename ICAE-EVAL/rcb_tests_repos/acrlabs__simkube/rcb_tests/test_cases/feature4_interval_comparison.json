@@ -1,0 +1,17 @@
+{
+    "description": "Compare two pod active-interval values under a partial order designed for safe monotonic updates. Each value is one of 'Empty', 'Running' with a start timestamp, or 'Finished' with start and end timestamps. The right operand may also be absent (null), representing 'no value yet'. Equality holds when both sides represent the same shape and timestamps (and 'Empty' is considered equal to an absent value). The ordering rules are: 'Empty' (or absent) is less than any started value; a 'Running' value is less than a 'Finished' value ONLY when they share the same start timestamp, otherwise the two are incomparable; two 'Running' values are equal iff equal, else incomparable; two 'Finished' values are equal iff both timestamps match, else incomparable. Any started value is greater than 'Empty'/absent. Output reports 'equal=<bool>' and 'ordering=<less|greater|equal|incomparable>', where 'incomparable' means the two values have no defined order.",
+    "cases": [
+        {"input": {"action": "interval_compare", "left": {"state": "Empty"}, "right": null}, "expected_output": "equal=true\nordering=equal\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Empty"}, "right": {"state": "Running", "start": 1}}, "expected_output": "equal=false\nordering=less\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Running", "start": 1}, "right": null}, "expected_output": "equal=false\nordering=greater\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Running", "start": 1}, "right": {"state": "Empty"}}, "expected_output": "equal=false\nordering=greater\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Running", "start": 1}, "right": {"state": "Running", "start": 1}}, "expected_output": "equal=true\nordering=equal\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Running", "start": 1}, "right": {"state": "Running", "start": 2}}, "expected_output": "equal=false\nordering=incomparable\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Running", "start": 1}, "right": {"state": "Finished", "start": 1, "end": 2}}, "expected_output": "equal=false\nordering=less\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Finished", "start": 1, "end": 2}, "right": {"state": "Running", "start": 1}}, "expected_output": "equal=false\nordering=greater\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Finished", "start": 1, "end": 2}, "right": {"state": "Running", "start": 0}}, "expected_output": "equal=false\nordering=incomparable\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Finished", "start": 1, "end": 2}, "right": {"state": "Finished", "start": 1, "end": 2}}, "expected_output": "equal=true\nordering=equal\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Finished", "start": 1, "end": 2}, "right": {"state": "Finished", "start": 1, "end": 3}}, "expected_output": "equal=false\nordering=incomparable\n"},
+        {"input": {"action": "interval_compare", "left": {"state": "Finished", "start": 1, "end": 2}, "right": null}, "expected_output": "equal=false\nordering=greater\n"}
+    ]
+}

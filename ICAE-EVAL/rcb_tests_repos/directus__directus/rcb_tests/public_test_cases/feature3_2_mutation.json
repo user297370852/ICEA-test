@@ -1,0 +1,52 @@
+{
+  "description": "The local filesystem backend supports mutating operations: delete, move (rename), copy, append, and prepend. Deleting an existing file reports that a deletion occurred and the file no longer exists afterwards; deleting a missing file reports that no deletion occurred (rather than failing). Moving relocates a file so the new path exists and the old path no longer does; copying duplicates a file so both the source and destination exist. Appending adds content to the end of an existing file; prepending adds content to the front. Prepending to a path that does not yet exist creates it with just the given content. The request drives a fresh, empty root through one such scenario per case.",
+  "cases": [
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "i_will_be_deleted",
+            "content": ""
+          },
+          {
+            "action": "delete",
+            "location": "i_will_be_deleted"
+          },
+          {
+            "action": "exists",
+            "location": "i_will_be_deleted"
+          }
+        ]
+      },
+      "expected_output": "put=i_will_be_deleted\nwas_deleted=true\nexists=false\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "i_will_be_renamed",
+            "content": ""
+          },
+          {
+            "action": "move",
+            "src": "i_will_be_renamed",
+            "dest": "im_renamed"
+          },
+          {
+            "action": "exists",
+            "location": "im_renamed"
+          },
+          {
+            "action": "exists",
+            "location": "i_will_be_renamed"
+          }
+        ]
+      },
+      "expected_output": "put=i_will_be_renamed\nmoved=i_will_be_renamed->im_renamed\nexists=true\nexists=false\n"
+    }
+  ]
+}

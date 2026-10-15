@@ -1,0 +1,155 @@
+{
+  "description": "Boundary coverage for pod active-interval computation. Exercises a pod whose containers have all terminated so the interval is closed, a pod with only init containers present, a pod where an init container holds the earliest start, a pod where at least one main container has not terminated so no end is reported yet, a pod where no container has started, and timestamp ranges including negative and very large epoch-second values. The result is reported as one of the empty, running, or finished interval shapes.",
+  "cases": [
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "containers": [
+          {
+            "finished": [
+              10,
+              20
+            ]
+          },
+          {
+            "finished": [
+              15,
+              50
+            ]
+          },
+          {
+            "finished": [
+              12,
+              30
+            ]
+          }
+        ]
+      },
+      "expected_output": "state=Finished\nstart=10\nend=50\n"
+    },
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "init_containers": [
+          {
+            "finished": [
+              5,
+              8
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "finished": [
+              10,
+              20
+            ]
+          }
+        ]
+      },
+      "expected_output": "state=Finished\nstart=5\nend=20\n"
+    },
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "init_containers": [
+          {
+            "finished": [
+              100,
+              200
+            ]
+          }
+        ],
+        "containers": []
+      },
+      "expected_output": "state=Finished\nstart=100\nend=200\n"
+    },
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "containers": [
+          {
+            "finished": [
+              10,
+              20
+            ]
+          },
+          {}
+        ]
+      },
+      "expected_output": "state=Running\nstart=10\n"
+    },
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "containers": [
+          {},
+          {}
+        ]
+      },
+      "expected_output": "state=Empty\n"
+    },
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "containers": [
+          {
+            "finished": [
+              -100,
+              -50
+            ]
+          }
+        ]
+      },
+      "expected_output": "state=Finished\nstart=-100\nend=-50\n"
+    },
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "containers": [
+          {
+            "finished": [
+              4000000000,
+              4000000001
+            ]
+          }
+        ]
+      },
+      "expected_output": "state=Finished\nstart=4000000000\nend=4000000001\n"
+    },
+    {
+      "input": {
+        "action": "pod_lifecycle",
+        "init_containers": [
+          {
+            "finished": [
+              1,
+              2
+            ]
+          },
+          {
+            "finished": [
+              2,
+              3
+            ]
+          }
+        ],
+        "containers": [
+          {
+            "finished": [
+              3,
+              9
+            ]
+          },
+          {
+            "finished": [
+              3,
+              7
+            ]
+          }
+        ]
+      },
+      "expected_output": "state=Finished\nstart=1\nend=9\n"
+    }
+  ]
+}

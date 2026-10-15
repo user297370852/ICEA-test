@@ -1,0 +1,73 @@
+{
+  "description": "Beyond reading whole-file string content, the local filesystem backend exposes the same data as a byte buffer and as a readable stream, and reports file metadata. Reading as a buffer yields the raw bytes; reading as a stream reproduces the stored text; metadata reports the size and a last-modified timestamp. Each case drives a fresh, empty root.",
+  "cases": [
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "empty",
+            "content": ""
+          },
+          {
+            "action": "getBuffer",
+            "location": "empty"
+          }
+        ]
+      },
+      "expected_output": "put=empty\nis_buffer=true bytes=0\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "empty",
+            "content": ""
+          },
+          {
+            "action": "getStat",
+            "location": "empty"
+          }
+        ]
+      },
+      "expected_output": "put=empty\nsize=0 modified_is_date=true\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "ml",
+            "content": "line1\nline2\nline3"
+          },
+          {
+            "action": "getStream",
+            "location": "ml"
+          }
+        ]
+      },
+      "expected_output": "put=ml\nstream=line1\nline2\nline3\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "bin",
+            "content": "abcde"
+          },
+          {
+            "action": "getBuffer",
+            "location": "bin"
+          }
+        ]
+      },
+      "expected_output": "put=bin\nis_buffer=true bytes=5\n"
+    }
+  ]
+}

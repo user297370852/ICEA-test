@@ -1,0 +1,35 @@
+{
+    "description": "Marked partial declarations are completed by generated forwarding bodies that call the corresponding global script identifier and pass declared parameters in order.",
+    "cases": [
+        {
+            "input": {
+                "source": ""
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "source": "partial class Foo {}"
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "source": "\npartial class Foo\n{\n    [JSFunction]\n    partial void Bar ();\n}\n"
+            },
+            "expected_output": "\npartial class Foo\n{\n    partial void Bar () => JS.Invoke(\"dotnet.TestProject.Bar\");\n}\n"
+        },
+        {
+            "input": {
+                "source": "\nnamespace FileScoped;\npublic static partial class Foo\n{\n    [JSFunction]\n    private static partial Task BarAsync (string a, int b);\n}\n"
+            },
+            "expected_output": "\nnamespace FileScoped;\npublic static partial class Foo\n{\n    private static partial Task BarAsync (string a, int b) => JS.InvokeAsync(\"dotnet.TestProject.BarAsync\", a, b);\n}\n"
+        },
+        {
+            "input": {
+                "source": "\nnamespace Classic\n{\n    partial class Foo\n    {\n        [JSFunction]\n        partial DateTime GetTime (DateTime time);\n        [JSFunction]\n        partial ValueTask<DateTime> GetTimeAsync (DateTime time);\n    }\n}\n"
+            },
+            "expected_output": "\nnamespace Classic\n{\npartial class Foo\n{\n    partial DateTime GetTime (DateTime time) => JS.Invoke<DateTime>(\"dotnet.TestProject.GetTime\", time);\n    partial ValueTask<DateTime> GetTimeAsync (DateTime time) => JS.InvokeAsync<DateTime>(\"dotnet.TestProject.GetTimeAsync\", time);\n}\n}\n"
+        }
+    ]
+}

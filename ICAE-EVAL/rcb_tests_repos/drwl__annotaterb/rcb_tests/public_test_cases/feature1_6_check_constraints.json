@@ -1,0 +1,45 @@
+{
+  "description": "A check-constraints section appended after the columns when check-constraint display is enabled. Each constraint renders its name followed by its boolean expression in parentheses; a constraint with no expression shows only its name; multi-line expressions are collapsed to a single spaced line; entries are sorted by name and the name column is width-aligned. A Markdown rendering mode emits the same information as a bulleted list with code-formatted names and expressions.",
+  "cases": [
+    {
+      "input": {
+        "op": "schema",
+        "table_name": "users",
+        "primary_key": "id",
+        "options": {
+          "show_check_constraints": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "age",
+            "type": "integer",
+            "null": true
+          }
+        ],
+        "check_constraints": [
+          {
+            "name": "alive",
+            "expression": "age < 150"
+          },
+          {
+            "name": "must_be_adult",
+            "expression": "age >= 18"
+          },
+          {
+            "name": "missing_expression",
+            "expression": null
+          },
+          {
+            "name": "multiline_test",
+            "expression": "CASE\n  WHEN (age >= 18) THEN (age <= 21)\n  ELSE true\nEND\n"
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: users\n#\n#  id  :integer          not null, primary key\n#  age :integer\n#\n# Check Constraints\n#\n#  alive               (age < 150)\n#  missing_expression\n#  multiline_test      (CASE WHEN (age >= 18) THEN (age <= 21) ELSE true END)\n#  must_be_adult       (age >= 18)\n#\n"
+    }
+  ]
+}

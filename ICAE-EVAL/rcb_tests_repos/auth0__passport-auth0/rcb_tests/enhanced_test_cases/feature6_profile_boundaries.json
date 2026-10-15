@@ -1,0 +1,88 @@
+{
+  "description": "Profile normalization boundaries: a plural emails array maps every entry into the email collection; a record carrying both user-id and subject prefers the user-id as identifier; an identities list supplies the provider even when the identifier has no vertical-bar prefix; the first of several identity entries wins; a record with only a family name leaves the given name absent; and a non-string numeric identifier is kept verbatim but yields no provider.",
+  "cases": [
+    {
+      "input": {
+        "op": "profile",
+        "data": {
+          "sub": "plain",
+          "emails": [
+            "a@x.com",
+            "b@x.com"
+          ]
+        }
+      },
+      "expected_output": "id=plain\nuser_id=plain\ndisplayName=(none)\nprovider=(none)\ngivenName=(none)\nfamilyName=(none)\nemails=a@x.com,b@x.com\n"
+    },
+    {
+      "input": {
+        "op": "profile",
+        "data": {
+          "user_id": "auth0|111",
+          "sub": "should-not-be-used",
+          "name": "Bob",
+          "given_name": "Bob",
+          "family_name": "Lee",
+          "email": "bob@x.com"
+        }
+      },
+      "expected_output": "id=auth0|111\nuser_id=auth0|111\ndisplayName=Bob\nprovider=auth0\ngivenName=Bob\nfamilyName=Lee\nemails=bob@x.com\n"
+    },
+    {
+      "input": {
+        "op": "profile",
+        "data": {
+          "user_id": "u-123",
+          "identities": [
+            {
+              "provider": "google-oauth2",
+              "user_id": "123"
+            }
+          ],
+          "name": "Al",
+          "email": "al@x.com"
+        }
+      },
+      "expected_output": "id=u-123\nuser_id=u-123\ndisplayName=Al\nprovider=google-oauth2\ngivenName=(none)\nfamilyName=(none)\nemails=al@x.com\n"
+    },
+    {
+      "input": {
+        "op": "profile",
+        "data": {
+          "sub": "facebook|999",
+          "identities": [
+            {
+              "provider": "facebook"
+            },
+            {
+              "provider": "google"
+            }
+          ],
+          "name": "X"
+        }
+      },
+      "expected_output": "id=facebook|999\nuser_id=facebook|999\ndisplayName=X\nprovider=facebook\ngivenName=(none)\nfamilyName=(none)\nemails=(none)\n"
+    },
+    {
+      "input": {
+        "op": "profile",
+        "data": {
+          "sub": "plain2",
+          "family_name": "Solo",
+          "email": "han@x.com"
+        }
+      },
+      "expected_output": "id=plain2\nuser_id=plain2\ndisplayName=(none)\nprovider=(none)\ngivenName=(none)\nfamilyName=Solo\nemails=han@x.com\n"
+    },
+    {
+      "input": {
+        "op": "profile",
+        "data": {
+          "user_id": 12345,
+          "name": "Numeric"
+        }
+      },
+      "expected_output": "id=12345\nuser_id=12345\ndisplayName=Numeric\nprovider=(none)\ngivenName=(none)\nfamilyName=(none)\nemails=(none)\n"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+    "description": "Reject invalid YAML load-test configs with a normalized error category and a domain reason: missing required global fields, missing mode-specific fields per stage, missing stage mode, and structurally malformed YAML.",
+    "cases": [
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "limits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing scenario\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 1h\n  mode: constant\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing rate at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "scenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n"
+            },
+            "expected_output": "error=invalid_config\nreason=missing stage mode at stage 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "content": "\ninvalid file content\n"
+            },
+            "expected_output": "error=invalid_config\nreason=malformed_yaml\n"
+        }
+    ]
+}

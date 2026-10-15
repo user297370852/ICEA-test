@@ -1,0 +1,35 @@
+{
+  "description": "Enhanced response-buffering middleware edge cases: a buffered response exactly equal to the maximum is forwarded intact, a permanent redirect (301) emitted by the handler is forwarded with its status and HTML link body, and an event-stream response whose content fits within the limit is forwarded with its status and body intact. Each case reports the response status and body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "response_buffer_mw",
+        "max_mem_bytes": 4,
+        "max_bytes": 8,
+        "response_body": "12345678"
+      },
+      "expected_output": "status=200 body=12345678\n"
+    },
+    {
+      "input": {
+        "kind": "response_buffer_mw",
+        "max_mem_bytes": 1024,
+        "max_bytes": 1024,
+        "redirect_url": "https://x.test/dest",
+        "redirect_status": 301
+      },
+      "expected_output": "status=301 body=<a href=\"https://x.test/dest\">Moved Permanently</a>.\n"
+    },
+    {
+      "input": {
+        "kind": "response_buffer_mw",
+        "max_mem_bytes": 1024,
+        "max_bytes": 1024,
+        "content_type": "text/event-stream",
+        "write_header_status": 200,
+        "response_body": "data: ok"
+      },
+      "expected_output": "status=200 body=data: ok\n"
+    }
+  ]
+}

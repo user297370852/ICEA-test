@@ -1,0 +1,65 @@
+{
+  "description": "Additional disk export coordination cases covering unavailable exporters within each, explicit zero timeout, custom timeout propagation, and partial success.",
+  "cases": [
+    {
+      "input": {
+        "timeout_ms": 1234,
+        "availability": {
+          "spans": false,
+          "metrics": true,
+          "logs": true
+        },
+        "results": {
+          "spans": [],
+          "metrics": [
+            true
+          ],
+          "logs": [
+            false
+          ]
+        },
+        "operation": "each"
+      },
+      "expected_output": "exported=true\nspans_calls=0\nmetrics_calls=1\nmetrics_timeout_ms=1234\nlogs_calls=1\nlogs_timeout_ms=1234\n"
+    },
+    {
+      "input": {
+        "timeout_ms": 0,
+        "availability": {
+          "spans": true,
+          "metrics": true,
+          "logs": true
+        },
+        "results": {
+          "spans": [],
+          "metrics": [
+            false
+          ],
+          "logs": []
+        },
+        "operation": "metrics"
+      },
+      "expected_output": "exported=false\nspans_calls=0\nmetrics_calls=1\nmetrics_timeout_ms=0\nlogs_calls=0\n"
+    },
+    {
+      "input": {
+        "availability": {
+          "spans": true,
+          "metrics": true,
+          "logs": false
+        },
+        "results": {
+          "spans": [
+            false
+          ],
+          "metrics": [
+            false
+          ],
+          "logs": []
+        },
+        "operation": "each"
+      },
+      "expected_output": "exported=false\nspans_calls=1\nspans_timeout_ms=5000\nmetrics_calls=1\nmetrics_timeout_ms=5000\nlogs_calls=0\n"
+    }
+  ]
+}

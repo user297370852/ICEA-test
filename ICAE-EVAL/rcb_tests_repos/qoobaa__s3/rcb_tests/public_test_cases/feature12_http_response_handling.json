@@ -1,0 +1,17 @@
+{
+    "description": "Interpret an HTTP response by status class. A success status passes through and reports its status code and reason phrase. A non-success status carrying an error document is mapped to a neutral remote-error result whose category is the protocol error code from the body and whose status is echoed. A non-success status with an empty or absent body maps to a generic remote-error category with the status echoed.",
+    "cases": [
+        {
+            "input": {"feature": "http_response_handling", "status": 200, "reason": "OK", "body": "anything"},
+            "expected_output": "status=200\nreason=OK\n"
+        },
+        {
+            "input": {"feature": "http_response_handling", "status": 404, "reason": "Not Found", "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message></Error>"},
+            "expected_output": "error=remote_error\ncategory=NoSuchBucket\nstatus=404\n"
+        },
+        {
+            "input": {"feature": "http_response_handling", "status": 500, "reason": "Internal Server Error", "body": ""},
+            "expected_output": "error=remote_error\ncategory=response_error\nstatus=500\n"
+        }
+    ]
+}

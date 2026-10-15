@@ -1,0 +1,180 @@
+{
+    "description": "Serialize query parameters using application/x-www-form-urlencoded rules while preserving the original decoded values for lookup. A space is encoded as a plus sign; a literal plus is percent-encoded; an ampersand and other reserved characters are percent-encoded; non-ASCII text is UTF-8 percent-encoded. Reading a value back returns its decoded form even though the serialized form is encoded.",
+    "cases": [
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "été"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key2",
+                        "value": "Céline Dion++"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "get",
+                        "key": "key1"
+                    },
+                    {
+                        "op": "get",
+                        "key": "key2"
+                    }
+                ]
+            },
+            "expected_output": "size=2\nto_string=key1=%C3%A9t%C3%A9&key2=C%C3%A9line+Dion%2B%2B\nget=été\nget=Céline Dion++\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "a",
+                        "value": "b c"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "get",
+                        "key": "a"
+                    },
+                    {
+                        "op": "remove",
+                        "key": "a"
+                    },
+                    {
+                        "op": "append",
+                        "key": "a b",
+                        "value": "c"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "remove",
+                        "key": "a b"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "append",
+                        "key": "a",
+                        "value": ""
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "append",
+                        "key": "",
+                        "value": ""
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "append",
+                        "key": "",
+                        "value": "b"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "to_string=a=b+c\nget=b c\nto_string=a+b=c\nto_string=\nto_string=a=\nto_string=a=&=\nto_string=a=&=&=b\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "a",
+                        "value": "b+c"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "remove",
+                        "key": "a"
+                    },
+                    {
+                        "op": "append",
+                        "key": "a+b",
+                        "value": "c"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "to_string=a=b%2Bc\nto_string=a%2Bb=c\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "&",
+                        "value": "a"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "append",
+                        "key": "b",
+                        "value": "&"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "to_string=%26=a\nto_string=%26=a&b=%26\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "q1=foo&q2=foo+bar&q3=foo bar&q4=foo/bar",
+                "steps": [
+                    {
+                        "op": "get",
+                        "key": "q1"
+                    },
+                    {
+                        "op": "get",
+                        "key": "q2"
+                    },
+                    {
+                        "op": "get",
+                        "key": "q3"
+                    },
+                    {
+                        "op": "get",
+                        "key": "q4"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "get=foo\nget=foo bar\nget=foo bar\nget=foo/bar\nto_string=q1=foo&q2=foo+bar&q3=foo+bar&q4=foo%2Fbar\n"
+        }
+    ]
+}

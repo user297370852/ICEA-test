@@ -1,0 +1,107 @@
+{
+  "description": "Role/permission registry boundaries: empty role list, permission-less roles, intra/inter-role duplicate permissions with ASCII case-sensitive sorting, duplicate role keys collapsing, and special-character/wildcard permission tokens.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "register_team_roles",
+        "roles": []
+      },
+      "expected_output": "has_permissions=no\npermissions=\nrole_count=0\n"
+    },
+    {
+      "input": {
+        "scenario": "register_team_roles",
+        "roles": [
+          {
+            "key": "viewer",
+            "name": "Viewer",
+            "permissions": []
+          }
+        ]
+      },
+      "expected_output": "has_permissions=no\npermissions=\nrole_count=1\n"
+    },
+    {
+      "input": {
+        "scenario": "register_team_roles",
+        "roles": [
+          {
+            "key": "a",
+            "name": "A",
+            "permissions": [
+              "read",
+              "read",
+              "Create",
+              "create"
+            ]
+          },
+          {
+            "key": "b",
+            "name": "B",
+            "permissions": [
+              "create",
+              "Apple",
+              "banana"
+            ]
+          }
+        ]
+      },
+      "expected_output": "has_permissions=yes\npermissions=Apple,Create,banana,create,read\nrole_count=2\n"
+    },
+    {
+      "input": {
+        "scenario": "register_team_roles",
+        "roles": [
+          {
+            "key": "x",
+            "name": "X1",
+            "permissions": [
+              "p1"
+            ]
+          },
+          {
+            "key": "x",
+            "name": "X2",
+            "permissions": [
+              "p2"
+            ]
+          }
+        ]
+      },
+      "expected_output": "has_permissions=yes\npermissions=p1,p2\nrole_count=1\n"
+    },
+    {
+      "input": {
+        "scenario": "register_team_roles",
+        "roles": [
+          {
+            "key": "r",
+            "name": "R",
+            "permissions": [
+              "users.view",
+              "create:post",
+              "a_b",
+              "*"
+            ]
+          }
+        ]
+      },
+      "expected_output": "has_permissions=yes\npermissions=*,a_b,create:post,users.view\nrole_count=1\n"
+    },
+    {
+      "input": {
+        "scenario": "register_team_roles",
+        "roles": [
+          {
+            "key": "only",
+            "name": "Only",
+            "permissions": [
+              "solo"
+            ]
+          }
+        ]
+      },
+      "expected_output": "has_permissions=yes\npermissions=solo\nrole_count=1\n"
+    }
+  ]
+}

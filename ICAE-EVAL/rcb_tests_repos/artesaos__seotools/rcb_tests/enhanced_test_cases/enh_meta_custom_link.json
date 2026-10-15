@@ -1,0 +1,110 @@
+{
+  "description": "Enhanced coverage for custom meta tags and link relations: a custom meta with the default (omitted) attribute, two custom metas in sequence, removing a non-existent key (no-op restoring baseline), several link relations declared together to exercise the fixed render order (canonical, AMP, prev, next), bulk alternate-language registration, and two single alternate-language registrations.",
+  "cases": [
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "meta": {
+              "name": "author",
+              "content": "Me"
+            }
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta name=\"author\" content=\"Me\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "meta": {
+              "name": "author",
+              "content": "Me"
+            }
+          },
+          {
+            "meta": {
+              "name": "viewport",
+              "content": "width=device-width"
+            }
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta name=\"author\" content=\"Me\"><meta name=\"viewport\" content=\"width=device-width\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "remove_meta": "nope"
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "next": "http://d.com/n"
+          },
+          {
+            "prev": "http://d.com/p"
+          },
+          {
+            "canonical": "http://d.com/c"
+          },
+          {
+            "amphtml": "http://d.com/a"
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><link rel=\"canonical\" href=\"http://d.com/c\"/><link rel=\"amphtml\" href=\"http://d.com/a\"/><link rel=\"prev\" href=\"http://d.com/p\"/><link rel=\"next\" href=\"http://d.com/n\"/>"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "alternate_languages": [
+              {
+                "lang": "en",
+                "url": "http://d.com/en"
+              },
+              {
+                "lang": "fr",
+                "url": "http://d.com/fr"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><link rel=\"alternate\" hreflang=\"en\" href=\"http://d.com/en\"/><link rel=\"alternate\" hreflang=\"fr\" href=\"http://d.com/fr\"/>"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "alternate_language": {
+              "lang": "en",
+              "url": "http://d.com/en"
+            }
+          },
+          {
+            "alternate_language": {
+              "lang": "de",
+              "url": "http://d.com/de"
+            }
+          }
+        ]
+      },
+      "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><link rel=\"alternate\" hreflang=\"en\" href=\"http://d.com/en\"/><link rel=\"alternate\" hreflang=\"de\" href=\"http://d.com/de\"/>"
+    }
+  ]
+}

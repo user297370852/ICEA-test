@@ -1,0 +1,187 @@
+{
+  "description": "Match a requested redirect URI against a client's pre-registered redirect URIs. If the requested URI is empty and the client registered exactly one valid redirect URI, that registered URI is used. Otherwise the requested URI must match a registered one by simple string comparison, with one exception: for loopback addresses (http with host 127.0.0.1 or [::1]) the port is ignored, so a registered loopback URI matches the same path/query on any port. A matched URI must itself be a valid absolute redirect URI (absolute, no fragment). On success the resolved redirect URI is returned; otherwise a neutral mismatch error is reported. The input is a list of checks, each with the client's 'registered' URIs and the 'request' URI; for each check the output reports the resolved URI or an error.",
+  "cases": [
+    {
+      "input": {
+        "op": "redirect_match",
+        "checks": [
+          {
+            "registered": [
+              ""
+            ],
+            "request": "https://foo.com/cb"
+          },
+          {
+            "registered": [
+              "wta://auth"
+            ],
+            "request": "wta://auth"
+          },
+          {
+            "registered": [
+              "wta:///auth"
+            ],
+            "request": "wta:///auth"
+          },
+          {
+            "registered": [
+              "wta://foo/auth"
+            ],
+            "request": "wta://foo/auth"
+          },
+          {
+            "registered": [
+              "https://bar.com/cb"
+            ],
+            "request": "https://foo.com/cb"
+          },
+          {
+            "registered": [
+              "https://bar.com/cb"
+            ],
+            "request": ""
+          },
+          {
+            "registered": [
+              ""
+            ],
+            "request": ""
+          },
+          {
+            "registered": [
+              "https://bar.com/cb"
+            ],
+            "request": "https://bar.com/cb"
+          },
+          {
+            "registered": [
+              "https://bar.com/cb"
+            ],
+            "request": "https://bar.com/cb123"
+          },
+          {
+            "registered": [
+              "http://[::1]"
+            ],
+            "request": "http://[::1]:1024"
+          },
+          {
+            "registered": [
+              "http://[::1]"
+            ],
+            "request": "http://[::1]:1024/cb"
+          },
+          {
+            "registered": [
+              "http://[::1]/cb"
+            ],
+            "request": "http://[::1]:1024/cb"
+          },
+          {
+            "registered": [
+              "http://[::1]"
+            ],
+            "request": "http://foo.bar/bar"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1"
+            ],
+            "request": "http://127.0.0.1:1024"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1/cb"
+            ],
+            "request": "http://127.0.0.1:64000/cb"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1"
+            ],
+            "request": "http://127.0.0.1:64000/cb"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1"
+            ],
+            "request": "http://127.0.0.1"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1/Cb"
+            ],
+            "request": "http://127.0.0.1:8080/Cb"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1"
+            ],
+            "request": "http://foo.bar/bar"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1"
+            ],
+            "request": ":/invalid.uri)bar"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1:8080/cb"
+            ],
+            "request": "http://127.0.0.1:8080/Cb"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1:8080/cb"
+            ],
+            "request": "http://127.0.0.1:8080/cb?foo=bar"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1:8080/cb?foo=bar"
+            ],
+            "request": "http://127.0.0.1:8080/cb?foo=bar"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1:8080/cb?foo=bar"
+            ],
+            "request": "http://127.0.0.1:8080/cb?baz=bar&foo=bar"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1:8080/cb?foo=bar&baz=bar"
+            ],
+            "request": "http://127.0.0.1:8080/cb?baz=bar&foo=bar"
+          },
+          {
+            "registered": [
+              "https://www.ory.sh/cb"
+            ],
+            "request": "http://127.0.0.1:8080/cb"
+          },
+          {
+            "registered": [
+              "http://127.0.0.1:8080/cb"
+            ],
+            "request": "https://www.ory.sh/cb"
+          },
+          {
+            "registered": [
+              "web+application://callback"
+            ],
+            "request": "web+application://callback"
+          },
+          {
+            "registered": [
+              "https://google.com/?foo=bar%20foo+baz"
+            ],
+            "request": "https://google.com/?foo=bar%20foo+baz"
+          }
+        ]
+      },
+      "expected_output": "error=redirect_uri_mismatch\nredirect_uri=wta://auth\nredirect_uri=wta:///auth\nredirect_uri=wta://foo/auth\nerror=redirect_uri_mismatch\nredirect_uri=https://bar.com/cb\nerror=redirect_uri_mismatch\nredirect_uri=https://bar.com/cb\nerror=redirect_uri_mismatch\nredirect_uri=http://[::1]:1024\nerror=redirect_uri_mismatch\nredirect_uri=http://[::1]:1024/cb\nerror=redirect_uri_mismatch\nredirect_uri=http://127.0.0.1:1024\nredirect_uri=http://127.0.0.1:64000/cb\nerror=redirect_uri_mismatch\nredirect_uri=http://127.0.0.1\nredirect_uri=http://127.0.0.1:8080/Cb\nerror=redirect_uri_mismatch\nerror=redirect_uri_mismatch\nerror=redirect_uri_mismatch\nerror=redirect_uri_mismatch\nredirect_uri=http://127.0.0.1:8080/cb?foo=bar\nerror=redirect_uri_mismatch\nerror=redirect_uri_mismatch\nerror=redirect_uri_mismatch\nerror=redirect_uri_mismatch\nredirect_uri=web+application://callback\nredirect_uri=https://google.com/?foo=bar%20foo+baz\n"
+    }
+  ]
+}

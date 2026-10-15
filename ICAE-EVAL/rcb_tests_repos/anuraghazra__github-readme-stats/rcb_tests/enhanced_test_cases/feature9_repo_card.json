@@ -1,0 +1,200 @@
+{
+  "description": "Repository card edge cases: missing description (defaults to 'No description provided'), a description exactly at and just over the 55-char trim threshold, language-name length boundary at 15 vs 16 characters (group shifts x125 vs x155), both star and fork counts zero (both absent), an HTML-significant character in the description being escaped, a template badge taking precedence over archived, and show_owner with an unknown theme falling back to default_repocard.",
+  "cases": [
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 5
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=No description provided\nforkcount=5\nheader=widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(125, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "description": "1234567890123456789012345678901234567890123456789012345",
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 5
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=1234567890123456789012345678901234567890123456789012345\nforkcount=5\nheader=widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(125, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "description": "12345678901234567890123456789012345678901234567890123456",
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 5
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=1234567890123456789012345678901234567890123456789012345..\nforkcount=5\nheader=widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(125, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "description": "Short desc",
+          "primaryLanguage": {
+            "color": "#abcdef",
+            "name": "ProtocolBuffer"
+          },
+          "forkCount": 5
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=Short desc\nforkcount=5\nheader=widgets\nlang_color_fill=#abcdef\nlang_name=ProtocolBuffer\nstars_forks_group_transform=translate(125, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "description": "Short desc",
+          "primaryLanguage": {
+            "color": "#abcdef",
+            "name": "Emacs Lisp xyzu"
+          },
+          "forkCount": 5
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=Short desc\nforkcount=5\nheader=widgets\nlang_color_fill=#abcdef\nlang_name=Emacs Lisp xyzu\nstars_forks_group_transform=translate(125, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 0
+          },
+          "description": "No stars no forks",
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 0
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=No stars no forks\nforkcount=<absent>\nheader=widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(125, 100)\nstargazers=<absent>\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "description": "Uses <script> & friends",
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 5
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=Uses <script> & friends\nforkcount=5\nheader=widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(125, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "description": "Both flags set",
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 5,
+          "isArchived": true,
+          "isTemplate": true
+        }
+      },
+      "expected_output": "badge=Template\ncard_bg_fill=#FFFEFE\ndescription=Both flags set\nforkcount=5\nheader=widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(30, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 1200
+          },
+          "description": "Owner shown",
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 5
+        },
+        "options": {
+          "show_owner": true,
+          "theme": "no_such_theme"
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=Owner shown\nforkcount=5\nheader=acme/widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(125, 100)\nstargazers=1.2k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#4c71f2\n"
+    },
+    {
+      "input": {
+        "op": "repo_card",
+        "repo": {
+          "nameWithOwner": "acme/widgets",
+          "name": "widgets",
+          "stargazers": {
+            "totalCount": 38000
+          },
+          "description": "Big counts",
+          "primaryLanguage": {
+            "color": "#2b7489",
+            "name": "TypeScript"
+          },
+          "forkCount": 1500
+        }
+      },
+      "expected_output": "badge=<none>\ncard_bg_fill=#FFFEFE\ndescription=Big counts\nforkcount=1.5k\nheader=widgets\nlang_color_fill=#2b7489\nlang_name=TypeScript\nstars_forks_group_transform=translate(125, 100)\nstargazers=38k\nstyle_desc_fill=#333\nstyle_header_fill=#2f80ed\nstyle_icon_fill=#586069\n"
+    }
+  ]
+}

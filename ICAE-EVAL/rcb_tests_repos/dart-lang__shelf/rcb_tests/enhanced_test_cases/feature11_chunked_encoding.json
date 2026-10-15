@@ -1,0 +1,130 @@
+{
+  "description": "Apply chunked-coding middleware to streamed responses: a multi-chunk stream, an empty stream, normal-status boundaries (200 and 299), a sub-200 status that passes through, a fixed-length string that passes through, a multipart/byteranges response, and a stream that already declares chunked coding.",
+  "cases": [
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "ok",
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              97
+            ],
+            [
+              98
+            ],
+            [
+              99
+            ]
+          ]
+        }
+      },
+      "expected_output": "transferEncoding=chunked\nbody=1\r\na\r\n1\r\nb\r\n1\r\nc\r\n0\r\n\r\n\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "ok",
+        "body": {
+          "type": "empty_stream"
+        }
+      },
+      "expected_output": "transferEncoding=chunked\nbody=0\r\n\r\n\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "status",
+        "status": 200,
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              120,
+              121
+            ]
+          ]
+        }
+      },
+      "expected_output": "transferEncoding=chunked\nbody=2\r\nxy\r\n0\r\n\r\n\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "status",
+        "status": 299,
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              122
+            ]
+          ]
+        }
+      },
+      "expected_output": "transferEncoding=chunked\nbody=1\r\nz\r\n0\r\n\r\n\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "status",
+        "status": 199,
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              122
+            ]
+          ]
+        }
+      },
+      "expected_output": "transferEncoding=null\nbody=z\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "ok",
+        "body": "hello"
+      },
+      "expected_output": "transferEncoding=null\nbody=hello\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "ok",
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              97
+            ]
+          ]
+        },
+        "headers": {
+          "content-type": "multipart/byteranges; boundary=x"
+        }
+      },
+      "expected_output": "transferEncoding=null\nbody=a\n"
+    },
+    {
+      "input": {
+        "action": "chunked",
+        "kind": "status",
+        "status": 200,
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              97
+            ]
+          ]
+        },
+        "headers": {
+          "transfer-encoding": "chunked"
+        }
+      },
+      "expected_output": "transferEncoding=chunked\nbody=a\n"
+    }
+  ]
+}

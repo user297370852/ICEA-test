@@ -1,0 +1,26 @@
+{
+    "description": "Layers are stored in a named symbol table. Each layer record carries a name and a color index, and may carry application extension-data groups. Reading the table parses every layer; layers can also be created programmatically and serialized as the canonical LAYER table.",
+    "cases": [
+        {
+            "input": {
+                "op": "read_layers",
+                "dxf": "  0\nTABLE\n  2\nLAYER\n  0\nLAYER\n  2\na\n 62\n12\n  0\nLAYER\n  2\nb\n 62\n13\n  0\nENDTAB\n"
+            },
+            "expected_output": "layer_count=2\nlayer.0.name=a\nlayer.0.color=12\nlayer.1.name=b\nlayer.1.color=13\n"
+        },
+        {
+            "input": {
+                "op": "read_layers",
+                "dxf": "  0\nTABLE\n  2\nLAYER\n  0\nLAYER\n  2\nb\n 62\n13\n102\n{APP_NAME\n  1\nfoo\n  2\nbar\n102\n}\n  0\nENDTAB\n"
+            },
+            "expected_output": "layer_count=1\nlayer.0.name=b\nlayer.0.color=13\nlayer.0.group_name=APP_NAME\nlayer.0.group_item_count=2\nlayer.0.item.0=1:foo\nlayer.0.item.1=2:bar\n"
+        },
+        {
+            "input": {
+                "op": "write_layer",
+                "name": "default"
+            },
+            "expected_output": "  0\nTABLE\n  2\nLAYER\n  5\n5\n100\nAcDbSymbolTable\n 70\n0\n  0\nLAYER\n  5\nA\n100\nAcDbSymbolTableRecord\n100\nAcDbLayerTableRecord\n  2\ndefault\n 70\n0\n 62\n1\n  6\n\n  0\nENDTAB\n"
+        }
+    ]
+}

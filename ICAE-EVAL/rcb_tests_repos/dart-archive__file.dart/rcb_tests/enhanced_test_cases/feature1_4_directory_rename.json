@@ -1,0 +1,49 @@
+{
+  "description": "Directory rename coverage: moving a populated subtree preserves its contents under the new path, and renaming into a destination whose parent directory does not exist fails with a not-found category.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/src/child",
+            "recursive": true
+          },
+          {
+            "op": "create_file",
+            "path": "/src/child/f.txt"
+          },
+          {
+            "op": "rename",
+            "from": "/src",
+            "to": "/dst",
+            "as": "directory"
+          },
+          {
+            "op": "list",
+            "path": "/dst",
+            "recursive": true
+          }
+        ]
+      },
+      "expected_output": "created_directory=/src/child\ncreated_file=/src/child/f.txt\nrenamed=/dst\nentry_count=2\nentry=directory:/dst/child\nentry=file:/dst/child/f.txt\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/a"
+          },
+          {
+            "op": "rename",
+            "from": "/a",
+            "to": "/no/where",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/a\nerror=no_such_file_or_directory\n"
+    }
+  ]
+}

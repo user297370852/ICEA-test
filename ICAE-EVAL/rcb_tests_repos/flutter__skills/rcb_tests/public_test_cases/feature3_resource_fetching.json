@@ -1,0 +1,28 @@
+{
+    "description": "Fetch a list of source resources and aggregate their textual content into a single buffer, failing fast on any problem so downstream processing is never fed partial or invalid material. Each resource that is a relative path is read from a provided base directory and appended verbatim; each appended resource is introduced by a header line naming the resource. Validation is strict: a plain (non-secure) URL is rejected outright; a relative path requested without any base directory is rejected; and a relative path that does not resolve to an existing file is rejected. Rejections surface as a neutral error category together with the offending resource identifier. The input carries the list of resources, whether a base directory is available, and the in-memory contents of any local files keyed by their relative name; the output is either the aggregated buffer or the normalized error.",
+    "cases": [
+        {
+            "input": {
+                "action": "fetch_resources",
+                "resources": [
+                    "local_doc.md"
+                ],
+                "has_config_dir": true,
+                "files": {
+                    "local_doc.md": "# Local Doc\ncontent"
+                }
+            },
+            "expected_output": "--- Raw content from local_doc.md ---\n# Local Doc\ncontent\n"
+        },
+        {
+            "input": {
+                "action": "fetch_resources",
+                "resources": [
+                    "http://example.com/doc1"
+                ],
+                "has_config_dir": false
+            },
+            "expected_output": "error=insecure_url\nresource=http://example.com/doc1\n"
+        }
+    ]
+}

@@ -1,0 +1,103 @@
+{
+  "description": "Dependency-ordering edge cases: an empty service list yields an empty order; a single dependency-free service yields itself; a linear chain a->b->c emits dependencies deepest-first; a shared dependency is emitted once before both dependents (no duplicates); and a diamond (top depends on l and r, both depending on base) emits base first, then l and r, then top.",
+  "cases": [
+    {
+      "input": {
+        "kind": "service_order",
+        "services": []
+      },
+      "expected_output": "order=[]\n"
+    },
+    {
+      "input": {
+        "kind": "service_order",
+        "services": [
+          {
+            "name": "a",
+            "dependencies": []
+          }
+        ]
+      },
+      "expected_output": "order=[\"a\"]\n"
+    },
+    {
+      "input": {
+        "kind": "service_order",
+        "services": [
+          {
+            "name": "a",
+            "dependencies": [
+              "b"
+            ]
+          },
+          {
+            "name": "b",
+            "dependencies": [
+              "c"
+            ]
+          },
+          {
+            "name": "c",
+            "dependencies": []
+          }
+        ]
+      },
+      "expected_output": "order=[\"c\",\"b\",\"a\"]\n"
+    },
+    {
+      "input": {
+        "kind": "service_order",
+        "services": [
+          {
+            "name": "a",
+            "dependencies": [
+              "c"
+            ]
+          },
+          {
+            "name": "b",
+            "dependencies": [
+              "c"
+            ]
+          },
+          {
+            "name": "c",
+            "dependencies": []
+          }
+        ]
+      },
+      "expected_output": "order=[\"c\",\"a\",\"b\"]\n"
+    },
+    {
+      "input": {
+        "kind": "service_order",
+        "services": [
+          {
+            "name": "top",
+            "dependencies": [
+              "l",
+              "r"
+            ]
+          },
+          {
+            "name": "l",
+            "dependencies": [
+              "base"
+            ]
+          },
+          {
+            "name": "r",
+            "dependencies": [
+              "base"
+            ]
+          },
+          {
+            "name": "base",
+            "dependencies": []
+          }
+        ]
+      },
+      "expected_output": "order=[\"base\",\"l\",\"r\",\"top\"]\n"
+    }
+  ]
+}

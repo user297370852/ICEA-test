@@ -1,0 +1,111 @@
+{
+    "description": "A notice is transformed into a report payload that preserves supplied error identity, request data, context, details, and configurable metadata.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "apiKey": "testing"
+                },
+                "notice": {
+                    "message": "expected message"
+                }
+            },
+            "expected_output": "class=Error\nmessage=expected message\nurl=none\ncomponent=null\naction=null\nenvironment=null\nrevision=null\ncontext={}\nparams={}\ncgi_data={}\nsession={}\ndetails={}\n"
+        },
+        {
+            "input": {
+                "config": {
+                    "apiKey": "testing"
+                },
+                "notice": {
+                    "name": "Error",
+                    "message": "expected message"
+                },
+                "name": "expected name"
+            },
+            "expected_output": "class=expected name\nmessage=expected message\nurl=none\ncomponent=null\naction=null\nenvironment=null\nrevision=null\ncontext={}\nparams={}\ncgi_data={}\nsession={}\ndetails={}\n"
+        },
+        {
+            "input": {
+                "config": {
+                    "apiKey": "testing"
+                },
+                "notice": {
+                    "message": "original message"
+                },
+                "name": {
+                    "message": "expected message"
+                }
+            },
+            "expected_output": "class=Error\nmessage=expected message\nurl=none\ncomponent=null\naction=null\nenvironment=null\nrevision=null\ncontext={}\nparams={}\ncgi_data={}\nsession={}\ndetails={}\n"
+        },
+        {
+            "input": {
+                "config": {
+                    "apiKey": "testing"
+                },
+                "notice": "testing",
+                "extra": {
+                    "params": {
+                        "foo": "bar"
+                    },
+                    "details": {
+                        "Expected Section Name": {
+                            "Expected Key": "Expected Value"
+                        }
+                    }
+                }
+            },
+            "expected_output": "class=Error\nmessage=testing\nurl=none\ncomponent=null\naction=null\nenvironment=null\nrevision=null\ncontext={}\nparams={\"foo\":\"bar\"}\ncgi_data={}\nsession={}\ndetails={\"Expected Section Name\":{\"Expected Key\":\"Expected Value\"}}\n"
+        },
+        {
+            "input": {
+                "config": {
+                    "apiKey": "testing",
+                    "environment": "config environment",
+                    "component": "config component",
+                    "action": "config action",
+                    "revision": "config revision",
+                    "projectRoot": "config projectRoot",
+                    "filters": [
+                        "secret"
+                    ]
+                },
+                "context": {
+                    "foo": "foo"
+                },
+                "notice": {
+                    "message": "expected message",
+                    "context": {
+                        "bar": "bar"
+                    },
+                    "url": "https://www.example.com/?secret=value&foo=bar",
+                    "params": {
+                        "secret": "secret",
+                        "other": "expected"
+                    },
+                    "cgiData": {
+                        "secret": "secret",
+                        "other": "expected"
+                    },
+                    "session": {
+                        "secret": "secret",
+                        "other": "expected"
+                    },
+                    "headers": {
+                        "secret": "secret",
+                        "other": "expected"
+                    }
+                },
+                "mutateNotice": {
+                    "name": "mutated name",
+                    "message": "mutated message",
+                    "component": "mutated component",
+                    "action": "mutated action",
+                    "revision": "mutated revision"
+                }
+            },
+            "expected_output": "class=mutated name\nmessage=mutated message\nurl=https://www.example.com/?secret=[FILTERED]&foo=bar\ncomponent=mutated component\naction=mutated action\nenvironment=config environment\nrevision=mutated revision\ncontext={\"bar\":\"bar\",\"foo\":\"foo\"}\nparams={\"other\":\"expected\",\"secret\":\"[FILTERED]\"}\ncgi_data={\"HTTP_OTHER\":\"expected\",\"HTTP_SECRET\":\"[FILTERED]\",\"other\":\"expected\",\"secret\":\"[FILTERED]\"}\nsession={\"other\":\"expected\",\"secret\":\"[FILTERED]\"}\ndetails={}\n"
+        }
+    ]
+}

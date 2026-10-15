@@ -1,0 +1,71 @@
+{
+    "description": "Caches resources by unique identifier, reports observable update categories, removes resources, and normalizes missing-resource lookups.",
+    "cases": [
+        {
+            "input": {
+                "command": "cache",
+                "action": "get_missing",
+                "uid": "foobar"
+            },
+            "expected_output": "error=resource_not_found\nuid=foobar\n"
+        },
+        {
+            "input": {
+                "command": "cache",
+                "action": "compare",
+                "second": {
+                    "uid": "test"
+                }
+            },
+            "expected_output": "comparison=Other\nuid=test\n"
+        },
+        {
+            "input": {
+                "command": "cache",
+                "action": "compare",
+                "first": {
+                    "uid": "test",
+                    "status": {
+                        "text": "status"
+                    }
+                },
+                "second": {
+                    "uid": "test",
+                    "status": {
+                        "text": "status2"
+                    }
+                }
+            },
+            "expected_output": "comparison=StatusModified\nuid=test\n"
+        },
+        {
+            "input": {
+                "command": "cache",
+                "action": "compare",
+                "first": {
+                    "uid": "test",
+                    "finalizers": [
+                        "f1"
+                    ]
+                },
+                "second": {
+                    "uid": "test",
+                    "finalizers": [
+                        "f2"
+                    ]
+                }
+            },
+            "expected_output": "comparison=FinalizersModified\nuid=test\n"
+        },
+        {
+            "input": {
+                "command": "cache",
+                "action": "remove",
+                "entity": {
+                    "uid": "test"
+                }
+            },
+            "expected_output": "removed_uid=test\nlookup_after_remove=resource_not_found\n"
+        }
+    ]
+}

@@ -1,0 +1,160 @@
+{
+  "description": "Account a request against its rate-limit policy and report the remaining quota. A policy grants a fixed number of allowed requests (its limit) per refresh window. Each accounted request decrements the remaining allowance by one. When the request is replayed within the same window the remaining count counts down from limit-minus-one toward zero. The output reports, for each replay, the configured limit and the remaining allowance after that request.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 1,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 1
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=1 remaining=0\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 5,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 3
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=5 remaining=4\nrun=2 limit=5 remaining=3\nrun=3 limit=5 remaining=2\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 3,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 3
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=3 remaining=2\nrun=2 limit=3 remaining=1\nrun=3 limit=3 remaining=0\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 10,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 1
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=10 remaining=9\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": false,
+          "policies": {
+            "serviceA": {
+              "limit": 4,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 2
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=4 remaining=3\nrun=2 limit=4 remaining=2\n"
+    }
+  ]
+}

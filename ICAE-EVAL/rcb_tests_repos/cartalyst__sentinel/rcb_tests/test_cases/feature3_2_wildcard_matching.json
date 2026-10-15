@@ -1,0 +1,21 @@
+{
+    "description": "Wildcard pattern matching of permission keys. A queried key containing a trailing or embedded asterisk is matched against the stored keys (and stored wildcard keys are matched against queried keys) so that a grant on a pattern covers concrete keys and vice-versa. A query for a bare segment that is only a prefix of stored dotted keys, with no wildcard, does not match. Demonstrated under both policies since pattern matching is policy-independent.",
+    "cases": [
+        {
+            "input": {"op": "permissions", "mode": "lenient", "permissions": {"user.create": true, "user.update": false}, "queries": [{"all": ["user*"]}, {"all": ["user"]}]},
+            "expected_output": "mode=lenient\nall[user*]=true\nall[user]=false\n"
+        },
+        {
+            "input": {"op": "permissions", "mode": "lenient", "permissions": {"user.*": true}, "queries": [{"all": ["user.create"]}, {"all": ["user.update"]}]},
+            "expected_output": "mode=lenient\nall[user.create]=true\nall[user.update]=true\n"
+        },
+        {
+            "input": {"op": "permissions", "mode": "strict", "permissions": {"foo.bar": true, "foo.qux": false}, "queries": [{"all": ["foo*"]}, {"all": ["foo"]}]},
+            "expected_output": "mode=strict\nall[foo*]=true\nall[foo]=false\n"
+        },
+        {
+            "input": {"op": "permissions", "mode": "lenient", "permissions": {"user.add": true, "user.remove": false}, "queries": [{"all": ["user.*"]}]},
+            "expected_output": "mode=lenient\nall[user.*]=true\n"
+        }
+    ]
+}

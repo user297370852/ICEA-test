@@ -1,0 +1,40 @@
+{
+    "description": "When a produced message is later delivered through a per-batch consumer handler, its processing span does not become a child of the original producer span but instead carries a link back to it; the processing span remains a child of the batch receiving span, and the receiving span starts a brand-new trace distinct from the producer.",
+    "cases": [
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "testing message content"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "success",
+                            "records": []
+                        }
+                    },
+                    {
+                        "action": "consume_batch",
+                        "topic": "topic-name-1",
+                        "partition": 0,
+                        "messages": [
+                            {
+                                "value": "",
+                                "headersFromMessage": 0
+                            }
+                        ],
+                        "handler": {
+                            "behavior": "resolve"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=ok result_records=0\nconsume_batch topic=topic-name-1 delivered=ok error=none\ninject msg=0 carries=span#0\nspans=3\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 1 kind=consumer name=topic-name-1 trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 2 kind=consumer name=topic-name-1 trace=t1 parent=span#1 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n  links=span#0\n"
+        }
+    ]
+}

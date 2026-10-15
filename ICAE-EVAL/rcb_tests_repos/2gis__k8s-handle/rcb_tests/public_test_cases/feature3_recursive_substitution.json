@@ -1,0 +1,51 @@
+{
+    "description": "Walks an arbitrary nested structure (mappings, lists, and scalars) and substitutes string placeholders in place, leaving non-string leaves untouched. Each string is scanned for an env='<NAME>' placeholder that is replaced by the environment variable value (an unset variable expands to empty text in non-strict mode), and for a file='<path>' placeholder that is replaced by the parsed YAML content of the referenced file. Numbers, booleans, and list ordering are preserved exactly, and a bare scalar passed in alone is returned unchanged. Output is the transformed structure as sorted JSON.",
+    "cases": [
+        {
+            "input": {
+                "op": "update_context",
+                "env": {
+                    "CUSTOM_ENV": "My value"
+                },
+                "aux_files": {
+                    "include.yaml": "---\nha_ha: \"included_var\"\n"
+                },
+                "context": {
+                    "section1": {
+                        "subsection1": {
+                            "section1-key1": "value",
+                            "section1-key2": 1,
+                            "section1-key3": 0.1,
+                            "section1-key4": [
+                                0,
+                                1,
+                                2,
+                                3
+                            ],
+                            "section1-key5": "{{ env='CUSTOM_ENV' }}",
+                            "section1-key6": "{{ file='include.yaml' }}",
+                            "section1-key7": "{{ env='CUSTOM_ENV'}} = {{ env='CUSTOM_ENV' }}",
+                            "section1-key8": "{{ env='NULL_VAR' }}-{{ env='CUSTOM_ENV' }}"
+                        }
+                    },
+                    "section2": [
+                        {},
+                        "var2",
+                        "var3",
+                        "{{ env='CUSTOM_ENV' }}",
+                        "{{ env='CUSTOM_ENV' }} = {{ env='CUSTOM_ENV' }}",
+                        "{{ env='NULL_VAR' }}-{{ env='CUSTOM_ENV' }}"
+                    ],
+                    "section3": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4
+                    ]
+                }
+            },
+            "expected_output": "{\n  \"section1\": {\n    \"subsection1\": {\n      \"section1-key1\": \"value\",\n      \"section1-key2\": 1,\n      \"section1-key3\": 0.1,\n      \"section1-key4\": [\n        0,\n        1,\n        2,\n        3\n      ],\n      \"section1-key5\": \"My value\",\n      \"section1-key6\": {\n        \"ha_ha\": \"included_var\"\n      },\n      \"section1-key7\": \"My value = My value\",\n      \"section1-key8\": \"-My value\"\n    }\n  },\n  \"section2\": [\n    {},\n    \"var2\",\n    \"var3\",\n    \"My value\",\n    \"My value = My value\",\n    \"-My value\"\n  ],\n  \"section3\": [\n    0,\n    1,\n    2,\n    3,\n    4\n  ]\n}"
+        }
+    ]
+}

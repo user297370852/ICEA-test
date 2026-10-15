@@ -1,0 +1,61 @@
+{
+  "description": "Boundary coverage for removing a stored value and reverting to default: removing when the store is empty so the re-read value equals the value already observed (the per-observer duplicate suppression prevents a second emission), removing when the preset value already equals the default, and removing twice in a row so the second removal re-reads an already-default value. Each removal still delegates one deletion to the backing store and reports its result.",
+  "cases": [
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "remove"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore remove key=key\nremove ok=true\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "preset",
+            "value": "default value"
+          },
+          {
+            "op": "observe"
+          },
+          {
+            "op": "remove"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore remove key=key\nremove ok=true\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "preset",
+            "value": "stored"
+          },
+          {
+            "op": "observe"
+          },
+          {
+            "op": "remove"
+          },
+          {
+            "op": "remove"
+          }
+        ]
+      },
+      "expected_output": "emit[0] stored\nstore remove key=key\nremove ok=true\nemit[0] default value\nstore remove key=key\nremove ok=true\n"
+    }
+  ]
+}

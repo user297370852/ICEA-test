@@ -1,0 +1,52 @@
+{
+  "description": "Single-service start edge cases: a service registering multiple API methods reports them all in order; a service with no API methods starts successfully with an empty method list; and a start-hook failure surfaces the underlying multi-word message verbatim.",
+  "cases": [
+    {
+      "input": {
+        "kind": "start_service",
+        "service": {
+          "name": "svc",
+          "startError": null,
+          "apiMethods": [
+            {
+              "name": "m1"
+            },
+            {
+              "name": "m2"
+            },
+            {
+              "name": "m3"
+            }
+          ]
+        }
+      },
+      "expected_output": "started=svc\napi_methods=[\"m1\",\"m2\",\"m3\"]\n"
+    },
+    {
+      "input": {
+        "kind": "start_service",
+        "service": {
+          "name": "svc",
+          "startError": null,
+          "apiMethods": []
+        }
+      },
+      "expected_output": "started=svc\napi_methods=[]\n"
+    },
+    {
+      "input": {
+        "kind": "start_service",
+        "service": {
+          "name": "svc",
+          "startError": "boom failure",
+          "apiMethods": [
+            {
+              "name": "m1"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=start_failed\nmessage=boom failure\n"
+    }
+  ]
+}

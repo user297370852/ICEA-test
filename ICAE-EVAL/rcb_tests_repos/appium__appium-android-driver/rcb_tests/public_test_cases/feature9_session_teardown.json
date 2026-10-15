@@ -1,0 +1,9 @@
+{
+    "description": "Tear down a session, performing only the device operations appropriate to its options and in a fixed order. If the session was never started (already shut down), nothing is done beyond noting that. Otherwise, when the unicode keyboard was enabled with keyboard reset and a default input method was recorded, the input method is restored first. A non-web session is force-stopped, then the device is sent to its home screen. When full reset is requested, the application is additionally uninstalled. The output lists each device operation in order.",
+    "cases": [
+        {"input": {"op": "session_teardown", "alreadyShutDown": true}, "expected_output": "already_shut_down=true\n"},
+        {"input": {"op": "session_teardown", "opts": {}}, "expected_output": "device_op=force_stop\ndevice_op=go_to_home\n"},
+        {"input": {"op": "session_teardown", "opts": {"fullReset": true}}, "expected_output": "device_op=force_stop\ndevice_op=go_to_home\ndevice_op=uninstall_apk\n"},
+        {"input": {"op": "session_teardown", "opts": {"unicodeKeyboard": true, "resetKeyboard": true}, "defaultIME": "someDefaultIME"}, "expected_output": "device_op=set_ime value=someDefaultIME\ndevice_op=force_stop\ndevice_op=go_to_home\n"}
+    ]
+}

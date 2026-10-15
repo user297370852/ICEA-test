@@ -1,0 +1,78 @@
+{
+  "description": "Boundary coverage for derived field controls: zero-length prefix (empty vector), single-element vector, length prefix exceeding available bytes (EOF), conditional default with empty stream for both branches, ignored/defaulted fields with max leading byte and empty input, and mixed-endian tuple with surplus and truncated bytes.",
+  "cases": [
+    {
+      "input": {
+        "feature": "temporary_length",
+        "bytes": "00000000"
+      },
+      "expected_output": "status=ok\nvalues=\n"
+    },
+    {
+      "input": {
+        "feature": "temporary_length",
+        "bytes": "0000000141"
+      },
+      "expected_output": "status=ok\nvalues=65\n"
+    },
+    {
+      "input": {
+        "feature": "temporary_length",
+        "bytes": "00000005414243"
+      },
+      "expected_output": "error=unexpected_eof\n"
+    },
+    {
+      "input": {
+        "feature": "conditional_default",
+        "bytes": "",
+        "try_read": false
+      },
+      "expected_output": "status=ok\na=10\n"
+    },
+    {
+      "input": {
+        "feature": "conditional_default",
+        "bytes": "",
+        "try_read": true
+      },
+      "expected_output": "error=unexpected_eof\n"
+    },
+    {
+      "input": {
+        "feature": "conditional_default",
+        "bytes": "ff",
+        "try_read": true
+      },
+      "expected_output": "status=ok\na=255\n"
+    },
+    {
+      "input": {
+        "feature": "ignored_defaults",
+        "bytes": "ff"
+      },
+      "expected_output": "status=ok\na=255\nb=1\nc=1\n"
+    },
+    {
+      "input": {
+        "feature": "ignored_defaults",
+        "bytes": ""
+      },
+      "expected_output": "error=unexpected_eof\n"
+    },
+    {
+      "input": {
+        "feature": "mixed_endian_tuple",
+        "bytes": "0102ffff"
+      },
+      "expected_output": "status=ok\nfirst=258\nsecond=65535\n"
+    },
+    {
+      "input": {
+        "feature": "mixed_endian_tuple",
+        "bytes": "010203"
+      },
+      "expected_output": "error=unexpected_eof\n"
+    }
+  ]
+}

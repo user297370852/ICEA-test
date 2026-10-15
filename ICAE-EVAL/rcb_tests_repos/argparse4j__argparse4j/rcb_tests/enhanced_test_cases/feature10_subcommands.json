@@ -1,0 +1,134 @@
+{
+  "description": "Enhanced subcommand coverage: alias selection, a unique command prefix accepted, the chosen command recorded under a dest, a subcommand merging its own optional and positional, a missing subcommand error, and an ambiguous command prefix rejected.",
+  "cases": [
+    {
+      "input": {
+        "subparsers": {
+          "parsers": [
+            {
+              "name": "start",
+              "aliases": [
+                "s"
+              ],
+              "defaults": {
+                "act": "start"
+              }
+            }
+          ]
+        },
+        "argv": [
+          "s"
+        ]
+      },
+      "expected_output": "act=start\n"
+    },
+    {
+      "input": {
+        "subparsers": {
+          "parsers": [
+            {
+              "name": "build",
+              "defaults": {
+                "act": "build"
+              }
+            },
+            {
+              "name": "clean",
+              "defaults": {
+                "act": "clean"
+              }
+            }
+          ]
+        },
+        "argv": [
+          "bu"
+        ]
+      },
+      "expected_output": "act=build\n"
+    },
+    {
+      "input": {
+        "subparsers": {
+          "dest": "cmd",
+          "parsers": [
+            {
+              "name": "run"
+            }
+          ]
+        },
+        "argv": [
+          "run"
+        ]
+      },
+      "expected_output": "cmd=run\n"
+    },
+    {
+      "input": {
+        "subparsers": {
+          "parsers": [
+            {
+              "name": "add",
+              "arguments": [
+                {
+                  "flags": [
+                    "--force"
+                  ],
+                  "action": "store_true"
+                },
+                {
+                  "name": "path"
+                }
+              ],
+              "defaults": {
+                "act": "add"
+              }
+            }
+          ]
+        },
+        "argv": [
+          "add",
+          "--force",
+          "/tmp"
+        ]
+      },
+      "expected_output": "act=add\nforce=true\npath=/tmp\n"
+    },
+    {
+      "input": {
+        "subparsers": {
+          "parsers": [
+            {
+              "name": "only"
+            }
+          ]
+        },
+        "argv": []
+      },
+      "expected_output": "error: too few arguments\n"
+    },
+    {
+      "input": {
+        "subparsers": {
+          "parsers": [
+            {
+              "name": "status",
+              "defaults": {
+                "act": "status"
+              }
+            },
+            {
+              "name": "stash",
+              "defaults": {
+                "act": "stash"
+              }
+            }
+          ]
+        },
+        "argv": [
+          "sta"
+        ]
+      },
+      "expected_output": "error: ambiguous command: sta could match stash, status\n"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+    "description": "By default, when a reordering operation changes positions, the modified-timestamp of every record whose position actually changed is refreshed to the current time, while records that did not move keep their earlier timestamp. This timestamp touching can be disabled by configuration, in which case a reordering (including the gap-closing after a deletion) leaves all timestamps untouched even though positions still update. Each case first creates four elements at a baseline time, then performs one operation at a later time; the report buckets each remaining element's modified-timestamp as either the baseline or the later moment.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "column": "pos"
+                },
+                "operations": [
+                    {
+                        "op": "at_time",
+                        "at": "base",
+                        "operations": [
+                            {
+                                "op": "create",
+                                "ref": "a"
+                            },
+                            {
+                                "op": "create",
+                                "ref": "b"
+                            },
+                            {
+                                "op": "create",
+                                "ref": "c"
+                            },
+                            {
+                                "op": "create",
+                                "ref": "d"
+                            }
+                        ]
+                    },
+                    {
+                        "op": "at_time",
+                        "at": "later",
+                        "operations": [
+                            {
+                                "op": "move_down",
+                                "ref": "a"
+                            }
+                        ]
+                    }
+                ],
+                "queries": [
+                    {
+                        "q": "timestamp_buckets",
+                        "order": "id"
+                    }
+                ]
+            },
+            "expected_output": "timestamps=[later, later, base, base]"
+        }
+    ]
+}

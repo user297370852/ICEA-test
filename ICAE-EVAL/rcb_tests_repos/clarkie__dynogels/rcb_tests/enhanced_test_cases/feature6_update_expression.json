@@ -1,0 +1,118 @@
+{
+  "description": "ENHANCED update-expression bundle edge cases: a single record exercising all four action groups at once (SET, ADD, DELETE, REMOVE); numeric zero routed to SET (not REMOVE) with a value binding; the declared sort key excluded alongside the partition key; a $del on a number set rendered as a set-tagged value binding; and a date-typed plain value serialized to ISO-8601 in the value bindings.",
+  "cases": [
+    {
+      "input": {
+        "op": "expr_serialize_update",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "name": "string",
+            "count": "number",
+            "tags": {
+              "set": "string"
+            },
+            "old": "string"
+          }
+        },
+        "item": {
+          "id": "x",
+          "name": "Tim",
+          "count": {
+            "$add": 2
+          },
+          "tags": {
+            "$del": [
+              "a",
+              "b"
+            ]
+          },
+          "old": null
+        }
+      },
+      "expected_output": "{\"attributeNames\":{\"#count\":\"count\",\"#name\":\"name\",\"#old\":\"old\",\"#tags\":\"tags\"},\"expressions\":{\"ADD\":[\"#count :count\"],\"DELETE\":[\"#tags :tags\"],\"REMOVE\":[\"#old\"],\"SET\":[\"#name = :name\"]},\"values\":{\":count\":2,\":name\":\"Tim\",\":tags\":{\"SS\":[\"a\",\"b\"]}}}\n"
+    },
+    {
+      "input": {
+        "op": "expr_serialize_update",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "count": "number"
+          }
+        },
+        "item": {
+          "id": "x",
+          "count": 0
+        }
+      },
+      "expected_output": "{\"attributeNames\":{\"#count\":\"count\"},\"expressions\":{\"ADD\":[],\"DELETE\":[],\"REMOVE\":[],\"SET\":[\"#count = :count\"]},\"values\":{\":count\":0}}\n"
+    },
+    {
+      "input": {
+        "op": "expr_serialize_update",
+        "config": {
+          "hashKey": "id",
+          "rangeKey": "ts",
+          "schema": {
+            "id": "string",
+            "ts": "number",
+            "title": "string"
+          }
+        },
+        "item": {
+          "id": "x",
+          "ts": 9,
+          "title": "hello"
+        }
+      },
+      "expected_output": "{\"attributeNames\":{\"#title\":\"title\"},\"expressions\":{\"ADD\":[],\"DELETE\":[],\"REMOVE\":[],\"SET\":[\"#title = :title\"]},\"values\":{\":title\":\"hello\"}}\n"
+    },
+    {
+      "input": {
+        "op": "expr_serialize_update",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "scores": {
+              "set": "number"
+            }
+          }
+        },
+        "item": {
+          "id": "x",
+          "scores": {
+            "$del": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"attributeNames\":{\"#scores\":\"scores\"},\"expressions\":{\"ADD\":[],\"DELETE\":[\"#scores :scores\"],\"REMOVE\":[],\"SET\":[]},\"values\":{\":scores\":{\"NS\":[1,2,3]}}}\n"
+    },
+    {
+      "input": {
+        "op": "expr_serialize_update",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "when": "date"
+          }
+        },
+        "item": {
+          "id": "x",
+          "when": {
+            "__date__": "2024-04-04T04:04:04.000Z"
+          }
+        }
+      },
+      "expected_output": "{\"attributeNames\":{\"#when\":\"when\"},\"expressions\":{\"ADD\":[],\"DELETE\":[],\"REMOVE\":[],\"SET\":[\"#when = :when\"]},\"values\":{\":when\":\"2024-04-04T04:04:04.000Z\"}}\n"
+    }
+  ]
+}

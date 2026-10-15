@@ -1,0 +1,19 @@
+{
+    "description": "Generate the SSH-wrapped command to follow (stream) logs of the latest running container on a given host. The remote command finds the running container by service/role labels and tails its logs with timestamps in follow mode, stderr merged. An optional grep filter is appended to the remote pipeline. The whole remote pipeline is single-quoted and wrapped in an ssh invocation to the host.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "follow_logs", "args": {"host": "app-1"}
+            },
+            "expected_output": "ssh -t root@app-1 'docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --timestamps --tail 10 --follow 2>&1'"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "follow_logs", "args": {"host": "app-1", "grep": "Completed"}
+            },
+            "expected_output": "ssh -t root@app-1 'docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --timestamps --tail 10 --follow 2>&1 | grep \"Completed\"'"
+        }
+    ]
+}

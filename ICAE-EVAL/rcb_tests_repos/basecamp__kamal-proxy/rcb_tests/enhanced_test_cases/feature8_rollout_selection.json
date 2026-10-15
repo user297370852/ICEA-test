@@ -1,0 +1,64 @@
+{
+  "description": "Enhanced deterministic rollout edge cases: an empty-string cookie value is treated as absent and never falls in the group, allowlist membership forces inclusion even at zero percent while non-listed identifiers are excluded, and the reproducible population sweep yields stable selection counts at several target percentages (10, 25, 33, 90) confirming the FNV-1a-modulo-100 split is deterministic. Each evaluation reports the identifier and group decision; each sweep reports matched out of total.",
+  "cases": [
+    {
+      "input": {
+        "kind": "rollout_split",
+        "percent": 50,
+        "cookie_values": [
+          ""
+        ]
+      },
+      "expected_output": "value= group=false\n"
+    },
+    {
+      "input": {
+        "kind": "rollout_split",
+        "percent": 0,
+        "allowlist": [
+          "a",
+          "b"
+        ],
+        "cookie_values": [
+          "a",
+          "b",
+          "c",
+          null
+        ]
+      },
+      "expected_output": "value=a group=true\nvalue=b group=true\nvalue=c group=false\nvalue=<none> group=false\n"
+    },
+    {
+      "input": {
+        "kind": "rollout_split",
+        "percent": 10,
+        "generate": 1000
+      },
+      "expected_output": "matched=83 total=1000\n"
+    },
+    {
+      "input": {
+        "kind": "rollout_split",
+        "percent": 25,
+        "generate": 1000
+      },
+      "expected_output": "matched=217 total=1000\n"
+    },
+    {
+      "input": {
+        "kind": "rollout_split",
+        "percent": 33,
+        "generate": 500
+      },
+      "expected_output": "matched=188 total=500\n"
+    },
+    {
+      "input": {
+        "kind": "rollout_split",
+        "percent": 90,
+        "generate": 1000
+      },
+      "expected_output": "matched=882 total=1000\n"
+    }
+  ]
+}

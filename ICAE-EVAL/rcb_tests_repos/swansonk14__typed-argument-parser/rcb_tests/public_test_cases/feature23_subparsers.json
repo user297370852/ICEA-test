@@ -1,0 +1,92 @@
+{
+    "description": "A parser can register named subcommands, each with its own arguments. Selecting a subcommand on the command line activates only that subcommand's arguments; the top-level arguments remain available before the subcommand token. When no subcommand is selected, only the top-level arguments are present. A subcommand's own arguments are unavailable unless that subcommand is chosen.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "subparsers": {
+                    "items": [
+                        {
+                            "flag": "a",
+                            "spec": {
+                                "arguments": [
+                                    {
+                                        "name": "bar",
+                                        "type": "int"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "flag": "b",
+                            "spec": {
+                                "arguments": [
+                                    {
+                                        "name": "baz",
+                                        "type": "Literal['X', 'Y', 'Z']"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "argv": [
+                    "a",
+                    "--bar",
+                    "1"
+                ]
+            },
+            "expected_output": "bar=int:1\nfoo=bool:False\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "type": "bool",
+                        "default": false
+                    }
+                ],
+                "subparsers": {
+                    "items": [
+                        {
+                            "flag": "a",
+                            "spec": {
+                                "arguments": [
+                                    {
+                                        "name": "bar",
+                                        "type": "int"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "flag": "b",
+                            "spec": {
+                                "arguments": [
+                                    {
+                                        "name": "baz",
+                                        "type": "Literal['X', 'Y', 'Z']"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "argv": [
+                    "--foo",
+                    "b",
+                    "--baz",
+                    "X"
+                ]
+            },
+            "expected_output": "baz=str:X\nfoo=bool:True\n"
+        }
+    ]
+}

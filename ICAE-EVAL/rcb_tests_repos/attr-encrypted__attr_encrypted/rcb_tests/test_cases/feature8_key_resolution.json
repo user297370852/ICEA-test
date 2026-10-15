@@ -1,0 +1,103 @@
+{
+  "description": "The encryption key for an attribute can be supplied indirectly rather than as a literal: as a reference naming an instance method that returns the key, or as a callable evaluated in the instance's context. In every form the resolved key is used so that assigning a value stores a non-plaintext representation and reading it back recovers the original plaintext. Each transcript line reports a recovered value, a storage-presence fact, or a stored-versus-plaintext comparison.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "ssn"
+              ],
+              "options": {
+                "key": {
+                  "$sym": "secret_key"
+                },
+                "attribute": "ssn_encrypted"
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "key": {
+                  "$proc_key": true
+                },
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            }
+          ],
+          "global_options": {
+            "mode": "per_attribute_iv_and_salt"
+          },
+          "instance_methods": {
+            "secret_key": {
+              "$key": true
+            }
+          }
+        },
+        "ops": [
+          {
+            "kind": "assign_read",
+            "attr": "ssn",
+            "value": "testing",
+            "report_stored": true,
+            "report_stored_equals_plain": true
+          }
+        ]
+      },
+      "expected_output": "assign_read[ssn]=testing\nstored_equals_plain[ssn]=false\nstored_present[ssn]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "ssn"
+              ],
+              "options": {
+                "key": {
+                  "$sym": "secret_key"
+                },
+                "attribute": "ssn_encrypted"
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "key": {
+                  "$proc_key": true
+                },
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            }
+          ],
+          "global_options": {
+            "mode": "per_attribute_iv_and_salt"
+          },
+          "instance_methods": {
+            "secret_key": {
+              "$key": true
+            }
+          }
+        },
+        "ops": [
+          {
+            "kind": "assign_read",
+            "attr": "password",
+            "value": "testing",
+            "report_stored": true,
+            "report_stored_equals_plain": true
+          }
+        ]
+      },
+      "expected_output": "assign_read[password]=testing\nstored_equals_plain[password]=false\nstored_present[password]=true\n"
+    }
+  ]
+}

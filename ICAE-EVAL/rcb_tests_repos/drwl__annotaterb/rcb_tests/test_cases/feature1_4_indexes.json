@@ -1,0 +1,149 @@
+{
+  "description": "An indexes section appended after the columns when index display is enabled. Each index renders its name and parenthesised column list, with markers for uniqueness, a partial predicate, a non-default access method, and per-column ordering. A separate inline mode instead annotates each indexed column on its own line.",
+  "cases": [
+    {
+      "input": {
+        "table_name": "users",
+        "primary_key": "id",
+        "options": {
+          "show_indexes": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "limit": 255,
+            "null": true
+          }
+        ],
+        "indexes": [
+          {
+            "name": "index_users_on_email",
+            "columns": [
+              "email"
+            ],
+            "unique": true
+          },
+          {
+            "name": "index_users_on_team_and_role",
+            "columns": [
+              "team",
+              "role"
+            ]
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: users\n#\n#  id    :integer          not null, primary key\n#  email :string(255)\n#\n# Indexes\n#\n#  index_users_on_email          (email) UNIQUE\n#  index_users_on_team_and_role  (team,role)\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "sessions",
+        "primary_key": "id",
+        "options": {
+          "show_indexes": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "index_sessions_partial",
+            "columns": [
+              "id"
+            ],
+            "where": "revoked_at IS NULL"
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: sessions\n#\n#  id :integer          not null, primary key\n#\n# Indexes\n#\n#  index_sessions_partial  (id) WHERE revoked_at IS NULL\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "places",
+        "primary_key": "id",
+        "options": {
+          "show_indexes": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "index_places_geo",
+            "columns": [
+              "id"
+            ],
+            "using": "gist"
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: places\n#\n#  id :integer          not null, primary key\n#\n# Indexes\n#\n#  index_places_geo  (id) USING gist\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "rankings",
+        "primary_key": "id",
+        "options": {
+          "show_indexes": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "index_rankings_on_score",
+            "columns": [
+              "score"
+            ],
+            "orders": {
+              "score": "desc"
+            }
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: rankings\n#\n#  id :integer          not null, primary key\n#\n# Indexes\n#\n#  index_rankings_on_score  (score DESC)\n#\n"
+    },
+    {
+      "input": {
+        "table_name": "users",
+        "primary_key": "id",
+        "options": {
+          "simple_indexes": true
+        },
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "name": "handle",
+            "type": "string",
+            "limit": 40
+          }
+        ],
+        "indexes": [
+          {
+            "name": "index_users_on_handle",
+            "columns": [
+              "handle"
+            ]
+          }
+        ]
+      },
+      "expected_output": "# == Schema Information\n#\n# Table name: users\n#\n#  id     :integer          not null, primary key\n#  handle :string(40)       not null, indexed\n#\n"
+    }
+  ]
+}

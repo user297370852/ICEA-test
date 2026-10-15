@@ -1,0 +1,54 @@
+{
+  "description": "Boundary coverage for registry server extraction from an image reference. Covers host:port leading components, a bare single-name reference, references carrying a tag or a digest, deeply nested repository paths, and an unparseable whitespace input. The server is the substring up to the first path separator of the parsed reference. Output is either the extracted server component or the neutral invalid-reference error line.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_server",
+        "ref": "example.com:5000/lib/app"
+      },
+      "expected_output": "server=example.com:5000\n"
+    },
+    {
+      "input": {
+        "action": "parse_server",
+        "ref": "localhost:5000/app"
+      },
+      "expected_output": "server=localhost:5000\n"
+    },
+    {
+      "input": {
+        "action": "parse_server",
+        "ref": "alpine"
+      },
+      "expected_output": "server=alpine\n"
+    },
+    {
+      "input": {
+        "action": "parse_server",
+        "ref": "ubuntu:18.04"
+      },
+      "expected_output": "server=ubuntu:18.04\n"
+    },
+    {
+      "input": {
+        "action": "parse_server",
+        "ref": "registry.io/team/sub/app:1.2.3"
+      },
+      "expected_output": "server=registry.io\n"
+    },
+    {
+      "input": {
+        "action": "parse_server",
+        "ref": "example.com/app@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "expected_output": "server=example.com\n"
+    },
+    {
+      "input": {
+        "action": "parse_server",
+        "ref": "   "
+      },
+      "expected_output": "error=invalid_reference\n"
+    }
+  ]
+}

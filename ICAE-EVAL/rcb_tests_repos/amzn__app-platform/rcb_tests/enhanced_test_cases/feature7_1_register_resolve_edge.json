@@ -1,0 +1,99 @@
+{
+  "description": "Register-and-resolve boundary coverage: a container resolves a held beta aggregate from the same container; two independent top-level containers resolve their own aggregates without cross-talk; resolution from a grandchild that holds nothing walks up to the nearest matching ancestor for each requested type.",
+  "cases": [
+    {
+      "input": {
+        "action": "di",
+        "scopes": [
+          {
+            "id": "r",
+            "parent": null,
+            "component": {
+              "type": "beta",
+              "id": "only_beta"
+            }
+          }
+        ],
+        "lookups": [
+          {
+            "scope": "r",
+            "type": "beta"
+          }
+        ]
+      },
+      "expected_output": "lookup[r,beta]=component=only_beta\n"
+    },
+    {
+      "input": {
+        "action": "di",
+        "scopes": [
+          {
+            "id": "r1",
+            "parent": null,
+            "component": {
+              "type": "alpha",
+              "id": "alpha_one"
+            }
+          },
+          {
+            "id": "r2",
+            "parent": null,
+            "component": {
+              "type": "alpha",
+              "id": "alpha_two"
+            }
+          }
+        ],
+        "lookups": [
+          {
+            "scope": "r1",
+            "type": "alpha"
+          },
+          {
+            "scope": "r2",
+            "type": "alpha"
+          }
+        ]
+      },
+      "expected_output": "lookup[r1,alpha]=component=alpha_one\nlookup[r2,alpha]=component=alpha_two\n"
+    },
+    {
+      "input": {
+        "action": "di",
+        "scopes": [
+          {
+            "id": "r",
+            "parent": null,
+            "component": {
+              "type": "alpha",
+              "id": "root_alpha"
+            }
+          },
+          {
+            "id": "c",
+            "parent": "r",
+            "component": {
+              "type": "beta",
+              "id": "mid_beta"
+            }
+          },
+          {
+            "id": "g",
+            "parent": "c"
+          }
+        ],
+        "lookups": [
+          {
+            "scope": "g",
+            "type": "beta"
+          },
+          {
+            "scope": "g",
+            "type": "alpha"
+          }
+        ]
+      },
+      "expected_output": "lookup[g,beta]=component=mid_beta\nlookup[g,alpha]=component=root_alpha\n"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "description": "Edge cases for audience+scope cache keying: the '::' delimiter ambiguity where different audience/scope splits collide on the same key, empty-scope handling, exact-match selection among several lookups, and a total miss.",
+  "cases": [
+    {
+      "input": {
+        "op": "cache_key",
+        "entry": {
+          "audience": "a",
+          "scope": "b::c",
+          "access_token": "AT-amb",
+          "id_token": "id",
+          "expires_in": 3600,
+          "exp": 2000000000
+        },
+        "lookups": [
+          {
+            "audience": "a::b",
+            "scope": "c"
+          },
+          {
+            "audience": "a",
+            "scope": "b::c"
+          }
+        ]
+      },
+      "expected_output": "lookup0=AT-amb\nlookup1=AT-amb\n"
+    },
+    {
+      "input": {
+        "op": "cache_key",
+        "entry": {
+          "audience": "https://api.x/",
+          "scope": "",
+          "access_token": "AT-empty",
+          "id_token": "id",
+          "expires_in": 600,
+          "exp": 2000000000
+        },
+        "lookups": [
+          {
+            "audience": "https://api.x/",
+            "scope": ""
+          },
+          {
+            "audience": "https://api.x/",
+            "scope": " "
+          }
+        ]
+      },
+      "expected_output": "lookup0=AT-empty\nlookup1=miss\n"
+    },
+    {
+      "input": {
+        "op": "cache_key",
+        "entry": {
+          "audience": "default",
+          "scope": "openid profile email",
+          "access_token": "AT-sel",
+          "id_token": "id",
+          "expires_in": 3600,
+          "exp": 2000000000
+        },
+        "lookups": [
+          {
+            "audience": "default",
+            "scope": "openid"
+          },
+          {
+            "audience": "default",
+            "scope": "openid profile"
+          },
+          {
+            "audience": "default",
+            "scope": "openid profile email"
+          },
+          {
+            "audience": "other",
+            "scope": "openid profile email"
+          }
+        ]
+      },
+      "expected_output": "lookup0=miss\nlookup1=miss\nlookup2=AT-sel\nlookup3=miss\n"
+    },
+    {
+      "input": {
+        "op": "cache_key",
+        "entry": {
+          "audience": "https://api.x/",
+          "scope": "read",
+          "access_token": "AT-miss",
+          "id_token": "id",
+          "expires_in": 3600,
+          "exp": 2000000000
+        },
+        "lookups": [
+          {
+            "audience": "https://api.y/",
+            "scope": "read"
+          },
+          {
+            "audience": "https://api.x/",
+            "scope": "write"
+          }
+        ]
+      },
+      "expected_output": "lookup0=miss\nlookup1=miss\n"
+    }
+  ]
+}

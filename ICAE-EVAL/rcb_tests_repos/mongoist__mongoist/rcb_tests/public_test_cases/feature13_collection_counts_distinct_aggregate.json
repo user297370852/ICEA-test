@@ -1,0 +1,53 @@
+{
+    "description": "Counting, distinct-value lookup, and aggregation pipelines must produce the expected collection-level analytical results.",
+    "cases": [
+        {
+            "input": {
+                "collection": "a",
+                "seed": [
+                    {
+                        "name": "Squirtle",
+                        "type": "water",
+                        "level": 10
+                    },
+                    {
+                        "name": "Starmie",
+                        "type": "water",
+                        "level": 8
+                    },
+                    {
+                        "name": "Charmander",
+                        "type": "fire",
+                        "level": 8
+                    },
+                    {
+                        "name": "Lapras",
+                        "type": "water",
+                        "level": 12
+                    }
+                ],
+                "countQuery": {
+                    "type": "water"
+                },
+                "distinctField": "name",
+                "distinctQuery": {
+                    "type": "water"
+                },
+                "pipeline": [
+                    {
+                        "$group": {
+                            "_id": "$type"
+                        }
+                    },
+                    {
+                        "$project": {
+                            "_id": 0,
+                            "foo": "$_id"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "water_count=3\ndistinct_names=Squirtle,Starmie,Lapras\naggregate_types=fire,water\n"
+        }
+    ]
+}

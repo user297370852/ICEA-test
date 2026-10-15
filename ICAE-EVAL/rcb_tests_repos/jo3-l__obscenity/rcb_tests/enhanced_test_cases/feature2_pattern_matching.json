@@ -1,0 +1,67 @@
+{
+  "description": "Enhanced matching coverage for end boundaries, optional phrase alternatives, complete whitelist suppression, transform pipelines, and repeated non-overlapping matches.",
+  "cases": [
+    {
+      "input": {
+        "patterns": [
+          "bad|"
+        ],
+        "text": "bad badder bad"
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":0,\"start_index\":0,\"end_index\":2,\"match_length\":3},{\"term_id\":0,\"start_index\":11,\"end_index\":13,\"match_length\":3}]}"
+    },
+    {
+      "input": {
+        "patterns": [
+          "h[ey]?o"
+        ],
+        "text": "ho hayo heyo"
+      },
+      "expected_output": "{\"has_match\":false,\"matches\":[]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 7,
+            "pattern": "abc"
+          }
+        ],
+        "text": "xx abc yy",
+        "whitelist": [
+          "x abc y"
+        ]
+      },
+      "expected_output": "{\"has_match\":false,\"matches\":[]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 2,
+            "pattern": "bad"
+          }
+        ],
+        "text": "B@D bad",
+        "blacklist_transforms": [
+          "leet_speak",
+          "ascii_lowercase"
+        ]
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":2,\"start_index\":0,\"end_index\":2,\"match_length\":3},{\"term_id\":2,\"start_index\":4,\"end_index\":6,\"match_length\":3}]}"
+    },
+    {
+      "input": {
+        "terms": [
+          {
+            "id": 5,
+            "pattern": "aa"
+          }
+        ],
+        "text": "aaaa",
+        "sorted": true
+      },
+      "expected_output": "{\"has_match\":true,\"matches\":[{\"term_id\":5,\"start_index\":0,\"end_index\":1,\"match_length\":2},{\"term_id\":5,\"start_index\":2,\"end_index\":3,\"match_length\":2}]}"
+    }
+  ]
+}

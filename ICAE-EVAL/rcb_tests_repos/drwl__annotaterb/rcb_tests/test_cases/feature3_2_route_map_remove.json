@@ -1,0 +1,32 @@
+{
+  "description": "Removing a route-map annotation block from a routes file. The titled, hash-commented annotation block is stripped while genuine file content and unrelated leading comment lines are preserved. When the annotation was trailing, trailing blank lines introduced by it are trimmed but leading blank lines are left intact; when the annotation was leading, the reverse holds. The reported status indicates that annotations were removed.",
+  "cases": [
+    {
+      "input": {
+        "op": "routes",
+        "action": "remove",
+        "file_present": true,
+        "routes_file_content": "\n\n\nRails.application.routes.draw do\n  root 'root#index'\nend\n\n\n# == Route Map\n#\n# another good line\n# good line\n"
+      },
+      "expected_output": "status=removed\nfile=config/routes.rb\n\n\n\nRails.application.routes.draw do\n  root 'root#index'\nend\n"
+    },
+    {
+      "input": {
+        "op": "routes",
+        "action": "remove",
+        "file_present": true,
+        "routes_file_content": "# == Route Map\n#\n# another good line\n# good line\n\n\n\nRails.application.routes.draw do\n  root 'root#index'\nend\n\n\n"
+      },
+      "expected_output": "status=removed\nfile=config/routes.rb\nRails.application.routes.draw do\n  root 'root#index'\nend\n\n\n"
+    },
+    {
+      "input": {
+        "op": "routes",
+        "action": "remove",
+        "file_present": true,
+        "routes_file_content": "# My comment\n# == Route Map\n#\n# good line\nRails.application.routes.draw do\n  root 'root#index'\nend\n"
+      },
+      "expected_output": "status=removed\nfile=config/routes.rb\n# My comment\nRails.application.routes.draw do\n  root 'root#index'\nend\n"
+    }
+  ]
+}

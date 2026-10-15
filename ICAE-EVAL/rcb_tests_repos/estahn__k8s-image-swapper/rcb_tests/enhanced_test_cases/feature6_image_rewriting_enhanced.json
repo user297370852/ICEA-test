@@ -1,0 +1,162 @@
+{
+  "description": "Enhanced image rewriting cases covering already-mirrored images, explicit source registries, digest-only references, custom endpoints, and filter-based skips.",
+  "cases": [
+    {
+      "input": {
+        "op": "swap_images",
+        "admission_review": {
+          "apiVersion": "admission.k8s.io/v1",
+          "kind": "AdmissionReview",
+          "request": {
+            "uid": "00000000-0000-0000-0000-000000000001",
+            "name": "already-mirrored",
+            "namespace": "default",
+            "operation": "CREATE",
+            "kind": {
+              "group": "",
+              "kind": "Pod",
+              "version": "v1"
+            },
+            "resource": {
+              "group": "",
+              "resource": "pods",
+              "version": "v1"
+            },
+            "object": {
+              "apiVersion": "v1",
+              "kind": "Pod",
+              "metadata": {
+                "creationTimestamp": null,
+                "name": "already-mirrored",
+                "namespace": "default"
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "app",
+                    "image": "123456789.dkr.ecr.ap-southeast-2.amazonaws.com/docker.io/library/nginx:latest",
+                    "resources": {}
+                  }
+                ]
+              },
+              "status": {}
+            }
+          }
+        }
+      },
+      "expected_output": "target_registry=123456789.dkr.ecr.ap-southeast-2.amazonaws.com\npatch_ops=0\nwarnings=none\n"
+    },
+    {
+      "input": {
+        "op": "swap_images",
+        "endpoint": "mirror.example.com",
+        "region": "us-west-2",
+        "admission_review": {
+          "apiVersion": "admission.k8s.io/v1",
+          "kind": "AdmissionReview",
+          "request": {
+            "uid": "00000000-0000-0000-0000-000000000002",
+            "name": "mixed-images",
+            "namespace": "prod",
+            "operation": "CREATE",
+            "kind": {
+              "group": "",
+              "kind": "Pod",
+              "version": "v1"
+            },
+            "resource": {
+              "group": "",
+              "resource": "pods",
+              "version": "v1"
+            },
+            "object": {
+              "apiVersion": "v1",
+              "kind": "Pod",
+              "metadata": {
+                "creationTimestamp": null,
+                "name": "mixed-images",
+                "namespace": "prod"
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "quay-app",
+                    "image": "quay.io/acme/app:1.2.3",
+                    "resources": {}
+                  },
+                  {
+                    "name": "digest-busybox",
+                    "image": "busybox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "resources": {}
+                  }
+                ],
+                "initContainers": [
+                  {
+                    "name": "setup",
+                    "image": "redis:7",
+                    "resources": {}
+                  }
+                ]
+              },
+              "status": {}
+            }
+          }
+        }
+      },
+      "expected_output": "target_registry=mirror.example.com\npatch_ops=3\nreplace /spec/containers/0/image mirror.example.com/quay.io/acme/app:1.2.3\nreplace /spec/containers/1/image mirror.example.com/docker.io/library/busybox@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nreplace /spec/initContainers/0/image mirror.example.com/docker.io/library/redis:7\nwarnings=none\n"
+    },
+    {
+      "input": {
+        "op": "swap_images",
+        "filters": [
+          "contains(container.image, '.dkr.ecr.') && contains(container.image, '.amazonaws.com')"
+        ],
+        "admission_review": {
+          "apiVersion": "admission.k8s.io/v1",
+          "kind": "AdmissionReview",
+          "request": {
+            "uid": "00000000-0000-0000-0000-000000000003",
+            "name": "filter-skip",
+            "namespace": "default",
+            "operation": "CREATE",
+            "kind": {
+              "group": "",
+              "kind": "Pod",
+              "version": "v1"
+            },
+            "resource": {
+              "group": "",
+              "resource": "pods",
+              "version": "v1"
+            },
+            "object": {
+              "apiVersion": "v1",
+              "kind": "Pod",
+              "metadata": {
+                "creationTimestamp": null,
+                "name": "filter-skip",
+                "namespace": "default"
+              },
+              "spec": {
+                "containers": [
+                  {
+                    "name": "external",
+                    "image": "nginx:1.25",
+                    "resources": {}
+                  },
+                  {
+                    "name": "aws",
+                    "image": "111111111111.dkr.ecr.us-east-1.amazonaws.com/team/api:v1",
+                    "resources": {}
+                  }
+                ]
+              },
+              "status": {}
+            }
+          }
+        }
+      },
+      "expected_output": "target_registry=123456789.dkr.ecr.ap-southeast-2.amazonaws.com\npatch_ops=1\nreplace /spec/containers/0/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/docker.io/library/nginx:1.25\nwarnings=none\n"
+    }
+  ]
+}

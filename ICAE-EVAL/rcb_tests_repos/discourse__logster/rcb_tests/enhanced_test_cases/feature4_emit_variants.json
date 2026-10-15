@@ -1,0 +1,60 @@
+{
+  "description": "Flexible emit-argument coverage: an entry with only a level and nothing else is still recorded with empty source, message, and validity segments; a deferred producer combined with an explicit source preserves the source while taking the message from the producer; an explicit message together with a producer keeps the explicit message and ignores the producer; and an entry whose message is null but which carries a source promotes the source value into the message, leaving the source segment empty.",
+  "cases": [
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 3
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=3 source= message= backtrace= env= valid_encoding=\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 1,
+              "block": "deferred",
+              "source": "worker"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=worker message=deferred backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 1,
+              "message": "explicit",
+              "block": "ignored",
+              "source": "worker"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=worker message=explicit backtrace= env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 2,
+              "message": null,
+              "source": "boom"
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=2 source= message=boom backtrace= env= valid_encoding=true\nprimary total=1\n"
+    }
+  ]
+}

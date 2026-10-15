@@ -1,0 +1,76 @@
+{
+  "description": "Argument-conditional stubbing edge cases: the matched argument yields the configured value while a different argument and the empty-string argument both fall back to the type default null. Also verifies a matched argument repeats the configured value across multiple matching invocations.",
+  "cases": [
+    {
+      "input": {
+        "double": "mock",
+        "stubs": [
+          {
+            "member": "echo",
+            "matcher": {
+              "eq": ""
+            },
+            "return": "EMPTY"
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "echo",
+            "arg": ""
+          }
+        ]
+      },
+      "expected_output": "value=EMPTY\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "stubs": [
+          {
+            "member": "echo",
+            "matcher": {
+              "eq": "key"
+            },
+            "return": "HIT"
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "echo",
+            "arg": "key"
+          },
+          {
+            "do": "invoke",
+            "member": "echo",
+            "arg": "key"
+          }
+        ]
+      },
+      "expected_output": "value=HIT\nvalue=HIT\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "stubs": [
+          {
+            "member": "echo",
+            "matcher": {
+              "eq": "key"
+            },
+            "return": "HIT"
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "echo",
+            "arg": "other"
+          }
+        ]
+      },
+      "expected_output": "value=null\n"
+    }
+  ]
+}

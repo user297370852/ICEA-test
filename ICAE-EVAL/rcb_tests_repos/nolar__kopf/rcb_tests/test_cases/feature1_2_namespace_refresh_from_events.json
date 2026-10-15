@@ -1,0 +1,149 @@
+{
+    "description": "Refresh namespace membership from namespace event objects, treating ordinary events as additions, deletion timestamps or deletion event types as removals, and ignoring names outside configured patterns.",
+    "cases": [
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": null,
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=ns1\n"
+        },
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": null,
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": null,
+                                "metadata": {
+                                    "name": "ns2"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=ns1,ns2\n"
+        },
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": null,
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": null,
+                                "metadata": {
+                                    "name": "ns1",
+                                    "deletionTimestamp": "..."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=\n"
+        },
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": null,
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": "DELETED",
+                                "metadata": {
+                                    "name": "ns1"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=\n"
+        },
+        {
+            "input": {
+                "action": "refresh_namespaces",
+                "patterns": [
+                    "ns*"
+                ],
+                "steps": [
+                    {
+                        "source": "events",
+                        "items": [
+                            {
+                                "type": null,
+                                "metadata": {
+                                    "name": "def1"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "namespaces=\n"
+        }
+    ]
+}

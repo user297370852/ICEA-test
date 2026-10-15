@@ -1,0 +1,69 @@
+{
+    "description": "Parse geographies from binary form. Empty point and empty multipoint encodings normalize to the empty point; a collection of an empty point is preserved. By default a non-minimal areal ring is re-oriented to enclose the smaller region, observable through a point that then lies within it; declaring the orientation as meaningful preserves the supplied winding.",
+    "cases": [
+        {
+            "input": {
+                "op": "from_wkb",
+                "wkb_hex": "0101000000000000000000f03f000000000000f03f"
+            },
+            "expected_output": "wkt=POINT (1 1)\n"
+        },
+        {
+            "input": {
+                "op": "from_wkb",
+                "wkb_hex": "0101000000000000000000f87f000000000000f87f"
+            },
+            "expected_output": "wkt=POINT EMPTY\n"
+        },
+        {
+            "input": {
+                "op": "from_wkb",
+                "wkb_hex": "0104000000010000000101000000000000000000f87f000000000000f87f"
+            },
+            "expected_output": "wkt=POINT EMPTY\n"
+        },
+        {
+            "input": {
+                "op": "from_wkb",
+                "wkb_hex": "0107000000010000000101000000000000000000f87f000000000000f87f"
+            },
+            "expected_output": "wkt=GEOMETRYCOLLECTION (POINT EMPTY)\n"
+        },
+        {
+            "input": {
+                "op": "from_wkb",
+                "wkb_hex": "01030000000100000002000000507daec600b1354100de02498e5e3d41306ea321fcb03541a011a53d905e3d41"
+            },
+            "expected_output": "wkt=POLYGON ((108.7761 -10.2852, 108.7761 -10.2852))\n"
+        },
+        {
+            "input": {
+                "op": "from_wkb",
+                "wkb_hex": "010300000001000000050000000000000000000000000000000000000000000000000000000000000000002440000000000000244000000000000024400000000000002440000000000000000000000000000000000000000000000000",
+                "within": {
+                    "type": "point",
+                    "coords": [
+                        5,
+                        5
+                    ]
+                }
+            },
+            "expected_output": "wkt=POLYGON ((10 0, 10 10, 0 10, 0 0, 10 0))\nwithin=true\n"
+        },
+        {
+            "input": {
+                "op": "from_wkb",
+                "wkb_hex": "010300000001000000050000000000000000000000000000000000000000000000000000000000000000002440000000000000244000000000000024400000000000002440000000000000000000000000000000000000000000000000",
+                "oriented": true,
+                "within": {
+                    "type": "point",
+                    "coords": [
+                        5,
+                        5
+                    ]
+                }
+            },
+            "expected_output": "wkt=POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0))\nwithin=false\n"
+        }
+    ]
+}

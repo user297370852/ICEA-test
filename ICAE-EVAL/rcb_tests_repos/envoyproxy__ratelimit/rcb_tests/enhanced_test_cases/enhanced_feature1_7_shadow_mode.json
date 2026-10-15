@@ -1,0 +1,75 @@
+{
+  "description": "Shadow mode is reported per descriptor: a value-qualified node that both carries a shadowed limit and owns deeper descriptors reports it enabled, a nested child without the flag reports it disabled, and an unrelated sibling default reports it disabled.",
+  "cases": [
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: p\n    value: pv\n    rate_limit:\n      unit: minute\n      requests_per_unit: 11\n    shadow_mode: true\n    descriptors:\n      - key: q\n        rate_limit:\n          unit: hour\n          requests_per_unit: 12\n  - key: r\n    rate_limit:\n      unit: day\n      requests_per_unit: 13\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "p",
+              "value": "pv"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.p_pv\nrequests_per_unit=11\nunit=MINUTE\nunlimited=false\nshadow_mode=true\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: p\n    value: pv\n    rate_limit:\n      unit: minute\n      requests_per_unit: 11\n    shadow_mode: true\n    descriptors:\n      - key: q\n        rate_limit:\n          unit: hour\n          requests_per_unit: 12\n  - key: r\n    rate_limit:\n      unit: day\n      requests_per_unit: 13\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "p",
+              "value": "pv"
+            },
+            {
+              "key": "q",
+              "value": "x"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.p_pv.q\nrequests_per_unit=12\nunit=HOUR\nunlimited=false\nshadow_mode=false\n"
+    },
+    {
+      "input": {
+        "action": "config_lookup",
+        "domain": "d",
+        "merge": false,
+        "configs": [
+          {
+            "name": "config.yaml",
+            "content": "domain: d\ndescriptors:\n  - key: p\n    value: pv\n    rate_limit:\n      unit: minute\n      requests_per_unit: 11\n    shadow_mode: true\n    descriptors:\n      - key: q\n        rate_limit:\n          unit: hour\n          requests_per_unit: 12\n  - key: r\n    rate_limit:\n      unit: day\n      requests_per_unit: 13\n"
+          }
+        ],
+        "descriptor": {
+          "entries": [
+            {
+              "key": "r",
+              "value": "anything"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\nfull_key=d.r\nrequests_per_unit=13\nunit=DAY\nunlimited=false\nshadow_mode=false\n"
+    }
+  ]
+}

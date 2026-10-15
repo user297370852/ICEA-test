@@ -1,0 +1,55 @@
+{
+    "description": "Resolve a token vector against a parser that mixes optional arguments (named with a leading prefix character) and positional arguments, producing a set of name=value bindings. Covers: an optional that consumes one value, an optional with an optional value that falls back to a fixed constant when given with no value, a positional that greedily collects the remaining tokens; precedence of a parser-wide default over a per-argument default; a default sentinel that removes the binding entirely so the name is absent from the result; redistribution of positionals so a greedy collector yields tokens to later fixed-count and required positionals; and an optional appearing between positionals.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "?",
+                        "const": "c"
+                    },
+                    {
+                        "name": "suites",
+                        "nargs": "*"
+                    }
+                ],
+                "argv": [
+                    "--bar",
+                    "--foo",
+                    "hello",
+                    "cake",
+                    "dango",
+                    "mochi"
+                ]
+            },
+            "expected_output": "bar=c\nfoo=hello\nsuites=[cake, dango, mochi]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-g"
+                        ],
+                        "default": "::suppress::"
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "f=null\n"
+        }
+    ]
+}

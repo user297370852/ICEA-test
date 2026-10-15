@@ -1,0 +1,109 @@
+{
+  "description": "Service-contract discovery boundaries: single-contract service alone, multi-contract service alone, empty service list, a plain (non-contract) service, an untagged service that is skipped, and ordering across mixed service sets.",
+  "cases": [
+    {
+      "input": {
+        "handler": "grpc",
+        "services": [
+          {
+            "id": "only_single",
+            "kind": "single"
+          }
+        ]
+      },
+      "expected_output": "register service=only_single interface=grpc_single\n"
+    },
+    {
+      "input": {
+        "handler": "grpc",
+        "services": [
+          {
+            "id": "only_multi",
+            "kind": "multi"
+          }
+        ]
+      },
+      "expected_output": "register service=only_multi interface=grpc_foo\nregister service=only_multi interface=grpc_bar\n"
+    },
+    {
+      "input": {
+        "handler": "grpc",
+        "services": []
+      },
+      "expected_output": "registrations=0\n"
+    },
+    {
+      "input": {
+        "handler": "grpc",
+        "services": [
+          {
+            "id": "plain_svc",
+            "kind": "plain"
+          }
+        ]
+      },
+      "expected_output": "registrations=0\n"
+    },
+    {
+      "input": {
+        "handler": "grpc",
+        "services": [
+          {
+            "id": "untagged",
+            "kind": "single",
+            "tagged": false
+          }
+        ]
+      },
+      "expected_output": "registrations=0\n"
+    },
+    {
+      "input": {
+        "handler": "grpc",
+        "services": [
+          {
+            "id": "p",
+            "kind": "plain"
+          },
+          {
+            "id": "s",
+            "kind": "single"
+          }
+        ]
+      },
+      "expected_output": "register service=s interface=grpc_single\n"
+    },
+    {
+      "input": {
+        "handler": "grpc",
+        "services": [
+          {
+            "id": "m",
+            "kind": "multi"
+          },
+          {
+            "id": "s",
+            "kind": "single"
+          }
+        ]
+      },
+      "expected_output": "register service=m interface=grpc_foo\nregister service=m interface=grpc_bar\nregister service=s interface=grpc_single\n"
+    },
+    {
+      "input": {
+        "handler": "grpc",
+        "services": [
+          {
+            "id": "a",
+            "kind": "single"
+          },
+          {
+            "id": "b",
+            "kind": "single"
+          }
+        ]
+      },
+      "expected_output": "register service=a interface=grpc_single\nregister service=b interface=grpc_single\n"
+    }
+  ]
+}

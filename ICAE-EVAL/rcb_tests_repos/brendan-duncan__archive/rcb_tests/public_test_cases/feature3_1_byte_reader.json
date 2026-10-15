@@ -1,0 +1,46 @@
+{
+  "description": "Read from an in-memory byte buffer using a positioned cursor that advances as data is consumed. A program of read commands is executed in order against one buffer. Commands include: report the number of bytes remaining; read a single byte; look ahead at the next N bytes without advancing the cursor; advance the cursor by N bytes without reading; read a block of N bytes; read a NUL-terminated text run; read a fixed number of bytes as text; rewind the cursor to the start; and report whether the cursor is at end of stream. Each command that yields a value emits one labelled line; single bytes and byte blocks are reported in lowercase hexadecimal, text is reported verbatim.",
+  "cases": [
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          170,
+          187,
+          204
+        ],
+        "program": [
+          "len",
+          "byte",
+          "byte",
+          "byte",
+          "eos"
+        ]
+      },
+      "expected_output": "len=3\nbyte=aa\nbyte=bb\nbyte=cc\neos=true\n"
+    },
+    {
+      "input": {
+        "op": "read",
+        "data": [
+          84,
+          101,
+          115,
+          116,
+          0
+        ],
+        "program": [
+          "string",
+          "eos",
+          "reset",
+          {
+            "string": 4
+          },
+          "byte",
+          "eos"
+        ]
+      },
+      "expected_output": "str=Test\neos=true\nstr=Test\nbyte=00\neos=true\n"
+    }
+  ]
+}

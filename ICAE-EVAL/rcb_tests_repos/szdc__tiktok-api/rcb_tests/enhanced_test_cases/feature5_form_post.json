@@ -1,0 +1,63 @@
+{
+  "description": "Build a write request whose payload is delivered as a URL-encoded form body. Each operation routes a POST to its own fixed endpoint; the request body is the form-encoded serialization of the operation's fields (identifiers and content supplied by the caller plus any fixed defaults), and one operation also attaches a couple of constant query parameters alongside the body. The reply is parsed (preserving oversized integers) and returned. The output describes the HTTP method, endpoint path, any query parameters, the form-encoded body string, and the parsed response.",
+  "cases": [
+    {
+      "input": {
+        "action": "request",
+        "operation": "get_qr_code",
+        "args": {
+          "user_id": "0"
+        },
+        "response": "{}"
+      },
+      "expected_output": "{\"body\":\"schema_type=4&object_id=0\",\"method\":\"POST\",\"params\":{\"app_type\":\"normal\",\"js_sdk_version\":\"\"},\"path\":\"aweme/v1/fancy/qrcode/info/\",\"response\":{}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "get_qr_code",
+        "args": {
+          "user_id": "1"
+        },
+        "response": "{\"status_code\":0,\"qrcode_url\":{\"uri\":\"x/1\"}}"
+      },
+      "expected_output": "{\"body\":\"schema_type=4&object_id=1\",\"method\":\"POST\",\"params\":{\"app_type\":\"normal\",\"js_sdk_version\":\"\"},\"path\":\"aweme/v1/fancy/qrcode/info/\",\"response\":{\"qrcode_url\":{\"uri\":\"x/1\"},\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "post_comment",
+        "args": {
+          "post_id": "0",
+          "text": ""
+        },
+        "response": "{\"status_code\":0,\"comment\":{}}"
+      },
+      "expected_output": "{\"body\":\"text=&aweme_id=0&is_self_see=0\",\"method\":\"POST\",\"params\":{},\"path\":\"aweme/v1/comment/publish/\",\"response\":{\"comment\":{},\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "post_comment",
+        "args": {
+          "post_id": "1",
+          "text": "a&b=c"
+        },
+        "response": "{\"status_code\":0,\"comment\":{\"text\":\"a&b=c\"}}"
+      },
+      "expected_output": "{\"body\":\"text=a%26b%3Dc&aweme_id=1&is_self_see=0\",\"method\":\"POST\",\"params\":{},\"path\":\"aweme/v1/comment/publish/\",\"response\":{\"comment\":{\"text\":\"a&b=c\"},\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "post_comment",
+        "args": {
+          "post_id": "1",
+          "text": "café 文"
+        },
+        "response": "{\"status_code\":0,\"comment\":{}}"
+      },
+      "expected_output": "{\"body\":\"text=caf%C3%A9%20%E6%96%87&aweme_id=1&is_self_see=0\",\"method\":\"POST\",\"params\":{},\"path\":\"aweme/v1/comment/publish/\",\"response\":{\"comment\":{},\"status_code\":0}}\n"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "description": "Enhanced edge cases for plain-text URL cleaning: no-URL text, empty/missing input errors, duplicate URLs, http scheme, multiple heterogeneous URLs, and decode_url with surrounding prose.",
+  "cases": [
+    {
+      "input": {
+        "text": "Just some plain prose without any link in it at all."
+      },
+      "expected_output": "cleaned_text=Just some plain prose without any link in it at all.\nurl_count=0\n"
+    },
+    {
+      "input": {
+        "text": ""
+      },
+      "expected_output": "error=invalid_input\n"
+    },
+    {
+      "input": {
+        "other": "no text key here"
+      },
+      "expected_output": "error=invalid_input\n"
+    },
+    {
+      "input": {
+        "text": "first https://www.example.com?utm_x=1 then again https://www.example.com?utm_x=1 end"
+      },
+      "expected_output": "cleaned_text=first https://www.example.com then again https://www.example.com end\nurl_count=2\nurl[0]=https://www.example.com\nurl[1]=https://www.example.com\n"
+    },
+    {
+      "input": {
+        "text": "http://www.example.com?gclid=123abc"
+      },
+      "expected_output": "cleaned_text=http://www.example.com\nurl_count=1\nurl[0]=http://www.example.com\n"
+    },
+    {
+      "input": {
+        "text": "A https://en.wikipedia.org/wiki/Salt?wprov=sfla1 plus https://twitter.com/foo/status/9999?t=ab&s=09 plus https://www.example.com?utm_source=x done"
+      },
+      "expected_output": "cleaned_text=A https://en.wikipedia.org/wiki/Salt plus https://twitter.com/foo/status/9999 plus https://www.example.com done\nurl_count=3\nurl[0]=https://en.wikipedia.org/wiki/Salt\nurl[1]=https://twitter.com/foo/status/9999\nurl[2]=https://www.example.com\n"
+    },
+    {
+      "input": {
+        "text": "look here https://www.instagram.com/reel/ABCdef123/%3Figsh%3DZZ%3D thanks",
+        "decode_url": true
+      },
+      "expected_output": "cleaned_text=look here https://www.instagram.com/reel/ABCdef123/?igsh=ZZ= thanks\nurl_count=1\nurl[0]=https://www.instagram.com/reel/ABCdef123/%3Figsh%3DZZ%3D\n"
+    }
+  ]
+}

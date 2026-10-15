@@ -1,0 +1,62 @@
+{
+    "description": "By default the wrapper treats a rejected request (a network-level failure) as retryable and re-issues it, waiting between attempts, until either an attempt succeeds or the configured number of retries is exhausted. The retry budget defaults to 3 (so up to 4 attempts total) and can be lowered via a retries option. When all attempts fail the wrapper settles by rejecting with the error of the final attempt; when an attempt succeeds it resolves with that response. The trace reports how many requests were issued and the final outcome.",
+    "cases": [
+        {
+            "input": {
+                "url": "http://someurl",
+                "script": [
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "fetch_count=1\nurl=http://someurl\noptions_passed=false\noutcome=resolved status=200\n"
+        },
+        {
+            "input": {
+                "url": "http://someurl",
+                "script": [
+                    {"reject": "err1"},
+                    {"advance": 1000},
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "fetch_count=2\nurl=http://someurl\noptions_passed=false\noutcome=resolved status=200\n"
+        },
+        {
+            "input": {
+                "url": "http://someurl",
+                "script": [
+                    {"reject": "err1"},
+                    {"advance": 1000},
+                    {"reject": "err2"},
+                    {"advance": 1000},
+                    {"reject": "err3"},
+                    {"advance": 1000},
+                    {"reject": "err4"}
+                ]
+            },
+            "expected_output": "fetch_count=4\nurl=http://someurl\noptions_passed=false\noutcome=rejected error=err4\n"
+        },
+        {
+            "input": {
+                "url": "http://someurl",
+                "options": {"retries": 1},
+                "script": [
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "fetch_count=1\nurl=http://someurl\noptions_passed=true\noutcome=resolved status=200\n"
+        },
+        {
+            "input": {
+                "url": "http://someurl",
+                "options": {"retries": 1},
+                "script": [
+                    {"reject": "err1"},
+                    {"advance": 1000},
+                    {"reject": "err2"}
+                ]
+            },
+            "expected_output": "fetch_count=2\nurl=http://someurl\noptions_passed=true\noutcome=rejected error=err2\n"
+        }
+    ]
+}

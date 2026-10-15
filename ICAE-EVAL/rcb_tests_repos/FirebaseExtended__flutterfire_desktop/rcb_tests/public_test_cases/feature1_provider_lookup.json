@@ -1,0 +1,31 @@
+{
+    "description": "Look up which sign-in methods are registered for a given email address by querying the identity backend. The request carries the email to look up and the canned backend response for the lookup endpoint. On a successful lookup the backend returns the list of provider identifiers associated with the address, and the client surfaces that list. When the backend rejects the lookup with an invalid-identifier failure (for example when the supplied identifier is empty or malformed), the client raises a normalized domain error whose category is reported instead of the provider list.",
+    "cases": [
+        {
+            "input": {
+                "action": "fetch_providers",
+                "email": "user@example.com",
+                "responses": {
+                    "lookup": {
+                        "status": 200,
+                        "body": {"allProviders": ["password"], "registered": true}
+                    }
+                }
+            },
+            "expected_output": "providers=password\n"
+        },
+        {
+            "input": {
+                "action": "fetch_providers",
+                "email": "",
+                "responses": {
+                    "lookup": {
+                        "status": 400,
+                        "body": {"error": {"code": 400, "message": "INVALID_IDENTIFIER"}}
+                    }
+                }
+            },
+            "expected_output": "error=invalid-identifier\n"
+        }
+    ]
+}

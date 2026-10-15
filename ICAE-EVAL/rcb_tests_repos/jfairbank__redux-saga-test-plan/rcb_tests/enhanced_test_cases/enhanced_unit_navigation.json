@@ -1,0 +1,298 @@
+{
+  "description": "Synthetic unit-mode edge cases covering injected values, spawn effects, arithmetic expressions, default back navigation, restore-to-start, finishWith object returns, and uncaught throw termination.",
+  "cases": [
+    {
+      "input": {
+        "mode": "unit",
+        "saga": {
+          "args": [
+            6,
+            -3,
+            0
+          ],
+          "body": [
+            {
+              "yield": {
+                "take": "BOOT"
+              },
+              "as": "boot"
+            },
+            {
+              "yield": {
+                "put": {
+                  "type": "BOOTED",
+                  "payload": {
+                    "seen": {
+                      "$var": "boot"
+                    },
+                    "math": {
+                      "$op": "mul",
+                      "args": [
+                        {
+                          "$op": "sub",
+                          "args": [
+                            {
+                              "$var": "arg0"
+                            },
+                            {
+                              "$var": "arg1"
+                            }
+                          ]
+                        },
+                        {
+                          "$var": "arg2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "yield": {
+                "spawn": {
+                  "fn": "backgroundSaga",
+                  "args": [
+                    "detached"
+                  ]
+                }
+              }
+            },
+            {
+              "return": {
+                "status": "ok",
+                "received": {
+                  "$var": "boot"
+                }
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "next": true
+          },
+          {
+            "assert": {
+              "take": "BOOT"
+            }
+          },
+          {
+            "nextWith": {
+              "type": "BOOT",
+              "payload": {
+                "id": 7
+              }
+            }
+          },
+          {
+            "assert": {
+              "put": {
+                "type": "BOOTED",
+                "payload": {
+                  "seen": {
+                    "type": "BOOT",
+                    "payload": {
+                      "id": 7
+                    }
+                  },
+                  "math": 0
+                }
+              }
+            }
+          },
+          {
+            "next": true
+          },
+          {
+            "assert": {
+              "spawn": {
+                "fn": "backgroundSaga",
+                "args": [
+                  "detached"
+                ]
+              }
+            }
+          },
+          {
+            "next": true
+          },
+          {
+            "assert": {
+              "returns": {
+                "status": "ok",
+                "received": {
+                  "type": "BOOT",
+                  "payload": {
+                    "id": 7
+                  }
+                }
+              }
+            }
+          },
+          {
+            "assert": {
+              "isDone": true
+            }
+          }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\nassertion 3 met\nassertion 4 met\nassertion 5 met\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "take": "FIRST"
+              }
+            },
+            {
+              "yield": {
+                "take": "SECOND"
+              }
+            },
+            {
+              "yield": {
+                "put": {
+                  "type": "DONE"
+                }
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "save": "start"
+          },
+          {
+            "next": true
+          },
+          {
+            "assert": {
+              "take": "FIRST"
+            }
+          },
+          {
+            "next": true
+          },
+          {
+            "assert": {
+              "take": "SECOND"
+            }
+          },
+          {
+            "back": 1
+          },
+          {
+            "next": true
+          },
+          {
+            "assert": {
+              "take": "SECOND"
+            }
+          },
+          {
+            "restore": "start"
+          },
+          {
+            "next": true
+          },
+          {
+            "assert": {
+              "take": "FIRST"
+            }
+          }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\nassertion 3 met\nassertion 4 met\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "take": "WAIT"
+              }
+            },
+            {
+              "return": "natural"
+            }
+          ]
+        },
+        "steps": [
+          {
+            "next": true
+          },
+          {
+            "finishWith": {
+              "forced": true,
+              "items": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          {
+            "assert": {
+              "returns": {
+                "forced": true,
+                "items": [
+                  1,
+                  2,
+                  3
+                ]
+              }
+            }
+          },
+          {
+            "assert": {
+              "isDone": true
+            }
+          }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "call": {
+                  "fn": "identity",
+                  "args": [
+                    5
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "next": true
+          },
+          {
+            "throw": {
+              "message": "uncaught"
+            }
+          },
+          {
+            "assert": {
+              "isDone": true
+            }
+          }
+        ]
+      },
+      "expected_output": "error=error\ndetail=uncaught\n"
+    }
+  ]
+}

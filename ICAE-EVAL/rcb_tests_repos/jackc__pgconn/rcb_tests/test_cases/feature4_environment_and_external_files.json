@@ -1,0 +1,32 @@
+{
+    "description": "Read connection defaults from environment variables when the explicit connection string is empty.",
+    "cases": [
+        {
+            "input": {
+                "operation": "parse_environment_settings",
+                "environment": {
+                    "PGHOST": "123.123.123.123",
+                    "PGPORT": "7777",
+                    "PGDATABASE": "foo",
+                    "PGUSER": "bar",
+                    "PGPASSWORD": "baz",
+                    "PGCONNECT_TIMEOUT": "10",
+                    "PGSSLMODE": "disable",
+                    "PGAPPNAME": "pgxtest"
+                }
+            },
+            "expected_output": "status=ok\nhost=123.123.123.123\nport=7777\ndatabase=foo\nuser=bar\npassword=baz\nconnect_timeout_seconds=10\ntls=disabled\nruntime_params={\"application_name\":\"pgxtest\"}\nvalidate_connect=false\nfallback_count=0\n"
+        },
+        {
+            "input": {
+                "operation": "parse_environment_settings",
+                "environment": {
+                    "PGHOST": "test.foo",
+                    "PGSSLMODE": "require",
+                    "PGSSLSNI": "0"
+                }
+            },
+            "expected_output": "status=ok\nhost=test.foo\nport=5432\ndatabase=\nuser=root\npassword=\nconnect_timeout_seconds=0\ntls=enabled\ntls_insecure_skip_verify=true\ntls_server_name=\nruntime_params={}\nvalidate_connect=false\nfallback_count=0\n"
+        }
+    ]
+}

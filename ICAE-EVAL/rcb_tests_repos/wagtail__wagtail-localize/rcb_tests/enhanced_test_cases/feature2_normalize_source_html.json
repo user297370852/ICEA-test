@@ -1,0 +1,61 @@
+{
+  "description": "Normalize an inline-HTML fragment coming from authored content by stripping every tag attribute out into a side map keyed by a generated per-tag identifier, leaving only the translatable markup. Tags are numbered per tag name in document order and the stripped attributes are returned keyed by that identifier. Only standard inline tags are allowed; a block-level or non-inline tag is rejected with a neutral disallowed-tag error naming the offending tag.",
+  "cases": [
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": ""
+      },
+      "expected_output": "string=\nattrs={}\n"
+    },
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": "<i class=\"x\">slanted</i>"
+      },
+      "expected_output": "error=disallowed_attributes\n"
+    },
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": "<a href=\"1\">one</a> <a href=\"2\">two</a> <a href=\"3\">three</a>"
+      },
+      "expected_output": "string=<a id=\"a1\">one</a> <a id=\"a2\">two</a> <a id=\"a3\">three</a>\nattrs={\"a1\": {\"href\": \"1\"}, \"a2\": {\"href\": \"2\"}, \"a3\": {\"href\": \"3\"}}\n"
+    },
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": "<abbr title=\"World Health Organization\">WHO</abbr>"
+      },
+      "expected_output": "error=disallowed_attributes\n"
+    },
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": "<code class=\"language-python\">print()</code>"
+      },
+      "expected_output": "error=disallowed_attributes\n"
+    },
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": "<div>block</div>"
+      },
+      "expected_output": "error=disallowed_tag\ntag=div\n"
+    },
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": "<h2>heading</h2>"
+      },
+      "expected_output": "error=disallowed_tag\ntag=h2\n"
+    },
+    {
+      "input": {
+        "op": "normalize_source",
+        "html": "<b><a href=\"u\">nested anchor</a></b>"
+      },
+      "expected_output": "string=<b><a id=\"a1\">nested anchor</a></b>\nattrs={\"a1\": {\"href\": \"u\"}}\n"
+    }
+  ]
+}

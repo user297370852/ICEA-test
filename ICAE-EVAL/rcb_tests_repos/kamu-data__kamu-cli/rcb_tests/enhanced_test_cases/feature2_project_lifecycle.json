@@ -1,0 +1,123 @@
+{
+  "description": "Enhanced lifecycle: enabling a project that was never disabled (idempotent), a disable/enable/disable cycle ending in a not-found error, and uid reservation while a project is disabled.",
+  "cases": [
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "VITAONE",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_1",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "1"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { enableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_1"
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule {\n    v2 {\n      project(ipnftUid: $ipnftUid) {\n        ipnftUid\n        ipnftSymbol\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_1"
+            }
+          },
+          {
+            "query": "\nquery {\n  molecule {\n    v2 {\n      projects(page: 0, perPage: 100) {\n        nodes { ipnftSymbol ipnftUid }\n      }\n    }\n  }\n}\n"
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "VITATWO",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "2"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { enableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2"
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule {\n    v2 {\n      project(ipnftUid: $ipnftUid) {\n        ipnftUid\n        ipnftSymbol\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2"
+            }
+          },
+          {
+            "query": "\nquery {\n  molecule {\n    v2 {\n      projects(page: 0, perPage: 100) {\n        nodes { ipnftSymbol ipnftUid }\n      }\n    }\n  }\n}\n"
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "VITATHREE",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "3"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!) {\n  molecule { v2 { disableProject(ipnftUid: $ipnftUid) { project { __typename } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "NEWSYM",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "3"
+            }
+          }
+        ]
+      },
+      "expected_output": ""
+    }
+  ]
+}

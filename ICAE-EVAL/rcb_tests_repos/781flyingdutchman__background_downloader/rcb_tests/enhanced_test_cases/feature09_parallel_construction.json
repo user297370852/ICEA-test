@@ -1,0 +1,56 @@
+{
+  "description": "Parallel multi-source download construction edge cases. Covers a single-url task with a non-default chunk count and populated location/group/retry fields, a three-mirror list with query parameters applied to every url (primary url is the first resolved url), and a two-mirror list with default settings. The output is the canonical serialized parallel download task exposing the resolved url list and the chunk count.",
+  "cases": [
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "ParallelDownloadTask",
+        "taskId": "pp",
+        "filename": "big.zip",
+        "creationTime": 2000,
+        "url": "https://cdn.example.com/big.zip",
+        "chunks": 4,
+        "baseDirectory": 1,
+        "group": "grp",
+        "updates": 3,
+        "requiresWiFi": true,
+        "retries": 2,
+        "metaData": "md"
+      },
+      "expected_output": "{\"url\":\"https://cdn.example.com/big.zip\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":2,\"retriesRemaining\":0,\"creationTime\":2000,\"taskId\":\"pp\",\"filename\":\"big.zip\",\"directory\":\"\",\"baseDirectory\":1,\"group\":\"grp\",\"updates\":3,\"requiresWiFi\":true,\"allowPause\":false,\"metaData\":\"md\",\"taskType\":\"ParallelDownloadTask\",\"urls\":[\"https://cdn.example.com/big.zip\"],\"chunks\":4}\n"
+    },
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "ParallelDownloadTask",
+        "taskId": "p3",
+        "filename": "f",
+        "creationTime": 1000,
+        "url": [
+          "https://m1/x",
+          "https://m2/x",
+          "https://m3/x"
+        ],
+        "urlQueryParameters": {
+          "a": "b"
+        },
+        "chunks": 2
+      },
+      "expected_output": "{\"url\":\"https://m1/x?a=b\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":1000,\"taskId\":\"p3\",\"filename\":\"f\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":1,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"ParallelDownloadTask\",\"urls\":[\"https://m1/x?a=b\",\"https://m2/x?a=b\",\"https://m3/x?a=b\"],\"chunks\":2}\n"
+    },
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "ParallelDownloadTask",
+        "taskId": "p2b",
+        "filename": "f2",
+        "creationTime": 1000,
+        "url": [
+          "https://a/f",
+          "https://b/f"
+        ]
+      },
+      "expected_output": "{\"url\":\"https://a/f\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":1000,\"taskId\":\"p2b\",\"filename\":\"f2\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":1,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"ParallelDownloadTask\",\"urls\":[\"https://a/f\",\"https://b/f\"],\"chunks\":1}\n"
+    }
+  ]
+}

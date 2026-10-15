@@ -1,0 +1,64 @@
+{
+    "description": "Serialize a map that contains nested maps. Nested keys are flattened using a dot separator (parent.child=value) to arbitrary depth. A nested list keeps repeating its flattened key. Null leaf values are omitted unless include-null is enabled, in which case they emit the flattened key with an empty value.",
+    "cases": [
+        {
+            "input": {
+                "op": "serialize_query",
+                "map": {
+                    "foo": {
+                        "bar": "baz"
+                    }
+                }
+            },
+            "expected_output": "query=foo.bar=baz\n"
+        },
+        {
+            "input": {
+                "op": "serialize_query",
+                "map": {
+                    "foo": {
+                        "bar": null
+                    }
+                }
+            },
+            "expected_output": "query=\n"
+        },
+        {
+            "input": {
+                "op": "serialize_query",
+                "map": {
+                    "foo": {
+                        "bar": null
+                    }
+                },
+                "includeNullQueryVars": true
+            },
+            "expected_output": "query=foo.bar=\n"
+        },
+        {
+            "input": {
+                "op": "serialize_query",
+                "map": {
+                    "foo": {
+                        "bar": "baz",
+                        "zap": "abc",
+                        "etc": {
+                            "abc": "def",
+                            "ghi": "jkl",
+                            "mno": {
+                                "opq": "rst",
+                                "uvw": "xyz",
+                                "aab": [
+                                    "bbc",
+                                    "ccd",
+                                    "eef"
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "query=foo.bar=baz&foo.zap=abc&foo.etc.abc=def&foo.etc.ghi=jkl&foo.etc.mno.opq=rst&foo.etc.mno.uvw=xyz&foo.etc.mno.aab=bbc&foo.etc.mno.aab=ccd&foo.etc.mno.aab=eef\n"
+        }
+    ]
+}

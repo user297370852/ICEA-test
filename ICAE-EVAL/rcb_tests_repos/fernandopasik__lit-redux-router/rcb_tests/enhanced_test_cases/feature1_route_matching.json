@@ -1,0 +1,149 @@
+{
+  "description": "Enhanced route-matching edge cases: root pattern, trailing-wildcard '*' captures, trailing-slash tolerance, hash-before-query stripping, case-insensitive matching, optional params with trailing slash, spaces preserved verbatim, and non-matching deeper/shallower paths.",
+  "cases": [
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/",
+        "active_route": "/"
+      },
+      "expected_output": "active=true"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/",
+        "active_route": "/about"
+      },
+      "expected_output": "active=false"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/*",
+        "active_route": "/product/1/edit"
+      },
+      "expected_output": "active=true\nparam.*=1/edit"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/*",
+        "active_route": "/product"
+      },
+      "expected_output": "active=false"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/files/*",
+        "active_route": "/files/a/b/c"
+      },
+      "expected_output": "active=true\nparam.*=a/b/c"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/product/"
+      },
+      "expected_output": "active=false"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/product/123/"
+      },
+      "expected_output": "active=true\nparam.id=123"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/product/1#frag"
+      },
+      "expected_output": "active=true\nparam.id=1"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/product/1#sec?x=1"
+      },
+      "expected_output": "active=true\nparam.id=1"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/PRODUCT/1"
+      },
+      "expected_output": "active=true\nparam.id=1"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/Product/:id",
+        "active_route": "/product/1"
+      },
+      "expected_output": "active=true\nparam.id=1"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id?",
+        "active_route": "/product/"
+      },
+      "expected_output": "active=true\nparam.id="
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/a/:b/:c?",
+        "active_route": "/a/x"
+      },
+      "expected_output": "active=true\nparam.b=x\nparam.c="
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/a/:b/:c?",
+        "active_route": "/a/x/y"
+      },
+      "expected_output": "active=true\nparam.b=x\nparam.c=y"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/product/a b"
+      },
+      "expected_output": "active=true\nparam.id=a b"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/product/1?"
+      },
+      "expected_output": "active=true\nparam.id=1"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/product/:id",
+        "active_route": "/product/1?#"
+      },
+      "expected_output": "active=true\nparam.id=1"
+    },
+    {
+      "input": {
+        "op": "match_route",
+        "route": "/search",
+        "active_route": "/search?q=hello#results"
+      },
+      "expected_output": "active=true"
+    }
+  ]
+}

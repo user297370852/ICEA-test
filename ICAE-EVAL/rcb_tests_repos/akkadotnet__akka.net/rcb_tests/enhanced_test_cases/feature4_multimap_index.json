@@ -1,0 +1,182 @@
+{
+  "description": "Multimap edge behavior: queries against an empty structure, ascending ordering with negative values, removes/remove_key on absent keys, key-drop when its set empties (reflected by is_empty), purging a value across keys, and clear followed by reuse.",
+  "cases": [
+    {
+      "input": {
+        "op": "index",
+        "commands": [
+          {
+            "action": "is_empty"
+          },
+          {
+            "action": "values"
+          },
+          {
+            "action": "get",
+            "key": "missing"
+          }
+        ]
+      },
+      "expected_output": "is_empty -> true\nvalues -> \nget missing -> \n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "commands": [
+          {
+            "action": "put",
+            "key": "k",
+            "value": 3
+          },
+          {
+            "action": "put",
+            "key": "k",
+            "value": -5
+          },
+          {
+            "action": "put",
+            "key": "k",
+            "value": 0
+          },
+          {
+            "action": "put",
+            "key": "k",
+            "value": -5
+          },
+          {
+            "action": "get",
+            "key": "k"
+          },
+          {
+            "action": "values"
+          }
+        ]
+      },
+      "expected_output": "put k 3 -> true\nput k -5 -> true\nput k 0 -> true\nput k -5 -> false\nget k -> -5,0,3\nvalues -> -5,0,3\n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "commands": [
+          {
+            "action": "remove",
+            "key": "z",
+            "value": 9
+          },
+          {
+            "action": "remove_key",
+            "key": "z"
+          },
+          {
+            "action": "remove_value",
+            "value": 9
+          },
+          {
+            "action": "is_empty"
+          }
+        ]
+      },
+      "expected_output": "remove z 9 -> false\nremove_key z -> \nremove_value 9\nis_empty -> true\n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "commands": [
+          {
+            "action": "put",
+            "key": "a",
+            "value": 1
+          },
+          {
+            "action": "remove",
+            "key": "a",
+            "value": 1
+          },
+          {
+            "action": "is_empty"
+          },
+          {
+            "action": "get",
+            "key": "a"
+          }
+        ]
+      },
+      "expected_output": "put a 1 -> true\nremove a 1 -> true\nis_empty -> true\nget a -> \n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "commands": [
+          {
+            "action": "put",
+            "key": "a",
+            "value": 7
+          },
+          {
+            "action": "put",
+            "key": "b",
+            "value": 7
+          },
+          {
+            "action": "put",
+            "key": "c",
+            "value": 8
+          },
+          {
+            "action": "remove_value",
+            "value": 7
+          },
+          {
+            "action": "get",
+            "key": "a"
+          },
+          {
+            "action": "get",
+            "key": "b"
+          },
+          {
+            "action": "get",
+            "key": "c"
+          },
+          {
+            "action": "values"
+          }
+        ]
+      },
+      "expected_output": "put a 7 -> true\nput b 7 -> true\nput c 8 -> true\nremove_value 7\nget a -> \nget b -> \nget c -> 8\nvalues -> 8\n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "commands": [
+          {
+            "action": "put",
+            "key": "a",
+            "value": 1
+          },
+          {
+            "action": "put",
+            "key": "a",
+            "value": 2
+          },
+          {
+            "action": "clear"
+          },
+          {
+            "action": "is_empty"
+          },
+          {
+            "action": "put",
+            "key": "a",
+            "value": 9
+          },
+          {
+            "action": "get",
+            "key": "a"
+          }
+        ]
+      },
+      "expected_output": "put a 1 -> true\nput a 2 -> true\nclear\nis_empty -> true\nput a 9 -> true\nget a -> 9\n"
+    }
+  ]
+}

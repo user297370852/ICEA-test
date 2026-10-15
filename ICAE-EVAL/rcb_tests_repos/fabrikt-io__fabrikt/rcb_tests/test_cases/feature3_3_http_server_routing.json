@@ -1,0 +1,89 @@
+{
+    "description": "Generated server routing parses request bodies, headers, and query parameters, returns declared response status and body content, and surfaces bad request or missing response statuses through the HTTP layer.",
+    "cases": [
+        {
+            "input": {
+                "feature": "http_server_routing",
+                "route_group": "events",
+                "request": {
+                    "method": "POST",
+                    "path": "/internal/events",
+                    "headers": {
+                        "Authorization": "Basic dGVzdDp0ZXN0",
+                        "Content-Type": "application/json"
+                    },
+                    "body": "{\"entities\":[{\"id\":\"1\",\"properties\":{\"entity1PropKey\":\"entity1PropValue\"}}],\"properties\":{\"propKey\":\"propValue\"}}"
+                }
+            },
+            "expected_output": "status=200\nbody={\"change_events\":[{\"entity_id\":\"entityId\",\"data\":{\"dataKey\":1,\"otherDataKey\":\"value\"}}]}\nentities=1\nentity0_properties=entity1PropKey=entity1PropValue\nproperties=propKey=propValue\n"
+        },
+        {
+            "input": {
+                "feature": "http_server_routing",
+                "route_group": "contributors",
+                "request": {
+                    "method": "GET",
+                    "path": "/contributors?limit=10",
+                    "headers": {
+                        "X-Flow-Id": "testValue"
+                    }
+                }
+            },
+            "expected_output": "status=200\nbody={\"prev\":null,\"next\":null,\"items\":[]}\nx_flow_id=testValue\nlimit=10\n"
+        },
+        {
+            "input": {
+                "feature": "http_server_routing",
+                "route_group": "contributors",
+                "request": {
+                    "method": "POST",
+                    "path": "/contributors",
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "body": "{\"username\":\"test\",\"status\":\"active\"}"
+                }
+            },
+            "expected_output": "status=201\nbody=\nusername=test\nstatus=active\n"
+        },
+        {
+            "input": {
+                "feature": "http_server_routing",
+                "route_group": "contributors",
+                "request": {
+                    "method": "POST",
+                    "path": "/contributors",
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "body": "{\"invalid\":\"body\"}"
+                }
+            },
+            "expected_output": "status=400\nerror=request_body_conversion\n"
+        },
+        {
+            "input": {
+                "feature": "http_server_routing",
+                "route_group": "contributors",
+                "request": {
+                    "method": "GET",
+                    "path": "/contributors?limit=invalid",
+                    "headers": {}
+                }
+            },
+            "expected_output": "status=400\nerror=query_parameter_conversion\nparam=limit\nexpected_type=integer\n"
+        },
+        {
+            "input": {
+                "feature": "http_server_routing",
+                "route_group": "contributors",
+                "request": {
+                    "method": "GET",
+                    "path": "/contributors/1",
+                    "headers": {}
+                }
+            },
+            "expected_output": "status=404\nbody=\n"
+        }
+    ]
+}

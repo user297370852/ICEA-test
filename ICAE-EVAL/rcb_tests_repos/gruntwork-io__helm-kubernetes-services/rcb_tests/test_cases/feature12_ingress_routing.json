@@ -1,0 +1,40 @@
+{
+    "description": "Render ingress routing paths with numeric and named backend ports, including additional higher-priority or fallback paths.",
+    "cases": [
+        {
+            "input": {
+                "template": "ingress",
+                "output": "ingress",
+                "values_files": [
+                    "test/fixtures/ingress_values_with_number_port.yaml"
+                ]
+            },
+            "expected_output": "kind=Ingress\nname=release-linter\nrule_count=1\ntls_count=0\nrule_0_host=\nrule_0_path_count=2\nrule_0_path_0_path=/app\nrule_0_path_0_service=release-linter\nrule_0_path_0_port_number=80\nrule_0_path_0_port_name=null\nrule_0_path_1_path=/black-hole\nrule_0_path_1_service=black-hole\nrule_0_path_1_port_number=80\nrule_0_path_1_port_name=null\n"
+        },
+        {
+            "input": {
+                "template": "ingress",
+                "output": "ingress",
+                "values_files": [
+                    "test/fixtures/ingress_values_with_name_port.yaml"
+                ]
+            },
+            "expected_output": "kind=Ingress\nname=release-linter\nrule_count=1\ntls_count=0\nrule_0_host=\nrule_0_path_count=2\nrule_0_path_0_path=/app\nrule_0_path_0_service=release-linter\nrule_0_path_0_port_number=null\nrule_0_path_0_port_name=app\nrule_0_path_1_path=/black-hole\nrule_0_path_1_service=black-hole\nrule_0_path_1_port_number=null\nrule_0_path_1_port_name=black-hole\n"
+        },
+        {
+            "input": {
+                "template": "ingress",
+                "output": "ingress",
+                "set": {
+                    "ingress.enabled": "true",
+                    "ingress.path": "/app",
+                    "ingress.hosts[0]": "example.com",
+                    "ingress.additionalPaths[0].path": "/black-hole",
+                    "ingress.additionalPaths[0].service.name": "black-hole",
+                    "ingress.additionalPaths[0].service.port.number": "80"
+                }
+            },
+            "expected_output": "kind=Ingress\nname=release-linter\nrule_count=1\ntls_count=0\nrule_0_host=example.com\nrule_0_path_count=2\nrule_0_path_0_path=/app\nrule_0_path_0_service=release-linter\nrule_0_path_0_port_number=null\nrule_0_path_0_port_name=null\nrule_0_path_1_path=/black-hole\nrule_0_path_1_service=release-linter\nrule_0_path_1_port_number=null\nrule_0_path_1_port_name=null\n"
+        }
+    ]
+}

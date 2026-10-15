@@ -1,0 +1,17 @@
+{
+    "description": "Validate a gateway configuration and report the outcome. Validation aggregates every problem found rather than stopping at the first. Required settings (at least one upstream target, a cookie secret, a client id, and a client secret) must be present. Upstream targets are parsed into structured URLs and a missing path is normalized to the root path. An optional redirect URL is parsed into a structured URL. Optional skip-authentication patterns are compiled as regular expressions; an invalid pattern is a validation error. When token pass-through or cookie refresh is enabled the cookie secret length must be one of the accepted cipher key sizes. The cookie refresh interval must be strictly less than the cookie expiry interval. If group restriction is requested, the administrator address and the service-account credentials file must be present and the file must exist. On success the output reports valid plus the parsed redirect, upstreams, and compiled patterns; on failure it reports invalid plus one neutral error category per problem.",
+    "cases": [
+        {
+            "input": {"action": "validate_config", "config": {"email_domains": ["*"]}},
+            "expected_output": "valid=false\nerror=missing_setting setting=upstream\nerror=missing_setting setting=cookie-secret\nerror=missing_setting setting=client-id\nerror=missing_setting setting=client-secret\n"
+        },
+        {
+            "input": {"action": "validate_config", "config": {"upstreams": ["http://127.0.0.1:8080/"], "cookie_secret": "foobar", "client_id": "bazquux", "client_secret": "xyzzyplugh", "email_domains": ["*"], "redirect_url": "https://myhost.com/oauth2/callback"}},
+            "expected_output": "valid=true\nredirect=https|myhost.com|/oauth2/callback\nupstream=http|127.0.0.1:8080|/\n"
+        },
+        {
+            "input": {"action": "validate_config", "config": {"upstreams": ["http://127.0.0.1:8080/"], "cookie_secret": "foobar", "client_id": "bazquux", "client_secret": "xyzzyplugh", "email_domains": ["*"], "skip_auth_regex": ["(foobaz", "barquux)"]}},
+            "expected_output": "valid=false\nerror=invalid_regex\nerror=invalid_regex\n"
+        }
+    ]
+}

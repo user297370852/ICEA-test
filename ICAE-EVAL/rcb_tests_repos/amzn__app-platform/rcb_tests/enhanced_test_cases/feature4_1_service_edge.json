@@ -1,0 +1,88 @@
+{
+  "description": "Keyed-service boundaries: empty-string key lookup, multiple distinct keys, unknown key returns null, and services are NOT inherited by child scopes.",
+  "cases": [
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root",
+            "services": {
+              "": "empty-key-val",
+              "k1": "v1",
+              "k2": "v2"
+            }
+          },
+          {
+            "op": "service",
+            "scope": "r",
+            "key": ""
+          },
+          {
+            "op": "service",
+            "scope": "r",
+            "key": "k1"
+          },
+          {
+            "op": "service",
+            "scope": "r",
+            "key": "k2"
+          },
+          {
+            "op": "service",
+            "scope": "r",
+            "key": "missing"
+          }
+        ]
+      },
+      "expected_output": "service[r,]=empty-key-val\nservice[r,k1]=v1\nservice[r,k2]=v2\nservice[r,missing]=null\n"
+    },
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root",
+            "services": {
+              "shared": "fromRoot"
+            }
+          },
+          {
+            "op": "build_child",
+            "id": "c",
+            "parent": "r",
+            "name": "c",
+            "services": {
+              "own": "fromChild"
+            }
+          },
+          {
+            "op": "service",
+            "scope": "r",
+            "key": "shared"
+          },
+          {
+            "op": "service",
+            "scope": "c",
+            "key": "shared"
+          },
+          {
+            "op": "service",
+            "scope": "c",
+            "key": "own"
+          },
+          {
+            "op": "service",
+            "scope": "r",
+            "key": "own"
+          }
+        ]
+      },
+      "expected_output": "service[r,shared]=fromRoot\nservice[c,shared]=null\nservice[c,own]=fromChild\nservice[r,own]=null\n"
+    }
+  ]
+}

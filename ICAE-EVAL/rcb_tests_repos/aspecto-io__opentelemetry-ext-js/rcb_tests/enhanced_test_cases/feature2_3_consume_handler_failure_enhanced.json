@@ -1,0 +1,85 @@
+{
+  "description": "Enhanced handler-failure coverage: a per-batch handler that throws a readable reason reflects the failure on the batch action line and span status; a per-batch handler that throws a value with no readable reason maps to the empty-message category; and a two-step per-message scenario shows a successful delivery followed by a failed one in the same run.",
+  "cases": [
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "consume_batch",
+            "topic": "topic-name-1",
+            "partition": 0,
+            "messages": [
+              {
+                "value": "ok1",
+                "offset": "1"
+              },
+              {
+                "value": "ok2",
+                "offset": "2"
+              }
+            ],
+            "handler": {
+              "behavior": "throw_error",
+              "message": "error thrown from eachBatch callback"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_batch topic=topic-name-1 delivered=error error=handler_failure\nspans=3\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=error thrown from eachBatch callback\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=error\n  status_message=error thrown from eachBatch callback\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\nspan 2 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=error\n  status_message=error thrown from eachBatch callback\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "consume_batch",
+            "topic": "topic-name-1",
+            "partition": 0,
+            "messages": [
+              {
+                "value": "x",
+                "offset": "9"
+              }
+            ],
+            "handler": {
+              "behavior": "throw_undefined"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_batch topic=topic-name-1 delivered=error error=handler_failure_empty\nspans=2\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=<none>\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=error\n  status_message=<none>\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "consume_message",
+            "topic": "topic-name-1",
+            "message": {
+              "value": "good",
+              "offset": "1"
+            },
+            "handler": {
+              "behavior": "resolve"
+            }
+          },
+          {
+            "action": "consume_message",
+            "topic": "topic-name-1",
+            "message": {
+              "value": "bad",
+              "offset": "2"
+            },
+            "handler": {
+              "behavior": "throw_error",
+              "message": "second message failed"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_message topic=topic-name-1 delivered=ok error=none\nconsume_message topic=topic-name-1 delivered=error error=handler_failure\nspans=2\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\nspan 1 kind=consumer name=topic-name-1 trace=t1 parent=root status=error\n  status_message=second message failed\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    }
+  ]
+}

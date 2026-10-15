@@ -1,0 +1,13 @@
+{
+    "description": "Parse a kernel network socket table rendered in the /proc/net/{tcp,tcp6} text format. The first line is a header naming the columns; each following non-empty line describes one socket. The local address column packs an IP address and a port into a single hexadecimal token (the IP encoded little-endian per 4-byte group, the port big-endian after a colon), and a separate column gives the connection state as a hex code. For the requested address family, emit one line per socket reporting the decoded IP address, the decoded port, and the connection state mapped to a human label (a listening socket versus an established one).",
+    "cases": [
+        {
+            "input": {
+                "op": "parse_net_tcp",
+                "kind": "tcp",
+                "table": "  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode\n   0: 0100007F:8AEF 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 28152 1 0000000000000000 100 0 0 10 0\n   1: 0103000A:0035 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 31474 1 0000000000000000 100 0 0 10 5\n   2: 3500007F:0035 00000000:0000 0A 00000000:00000000 00:00000000 00000000   102        0 30955 1 0000000000000000 100 0 0 10 0\n   3: 00000000:0016 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 32910 1 0000000000000000 100 0 0 10 0\n   4: 0100007F:053A 00000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 31430 1 0000000000000000 100 0 0 10 0\n   5: 0B3CA8C0:0016 690AA8C0:F705 01 00000000:00000000 02:00028D8B 00000000     0        0 32989 4 0000000000000000 20 4 31 10 19\n"
+            },
+            "expected_output": "kind=tcp ip=127.0.0.1 port=35567 state=listen\nkind=tcp ip=10.0.3.1 port=53 state=listen\nkind=tcp ip=127.0.0.53 port=53 state=listen\nkind=tcp ip=0.0.0.0 port=22 state=listen\nkind=tcp ip=127.0.0.1 port=1338 state=listen\nkind=tcp ip=192.168.60.11 port=22 state=established\n"
+        }
+    ]
+}

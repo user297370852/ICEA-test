@@ -1,0 +1,134 @@
+{
+  "description": "Enhanced boundary coverage for authorization URL construction. Exercises optional-segment combinations: scope-without-redirect, redirect-without-scope, additionalParameters-only, an empty additionalParameters map (contributes nothing), falsy empty scope/redirect strings being skipped, multi-word value percent-encoding (spaces -> %20) including in client_id and state, a PKCE challenge present without a method (method renders as the literal 'undefined'), and a fully-populated URL with every optional segment present. Parameter order is fixed: client_id, response_type, redirect_uri?, scope?, state, extra params in order, code_challenge?+method.",
+  "cases": [
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "app",
+          "responseType": "code",
+          "scope": "a b c",
+          "state": "S"
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=app&response_type=code&scope=a%20b%20c&state=S\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "app",
+          "responseType": "code",
+          "redirectUrl": "https://r.com/cb",
+          "state": "S"
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=app&response_type=code&redirect_uri=https://r.com/cb&state=S\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "app",
+          "responseType": "token",
+          "state": "S",
+          "additionalParameters": {
+            "x": "1",
+            "y": "two words"
+          }
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=app&response_type=token&state=S&x=1&y=two%20words\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "app",
+          "responseType": "code",
+          "state": "S",
+          "pkceCodeChallenge": "CC"
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=app&response_type=code&state=S&code_challenge=CC&code_challenge_method=undefined\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "app",
+          "responseType": "code",
+          "state": "S",
+          "additionalParameters": {}
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=app&response_type=code&state=S\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "app",
+          "responseType": "code",
+          "scope": "",
+          "state": "S"
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=app&response_type=code&state=S\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "app",
+          "responseType": "code",
+          "redirectUrl": "",
+          "state": "S"
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=app&response_type=code&state=S\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://a.com/auth",
+          "appId": "my app",
+          "responseType": "code",
+          "state": "a b",
+          "additionalParameters": {
+            "prompt": "select account"
+          }
+        }
+      },
+      "expected_output": "url=https://a.com/auth?client_id=my%20app&response_type=code&state=a%20b&prompt=select%20account\n"
+    },
+    {
+      "input": {
+        "action": "build_authorization_url",
+        "webOptions": {
+          "authorizationBaseUrl": "https://login.example.com/authorize",
+          "appId": "client123",
+          "responseType": "code",
+          "redirectUrl": "https://app.example.com/callback",
+          "scope": "openid profile email",
+          "state": "xyzABC",
+          "additionalParameters": {
+            "prompt": "consent",
+            "login_hint": "user@example.com"
+          },
+          "pkceCodeChallenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw",
+          "pkceCodeChallengeMethod": "S256"
+        }
+      },
+      "expected_output": "url=https://login.example.com/authorize?client_id=client123&response_type=code&redirect_uri=https://app.example.com/callback&scope=openid%20profile%20email&state=xyzABC&prompt=consent&login_hint=user@example.com&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw&code_challenge_method=S256\n"
+    }
+  ]
+}

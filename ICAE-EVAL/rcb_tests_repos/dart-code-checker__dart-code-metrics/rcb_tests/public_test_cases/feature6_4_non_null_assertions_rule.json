@@ -1,0 +1,13 @@
+{
+    "description": "Analyze source text and report every forced non-null assertion expression, including chained object access and map lookup assertions.",
+    "cases": [
+        {
+            "input": {
+                "command": "analyze_rule",
+                "rule": "non-null-assertions",
+                "code": "class Test {\n  String? field;\n\n  Test? object;\n\n  void method() {\n    field!.contains('other'); // LINT\n\n    field?.replaceAll('from', 'replace');\n\n    if (filed != null) {\n      field.split(' ');\n    }\n\n    object!.field!.contains('other'); // LINT\n\n    object?.field?.contains('other');\n\n    final field = object?.field;\n    if (field != null) {\n      field.contains('other');\n    }\n\n    final map = {'key': 'value'};\n    map['key']!.contains('other');\n\n    object!.method(); // LINT\n\n    object?.method();\n  }\n}\n"
+            },
+            "expected_output": "rule=avoid-non-null-assertion\nseverity=warning\nissue_count=4\nissue[0].line=7\nissue[0].column=5\nissue[0].text=field!\nissue[0].message=Avoid using non null assertion.\nissue[1].line=15\nissue[1].column=5\nissue[1].text=object!\nissue[1].message=Avoid using non null assertion.\nissue[2].line=15\nissue[2].column=5\nissue[2].text=object!.field!\nissue[2].message=Avoid using non null assertion.\nissue[3].line=27\nissue[3].column=5\nissue[3].text=object!\nissue[3].message=Avoid using non null assertion.\n"
+        }
+    ]
+}

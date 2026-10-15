@@ -1,0 +1,44 @@
+{
+  "description": "Domain error wrapping for alternate GraphQL messages and custom domain error configs.",
+  "cases": [
+    {
+      "input": {
+        "action": "wrap_query_error",
+        "message": "Cannot query field \"foo\" on type \"Query\"",
+        "locations": [
+          {
+            "line": 1,
+            "column": 3
+          }
+        ]
+      },
+      "expected_output": "{\n  \"code\": \"GRAPHQL_ERROR\",\n  \"component\": null,\n  \"description\": \"Cannot query field \\\"foo\\\" on type \\\"Query\\\"\",\n  \"docsLink\": null,\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"An internal server error occurred\",\n  \"statusCode\": 500,\n  \"targetEndpoint\": null\n}\n"
+    },
+    {
+      "input": {
+        "action": "create_domain_error",
+        "config": {
+          "statusCode": 404,
+          "errorCode": "NOT_FOUND",
+          "message": "resource missing"
+        }
+      },
+      "expected_output": "{\n  \"code\": \"NOT_FOUND\",\n  \"component\": null,\n  \"description\": null,\n  \"docsLink\": null,\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"resource missing\",\n  \"statusCode\": 404,\n  \"targetEndpoint\": null\n}\n"
+    },
+    {
+      "input": {
+        "action": "create_domain_error",
+        "config": {
+          "statusCode": 401,
+          "message": "unauthorized",
+          "description": "missing token",
+          "errorCode": "AUTH_REQUIRED",
+          "graphqlModel": "AuthModel",
+          "targetEndpoint": "https://api.example.test/auth",
+          "docsLink": "https://ibm.biz/graphql"
+        }
+      },
+      "expected_output": "{\n  \"code\": \"AUTH_REQUIRED\",\n  \"component\": \"AuthModel\",\n  \"description\": \"missing token\",\n  \"docsLink\": \"https://ibm.biz/graphql\",\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"unauthorized\",\n  \"statusCode\": 401,\n  \"targetEndpoint\": \"https://api.example.test/auth\"\n}\n"
+    }
+  ]
+}

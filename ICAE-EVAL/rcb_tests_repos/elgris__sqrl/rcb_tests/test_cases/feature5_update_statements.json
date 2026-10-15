@@ -1,0 +1,86 @@
+{
+    "description": "Build UPDATE statements from a target table, assignments, raw value expressions, filters, ordering, limits, offsets, suffixes, and placeholder style.",
+    "cases": [
+        {
+            "input": {
+                "operation": "update",
+                "scenario": "full_update",
+                "clauses": {
+                    "target": "a",
+                    "assignments": {
+                        "b": {
+                            "expression": "? + 1",
+                            "args": [
+                                1
+                            ]
+                        },
+                        "c": 2
+                    },
+                    "filter": "d = ?",
+                    "order_by": [
+                        "e"
+                    ],
+                    "limit": 4,
+                    "offset": 5,
+                    "prefix": "WITH prefix AS ?",
+                    "suffix": "RETURNING ?"
+                }
+            },
+            "expected_output": "sql=WITH prefix AS ? UPDATE a SET b = ? + 1, c = ? WHERE d = ? ORDER BY e LIMIT 4 OFFSET 5 RETURNING ?\nargs=[0,1,2,3,6]\n"
+        },
+        {
+            "input": {
+                "operation": "update",
+                "scenario": "zero_limit_offset",
+                "clauses": {
+                    "target": "a",
+                    "assignments": {
+                        "b": true
+                    },
+                    "limit": 0,
+                    "offset": 0
+                }
+            },
+            "expected_output": "sql=UPDATE a SET b = ? LIMIT 0 OFFSET 0\nargs=[true]\n"
+        },
+        {
+            "input": {
+                "operation": "update",
+                "scenario": "missing_target",
+                "clauses": {
+                    "target": "",
+                    "assignments": {
+                        "x": 1
+                    }
+                }
+            },
+            "expected_output": "error=missing_update_target\n"
+        },
+        {
+            "input": {
+                "operation": "update",
+                "scenario": "missing_assignments",
+                "clauses": {
+                    "target": "x",
+                    "assignments": {}
+                }
+            },
+            "expected_output": "error=missing_update_assignments\n"
+        },
+        {
+            "input": {
+                "operation": "update",
+                "scenario": "numbered_placeholders",
+                "clauses": {
+                    "target": "test",
+                    "assignments": {
+                        "x": 1,
+                        "y": 2
+                    },
+                    "placeholder_style": "numbered"
+                }
+            },
+            "expected_output": "sql=UPDATE test SET x = $1, y = $2\nargs=[1,2]\n"
+        }
+    ]
+}

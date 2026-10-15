@@ -1,0 +1,131 @@
+{
+  "description": "Spy edge cases against the real RealCounter: adding zero leaves the running total unchanged, negative increments reduce it (including below zero), the real reset member zeroes accumulated state, and an overridden member takes precedence while real members still observe real state.",
+  "cases": [
+    {
+      "input": {
+        "double": "spy",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "add",
+            "arg": 0
+          },
+          {
+            "do": "invoke",
+            "member": "current"
+          }
+        ]
+      },
+      "expected_output": "value=0\nvalue=0\n"
+    },
+    {
+      "input": {
+        "double": "spy",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "add",
+            "arg": 10
+          },
+          {
+            "do": "invoke",
+            "member": "add",
+            "arg": -4
+          },
+          {
+            "do": "invoke",
+            "member": "current"
+          }
+        ]
+      },
+      "expected_output": "value=10\nvalue=6\nvalue=6\n"
+    },
+    {
+      "input": {
+        "double": "spy",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "add",
+            "arg": 3
+          },
+          {
+            "do": "invoke",
+            "member": "add",
+            "arg": -10
+          },
+          {
+            "do": "invoke",
+            "member": "current"
+          }
+        ]
+      },
+      "expected_output": "value=3\nvalue=-7\nvalue=-7\n"
+    },
+    {
+      "input": {
+        "double": "spy",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "add",
+            "arg": 5
+          },
+          {
+            "do": "invoke",
+            "member": "reset"
+          },
+          {
+            "do": "invoke",
+            "member": "current"
+          }
+        ]
+      },
+      "expected_output": "value=5\nvalue=0\n"
+    },
+    {
+      "input": {
+        "double": "spy",
+        "script": [
+          {
+            "do": "invoke",
+            "member": "label",
+            "arg": ""
+          }
+        ]
+      },
+      "expected_output": "value=real:\n"
+    },
+    {
+      "input": {
+        "double": "spy",
+        "stubs": [
+          {
+            "member": "label",
+            "matcher": {
+              "any": true
+            },
+            "return": "stubbed"
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "label",
+            "arg": "ignored"
+          },
+          {
+            "do": "invoke",
+            "member": "add",
+            "arg": 2
+          },
+          {
+            "do": "invoke",
+            "member": "current"
+          }
+        ]
+      },
+      "expected_output": "value=stubbed\nvalue=2\nvalue=2\n"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "description": "Boundary coverage for the additive wildcard JSON patch operation. Exercises the case where the wildcard resolves to no locations, where the collision flag is exercised against locations that all lack the key, where the inserted value is a non-scalar (object or array), a negative number, a string, a boolean, or null, and where the canonical lexicographic key ordering must reorder pre-existing keys at the mutated locations. The whole mutated document is emitted as compact, key-sorted JSON.",
+  "cases": [
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": 42,
+        "overwrite": true,
+        "document": {
+          "foo": []
+        }
+      },
+      "expected_output": "{\"foo\":[]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": 7,
+        "overwrite": false,
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "a": 1
+              }
+            },
+            {
+              "baz": {
+                "b": 2
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"a\":1,\"buzz\":7}},{\"baz\":{\"b\":2,\"buzz\":7}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": {
+          "x": 1,
+          "y": 2
+        },
+        "overwrite": true,
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "existing": 9
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":{\"x\":1,\"y\":2},\"existing\":9}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": [
+          1,
+          2,
+          3
+        ],
+        "overwrite": true,
+        "document": {
+          "foo": [
+            {
+              "baz": {}
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":[1,2,3]}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": -5,
+        "overwrite": true,
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "buzz": 100
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":-5}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": "hello",
+        "overwrite": true,
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "keep": "yes"
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":\"hello\",\"keep\":\"yes\"}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": false,
+        "overwrite": true,
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "buzz": true
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":false}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": 1,
+        "overwrite": true,
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "zoo": 1,
+                "alpha": 2
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"alpha\":2,\"buzz\":1,\"zoo\":1}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_add",
+        "path": "/foo/*/baz",
+        "key": "buzz",
+        "value": null,
+        "overwrite": true,
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "buzz": 5
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":null}}]}\n"
+    }
+  ]
+}

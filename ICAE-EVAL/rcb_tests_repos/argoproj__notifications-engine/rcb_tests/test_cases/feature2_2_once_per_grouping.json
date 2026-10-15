@@ -1,0 +1,21 @@
+{
+    "description": "Compute a condition's de-duplication grouping value. In addition to its firing expression, a condition may declare a 'oncePer' expression whose evaluated result is used to ensure a notification is only delivered once per distinct value (for example, once per deployment revision). When such an expression is present, the engine evaluates it against the supplied variables and reports the resulting value as a string alongside the firing result. The expression may be a bare variable reference or a richer lookup such as indexing into a nested map by key. The output line carries the fired flag, the templates to send, and the resolved grouping value in 'oncePer='.",
+    "cases": [
+        {
+            "input": {
+                "action": "run_trigger",
+                "conditions": [{"when": "var1 == 'abc'", "send": ["my-template"], "oncePer": "revision"}],
+                "vars": {"var1": "abc", "revision": "123"}
+            },
+            "expected_output": "triggered=true templates=my-template oncePer=123\n"
+        },
+        {
+            "input": {
+                "action": "run_trigger",
+                "conditions": [{"when": "var1 == 'abc'", "send": ["my-template"], "oncePer": "app.metadata.annotations[\"example.com/version\"]"}],
+                "vars": {"var1": "abc", "app": {"metadata": {"annotations": {"example.com/version": "v0.1"}}}}
+            },
+            "expected_output": "triggered=true templates=my-template oncePer=v0.1\n"
+        }
+    ]
+}

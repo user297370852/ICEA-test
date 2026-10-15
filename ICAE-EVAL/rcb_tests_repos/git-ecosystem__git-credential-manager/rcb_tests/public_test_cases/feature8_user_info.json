@@ -1,0 +1,12 @@
+{
+    "description": "Extract the user-information component (username and optional password) embedded in a URL authority of the form scheme://username:password@host. Both fields are URL-decoded. When the URL carries no user info the result reports that none is present. When present, a missing password is reported as unset while an empty password is reported as an empty value; the password split occurs at the first colon so any later colons remain part of the password.",
+    "cases": [
+        {"input": {"op": "user_info", "uri": "http://example.com"}, "expected_output": "present=false\n"},
+        {"input": {"op": "user_info", "uri": "http://john.doe:password123@example.com"}, "expected_output": "present=true\nusername=john.doe\npassword=password123\n"},
+        {"input": {"op": "user_info", "uri": "http://john.doe@example.com"}, "expected_output": "present=true\nusername=john.doe\npassword=<unset>\n"},
+        {"input": {"op": "user_info", "uri": "http://john.doe:@example.com"}, "expected_output": "present=true\nusername=john.doe\npassword=\n"},
+        {"input": {"op": "user_info", "uri": "http://:password123@example.com"}, "expected_output": "present=true\nusername=\npassword=password123\n"},
+        {"input": {"op": "user_info", "uri": "http://john.doe:::password123@example.com"}, "expected_output": "present=true\nusername=john.doe\npassword=::password123\n"},
+        {"input": {"op": "user_info", "uri": "http://john%20doe:password%20123@example.com"}, "expected_output": "present=true\nusername=john doe\npassword=password 123\n"}
+    ]
+}

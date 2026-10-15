@@ -1,0 +1,9 @@
+{
+    "description": "Lenient access resolution. A permission set maps permission keys to boolean grants. An optional list of secondary permission sets (e.g. group/role grants) is merged underneath the primary set. Under the lenient policy a primary set that contains at least one explicit grant wins by being merged on top of the accumulated secondary grants; a key absent everywhere defaults to denied. hasAccess (all) returns granted only when EVERY queried key resolves to true; hasAnyAccess (any) returns granted when AT LEAST ONE queried key resolves to true.",
+    "cases": [
+        {
+            "input": {"op": "permissions", "mode": "lenient", "permissions": {"user.create": true, "user.update": false, "user.delete": true}, "secondary": [{"user.update": true}, {"user.view": true}, {"user.delete": false}], "queries": [{"all": ["user.create"]}, {"all": ["user.view"]}, {"all": ["user.delete"]}, {"all": ["user.update"]}, {"all": ["user.create", "user.update"]}, {"any": ["user.create", "user.update"]}, {"any": ["user.update", "user.delete"]}]},
+            "expected_output": "mode=lenient\nall[user.create]=true\nall[user.view]=true\nall[user.delete]=true\nall[user.update]=false\nall[user.create,user.update]=false\nany[user.create,user.update]=true\nany[user.update,user.delete]=true\n"
+        }
+    ]
+}

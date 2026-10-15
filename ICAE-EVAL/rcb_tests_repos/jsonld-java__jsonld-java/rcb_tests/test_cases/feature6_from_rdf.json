@@ -1,0 +1,39 @@
+{
+    "description": "Convert N-Quads RDF input into expanded JSON-LD while reconstructing lists, blank-node structures, named graphs, native values, and RDF type handling.",
+    "cases": [
+        {
+            "input": {
+                "options": {},
+                "nquads": "<http://example.com/Subj1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type> .\n<http://example.com/Subj1> <http://example.com/prop1> <http://example.com/Obj1> .\n<http://example.com/Subj1> <http://example.com/prop2> \"Plain\" .\n<http://example.com/Subj1> <http://example.com/prop2> \"2012-05-12\"^^<http://www.w3.org/2001/XMLSchema#date> .\n<http://example.com/Subj1> <http://example.com/prop2> \"English\"@en .",
+                "algorithm": "from_rdf"
+            },
+            "expected_output": "[ {\n  \"@id\" : \"http://example.com/Subj1\",\n  \"@type\" : [ \"http://example.com/Type\" ],\n  \"http://example.com/prop1\" : [ {\n    \"@id\" : \"http://example.com/Obj1\"\n  } ],\n  \"http://example.com/prop2\" : [ {\n    \"@value\" : \"Plain\"\n  }, {\n    \"@value\" : \"2012-05-12\",\n    \"@type\" : \"http://www.w3.org/2001/XMLSchema#date\"\n  }, {\n    \"@value\" : \"English\",\n    \"@language\" : \"en\"\n  } ]\n} ]\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "nquads": "<http://example.com/Subj1> <http://example.com/prop> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n<http://example.com/Subj1> <http://example.com/prop> \"false\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n<http://example.com/Subj1> <http://example.com/prop> \"1\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n<http://example.com/Subj1> <http://example.com/prop> \"1.1\"^^<http://www.w3.org/2001/XMLSchema#decimal> .\n<http://example.com/Subj1> <http://example.com/prop> \"1.1E-1\"^^<http://www.w3.org/2001/XMLSchema#double> .",
+                "algorithm": "from_rdf"
+            },
+            "expected_output": "[ {\n  \"@id\" : \"http://example.com/Subj1\",\n  \"http://example.com/prop\" : [ {\n    \"@value\" : \"true\",\n    \"@type\" : \"http://www.w3.org/2001/XMLSchema#boolean\"\n  }, {\n    \"@value\" : \"false\",\n    \"@type\" : \"http://www.w3.org/2001/XMLSchema#boolean\"\n  }, {\n    \"@value\" : \"1\",\n    \"@type\" : \"http://www.w3.org/2001/XMLSchema#integer\"\n  }, {\n    \"@value\" : \"1.1\",\n    \"@type\" : \"http://www.w3.org/2001/XMLSchema#decimal\"\n  }, {\n    \"@value\" : \"1.1E-1\",\n    \"@type\" : \"http://www.w3.org/2001/XMLSchema#double\"\n  } ]\n} ]\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "nquads": "<http://example.com/Subj1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/Type> .\n_:a <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> \"apple\" .\n_:a <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:b .\n_:b <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> \"bananna\" .\n_:b <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .\n<http://example.com/Subj1> <http://example.com/literalList> _:a .\n<http://example.com/Subj1> <http://example.com/emptyList> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .\n_:c <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.com/iri> .\n_:c <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .\n<http://example.com/Subj1> <http://example.com/iriList> _:c .",
+                "algorithm": "from_rdf"
+            },
+            "expected_output": "[ {\n  \"@id\" : \"http://example.com/Subj1\",\n  \"@type\" : [ \"http://example.com/Type\" ],\n  \"http://example.com/literalList\" : [ {\n    \"@list\" : [ {\n      \"@value\" : \"apple\"\n    }, {\n      \"@value\" : \"bananna\"\n    } ]\n  } ],\n  \"http://example.com/emptyList\" : [ {\n    \"@list\" : [ ]\n  } ],\n  \"http://example.com/iriList\" : [ {\n    \"@list\" : [ {\n      \"@id\" : \"http://example.com/iri\"\n    } ]\n  } ]\n} ]\n"
+        },
+        {
+            "input": {
+                "options": {
+                    "useNativeTypes": true
+                },
+                "nquads": "<http://example.com/Subj1> <http://example.com/prop> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n<http://example.com/Subj1> <http://example.com/prop> \"false\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n<http://example.com/Subj1> <http://example.com/prop> \"1\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n<http://example.com/Subj1> <http://example.com/prop> \"1.1\"^^<http://www.w3.org/2001/XMLSchema#decimal> .\n<http://example.com/Subj1> <http://example.com/prop> \"1.1E-1\"^^<http://www.w3.org/2001/XMLSchema#double> .",
+                "algorithm": "from_rdf"
+            },
+            "expected_output": "[ {\n  \"@id\" : \"http://example.com/Subj1\",\n  \"http://example.com/prop\" : [ {\n    \"@value\" : true\n  }, {\n    \"@value\" : false\n  }, {\n    \"@value\" : 1\n  }, {\n    \"@value\" : \"1.1\",\n    \"@type\" : \"http://www.w3.org/2001/XMLSchema#decimal\"\n  }, {\n    \"@value\" : 0.11\n  } ]\n} ]\n"
+        }
+    ]
+}

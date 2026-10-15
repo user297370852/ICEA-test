@@ -1,0 +1,68 @@
+{
+    "description": "A document matcher treats a plain (non-operator) value as an equality condition. For a scalar this is direct value equality. For an array value, a document matches when its field is an array equal element-by-element to the query array, or when a non-array field equals one of the array's elements. For an embedded-document value, the stored field must equal that document. Equality respects value identity for typed values such as object identifiers. Documents are returned in their original order.",
+    "cases": [
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                "documents": [
+                    {
+                        "a": []
+                    },
+                    {
+                        "b": []
+                    },
+                    {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    {
+                        "a": []
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : [ 1 , 2 , 3]}\n{ \"a\" : [ 1 , 2 , 3]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "b": {
+                            "$oid": "4f39d78d4b90b2f2f1530841"
+                        }
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "a": {
+                            "b": {
+                                "$oid": "4f39d78d4b90b2f2f1530841"
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : { \"b\" : { \"$oid\" : \"4f39d78d4b90b2f2f1530841\"}}}\n"
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+{
+    "description": "Invokes the external native build tool only when available, chooses build flags by target type, and reports a neutral notice when the tool is missing.",
+    "cases": [
+        {
+            "input": {
+                "command": "cargo",
+                "data": {
+                    "selector": "invoke_tool_when_available",
+                    "cargo_path": "/opt/tools/cargo",
+                    "args": [
+                        "foo",
+                        "bar"
+                    ]
+                }
+            },
+            "expected_output": "tool_found=true\ncommands_run=1\nshell=/opt/tools/cargo foo bar\n"
+        },
+        {
+            "input": {
+                "command": "cargo",
+                "data": {
+                    "selector": "build_target",
+                    "cargo_path": "/opt/tools/cargo",
+                    "target": "release"
+                }
+            },
+            "expected_output": "tool_found=true\ncommands_run=1\nshell=/opt/tools/cargo build --release\n"
+        },
+        {
+            "input": {
+                "command": "cargo",
+                "data": {
+                    "selector": "missing_tool_notice",
+                    "options": {
+                        "native_extension_optional": false
+                    }
+                }
+            },
+            "expected_output": "error=required_tool_missing\nnotice=external build tool required for native extension build\n"
+        }
+    ]
+}

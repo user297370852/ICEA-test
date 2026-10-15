@@ -1,0 +1,79 @@
+{
+  "description": "Serialize a single portlet record into its canonical JSON wire form and emit the raw JSON string followed by a newline. The record carries an identifier, an implementation class name, and an ordered set of named initialization parameters, emitted under the hyphenated wire names with the initialization parameters preserved in the order supplied. These cases exercise boundary and special-constraint inputs: an empty parameter set, characters requiring JSON string escaping, non-ASCII text, empty parameter values, and a larger parameter set whose supplied order differs from sorted order.",
+  "cases": [
+    {
+      "input": {
+        "op": "to_json",
+        "target": "portlet",
+        "portlet": {
+          "portlet_id": "empty-params",
+          "portlet_class": "com.dotcms.Demo",
+          "init_params": {}
+        }
+      },
+      "expected_output": "{\"portlet-name\":\"empty-params\",\"portlet-class\":\"com.dotcms.Demo\",\"init-param\":[]}\n"
+    },
+    {
+      "input": {
+        "op": "to_json",
+        "target": "portlet",
+        "portlet": {
+          "portlet_id": "quoting",
+          "portlet_class": "com.dotcms.Quote",
+          "init_params": {
+            "path": "C:\\temp\\\"x\"",
+            "label": "line1\nline2\ttab"
+          }
+        }
+      },
+      "expected_output": "{\"portlet-name\":\"quoting\",\"portlet-class\":\"com.dotcms.Quote\",\"init-param\":[{\"name\":\"path\",\"value\":\"C:\\\\temp\\\\\\\"x\\\"\"},{\"name\":\"label\",\"value\":\"line1\\nline2\\ttab\"}]}\n"
+    },
+    {
+      "input": {
+        "op": "to_json",
+        "target": "portlet",
+        "portlet": {
+          "portlet_id": "ünïcode",
+          "portlet_class": "com.dotcms.Iñtërnâtiônàl",
+          "init_params": {
+            "greeting": "héllo wörld",
+            "emoji": "snow☃man"
+          }
+        }
+      },
+      "expected_output": "{\"portlet-name\":\"ünïcode\",\"portlet-class\":\"com.dotcms.Iñtërnâtiônàl\",\"init-param\":[{\"name\":\"greeting\",\"value\":\"héllo wörld\"},{\"name\":\"emoji\",\"value\":\"snow☃man\"}]}\n"
+    },
+    {
+      "input": {
+        "op": "to_json",
+        "target": "portlet",
+        "portlet": {
+          "portlet_id": "blanks",
+          "portlet_class": "com.dotcms.Blank",
+          "init_params": {
+            "empty": "",
+            "spaced": "   "
+          }
+        }
+      },
+      "expected_output": "{\"portlet-name\":\"blanks\",\"portlet-class\":\"com.dotcms.Blank\",\"init-param\":[{\"name\":\"empty\",\"value\":\"\"},{\"name\":\"spaced\",\"value\":\"   \"}]}\n"
+    },
+    {
+      "input": {
+        "op": "to_json",
+        "target": "portlet",
+        "portlet": {
+          "portlet_id": "ordered",
+          "portlet_class": "com.dotcms.Ordered",
+          "init_params": {
+            "zeta": "1",
+            "alpha": "2",
+            "mu": "3",
+            "beta": "4"
+          }
+        }
+      },
+      "expected_output": "{\"portlet-name\":\"ordered\",\"portlet-class\":\"com.dotcms.Ordered\",\"init-param\":[{\"name\":\"zeta\",\"value\":\"1\"},{\"name\":\"alpha\",\"value\":\"2\"},{\"name\":\"mu\",\"value\":\"3\"},{\"name\":\"beta\",\"value\":\"4\"}]}\n"
+    }
+  ]
+}

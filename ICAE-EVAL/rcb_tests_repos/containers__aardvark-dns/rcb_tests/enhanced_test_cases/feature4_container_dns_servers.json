@@ -1,0 +1,35 @@
+{
+  "description": "Report the per-container upstream DNS servers declared in configuration, queried by a container address. Exercises a container declaring several upstream resolvers mixing IPv4 and IPv6 families, a container that declares no upstream resolvers, and a query for an address that is not registered for any container.",
+  "cases": [
+    {
+      "input": {
+        "op": "container_dns_servers",
+        "config": {
+          "dnet": "10.22.0.1\nc1 10.22.0.2  h1 9.9.9.9,2606:4700::1111\nc2 10.22.0.3  h2\n"
+        },
+        "container": "10.22.0.2"
+      },
+      "expected_output": "dns_servers=9.9.9.9,2606:4700::1111\n"
+    },
+    {
+      "input": {
+        "op": "container_dns_servers",
+        "config": {
+          "dnet": "10.22.0.1\nc1 10.22.0.2  h1 9.9.9.9,2606:4700::1111\nc2 10.22.0.3  h2\n"
+        },
+        "container": "10.22.0.3"
+      },
+      "expected_output": "dns_servers=none\n"
+    },
+    {
+      "input": {
+        "op": "container_dns_servers",
+        "config": {
+          "dnet": "10.22.0.1\nc1 10.22.0.2  h1 9.9.9.9,2606:4700::1111\nc2 10.22.0.3  h2\n"
+        },
+        "container": "10.22.0.99"
+      },
+      "expected_output": "not_found\n"
+    }
+  ]
+}

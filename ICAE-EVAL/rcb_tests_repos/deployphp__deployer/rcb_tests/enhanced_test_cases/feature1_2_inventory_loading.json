@@ -1,0 +1,35 @@
+{
+  "description": "Inventory loading edge cases: single remote host with list roles, a local host marker, ranged host expansion, an inventory containing only hidden template entries, and YAML merge-key reuse of a hidden template.",
+  "cases": [
+    {
+      "input": {
+        "yaml": "web1:\n  hostname: web1.example.com\n  remote_user: deploy\n  port: 2222\n  roles:\n    - app\n    - web\n"
+      },
+      "expected_output": "hosts=web1\nhost.web1.type=remote\nhost.web1.hostname=web1.example.com\nhost.web1.roles=[\"app\",\"web\"]\nhost.web1.remote_user=deploy\nhost.web1.port=2222\nhost.web1.ssh_arguments=-p 2222\n"
+    },
+    {
+      "input": {
+        "yaml": "localhost:\n  local: \"\"\n  deploy_to: /srv/app\n"
+      },
+      "expected_output": "hosts=localhost\nhost.localhost.type=local\nhost.localhost.hostname=localhost\nhost.localhost.deploy_to=/srv/app\n"
+    },
+    {
+      "input": {
+        "yaml": "node[1:3]:\n  hostname: node.example.org\n  roles: worker\n"
+      },
+      "expected_output": "hosts=node1,node2,node3\nhost.node1.type=remote\nhost.node1.hostname=node.example.org\nhost.node1.roles=worker\nhost.node2.type=remote\nhost.node2.hostname=node.example.org\nhost.node2.roles=worker\nhost.node3.type=remote\nhost.node3.hostname=node.example.org\nhost.node3.roles=worker\n"
+    },
+    {
+      "input": {
+        "yaml": ".tpl: &tpl\n  deploy_path: /var/www\n  roles:\n    - base\n"
+      },
+      "expected_output": "hosts=\n"
+    },
+    {
+      "input": {
+        "yaml": ".common: &common\n  remote_user: ci\n  port: 22\napp:\n  <<: *common\n  hostname: app.example.com\n"
+      },
+      "expected_output": "hosts=app\nhost.app.type=remote\nhost.app.hostname=app.example.com\nhost.app.remote_user=ci\nhost.app.port=22\nhost.app.ssh_arguments=-p 22\n"
+    }
+  ]
+}

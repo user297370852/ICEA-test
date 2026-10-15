@@ -1,0 +1,17 @@
+{
+  "description": "Path-scoped Clear-Site-Data emits the header only for requests whose path matches a configured entry; when several configured paths are prefixes of the request the most specific (longest) match wins; and configuring an entry with an empty path or an empty token list is rejected as an invalid configuration.",
+  "cases": [
+    {
+      "input": { "request_path": "/logout", "headers": { "clear_site_data_paths": { "paths": { "/logout": ["*"] } } } },
+      "expected_output": "Clear-Site-Data: \"*\"\n"
+    },
+    {
+      "input": { "request_path": "/account/logout", "headers": { "clear_site_data_paths": { "paths": { "/account": ["cache"], "/account/logout": ["*"] } } } },
+      "expected_output": "Clear-Site-Data: \"*\"\n"
+    },
+    {
+      "input": { "headers": { "clear_site_data_add_paths": [ { "path": "", "directives": ["cache"] } ] } },
+      "expected_output": "error=missing_required_value\nfield=path\n"
+    }
+  ]
+}

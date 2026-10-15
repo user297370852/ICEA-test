@@ -1,0 +1,86 @@
+{
+  "description": "DI resolution boundaries: nearest-match shadowing across a 3-level chain, a type held only by a descendant is invisible to ancestors, and resolution from the root.",
+  "cases": [
+    {
+      "input": {
+        "action": "di",
+        "scopes": [
+          {
+            "id": "gp",
+            "parent": null,
+            "component": {
+              "type": "alpha",
+              "id": "gp_comp"
+            }
+          },
+          {
+            "id": "p",
+            "parent": "gp",
+            "component": null
+          },
+          {
+            "id": "c",
+            "parent": "p",
+            "component": {
+              "type": "beta",
+              "id": "c_comp"
+            }
+          }
+        ],
+        "lookups": [
+          {
+            "scope": "c",
+            "type": "alpha"
+          },
+          {
+            "scope": "c",
+            "type": "beta"
+          },
+          {
+            "scope": "p",
+            "type": "alpha"
+          },
+          {
+            "scope": "gp",
+            "type": "beta"
+          }
+        ]
+      },
+      "expected_output": "lookup[c,alpha]=component=gp_comp\nlookup[c,beta]=component=c_comp\nlookup[p,alpha]=component=gp_comp\nlookup[gp,beta]=error=component_not_found inspected=[gp_comp]\n"
+    },
+    {
+      "input": {
+        "action": "di",
+        "scopes": [
+          {
+            "id": "p",
+            "parent": null,
+            "component": {
+              "type": "alpha",
+              "id": "parent_alpha"
+            }
+          },
+          {
+            "id": "c",
+            "parent": "p",
+            "component": {
+              "type": "alpha",
+              "id": "child_alpha"
+            }
+          }
+        ],
+        "lookups": [
+          {
+            "scope": "c",
+            "type": "alpha"
+          },
+          {
+            "scope": "p",
+            "type": "alpha"
+          }
+        ]
+      },
+      "expected_output": "lookup[c,alpha]=component=child_alpha\nlookup[p,alpha]=component=parent_alpha\n"
+    }
+  ]
+}

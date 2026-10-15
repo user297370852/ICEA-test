@@ -1,0 +1,76 @@
+{
+  "description": "Custom path pattern boundaries: empty pattern string falling back to defaults, a catch-all pattern, anchored case-insensitive-style alternation, additional invalid-regex fallbacks, and backslash relative handling under a custom pattern.",
+  "cases": [
+    {
+      "input": {
+        "behavior": "stylesheet path recognition",
+        "pattern": "",
+        "paths": [
+          "./a.module.css",
+          "./a.css"
+        ]
+      },
+      "expected_output": "path=./a.module.css\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=./a.css\nmodule_stylesheet=no\nrelative_module_stylesheet=no\n"
+    },
+    {
+      "input": {
+        "behavior": "stylesheet path recognition",
+        "pattern": ".",
+        "paths": [
+          "./anything",
+          "../else.txt",
+          "plain"
+        ]
+      },
+      "expected_output": "path=./anything\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=../else.txt\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=plain\nmodule_stylesheet=yes\nrelative_module_stylesheet=no\n"
+    },
+    {
+      "input": {
+        "behavior": "stylesheet path recognition",
+        "pattern": "\\.(css|scss)$",
+        "paths": [
+          "./a.css",
+          "./a.scss",
+          "./a.sass",
+          "../b.scss",
+          "b.css"
+        ]
+      },
+      "expected_output": "path=./a.css\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=./a.scss\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=./a.sass\nmodule_stylesheet=no\nrelative_module_stylesheet=no\npath=../b.scss\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=b.css\nmodule_stylesheet=yes\nrelative_module_stylesheet=no\n"
+    },
+    {
+      "input": {
+        "behavior": "stylesheet path recognition",
+        "pattern": "(unclosed",
+        "paths": [
+          "./a.module.css",
+          "./a.css"
+        ]
+      },
+      "expected_output": "path=./a.module.css\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=./a.css\nmodule_stylesheet=no\nrelative_module_stylesheet=no\npattern_error=ignored\n"
+    },
+    {
+      "input": {
+        "behavior": "stylesheet path recognition",
+        "pattern": "*abc",
+        "paths": [
+          "../x.module.scss",
+          "x.scss"
+        ]
+      },
+      "expected_output": "path=../x.module.scss\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=x.scss\nmodule_stylesheet=no\nrelative_module_stylesheet=no\npattern_error=ignored\n"
+    },
+    {
+      "input": {
+        "behavior": "stylesheet path recognition",
+        "pattern": "\\.css$",
+        "paths": [
+          "..\\dir\\a.css",
+          ".\\b.css",
+          "c.css"
+        ]
+      },
+      "expected_output": "path=..\\dir\\a.css\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=.\\b.css\nmodule_stylesheet=yes\nrelative_module_stylesheet=yes\npath=c.css\nmodule_stylesheet=yes\nrelative_module_stylesheet=no\n"
+    }
+  ]
+}

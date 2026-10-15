@@ -1,0 +1,35 @@
+{
+    "description": "Discard stored feature values so they are recomputed from their resolver. Forgetting a feature for a scope removes only that scope's stored value, so the next read falls back to the resolver. Purging removes stored values for the named features across all scopes, and purging with no names removes stored values for every feature; after purging, reads fall back to the resolver again.",
+    "cases": [
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "const", "value": false}},
+                {"op": "activate", "feature": "foo", "scope": "tim"},
+                {"op": "value", "feature": "foo", "scope": "tim"},
+                {"op": "forget", "feature": "foo", "scope": "tim"},
+                {"op": "value", "feature": "foo", "scope": "tim"}
+            ]},
+            "expected_output": "value foo = true\nvalue foo = false\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "const", "value": false}},
+                {"op": "activate", "feature": "foo", "scope": "tim"},
+                {"op": "active", "feature": "foo", "scope": "tim"},
+                {"op": "purge", "features": ["foo"]},
+                {"op": "active", "feature": "foo", "scope": "tim"}
+            ]},
+            "expected_output": "active foo = true\nactive foo = false\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "activate", "feature": "a", "scope": "tim"},
+                {"op": "activate", "feature": "b", "scope": "tim"},
+                {"op": "purge"},
+                {"op": "active", "feature": "a", "scope": "tim"},
+                {"op": "active", "feature": "b", "scope": "tim"}
+            ]},
+            "expected_output": "active a = false\nactive b = false\n"
+        }
+    ]
+}

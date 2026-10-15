@@ -1,0 +1,43 @@
+{
+    "description": "Stacked changelog across two successive releases. When a changelog already contains a prior release section, generating the next release prepends the new section above the existing content while keeping the configured header at the top only once. The result lists releases newest-first. Input describes a sequence of two release runs over an initially empty changelog; output is the final changelog document containing both release sections in newest-first order.",
+    "cases": [
+        {
+            "input": {
+                "kind": "changelog",
+                "packageVersion": null,
+                "changelogSeed": "",
+                "rounds": [
+                    {
+                        "ops": [
+                            {
+                                "commit": "feat: first commit"
+                            },
+                            {
+                                "tag": "v1.0.0"
+                            },
+                            {
+                                "commit": "fix: patch release"
+                            }
+                        ],
+                        "args": [
+                            "--changelogHeader=# Release Notes",
+                            "--compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}"
+                        ]
+                    },
+                    {
+                        "ops": [
+                            {
+                                "commit": "fix: another patch release"
+                            }
+                        ],
+                        "args": [
+                            "--changelogHeader=# Release Notes",
+                            "--compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "# Release Notes\n### [1.0.2](/compare/v1.0.1...v1.0.2) (DATE)\n\n\n### Bug Fixes\n\n* another patch release HASH\n\n\n\n### [1.0.1](/compare/v1.0.0...v1.0.1) (DATE)\n\n\n### Bug Fixes\n\n* patch release HASH\n"
+        }
+    ]
+}

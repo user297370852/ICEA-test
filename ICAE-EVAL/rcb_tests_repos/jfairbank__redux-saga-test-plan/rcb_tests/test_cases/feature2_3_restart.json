@@ -1,0 +1,33 @@
+{
+  "description": "Restart the walk from the very beginning, optionally with new starting arguments. After restart the workflow re-runs from its first step; new arguments change values derived from them on the second run.",
+  "cases": [
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "args": [40, 2], "body": [ { "yield": { "take": "HELLO" } }, { "yield": { "put": { "type": "ADD", "payload": { "$op": "add", "args": [ { "$var": "arg0" }, { "$var": "arg1" } ] } } } } ] },
+        "steps": [
+          { "next": true }, { "assert": { "take": "HELLO" } },
+          { "next": true }, { "assert": { "put": { "type": "ADD", "payload": 42 } } },
+          { "restart": [] },
+          { "next": true }, { "assert": { "take": "HELLO" } },
+          { "next": true }, { "assert": { "put": { "type": "ADD", "payload": 42 } } }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\nassertion 3 met\nassertion 4 met\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "args": [40, 2], "body": [ { "yield": { "take": "HELLO" } }, { "yield": { "put": { "type": "ADD", "payload": { "$op": "add", "args": [ { "$var": "arg0" }, { "$var": "arg1" } ] } } } } ] },
+        "steps": [
+          { "next": true }, { "assert": { "take": "HELLO" } },
+          { "next": true }, { "assert": { "put": { "type": "ADD", "payload": 42 } } },
+          { "restart": [20, 1] },
+          { "next": true }, { "assert": { "take": "HELLO" } },
+          { "next": true }, { "assert": { "put": { "type": "ADD", "payload": 21 } } }
+        ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\nassertion 3 met\nassertion 4 met\n"
+    }
+  ]
+}

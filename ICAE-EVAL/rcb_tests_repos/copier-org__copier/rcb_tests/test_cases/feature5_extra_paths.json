@@ -1,0 +1,39 @@
+{
+  "description": "Resolution of template references that live outside the source tree. Additional search paths may be supplied so that a template can extend or include a shared parent template found there. If a referenced parent template cannot be located in any search path, a template-reference error is reported. If a supplied additional search path does not exist, a configuration-data error is reported categorising the offending field as not found.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "child.txt.tmpl": "[% extends \"parent.txt\" %]\n"
+        },
+        "extra": {
+          "parent.txt": "PARENT_CONTENT\n"
+        },
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: child.txt\nfile: child.txt -> \"PARENT_CONTENT\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "child.txt.tmpl": "[% extends \"parent.txt\" %]\n"
+        },
+        "data": {}
+      },
+      "expected_output": "error=template_reference_not_found\nname=parent.txt\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "child.txt.tmpl": "[% extends \"parent.txt\" %]\n"
+        },
+        "extra_missing": true,
+        "data": {}
+      },
+      "expected_output": "error=invalid_config_data\nfield=extra_paths reason=not_found\n"
+    }
+  ]
+}

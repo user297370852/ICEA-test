@@ -1,0 +1,26 @@
+{
+  "description": "Enhanced coverage for connection string parsing with socket paths, percent-encoded URL components, and malformed numeric fields.",
+  "cases": [
+    {
+      "input": {
+        "operation": "parse_connection_settings",
+        "connection_string": "host=/var/run/postgresql port=6543 user=socket_user password=secret dbname=socketdb sslmode=disable application_name=socketapp search_path=public connect_timeout=12"
+      },
+      "expected_output": "status=ok\nhost=/var/run/postgresql\nport=6543\ndatabase=socketdb\nuser=socket_user\npassword=secret\nconnect_timeout_seconds=12\ntls=disabled\nruntime_params={\"application_name\":\"socketapp\",\"search_path\":\"public\"}\nvalidate_connect=false\nfallback_count=0\n"
+    },
+    {
+      "input": {
+        "operation": "parse_connection_settings",
+        "connection_string": "postgres://user%40example:p%40ss%2Fword@db.example.com:15432/encoded%20db?sslmode=disable&application_name=my%20app"
+      },
+      "expected_output": "status=ok\nhost=db.example.com\nport=15432\ndatabase=encoded db\nuser=user@example\npassword=p@ss/word\nconnect_timeout_seconds=0\ntls=disabled\nruntime_params={\"application_name\":\"my app\"}\nvalidate_connect=false\nfallback_count=0\n"
+    },
+    {
+      "input": {
+        "operation": "parse_connection_settings",
+        "connection_string": "host=localhost port=notaport user=jack"
+      },
+      "expected_output": "error=operation_error\n"
+    }
+  ]
+}

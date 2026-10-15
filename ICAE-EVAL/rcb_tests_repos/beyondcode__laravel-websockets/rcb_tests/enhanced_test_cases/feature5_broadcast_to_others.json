@@ -1,0 +1,66 @@
+{
+  "description": "Several clients are subscribed to the same channel. A payload broadcast to everyone except one named client reaches all other subscribers but not the excluded client.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "1.1"
+          },
+          {
+            "name": "b",
+            "socket_id": "2.2"
+          },
+          {
+            "name": "c",
+            "socket_id": "3.3"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "ex-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "b",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "ex-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "c",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "ex-channel"
+              }
+            }
+          },
+          {
+            "type": "broadcast_to_others",
+            "channel": "ex-channel",
+            "conn": "a",
+            "payload": {
+              "event": "broadcasted-event",
+              "channel": "ex-channel"
+            }
+          }
+        ]
+      },
+      "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"ex-channel\"}\n[b] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"ex-channel\"}\n{\"event\":\"broadcasted-event\",\"channel\":\"ex-channel\"}\n[c] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"ex-channel\"}\n{\"event\":\"broadcasted-event\",\"channel\":\"ex-channel\"}\n"
+    }
+  ]
+}

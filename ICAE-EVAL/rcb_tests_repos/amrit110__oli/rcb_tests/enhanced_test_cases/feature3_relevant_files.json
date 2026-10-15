@@ -1,0 +1,47 @@
+{
+  "description": "Derive a list of candidate file-glob patterns for a codebase query. Quoted file names referenced in the query (single or double quoted, of the form name.ext) become explicit '**/<name.ext>' patterns. Language-family patterns are then appended whenever the lower-cased query contains the corresponding trigger substrings (e.g. rust/.rs, javascript/js/node/react, typescript/ts/angular/next, python/py/django/flask, go/golang, c++/cpp/' c '/.c, java but not javascript). If no source-directory ('**/src/...') pattern has been added, four default source-directory patterns are appended; finally a '**/*.rs' pattern is guaranteed to be present. Patterns are emitted one per line in the order produced, including any duplicates.",
+  "cases": [
+    {
+      "input": {
+        "action": "relevant_files",
+        "query": ""
+      },
+      "expected_output": "**/src/**/*.rs\n**/src/**/*.ts\n**/src/**/*.js\n**/src/**/*.py\n"
+    },
+    {
+      "input": {
+        "action": "relevant_files",
+        "query": "I love Django and Flask development"
+      },
+      "expected_output": "**/*.py\n**/src/**/*.py\n**/*.go\n**/src/**/*.go\n**/*.rs\n"
+    },
+    {
+      "input": {
+        "action": "relevant_files",
+        "query": "Check 'config.py' and \"server.go\" please"
+      },
+      "expected_output": "**/config.py\n**/server.go\n**/*.py\n**/src/**/*.py\n**/*.go\n**/src/**/*.go\n**/*.rs\n"
+    },
+    {
+      "input": {
+        "action": "relevant_files",
+        "query": "Refactor the Java enterprise code"
+      },
+      "expected_output": "**/*.java\n**/src/**/*.java\n**/*.rs\n"
+    },
+    {
+      "input": {
+        "action": "relevant_files",
+        "query": "golang and typescript and python all together"
+      },
+      "expected_output": "**/*.ts\n**/*.tsx\n**/src/**/*.ts\n**/src/**/*.tsx\n**/*.py\n**/src/**/*.py\n**/*.go\n**/src/**/*.go\n**/*.rs\n"
+    },
+    {
+      "input": {
+        "action": "relevant_files",
+        "query": "Inspect the C++ headers"
+      },
+      "expected_output": "**/*.c\n**/*.h\n**/*.cpp\n**/*.hpp\n**/*.cc\n**/src/**/*.rs\n**/src/**/*.ts\n**/src/**/*.js\n**/src/**/*.py\n"
+    }
+  ]
+}

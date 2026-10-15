@@ -1,0 +1,65 @@
+{
+    "description": "Serialize query parameters using application/x-www-form-urlencoded rules while preserving the original decoded values for lookup. A space is encoded as a plus sign; a literal plus is percent-encoded; an ampersand and other reserved characters are percent-encoded; non-ASCII text is UTF-8 percent-encoded. Reading a value back returns its decoded form even though the serialized form is encoded.",
+    "cases": [
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "été"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key2",
+                        "value": "Céline Dion++"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "get",
+                        "key": "key1"
+                    },
+                    {
+                        "op": "get",
+                        "key": "key2"
+                    }
+                ]
+            },
+            "expected_output": "size=2\nto_string=key1=%C3%A9t%C3%A9&key2=C%C3%A9line+Dion%2B%2B\nget=été\nget=Céline Dion++\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "a",
+                        "value": "b+c"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "remove",
+                        "key": "a"
+                    },
+                    {
+                        "op": "append",
+                        "key": "a+b",
+                        "value": "c"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "to_string=a=b%2Bc\nto_string=a%2Bb=c\n"
+        }
+    ]
+}

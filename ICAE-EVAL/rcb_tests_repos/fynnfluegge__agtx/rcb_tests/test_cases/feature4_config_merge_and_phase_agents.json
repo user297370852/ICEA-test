@@ -1,0 +1,123 @@
+{
+    "description": "Merge global and project settings and resolve per-phase agents.",
+    "cases": [
+        {
+            "input": {
+                "global_settings": {
+                    "default_agent": "claude",
+                    "base_branch": "main",
+                    "phase_agents": {
+                        "running": "codex"
+                    }
+                },
+                "project_settings": {
+                    "default_agent": "opencode",
+                    "base_branch": "develop",
+                    "phase_agents": {
+                        "running": "gemini"
+                    },
+                    "copy_files": ".env",
+                    "init_script": "npm install"
+                },
+                "phase_queries": [
+                    "planning",
+                    "running"
+                ]
+            },
+            "expected_output": "default_agent=opencode\nbase_branch=develop\ncopy_files=.env\ninit_script=npm install\nphase:planning=opencode\nexplicit:planning=none\nphase:running=gemini\nexplicit:running=gemini\n"
+        },
+        {
+            "input": {
+                "global_settings": {
+                    "default_agent": "claude",
+                    "base_branch": "main"
+                },
+                "project_settings": {},
+                "phase_queries": [
+                    "research",
+                    "planning",
+                    "running",
+                    "review",
+                    "unknown"
+                ]
+            },
+            "expected_output": "default_agent=claude\nbase_branch=main\ncopy_files=none\ninit_script=none\nphase:research=claude\nexplicit:research=none\nphase:planning=claude\nexplicit:planning=none\nphase:running=claude\nexplicit:running=none\nphase:review=claude\nexplicit:review=none\nphase:unknown=claude\nexplicit:unknown=none\n"
+        },
+        {
+            "input": {
+                "global_settings": {
+                    "default_agent": "claude",
+                    "base_branch": "main"
+                },
+                "project_settings": {
+                    "default_agent": "codex",
+                    "base_branch": "develop",
+                    "copy_files": ".env, .env.local",
+                    "init_script": "npm install"
+                },
+                "phase_queries": [
+                    "research",
+                    "running"
+                ]
+            },
+            "expected_output": "default_agent=codex\nbase_branch=develop\ncopy_files=.env, .env.local\ninit_script=npm install\nphase:research=codex\nexplicit:research=none\nphase:running=codex\nexplicit:running=none\n"
+        },
+        {
+            "input": {
+                "global_settings": {
+                    "default_agent": "claude",
+                    "base_branch": "main",
+                    "phase_agents": {
+                        "running": "codex",
+                        "review": "gemini"
+                    }
+                },
+                "project_settings": {},
+                "phase_queries": [
+                    "research",
+                    "planning",
+                    "running",
+                    "review"
+                ]
+            },
+            "expected_output": "default_agent=claude\nbase_branch=main\ncopy_files=none\ninit_script=none\nphase:research=claude\nexplicit:research=none\nphase:planning=claude\nexplicit:planning=none\nphase:running=codex\nexplicit:running=codex\nphase:review=gemini\nexplicit:review=gemini\n"
+        },
+        {
+            "input": {
+                "global_settings": {
+                    "default_agent": "claude",
+                    "base_branch": "main",
+                    "phase_agents": {
+                        "running": "codex"
+                    }
+                },
+                "project_settings": {
+                    "phase_agents": {
+                        "running": "gemini"
+                    }
+                },
+                "phase_queries": [
+                    "planning",
+                    "running"
+                ]
+            },
+            "expected_output": "default_agent=claude\nbase_branch=main\ncopy_files=none\ninit_script=none\nphase:planning=claude\nexplicit:planning=none\nphase:running=gemini\nexplicit:running=gemini\n"
+        },
+        {
+            "input": {
+                "global_settings": {
+                    "default_agent": "claude",
+                    "base_branch": "main",
+                    "phase_agents": {
+                        "planning": "gemini"
+                    }
+                },
+                "project_settings": {},
+                "phase_queries": [
+                    "planning_with_research"
+                ]
+            },
+            "expected_output": "default_agent=claude\nbase_branch=main\ncopy_files=none\ninit_script=none\nphase:planning_with_research=gemini\nexplicit:planning_with_research=gemini\n"
+        }
+    ]
+}

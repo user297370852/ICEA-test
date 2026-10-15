@@ -1,0 +1,44 @@
+{
+  "description": "Per-request builder injection. A method may accept a parameter that is a builder block applied to the outgoing request, letting the caller imprint arbitrary request mutations such as an extra header. At most one builder parameter is allowed, and the parameter must have the builder block type; other forms are rejected at generation time. The adapter exercises the positive case with a builder that appends one header and prints the issued request's method, resolved URL, body kind and headers, or a neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "reqBuilder",
+            "name": "builder",
+            "header": "X-Custom"
+          }
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=X-Custom=1"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "reqBuilder",
+            "name": "b1"
+          },
+          {
+            "kind": "reqBuilder",
+            "name": "b2"
+          }
+        ]
+      },
+      "expected_output": "error=multiple_request_builders"
+    }
+  ]
+}

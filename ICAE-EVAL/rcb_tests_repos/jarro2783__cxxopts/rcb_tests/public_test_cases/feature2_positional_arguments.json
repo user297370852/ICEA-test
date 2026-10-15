@@ -1,0 +1,17 @@
+{
+  "description": "Positional argument mapping: a named set of options can be designated as positional, so bare tokens on the command line are assigned to them in order. A trailing positional declared as a list collects all remaining tokens. Tokens after a bare double-dash separator, or tokens with no positional mapping, are reported as unmatched. List-valued positionals retain comma characters verbatim (no splitting). When the only mapped positional name does not correspond to a declared option, parsing reports a no_such_option error.",
+  "cases": [
+    {
+      "input": {"program": "t", "options": [{"opts": "input", "type": "string"}, {"opts": "output", "type": "string"}, {"opts": "positional", "type": "vec_string"}], "positional": ["input", "output", "positional"], "argv": ["--output", "a", "b", "c", "d"], "queries": [{"q": "value", "name": "input", "type": "string"}, {"q": "value", "name": "output", "type": "string"}, {"q": "value", "name": "positional", "type": "vec_string"}, {"q": "unmatched"}]},
+      "expected_output": "value[input]=b\nvalue[output]=a\nvalue[positional]=[c,d]\nunmatched=0"
+    },
+    {
+      "input": {"program": "extras", "options": [{"opts": "dummy", "type": "string"}], "argv": ["--", "a", "b", "c", "d"], "queries": [{"q": "unmatched"}]},
+      "expected_output": "unmatched=4\nunmatched[0]=a\nunmatched[1]=b\nunmatched[2]=c\nunmatched[3]=d"
+    },
+    {
+      "input": {"program": "foobar", "options": [{"opts": "long", "type": "string"}], "positional": ["something"], "argv": ["bar", "baz"], "queries": []},
+      "expected_output": "error=no_such_option\nparam=something"
+    }
+  ]
+}

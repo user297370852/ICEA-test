@@ -1,0 +1,33 @@
+{
+  "description": "Parse a SAML2 metadata entity-descriptor XML element, exercising multiple role-descriptor children and individual optional attributes in isolation (only a cache duration, only a valid-until expiry, only a descriptor id). Surfaced fields include the entity id, the present optional attributes, and the indexed role descriptors.",
+  "cases": [
+    {
+      "input": {
+        "action": "read_entity_descriptor",
+        "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://stubidp.example.com/Metadata\"><RoleDescriptor protocolSupportEnumeration=\"urn:proto:a\"/><RoleDescriptor protocolSupportEnumeration=\"urn:proto:b\"/></EntityDescriptor>"
+      },
+      "expected_output": "entityId=https://stubidp.example.com/Metadata\nroleDescriptor[0].protocolSupportEnumeration=urn:proto:a\nroleDescriptor[1].protocolSupportEnumeration=urn:proto:b\n"
+    },
+    {
+      "input": {
+        "action": "read_entity_descriptor",
+        "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://stubidp.example.com/Metadata\" cacheDuration=\"PT30M\"><RoleDescriptor protocolSupportEnumeration=\"urn:whatever\"/></EntityDescriptor>"
+      },
+      "expected_output": "entityId=https://stubidp.example.com/Metadata\ncacheDuration=PT30M\nroleDescriptor[0].protocolSupportEnumeration=urn:whatever\n"
+    },
+    {
+      "input": {
+        "action": "read_entity_descriptor",
+        "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://stubidp.example.com/Metadata\" validUntil=\"2030-01-01T00:00:00Z\"><RoleDescriptor protocolSupportEnumeration=\"urn:whatever\"/></EntityDescriptor>"
+      },
+      "expected_output": "entityId=https://stubidp.example.com/Metadata\nvalidUntil=2030-01-01T00:00:00Z\nroleDescriptor[0].protocolSupportEnumeration=urn:whatever\n"
+    },
+    {
+      "input": {
+        "action": "read_entity_descriptor",
+        "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" ID=\"_id123\" entityID=\"https://stubidp.example.com/Metadata\"><RoleDescriptor protocolSupportEnumeration=\"urn:whatever\"/></EntityDescriptor>"
+      },
+      "expected_output": "entityId=https://stubidp.example.com/Metadata\nid=_id123\nroleDescriptor[0].protocolSupportEnumeration=urn:whatever\n"
+    }
+  ]
+}

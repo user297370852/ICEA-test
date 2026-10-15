@@ -1,0 +1,65 @@
+{
+    "description": "Decode CSV text with automatic value typing enabled. Each field is examined and converted to an integer, floating-point number, or boolean when its full text matches that form; otherwise it stays textual. Boolean recognition is exact and case-sensitive, and even quoted fields are subject to typing. The reported neutral type tag reflects the inferred type of each field.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "config": {
+                    "dynamicTyping": true
+                },
+                "input": "123,-456"
+            },
+            "expected_output": "rows=1\nrow[0]: int=123 | int=-456\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "config": {
+                    "dynamicTyping": true
+                },
+                "input": "1.23,1e10,.5"
+            },
+            "expected_output": "rows=1\nrow[0]: double=1.23 | double=10000000000.0 | double=0.5\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "config": {
+                    "dynamicTyping": true
+                },
+                "input": "true,false"
+            },
+            "expected_output": "rows=1\nrow[0]: bool=true | bool=false\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "config": {
+                    "dynamicTyping": true
+                },
+                "input": "123,true,hello,1.5"
+            },
+            "expected_output": "rows=1\nrow[0]: int=123 | bool=true | str=\"hello\" | double=1.5\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "config": {
+                    "dynamicTyping": true
+                },
+                "input": "\"123\",\"true\",\"3.14\""
+            },
+            "expected_output": "rows=1\nrow[0]: int=123 | bool=true | double=3.14\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "config": {
+                    "dynamicTyping": true
+                },
+                "input": "TRUE,False,true"
+            },
+            "expected_output": "rows=1\nrow[0]: str=\"TRUE\" | str=\"False\" | bool=true\n"
+        }
+    ]
+}

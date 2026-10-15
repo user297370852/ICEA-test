@@ -1,0 +1,49 @@
+{
+  "description": "Enhanced boundary coverage for email-domain masking. Covers: the second configured alternate (customerEmail) with a multi-label domain; a value with no '@' at all (not an email, so it passes through unchanged); a minimal single-character local + single-label domain ('a@b'); the combination of all three masking strategies in one quoted JSON-style message (trailing username, leading orderNumber, email) confirming each field is rewritten independently; and a domainless email that fails the lookahead and is left intact.",
+  "cases": [
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "customerEmail=john.doe@example.co.uk"
+      },
+      "expected_output": "masked=customerEmail=john.doe*****\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "email=plainnoatsign"
+      },
+      "expected_output": "masked=email=plainnoatsign\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "email=a@b"
+      },
+      "expected_output": "masked=email=a*****\n"
+    },
+    {
+      "input": {
+        "op": "regex_mask",
+        "complete": "password|signature",
+        "mask_tail": "username",
+        "mask_head": "orderNumber|giftCardNum",
+        "email": "email|customerEmail",
+        "message": "\"username\":\"johndoe\",\"orderNumber\":\"987654\",\"email\":\"a.b@c.com\""
+      },
+      "expected_output": "masked=\"username\":\"joh*****\",\"orderNumber\":\"*****7654\",\"email\":\"a.b*****\"\n"
+    }
+  ]
+}

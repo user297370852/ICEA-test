@@ -1,0 +1,84 @@
+{
+  "description": "Enhanced producer-send coverage: three single-topic messages create three independent root traces; a single message whose client response echoes more records than messages (with some optional record fields absent) renders every returned record field-filtered; and a publish of an empty message list emits no spans and no inject lines.",
+  "cases": [
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce",
+            "topic": "orders",
+            "messages": [
+              {
+                "value": "m1"
+              },
+              {
+                "value": "m2"
+              },
+              {
+                "value": "m3"
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          }
+        ]
+      },
+      "expected_output": "produce topic=orders status=ok result_records=0\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\ninject msg=2 carries=span#2\nspans=3\nspan 0 kind=producer name=orders trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=orders\n  messaging.destination_kind=topic\nspan 1 kind=producer name=orders trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=orders\n  messaging.destination_kind=topic\nspan 2 kind=producer name=orders trace=t2 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=orders\n  messaging.destination_kind=topic\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce",
+            "topic": "orders",
+            "messages": [
+              {
+                "value": "only one message"
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": [
+                {
+                  "topicName": "orders",
+                  "partition": 0,
+                  "offset": "100"
+                },
+                {
+                  "topicName": "orders",
+                  "offset": "101"
+                },
+                {
+                  "topicName": "orders",
+                  "partition": 2
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "produce topic=orders status=ok result_records=3\n  record 0 topicName=orders partition=0 offset=100\n  record 1 topicName=orders offset=101\n  record 2 topicName=orders partition=2\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=orders trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=orders\n  messaging.destination_kind=topic\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce",
+            "topic": "orders",
+            "messages": [],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          }
+        ]
+      },
+      "expected_output": "produce topic=orders status=ok result_records=0\nspans=0\n"
+    }
+  ]
+}

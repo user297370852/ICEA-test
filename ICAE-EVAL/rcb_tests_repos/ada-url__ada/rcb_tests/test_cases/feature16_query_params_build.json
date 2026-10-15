@@ -1,0 +1,264 @@
+{
+    "description": "Build and mutate an ordered multimap of query parameters and observe it through its count, membership tests, single and multi-value lookups, and serialized form. Appending adds a new pair preserving insertion order and allowing duplicate keys; setting collapses all pairs for a key to a single value (in the key's existing position when present); removing deletes either all pairs for a key or only the pairs matching a key and value. The collection can also be built directly from a query string, where an optional leading question mark is ignored and a key with no value is treated as having an empty value.",
+    "cases": [
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "key",
+                        "value": "value"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "get_all",
+                        "key": "key"
+                    }
+                ]
+            },
+            "expected_output": "size=1\nhas=true\nsize=2\nget_all=2\nvalue\nvalue2\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "value1"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "set",
+                        "key": "key1",
+                        "value": "hello"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "remove",
+                        "key": "key1"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "value1"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key2",
+                        "value": "value1"
+                    },
+                    {
+                        "op": "set",
+                        "key": "key1",
+                        "value": "value3"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "set",
+                        "key": "key1",
+                        "value": "value4"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "size=2\nsize=1\nto_string=key1=hello\nsize=2\nto_string=key1=value3&key2=value1\nto_string=key1=value4&key2=value1\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "value1"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key1",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key2",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "remove",
+                        "key": "key2"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "remove",
+                        "key": "key1",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "size=2\nto_string=key1=value1&key1=value2\nsize=1\nto_string=key1=value1\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "?a=b",
+                "steps": [
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "to_string=a=b\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "",
+                "steps": [
+                    {
+                        "op": "to_string"
+                    },
+                    {
+                        "op": "size"
+                    }
+                ]
+            },
+            "expected_output": "to_string=\nsize=0\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "a=b&c",
+                "steps": [
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "to_string=a=b&c=\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "key1=value1&key2=value2",
+                "steps": [
+                    {
+                        "op": "has",
+                        "key": "key1"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key2"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key1",
+                        "value": "value1"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key2",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key3"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key1",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key3",
+                        "value": "value3"
+                    }
+                ]
+            },
+            "expected_output": "has=true\nhas=true\nhas=true\nhas=true\nhas=false\nhas=false\nhas=false\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "&a&&& &&&&&a+b=& c&m%c3%b8%c3%b8",
+                "steps": [
+                    {
+                        "op": "has",
+                        "key": "a"
+                    },
+                    {
+                        "op": "has",
+                        "key": "a b"
+                    },
+                    {
+                        "op": "has",
+                        "key": " "
+                    },
+                    {
+                        "op": "has",
+                        "key": "c"
+                    },
+                    {
+                        "op": "has",
+                        "key": " c"
+                    },
+                    {
+                        "op": "has",
+                        "key": "møø"
+                    }
+                ]
+            },
+            "expected_output": "has=true\nhas=true\nhas=true\nhas=false\nhas=true\nhas=true\n"
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+{
+  "description": "Additional rendering-error coverage: rendering from a null context, a section whose template items carry no usable 'template' key (no template items), referencing a template file that does not exist, and a template referencing an undefined variable under strict-undefined semantics. Each prints the documented neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "raw_context": null,
+        "templates_files": {
+          "t.yaml.j2": "{{ a }}"
+        },
+        "config": "common: {}\n"
+      },
+      "expected_output": "error=none_context\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "section": "empty_items",
+        "templates_files": {
+          "t.yaml.j2": "{{ a }}"
+        },
+        "config": "common:\n  k8s_namespace: ns\nempty_items:\n  templates:\n    - foo: bar\n    - baz: qux\n"
+      },
+      "expected_output": "error=no_template_items\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "section": "missing_tpl",
+        "templates_files": {
+          "present.yaml.j2": "ok"
+        },
+        "config": "common:\n  k8s_namespace: ns\nmissing_tpl:\n  templates:\n    - template: absent.yaml.j2\n"
+      },
+      "expected_output": "error=template_not_found\ntemplate=absent.yaml.j2\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "section": "undef_var",
+        "templates_files": {
+          "u.yaml.j2": "name: {{ missing_one }}\n"
+        },
+        "config": "common:\n  k8s_namespace: ns\nundef_var:\n  templates:\n    - template: u.yaml.j2\n"
+      },
+      "expected_output": "error=undefined_variable\nvariable=missing_one\n"
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "description": "Additional call-graph filtering boundary cases: empty/standalone root, root removed with no surviving descendants, root removed promoting children, negative node values and ascending-order rendering with negatives, deep splice chains, diamond reattachment of a single shared node, and multiple simultaneous back-references.",
+  "cases": [
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": []
+        },
+        "root": 1,
+        "allowed": [
+          1
+        ]
+      },
+      "expected_output": "1\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": []
+        },
+        "root": 1,
+        "allowed": []
+      },
+      "expected_output": "\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": [
+            2
+          ]
+        },
+        "root": 1,
+        "allowed": [
+          2
+        ]
+      },
+      "expected_output": "2\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": [
+            5,
+            2,
+            9
+          ]
+        },
+        "root": 1,
+        "allowed": [
+          2,
+          5,
+          9
+        ]
+      },
+      "expected_output": "2,5,9\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": [
+            -3,
+            2
+          ],
+          "-3": [
+            4
+          ],
+          "2": [
+            4
+          ],
+          "4": []
+        },
+        "root": 1,
+        "allowed": [
+          1,
+          -3,
+          2,
+          4
+        ]
+      },
+      "expected_output": "1[-3[4],2[*4]]\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": [
+            2
+          ],
+          "2": [
+            3
+          ],
+          "3": [
+            4
+          ],
+          "4": [
+            5
+          ],
+          "5": [
+            6
+          ]
+        },
+        "root": 1,
+        "allowed": [
+          1,
+          6
+        ]
+      },
+      "expected_output": "1[6]\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": [
+            2,
+            3
+          ],
+          "2": [
+            4
+          ],
+          "3": [
+            4
+          ],
+          "4": []
+        },
+        "root": 1,
+        "allowed": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "expected_output": "1[2[4],3[*4]]\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "1": [
+            2,
+            3
+          ],
+          "2": [
+            3
+          ],
+          "3": [
+            2
+          ]
+        },
+        "root": 1,
+        "allowed": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected_output": "1[2[3[*2]],*3]\n"
+    },
+    {
+      "input": {
+        "op": "filter_graph",
+        "children": {
+          "10": [
+            20
+          ],
+          "20": [
+            30
+          ],
+          "30": [
+            10
+          ]
+        },
+        "root": 10,
+        "allowed": [
+          10,
+          20,
+          30
+        ]
+      },
+      "expected_output": "10[20[30[*10]]]\n"
+    }
+  ]
+}

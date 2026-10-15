@@ -1,0 +1,32 @@
+{
+  "description": "Parse an inline encryption annotation that may appear inside a schema field documentation string and decide whether that field should be encrypted and whether decryption must be strict. The annotation marker may carry an optional query string of flags. When no annotation marker is present at all the result is a no-match. When the marker is present, two booleans are derived: whether values are encrypted on write, and whether a failed decryption must be treated as fatal. A mode selector chooses among default behavior (encrypt, non-strict), strict behavior (encrypt, strict decryption), and read-only behavior (do not encrypt, non-strict). Two legacy boolean flags map onto the same modes, with the read-only flag taking precedence over the strict flag when both are present. Unrecognized query parameters and unknown mode values fall back to the default behavior.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_encrypted"
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " pre @encrypted post "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " pre @encrypted?mode=strict post "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=true\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " pre @encrypted?mode=readonly post "
+      },
+      "expected_output": "encrypt=false\nstrictDecryption=false\n"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+    "description": "Applying a create operation to an empty snapshot initializes the document: it adopts the named type's canonical identifier, sets its content to the supplied initial data (or the type's empty value when none is supplied), and advances the version by one. Creating over a snapshot that already has a type is rejected with a normalized already-exists category and leaves the snapshot untouched.",
+    "cases": [
+        {
+            "input": {
+                "action": "apply",
+                "snapshot": {
+                    "v": 5
+                },
+                "op": {
+                    "v": 5,
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "v=6\ntype=http://sharejs.org/types/JSONv0\ndata=null\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "snapshot": {
+                    "v": 6,
+                    "type": "http://sharejs.org/types/JSONv0",
+                    "data": "hi"
+                },
+                "op": {
+                    "v": 6,
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "error=ERR_DOC_ALREADY_CREATED\n"
+        }
+    ]
+}

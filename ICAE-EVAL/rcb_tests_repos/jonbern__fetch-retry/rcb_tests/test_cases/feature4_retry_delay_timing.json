@@ -1,0 +1,21 @@
+{
+    "description": "A retried request is delayed by a fixed amount of time (the retryDelay option, in milliseconds) before being re-issued. After the first attempt fails, no new request is made until at least the full delay has elapsed: observing the request count while advancing a virtual clock shows the count stays at 1 until the delay is reached, then becomes 2 when the next attempt fires. Here the delay is 5000 ms, so advancing only 1000 ms triggers no new request while advancing the remaining time does.",
+    "cases": [
+        {
+            "input": {
+                "url": "http://someUrl",
+                "options": {"retryDelay": 5000},
+                "script": [
+                    {"reject": "err1"},
+                    {"observe": "fetch_count"},
+                    {"advance": 1000},
+                    {"observe": "fetch_count"},
+                    {"advance": 4000},
+                    {"observe": "fetch_count"},
+                    {"resolve": 200}
+                ]
+            },
+            "expected_output": "fetch_count=1\nfetch_count=1\nfetch_count=2\nfetch_count=2\nurl=http://someUrl\noptions_passed=true\noutcome=resolved status=200\n"
+        }
+    ]
+}

@@ -1,0 +1,31 @@
+{
+  "description": "Build a reverse declaration index from source files, mapping each exported declaration name to its origins (kind, name, source path), for a file mixing several declaration kinds and for two independent files each exporting multiple declarations.",
+  "cases": [
+    {
+      "input": {
+        "action": "buildIndex",
+        "files": {
+          "mixed.ts": "export class Widget { }\nexport interface Shape { }\nexport enum Color { Red, Green }\nexport function make(): void { }\nexport type Alias = {};\nexport const VALUE = 1;\n"
+        },
+        "entry": [
+          "mixed.ts"
+        ]
+      },
+      "expected_output": "{\n  \"Alias\": [\n    {\n      \"kind\": \"typeAlias\",\n      \"name\": \"Alias\",\n      \"from\": \"/mixed\"\n    }\n  ],\n  \"Color\": [\n    {\n      \"kind\": \"enum\",\n      \"name\": \"Color\",\n      \"from\": \"/mixed\"\n    }\n  ],\n  \"Shape\": [\n    {\n      \"kind\": \"interface\",\n      \"name\": \"Shape\",\n      \"from\": \"/mixed\"\n    }\n  ],\n  \"VALUE\": [\n    {\n      \"kind\": \"variable\",\n      \"name\": \"VALUE\",\n      \"from\": \"/mixed\"\n    }\n  ],\n  \"Widget\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Widget\",\n      \"from\": \"/mixed\"\n    }\n  ],\n  \"make\": [\n    {\n      \"kind\": \"function\",\n      \"name\": \"make\",\n      \"from\": \"/mixed\"\n    }\n  ]\n}"
+    },
+    {
+      "input": {
+        "action": "buildIndex",
+        "files": {
+          "a.ts": "export class Aardvark { }\nexport class Antelope { }\n",
+          "b.ts": "export class Bison { }\nexport class Buffalo { }\n"
+        },
+        "entry": [
+          "a.ts",
+          "b.ts"
+        ]
+      },
+      "expected_output": "{\n  \"Aardvark\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Aardvark\",\n      \"from\": \"/a\"\n    }\n  ],\n  \"Antelope\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Antelope\",\n      \"from\": \"/a\"\n    }\n  ],\n  \"Bison\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Bison\",\n      \"from\": \"/b\"\n    }\n  ],\n  \"Buffalo\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Buffalo\",\n      \"from\": \"/b\"\n    }\n  ]\n}"
+    }
+  ]
+}

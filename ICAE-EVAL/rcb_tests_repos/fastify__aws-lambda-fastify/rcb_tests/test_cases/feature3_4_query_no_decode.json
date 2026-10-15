@@ -1,0 +1,32 @@
+{
+  "description": "For non load-balancer events, query values are passed through verbatim, without URL-decoding.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "foo": "foo%3Fbar"
+          },
+          "multiValueQueryStringParameters": {
+            "foo": [
+              "foo%40bar",
+              "foo%3Fbar"
+            ]
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"foo\":[\"foo%40bar\",\"foo%3Fbar\"]}\nheader.connection=keep-alive\nheader.content-length=33\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

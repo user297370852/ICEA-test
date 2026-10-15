@@ -1,0 +1,17 @@
+## Product Requirement Document
+
+Hey team, we need to ship that HTML compression thing we talked about last sprint. The basic idea is we want to automatically shrink the HTML we send to browsers so pages load faster, but without breaking anything — especially that 'protected content' behavior we figured out with the template team a while back. Devs need to be able to drop this in globally (like a middleware layer that just handles every response automatically) but also opt individual views in or out if needed. There are some edge cases around comments — some teams want them stripped, others want to keep certain ones, and there are some special browser-compatibility comments that should ALWAYS survive no matter what the config says. Also there's a debug mode situation where minification shouldn't fire when you're developing locally. The byte-handling fallback logic should work similarly to what we did for that internationalization encoding module — try the preferred encoding, fall back gracefully through alternatives. Path-based exclusions should work by matching against the URL without the leading slash. Global on/off toggle needs to play nicely with debug mode. Please keep this modular — no giant single files, the core logic shouldn't know anything about HTTP or JSON. The middleware should only touch responses that actually went through the request phase properly.
+
+---
+
+## Clarification
+
+This PRD is intentionally incomplete. A requirements oracle can answer questions about hidden implementation details — including exact feature specs, interface contracts, and test cases.
+
+**Oracle** — POST `http://127.0.0.1:50002/`
+```
+{"append_id":"5b3b6db753be455aa9bc850574c68cd1","task_id":"realcode@042","question":"..."}
+```
+Answer is in `data`. Budget shown in `status.remaining`.
+
+Features and test cases have been prepared. Ask before you code. Unasked questions become bugs.

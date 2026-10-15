@@ -1,0 +1,44 @@
+{
+  "description": "Additional placeholder-resolution coverage: two adjacent env placeholders concatenated with no separator, a section scalar overriding a common scalar, a common-only variable inherited into a section that supplies its own templates, and a file include whose nested mapping is recursively merged with a section-level override of the same key. Output is the resolved section as sorted JSON.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve",
+        "section": "concat",
+        "env": {
+          "A_VAR": "foo",
+          "B_VAR": "bar"
+        },
+        "config": "common:\n  glued: \"{{ env='A_VAR' }}{{ env='B_VAR' }}\"\nconcat:\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "{\n  \"glued\": \"foobar\",\n  \"templates\": [\n    {\n      \"template\": \"t.yaml.j2\"\n    }\n  ]\n}"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "override_scalar",
+        "config": "common:\n  k8s_namespace: shared_ns\n  replicas: 1\noverride_scalar:\n  replicas: 5\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "{\n  \"k8s_namespace\": \"shared_ns\",\n  \"replicas\": 5,\n  \"templates\": [\n    {\n      \"template\": \"t.yaml.j2\"\n    }\n  ]\n}"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "inherits",
+        "config": "common:\n  k8s_namespace: shared_ns\n  shared_flag: enabled\ninherits:\n  own_var: local\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "{\n  \"k8s_namespace\": \"shared_ns\",\n  \"own_var\": \"local\",\n  \"shared_flag\": \"enabled\",\n  \"templates\": [\n    {\n      \"template\": \"t.yaml.j2\"\n    }\n  ]\n}"
+    },
+    {
+      "input": {
+        "op": "resolve",
+        "section": "merge_include",
+        "aux_files": {
+          "frag.yaml": "---\nrouter:\n  host: shared-host\n  port: 8080\n"
+        },
+        "config": "common:\n  conf: \"{{ file='frag.yaml' }}\"\nmerge_include:\n  conf:\n    router:\n      port: 9090\n  templates:\n    - template: t.yaml.j2\n"
+      },
+      "expected_output": "{\n  \"conf\": {\n    \"router\": {\n      \"host\": \"shared-host\",\n      \"port\": 9090\n    }\n  },\n  \"templates\": [\n    {\n      \"template\": \"t.yaml.j2\"\n    }\n  ]\n}"
+    }
+  ]
+}

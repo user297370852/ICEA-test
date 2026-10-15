@@ -1,0 +1,110 @@
+{
+    "description": "Unsafe HTML elements, attributes, protocols, and invalid table/list structures are removed while preserving allowed content.",
+    "cases": [
+        {
+            "input": {
+                "html": "<p><img src=\"http://github.com/img.png\" /><script></script></p>"
+            },
+            "expected_output": "<p><img src=\"http://github.com/img.png\"></p>\n"
+        },
+        {
+            "input": {
+                "html": "<p><style>hey now</style></p>"
+            },
+            "expected_output": "<p>hey now</p>\n"
+        },
+        {
+            "input": {
+                "html": "<p style='font-size:1000%'>YO DAWG</p>"
+            },
+            "expected_output": "<p>YO DAWG</p>\n"
+        },
+        {
+            "input": {
+                "html": "<a onclick='javascript:alert(0)'>YO DAWG</a>"
+            },
+            "expected_output": "<a>YO DAWG</a>\n"
+        },
+        {
+            "input": {
+                "html": "a\n<li>b</li>\nc"
+            },
+            "expected_output": "a\nb\nc\n"
+        },
+        {
+            "input": {
+                "html": "a\n<ul><li>b</li></ul>\nc"
+            },
+            "expected_output": "a\n<ul><li>b</li></ul>\nc\n"
+        },
+        {
+            "input": {
+                "html": "<a href=\"github-windows://spillthelog\">Spill this yo</a> and so on"
+            },
+            "expected_output": "<a href=\"github-windows://spillthelog\">Spill this yo</a> and so on\n"
+        },
+        {
+            "input": {
+                "html": "<a href=\"something-weird://heyyy\">Wat</a> is this"
+            },
+            "expected_output": "<a>Wat</a> is this\n"
+        },
+        {
+            "input": {
+                "html": "<a href=\"http://www.example.com/\">No href for you</a>",
+                "allowed_anchor_schemes": []
+            },
+            "expected_output": "<a>No href for you</a>\n"
+        },
+        {
+            "input": {
+                "html": "<a href=\"something-weird://heyyy\">Wat</a> is this",
+                "allowed_anchor_schemes": [
+                    "something-weird"
+                ]
+            },
+            "expected_output": "<a href=\"something-weird://heyyy\">Wat</a> is this\n"
+        },
+        {
+            "input": {
+                "html": "<a href=\"something-weird://heyyy\" ping=\"more-weird://hiii\">Wat</a> is this",
+                "allow_href_and_ping_with_http_ping_only": true,
+                "allowed_anchor_schemes": [
+                    "something-weird"
+                ]
+            },
+            "expected_output": "<a href=\"something-weird://heyyy\">Wat</a> is this\n"
+        },
+        {
+            "input": {
+                "html": "<a href=\"something-weird://heyyy\">Wat</a> is this",
+                "allow_href_for_custom_scheme_only": true
+            },
+            "expected_output": "<a href=\"something-weird://heyyy\">Wat</a> is this\n"
+        },
+        {
+            "input": {
+                "html": "<script>JavaScript!</script>"
+            },
+            "expected_output": "\n"
+        },
+        {
+            "input": {
+                "html": "<tr><td>Foo</td></tr><td>Bar</td>"
+            },
+            "expected_output": "FooBar\n"
+        },
+        {
+            "input": {
+                "html": "<thead><tr><td>Foo</td></tr></thead>"
+            },
+            "expected_output": "Foo\n"
+        },
+        {
+            "input": {
+                "html": "<table>\n<thead><tr><th>Column 1</th></tr></thead>\n<tfoot><tr><td>Sum</td></tr></tfoot>\n<tbody><tr><td>1</td></tr></tbody>\n</table>"
+            },
+            "expected_output": "<table>\n<thead><tr><th>Column 1</th></tr></thead>\n<tfoot><tr><td>Sum</td></tr></tfoot>\n<tbody><tr><td>1</td></tr></tbody>\n</table>\n"
+        }
+    ]
+}

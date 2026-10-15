@@ -1,0 +1,30 @@
+{
+    "description": "Extract a trace context from a B3 multi-header carrier. A 128-bit trace id is downgraded to its lower 64 bits. The sampled and flags headers combine into the context flags. Baggage carried under the prefix is collected and unrelated headers are ignored. When the required id headers are absent, no context is produced.",
+    "cases": [
+        {
+            "input": {
+                "op": "b3_extract",
+                "headers": {
+                    "X-B3-TraceId": "463ac35c9f6413ad48485a3953bb6124",
+                    "X-B3-SpanId": "48485a3953bb6124",
+                    "X-B3-ParentSpanId": "0",
+                    "X-B3-Sampled": "1",
+                    "X-B3-Flags": "1",
+                    "baggage-foo": "bar",
+                    "random-foo": "bar"
+                }
+            },
+            "expected_output": "trace_id=5208512171318403364\nspan_id=5208512171318403364\nparent_id=0\nflags=3\nbaggage.foo=bar\n"
+        },
+        {
+            "input": {
+                "op": "b3_extract",
+                "headers": {
+                    "X-B3-Sampled": "1",
+                    "random": "x"
+                }
+            },
+            "expected_output": "context=none\n"
+        }
+    ]
+}

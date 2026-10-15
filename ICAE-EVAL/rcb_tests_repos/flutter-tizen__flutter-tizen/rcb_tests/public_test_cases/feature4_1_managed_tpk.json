@@ -1,0 +1,13 @@
+{
+    "description": "Managed-runtime application packaging into the platform package (TPK). Given a project that produces a managed-runtime application, the stage stages the engine runtime, the platform embedder shared object, the ICU data, the AOT app snapshot, the asset bundle (including the runtime dependency manifest), and the combined plugin objects into an ephemeral staging tree, then drives the platform packaging tool to produce the signed package and copies it to the output directory. Packaging requires a valid signing certificate profile: when one is configured the package is produced and the staged inputs are present; when none is configured the build is rejected with a normalized `error=no_certificate_profile` line. The `present=true` line under `artifact=tpk` indicates the final package was emitted.",
+    "cases": [
+        {
+            "input": {"stage": "dotnet_tpk", "scenario": "build_succeeds"},
+            "expected_output": "artifact=tpk\npresent=true\nartifact=res/flutter_assets\npresent=true\nartifact=lib/libflutter_engine.so\npresent=true\nartifact=lib/libflutter_tizen.so\npresent=true\nartifact=res/icudtl.dat\npresent=true\nartifact=res/flutter_assets/.app.deps.json\npresent=true\nartifact=lib/libapp.so\npresent=true\nartifact=lib/libflutter_plugins.so\npresent=true\nartifact=lib/libshared.so\npresent=true\n"
+        },
+        {
+            "input": {"stage": "dotnet_tpk", "scenario": "no_profile"},
+            "expected_output": "error=no_certificate_profile\n"
+        }
+    ]
+}

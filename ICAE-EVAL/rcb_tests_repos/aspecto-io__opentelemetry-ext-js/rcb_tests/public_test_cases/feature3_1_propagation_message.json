@@ -1,0 +1,41 @@
+{
+    "description": "Trace context and baggage injected into a message when it is produced are recovered when that same message is later delivered to a per-message consumer handler: the consumer span shares the producer span trace and is its child, and any baggage set around the produce call is visible inside the consumer handler.",
+    "cases": [
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "testing message content"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "success",
+                            "records": []
+                        },
+                        "baggage": {
+                            "foo": "bar"
+                        }
+                    },
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "message": {
+                            "value": ""
+                        },
+                        "headersFromMessage": 0,
+                        "observeBaggage": true,
+                        "handler": {
+                            "behavior": "resolve"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=ok result_records=0\nconsume_message topic=topic-name-1 delivered=ok error=none\ninject msg=0 carries=span#0\nbaggage foo=bar\nspans=2\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        }
+    ]
+}

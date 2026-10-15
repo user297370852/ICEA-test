@@ -1,0 +1,49 @@
+{
+    "description": "Parses fallible optional binary fields and pointer-based fields, preserving stream recovery semantics and resolving pointed-to values after parsing.",
+    "cases": [
+        {
+            "input": {
+                "feature": "fallible_optional_read",
+                "bytes": "00000000"
+            },
+            "expected_output": "status=ok\nvalue=none\n"
+        },
+        {
+            "input": {
+                "feature": "fallible_optional_read",
+                "bytes": "ffffffff00000000"
+            },
+            "expected_output": "status=ok\nvalue=-1,0\n"
+        },
+        {
+            "input": {
+                "feature": "pointer_deref",
+                "bytes": "5445535400000010ffffffff000000005465737420737472696e670000000069"
+            },
+            "expected_output": "status=ok\nptr=16\nvalue=Test string\nb=-1\n"
+        },
+        {
+            "input": {
+                "feature": "pointer_offset_after",
+                "bytes": "0103ffff04"
+            },
+            "expected_output": "status=ok\npointed_value=4\nb=3\n"
+        },
+        {
+            "input": {
+                "feature": "after_parse_pointer",
+                "bytes": "01ff",
+                "mode": "direct"
+            },
+            "expected_output": "status=ok\nvalue=255\n"
+        },
+        {
+            "input": {
+                "feature": "after_parse_pointer",
+                "bytes": "01ff",
+                "mode": "try"
+            },
+            "expected_output": "status=ok\nvalue=255\n"
+        }
+    ]
+}

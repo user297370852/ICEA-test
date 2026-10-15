@@ -1,0 +1,92 @@
+{
+  "description": "Enhanced histogram coverage for boundary equality, no finite buckets with observations, negative buckets, fractional buckets, and invalid increment count on empty bucket configuration.",
+  "cases": [
+    {
+      "input": {
+        "feature": "histogram",
+        "buckets": [],
+        "operations": [
+          {
+            "action": "observe",
+            "value": 5
+          },
+          {
+            "action": "observe",
+            "value": -2
+          }
+        ]
+      },
+      "expected_output": "sample_count=2\nsample_sum=3\nbucket_le=+Inf count=2\n"
+    },
+    {
+      "input": {
+        "feature": "histogram",
+        "buckets": [
+          -1,
+          0,
+          1.5
+        ],
+        "operations": [
+          {
+            "action": "observe",
+            "value": -2
+          },
+          {
+            "action": "observe",
+            "value": -1
+          },
+          {
+            "action": "observe",
+            "value": 0
+          },
+          {
+            "action": "observe",
+            "value": 1.5
+          },
+          {
+            "action": "observe",
+            "value": 2
+          }
+        ]
+      },
+      "expected_output": "sample_count=5\nsample_sum=0.5\nbucket_le=-1 count=2\nbucket_le=0 count=3\nbucket_le=1.5 count=4\nbucket_le=+Inf count=5\n"
+    },
+    {
+      "input": {
+        "feature": "histogram",
+        "buckets": [
+          0.1,
+          0.2,
+          0.3
+        ],
+        "operations": [
+          {
+            "action": "observe_multiple",
+            "bucket_increments": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "sum_of_observations": 1.5
+          }
+        ]
+      },
+      "expected_output": "sample_count=10\nsample_sum=1.5\nbucket_le=0.1 count=1\nbucket_le=0.2 count=3\nbucket_le=0.3 count=6\nbucket_le=+Inf count=10\n"
+    },
+    {
+      "input": {
+        "feature": "histogram",
+        "buckets": [],
+        "operations": [
+          {
+            "action": "observe_multiple",
+            "bucket_increments": [],
+            "sum_of_observations": 0
+          }
+        ]
+      },
+      "expected_output": "error=invalid_bucket_increment_count\nexpected_buckets=1\n"
+    }
+  ]
+}

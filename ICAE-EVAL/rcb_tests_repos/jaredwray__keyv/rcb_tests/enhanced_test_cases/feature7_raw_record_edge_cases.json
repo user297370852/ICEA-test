@@ -1,0 +1,73 @@
+{
+  "description": "Additional raw-record cases cover missing records, raw reads after expiration cleanup, and record views for structured non-expiring values.",
+  "cases": [
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "read_record",
+            "key": "missing",
+            "label": "missing_record"
+          }
+        ]
+      },
+      "expected_output": "missing_record=undefined\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "save",
+            "key": "object",
+            "value": {
+              "nested": [
+                1,
+                {
+                  "buf": {
+                    "$bytes_base64": "eHl6"
+                  }
+                }
+              ]
+            },
+            "lifetime_ms": 0
+          },
+          {
+            "action": "read_record",
+            "key": "object",
+            "label": "object_record"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nobject_record.value={\"nested\":[1,{\"buf\":\"bytes:eHl6\"}]}\nobject_record.expires=null\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "save",
+            "key": "short",
+            "value": "expired",
+            "lifetime_ms": 1
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 2
+          },
+          {
+            "action": "read_record",
+            "key": "short",
+            "label": "expired_record"
+          },
+          {
+            "action": "store_entries",
+            "label": "entries"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nexpired_record=undefined\nentries=0\n"
+    }
+  ]
+}

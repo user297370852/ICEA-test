@@ -1,0 +1,84 @@
+{
+  "description": "Boundary coverage for membership and existence checks: empty existence and containment query lists, a containment query whose name matches but whose value differs, a containment query that matches both name and value, and existence queries mixing present and absent names.",
+  "cases": [
+    {
+      "input": {
+        "op": "payload_membership",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 1
+          }
+        ],
+        "exists": [],
+        "contains": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "op": "payload_membership",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 1
+          },
+          {
+            "name": "jti",
+            "value": "foo"
+          }
+        ],
+        "contains": [
+          {
+            "name": "sub",
+            "value": 2
+          }
+        ]
+      },
+      "expected_output": "contains.sub=false\n"
+    },
+    {
+      "input": {
+        "op": "payload_membership",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 1
+          },
+          {
+            "name": "jti",
+            "value": "foo"
+          }
+        ],
+        "exists": [
+          "sub",
+          "jti",
+          "iss"
+        ],
+        "contains": [
+          {
+            "name": "jti",
+            "value": "foo"
+          }
+        ]
+      },
+      "expected_output": "exists.sub=true\nexists.jti=true\nexists.iss=false\ncontains.jti=true\n"
+    },
+    {
+      "input": {
+        "op": "payload_membership",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 1
+          }
+        ],
+        "exists": [
+          "sub",
+          "sub"
+        ]
+      },
+      "expected_output": "exists.sub=true\nexists.sub=true\n"
+    }
+  ]
+}

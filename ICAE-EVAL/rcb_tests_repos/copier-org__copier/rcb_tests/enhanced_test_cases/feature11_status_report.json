@@ -1,0 +1,61 @@
+{
+  "description": "Boundary coverage for the per-entry action report: a single-file create, a deeply nested create spanning multiple new folders, a re-render where every file is identical, and a conflict resolved by a skip_if_exists pattern.",
+  "cases": [
+    {
+      "input": {
+        "op": "status",
+        "src": {
+          "only.txt": "X\n"
+        },
+        "quiet": false,
+        "data": {}
+      },
+      "expected_output": "lines=1\ncreate only.txt\n"
+    },
+    {
+      "input": {
+        "op": "status",
+        "src": {
+          "a/b/c/d.txt": "deep\n"
+        },
+        "quiet": false,
+        "data": {}
+      },
+      "expected_output": "lines=4\ncreate a/\ncreate a/b/\ncreate a/b/c/\ncreate a/b/c/d.txt\n"
+    },
+    {
+      "input": {
+        "op": "status",
+        "src": {
+          "x.txt": "SAME\n",
+          "y.txt": "SAME\n"
+        },
+        "dst_prefill": {
+          "x.txt": "SAME\n",
+          "y.txt": "SAME\n"
+        },
+        "quiet": false,
+        "data": {}
+      },
+      "expected_output": "lines=2\nidentical x.txt\nidentical y.txt\n"
+    },
+    {
+      "input": {
+        "op": "status",
+        "src": {
+          "keep.txt": "NEW\n"
+        },
+        "dst_prefill": {
+          "keep.txt": "OLD\n"
+        },
+        "skip_if_exists": [
+          "keep.txt"
+        ],
+        "force": true,
+        "quiet": false,
+        "data": {}
+      },
+      "expected_output": "lines=1\nskip keep.txt\n"
+    }
+  ]
+}

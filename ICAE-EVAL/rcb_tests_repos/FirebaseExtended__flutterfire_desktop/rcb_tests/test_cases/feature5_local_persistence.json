@@ -1,0 +1,41 @@
+{
+    "description": "A named local key-value store used to persist small pieces of session data. The request names a box, supplies an ordered list of put operations (each a key with either a string value or a null value), and finally names a key to read back. Storing a key with a string value makes it retrievable, and reading it back returns that value. Storing a key with a null value removes it (it is never persisted), so a later read fails. Reading a key that was never stored, or reading from a box that was never written to, both fail. Every failed read is reported as a normalized not-found error.",
+    "cases": [
+        {
+            "input": {
+                "action": "store",
+                "name": "session-box",
+                "puts": [{"key": "token", "value": "abc123"}],
+                "get": "token"
+            },
+            "expected_output": "value=abc123\n"
+        },
+        {
+            "input": {
+                "action": "store",
+                "name": "session-box",
+                "puts": [{"key": "token", "value": null}],
+                "get": "token"
+            },
+            "expected_output": "error=not_found\n"
+        },
+        {
+            "input": {
+                "action": "store",
+                "name": "session-box",
+                "puts": [{"key": "other", "value": "x"}],
+                "get": "token"
+            },
+            "expected_output": "error=not_found\n"
+        },
+        {
+            "input": {
+                "action": "store",
+                "name": "absent-box",
+                "puts": [],
+                "get": "token"
+            },
+            "expected_output": "error=not_found\n"
+        }
+    ]
+}

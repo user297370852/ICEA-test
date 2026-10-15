@@ -1,0 +1,192 @@
+{
+  "description": "Validate the assembled configuration of the metrics-collection component over additional boundary configurations. When collection is disabled, validation always passes regardless of any other setting. When collection is enabled, the rules are checked in a fixed order: the namespace must not be empty; every gathered metric must have a non-empty name; every gathered metric must carry a read function; and metric names must be unique across all gathered metrics from every provider. The first violated rule determines the outcome. A passing configuration reports validity; a failing one reports invalidity together with a neutral category identifying which rule was broken.",
+  "cases": [
+    {
+      "input": {
+        "operation": "validate",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "beta",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=false\nerror=metric_duplicate\n"
+    },
+    {
+      "input": {
+        "operation": "validate",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=false\nerror=metric_name_empty\n"
+    },
+    {
+      "input": {
+        "operation": "validate",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "a",
+                "has_read": true
+              },
+              {
+                "name": "b",
+                "has_read": true
+              },
+              {
+                "name": "a",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=false\nerror=metric_duplicate\n"
+    },
+    {
+      "input": {
+        "operation": "validate",
+        "disable_collect": true,
+        "namespace": "",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "",
+                "has_read": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "operation": "validate",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "a",
+                "has_read": true
+              },
+              {
+                "name": "b",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "beta",
+            "metrics": [
+              {
+                "name": "c",
+                "has_read": true
+              },
+              {
+                "name": "d",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "operation": "validate",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "solo",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=true\n"
+    },
+    {
+      "input": {
+        "operation": "validate",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              },
+              {
+                "name": "jobs",
+                "has_read": false
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=false\nerror=metric_read_missing\n"
+    },
+    {
+      "input": {
+        "operation": "validate",
+        "namespace": "",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              },
+              {
+                "name": "jobs",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "valid=false\nerror=namespace_empty\n"
+    }
+  ]
+}

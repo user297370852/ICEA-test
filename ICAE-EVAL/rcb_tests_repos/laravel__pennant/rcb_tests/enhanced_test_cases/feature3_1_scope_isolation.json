@@ -1,0 +1,73 @@
+{
+  "description": "Evaluate a feature against object-identity scopes and isolated string-keyed scopes. A scope-identity resolver reports active only for the object whose identity matches the configured value, and reports inactive for a different identity, an identity-less object, and the absent default scope. Stored values are isolated per scope so activating for one identifier leaves other identifiers untouched.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "define",
+            "feature": "foo",
+            "resolver": {
+              "type": "scopeIdEquals",
+              "id": 5
+            }
+          },
+          {
+            "op": "active",
+            "feature": "foo",
+            "scope": {
+              "user": 5
+            }
+          },
+          {
+            "op": "active",
+            "feature": "foo",
+            "scope": {
+              "user": 4
+            }
+          },
+          {
+            "op": "active",
+            "feature": "foo",
+            "scope": {
+              "user": null
+            }
+          },
+          {
+            "op": "active",
+            "feature": "foo",
+            "scope": null
+          }
+        ]
+      },
+      "expected_output": "active foo = true\nactive foo = false\nactive foo = false\nactive foo = false\n"
+    },
+    {
+      "input": {
+        "operations": [
+          {
+            "op": "activate",
+            "feature": "bar",
+            "scope": "alpha"
+          },
+          {
+            "op": "active",
+            "feature": "bar",
+            "scope": "alpha"
+          },
+          {
+            "op": "active",
+            "feature": "bar",
+            "scope": "omega"
+          },
+          {
+            "op": "value",
+            "feature": "bar",
+            "scope": "alpha"
+          }
+        ]
+      },
+      "expected_output": "active bar = true\nactive bar = false\nvalue bar = true\n"
+    }
+  ]
+}

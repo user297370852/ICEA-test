@@ -1,0 +1,86 @@
+{
+  "description": "Encode tokens using key material loaded from files across additional algorithm variants: RSA private/public DER pairs at the 384/512 strength levels, and a binary HMAC secret file used with HS384, verifying each produced token validates with the matching file-backed key.",
+  "cases": [
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "-A",
+          "RS384",
+          "--exp",
+          "-S",
+          "@./tests/private_rsa_key.der",
+          "{\"field\":\"value\"}"
+        ],
+        "decode_args": [
+          "decode",
+          "-S",
+          "@./tests/public_rsa_key.der",
+          "-A",
+          "RS384"
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "claim.field"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=RS384\nclaim.field=value\n"
+    },
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "-A",
+          "RS512",
+          "--exp",
+          "-S",
+          "@./tests/private_rsa_key.der",
+          "{\"field\":\"value\"}"
+        ],
+        "decode_args": [
+          "decode",
+          "-S",
+          "@./tests/public_rsa_key.der",
+          "-A",
+          "RS512"
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "claim.field"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=RS512\nclaim.field=value\n"
+    },
+    {
+      "input": {
+        "action": "encode_then_decode",
+        "encode_args": [
+          "encode",
+          "-A",
+          "HS384",
+          "--exp",
+          "-S",
+          "@./tests/hmac-key.bin",
+          "{\"field\":\"value\"}"
+        ],
+        "decode_args": [
+          "decode",
+          "-A",
+          "HS384",
+          "-S",
+          "@./tests/hmac-key.bin"
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "claim.field"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=HS384\nclaim.field=value\n"
+    }
+  ]
+}

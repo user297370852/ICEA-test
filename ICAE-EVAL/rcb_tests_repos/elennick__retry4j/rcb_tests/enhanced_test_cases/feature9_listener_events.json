@@ -1,0 +1,143 @@
+{
+  "description": "Enhanced coverage for lifecycle listener invocation counts on success and exhaustion paths.",
+  "cases": [
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "listeners": [
+          "on_success",
+          "on_failure",
+          "on_completion",
+          "after_failed_try",
+          "before_next_try"
+        ],
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "runtime_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=null\nsuccessful=false\ntotal_tries=3\nafter_failed_try=3\nbefore_next_try=2\non_success=0\non_failure=1\non_completion=1\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 4,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "listeners": [
+          "after_failed_try"
+        ],
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "runtime_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=null\nsuccessful=false\ntotal_tries=4\nafter_failed_try=4\nbefore_next_try=0\non_success=0\non_failure=0\non_completion=0\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 4,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "listeners": [
+          "before_next_try"
+        ],
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "runtime_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=null\nsuccessful=false\ntotal_tries=4\nafter_failed_try=0\nbefore_next_try=3\non_success=0\non_failure=0\non_completion=0\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "listeners": [
+          "on_success",
+          "on_completion"
+        ],
+        "operation": {
+          "outcomes": [
+            {
+              "return": "yes"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=yes\nsuccessful=true\ntotal_tries=1\nafter_failed_try=0\nbefore_next_try=0\non_success=1\non_failure=0\non_completion=1\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 5,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "listeners": [
+          "on_success",
+          "on_failure",
+          "on_completion",
+          "after_failed_try",
+          "before_next_try"
+        ],
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "runtime_error"
+            },
+            {
+              "return": "ok"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=ok\nsuccessful=true\ntotal_tries=2\nafter_failed_try=1\nbefore_next_try=1\non_success=1\non_failure=0\non_completion=1\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 0,
+          "retry_on": "any_exception"
+        },
+        "listeners": [
+          "on_failure"
+        ],
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "io_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=null\nsuccessful=false\ntotal_tries=2\nafter_failed_try=0\nbefore_next_try=0\non_success=0\non_failure=1\non_completion=0\n"
+    }
+  ]
+}

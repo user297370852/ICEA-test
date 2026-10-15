@@ -1,0 +1,80 @@
+{
+    "description": "Validates every resource document in a manifest file against a collection of cluster catalogs, succeeding only when each document's kind is advertised for its apiVersion. A manifest whose single document's apiVersion/kind is advertised passes; a manifest whose apiVersion is unknown to all catalogs, or whose kind is listed only under a different version, is rejected with 'error=resource_not_available' together with the offending kind and apiVersion.",
+    "cases": [
+        {
+            "input": {
+                "op": "validate_manifest_availability",
+                "catalogs": [
+                    {
+                        "style": "core",
+                        "group_version": "v1",
+                        "kinds": [
+                            "Pod",
+                            "CronJob"
+                        ]
+                    },
+                    {
+                        "style": "regular",
+                        "group_version": "app/v1",
+                        "kinds": [
+                            "Deployment",
+                            "Service"
+                        ]
+                    }
+                ],
+                "manifest": "---\napiVersion: app/v1\nkind: Service\nmetadata:\n  name: my-service\nspec:\n  ports:\n  - name: HTTP\n    port: 80\n    protocol: TCP\n    targetPort: 80\n  selector:\n    app: my-app\n  type: ClusterIP\n"
+            },
+            "expected_output": "available=true\n"
+        },
+        {
+            "input": {
+                "op": "validate_manifest_availability",
+                "catalogs": [
+                    {
+                        "style": "core",
+                        "group_version": "v1",
+                        "kinds": [
+                            "Pod",
+                            "CronJob"
+                        ]
+                    },
+                    {
+                        "style": "regular",
+                        "group_version": "app/v1",
+                        "kinds": [
+                            "Deployment",
+                            "Service"
+                        ]
+                    }
+                ],
+                "manifest": "---\napiVersion: extra/v1\nkind: Service\nmetadata:\n  name: my-service\nspec:\n  ports:\n  - name: HTTP\n    port: 80\n    protocol: TCP\n    targetPort: 80\n  selector:\n    app: my-app\n  type: ClusterIP\n"
+            },
+            "expected_output": "error=resource_not_available\nkind=Service\napi_version=extra/v1.\n"
+        },
+        {
+            "input": {
+                "op": "validate_manifest_availability",
+                "catalogs": [
+                    {
+                        "style": "core",
+                        "group_version": "v1",
+                        "kinds": [
+                            "Pod",
+                            "CronJob"
+                        ]
+                    },
+                    {
+                        "style": "regular",
+                        "group_version": "app/v1",
+                        "kinds": [
+                            "Deployment",
+                            "Service"
+                        ]
+                    }
+                ],
+                "manifest": "---\napiVersion: v1\nkind: Deployment\nmetadata:\n  name: my-service\n"
+            },
+            "expected_output": "error=resource_not_available\nkind=Deployment\napi_version=v1.\n"
+        }
+    ]
+}

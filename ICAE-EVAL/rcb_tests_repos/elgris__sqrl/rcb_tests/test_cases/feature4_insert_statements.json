@@ -1,0 +1,96 @@
+{
+    "description": "Build INSERT statements from target tables, options, column lists, row values, value expressions, suffixes, map-style assignments, and placeholder style.",
+    "cases": [
+        {
+            "input": {
+                "operation": "insert",
+                "scenario": "full_insert",
+                "clauses": {
+                    "target": "a",
+                    "options": [
+                        "DELAYED",
+                        "IGNORE"
+                    ],
+                    "columns": [
+                        "b",
+                        "c"
+                    ],
+                    "rows": [
+                        [
+                            1,
+                            2
+                        ],
+                        [
+                            3,
+                            {
+                                "expression": "? + 1",
+                                "args": [
+                                    4
+                                ]
+                            }
+                        ]
+                    ],
+                    "prefix": "WITH prefix AS ?",
+                    "suffix": "RETURNING ?"
+                }
+            },
+            "expected_output": "sql=WITH prefix AS ? INSERT DELAYED IGNORE INTO a (b,c) VALUES (?,?),(?,? + 1) RETURNING ?\nargs=[0,1,2,3,4,5]\n"
+        },
+        {
+            "input": {
+                "operation": "insert",
+                "scenario": "missing_target",
+                "clauses": {
+                    "target": "",
+                    "rows": [
+                        [
+                            1
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=missing_insert_target\n"
+        },
+        {
+            "input": {
+                "operation": "insert",
+                "scenario": "missing_values",
+                "clauses": {
+                    "target": "x",
+                    "rows": []
+                }
+            },
+            "expected_output": "error=missing_insert_values\n"
+        },
+        {
+            "input": {
+                "operation": "insert",
+                "scenario": "numbered_placeholders",
+                "clauses": {
+                    "target": "test",
+                    "rows": [
+                        [
+                            1,
+                            2
+                        ]
+                    ],
+                    "placeholder_style": "numbered"
+                }
+            },
+            "expected_output": "sql=INSERT INTO test VALUES ($1,$2)\nargs=[1,2]\n"
+        },
+        {
+            "input": {
+                "operation": "insert",
+                "scenario": "map_assignment",
+                "clauses": {
+                    "target": "table",
+                    "values": {
+                        "field1": 1
+                    }
+                }
+            },
+            "expected_output": "sql=INSERT INTO table (field1) VALUES (?)\nargs=[1]\n"
+        }
+    ]
+}

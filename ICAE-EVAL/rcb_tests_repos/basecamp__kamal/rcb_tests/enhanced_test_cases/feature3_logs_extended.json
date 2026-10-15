@@ -1,0 +1,130 @@
+{
+  "description": "Log command modifier combinations not in the native suite: tail-lines plus grep; since plus tail plus grep together; follow-logs under a destination (inserting the destination label filter into the remote pipeline); and a follow-logs grep value containing a space.",
+  "cases": [
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "logs",
+        "args": {
+          "lines": "50",
+          "grep": "ERROR"
+        }
+      },
+      "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --tail 50 2>&1 | grep 'ERROR'"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "logs",
+        "args": {
+          "since": "1h",
+          "lines": "200",
+          "grep": "WARN"
+        }
+      },
+      "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --since 1h --tail 200 2>&1 | grep 'WARN'"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "destination": "staging",
+        "role": "web",
+        "action": "follow_logs",
+        "args": {
+          "host": "app-1"
+        }
+      },
+      "expected_output": "ssh -t root@app-1 'docker ps --quiet --filter label=service=app --filter label=destination=staging --filter label=role=web --filter status=running --latest | xargs docker logs --timestamps --tail 10 --follow 2>&1'"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "follow_logs",
+        "args": {
+          "host": "app-2",
+          "grep": "Completed 200"
+        }
+      },
+      "expected_output": "ssh -t root@app-2 'docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --timestamps --tail 10 --follow 2>&1 | grep \"Completed 200\"'"
+    }
+  ]
+}

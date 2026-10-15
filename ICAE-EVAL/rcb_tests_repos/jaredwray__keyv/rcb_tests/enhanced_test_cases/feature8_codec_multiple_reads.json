@@ -1,0 +1,78 @@
+{
+  "description": "Additional codec cases verify encoder and decoder counts over multiple writes, repeated reads, missing reads, overwrites, and removals.",
+  "cases": [
+    {
+      "input": {
+        "namespace": "keyv",
+        "codec": "json-counting",
+        "steps": [
+          {
+            "action": "save",
+            "key": "one",
+            "value": {
+              "n": 1
+            }
+          },
+          {
+            "action": "save",
+            "key": "two",
+            "value": [
+              "x",
+              "y"
+            ]
+          },
+          {
+            "action": "read",
+            "key": "one",
+            "label": "one_first"
+          },
+          {
+            "action": "read",
+            "key": "one",
+            "label": "one_second"
+          },
+          {
+            "action": "read",
+            "key": "two",
+            "label": "two_first"
+          },
+          {
+            "action": "read",
+            "key": "missing",
+            "label": "missing_read"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\none_first={\"n\":1}\none_second={\"n\":1}\ntwo_first=[\"x\",\"y\"]\nmissing_read=undefined\nencoder_calls=2\ndecoder_calls=3\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "codec": "json-counting",
+        "steps": [
+          {
+            "action": "save",
+            "key": "replace",
+            "value": "first"
+          },
+          {
+            "action": "save",
+            "key": "replace",
+            "value": "second"
+          },
+          {
+            "action": "remove",
+            "key": "replace",
+            "label": "removed"
+          },
+          {
+            "action": "read",
+            "key": "replace",
+            "label": "after_remove"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nremoved=true\nafter_remove=undefined\nencoder_calls=2\ndecoder_calls=0\n"
+    }
+  ]
+}

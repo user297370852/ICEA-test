@@ -1,0 +1,107 @@
+{
+  "description": "Host/hostname replacement: host with port, IPv6 literal, rejection of invalid hosts, and hostname not altering an existing port.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "host",
+            "value": "newhost.example:8080"
+          },
+          {
+            "op": "get",
+            "field": "host"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_host=true\nhost=newhost.example:8080\nport=8080\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "hostname",
+            "value": "[::1]"
+          },
+          {
+            "op": "get",
+            "field": "hostname"
+          },
+          {
+            "op": "get",
+            "field": "host_type"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_hostname=true\nhostname=[::1]\nhost_type=ipv6\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:9000/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "hostname",
+            "value": "other.example"
+          },
+          {
+            "op": "get",
+            "field": "host"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_hostname=true\nhost=other.example:9000\nport=9000\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "host",
+            "value": "bad host"
+          },
+          {
+            "op": "get",
+            "field": "host"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_host=false\nhost=example.com\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "hostname",
+            "value": "GOOGLE.COM"
+          },
+          {
+            "op": "get",
+            "field": "hostname"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_hostname=true\nhostname=google.com\n"
+    }
+  ]
+}

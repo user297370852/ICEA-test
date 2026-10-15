@@ -1,0 +1,175 @@
+{
+  "description": "Additional scoped epic edge cases covering identity selectors with action metadata preservation, namespace mismatch filtering, explicit string-selector namespace routing with dependency reads, combined global incoming and global outgoing behavior, and an alternate string shorthand slice/namespace.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "scoped_epic",
+        "state": {
+          "value": "root value",
+          "subState": {
+            "value": "slice"
+          }
+        },
+        "epic": {
+          "on": "PING",
+          "emit": {
+            "type": "PONG",
+            "valueFrom": "state.value"
+          }
+        },
+        "scopes": [
+          {
+            "selector": {
+              "identity": true
+            }
+          }
+        ],
+        "dispatch": {
+          "action": {
+            "type": "PING",
+            "meta": {
+              "source": "root"
+            }
+          }
+        }
+      },
+      "expected_output": "{\"meta\":{\"source\":\"root\"},\"type\":\"PING\"}\n{\"type\":\"PONG\",\"value\":\"root value\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "scoped_epic",
+        "state": {
+          "subState": {
+            "value": "expected"
+          },
+          "value": "wrong"
+        },
+        "epic": {
+          "on": "TEST",
+          "emit": {
+            "type": "VERIFY",
+            "valueFrom": "state.value"
+          }
+        },
+        "scopes": [
+          {
+            "selector": {
+              "prop": "subState"
+            },
+            "namespace": "test"
+          }
+        ],
+        "dispatch": {
+          "action": {
+            "type": "TEST",
+            "payload": 123
+          },
+          "tag": "namespace:other"
+        }
+      },
+      "expected_output": "{\"payload\":123,\"type\":\"other/TEST\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "scoped_epic",
+        "state": {
+          "bucket": {
+            "value": "state-wrong"
+          },
+          "value": "root-wrong"
+        },
+        "epic": {
+          "on": "TEST",
+          "emit": {
+            "type": "VERIFY",
+            "valueFrom": "dependency.value"
+          }
+        },
+        "scopes": [
+          {
+            "selector": {
+              "prop": "bucket"
+            },
+            "namespace": "depNs"
+          }
+        ],
+        "dependencies": {
+          "value": "dependency-expected"
+        },
+        "dispatch": {
+          "action": {
+            "type": "TEST"
+          },
+          "tag": "namespace:depNs"
+        }
+      },
+      "expected_output": "{\"type\":\"depNs/TEST\"}\n{\"type\":\"depNs/VERIFY\",\"value\":\"dependency-expected\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "scoped_epic",
+        "state": {
+          "subState": {
+            "value": "expected"
+          },
+          "value": "wrong"
+        },
+        "epic": {
+          "on": "TEST",
+          "emit": {
+            "type": "VERIFY",
+            "valueFrom": "state.value",
+            "global": true
+          }
+        },
+        "scopes": [
+          {
+            "selector": {
+              "prop": "subState"
+            },
+            "namespace": "test"
+          }
+        ],
+        "dispatch": {
+          "action": {
+            "type": "TEST"
+          },
+          "tag": "global"
+        }
+      },
+      "expected_output": "{\"globalAction\":true,\"type\":\"TEST\"}\n{\"globalAction\":true,\"type\":\"VERIFY\",\"value\":\"expected\"}\n"
+    },
+    {
+      "input": {
+        "scenario": "scoped_epic",
+        "state": {
+          "bucket": {
+            "value": "bucket-expected"
+          },
+          "value": "root-wrong"
+        },
+        "epic": {
+          "on": "TEST",
+          "emit": {
+            "type": "VERIFY",
+            "valueFrom": "state.value"
+          }
+        },
+        "scopes": [
+          {
+            "selector": {
+              "key": "bucket"
+            }
+          }
+        ],
+        "dispatch": {
+          "action": {
+            "type": "TEST"
+          },
+          "tag": "namespace:bucket"
+        }
+      },
+      "expected_output": "{\"type\":\"bucket/TEST\"}\n{\"type\":\"bucket/VERIFY\",\"value\":\"bucket-expected\"}\n"
+    }
+  ]
+}

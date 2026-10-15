@@ -1,0 +1,51 @@
+{
+  "description": "Enhanced stop and idle lifecycle: cascade stop with differently named descendants, post-stop spawn rejection, idle auto-shutdown after inactivity, and idle-timer renewal by message activity keeping the actor alive.",
+  "cases": [
+    {
+      "input": {
+        "action": "stop-cascade",
+        "system": "cascade2",
+        "parent_name": "root-parent",
+        "child_names": [
+          "branchA",
+          "branchB"
+        ],
+        "grandchild_names": [
+          "leaf1",
+          "leaf2"
+        ]
+      },
+      "expected_output": "after_child_stop=branchA=true,leaf1=true,leaf2=true,branchB=false\nparent=true\nbranchB=true\n"
+    },
+    {
+      "input": {
+        "action": "stopped-behavior",
+        "system": "stopped2",
+        "actor_name": "doomed",
+        "child_name": "orphan"
+      },
+      "expected_output": "actor_stopped=true\nspawn_after_stop=stopped_reference\n"
+    },
+    {
+      "input": {
+        "action": "idle-shutdown",
+        "system": "idle-c",
+        "actor_name": "worker",
+        "shutdown_after_ms": 50,
+        "check_after_ms": 120
+      },
+      "expected_output": "actor_stopped=true\n"
+    },
+    {
+      "input": {
+        "action": "idle-shutdown",
+        "system": "idle-d",
+        "actor_name": "worker",
+        "shutdown_after_ms": 80,
+        "renew_with_message_after_ms": 25,
+        "check_after_ms": 45
+      },
+      "expected_output": "actor_stopped=false\n"
+    }
+  ]
+}

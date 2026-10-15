@@ -1,0 +1,93 @@
+{
+  "description": "Enhanced boundary coverage for the exclusion filter. Covers an empty exclusion list (all sources kept in order), excluding two non-adjacent sources so the surviving sources keep their original relative order, excluding a throwing source so it is never invoked nor reported, and an exclusion entry that names a non-existent source (no effect).",
+  "cases": [
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "a",
+            "returns": 1
+          },
+          {
+            "name": "b",
+            "returns": 2
+          },
+          {
+            "name": "c",
+            "returns": 3
+          }
+        ],
+        "exclude": []
+      },
+      "expected_output": "name=a outcome=value value=1\nname=b outcome=value value=2\nname=c outcome=value value=3"
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "a",
+            "returns": 1
+          },
+          {
+            "name": "b",
+            "returns": 2
+          },
+          {
+            "name": "c",
+            "returns": 3
+          },
+          {
+            "name": "d",
+            "returns": 4
+          }
+        ],
+        "exclude": [
+          "b",
+          "d"
+        ]
+      },
+      "expected_output": "name=a outcome=value value=1\nname=c outcome=value value=3"
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "keep",
+            "returns": "v"
+          },
+          {
+            "name": "drop",
+            "throws": "x",
+            "as": "error"
+          }
+        ],
+        "exclude": [
+          "drop"
+        ]
+      },
+      "expected_output": "name=keep outcome=value value=\"v\""
+    },
+    {
+      "input": {
+        "op": "collect",
+        "sources": [
+          {
+            "name": "a",
+            "returns": 1
+          },
+          {
+            "name": "b",
+            "returns": 2
+          }
+        ],
+        "exclude": [
+          "nonexistent"
+        ]
+      },
+      "expected_output": "name=a outcome=value value=1\nname=b outcome=value value=2"
+    }
+  ]
+}

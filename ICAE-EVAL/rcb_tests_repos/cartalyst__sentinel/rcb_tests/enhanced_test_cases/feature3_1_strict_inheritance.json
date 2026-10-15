@@ -1,0 +1,93 @@
+{
+  "description": "Enhanced strict resolution edge cases (disjoint from native): a single secondary denial overriding a primary grant for the same key, an empty secondary list behaving like primary-only, and a primary denial overriding accumulated secondary grants while an unrelated secondary grant survives.",
+  "cases": [
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "strict",
+        "permissions": {
+          "a": true
+        },
+        "secondary": [
+          {
+            "a": false
+          }
+        ],
+        "queries": [
+          {
+            "all": [
+              "a"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=strict\nall[a]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "strict",
+        "permissions": {
+          "foo": true,
+          "bar": true
+        },
+        "secondary": [],
+        "queries": [
+          {
+            "all": [
+              "foo"
+            ]
+          },
+          {
+            "all": [
+              "foo",
+              "bar"
+            ]
+          },
+          {
+            "any": [
+              "baz"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=strict\nall[foo]=true\nall[foo,bar]=true\nany[baz]=false\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "strict",
+        "permissions": {
+          "d": false
+        },
+        "secondary": [
+          {
+            "d": true
+          },
+          {
+            "e": true
+          }
+        ],
+        "queries": [
+          {
+            "all": [
+              "d"
+            ]
+          },
+          {
+            "all": [
+              "e"
+            ]
+          },
+          {
+            "any": [
+              "d",
+              "e"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=strict\nall[d]=false\nall[e]=true\nany[d,e]=true\n"
+    }
+  ]
+}

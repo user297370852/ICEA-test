@@ -1,0 +1,111 @@
+{
+  "description": "Boundary coverage for long-message chunking around the 4000-char per-write limit: a single message just under the limit (unsplit), a single line exactly at the limit (one chunk via the split path), a single line at twice the limit (two equal chunks), a line exactly at the limit followed by a short line, an empty interior line between two full lines, and several short lines whose total exceeds the threshold.",
+  "cases": [
+    {
+      "input": {
+        "action": "chunk",
+        "tag": "T",
+        "parts": [
+          {
+            "char": "a",
+            "count": 3999
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T len=3999 char=a\n"
+    },
+    {
+      "input": {
+        "action": "chunk",
+        "tag": "T",
+        "parts": [
+          {
+            "char": "b",
+            "count": 4000
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T len=4000 char=b\n"
+    },
+    {
+      "input": {
+        "action": "chunk",
+        "tag": "T",
+        "parts": [
+          {
+            "char": "c",
+            "count": 8000
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T len=4000 char=c\npriority=3 tag=T len=4000 char=c\n"
+    },
+    {
+      "input": {
+        "action": "chunk",
+        "tag": "T",
+        "parts": [
+          {
+            "char": "d",
+            "count": 4000
+          },
+          {
+            "char": "e",
+            "count": 100
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T len=4000 char=d\npriority=3 tag=T len=100 char=e\n"
+    },
+    {
+      "input": {
+        "action": "chunk",
+        "tag": "T",
+        "parts": [
+          {
+            "char": "f",
+            "count": 4000
+          },
+          {
+            "char": "g",
+            "count": 0
+          },
+          {
+            "char": "h",
+            "count": 4000
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T len=4000 char=f\npriority=3 tag=T len=0 char= \npriority=3 tag=T len=4000 char=h\n"
+    },
+    {
+      "input": {
+        "action": "chunk",
+        "tag": "T",
+        "parts": [
+          {
+            "char": "p",
+            "count": 1000
+          },
+          {
+            "char": "q",
+            "count": 1000
+          },
+          {
+            "char": "r",
+            "count": 1000
+          },
+          {
+            "char": "s",
+            "count": 1000
+          },
+          {
+            "char": "t",
+            "count": 1000
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T len=1000 char=p\npriority=3 tag=T len=1000 char=q\npriority=3 tag=T len=1000 char=r\npriority=3 tag=T len=1000 char=s\npriority=3 tag=T len=1000 char=t\n"
+    }
+  ]
+}

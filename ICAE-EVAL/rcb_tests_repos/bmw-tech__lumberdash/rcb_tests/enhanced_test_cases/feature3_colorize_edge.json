@@ -1,0 +1,86 @@
+{
+  "description": "Enhanced boundary coverage for Feature 3 (severity-colorizing terminal sink). Covers empty-message rendering at each level (informational, warning, fatal), error rendering when the stacktrace is an empty string, error rendering when stacktrace is omitted entirely (renders the literal null), error rendering when both exception and stacktrace are omitted (both render null), and payloads carrying embedded control/format characters (tab, multi-byte unicode, surrounding whitespace, embedded newline) to confirm the message text is wrapped verbatim between the ANSI activation and reset sequences.",
+  "cases": [
+    {
+      "input": {
+        "action": "colorize",
+        "level": "message",
+        "message": ""
+      },
+      "expected_output": "[MESSAGE] \n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "warning",
+        "message": ""
+      },
+      "expected_output": "\u001b[38;5;0m\u001b[48;5;3m[WARNING] \u001b[0m\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "fatal",
+        "message": ""
+      },
+      "expected_output": "\u001b[38;5;7m\u001b[48;5;1m[FATAL] \u001b[0m\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "error",
+        "exception": "Boom",
+        "stacktrace": ""
+      },
+      "expected_output": "\u001b[38;5;15m\u001b[48;5;88m[ERROR] { exception: Boom, stacktrace:  }\u001b[0m\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "error",
+        "exception": "Boom"
+      },
+      "expected_output": "\u001b[38;5;15m\u001b[48;5;88m[ERROR] { exception: Boom, stacktrace: null }\u001b[0m\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "error"
+      },
+      "expected_output": "\u001b[38;5;15m\u001b[48;5;88m[ERROR] { exception: null, stacktrace: null }\u001b[0m\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "message",
+        "message": "Tab\there"
+      },
+      "expected_output": "[MESSAGE] Tab\there\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "warning",
+        "message": "Unicode: café ☕ 日本語"
+      },
+      "expected_output": "\u001b[38;5;0m\u001b[48;5;3m[WARNING] Unicode: café ☕ 日本語\u001b[0m\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "fatal",
+        "message": "  spaced  "
+      },
+      "expected_output": "\u001b[38;5;7m\u001b[48;5;1m[FATAL]   spaced  \u001b[0m\n"
+    },
+    {
+      "input": {
+        "action": "colorize",
+        "level": "error",
+        "exception": "N+",
+        "stacktrace": "line1\nline2"
+      },
+      "expected_output": "\u001b[38;5;15m\u001b[48;5;88m[ERROR] { exception: N+, stacktrace: line1\nline2 }\u001b[0m\n"
+    }
+  ]
+}

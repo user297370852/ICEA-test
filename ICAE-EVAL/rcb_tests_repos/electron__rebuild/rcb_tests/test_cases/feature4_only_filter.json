@@ -1,0 +1,43 @@
+{
+    "description": "An allow-list narrows the rebuild to only the named modules. Even when the project declares many native dependencies, supplying an explicit list restricts the selected set to exactly those names (matched by module short-name), ignoring all others regardless of their dependency type.",
+    "cases": [
+        {
+            "input": {
+                "command": "plan_rebuild",
+                "runtimeVersion": "10.4.7",
+                "only": ["farmhash"],
+                "dependencies": {"ref-napi": "1", "farmhash": "1", "level": "1", "@newrelic/native-metrics": "1"},
+                "optionalDependencies": {"bcrypt": "1"},
+                "devDependencies": {"ffi-napi": "1"},
+                "modules": [
+                    {"name": "ref-napi", "native": true},
+                    {"name": "farmhash", "native": true},
+                    {"name": "bcrypt", "native": true},
+                    {"name": "ffi-napi", "native": true},
+                    {"name": "@newrelic/native-metrics", "native": true},
+                    {"name": "level", "dependencies": {"leveldown": "1"}, "children": [{"name": "leveldown", "native": true}]}
+                ]
+            },
+            "expected_output": "runtime_abi=82\nselected=farmhash\nskipped=0\n"
+        },
+        {
+            "input": {
+                "command": "plan_rebuild",
+                "runtimeVersion": "10.4.7",
+                "only": ["ffi-napi", "ref-napi"],
+                "dependencies": {"ref-napi": "1", "farmhash": "1", "level": "1", "@newrelic/native-metrics": "1"},
+                "optionalDependencies": {"bcrypt": "1"},
+                "devDependencies": {"ffi-napi": "1"},
+                "modules": [
+                    {"name": "ref-napi", "native": true},
+                    {"name": "farmhash", "native": true},
+                    {"name": "bcrypt", "native": true},
+                    {"name": "ffi-napi", "native": true},
+                    {"name": "@newrelic/native-metrics", "native": true},
+                    {"name": "level", "dependencies": {"leveldown": "1"}, "children": [{"name": "leveldown", "native": true}]}
+                ]
+            },
+            "expected_output": "runtime_abi=82\nselected=ffi-napi,ref-napi\nskipped=0\n"
+        }
+    ]
+}

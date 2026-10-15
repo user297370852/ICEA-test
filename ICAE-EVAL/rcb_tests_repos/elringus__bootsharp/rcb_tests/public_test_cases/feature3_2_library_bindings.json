@@ -1,0 +1,47 @@
+{
+    "description": "The emitted browser library declares nested assembly objects and exposes method bindings according to imported and exported script directions.",
+    "cases": [
+        {
+            "input": {
+                "assemblies": [
+                    {
+                        "name": "foo.bar.nya.dll",
+                        "members": [
+                            "[JSInvokable] public static void Bar () { }"
+                        ]
+                    }
+                ],
+                "probes": [
+                    "exports.foo = {};",
+                    "exports.foo.bar = {};",
+                    "exports.foo.bar.nya = {};",
+                    "exports.foo.bar.nya.Bar = () => exports.invoke('foo.bar.nya', 'Bar');"
+                ]
+            },
+            "expected_output": "contains=exports.foo = {};\nvalue=true\ncontains=exports.foo.bar = {};\nvalue=true\ncontains=exports.foo.bar.nya = {};\nvalue=true\ncontains=exports.foo.bar.nya.Bar = () => exports.invoke('foo.bar.nya', 'Bar');\nvalue=true\n"
+        },
+        {
+            "input": {
+                "assemblies": [
+                    {
+                        "name": "foo.dll",
+                        "members": [
+                            "[JSInvokable] public static void Foo () { }"
+                        ]
+                    },
+                    {
+                        "name": "bar.nya.dll",
+                        "members": [
+                            "[JSFunction] public static void Fun () { }"
+                        ]
+                    }
+                ],
+                "probes": [
+                    "exports.foo.Foo = () => exports.invoke('foo', 'Foo');",
+                    "exports.bar.nya.Fun = undefined;"
+                ]
+            },
+            "expected_output": "contains=exports.foo.Foo = () => exports.invoke('foo', 'Foo');\nvalue=true\ncontains=exports.bar.nya.Fun = undefined;\nvalue=true\n"
+        }
+    ]
+}

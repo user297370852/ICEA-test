@@ -1,0 +1,165 @@
+{
+  "description": "URI-aware audience matching. Each requested audience is allowed only when some whitelisted audience has the same scheme and host and a path that either equals the requested path or is a prefix of it at a path-segment boundary (a trailing slash on either side is ignored). An empty request list is always allowed. Strings that are not URLs are compared by these same URL rules (empty scheme/host), so plain tokens match only an identical whitelist entry. The input is a list of checks, each with a 'whitelist' and the 'requested' audiences; for each check the output reports whether all requested audiences are allowed.",
+  "cases": [
+    {
+      "input": {
+        "op": "audience_default",
+        "checks": [
+          {
+            "whitelist": [],
+            "requested": []
+          },
+          {
+            "whitelist": [
+              "http://foo/bar"
+            ],
+            "requested": []
+          },
+          {
+            "whitelist": [],
+            "requested": [
+              "http://foo/bar"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "https://cloud.ory.sh/api/users"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "https://cloud.ory.sh/api/users/"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users/"
+            ],
+            "requested": [
+              "https://cloud.ory.sh/api/users"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "https://cloud.ory.sh/api/users/1234"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "https://cloud.ory.sh/api/users",
+              "https://cloud.ory.sh/api/users/",
+              "https://cloud.ory.sh/api/users/1234"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users",
+              "https://cloud.ory.sh/api/tenants"
+            ],
+            "requested": [
+              "https://cloud.ory.sh/api/users",
+              "https://cloud.ory.sh/api/users/",
+              "https://cloud.ory.sh/api/users/1234",
+              "https://cloud.ory.sh/api/tenants"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "https://cloud.ory.sh/api/users1234"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "http://cloud.ory.sh/api/users"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "https://cloud.ory.sh:8000/api/users"
+            ]
+          },
+          {
+            "whitelist": [
+              "https://cloud.ory.sh/api/users"
+            ],
+            "requested": [
+              "https://cloud.ory.xyz/api/users"
+            ]
+          },
+          {
+            "whitelist": [
+              "foobar"
+            ],
+            "requested": [
+              "foobar"
+            ]
+          },
+          {
+            "whitelist": [
+              "foo bar"
+            ],
+            "requested": [
+              "foo bar"
+            ]
+          },
+          {
+            "whitelist": [
+              "zoo",
+              "bar"
+            ],
+            "requested": [
+              "zoo"
+            ]
+          },
+          {
+            "whitelist": [
+              "zoo"
+            ],
+            "requested": [
+              "zoo",
+              "bar"
+            ]
+          },
+          {
+            "whitelist": [
+              "foobar"
+            ],
+            "requested": [
+              "foobar/"
+            ]
+          },
+          {
+            "whitelist": [
+              "foobar/"
+            ],
+            "requested": [
+              "foobar"
+            ]
+          }
+        ]
+      },
+      "expected_output": "allowed=true\nallowed=true\nallowed=false\nallowed=true\nallowed=true\nallowed=true\nallowed=true\nallowed=true\nallowed=true\nallowed=false\nallowed=false\nallowed=false\nallowed=false\nallowed=true\nallowed=true\nallowed=true\nallowed=false\nallowed=true\nallowed=true\n"
+    }
+  ]
+}

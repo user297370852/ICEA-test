@@ -1,0 +1,89 @@
+{
+  "description": "Boundary and logical-path coverage for directory creation: recursive creation when some ancestors already exist, recursive creation that is an idempotent no-op on an existing directory, deeply nested recursive creation, and creating a sibling under a freshly created tree.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/a"
+          },
+          {
+            "op": "create_directory",
+            "path": "/a/b/c/d",
+            "recursive": true
+          },
+          {
+            "op": "exists",
+            "path": "/a/b/c/d",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/a\ncreated_directory=/a/b/c/d\nexists=true\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/x"
+          },
+          {
+            "op": "create_directory",
+            "path": "/x",
+            "recursive": true
+          },
+          {
+            "op": "exists",
+            "path": "/x",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/x\ncreated_directory=/x\nexists=true\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/l1/l2/l3/l4/l5",
+            "recursive": true
+          },
+          {
+            "op": "exists",
+            "path": "/l1/l2/l3/l4/l5",
+            "as": "directory"
+          },
+          {
+            "op": "exists",
+            "path": "/l1",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/l1/l2/l3/l4/l5\nexists=true\nexists=true\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/p/q",
+            "recursive": true
+          },
+          {
+            "op": "create_directory",
+            "path": "/p/r"
+          },
+          {
+            "op": "list",
+            "path": "/p"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/p/q\ncreated_directory=/p/r\nentry_count=2\nentry=directory:/p/q\nentry=directory:/p/r\n"
+    }
+  ]
+}

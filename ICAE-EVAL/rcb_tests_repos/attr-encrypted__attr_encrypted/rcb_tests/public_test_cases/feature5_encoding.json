@@ -1,0 +1,117 @@
+{
+  "description": "An attribute can be configured to additionally encode its encrypted representation so the stored value is safe for text storage, optionally with an explicit encoding directive. With encoding enabled, the stored representation equals the packed (base64) form of the corresponding un-encoded representation produced under the same initialization vector and salt. Decoding the stored value and then decrypting it round-trips back to the original plaintext, and equals the result of decrypting the unpacked un-encoded representation. Each transcript line reports an encode-equivalence flag, a decode round-trip value, or a decode-matches-plain flag.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "without_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "with_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "encode": true
+              }
+            },
+            {
+              "names": [
+                "with_custom_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "encode": "m"
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "encode_matches_packed",
+            "encoded_attr": "with_encoding",
+            "plain_attr": "without_encoding",
+            "value": "test",
+            "with_salt": true
+          }
+        ]
+      },
+      "expected_output": "encode_matches_packed=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "without_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "with_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "encode": true
+              }
+            },
+            {
+              "names": [
+                "with_custom_encoding"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "encode": "m"
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "decode_roundtrip",
+            "encoded_attr": "with_encoding",
+            "plain_attr": "without_encoding",
+            "value": "test",
+            "with_salt": true
+          }
+        ]
+      },
+      "expected_output": "decode_matches_plain=true\ndecode_roundtrip=test\n"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+    "description": "The manager can be introspected for the set of disks that have actually been instantiated so far and for the set of backend kinds that are registered. The set of instantiated disks starts empty and grows only as disks are resolved on demand (lazy instantiation), reported as a sorted, comma-separated list of disk names. The set of registered backend kinds always includes the built-in default kind plus any kinds registered by the caller, reported as a sorted, comma-separated list. The request issues a sequence of resolutions and/or registrations interleaved with introspection requests.",
+    "cases": [
+        {"input": {"op": "manager", "config": {"default": "local", "disks": {"local": {"driver": "local", "config": {"root": ""}}, "home": {"driver": "local", "config": {"root": "~"}}}}, "steps": [{"action": "listDisks"}, {"action": "disk", "name": "local"}, {"action": "listDisks"}, {"action": "disk", "name": "home"}, {"action": "listDisks"}]}, "expected_output": "disks=\ndisk=local driver=local\ndisks=local\ndisk=home driver=local\ndisks=home,local\n"},
+        {"input": {"op": "manager", "config": {"default": "local", "disks": {"local": {"driver": "local", "config": {"root": ""}}}}, "steps": [{"action": "registerDriver", "name": "foo"}, {"action": "registerDriver", "name": "bar"}, {"action": "listDrivers"}]}, "expected_output": "registered=foo\nregistered=bar\ndrivers=bar,foo,local\n"}
+    ]
+}

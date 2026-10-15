@@ -1,0 +1,51 @@
+{
+    "description": "Stop actors and systems safely, cascade stops to descendants, reject spawning below stopped references, ignore later dispatches, and stop idle actors after a configured inactivity period while allowing message activity to renew the timer.",
+    "cases": [
+        {
+            "input": {
+                "action": "stop-cascade",
+                "system": "cascade",
+                "parent_name": "parent",
+                "child_names": [
+                    "child1",
+                    "child2"
+                ],
+                "grandchild_names": [
+                    "grandchild1",
+                    "grandchild2"
+                ]
+            },
+            "expected_output": "after_child_stop=child1=true,grandchild1=true,grandchild2=true,child2=false\nparent=true\nchild2=true\n"
+        },
+        {
+            "input": {
+                "action": "stopped-behavior",
+                "system": "stopped",
+                "actor_name": "worker",
+                "child_name": "late-child"
+            },
+            "expected_output": "actor_stopped=true\nspawn_after_stop=stopped_reference\n"
+        },
+        {
+            "input": {
+                "action": "idle-shutdown",
+                "system": "idle-a",
+                "actor_name": "worker",
+                "shutdown_after_ms": 60,
+                "check_after_ms": 80
+            },
+            "expected_output": "actor_stopped=true\n"
+        },
+        {
+            "input": {
+                "action": "idle-shutdown",
+                "system": "idle-b",
+                "actor_name": "worker",
+                "shutdown_after_ms": 60,
+                "renew_with_message_after_ms": 30,
+                "check_after_ms": 40
+            },
+            "expected_output": "actor_stopped=false\n"
+        }
+    ]
+}

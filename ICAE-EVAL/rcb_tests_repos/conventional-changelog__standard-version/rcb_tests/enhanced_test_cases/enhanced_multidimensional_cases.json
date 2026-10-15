@@ -1,0 +1,333 @@
+{
+  "description": "Enhanced native-disjoint coverage for release automation edge cases: repeated message placeholder substitution, mixed commit precedence, pre-1.0.0 boundary protection, exact pre-release version forcing, named prerelease publishing, multi-group changelog rendering, multiple issue links, full auxiliary manifest synchronisation, CRLF manifest formatting preservation, custom tag prefixes, private publishing advice, skip-bump tagging, dry-run cleanliness, and validation variants.",
+  "cases": [
+    {
+      "input": {
+        "kind": "format_message",
+        "template": "Release {{currentTag}} / {{currentTag}} ready",
+        "version": "v2.3.4"
+      },
+      "expected_output": "Release v2.3.4 / v2.3.4 ready\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "2.3.4",
+        "ops": [
+          {
+            "commit": "docs: update readme"
+          },
+          {
+            "commit": "fix: patch bug"
+          },
+          {
+            "commit": "feat: new api"
+          },
+          {
+            "commit": "feat!: redesign api"
+          }
+        ],
+        "args": [],
+        "report": [
+          "version"
+        ]
+      },
+      "expected_output": "version=3.0.0\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "2.3.4",
+        "ops": [
+          {
+            "commit": "chore: tooling"
+          },
+          {
+            "commit": "fix: patch bug"
+          },
+          {
+            "commit": "feat: new api"
+          }
+        ],
+        "args": [],
+        "report": [
+          "version"
+        ]
+      },
+      "expected_output": "version=2.4.0\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "0.0.9",
+        "packageOptions": {
+          "repository": {
+            "url": "x"
+          }
+        },
+        "ops": [
+          {
+            "commit": "feat!: unstable breaking"
+          }
+        ],
+        "args": [],
+        "report": [
+          "version"
+        ]
+      },
+      "expected_output": "version=0.1.0\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "1.2.3",
+        "ops": [
+          {
+            "commit": "fix: bug"
+          }
+        ],
+        "args": [
+          "--release-as",
+          "v2.0.0-beta.7"
+        ],
+        "report": [
+          "version",
+          "tag"
+        ]
+      },
+      "expected_output": "version=2.0.0-beta.7\ntag=v2.0.0-beta.7\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "1.2.3",
+        "ops": [
+          {
+            "commit": "feat: next feature"
+          }
+        ],
+        "args": [
+          "--release-as",
+          "minor",
+          "--prerelease",
+          "beta"
+        ],
+        "report": [
+          "version",
+          "publish"
+        ]
+      },
+      "expected_output": "version=1.3.0-beta.0\npublish=git push --follow-tags origin master && npm publish --tag beta\n"
+    },
+    {
+      "input": {
+        "kind": "changelog",
+        "packageVersion": null,
+        "changelogSeed": "",
+        "ops": [
+          {
+            "commit": "feat: initial"
+          },
+          {
+            "tag": "v1.0.0"
+          },
+          {
+            "commit": "fix: repair regression"
+          },
+          {
+            "commit": "feat: add capability"
+          }
+        ],
+        "args": [
+          "--changelogHeader=# Release Notes",
+          "--compareUrlFormat=/compare/{{previousTag}}...{{currentTag}}"
+        ]
+      },
+      "expected_output": "# Release Notes\n## [1.1.0](/compare/v1.0.0...v1.1.0) (DATE)\n\n\n### Bug Fixes\n\n* repair regression HASH\n\n\n### Features\n\n* add capability HASH\n"
+    },
+    {
+      "input": {
+        "kind": "changelog",
+        "packageVersion": null,
+        "changelogSeed": "",
+        "versionrc": {
+          "issueUrlFormat": "https://issues.example/{{id}}",
+          "changelogHeader": "# Release Notes",
+          "compareUrlFormat": "/compare/{{previousTag}}...{{currentTag}}"
+        },
+        "ops": [
+          {
+            "commit": "fix: close #7 and #8"
+          }
+        ],
+        "args": []
+      },
+      "expected_output": "# Release Notes\n### 1.0.1 (DATE)\n\n\n### Bug Fixes\n\n* close [#7](https://issues.example/7) and [#8](https://issues.example/8) HASH\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "3.4.5",
+        "manifests": {
+          "bower.json": {
+            "version": "3.4.5"
+          },
+          "manifest.json": {
+            "version": "3.4.5"
+          },
+          "package-lock.json": {
+            "version": "3.4.5"
+          },
+          "npm-shrinkwrap.json": {
+            "version": "3.4.5"
+          },
+          "composer.json": {
+            "version": "3.4.5"
+          }
+        },
+        "ops": [
+          {
+            "commit": "fix: sync versions"
+          }
+        ],
+        "args": [],
+        "report": [
+          "version",
+          "files"
+        ]
+      },
+      "expected_output": "version=3.4.6\nfile bower.json=3.4.6\nfile manifest.json=3.4.6\nfile npm-shrinkwrap.json=3.4.6\nfile package-lock.json=3.4.6\nfile composer.json=3.4.6\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "manifestText": "{\r\n    \"name\": \"pkg\",\r\n    \"version\": \"1.0.0\"\r\n}\r\n",
+        "ops": [
+          {
+            "commit": "fix: c"
+          }
+        ],
+        "args": [],
+        "report": [
+          "manifest_raw"
+        ]
+      },
+      "expected_output": "manifest_raw=\"{\\r\\n    \\\"name\\\": \\\"pkg\\\",\\r\\n    \\\"version\\\": \\\"1.0.1\\\"\\r\\n}\\r\\n\"\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "1.0.0",
+        "ops": [
+          {
+            "commit": "fix: bug"
+          }
+        ],
+        "args": [
+          "--tag-prefix",
+          "release-"
+        ],
+        "report": [
+          "version",
+          "tag",
+          "tag_message"
+        ]
+      },
+      "expected_output": "version=1.0.1\ntag=release-1.0.1\ntag_message=chore(release): 1.0.1\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "1.0.0",
+        "packageOptions": {
+          "private": true
+        },
+        "ops": [
+          {
+            "commit": "feat: private feature"
+          }
+        ],
+        "args": [],
+        "report": [
+          "version",
+          "publish"
+        ]
+      },
+      "expected_output": "version=1.1.0\npublish=git push --follow-tags origin master\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "1.2.3",
+        "ops": [
+          {
+            "commit": "feat: ignored bump"
+          }
+        ],
+        "args": [
+          "--skip.bump",
+          "true"
+        ],
+        "report": [
+          "version",
+          "tag"
+        ]
+      },
+      "expected_output": "version=1.2.3\ntag=v1.2.3\n"
+    },
+    {
+      "input": {
+        "kind": "release",
+        "packageVersion": "1.0.0",
+        "ops": [
+          {
+            "commit": "fix: dry"
+          }
+        ],
+        "args": [
+          "--dry-run"
+        ],
+        "report": [
+          "version",
+          "tag",
+          "tree_clean"
+        ]
+      },
+      "expected_output": "version=1.0.0\ntag=none\ntree_clean=no\n"
+    },
+    {
+      "input": {
+        "kind": "error",
+        "packageVersion": "1.0.0",
+        "toolConfig": {
+          "scripts": [
+            "echo hi"
+          ]
+        },
+        "ops": [
+          {
+            "commit": "feat: x"
+          }
+        ],
+        "args": []
+      },
+      "expected_output": "error=invalid_scripts\n"
+    },
+    {
+      "input": {
+        "kind": "error",
+        "packageVersion": "1.0.0",
+        "changelogSeed": "",
+        "ops": [
+          {
+            "commit": "feat: first commit"
+          }
+        ],
+        "args": [
+          "--changelogHeader=### [1.2.3]"
+        ]
+      },
+      "expected_output": "error=invalid_changelog_header\n"
+    }
+  ]
+}

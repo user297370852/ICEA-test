@@ -1,0 +1,72 @@
+{
+  "description": "Parent progress/status aggregation over a four-chunk parallel download, exercising several rules at once: progress is averaged over the full chunk count even when only some chunks have advanced; a per-chunk status event reports the derived parent status only when it differs from the previously reported one (dedup); failed takes precedence over not-found which takes precedence over not-yet-complete; and 'complete' is reported only once every chunk has completed. Only ONE chunk_aggregate case can appear in this file because the parallel-download isolate stores the parent task in single-assignment (late final) global state, so a second case in the same process would throw and surface as error=unhandled. The output records the value derived after each event.",
+  "cases": [
+    {
+      "input": {
+        "action": "chunk_aggregate",
+        "taskId": "ENH4",
+        "url": "https://example.com/file.bin",
+        "chunks": 4,
+        "contentLength": 1000000,
+        "events": [
+          {
+            "type": "parentProgress"
+          },
+          {
+            "type": "progress",
+            "chunk": 0,
+            "value": 0.25
+          },
+          {
+            "type": "progress",
+            "chunk": 1,
+            "value": 0.75
+          },
+          {
+            "type": "parentProgress"
+          },
+          {
+            "type": "parentStatus"
+          },
+          {
+            "type": "status",
+            "chunk": 0,
+            "value": "complete"
+          },
+          {
+            "type": "status",
+            "chunk": 1,
+            "value": "notFound"
+          },
+          {
+            "type": "status",
+            "chunk": 2,
+            "value": "failed"
+          },
+          {
+            "type": "status",
+            "chunk": 1,
+            "value": "complete"
+          },
+          {
+            "type": "status",
+            "chunk": 2,
+            "value": "complete"
+          },
+          {
+            "type": "status",
+            "chunk": 3,
+            "value": "complete"
+          },
+          {
+            "type": "parentProgress"
+          },
+          {
+            "type": "parentStatus"
+          }
+        ]
+      },
+      "expected_output": "parent_progress=0.0\nparent_progress=0.0625\nparent_progress=0.25\nparent_progress=0.25\nparent_status=none\nstatus_change=none\nstatus_change=notFound\nstatus_change=failed\nstatus_change=none\nstatus_change=none\nstatus_change=complete\nparent_progress=0.25\nparent_status=complete\n"
+    }
+  ]
+}

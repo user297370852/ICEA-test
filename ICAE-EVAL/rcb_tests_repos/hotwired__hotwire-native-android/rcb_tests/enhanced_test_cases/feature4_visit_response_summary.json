@@ -1,0 +1,53 @@
+{
+  "description": "Boundary coverage for visit response summary rendering: empty-string vs null body, non-200 status codes, newline+repeated-whitespace normalization that stays under the 50-char truncation limit, pure middle truncation of long bodies, and combined normalization plus middle truncation while preserving the original (pre-normalization) length.",
+  "cases": [
+    {
+      "input": {
+        "action": "summarize_visit_response",
+        "status_code": 200,
+        "response_html": ""
+      },
+      "expected_output": "status=200\nresponse_html=\nresponse_length=0\n"
+    },
+    {
+      "input": {
+        "action": "summarize_visit_response",
+        "status_code": 404,
+        "response_html": null
+      },
+      "expected_output": "status=404\nresponse_html=null\nresponse_length=0\n"
+    },
+    {
+      "input": {
+        "action": "summarize_visit_response",
+        "status_code": 500,
+        "response_html": "<p>error</p>"
+      },
+      "expected_output": "status=500\nresponse_html=<p>error</p>\nresponse_length=12\n"
+    },
+    {
+      "input": {
+        "action": "summarize_visit_response",
+        "status_code": 200,
+        "response_html": "<html>\n\n<body>  hi  </body>\n</html>"
+      },
+      "expected_output": "status=200\nresponse_html=<html><body> hi </body></html>\nresponse_length=35\n"
+    },
+    {
+      "input": {
+        "action": "summarize_visit_response",
+        "status_code": 200,
+        "response_html": "<div>This is a fairly long body content that should be truncated in the middle.</div>"
+      },
+      "expected_output": "status=200\nresponse_html=<div>This is a fairly lon [...] ated in the middle.</div>\nresponse_length=85\n"
+    },
+    {
+      "input": {
+        "action": "summarize_visit_response",
+        "status_code": 200,
+        "response_html": "<x>\naaaaaaaaaa   bbbbbbbbbb cccccccccc dddddddddd eeeeeeeeee\n</x>"
+      },
+      "expected_output": "status=200\nresponse_html=<x>aaaaaaaaaa bbbbbbbbbb  [...] dddddddddd eeeeeeeeee</x>\nresponse_length=65\n"
+    }
+  ]
+}

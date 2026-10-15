@@ -1,0 +1,30 @@
+{
+    "description": "Sanitize a cluster object's metadata so it can be re-applied as a fresh, declarative manifest, and stamp it with an explicit type. All server-populated or instance-specific metadata fields are cleared: creation timestamp, deletion timestamp, deletion grace period, generation, managed fields, owner references, resource version, and uid. From the annotations map, two tool-injected annotations are dropped (the last-applied-configuration annotation and the deployment-revision annotation) while all other annotations are preserved. Finally the object's type is set from the supplied api version and kind. Output is the resulting object emitted as compact JSON with object keys sorted lexicographically; fields that became empty are omitted entirely.",
+    "cases": [
+        {
+            "input": {
+                "action": "sanitize",
+                "api_version": "bar.blah.sh/v2",
+                "kind": "Stuff",
+                "metadata": {
+                    "name": "test-obj",
+                    "namespace": "test",
+                    "annotations": {
+                        "some_random_annotation": "blah",
+                        "kubectl.kubernetes.io/last-applied-configuration": "foo",
+                        "deployment.kubernetes.io/revision": "42.5"
+                    },
+                    "creationTimestamp": "2020-01-01T00:00:00Z",
+                    "deletionTimestamp": "2020-01-01T00:00:00Z",
+                    "deletionGracePeriodSeconds": 123,
+                    "generation": 456,
+                    "managedFields": [{}],
+                    "ownerReferences": [{"apiVersion": "v1", "kind": "Pod", "name": "x", "uid": "y"}],
+                    "resourceVersion": "1234",
+                    "uid": "abcd"
+                }
+            },
+            "expected_output": "{\"apiVersion\":\"bar.blah.sh/v2\",\"kind\":\"Stuff\",\"metadata\":{\"annotations\":{\"some_random_annotation\":\"blah\"},\"name\":\"test-obj\",\"namespace\":\"test\"}}\n"
+        }
+    ]
+}

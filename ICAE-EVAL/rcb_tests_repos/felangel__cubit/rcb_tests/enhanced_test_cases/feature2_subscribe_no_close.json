@@ -1,0 +1,62 @@
+{
+  "description": "A subscriber is delivered the container's current value when it attaches. If the container is never closed, the subscriber still records the delivered value but never observes a completion signal, so its summary reports completion as not having occurred. When the container is eventually closed, the subscriber additionally observes completion. The delivered value reflects whatever boundary seed the container was created with, including large positive and negative seeds, and any inline read of the value is reported before the per-subscriber summary.",
+  "cases": [
+    {
+      "input": {
+        "initial": 0,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[0] done=false\n"
+    },
+    {
+      "input": {
+        "initial": 42,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "x"
+          },
+          {
+            "op": "read"
+          }
+        ]
+      },
+      "expected_output": "state=42\nsubscriber=x values=[42] done=false\n"
+    },
+    {
+      "input": {
+        "initial": -5,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[-5] done=true\n"
+    },
+    {
+      "input": {
+        "initial": 2147483647,
+        "steps": [
+          {
+            "op": "subscribe",
+            "id": "a"
+          },
+          {
+            "op": "close"
+          }
+        ]
+      },
+      "expected_output": "subscriber=a values=[2147483647] done=true\n"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "description": "Multi-provider merge accumulation: when the same flag name (SOURCED_FLAG) is supplied by both the settings provider and an additional provider, the merged flag carries the union of conditions in provider order (settings' boolean=False first, then the custom provider's boolean=True), while a flag defined only by the extra provider is still included.",
+  "cases": [
+    {
+      "input": {
+        "op": "list_flags",
+        "flags": {
+          "SOURCED_FLAG": {
+            "boolean": false
+          }
+        },
+        "sources": [
+          "flags.sources.SettingsFlagsSource",
+          "dispatcher.source_fixture.CustomFlagsSource"
+        ]
+      },
+      "expected_output": "flags=2\nflag=NOT_IN_SETTINGS_FLAG conditions=1\ncondition flag=NOT_IN_SETTINGS_FLAG name=boolean value=False\nflag=SOURCED_FLAG conditions=2\ncondition flag=SOURCED_FLAG name=boolean value=False\ncondition flag=SOURCED_FLAG name=boolean value=True\n"
+    }
+  ]
+}

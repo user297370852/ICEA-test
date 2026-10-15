@@ -1,0 +1,68 @@
+{
+    "description": "Set the port of a parsed URL. A purely numeric value is accepted; a negative value is rejected. A value that begins with digits and is then followed by non-digit characters is accepted by taking the leading numeric run as the port, while a value that does not begin with a digit is rejected and leaves the port empty. The URL remains valid throughout.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://www.google.com",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "port",
+                        "value": "8080"
+                    },
+                    {
+                        "op": "get",
+                        "field": "port"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_port=true\nport=8080\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://www.google.com",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "port",
+                        "value": "-1"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_port=false\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "fake://dummy.test",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "port",
+                        "value": "invalid80"
+                    },
+                    {
+                        "op": "get",
+                        "field": "port"
+                    },
+                    {
+                        "op": "set",
+                        "field": "port",
+                        "value": "80valid"
+                    },
+                    {
+                        "op": "get",
+                        "field": "is_valid"
+                    },
+                    {
+                        "op": "get",
+                        "field": "port"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_port=false\nport=\nset_port=true\nis_valid=true\nport=80\n"
+        }
+    ]
+}

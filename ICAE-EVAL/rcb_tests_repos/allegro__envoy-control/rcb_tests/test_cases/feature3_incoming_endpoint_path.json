@@ -1,0 +1,21 @@
+{
+    "description": "Incoming endpoint path parsing. An incoming endpoint declares either an exact 'path' or a 'pathPrefix', but exactly one of the two. Declaring both is rejected with a path-conflict error; declaring neither is rejected with a path-missing error. A field present with an explicit null value is treated as absent, so an endpoint with a real path and a null prefix is valid and matches by exact path, while a null path and a real prefix is valid and matches by prefix. On success the output reports the resolved path value and the matching type.",
+    "cases": [
+        {
+            "input": {"op": "incoming_endpoint", "path": "/path", "pathPrefix": "/prefix"},
+            "expected_output": "error=path_conflict\n"
+        },
+        {
+            "input": {"op": "incoming_endpoint"},
+            "expected_output": "error=path_missing\n"
+        },
+        {
+            "input": {"op": "incoming_endpoint", "path": "/path", "includeNullFields": true},
+            "expected_output": "path=/path\nmatchingType=PATH\n"
+        },
+        {
+            "input": {"op": "incoming_endpoint", "pathPrefix": "/prefix", "includeNullFields": true},
+            "expected_output": "path=/prefix\nmatchingType=PATH_PREFIX\n"
+        }
+    ]
+}

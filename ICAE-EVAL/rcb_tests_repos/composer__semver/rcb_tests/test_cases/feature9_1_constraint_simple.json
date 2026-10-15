@@ -1,0 +1,166 @@
+{
+    "description": "Parse a single, simple constraint expression into a normalized internal representation, rendered as a text form. A bare version means exact equality; comparator-prefixed versions (=, ==, <>, !=, >, >=, <, <=) keep that operator. Open-ended lower bounds (< and >=) attach a development suffix unless an explicit stability is present, and a wildcard-only expression matches everything. The rendered form shows the operator followed by the normalized four-segment version, or square brackets for the match-anything case.",
+    "cases": [
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "*"
+            },
+            "expected_output": "[]\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "*.*"
+            },
+            "expected_output": "[]\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "<>1.0.0"
+            },
+            "expected_output": "!= 1.0.0.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "!=1.0.0"
+            },
+            "expected_output": "!= 1.0.0.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": ">1.0.0"
+            },
+            "expected_output": "> 1.0.0.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "<1.2.3.4"
+            },
+            "expected_output": "< 1.2.3.4-dev\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "<=1.2.3"
+            },
+            "expected_output": "<= 1.2.3.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": ">=1.2.3"
+            },
+            "expected_output": ">= 1.2.3.0-dev\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "=1.2.3"
+            },
+            "expected_output": "== 1.2.3.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "==1.2.3"
+            },
+            "expected_output": "== 1.2.3.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "1.2.3"
+            },
+            "expected_output": "== 1.2.3.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "=1.0"
+            },
+            "expected_output": "== 1.0.0.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "1.2.3b5"
+            },
+            "expected_output": "== 1.2.3.0-beta5\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "1.2.3a1"
+            },
+            "expected_output": "== 1.2.3.0-alpha1\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "1.2.3p1234"
+            },
+            "expected_output": "== 1.2.3.0-patch1234\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": ">= 1.2.3"
+            },
+            "expected_output": ">= 1.2.3.0-dev\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "> 1.2.3"
+            },
+            "expected_output": "> 1.2.3.0\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": ">=dev-master"
+            },
+            "expected_output": ">= 9999999-dev\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "dev-master"
+            },
+            "expected_output": "== 9999999-dev\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "dev-feature-a"
+            },
+            "expected_output": "== dev-feature-a\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "dev-master as 1.0.0"
+            },
+            "expected_output": "== 9999999-dev\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": "<1.2.3.4-stable"
+            },
+            "expected_output": "< 1.2.3.4\n"
+        },
+        {
+            "input": {
+                "action": "parseConstraints",
+                "constraints": ">=1.2.3.4-stable"
+            },
+            "expected_output": ">= 1.2.3.4\n"
+        }
+    ]
+}

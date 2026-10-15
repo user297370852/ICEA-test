@@ -1,0 +1,52 @@
+{
+  "description": "Additional typed wire-message round-trip cases covering 32-bit integer extremes, maximum acknowledgement id, optional zero values, strings with spaces and punctuation, empty optional strings, empty array elements, and missing required field order not present in native tests.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize",
+        "ack": 4294967295,
+        "fields": {
+          "ri1": 2147483647,
+          "oi2": 0,
+          "ri3": -2147483648,
+          "oi4": -1,
+          "rs5": "string with spaces",
+          "os6": "",
+          "rs7": "punctuation-._/+=:,@",
+          "os8": "optional value with spaces",
+          "sa9": [
+            "",
+            "two words",
+            "symbols-._"
+          ],
+          "sa10": [
+            "alpha",
+            "",
+            "omega"
+          ]
+        }
+      },
+      "expected_output": "ack_id=4294967295\ndeclared_length_matches_payload=true\npayload_padded_to_8=true\nri1=2147483647\nhas_oi2=true\noi2=0\nri3=-2147483648\nhas_oi4=true\noi4=-1\nrs5=string with spaces\nhas_os6=true\nos6=\nrs7=punctuation-._/+=:,@\nhas_os8=true\nos8=optional value with spaces\nsa9_size=3\nsa9[0]=\nsa9[1]=two words\nsa9[2]=symbols-._\nsa10_size=3\nsa10[0]=alpha\nsa10[1]=\nsa10[2]=omega\n"
+    },
+    {
+      "input": {
+        "op": "serialize",
+        "ack": 17,
+        "fields": {}
+      },
+      "expected_output": "error=missing_required_field\nfield=ri1\n"
+    },
+    {
+      "input": {
+        "op": "serialize",
+        "ack": 18,
+        "fields": {
+          "ri1": 5,
+          "ri3": 6,
+          "rs5": "present"
+        }
+      },
+      "expected_output": "error=missing_required_field\nfield=rs7\n"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+    "description": "A rule selects all method members declared in one or more named classes and forbids them from calling any method member declared in one or more named target classes. The engine evaluates against the fixed sample corpus and renders a report. When a selected method calls a forbidden method, the report contains the quoted rule sentence followed by a tab-indented violation line naming both methods by their full IL-style signatures, of the form '<return-type> <caller-signature> does call <return-type> <callee-signature>'. When no selected method calls any forbidden method, the report is the single line stating all evaluations passed.",
+    "cases": [
+        {
+            "input": {
+                "scope": {
+                    "kind": "methods",
+                    "members": [
+                        "SampleApp.Services.ReportService"
+                    ]
+                },
+                "constraint": {
+                    "kind": "no_call_to_methods_in",
+                    "targets": [
+                        "SampleApp.Data.Repository"
+                    ]
+                }
+            },
+            "expected_output": "\"Method members that are declared in \"SampleApp.Services.ReportService\" should not call Method members that are declared in \"SampleApp.Data.Repository\"\" failed:\n\tSystem.Void SampleApp.Services.ReportService::Generate(SampleApp.Data.Repository) does call System.String SampleApp.Data.Repository::Load(System.Int32)\n\n"
+        },
+        {
+            "input": {
+                "scope": {
+                    "kind": "methods",
+                    "members": [
+                        "SampleApp.Services.AuditService"
+                    ]
+                },
+                "constraint": {
+                    "kind": "no_call_to_methods_in",
+                    "targets": [
+                        "SampleApp.Data.Repository"
+                    ]
+                }
+            },
+            "expected_output": "All Evaluations passed"
+        }
+    ]
+}

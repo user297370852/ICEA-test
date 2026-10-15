@@ -1,0 +1,60 @@
+{
+    "description": "Manage accessibility attributes on a control. A hidden field never receives accessibility attributes. For a visible errored/required field, the accessibility flags (required, invalid, described-by linkage) are emitted by default but each can be individually disabled or overridden with a custom value, and disabling one leaves the others intact. Output is the generated HTML for the control.",
+    "cases": [
+        {
+            "input": {
+                "steps": [
+                    {
+                        "op": "article",
+                        "set": {
+                            "errors.title": [
+                                "error message"
+                            ]
+                        }
+                    },
+                    {
+                        "op": "create"
+                    },
+                    {
+                        "op": "control",
+                        "field": "title",
+                        "emit": true,
+                        "options": {
+                            "type": "hidden",
+                            "help": "help text"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "<input class=\"is-invalid\" id=\"title\" name=\"title\" type=\"hidden\">\n"
+        },
+        {
+            "input": {
+                "steps": [
+                    {
+                        "op": "article",
+                        "set": {
+                            "errors.title": [
+                                "error message"
+                            ]
+                        }
+                    },
+                    {
+                        "op": "create"
+                    },
+                    {
+                        "op": "control",
+                        "field": "title",
+                        "emit": true,
+                        "options": {
+                            "aria-required": false,
+                            "aria-invalid": false,
+                            "aria-describedby": "custom"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "<div class=\"mb-3 form-group text required is-invalid\"><label class=\"form-label\" for=\"title\">Title</label><input aria-describedby=\"custom\" class=\"is-invalid form-control\" data-validity-message=\"This field cannot be left empty\" id=\"title\" name=\"title\" oninput=\"this.setCustomValidity(&#039;&#039;)\" oninvalid=\"this.setCustomValidity(&#039;&#039;); if (!this.value) this.setCustomValidity(this.dataset.validityMessage)\" required=\"required\" type=\"text\"><div class=\"ms-0 invalid-feedback\" id=\"title-error\">error message</div></div>\n"
+        }
+    ]
+}

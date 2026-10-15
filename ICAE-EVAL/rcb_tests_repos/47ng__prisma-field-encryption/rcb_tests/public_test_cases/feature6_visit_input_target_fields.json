@@ -1,0 +1,51 @@
+{
+  "description": "Given an analysed data-model and a write operation payload (an action, a root model name, and an args object), walk the args structure and emit one visit per encrypted-target string field reached, following relation connections to switch the active model as nesting changes. Each visit reports the dotted path to the value within args, the value itself, the active model and field names, and the field encryption configuration. Plain top-level encrypted fields are visited directly; encrypted fields located inside nested relation create blocks are visited with their full nested path and the connected model. Non-encrypted fields produce no visit. The total number of visits is also reported.",
+  "cases": [
+    {
+      "input": {
+        "op": "visit_input",
+        "datamodel": "\n      model User {\n        id           Int     @id @default(autoincrement())\n        email        String  @unique\n        name         String? /// @encrypted\n        posts        Post[]\n        pinnedPost   Post?   @relation(fields: [pinnedPostId], references: [id], name: \"pinnedPost\")\n        pinnedPostId Int?\n      }\n\n      model Post {\n        id         Int        @id @default(autoincrement())\n        title      String\n        content    String? /// @encrypted\n        author     User?      @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n        authorId   Int?\n        categories Category[]\n        havePinned User[]     @relation(\"pinnedPost\")\n      }\n\n      // Model without encrypted fields\n      model Category {\n        id    Int    @id @default(autoincrement())\n        name  String\n        posts Post[]\n      }\n    ",
+        "params": {
+          "action": "create",
+          "model": "User",
+          "args": {
+            "email": "007@hmss.gov.uk",
+            "name": "James Bond"
+          },
+          "dataPath": [],
+          "runInTransaction": false
+        }
+      },
+      "expected_output": "{\"field\":\"name\",\"model\":\"User\",\"fieldConfig\":{\"encrypt\":true,\"strictDecryption\":false},\"path\":\"name\",\"value\":\"James Bond\"}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "visit_input",
+        "datamodel": "\n      model User {\n        id           Int     @id @default(autoincrement())\n        email        String  @unique\n        name         String? /// @encrypted\n        posts        Post[]\n        pinnedPost   Post?   @relation(fields: [pinnedPostId], references: [id], name: \"pinnedPost\")\n        pinnedPostId Int?\n      }\n\n      model Post {\n        id         Int        @id @default(autoincrement())\n        title      String\n        content    String? /// @encrypted\n        author     User?      @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)\n        authorId   Int?\n        categories Category[]\n        havePinned User[]     @relation(\"pinnedPost\")\n      }\n\n      // Model without encrypted fields\n      model Category {\n        id    Int    @id @default(autoincrement())\n        name  String\n        posts Post[]\n      }\n    ",
+        "params": {
+          "action": "create",
+          "model": "User",
+          "args": {
+            "email": "007@hmss.gov.uk",
+            "name": "James Bond",
+            "posts": {
+              "create": [
+                {
+                  "title": "First report",
+                  "content": "Reporting for duty"
+                },
+                {
+                  "title": "Mission Briefing",
+                  "content": "Going after Spectre"
+                }
+              ]
+            }
+          },
+          "dataPath": [],
+          "runInTransaction": false
+        }
+      },
+      "expected_output": "{\"field\":\"name\",\"model\":\"User\",\"fieldConfig\":{\"encrypt\":true,\"strictDecryption\":false},\"path\":\"name\",\"value\":\"James Bond\"}\n{\"field\":\"content\",\"model\":\"Post\",\"fieldConfig\":{\"encrypt\":true,\"strictDecryption\":false},\"path\":\"posts.create.0.content\",\"value\":\"Reporting for duty\"}\n{\"field\":\"content\",\"model\":\"Post\",\"fieldConfig\":{\"encrypt\":true,\"strictDecryption\":false},\"path\":\"posts.create.1.content\",\"value\":\"Going after Spectre\"}\ncount=3\n"
+    }
+  ]
+}

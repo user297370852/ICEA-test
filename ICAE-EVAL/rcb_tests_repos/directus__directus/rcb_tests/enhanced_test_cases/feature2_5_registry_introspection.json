@@ -1,0 +1,93 @@
+{
+  "description": "The manager can be introspected for the set of disks that have actually been instantiated so far and for the set of backend kinds that are registered. Instantiated disks start empty and grow only as disks are resolved on demand, reported as a sorted comma-separated list. Registered backend kinds always include the built-in default kind plus any registered by the caller, reported as a sorted comma-separated list. The request interleaves resolutions and registrations with introspection requests.",
+  "cases": [
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "local",
+          "disks": {
+            "local": {
+              "driver": "local",
+              "config": {
+                "root": ""
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "listDrivers"
+          }
+        ]
+      },
+      "expected_output": "drivers=local\n"
+    },
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "local",
+          "disks": {
+            "local": {
+              "driver": "local",
+              "config": {
+                "root": ""
+              }
+            },
+            "home": {
+              "driver": "local",
+              "config": {
+                "root": "~"
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "disk",
+            "name": "home"
+          },
+          {
+            "action": "disk",
+            "name": "local"
+          },
+          {
+            "action": "listDisks"
+          }
+        ]
+      },
+      "expected_output": "disk=home driver=local\ndisk=local driver=local\ndisks=home,local\n"
+    },
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "local",
+          "disks": {
+            "local": {
+              "driver": "local",
+              "config": {
+                "root": ""
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "registerDriver",
+            "name": "zeta"
+          },
+          {
+            "action": "registerDriver",
+            "name": "alpha"
+          },
+          {
+            "action": "listDrivers"
+          }
+        ]
+      },
+      "expected_output": "registered=zeta\nregistered=alpha\ndrivers=alpha,local,zeta\n"
+    }
+  ]
+}

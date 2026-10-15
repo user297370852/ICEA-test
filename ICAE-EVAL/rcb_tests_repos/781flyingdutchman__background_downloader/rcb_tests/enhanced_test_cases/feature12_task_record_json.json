@@ -1,0 +1,87 @@
+{
+  "description": "Task-record round-trip edge cases. A record merges the task with status, progress, expectedFileSize and an optional exception into one flat map. Covers a TaskHttpException carrying an http response code, an unrecognized exception type that collapses to the generic TaskException/'Unknown', a null exception with zero progress and floating-point numerics, and an upload-task record that additionally carries the upload-specific fields.",
+  "cases": [
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "TaskRecord",
+        "json": {
+          "url": "u",
+          "taskType": "DownloadTask",
+          "taskId": "t",
+          "filename": "f",
+          "creationTime": 1000,
+          "status": 4,
+          "progress": 0.5,
+          "expectedFileSize": 2048,
+          "exception": {
+            "type": "TaskHttpException",
+            "description": "forbidden",
+            "httpResponseCode": 403
+          }
+        }
+      },
+      "expected_output": "{\"url\":\"u\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":1000,\"taskId\":\"t\",\"filename\":\"f\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\",\"status\":4,\"progress\":0.5,\"expectedFileSize\":2048,\"exception\":{\"type\":\"TaskHttpException\",\"description\":\"forbidden\",\"httpResponseCode\":403}}\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "TaskRecord",
+        "json": {
+          "url": "u",
+          "taskType": "DownloadTask",
+          "taskId": "t",
+          "filename": "f",
+          "creationTime": 1000,
+          "status": 2,
+          "progress": 1.0,
+          "expectedFileSize": -1,
+          "exception": {
+            "type": "WeirdUnknownException",
+            "description": "boom"
+          }
+        }
+      },
+      "expected_output": "{\"url\":\"u\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":1000,\"taskId\":\"t\",\"filename\":\"f\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\",\"status\":2,\"progress\":1.0,\"expectedFileSize\":-1,\"exception\":{\"type\":\"TaskException\",\"description\":\"Unknown\"}}\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "TaskRecord",
+        "json": {
+          "url": "u3",
+          "taskType": "DownloadTask",
+          "taskId": "t3",
+          "filename": "f3",
+          "creationTime": 7.0,
+          "status": 0.0,
+          "progress": 0.0,
+          "expectedFileSize": 0.0
+        }
+      },
+      "expected_output": "{\"url\":\"u3\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":7,\"taskId\":\"t3\",\"filename\":\"f3\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\",\"status\":0,\"progress\":0.0,\"expectedFileSize\":0,\"exception\":null}\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "TaskRecord",
+        "json": {
+          "url": "u4",
+          "taskType": "UploadTask",
+          "taskId": "t4",
+          "filename": "f4",
+          "creationTime": 1000,
+          "fileField": "file",
+          "mimeType": "text/plain",
+          "fields": {
+            "k": "v"
+          },
+          "status": 2,
+          "progress": 1.0,
+          "expectedFileSize": 100
+        }
+      },
+      "expected_output": "{\"url\":\"u4\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":1000,\"taskId\":\"t4\",\"filename\":\"f4\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"UploadTask\",\"fileField\":\"file\",\"mimeType\":\"text/plain\",\"fields\":{\"k\":\"v\"},\"status\":2,\"progress\":1.0,\"expectedFileSize\":100,\"exception\":null}\n"
+    }
+  ]
+}

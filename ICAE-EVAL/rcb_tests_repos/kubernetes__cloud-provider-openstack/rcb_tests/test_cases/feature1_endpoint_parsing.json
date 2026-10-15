@@ -1,0 +1,49 @@
+{
+  "description": "Parse supported listener endpoint strings into transport protocol and address, while malformed or empty endpoint strings produce a normalized endpoint error.",
+  "cases": [
+    {
+      "input": {"endpoint": "unix://fake.sock"},
+      "expected_output": "protocol=unix\naddress=fake.sock\n"
+    },
+    {
+      "input": {"endpoint": "unix:///fakedir/fakedir/fake.sock"},
+      "expected_output": "protocol=unix\naddress=/fakedir/fakedir/fake.sock\n"
+    },
+    {
+      "input": {"endpoint": "UNIX://fake.sock"},
+      "expected_output": "protocol=UNIX\naddress=fake.sock\n"
+    },
+    {
+      "input": {"endpoint": "tcp://127.0.0.1:80"},
+      "expected_output": "protocol=tcp\naddress=127.0.0.1:80\n"
+    },
+    {
+      "input": {"endpoint": "TCP://127.0.0.1:80"},
+      "expected_output": "protocol=TCP\naddress=127.0.0.1:80\n"
+    },
+    {
+      "input": {"endpoint": "tcp://fakehost:80"},
+      "expected_output": "protocol=tcp\naddress=fakehost:80\n"
+    },
+    {
+      "input": {"endpoint": "unix:/fake.sock/"},
+      "expected_output": "error=invalid_endpoint\nendpoint=unix:/fake.sock/\n"
+    },
+    {
+      "input": {"endpoint": "fake.sock"},
+      "expected_output": "error=invalid_endpoint\nendpoint=fake.sock\n"
+    },
+    {
+      "input": {"endpoint": "unix://"},
+      "expected_output": "error=invalid_endpoint\nendpoint=unix://\n"
+    },
+    {
+      "input": {"endpoint": "://"},
+      "expected_output": "error=invalid_endpoint\nendpoint=://\n"
+    },
+    {
+      "input": {"endpoint": ""},
+      "expected_output": "error=invalid_endpoint\nendpoint=\n"
+    }
+  ]
+}

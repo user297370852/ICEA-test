@@ -1,0 +1,68 @@
+{
+  "description": "Construct requests from a range of absolute requested URIs (root, deep multi-query path, host with port, percent-encoded segment, userinfo, fragment, uppercase scheme/host, no path) and one non-absolute URI rejected as a neutral error.",
+  "cases": [
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/a/b/c/d?x=1&y=2"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=a/b/c/d?x=1&y=2\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "https://example.com:8080/path"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=path\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/foo%20bar"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=foo%20bar\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://user:pass@localhost/secure"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=secure\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost/p#frag"
+      },
+      "expected_output": "error=invalid_argument\nfield=requestedUri\nmessage=must be an absolute URL.\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "HTTP://LOCALHOST/Path"
+      },
+      "expected_output": "method=GET\nprotocolVersion=1.1\nurl=Path\nhandlerPath=/\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "http://localhost"
+      },
+      "expected_output": "error=invalid_argument\nfield=start\nmessage=Invalid value\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "uri": "//host/path"
+      },
+      "expected_output": "error=invalid_argument\nfield=requestedUri\nmessage=must be an absolute URL.\n"
+    }
+  ]
+}

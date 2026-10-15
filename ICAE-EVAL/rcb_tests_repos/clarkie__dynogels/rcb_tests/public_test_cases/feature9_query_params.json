@@ -1,0 +1,32 @@
+{
+  "description": "Assembly of the request parameters for a partition-scoped read, accumulated through a fluent builder and rendered together with the target table designation. Key conditions on the partition and sort attributes (equality, ordered comparisons, prefix match, and range) contribute a key-condition expression with their associated name and value placeholder bindings; when the read is finalized the partition equality is appended automatically, and selecting a secondary index switches the partition condition to that index's partition attribute. Non-key filter conditions (equality, existence/absence, range, set membership, and nested document paths) contribute a separate filter expression. Placeholder value names are de-duplicated across clauses. Builder options such as a projected attribute list, an index selection, a result limit, and consistent-read selection are reflected in the parameters; a non-positive limit is rejected as a neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "op": "query_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "hashKey": "tim",
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "equals",
+            "foo@example.com"
+          ]
+        ],
+        "execKey": true
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\",\"#name\":\"name\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\",\":name\":\"tim\"},\"KeyConditionExpression\":\"(#email = :email) AND (#name = :name)\",\"TableName\":\"accounts\"}\n"
+    }
+  ]
+}

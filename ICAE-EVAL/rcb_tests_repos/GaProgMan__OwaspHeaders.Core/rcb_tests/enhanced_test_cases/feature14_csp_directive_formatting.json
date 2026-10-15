@@ -1,0 +1,70 @@
+{
+  "description": "CSP source-list formatting edges: keyword tokens are grouped ahead of URI tokens, multiple source lists are concatenated in one policy each terminated by a semicolon, and a single keyword-only list (frame-ancestors none) is quoted correctly.",
+  "cases": [
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {
+            "block_all_mixed_content": false,
+            "upgrade_insecure_requests": false,
+            "directives": {
+              "img-src": [
+                {
+                  "uri": "https://cdn.example.com"
+                },
+                {
+                  "uri": "https://cdn.example.com"
+                },
+                {
+                  "keyword": "self"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "Content-Security-Policy: img-src 'self' https://cdn.example.com https://cdn.example.com;\n"
+    },
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {
+            "block_all_mixed_content": false,
+            "upgrade_insecure_requests": false,
+            "directives": {
+              "default-src": [
+                {
+                  "keyword": "none"
+                }
+              ],
+              "script-src": [
+                {
+                  "keyword": "self"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "Content-Security-Policy: default-src 'none';script-src 'self';\n"
+    },
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {
+            "block_all_mixed_content": false,
+            "upgrade_insecure_requests": false,
+            "directives": {
+              "frame-ancestors": [
+                {
+                  "keyword": "none"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "Content-Security-Policy: frame-ancestors 'none';\n"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "description": "Local and remote change lists are separated into safe pushes, safe pulls, and clashes using protected-path and untracked-file checks.",
+  "cases": [
+    {
+      "description": "A local-only update, remote-only update, protected remote update, and both-sides update are categorized separately.",
+      "input": {
+        "command": "state.resolve",
+        "localChanges": [
+          {
+            "path": "local.md",
+            "type": "ADDED"
+          },
+          {
+            "path": "both.md",
+            "type": "MODIFIED"
+          }
+        ],
+        "remoteChanges": [
+          {
+            "path": "remote.md",
+            "type": "ADDED"
+          },
+          {
+            "path": "both.md",
+            "type": "MODIFIED"
+          },
+          {
+            "path": ".obsidian/app.json",
+            "type": "ADDED"
+          }
+        ],
+        "localScanPaths": [
+          "local.md",
+          "both.md"
+        ],
+        "protectedPaths": [
+          ".obsidian/app.json"
+        ],
+        "filesystemState": [
+          {
+            "path": "remote.md",
+            "exists": false
+          }
+        ],
+        "baselineShas": {}
+      },
+      "expected_output": "checks=[{\"path\":\"remote.md\",\"remoteOp\":\"ADDED\"}]\nsafe_local=[{\"path\":\"local.md\",\"type\":\"ADDED\"}]\nsafe_remote=[{\"path\":\"remote.md\",\"type\":\"ADDED\"}]\nclashes=[{\"localState\":\"MODIFIED\",\"path\":\"both.md\",\"remoteOp\":\"MODIFIED\"},{\"localState\":\"protected\",\"path\":\".obsidian/app.json\",\"remoteOp\":\"ADDED\"}]\n"
+    }
+  ]
+}

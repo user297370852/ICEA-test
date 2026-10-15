@@ -1,0 +1,64 @@
+{
+  "description": "Percent-sign tolerance in paths versus rejection in hosts: trailing stray percent, non-hex escapes, and malformed escapes in the authority.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/path%",
+        "steps": [
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhref=http://example.com/path%\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/a%2zb",
+        "steps": [
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhref=http://example.com/a%2zb\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://%2x.example.com/"
+      },
+      "expected_output": "url=invalid\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/%",
+        "steps": [
+          {
+            "op": "get",
+            "field": "pathname"
+          }
+        ]
+      },
+      "expected_output": "url=valid\npathname=/%\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/%C3%A9",
+        "steps": [
+          {
+            "op": "get",
+            "field": "pathname"
+          }
+        ]
+      },
+      "expected_output": "url=valid\npathname=/%C3%A9\n"
+    }
+  ]
+}

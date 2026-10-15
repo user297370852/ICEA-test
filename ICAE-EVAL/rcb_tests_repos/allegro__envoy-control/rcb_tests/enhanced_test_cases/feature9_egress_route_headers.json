@@ -1,0 +1,82 @@
+{
+  "description": "Enhanced egress route config: both caller-identity and upstream-address headers when permissions enabled and the flag is set; no timeouts supplied (route0 timeouts report none); multiple upstream clusters where the first one drives route0; and fractional route timeouts.",
+  "cases": [
+    {
+      "input": {
+        "op": "egress_routes",
+        "incomingPermissionsEnabled": true,
+        "serviceName": "client1",
+        "addUpstreamAddressHeader": true,
+        "clusters": [
+          {
+            "clusterName": "srv1",
+            "routeDomain": "srv1",
+            "handleInternalRedirect": false,
+            "idleTimeout": "10s",
+            "requestTimeout": "10s"
+          }
+        ]
+      },
+      "expected_output": "requestHeaders=[x-service-name=client1]\nresponseHeaders=[x-envoy-upstream-remote-address=%UPSTREAM_REMOTE_ADDRESS%]\nroute0.cluster=srv1\nroute0.idleTimeout=10s\nroute0.requestTimeout=10s\n"
+    },
+    {
+      "input": {
+        "op": "egress_routes",
+        "incomingPermissionsEnabled": true,
+        "serviceName": "client2",
+        "addUpstreamAddressHeader": false,
+        "clusters": [
+          {
+            "clusterName": "srv1",
+            "routeDomain": "srv1",
+            "handleInternalRedirect": false
+          }
+        ]
+      },
+      "expected_output": "requestHeaders=[x-service-name=client2]\nresponseHeaders=[]\nroute0.cluster=srv1\nroute0.idleTimeout=none\nroute0.requestTimeout=none\n"
+    },
+    {
+      "input": {
+        "op": "egress_routes",
+        "incomingPermissionsEnabled": false,
+        "serviceName": "client3",
+        "addUpstreamAddressHeader": false,
+        "clusters": [
+          {
+            "clusterName": "first",
+            "routeDomain": "first",
+            "handleInternalRedirect": true,
+            "idleTimeout": "5s",
+            "requestTimeout": "7s"
+          },
+          {
+            "clusterName": "second",
+            "routeDomain": "second",
+            "handleInternalRedirect": false,
+            "idleTimeout": "9s",
+            "requestTimeout": "11s"
+          }
+        ]
+      },
+      "expected_output": "requestHeaders=[]\nresponseHeaders=[]\nroute0.cluster=first\nroute0.idleTimeout=5s\nroute0.requestTimeout=7s\n"
+    },
+    {
+      "input": {
+        "op": "egress_routes",
+        "incomingPermissionsEnabled": true,
+        "serviceName": "client4",
+        "addUpstreamAddressHeader": true,
+        "clusters": [
+          {
+            "clusterName": "srv9",
+            "routeDomain": "srv9",
+            "handleInternalRedirect": true,
+            "idleTimeout": "0.5s",
+            "requestTimeout": "2.5s"
+          }
+        ]
+      },
+      "expected_output": "requestHeaders=[x-service-name=client4]\nresponseHeaders=[x-envoy-upstream-remote-address=%UPSTREAM_REMOTE_ADDRESS%]\nroute0.cluster=srv9\nroute0.idleTimeout=0.500s\nroute0.requestTimeout=2.500s\n"
+    }
+  ]
+}

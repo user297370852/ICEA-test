@@ -1,0 +1,139 @@
+{
+    "description": "Resolve the effective request configuration by composing a per-call override onto a base configuration for a given path. The content-type is resolved with a clear precedence: a content-type supplied by the per-call override (either as its dedicated field or inside its header map) takes priority over the base content-type. When the request carries a payload, or when the base is configured to always set a content-type even without a payload, a default JSON content-type is implied only if none was otherwise provided. A subsequent copy-with override on the composed request can further replace the content-type, either through its header map or its dedicated field. The composed request also assembles a final request URL by joining the base URL and path. The adapter reports the resolved content-type and the assembled URL.",
+    "cases": [
+        {
+            "input": {
+                "op": "compose",
+                "base": {
+                    "contentType": "text/html"
+                },
+                "options": {
+                    "contentType": "appliction/json"
+                },
+                "path": ""
+            },
+            "expected_output": "contentType=appliction/json\nuri=\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {
+                    "headers": {
+                        "content-type": "text/html"
+                    }
+                },
+                "options": {
+                    "contentType": "appliction/json"
+                },
+                "path": ""
+            },
+            "expected_output": "contentType=appliction/json\nuri=\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {},
+                "options": {
+                    "contentType": "appliction/json"
+                },
+                "path": ""
+            },
+            "expected_output": "contentType=appliction/json\nuri=\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {
+                    "contentType": "text/html"
+                },
+                "options": {
+                    "headers": {
+                        "content-type": "appliction/json"
+                    }
+                },
+                "path": ""
+            },
+            "expected_output": "contentType=appliction/json\nuri=\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {
+                    "headers": {
+                        "content-type": "text/html"
+                    }
+                },
+                "options": {
+                    "headers": {
+                        "content-type": "appliction/json"
+                    }
+                },
+                "path": ""
+            },
+            "expected_output": "contentType=appliction/json\nuri=\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {},
+                "options": {
+                    "headers": {
+                        "content-type": "appliction/json"
+                    }
+                },
+                "path": ""
+            },
+            "expected_output": "contentType=appliction/json\nuri=\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {
+                    "baseUrl": "https://www.example.com",
+                    "setRequestContentTypeWhenNoPayload": true
+                },
+                "options": {
+                    "method": "GET"
+                },
+                "path": "/test",
+                "copyWith": {
+                    "headers": {
+                        "content-type": "text/plain"
+                    }
+                }
+            },
+            "expected_output": "contentType=text/plain\nuri=https://www.example.com/test\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {
+                    "baseUrl": "https://www.example.com",
+                    "setRequestContentTypeWhenNoPayload": true
+                },
+                "options": {
+                    "method": "GET"
+                },
+                "path": "/test",
+                "copyWith": {
+                    "contentType": "text/plain"
+                }
+            },
+            "expected_output": "contentType=text/plain\nuri=https://www.example.com/test\n"
+        },
+        {
+            "input": {
+                "op": "compose",
+                "base": {
+                    "baseUrl": "https://www.example.com",
+                    "setRequestContentTypeWhenNoPayload": false
+                },
+                "options": {
+                    "method": "GET"
+                },
+                "path": "/test"
+            },
+            "expected_output": "contentType=null\nuri=https://www.example.com/test\n"
+        }
+    ]
+}

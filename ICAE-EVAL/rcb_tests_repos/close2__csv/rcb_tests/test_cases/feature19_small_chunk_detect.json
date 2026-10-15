@@ -1,0 +1,44 @@
+{
+    "description": "Decode CSV text streamed one character at a time, forcing delimiter detection and the spreadsheet delimiter hint to work under maximal fragmentation. Even when no chunk individually contains enough context, the decoder buffers until it can determine the delimiter and then yields the same rows as a single-shot decode.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode_chunks",
+                "chunks": [
+                    "s",
+                    "e",
+                    "p",
+                    "=",
+                    ";",
+                    "\r",
+                    "\n",
+                    "a",
+                    ";",
+                    "b",
+                    ";",
+                    "c"
+                ]
+            },
+            "expected_output": "rows=1\nrow[0]: str=\"a\" | str=\"b\" | str=\"c\"\n"
+        },
+        {
+            "input": {
+                "op": "decode_chunks",
+                "chunks": [
+                    "a",
+                    ",",
+                    "b",
+                    ",",
+                    "c",
+                    "\n",
+                    "1",
+                    ",",
+                    "2",
+                    ",",
+                    "3"
+                ]
+            },
+            "expected_output": "rows=2\nrow[0]: str=\"a\" | str=\"b\" | str=\"c\"\nrow[1]: str=\"1\" | str=\"2\" | str=\"3\"\n"
+        }
+    ]
+}

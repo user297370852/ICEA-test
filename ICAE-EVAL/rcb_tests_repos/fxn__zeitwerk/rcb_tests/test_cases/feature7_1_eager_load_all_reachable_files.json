@@ -1,0 +1,28 @@
+{
+    "description": "Load every reachable source file under configured roots before any explicit constant access.",
+    "cases": [
+        {
+            "input": {
+                "operation": "eager_loading",
+                "roots": [
+                    "."
+                ],
+                "files": {
+                    "app0.rb": "module App0; end",
+                    "app0/foo.rb": "class App0::Foo; $global_signals['app0_foo'] = 'loaded'; end",
+                    "app1/foo.rb": "class App1::Foo; end",
+                    "app1/foo/bar/baz.rb": "class App1::Foo::Bar::Baz; $global_signals['app1_baz'] = 'loaded'; end"
+                },
+                "check_globals": [
+                    "app0_foo",
+                    "app1_baz"
+                ],
+                "access": [
+                    "App0::Foo",
+                    "App1::Foo::Bar::Baz"
+                ]
+            },
+            "expected_output": "signal=app0_foo\nvalue=loaded\nsignal=app1_baz\nvalue=loaded\nconstant=App0::Foo\nvalue=class\nconstant=App1::Foo::Bar::Baz\nvalue=class\n"
+        }
+    ]
+}

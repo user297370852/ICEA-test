@@ -1,0 +1,34 @@
+{
+  "description": "Serialization of an application record into the per-attribute action map consumed by an item-mutation request. Each non-key attribute becomes an entry carrying an action verb and, where relevant, a serialized value. A plain value produces a write action with the type-serialized value. A null value produces a remove action with no value. An attribute wrapped as an additive operation produces an add action; an attribute wrapped as a subtractive operation produces a remove-from-set action; in both cases the operand is type-serialized (numbers stay numbers, set operands render as set-tagged collections). The primary key attribute (and the sort attribute when declared) is never emitted, since keys are addressed separately.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": "string",
+            "age": "number",
+            "names": {
+              "set": "string"
+            }
+          }
+        },
+        "item": {
+          "email": "test@test.com",
+          "age": {
+            "$add": 1
+          },
+          "names": {
+            "$add": [
+              "foo",
+              "bar"
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"age\":{\"Action\":\"ADD\",\"Value\":1},\"names\":{\"Action\":\"ADD\",\"Value\":{\"SS\":[\"foo\",\"bar\"]}}}\n"
+    }
+  ]
+}

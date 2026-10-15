@@ -1,0 +1,111 @@
+{
+  "description": "Boundary and logical-path coverage for the method-call constraint. A rule selects every method member declared in one or more named classes and forbids them from calling any method member declared in one or more named target classes. These cases exercise multi-element scopes mixing a calling and a non-calling class, a scoped class whose method invokes a different target than the headline example, passing pairings where the scoped methods call nothing in the target, simultaneous violations across distinct scoped classes, and multiple forbidden target classes at once. The engine renders the quoted rule sentence with one tab-indented '<caller signature> does call <callee signature>' line per violation, or the single all-evaluations-passed line otherwise.",
+  "cases": [
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Services.ReportService",
+            "SampleApp.Services.AuditService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "\"Method members that are declared in \"SampleApp.Services.ReportService\" or \"SampleApp.Services.AuditService\" should not call Method members that are declared in \"SampleApp.Data.Repository\"\" failed:\n\tSystem.Void SampleApp.Services.ReportService::Generate(SampleApp.Data.Repository) does call System.String SampleApp.Data.Repository::Load(System.Int32)\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "\"Method members that are declared in \"SampleApp.Domain.Order\" should not call Method members that are declared in \"SampleApp.Infrastructure.Database\"\" failed:\n\tSystem.String SampleApp.Domain.Order::Lookup(System.Int32) does call System.String SampleApp.Infrastructure.Database::Read(System.Int32)\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "All Evaluations passed"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Services.ReportService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "All Evaluations passed"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Domain.Order",
+            "SampleApp.Services.ReportService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Infrastructure.Database",
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "\"Method members that are declared in \"SampleApp.Domain.Order\" or \"SampleApp.Services.ReportService\" should not call Method members that are declared in \"SampleApp.Infrastructure.Database\" or \"SampleApp.Data.Repository\"\" failed:\n\tSystem.Void SampleApp.Services.ReportService::Generate(SampleApp.Data.Repository) does call System.String SampleApp.Data.Repository::Load(System.Int32)\n\tSystem.String SampleApp.Domain.Order::Lookup(System.Int32) does call System.String SampleApp.Infrastructure.Database::Read(System.Int32)\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "methods",
+          "members": [
+            "SampleApp.Services.ReportService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_call_to_methods_in",
+          "targets": [
+            "SampleApp.Data.Repository",
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "\"Method members that are declared in \"SampleApp.Services.ReportService\" should not call Method members that are declared in \"SampleApp.Data.Repository\" or \"SampleApp.Infrastructure.Database\"\" failed:\n\tSystem.Void SampleApp.Services.ReportService::Generate(SampleApp.Data.Repository) does call System.String SampleApp.Data.Repository::Load(System.Int32)\n\n"
+    }
+  ]
+}

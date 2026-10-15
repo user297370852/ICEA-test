@@ -1,0 +1,108 @@
+{
+    "description": "Serialize transformed resources as a compound document with side-loaded relationships. The primary record(s) are placed as an array under the supplied resource key (or a default data key when none is given); a single record still appears inside an array. Included relationships are not nested inline but collected into a separate top-level linked section, grouped by relationship name. When the same related entity (identified by its id) appears more than once across the primary records, it is listed only once in the linked section. Records are transformed first (year normalized to integer, private underscore-prefixed fields dropped). Attached metadata is emitted under a separate top-level meta key.",
+    "cases": [
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "json_api",
+                "resource": "item",
+                "resource_key": "book",
+                "includes": "author",
+                "data": {
+                    "title": "Foo",
+                    "year": "1991",
+                    "_author": {
+                        "name": "Dave"
+                    }
+                }
+            },
+            "expected_output": "{\"book\":[{\"title\":\"Foo\",\"year\":1991}],\"linked\":{\"author\":[{\"name\":\"Dave\"}]}}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "json_api",
+                "resource": "collection",
+                "resource_key": "book",
+                "includes": "author",
+                "data": [
+                    {
+                        "title": "Foo",
+                        "year": "1991",
+                        "_author": {
+                            "name": "Dave"
+                        }
+                    },
+                    {
+                        "title": "Bar",
+                        "year": "1997",
+                        "_author": {
+                            "name": "Bob"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{\"book\":[{\"title\":\"Foo\",\"year\":1991},{\"title\":\"Bar\",\"year\":1997}],\"linked\":{\"author\":[{\"name\":\"Dave\"},{\"name\":\"Bob\"}]}}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "json_api",
+                "resource": "item",
+                "resource_key": "book",
+                "includes": "author",
+                "meta": {
+                    "foo": "bar"
+                },
+                "data": {
+                    "title": "Foo",
+                    "year": "1991",
+                    "_author": {
+                        "name": "Dave"
+                    }
+                }
+            },
+            "expected_output": "{\"book\":[{\"title\":\"Foo\",\"year\":1991}],\"linked\":{\"author\":[{\"name\":\"Dave\"}]},\"meta\":{\"foo\":\"bar\"}}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "json_api",
+                "resource": "collection",
+                "resource_key": "book",
+                "includes": "author",
+                "data": [
+                    {
+                        "title": "Foo",
+                        "year": "1991",
+                        "_author": {
+                            "id": 1,
+                            "name": "Dave"
+                        }
+                    },
+                    {
+                        "title": "Bar",
+                        "year": "1997",
+                        "_author": {
+                            "id": 1,
+                            "name": "Dave"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{\"book\":[{\"title\":\"Foo\",\"year\":1991},{\"title\":\"Bar\",\"year\":1997}],\"linked\":{\"author\":[{\"id\":1,\"name\":\"Dave\"}]}}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "serializer": "json_api",
+                "resource": "item",
+                "data": {
+                    "title": "Foo",
+                    "year": "1991"
+                }
+            },
+            "expected_output": "{\"data\":[{\"title\":\"Foo\",\"year\":1991}]}\n"
+        }
+    ]
+}

@@ -1,0 +1,25 @@
+{
+    "description": "Outgoing service dependency parsing. A request declares an outgoing dependency targeting another service by name, optionally with an internal-redirect flag and idle/request timeout strings (e.g. '10s'). The parser yields a service dependency carrying the service name, the redirect flag, and a timeout policy. When a timeout is omitted it falls back to a default duration. Output reports the dependency type, the service name, the redirect flag, and the effective idle and request timeouts in seconds.",
+    "cases": [
+        {
+            "input": {"op": "outgoing_dependency", "service": "my-service"},
+            "expected_output": "type=service\nservice=my-service\nhandleInternalRedirect=false\nidleTimeout=120s\nrequestTimeout=120s\n"
+        },
+        {
+            "input": {"op": "outgoing_dependency", "service": "service-1", "handleInternalRedirect": true},
+            "expected_output": "type=service\nservice=service-1\nhandleInternalRedirect=true\nidleTimeout=120s\nrequestTimeout=120s\n"
+        },
+        {
+            "input": {"op": "outgoing_dependency", "service": "service-1", "idleTimeout": "10s"},
+            "expected_output": "type=service\nservice=service-1\nhandleInternalRedirect=false\nidleTimeout=10s\nrequestTimeout=120s\n"
+        },
+        {
+            "input": {"op": "outgoing_dependency", "service": "service-1", "requestTimeout": "10s"},
+            "expected_output": "type=service\nservice=service-1\nhandleInternalRedirect=false\nidleTimeout=120s\nrequestTimeout=10s\n"
+        },
+        {
+            "input": {"op": "outgoing_dependency", "service": "service-1", "idleTimeout": "10s", "requestTimeout": "10s"},
+            "expected_output": "type=service\nservice=service-1\nhandleInternalRedirect=false\nidleTimeout=10s\nrequestTimeout=10s\n"
+        }
+    ]
+}

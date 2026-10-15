@@ -1,0 +1,33 @@
+{
+  "description": "Query-string construction. Parameters can contribute a single named query value, a per-element repeated value when the parameter is a list, a bare query name without a value, or a set of named values supplied as a map. Each role has an encoded variant that appends the value to the already-encoded query section. Map-valued query parameters must be maps keyed by string; other key or container types are rejected at generation time. The adapter prints the issued request's method, resolved URL and body kind, or a neutral error category.",
+  "cases": [
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "query", "key": "name", "name": "q1"}, {"kind": "query", "key": "user", "encoded": true, "name": "q2", "type": "Int"}], "args": ["bob", 5]},
+      "expected_output": "method=GET\nurl=http://localhost/posts?name=bob&user=5\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "query", "key": "user", "encoded": true, "name": "q", "type": "List<String>"}], "args": [["a", "b"]]},
+      "expected_output": "method=GET\nurl=http://localhost/posts?user=a&user=b\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "queryName", "name": "q1"}, {"kind": "queryName", "name": "q2"}], "args": ["red", "blue"]},
+      "expected_output": "method=GET\nurl=http://localhost/posts?red&blue\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "queryMap", "name": "m1", "type": "Map<String, String>"}, {"kind": "queryMap", "encoded": true, "name": "m2", "type": "Map<String, Int?>"}], "args": [{"a": "1"}, {"b": 2}]},
+      "expected_output": "method=GET\nurl=http://localhost/posts?a=1&b=2\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "query", "key": "name", "name": "q"}, {"kind": "queryName", "name": "qn"}, {"kind": "queryMap", "encoded": true, "name": "qm", "type": "Map<String, String>"}], "args": ["v1", "v2", {"k3": "v3"}]},
+      "expected_output": "method=GET\nurl=http://localhost/posts?name=v1&v2&k3=v3\nbody=none"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "queryMap", "name": "m", "type": "String"}], "args": ["x"]},
+      "expected_output": "error=query_map_must_be_map"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "queryMap", "name": "m", "type": "Map<Int, String>"}], "args": [{"1": "a"}]},
+      "expected_output": "error=query_map_keys_must_be_string"
+    }
+  ]
+}

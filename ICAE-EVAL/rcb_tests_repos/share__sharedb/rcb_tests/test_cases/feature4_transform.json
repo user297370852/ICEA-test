@@ -1,0 +1,351 @@
+{
+    "description": "Transform a pending operation so it can be applied after another operation that was already applied at the same base version, mutating the pending operation in place and advancing its version when it carries one. The outcome depends on the pair of intents on each side. A no-op pending operation is always left unchanged. Two edits are transformed against each other by the document type. Illegal combinations are rejected with normalized categories: a version disagreement between the two operations (version-mismatch); a pending create or edit against an applied delete (was-deleted); and a pending operation against an applied create or applied edit that implies the document already exists (already-created). A pending delete survives against an applied delete, edit, or no-op, and a pending operation that omits its version is transformed without a version being assigned.",
+    "cases": [
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "v": 5,
+                    "op": [
+                        {
+                            "p": [
+                                10
+                            ],
+                            "si": "hi"
+                        }
+                    ]
+                },
+                "appliedOp": {
+                    "v": 6,
+                    "op": [
+                        {
+                            "p": [
+                                5
+                            ],
+                            "si": "abcde"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=ERR_OP_VERSION_MISMATCH_DURING_TRANSFORM\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {
+                    "v": 10,
+                    "create": {
+                        "type": "json0"
+                    }
+                },
+                "appliedOp": {
+                    "v": 10,
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "error=ERR_DOC_ALREADY_CREATED\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {
+                    "create": {
+                        "type": "json0"
+                    }
+                },
+                "appliedOp": {
+                    "del": true
+                }
+            },
+            "expected_output": "error=ERR_DOC_WAS_DELETED\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {
+                    "v": 10,
+                    "create": {
+                        "type": "json0"
+                    }
+                },
+                "appliedOp": {
+                    "v": 10,
+                    "op": [
+                        15,
+                        "hi"
+                    ]
+                }
+            },
+            "expected_output": "error=ERR_DOC_ALREADY_CREATED\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {
+                    "create": {
+                        "type": "json0"
+                    },
+                    "v": 6
+                },
+                "appliedOp": {
+                    "v": 6
+                }
+            },
+            "expected_output": "result={\"create\":{\"type\":\"json0\"},\"v\":7}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {
+                    "del": true
+                },
+                "appliedOp": {
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "error=ERR_DOC_ALREADY_CREATED\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "del": true,
+                    "v": 6
+                },
+                "appliedOp": {
+                    "del": true,
+                    "v": 6
+                }
+            },
+            "expected_output": "result={\"del\":true,\"v\":7}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "del": true
+                },
+                "appliedOp": {
+                    "del": true,
+                    "v": 6
+                }
+            },
+            "expected_output": "result={\"del\":true}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "del": true,
+                    "v": 8
+                },
+                "appliedOp": {
+                    "op": [],
+                    "v": 8
+                }
+            },
+            "expected_output": "result={\"del\":true,\"v\":9}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "del": true
+                },
+                "appliedOp": {
+                    "op": [],
+                    "v": 8
+                }
+            },
+            "expected_output": "result={\"del\":true}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {
+                    "del": true,
+                    "v": 6
+                },
+                "appliedOp": {
+                    "v": 6
+                }
+            },
+            "expected_output": "result={\"del\":true,\"v\":7}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "v": 6,
+                    "op": [
+                        {
+                            "p": [
+                                10
+                            ],
+                            "si": "hi"
+                        }
+                    ]
+                },
+                "appliedOp": {
+                    "v": 6,
+                    "op": [
+                        {
+                            "p": [
+                                5
+                            ],
+                            "si": "abcde"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result={\"op\":[{\"p\":[15],\"si\":\"hi\"}],\"v\":7}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "op": [
+                        {
+                            "p": [
+                                10
+                            ],
+                            "si": "hi"
+                        }
+                    ]
+                },
+                "appliedOp": {
+                    "v": 6,
+                    "op": [
+                        {
+                            "p": [
+                                5
+                            ],
+                            "si": "abcde"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result={\"op\":[{\"p\":[15],\"si\":\"hi\"}]}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {
+                    "op": {}
+                },
+                "appliedOp": {
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "error=ERR_DOC_ALREADY_CREATED\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "v": 10,
+                    "op": []
+                },
+                "appliedOp": {
+                    "v": 10,
+                    "del": true
+                }
+            },
+            "expected_output": "error=ERR_DOC_WAS_DELETED\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {
+                    "v": 6,
+                    "op": [
+                        {
+                            "p": [
+                                10
+                            ],
+                            "si": "hi"
+                        }
+                    ]
+                },
+                "appliedOp": {
+                    "v": 6
+                }
+            },
+            "expected_output": "result={\"op\":[{\"p\":[10],\"si\":\"hi\"}],\"v\":7}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {},
+                "appliedOp": {
+                    "v": 6,
+                    "op": [
+                        {
+                            "p": [
+                                10
+                            ],
+                            "si": "hi"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result={}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": "json0",
+                "op": {},
+                "appliedOp": {
+                    "del": true
+                }
+            },
+            "expected_output": "result={}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {},
+                "appliedOp": {
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "result={}\n"
+        },
+        {
+            "input": {
+                "action": "transform",
+                "type": null,
+                "op": {},
+                "appliedOp": {}
+            },
+            "expected_output": "result={}\n"
+        }
+    ]
+}

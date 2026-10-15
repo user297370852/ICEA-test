@@ -1,0 +1,74 @@
+{
+  "description": "ENHANCED reverse-deserialization edge cases: an empty record yields an empty object; numeric zero, boolean false, and empty string scalars pass through unchanged; a top-level list of scalars is returned as-is; a deeply nested set (object within list within object) is flattened at depth; and a binary set value is surfaced as its member buffer list.",
+  "cases": [
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {}
+      },
+      "expected_output": "{}\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "count": 0,
+          "flag": false,
+          "label": ""
+        }
+      },
+      "expected_output": "{\"count\":0,\"flag\":false,\"label\":\"\"}\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "tags": [
+            "x",
+            "y",
+            "z"
+          ]
+        }
+      },
+      "expected_output": "{\"tags\":[\"x\",\"y\",\"z\"]}\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "outer": {
+            "items": [
+              {
+                "vals": {
+                  "__set__": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"outer\":{\"items\":[{\"vals\":[1,2]}]}}\n"
+    },
+    {
+      "input": {
+        "op": "deserialize_item",
+        "item": {
+          "blobs": {
+            "__set__": [
+              {
+                "__buffer__": "aGVsbG8="
+              },
+              {
+                "__buffer__": "d29ybGQ="
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"blobs\":[{\"B\":\"aGVsbG8=\"},{\"B\":\"d29ybGQ=\"}]}\n"
+    }
+  ]
+}

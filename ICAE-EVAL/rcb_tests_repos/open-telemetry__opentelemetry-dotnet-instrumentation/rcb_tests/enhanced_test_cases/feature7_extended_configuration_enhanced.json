@@ -1,0 +1,86 @@
+{
+  "description": "Extended configuration coverage for the remaining output lines: trace enable/startup/console toggles, enabled and disabled instrumentation lists, plugin list, additional activity sources, legacy sources, and unsupported instrumentation rejection.",
+  "cases": [
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_ENABLED": "false"
+        }
+      },
+      "expected_output": "trace_enabled=false\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_LOAD_AT_STARTUP": "false"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=false\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_CONSOLE_EXPORTER_ENABLED": "false"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=false\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_ENABLED_INSTRUMENTATIONS": "HttpClient"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=HttpClient\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_ENABLED_INSTRUMENTATIONS": "HttpClient,SqlClient,MongoDb"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=HttpClient,SqlClient,MongoDb\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_ENABLED_INSTRUMENTATIONS": "HttpClient,SqlClient",
+          "OTEL_DOTNET_AUTO_DISABLED_INSTRUMENTATIONS": "SqlClient"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=HttpClient\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_ENABLED_INSTRUMENTATIONS": "NotReal"
+        }
+      },
+      "expected_output": "error=unsupported_instrumentation\nvalue=NotReal\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_INSTRUMENTATION_PLUGINS": "My.Plugin.Type"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=My.Plugin.Type\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_ADDITIONAL_SOURCES": "My.Custom.Source"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source,My.Custom.Source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_DOTNET_AUTO_LEGACY_SOURCES": "LegacySourceA,LegacySourceB"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=LegacySourceA,LegacySourceB\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    }
+  ]
+}

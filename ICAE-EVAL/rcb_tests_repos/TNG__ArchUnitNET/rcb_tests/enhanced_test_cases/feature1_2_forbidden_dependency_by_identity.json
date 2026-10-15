@@ -1,0 +1,75 @@
+{
+  "description": "Boundary and logical-path coverage for the identity-predicate dependency constraint, where the forbidden set is phrased as 'types that are <named classes>' rather than passed directly. Behaviourally this constrains the same dependency relation as the direct-named form but emits the predicate-phrased rule sentence. These cases exercise multi-element scopes mixing a violating and a non-violating class, a scoped class that depends on a different target than the headline example, a passing pairing, and multiple forbidden targets at once. The engine renders the quoted predicate rule sentence with one tab-indented '<offending class> does depend on <forbidden class>' line per violation, or the single all-evaluations-passed line otherwise.",
+  "cases": [
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order",
+            "SampleApp.Domain.Customer"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types_matching",
+          "targets": [
+            "SampleApp.Infrastructure.Database"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Domain.Order\" or \"SampleApp.Domain.Customer\" should not depend on any types that are \"SampleApp.Infrastructure.Database\"\" failed:\n\tSampleApp.Domain.Order does depend on SampleApp.Infrastructure.Database\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Services.ReportService"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types_matching",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Services.ReportService\" should not depend on any types that are \"SampleApp.Data.Repository\"\" failed:\n\tSampleApp.Services.ReportService does depend on SampleApp.Data.Repository\n\n"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types_matching",
+          "targets": [
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "All Evaluations passed"
+    },
+    {
+      "input": {
+        "scope": {
+          "kind": "types",
+          "members": [
+            "SampleApp.Domain.Order"
+          ]
+        },
+        "constraint": {
+          "kind": "no_dependency_on_types_matching",
+          "targets": [
+            "SampleApp.Infrastructure.Database",
+            "SampleApp.Data.Repository"
+          ]
+        }
+      },
+      "expected_output": "\"Classes that are \"SampleApp.Domain.Order\" should not depend on any types that are \"SampleApp.Infrastructure.Database\" or \"SampleApp.Data.Repository\"\" failed:\n\tSampleApp.Domain.Order does depend on SampleApp.Infrastructure.Database\n\n"
+    }
+  ]
+}

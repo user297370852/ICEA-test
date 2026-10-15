@@ -1,0 +1,17 @@
+{
+    "description": "Delivery of values to a subscriber happens asynchronously, after the current synchronous turn completes. When the value is updated one or more times synchronously right after subscribing (within the same turn, before delivery begins), those intermediate updates collapse and the subscriber's first delivered value is the resulting latest value rather than the value present at the moment of subscription. The subscriber then observes completion when the container closes.",
+    "cases": [
+        {
+            "input": {"initial": 0, "steps": [{"op": "subscribe", "id": "a"}, {"op": "increase"}, {"op": "close"}]},
+            "expected_output": "subscriber=a values=[1] done=true\n"
+        },
+        {
+            "input": {"initial": 0, "steps": [{"op": "subscribe", "id": "a"}, {"op": "increase"}, {"op": "increase"}, {"op": "close"}]},
+            "expected_output": "subscriber=a values=[2] done=true\n"
+        },
+        {
+            "input": {"initial": 10, "steps": [{"op": "subscribe", "id": "a"}, {"op": "decrease"}, {"op": "close"}]},
+            "expected_output": "subscriber=a values=[9] done=true\n"
+        }
+    ]
+}

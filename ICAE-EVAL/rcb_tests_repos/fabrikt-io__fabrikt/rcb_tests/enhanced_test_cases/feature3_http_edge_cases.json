@@ -1,0 +1,58 @@
+{
+  "description": "Additional HTTP client and server edge cases for response classification, optional query omission, repeated query mapping, and route parameter handling.",
+  "cases": [
+    {
+      "input": {
+        "feature": "http_client_request_mapping",
+        "operation": "unknown_optional_default"
+      },
+      "expected_output": "result=success\nmethod=GET\nurl=/items?limit=50&category=electronics&priceLimit=99.99\n"
+    },
+    {
+      "input": {
+        "feature": "http_client_result_mapping",
+        "operation": "create_item",
+        "status": 500,
+        "body": "server exploded"
+      },
+      "expected_output": "result=failure\nerror=http\nstatus=500\ndescription=Server Error\nbody=server exploded\n"
+    },
+    {
+      "input": {
+        "feature": "http_client_result_mapping",
+        "operation": "create_item",
+        "status": 200,
+        "body": "not-json"
+      },
+      "expected_output": "result=failure\nerror=serialization\n"
+    },
+    {
+      "input": {
+        "feature": "http_server_routing",
+        "route_group": "contributors",
+        "request": {
+          "method": "GET",
+          "path": "/contributors",
+          "headers": {}
+        }
+      },
+      "expected_output": "status=200\nbody={\"prev\":null,\"next\":null,\"items\":[]}\nx_flow_id=null\nlimit=null\n"
+    },
+    {
+      "input": {
+        "feature": "http_server_routing",
+        "route_group": "contributors",
+        "request": {
+          "method": "POST",
+          "path": "/contributors",
+          "headers": {
+            "Content-Type": "application/json",
+            "X-Flow-Id": "flow-123"
+          },
+          "body": "{\"username\":\"second-user\",\"status\":\"inactive\"}"
+        }
+      },
+      "expected_output": "status=201\nbody=\nusername=second-user\nstatus=inactive\n"
+    }
+  ]
+}

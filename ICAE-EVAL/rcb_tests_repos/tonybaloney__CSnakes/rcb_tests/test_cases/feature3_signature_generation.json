@@ -1,0 +1,23 @@
+{
+    "description": "Generate a target-language instance method signature from a single Python function definition supplied as source text. The Python function name is converted to PascalCase to form the method name. The return annotation is mapped to the target type, with the special none-return annotation producing a void method. Each parameter is rendered as its mapped target type followed by its name converted to lower-camelCase; a parameter whose name collides with a reserved keyword of the target language is escaped with a leading at-sign. A variadic positional parameter is modeled as a one-arity value-tuple of the opaque dynamic object type and is always named with the conventional variadic name; a variadic keyword parameter is modeled as a read-only dictionary from string to the opaque dynamic object type. A bare keyword-only separator introduces the same variadic-positional placeholder. Parameter default values are rendered idiomatically: integers and floats as numeric literals, booleans as the target boolean literals, the none constant as the target null literal, and hexadecimal / binary integer literals preserved in their original base. Output is the rendered signature (return type, a space, method name, then the parenthesized parameter list with a space after each comma) followed by a trailing newline.",
+    "cases": [
+        {"input": {"action": "generate_signature", "source": "def hello_world():\n    ...\n"}, "expected_output": "PyObject HelloWorld()\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world() -> None:\n    ...\n"}, "expected_output": "void HelloWorld()\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(name): \n    ...\n"}, "expected_output": "PyObject HelloWorld(PyObject name)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(new): \n    ...\n"}, "expected_output": "PyObject HelloWorld(PyObject @new)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(name: str) -> str:\n    ...\n"}, "expected_output": "string HelloWorld(string name)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(name: str) -> float:\n    ...\n"}, "expected_output": "double HelloWorld(string name)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(name: str) -> int:\n    ...\n"}, "expected_output": "long HelloWorld(string name)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(name: str, age: int) -> str:\n    ...\n"}, "expected_output": "string HelloWorld(string name, long age)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(numbers: list[float]) -> list[int]:\n    ...\n"}, "expected_output": "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(numbers: List[float]) -> List[int]:\n    ...\n"}, "expected_output": "IEnumerable<long> HelloWorld(IEnumerable<double> numbers)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(a: bool, b: str, c: list[tuple[int, float]]) -> bool: \n ...\n"}, "expected_output": "bool HelloWorld(bool a, string b, IEnumerable<(long, double)> c)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(a: bool = True, b: str = None) -> bool: \n ...\n"}, "expected_output": "bool HelloWorld(bool a = true, string b = null)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(a: str, *args) -> None: \n ...\n"}, "expected_output": "void HelloWorld(string a, ValueTuple<PyObject> args)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(a: str, *, b: int) -> None: \n ...\n"}, "expected_output": "void HelloWorld(string a, ValueTuple<PyObject> args, long b)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(a: str, *, b: int = 3) -> None: \n ...\n"}, "expected_output": "void HelloWorld(string a, ValueTuple<PyObject> args, long b = 3)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello_world(a: str, *args, **kwargs) -> None: \n ...\n"}, "expected_output": "void HelloWorld(string a, ValueTuple<PyObject> args, IReadOnlyDictionary<string, PyObject> kwargs)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello(a: int = 0xdeadbeef) -> None:\n ...\n"}, "expected_output": "void Hello(long a = 0xDEADBEEF)\n"},
+        {"input": {"action": "generate_signature", "source": "def hello(a: int = 0b10101010) -> None:\n ...\n"}, "expected_output": "void Hello(long a = 0b10101010)\n"}
+    ]
+}

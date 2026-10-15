@@ -1,0 +1,66 @@
+{
+  "description": "Enhanced publish-failure coverage for batch sends: when the client rejects a multi-topic batch, every span created for the batch is marked error with the client failure reason, the batch action line reports the neutral failure category, and each outgoing message still carries its injected span context.",
+  "cases": [
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce_batch",
+            "topicMessages": [
+              {
+                "topic": "topic-a",
+                "messages": [
+                  {
+                    "value": "a1"
+                  },
+                  {
+                    "value": "a2"
+                  }
+                ]
+              },
+              {
+                "topic": "topic-b",
+                "messages": [
+                  {
+                    "value": "b1"
+                  }
+                ]
+              }
+            ],
+            "clientResponse": {
+              "status": "error",
+              "message": "batch send rejected by broker"
+            }
+          }
+        ]
+      },
+      "expected_output": "produce_batch status=error error=client_send_failure\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\ninject msg=2 carries=span#2\nspans=3\nspan 0 kind=producer name=topic-a trace=t0 parent=root status=error\n  status_message=batch send rejected by broker\n  messaging.system=kafka\n  messaging.destination=topic-a\n  messaging.destination_kind=topic\nspan 1 kind=producer name=topic-a trace=t1 parent=root status=error\n  status_message=batch send rejected by broker\n  messaging.system=kafka\n  messaging.destination=topic-a\n  messaging.destination_kind=topic\nspan 2 kind=producer name=topic-b trace=t2 parent=root status=error\n  status_message=batch send rejected by broker\n  messaging.system=kafka\n  messaging.destination=topic-b\n  messaging.destination_kind=topic\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce_batch",
+            "topicMessages": [
+              {
+                "topic": "solo",
+                "messages": [
+                  {
+                    "value": "only"
+                  }
+                ]
+              }
+            ],
+            "clientResponse": {
+              "status": "error",
+              "message": "single batch failure"
+            }
+          }
+        ]
+      },
+      "expected_output": "produce_batch status=error error=client_send_failure\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=solo trace=t0 parent=root status=error\n  status_message=single batch failure\n  messaging.system=kafka\n  messaging.destination=solo\n  messaging.destination_kind=topic\n"
+    }
+  ]
+}

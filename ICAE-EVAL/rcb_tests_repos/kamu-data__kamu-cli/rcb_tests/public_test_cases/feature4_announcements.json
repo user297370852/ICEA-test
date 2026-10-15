@@ -1,0 +1,109 @@
+{
+  "description": "Publish an announcement with a valid attachment and list it; an announcement referencing a non-existent attachment is rejected.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "vitafast",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "9"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess { entry { ref } }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/foo.txt",
+              "content": "aGVsbG8gZm9v",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "public",
+              "description": "Plain text file (foo)",
+              "categories": [
+                "test-category"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2"
+              ],
+              "contentText": "hello foo",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            },
+            "emit": false,
+            "capture": {
+              "file1": [
+                "molecule",
+                "v2",
+                "project",
+                "dataRoom",
+                "uploadFile",
+                "entry",
+                "ref"
+              ]
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $headline: String!, $body: String!, $attachments: [DatasetID!], $moleculeAccessLevel: String!, $moleculeChangeBy: String!, $categories: [String!]!, $tags: [String!]!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { announcements {\n    create(headline: $headline, body: $body, attachments: $attachments, moleculeAccessLevel: $moleculeAccessLevel, moleculeChangeBy: $moleculeChangeBy, categories: $categories, tags: $tags) {\n      isSuccess\n      message\n      __typename\n      ... on CreateAnnouncementSuccess { announcementId }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "headline": "Test announcement 1",
+              "body": "Blah blah 1",
+              "attachments": [
+                "$file1"
+              ],
+              "moleculeAccessLevel": "holders",
+              "moleculeChangeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "categories": [
+                "test-category-1"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2"
+              ]
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $headline: String!, $body: String!, $attachments: [DatasetID!], $moleculeAccessLevel: String!, $moleculeChangeBy: String!, $categories: [String!]!, $tags: [String!]!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { announcements {\n    create(headline: $headline, body: $body, attachments: $attachments, moleculeAccessLevel: $moleculeAccessLevel, moleculeChangeBy: $moleculeChangeBy, categories: $categories, tags: $tags) {\n      isSuccess\n      message\n      __typename\n      ... on CreateAnnouncementSuccess { announcementId }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "headline": "Test announcement 2",
+              "body": "Blah blah 2",
+              "attachments": [
+                "$file1",
+                "did:odf:fed011ba79f25e520298ba6945dd6197083a366364bef178d5899b100c434748d88e5"
+              ],
+              "moleculeAccessLevel": "holders",
+              "moleculeChangeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "categories": [],
+              "tags": [
+                "test-tag1"
+              ]
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { announcements { tail {\n    totalCount\n    nodes { id headline body attachments accessLevel changeBy categories tags }\n  } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          }
+        ]
+      },
+      "expected_output": "--- operation 1 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"announcements\": {\n          \"create\": {\n            \"__typename\": \"CreateAnnouncementSuccess\",\n            \"announcementId\": \"<uuid-0>\",\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 2 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"announcements\": {\n          \"create\": {\n            \"__typename\": \"CreateAnnouncementErrorInvalidAttachment\",\n            \"isSuccess\": false,\n            \"message\": \"Not found attachment(s): [<did-4>]\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 3 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"announcements\": {\n          \"tail\": {\n            \"nodes\": [\n              {\n                \"accessLevel\": \"holders\",\n                \"attachments\": [\n                  \"<did-3>\"\n                ],\n                \"body\": \"Blah blah 1\",\n                \"categories\": [\n                  \"test-category-1\"\n                ],\n                \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                \"headline\": \"Test announcement 1\",\n                \"id\": \"<uuid-0>\",\n                \"tags\": [\n                  \"test-tag1\",\n                  \"test-tag2\"\n                ]\n              }\n            ],\n            \"totalCount\": 1\n          }\n        }\n      }\n    }\n  }\n}\n"
+    }
+  ]
+}

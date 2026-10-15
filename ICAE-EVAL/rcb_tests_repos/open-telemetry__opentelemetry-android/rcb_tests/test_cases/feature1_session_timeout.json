@@ -1,0 +1,21 @@
+{
+  "description": "Evaluate whether a mobile telemetry session has timed out after lifecycle changes, activity bumps, and elapsed time advances.",
+  "cases": [
+    {
+      "input": {"timeout_ms": 900000, "events": [{"op": "check"}, {"op": "bump"}, {"op": "advance", "ms": 14400000}, {"op": "check"}]},
+      "expected_output": "timed_out=false\ntimed_out=false\n"
+    },
+    {
+      "input": {"timeout_ms": 900000, "events": [{"op": "background"}, {"op": "bump"}, {"op": "check"}, {"op": "bump"}, {"op": "advance", "ms": 899000}, {"op": "check"}, {"op": "bump"}, {"op": "advance", "ms": 60000}, {"op": "check"}, {"op": "bump"}, {"op": "advance", "ms": 900000}, {"op": "check"}, {"op": "bump"}, {"op": "check"}]},
+      "expected_output": "timed_out=false\ntimed_out=false\ntimed_out=false\ntimed_out=true\ntimed_out=false\n"
+    },
+    {
+      "input": {"timeout_ms": 900000, "events": [{"op": "background"}, {"op": "bump"}, {"op": "foreground"}, {"op": "advance", "ms": 1200000}, {"op": "check"}, {"op": "bump"}, {"op": "advance", "ms": 14400000}, {"op": "check"}]},
+      "expected_output": "timed_out=true\ntimed_out=false\n"
+    },
+    {
+      "input": {"timeout_ms": 0, "events": [{"op": "background"}, {"op": "bump"}, {"op": "foreground"}, {"op": "advance", "ms": 360000}, {"op": "check"}, {"op": "bump"}, {"op": "advance", "ms": 14400000}, {"op": "check"}]},
+      "expected_output": "timed_out=true\ntimed_out=false\n"
+    }
+  ]
+}

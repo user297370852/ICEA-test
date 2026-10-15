@@ -1,0 +1,49 @@
+{
+    "description": "Lifecycle hooks influence the release. The release pipeline runs user-provided hook scripts at defined points. A pre-bump hook that prints a version string causes that string to be used as the release version, overriding the normal recommendation. A pre-commit hook that prints text supplies an alternate release commit message. Input describes a release run that registers such a hook (the hook body is provided as the script source); output reports the affected result — the resulting version for a pre-bump hook, or the recorded commit message for a pre-commit hook.",
+    "cases": [
+        {
+            "input": {
+                "kind": "release",
+                "packageVersion": "1.0.0",
+                "changelogSeed": "legacy header format<a name=1.0.0>\n",
+                "hooks": {
+                    "prebump": "console.log(\"9.9.9\")"
+                },
+                "ops": [
+                    {
+                        "commit": "feat: first commit"
+                    }
+                ],
+                "args": [
+                    "--patch"
+                ],
+                "report": [
+                    "version"
+                ]
+            },
+            "expected_output": "version=9.9.9\n"
+        },
+        {
+            "input": {
+                "kind": "release",
+                "packageVersion": "1.0.0",
+                "changelogSeed": "legacy header format<a name=1.0.0>\n",
+                "hooks": {
+                    "precommit": "console.log(\"releasing %s delivers #222\")"
+                },
+                "ops": [
+                    {
+                        "commit": "feat: first commit"
+                    }
+                ],
+                "args": [
+                    "--patch"
+                ],
+                "report": [
+                    "commit_message"
+                ]
+            },
+            "expected_output": "commit_message=releasing %s delivers #222\n"
+        }
+    ]
+}

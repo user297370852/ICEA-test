@@ -1,0 +1,119 @@
+{
+    "description": "Parse a view tree to identify username and password fill targets from fill hints, visible labels, HTML inputs, and nearby package or web origin clues.",
+    "cases": [
+        {
+            "input": {
+                "feature": "autofill_fields",
+                "activity_package": "caller.package",
+                "roots": [
+                    {
+                        "children": [
+                            {
+                                "id": "username",
+                                "autofill_hints": [
+                                    "username"
+                                ],
+                                "kind": "text_input"
+                            },
+                            {
+                                "id": "password",
+                                "autofill_hints": [
+                                    "password"
+                                ],
+                                "kind": "text_input"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "username_id=username\npassword_id=password\nweb_domain=\npackage_name=caller.package\n"
+        },
+        {
+            "input": {
+                "feature": "autofill_fields",
+                "activity_package": "caller.package",
+                "roots": [
+                    {
+                        "children": [
+                            {
+                                "id": "username_text",
+                                "autofill_hints": [
+                                    "username"
+                                ],
+                                "kind": "display_text"
+                            },
+                            {
+                                "id": "password_text",
+                                "autofill_hints": [
+                                    "password"
+                                ],
+                                "kind": "display_text"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "username_id=\npassword_id=\nweb_domain=\npackage_name=caller.package\n"
+        },
+        {
+            "input": {
+                "feature": "autofill_fields",
+                "activity_package": "caller.package",
+                "roots": [
+                    {
+                        "children": [
+                            {
+                                "id": "username_label",
+                                "text": "Email Address",
+                                "kind": "display_text"
+                            },
+                            {
+                                "id": "username",
+                                "kind": "text_input"
+                            },
+                            {
+                                "id": "password_label",
+                                "text": "Password",
+                                "kind": "display_text"
+                            },
+                            {
+                                "id": "password",
+                                "kind": "text_input"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "username_id=username\npassword_id=password\nweb_domain=\npackage_name=caller.package\n"
+        },
+        {
+            "input": {
+                "feature": "autofill_fields",
+                "activity_package": "caller.package",
+                "roots": [
+                    {
+                        "web_domain": "example.com",
+                        "package_name": "pkg.from.root",
+                        "children": [
+                            {
+                                "id": "user",
+                                "html_tag": "input",
+                                "html_attributes": [
+                                    "email"
+                                ]
+                            },
+                            {
+                                "id": "pass",
+                                "html_tag": "input",
+                                "html_attributes": [
+                                    "password"
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "username_id=user\npassword_id=pass\nweb_domain=example.com\npackage_name=pkg.from.root\n"
+        }
+    ]
+}

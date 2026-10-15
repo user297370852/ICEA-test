@@ -1,0 +1,29 @@
+{
+    "description": "Node-to-group assignment by declared dependencies. A connecting node declares its outgoing service dependencies and whether it uses the aggregated stream mode (ads true) or separate streams (ads false). The grouping logic assigns the node to an all-services group when it requests the wildcard dependency value, or when outgoing permissions are disabled (in which case all listed dependencies are retained), and otherwise to a listed-services group. The chosen communication mode is preserved. Even when the wildcard is present, every explicitly listed dependency is retained. Output reports the group type, mode, service name, the sorted retained service dependencies, and the incoming-section summary (permissions flag, endpoints, health-check, timeouts) which stays empty here because incoming settings are not enabled.",
+    "cases": [
+        {
+            "input": {"op": "node_group", "outgoingPermissions": true, "serviceDependencies": ["*", "a", "b", "c"], "ads": false},
+            "expected_output": "type=AllServicesGroup\nmode=XDS\nserviceName=\ndeps=[*,a,b,c]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        },
+        {
+            "input": {"op": "node_group", "outgoingPermissions": true},
+            "expected_output": "type=ServicesGroup\nmode=XDS\nserviceName=\ndeps=[]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        },
+        {
+            "input": {"op": "node_group", "outgoingPermissions": true, "serviceDependencies": ["a", "b", "c"], "ads": false},
+            "expected_output": "type=ServicesGroup\nmode=XDS\nserviceName=\ndeps=[a,b,c]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        },
+        {
+            "input": {"op": "node_group", "outgoingPermissions": true, "serviceDependencies": ["*"], "ads": true},
+            "expected_output": "type=AllServicesGroup\nmode=ADS\nserviceName=\ndeps=[*]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        },
+        {
+            "input": {"op": "node_group", "outgoingPermissions": true, "serviceDependencies": ["a", "b", "c"], "ads": true},
+            "expected_output": "type=ServicesGroup\nmode=ADS\nserviceName=\ndeps=[a,b,c]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        },
+        {
+            "input": {"op": "node_group", "outgoingPermissions": false, "serviceDependencies": ["a", "b", "c"], "ads": true},
+            "expected_output": "type=AllServicesGroup\nmode=ADS\nserviceName=\ndeps=[a,b,c]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        }
+    ]
+}

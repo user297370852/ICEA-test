@@ -1,0 +1,38 @@
+{
+    "description": "Consume the next buffered event and assert it is a data item, returning its value. Covers the happy path (a value is emitted and read back), and the two failure paths where the next event is the stream's termination signal or its error signal instead of a data item; in those failure cases the assertion reports a neutral 'unexpected event' violation naming what was expected versus what was found.",
+    "cases": [
+        {
+            "input": {
+                "emissions": [
+                    "alpha"
+                ],
+                "terminal": "complete",
+                "ops": [
+                    "take_item",
+                    "stop_and_discard"
+                ]
+            },
+            "expected_output": "item=alpha\nignored\n"
+        },
+        {
+            "input": {
+                "emissions": [],
+                "terminal": "complete",
+                "ops": [
+                    "take_item"
+                ]
+            },
+            "expected_output": "error=unexpected_event\nexpected=item\nfound=complete\n"
+        },
+        {
+            "input": {
+                "terminal": "error",
+                "errorLabel": "boom",
+                "ops": [
+                    "take_item"
+                ]
+            },
+            "expected_output": "error=unexpected_event\nexpected=item\nfound=error:boom\n"
+        }
+    ]
+}

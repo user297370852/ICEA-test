@@ -1,0 +1,475 @@
+{
+    "description": "A scheduler scaling policy document is accepted only when required top-level fields, numeric bounds, query fields, duration strings, and nested block shapes are valid.",
+    "cases": [
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": "source",
+                    "query": "query",
+                    "evaluation_interval": "5s",
+                    "strategy": [
+                        {
+                            "name": "strategy",
+                            "config": [
+                                {
+                                    "key": "value"
+                                }
+                            ]
+                        }
+                    ],
+                    "target": [
+                        {
+                            "name": "target",
+                            "config": [
+                                {
+                                    "key": "value"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                },
+                "enabled": true,
+                "namespace": "default"
+            },
+            "expected_output": "validation=accepted\nid=id\nmin=1\nmax=5\nquery=query\nstrategy=strategy\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "validation=accepted\nid=id\nmin=1\nmax=5\nquery=query\nstrategy=strategy\n"
+        },
+        {
+            "input": null,
+            "expected_output": "error=policy_missing\n"
+        },
+        {
+            "input": {},
+            "expected_output": "error=id_missing\nerror=min_missing\nerror=target_missing\nerror=policy_missing\n"
+        },
+        {
+            "input": {
+                "id": "",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=id_missing\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=target_missing\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "target": {
+                    "key": "value"
+                },
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=min_missing\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": -1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=min_negative\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": -5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=min_exceeds_max\nerror=max_negative\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 2,
+                "max": 1,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=min_exceeds_max\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "target": {
+                    "key": "value"
+                },
+                "min": 1,
+                "max": 5
+            },
+            "expected_output": "error=policy_missing\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": 2,
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=source_type\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": "source",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=query_missing\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": "source",
+                    "query": 5,
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=query_type\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": "source",
+                    "query": "",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=query_empty\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": "source",
+                    "query": "query",
+                    "evaluation_interval": 5,
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=evaluation_interval_type\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": "source",
+                    "query": "query",
+                    "evaluation_interval": "5 seconds",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=evaluation_interval_format\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "source": "source",
+                    "query": "query"
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=strategy_block_type\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {}
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=strategy_name_missing\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": 2
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=strategy_name_type\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": ""
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=strategy_name_empty\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy",
+                            "config": "not a block"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=strategy_config_block_type\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "name": 2
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=target_name_type\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "name": ""
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=target_name_empty\n"
+        },
+        {
+            "input": {
+                "id": "id",
+                "min": 1,
+                "max": 5,
+                "policy": {
+                    "query": "query",
+                    "strategy": [
+                        {
+                            "name": "strategy"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "name": "strategy",
+                            "config": "not a block"
+                        }
+                    ]
+                },
+                "target": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "error=target_config_block_type\n"
+        }
+    ]
+}

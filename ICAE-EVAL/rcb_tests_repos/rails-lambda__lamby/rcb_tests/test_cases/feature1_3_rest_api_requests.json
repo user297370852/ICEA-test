@@ -1,0 +1,69 @@
+{
+    "description": "REST API proxy events are translated into web requests and returned as gateway-compatible response fields for normal pages, HEAD requests, multiple cookies, binary image bodies, public static files, redirects, application errors, and login session follow-up.",
+    "cases": [
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "root"
+            },
+            "expected_output": "status=200\ncontent_type=text/html; charset=utf-8\ncache_control=max-age=0, private, must-revalidate\nbody_has_hello=true\nlogged_in=false\nbody_has_error_page=false\nbody_has_public_500=false\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "head"
+            },
+            "expected_output": "status=200\ncontent_type=text/html; charset=utf-8\ncache_control=max-age=0, private, must-revalidate\nbody_has_hello=false\nbody_has_error_page=false\nbody_has_public_500=false\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "cookies"
+            },
+            "expected_output": "status=200\ncontent_type=text/html; charset=utf-8\ncache_control=max-age=0, private, must-revalidate\nset_cookie_multi=1=1; path=/|2=2; path=/\nbody_has_hello=true\nlogged_in=false\nbody_has_error_page=false\nbody_has_public_500=false\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "image"
+            },
+            "expected_output": "status=200\ncontent_type=image/png\ncache_control=private\nbase64_encoded=true\nbody_has_hello=false\nbody_has_error_page=false\nbody_has_public_500=false\nbody_sha256=93ae7d494fad0fb30cbf3ae746a39c4bc7a0f8bbf87fbb587a3f3c01f3c5ce20\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "public_image"
+            },
+            "expected_output": "status=200\ncontent_type=image/png\ncache_control=public, max-age=2592000\nbase64_encoded=true\nbody_has_hello=false\nbody_has_error_page=false\nbody_has_public_500=false\nbody_sha256=93ae7d494fad0fb30cbf3ae746a39c4bc7a0f8bbf87fbb587a3f3c01f3c5ce20\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "redirect"
+            },
+            "expected_output": "status=301\nlocation=https://myawesomelambda.example.com/\ncontent_type=text/html\ncache_control=no-cache\nbody_has_hello=false\nbody_has_error_page=false\nbody_has_public_500=false\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "exception"
+            },
+            "expected_output": "status=500\ncontent_type=text/html; charset=UTF-8\nbody_has_hello=false\nbody_has_error_page=true\nbody_has_public_500=true\n"
+        },
+        {
+            "input": {
+                "action": "gateway_request",
+                "gateway": "rest",
+                "scenario": "login"
+            },
+            "expected_output": "status=302\nlocation=https://myawesomelambda.example.com/\ncontent_type=text/html; charset=utf-8\ncache_control=no-cache\nsession_cookie_present=true\nbody_has_hello=false\nbody_has_error_page=false\nbody_has_public_500=false\nfollowup_status=200\nfollowup_logged_in=true\n"
+        }
+    ]
+}

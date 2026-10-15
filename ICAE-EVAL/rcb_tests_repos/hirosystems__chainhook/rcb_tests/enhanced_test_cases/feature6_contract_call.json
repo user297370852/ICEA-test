@@ -1,0 +1,200 @@
+{
+  "description": "Evaluate a contract-call predicate against a sequence of blocks under boundary and edge conditions, including selection across multiple blocks, deployments that share the target contract identifier but cannot match a call predicate, empty-string contract identifiers and method names, several calls within a single block where only some match, and case-sensitive method comparison. The report states whether any block was selected, how many blocks were selected, and the identifiers of the matched transactions.",
+  "cases": [
+    {
+      "input": {
+        "predicate": {
+          "scope": "contract_call",
+          "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+          "method": "commit-block"
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xc1",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+                  "method": "commit-block"
+                }
+              }
+            ]
+          },
+          {
+            "transactions": [
+              {
+                "txid": "0xc2",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+                  "method": "commit-block"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=2\nmatched_transactions=0xc1,0xc2\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "contract_call",
+          "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+          "method": "commit-block"
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0x93c89ffdac77ed2ba52611563bd491f56f5d558e23d311a105663ae32bdf18e5",
+                "kind": {
+                  "type": "contract_deployment",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "contract_call",
+          "contract_identifier": "",
+          "method": ""
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xc1",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "",
+                  "method": ""
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xc1\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "contract_call",
+          "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+          "method": ""
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xc1",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+                  "method": ""
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xc1\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "contract_call",
+          "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+          "method": "commit-block"
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xc1",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+                  "method": "commit-block"
+                }
+              },
+              {
+                "txid": "0xc2",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+                  "method": "other-method"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xc1\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "contract_call",
+          "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+          "method": "Commit-Block"
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xc1",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+                  "method": "commit-block"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "contract_call",
+          "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+          "method": "commit-block"
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xc1",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "SP000000000000000000002Q6VF78.pox",
+                  "method": "commit-block"
+                }
+              },
+              {
+                "txid": "0xc2",
+                "kind": {
+                  "type": "contract_call",
+                  "contract_identifier": "ST13F481SBR0R7Z6NMMH8YV2FJJYXA5JPA0AD3HP9.subnet-v1",
+                  "method": "commit-block"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xc2\n"
+    }
+  ]
+}

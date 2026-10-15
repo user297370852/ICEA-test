@@ -1,0 +1,39 @@
+{
+  "description": "Traverse an arbitrary JSON value depth-first in a reduce-like manner, invoking a callback once per node (the root first, then descending into array elements and object entries in source order). For each visited node the callback receives the threaded state and an item describing the node: its key relative to its parent (absent for the root), its path from the root as an array of keys, its kind (string, number, boolean, null, array, or object), and the node value itself. The callback returns a new state that is passed only to that node direct children, so sibling branches each observe the same parent-contributed state independently. The number of callback invocations equals the total number of nodes (collections plus all nested leaves). Here the harness callback returns each node path as the state handed to its children, making the threading observable.",
+  "cases": [
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": "Hello, World!",
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"string\",\"node\":\"Hello, World!\"}\ncount=1\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": [
+          "John",
+          "Paul",
+          "George",
+          "Ringo"
+        ],
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"array\",\"node\":[\"John\",\"Paul\",\"George\",\"Ringo\"]}\n{\"state\":\"root\",\"key\":\"0\",\"path\":[\"0\"],\"type\":\"string\",\"node\":\"John\"}\n{\"state\":\"root\",\"key\":\"1\",\"path\":[\"1\"],\"type\":\"string\",\"node\":\"Paul\"}\n{\"state\":\"root\",\"key\":\"2\",\"path\":[\"2\"],\"type\":\"string\",\"node\":\"George\"}\n{\"state\":\"root\",\"key\":\"3\",\"path\":[\"3\"],\"type\":\"string\",\"node\":\"Ringo\"}\ncount=5\n"
+    },
+    {
+      "input": {
+        "op": "traverse_tree",
+        "tree": {
+          "John": "Lennon",
+          "Paul": "McCartney",
+          "George": "Harrison",
+          "Ringo": "Starr"
+        },
+        "initialState": null
+      },
+      "expected_output": "{\"state\":null,\"key\":null,\"path\":[],\"type\":\"object\",\"node\":{\"John\":\"Lennon\",\"Paul\":\"McCartney\",\"George\":\"Harrison\",\"Ringo\":\"Starr\"}}\n{\"state\":\"root\",\"key\":\"John\",\"path\":[\"John\"],\"type\":\"string\",\"node\":\"Lennon\"}\n{\"state\":\"root\",\"key\":\"Paul\",\"path\":[\"Paul\"],\"type\":\"string\",\"node\":\"McCartney\"}\n{\"state\":\"root\",\"key\":\"George\",\"path\":[\"George\"],\"type\":\"string\",\"node\":\"Harrison\"}\n{\"state\":\"root\",\"key\":\"Ringo\",\"path\":[\"Ringo\"],\"type\":\"string\",\"node\":\"Starr\"}\ncount=5\n"
+    }
+  ]
+}

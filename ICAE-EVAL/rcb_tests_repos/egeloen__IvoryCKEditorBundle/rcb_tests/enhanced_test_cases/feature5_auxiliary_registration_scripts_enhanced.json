@@ -1,0 +1,68 @@
+{
+  "description": "Enhanced auxiliary script cases covering unmapped plugin paths with query strings, multi-style style sets, and Twig-rendered templates with image path asset normalization.",
+  "cases": [
+    {
+      "input": {
+        "action": "plugin_script",
+        "assets": {},
+        "name": "codesnippet",
+        "plugin": {
+          "path": "/plugins/codesnippet/?v=99",
+          "filename": "plugin.js?v=99"
+        }
+      },
+      "expected_output": "CKEDITOR.plugins.addExternal(\"codesnippet\", \"/plugins/codesnippet/\", \"plugin.js?v=99\");\n"
+    },
+    {
+      "input": {
+        "action": "styles_script",
+        "name": "rich",
+        "styles": [
+          {
+            "name": "Lead",
+            "element": "p",
+            "attributes": {
+              "class": "lead"
+            }
+          },
+          {
+            "name": "Red Span",
+            "element": "span",
+            "styles": {
+              "color": "red",
+              "font-weight": "bold"
+            }
+          }
+        ]
+      },
+      "expected_output": "if (CKEDITOR.stylesSet.get(\"rich\") === null) { CKEDITOR.stylesSet.add(\"rich\", [{\"name\":\"Lead\",\"element\":\"p\",\"attributes\":{\"class\":\"lead\"}},{\"name\":\"Red Span\",\"element\":\"span\",\"styles\":{\"color\":\"red\",\"font-weight\":\"bold\"}}]); }\n"
+    },
+    {
+      "input": {
+        "action": "template_script",
+        "assets": {
+          "img/templates/": "/cdn/templates/?hash=abc"
+        },
+        "template_responses": {
+          "hero.html": "<section><h1>Hero</h1></section>"
+        },
+        "name": "landing",
+        "template_set": {
+          "imagesPath": "img/templates/",
+          "templates": [
+            {
+              "title": "Hero",
+              "template": "hero.html"
+            },
+            {
+              "title": "Inline",
+              "image": "inline.png",
+              "html": "<div>Inline</div>"
+            }
+          ]
+        }
+      },
+      "expected_output": "CKEDITOR.addTemplates(\"landing\", {\"imagesPath\":\"\\/cdn\\/templates\\/\",\"templates\":[{\"title\":\"Hero\",\"html\":\"<section><h1>Hero<\\/h1><\\/section>\"},{\"title\":\"Inline\",\"image\":\"inline.png\",\"html\":\"<div>Inline<\\/div>\"}]});\n"
+    }
+  ]
+}

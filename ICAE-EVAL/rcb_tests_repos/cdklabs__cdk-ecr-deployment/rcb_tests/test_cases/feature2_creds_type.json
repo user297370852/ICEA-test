@@ -1,0 +1,25 @@
+{
+    "description": "Classify a credential string into one of three domain categories used to decide how the credential should later be resolved. A value that begins with the well-known cloud resource-name prefix is classified as a stored-secret ARN reference. Otherwise, a value that contains a colon is classified as inline secret text (a literal username/password style value). Any remaining value, including the empty string, is classified as a stored-secret name. The output reports the category label.",
+    "cases": [
+        {
+            "input": {"op": "creds_type", "creds": "arn:aws:secretsmanager:us-west-2:00000:secret:fake-secret"},
+            "expected_output": "creds_type=SECRET_ARN\n"
+        },
+        {
+            "input": {"op": "creds_type", "creds": "arn:aws-cn:secretsmanager:cn-north-1:00000:secret:fake-secret"},
+            "expected_output": "creds_type=SECRET_ARN\n"
+        },
+        {
+            "input": {"op": "creds_type", "creds": "fake-secret"},
+            "expected_output": "creds_type=SECRET_NAME\n"
+        },
+        {
+            "input": {"op": "creds_type", "creds": "username:password"},
+            "expected_output": "creds_type=SECRET_TEXT\n"
+        },
+        {
+            "input": {"op": "creds_type", "creds": ""},
+            "expected_output": "creds_type=SECRET_NAME\n"
+        }
+    ]
+}

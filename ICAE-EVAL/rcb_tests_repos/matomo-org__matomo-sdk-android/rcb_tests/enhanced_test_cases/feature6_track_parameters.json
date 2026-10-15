@@ -1,0 +1,150 @@
+{
+  "description": "Tracking parameter mutation edge cases: empty string removes/ignores, sorted multi-parameter listing, boolean and numeric value stringification, set-then-null removal, try_set after set, and copy_from_base where current ops override copied values.",
+  "cases": [
+    {
+      "input": {
+        "feature": "track_parameters",
+        "operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": ""
+          }
+        ]
+      },
+      "expected_output": "param_count=0\n"
+    },
+    {
+      "input": {
+        "feature": "track_parameters",
+        "operations": [
+          {
+            "method": "set",
+            "param": "s",
+            "value": "30"
+          },
+          {
+            "method": "set",
+            "param": "h",
+            "value": "10"
+          },
+          {
+            "method": "set",
+            "param": "m",
+            "value": "45"
+          }
+        ]
+      },
+      "expected_output": "param_count=3\nh=10\nm=45\ns=30\n"
+    },
+    {
+      "input": {
+        "feature": "track_parameters",
+        "operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": true
+          }
+        ]
+      },
+      "expected_output": "param_count=1\nh=true\n"
+    },
+    {
+      "input": {
+        "feature": "track_parameters",
+        "operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": 0
+          }
+        ]
+      },
+      "expected_output": "param_count=1\nh=0\n"
+    },
+    {
+      "input": {
+        "feature": "track_parameters",
+        "operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": "10"
+          },
+          {
+            "method": "set",
+            "param": "h",
+            "value": null
+          }
+        ]
+      },
+      "expected_output": "param_count=0\n"
+    },
+    {
+      "input": {
+        "feature": "track_parameters",
+        "operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": "10"
+          },
+          {
+            "method": "try_set",
+            "param": "h",
+            "value": "99"
+          }
+        ]
+      },
+      "expected_output": "param_count=1\nh=10\n"
+    },
+    {
+      "input": {
+        "feature": "track_parameters",
+        "copy_from_base": true,
+        "base_operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": "10"
+          },
+          {
+            "method": "set",
+            "param": "m",
+            "value": "45"
+          }
+        ],
+        "operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": "23"
+          }
+        ]
+      },
+      "expected_output": "param_count=2\nh=23\nm=45\n"
+    },
+    {
+      "input": {
+        "feature": "track_parameters",
+        "copy_from_base": true,
+        "base_operations": [
+          {
+            "method": "set",
+            "param": "h",
+            "value": "10"
+          }
+        ],
+        "operations": [
+          {
+            "method": "try_set",
+            "param": "h",
+            "value": "23"
+          }
+        ]
+      },
+      "expected_output": "param_count=1\nh=10\n"
+    }
+  ]
+}

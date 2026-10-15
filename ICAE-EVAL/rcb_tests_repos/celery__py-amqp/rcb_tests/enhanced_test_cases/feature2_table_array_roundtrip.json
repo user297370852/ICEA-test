@@ -1,0 +1,198 @@
+{
+  "description": "Round-trip edge cases for composite values: an empty table and an empty array, signed-integer width boundaries that stay within 32-bit (2147483647 / -2147483648) versus promotion candidates, zero and negative decimals, a boolean false inside a table, unicode string values, and deeply nested table/array structures.",
+  "cases": [
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "F",
+        "values": [
+          {
+            "t": "table",
+            "v": {}
+          }
+        ]
+      },
+      "expected_output": "table:{}"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "A",
+        "values": [
+          {
+            "t": "array",
+            "v": []
+          }
+        ]
+      },
+      "expected_output": "array:[]"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "F",
+        "values": [
+          {
+            "t": "table",
+            "v": {
+              "max32": {
+                "t": "int",
+                "v": 2147483647
+              },
+              "min32": {
+                "t": "int",
+                "v": -2147483648
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "table:{max32=int:2147483647,min32=int:-2147483648}"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "A",
+        "values": [
+          {
+            "t": "array",
+            "v": [
+              {
+                "t": "decimal",
+                "v": "0"
+              },
+              {
+                "t": "decimal",
+                "v": "-0.01"
+              },
+              {
+                "t": "decimal",
+                "v": "123.456"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "array:[decimal:0,decimal:-0.01,decimal:123.456]"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "F",
+        "values": [
+          {
+            "t": "table",
+            "v": {
+              "yes": {
+                "t": "bool",
+                "v": true
+              },
+              "no": {
+                "t": "bool",
+                "v": false
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "table:{no=bool:false,yes=bool:true}"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "A",
+        "values": [
+          {
+            "t": "array",
+            "v": [
+              {
+                "t": "str",
+                "v": "café"
+              },
+              {
+                "t": "str",
+                "v": "你好"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "array:[str:café,str:你好]"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "F",
+        "values": [
+          {
+            "t": "table",
+            "v": {
+              "outer": {
+                "t": "table",
+                "v": {
+                  "inner": {
+                    "t": "array",
+                    "v": [
+                      {
+                        "t": "int",
+                        "v": 1
+                      },
+                      {
+                        "t": "table",
+                        "v": {
+                          "deep": {
+                            "t": "none"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "table:{outer=table:{inner=array:[int:1,table:{deep=none}]}}"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "A",
+        "values": [
+          {
+            "t": "array",
+            "v": [
+              {
+                "t": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "array:[none]"
+    },
+    {
+      "input": {
+        "op": "roundtrip",
+        "format": "A",
+        "values": [
+          {
+            "t": "array",
+            "v": [
+              {
+                "t": "int",
+                "v": -281474976710655
+              },
+              {
+                "t": "int",
+                "v": 281474976710655
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "array:[int:-281474976710655,int:281474976710655]"
+    }
+  ]
+}

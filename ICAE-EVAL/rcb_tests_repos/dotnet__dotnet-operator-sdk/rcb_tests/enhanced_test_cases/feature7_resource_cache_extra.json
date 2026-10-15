@@ -1,0 +1,75 @@
+{
+  "description": "Enhanced resource cache classification: identical resources and spec-only changes are not externally meaningful (Other), null-to-present status and empty-to-populated finalizers are meaningful transitions, and an empty-string uid lookup still normalizes to resource-not-found.",
+  "cases": [
+    {
+      "input": {
+        "command": "cache",
+        "action": "compare",
+        "first": {
+          "uid": "test"
+        },
+        "second": {
+          "uid": "test"
+        }
+      },
+      "expected_output": "comparison=Other\nuid=test\n"
+    },
+    {
+      "input": {
+        "command": "cache",
+        "action": "compare",
+        "first": {
+          "uid": "test",
+          "status": null
+        },
+        "second": {
+          "uid": "test",
+          "status": {
+            "text": "s"
+          }
+        }
+      },
+      "expected_output": "comparison=StatusModified\nuid=test\n"
+    },
+    {
+      "input": {
+        "command": "cache",
+        "action": "compare",
+        "first": {
+          "uid": "test",
+          "finalizers": []
+        },
+        "second": {
+          "uid": "test",
+          "finalizers": [
+            "f1"
+          ]
+        }
+      },
+      "expected_output": "comparison=FinalizersModified\nuid=test\n"
+    },
+    {
+      "input": {
+        "command": "cache",
+        "action": "compare",
+        "first": {
+          "uid": "test",
+          "spec": "a"
+        },
+        "second": {
+          "uid": "test",
+          "spec": "b"
+        }
+      },
+      "expected_output": "comparison=Other\nuid=test\n"
+    },
+    {
+      "input": {
+        "command": "cache",
+        "action": "get_missing",
+        "uid": ""
+      },
+      "expected_output": "error=resource_not_found\nuid=\n"
+    }
+  ]
+}

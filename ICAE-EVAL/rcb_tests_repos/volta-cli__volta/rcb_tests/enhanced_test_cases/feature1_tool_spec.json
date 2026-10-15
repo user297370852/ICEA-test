@@ -1,0 +1,194 @@
+{
+  "description": "Parse a single tool-and-version selector covering boundary inputs: the npm built-in tool across all version classifications, built-in tools carrying custom and floating tags, zero and large numeric versions, partial and operator/wildcard range expressions, and scoped and plain package names with exact, range, and tag suffixes. Output reports the resolved category, the package name when applicable, the version classification, and the normalized version string.",
+  "cases": [
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "npm"
+      },
+      "expected_output": "category=npm\nversion_spec=default\nversion=<default>\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "npm@4"
+      },
+      "expected_output": "category=npm\nversion_spec=range\nversion=>= 4.0.0 < 5.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "npm@4.5"
+      },
+      "expected_output": "category=npm\nversion_spec=range\nversion=>= 4.5.0 < 4.6.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "npm@4.5.6"
+      },
+      "expected_output": "category=npm\nversion_spec=exact\nversion=4.5.6\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "npm@latest"
+      },
+      "expected_output": "category=npm\nversion_spec=tag_latest\nversion=latest\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "npm@lts"
+      },
+      "expected_output": "category=npm\nversion_spec=tag_lts\nversion=lts\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "npm@next"
+      },
+      "expected_output": "category=npm\nversion_spec=tag_custom\nversion=next\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@beta"
+      },
+      "expected_output": "category=node\nversion_spec=tag_custom\nversion=beta\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@next"
+      },
+      "expected_output": "category=node\nversion_spec=tag_custom\nversion=next\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "yarn@lts"
+      },
+      "expected_output": "category=yarn\nversion_spec=tag_lts\nversion=lts\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "yarn@beta"
+      },
+      "expected_output": "category=yarn\nversion_spec=tag_custom\nversion=beta\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@0"
+      },
+      "expected_output": "category=node\nversion_spec=range\nversion=>= 0.0.0 < 1.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@0.0.0"
+      },
+      "expected_output": "category=node\nversion_spec=exact\nversion=0.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@1.0"
+      },
+      "expected_output": "category=node\nversion_spec=range\nversion=>= 1.0.0 < 1.1.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@10.20.30"
+      },
+      "expected_output": "category=node\nversion_spec=exact\nversion=10.20.30\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@999.0.0"
+      },
+      "expected_output": "category=node\nversion_spec=exact\nversion=999.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@^1.2.3"
+      },
+      "expected_output": "category=node\nversion_spec=range\nversion=>= 1.2.3 < 2.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@>=2"
+      },
+      "expected_output": "category=node\nversion_spec=range\nversion=>= 2.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@1.2.x"
+      },
+      "expected_output": "category=node\nversion_spec=range\nversion=>= 1.2.0 < 1.3.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "node@~1.2.3"
+      },
+      "expected_output": "category=node\nversion_spec=range\nversion=>= 1.2.3 < 1.3.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "@types/node@5.6.7"
+      },
+      "expected_output": "category=package\nname=@types/node\nversion_spec=exact\nversion=5.6.7\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "@babel/core@^7"
+      },
+      "expected_output": "category=package\nname=@babel/core\nversion_spec=range\nversion=>= 7.0.0 < 8.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "@scope/pkg@1.2.3"
+      },
+      "expected_output": "category=package\nname=@scope/pkg\nversion_spec=exact\nversion=1.2.3\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "@scope/pkg@next"
+      },
+      "expected_output": "category=package\nname=@scope/pkg\nversion_spec=tag_custom\nversion=next\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "express@3.4.5"
+      },
+      "expected_output": "category=package\nname=express\nversion_spec=exact\nversion=3.4.5\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "react@0.0.1"
+      },
+      "expected_output": "category=package\nname=react\nversion_spec=exact\nversion=0.0.1\n"
+    },
+    {
+      "input": {
+        "op": "tool_spec",
+        "spec": "lodash@2"
+      },
+      "expected_output": "category=package\nname=lodash\nversion_spec=range\nversion=>= 2.0.0 < 3.0.0\n"
+    }
+  ]
+}

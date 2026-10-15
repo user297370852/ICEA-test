@@ -1,0 +1,177 @@
+{
+  "description": "Enhanced element-wise add projections over double columns: exercises IEEE-754 rounding representation (0.1+0.2), overflow to infinity, signed-zero/cancellation, single-row batches, and large-magnitude fractional sums.",
+  "cases": [
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          },
+          {
+            "name": "b",
+            "type": "float64"
+          }
+        ],
+        "expression": {
+          "node": "function",
+          "name": "add",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "float64"
+        },
+        "result_type": "float64",
+        "columns": {
+          "a": [
+            0.1,
+            1e+308
+          ],
+          "b": [
+            0.2,
+            1e+308
+          ]
+        }
+      },
+      "expected_output": "op=project\nresult_type=float64\nlength=2\nvalues=[0.30000000000000004, inf]\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          },
+          {
+            "name": "b",
+            "type": "float64"
+          }
+        ],
+        "expression": {
+          "node": "function",
+          "name": "add",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "float64"
+        },
+        "result_type": "float64",
+        "columns": {
+          "a": [
+            -1.5,
+            -0.0,
+            2.5,
+            -100.25
+          ],
+          "b": [
+            1.5,
+            0.0,
+            -2.5,
+            0.25
+          ]
+        }
+      },
+      "expected_output": "op=project\nresult_type=float64\nlength=4\nvalues=[0.0, 0.0, 0.0, -100.0]\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          },
+          {
+            "name": "b",
+            "type": "float64"
+          }
+        ],
+        "expression": {
+          "node": "function",
+          "name": "add",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "float64"
+        },
+        "result_type": "float64",
+        "columns": {
+          "a": [
+            3.25
+          ],
+          "b": [
+            0.75
+          ]
+        }
+      },
+      "expected_output": "op=project\nresult_type=float64\nlength=1\nvalues=[4.0]\n"
+    },
+    {
+      "input": {
+        "operation": "project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          },
+          {
+            "name": "b",
+            "type": "float64"
+          }
+        ],
+        "expression": {
+          "node": "function",
+          "name": "add",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "float64"
+        },
+        "result_type": "float64",
+        "columns": {
+          "a": [
+            1000000.5,
+            -0.5,
+            123456789.0
+          ],
+          "b": [
+            0.5,
+            0.5,
+            0.25
+          ]
+        }
+      },
+      "expected_output": "op=project\nresult_type=float64\nlength=3\nvalues=[1000001.0, 0.0, 123456789.25]\n"
+    }
+  ]
+}

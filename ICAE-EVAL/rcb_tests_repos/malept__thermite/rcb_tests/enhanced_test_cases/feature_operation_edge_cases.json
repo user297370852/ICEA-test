@@ -1,0 +1,90 @@
+{
+  "description": "Additional native-disjoint operational edge cases covering empty command arguments, custom download query interpolation with client failure, latest release selection after skipping a non-matching tag, debug logging with embedded newline content, and archive round-trip of an empty file.",
+  "cases": [
+    {
+      "input": {
+        "command": "cargo",
+        "data": {
+          "selector": "invoke_tool_when_available",
+          "cargo_path": "/bin/cargo",
+          "args": []
+        }
+      },
+      "expected_output": "tool_found=true\ncommands_run=1\nshell=/bin/cargo \n"
+    },
+    {
+      "input": {
+        "command": "custom_binary",
+        "data": {
+          "options": {
+            "custom_download_template": "https://cdn.example/assets/%{filename}?v=%{version}"
+          },
+          "manifest": {
+            "package": {
+              "version": "1.0.0"
+            }
+          },
+          "tarball_filename": "artifact.tar.gz",
+          "http": [
+            {
+              "kind": "client_error"
+            }
+          ]
+        }
+      },
+      "expected_output": "downloaded=false\nhttp_get=https://cdn.example/assets/artifact.tar.gz?v=1.0.0\n"
+    },
+    {
+      "input": {
+        "command": "github_release_binary",
+        "data": {
+          "options": {
+            "release_downloads_enabled": true,
+            "release_selection": "latest",
+            "release_tag_pattern": "v(.*)-rust"
+          },
+          "manifest": {
+            "package": {
+              "version": "1.2.3",
+              "repository": "https://example.invalid/proj"
+            }
+          },
+          "tarball_filename": "asset.tgz",
+          "http": [
+            {
+              "kind": "text",
+              "body": "<?xml version=\"1.0\"?><feed><entry><title>ignore-me</title></entry><entry><title>v2.0.0-rust</title></entry></feed>\n"
+            },
+            {
+              "kind": "body",
+              "body": "tarball"
+            }
+          ]
+        }
+      },
+      "expected_output": "downloaded=true\nhttp_get=https://example.invalid/proj/releases.atom\nhttp_get=https://example.invalid/proj/releases/download/v2.0.0-rust/asset.tgz\ndebug=Unpacking GitHub release: asset.tgz\nunpack=called\n"
+    },
+    {
+      "input": {
+        "command": "debug_log",
+        "data": {
+          "enabled": true,
+          "message": "line one\nline two"
+        }
+      },
+      "expected_output": "debug_file=created\ndebug_content=line one\nline two\n"
+    },
+    {
+      "input": {
+        "command": "package_roundtrip",
+        "data": {
+          "file_name": "empty.bin",
+          "file_content": "",
+          "version": "0.0.1",
+          "tarball_name": "empty-0.0.1.tar.gz"
+        }
+      },
+      "expected_output": "tarball_created=true\nrestored_file=true\nrestored_content=\n"
+    }
+  ]
+}

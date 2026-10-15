@@ -1,0 +1,49 @@
+{
+    "description": "Build and mutate an ordered multimap of query parameters and observe it through its count, membership tests, single and multi-value lookups, and serialized form. Appending adds a new pair preserving insertion order and allowing duplicate keys; setting collapses all pairs for a key to a single value (in the key's existing position when present); removing deletes either all pairs for a key or only the pairs matching a key and value. The collection can also be built directly from a query string, where an optional leading question mark is ignored and a key with no value is treated as having an empty value.",
+    "cases": [
+        {
+            "input": {
+                "action": "search_params",
+                "steps": [
+                    {
+                        "op": "append",
+                        "key": "key",
+                        "value": "value"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "has",
+                        "key": "key"
+                    },
+                    {
+                        "op": "append",
+                        "key": "key",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "size"
+                    },
+                    {
+                        "op": "get_all",
+                        "key": "key"
+                    }
+                ]
+            },
+            "expected_output": "size=1\nhas=true\nsize=2\nget_all=2\nvalue\nvalue2\n"
+        },
+        {
+            "input": {
+                "action": "search_params",
+                "init": "?a=b",
+                "steps": [
+                    {
+                        "op": "to_string"
+                    }
+                ]
+            },
+            "expected_output": "to_string=a=b\n"
+        }
+    ]
+}

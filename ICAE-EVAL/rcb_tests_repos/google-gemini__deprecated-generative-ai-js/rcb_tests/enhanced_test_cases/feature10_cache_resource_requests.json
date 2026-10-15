@@ -1,0 +1,58 @@
+{
+  "description": "Additional cached content request cases for absolute expiration create/update flows, empty list parameters, already-normalized names, and bare-name deletes.",
+  "cases": [
+    {
+      "input": {
+        "operation": "create",
+        "content": {
+          "model": "gemini-1.5-flash",
+          "contents": [
+            {
+              "role": "user",
+              "parts": [
+                {
+                  "text": "cache me"
+                }
+              ]
+            }
+          ],
+          "expireTime": "2035-12-31T23:59:59.000Z"
+        }
+      },
+      "expected_output": "task=create\nmethod=POST\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents\nbody={\"contents\":[{\"parts\":[{\"text\":\"cache me\"}],\"role\":\"user\"}],\"expireTime\":\"2035-12-31T23:59:59.000Z\",\"model\":\"models/gemini-1.5-flash\"}\nresult={\"name\":\"cachedContents/hash1234\"}\n"
+    },
+    {
+      "input": {
+        "operation": "list",
+        "params": {}
+      },
+      "expected_output": "task=list\nmethod=GET\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents\nresult={\"cachedContents\":[{\"name\":\"cachedContents/hash1234\"}]}\n"
+    },
+    {
+      "input": {
+        "operation": "get",
+        "name": "cachedContents/hash1234"
+      },
+      "expected_output": "task=get\nmethod=GET\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents/hash1234\nresult={\"name\":\"cachedContents/hash1234\"}\n"
+    },
+    {
+      "input": {
+        "operation": "update",
+        "name": "hash1234",
+        "update": {
+          "cachedContent": {
+            "expireTime": "2035-01-01T00:00:00.000Z"
+          }
+        }
+      },
+      "expected_output": "task=update\nmethod=PATCH\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents/hash1234\nbody={\"expireTime\":\"2035-01-01T00:00:00.000Z\"}\nresult={\"name\":\"cachedContents/hash1234\"}\n"
+    },
+    {
+      "input": {
+        "operation": "delete",
+        "name": "hash1234"
+      },
+      "expected_output": "task=delete\nmethod=DELETE\nurl=https://generativelanguage.googleapis.com/v1beta/cachedContents/hash1234\nresult={}\n"
+    }
+  ]
+}

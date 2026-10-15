@@ -1,0 +1,89 @@
+{
+  "description": "Enhanced write batch cases for full set without merge, multi-operation ordering, update preconditions, transformed set values, and commit options.",
+  "cases": [
+    {
+      "input": {
+        "feature": "writes",
+        "database": "projects/example_project/databases/(default)",
+        "operations": [
+          {
+            "type": "set",
+            "document": "projects/example_project/databases/(default)/documents/users/alice",
+            "fields": {
+              "name": "Alice",
+              "age": 30,
+              "active": true
+            }
+          }
+        ]
+      },
+      "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/users/alice\",\n                            \"fields\": {\n                                \"name\": {\n                                    \"stringValue\": \"Alice\"\n                                },\n                                \"age\": {\n                                    \"integerValue\": 30\n                                },\n                                \"active\": {\n                                    \"booleanValue\": true\n                                }\n                            }\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+    },
+    {
+      "input": {
+        "feature": "writes",
+        "database": "projects/example_project/databases/(default)",
+        "operations": [
+          {
+            "type": "create",
+            "document": "projects/example_project/databases/(default)/documents/a/one",
+            "fields": {
+              "rank": 1
+            }
+          },
+          {
+            "type": "delete",
+            "document": "projects/example_project/databases/(default)/documents/a/two"
+          }
+        ]
+      },
+      "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"currentDocument\": {\n                            \"exists\": false\n                        },\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/a/one\",\n                            \"fields\": {\n                                \"rank\": {\n                                    \"integerValue\": 1\n                                }\n                            }\n                        }\n                    },\n                    {\n                        \"delete\": \"projects/example_project/databases/(default)/documents/a/two\"\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+    },
+    {
+      "input": {
+        "feature": "writes",
+        "database": "projects/example_project/databases/(default)",
+        "operations": [
+          {
+            "type": "set",
+            "document": "projects/example_project/databases/(default)/documents/a/b",
+            "fields": {
+              "name": "Ada",
+              "updatedAt": {
+                "kind": "server_timestamp"
+              }
+            },
+            "options": {
+              "merge": true
+            }
+          }
+        ]
+      },
+      "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"updateMask\": {\n                            \"fieldPaths\": [\n                                \"name\"\n                            ]\n                        },\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fields\": {\n                                \"name\": {\n                                    \"stringValue\": \"Ada\"\n                                }\n                            }\n                        }\n                    },\n                    {\n                        \"transform\": {\n                            \"document\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fieldTransforms\": [\n                                {\n                                    \"fieldPath\": \"updatedAt\",\n                                    \"setToServerValue\": 1\n                                }\n                            ]\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+    },
+    {
+      "input": {
+        "feature": "writes",
+        "database": "projects/example_project/databases/(default)",
+        "operations": [
+          {
+            "type": "update",
+            "document": "projects/example_project/databases/(default)/documents/a/b",
+            "data": [
+              {
+                "path": {
+                  "kind": "field_path",
+                  "segments": [
+                    "literal.dot"
+                  ]
+                },
+                "value": "kept"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"updateMask\": {\n                            \"fieldPaths\": [\n                                \"`literal.dot`\"\n                            ]\n                        },\n                        \"currentDocument\": {\n                            \"exists\": true\n                        },\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fields\": {\n                                \"literal.dot\": {\n                                    \"stringValue\": \"kept\"\n                                }\n                            }\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+    }
+  ]
+}

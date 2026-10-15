@@ -1,0 +1,30 @@
+{
+    "description": "Serialize a message's property set into the property-flags/property-list block of a content header and then parse it back. Each known property has a fixed slot and wire type (short strings for textual fields, octets for delivery mode and priority, an unsigned long for the timestamp, and a nested field table for application headers). Properties whose value is absent are not emitted and therefore do not reappear after parsing. The output reports the serialized block as hex followed by each recovered property (sorted by name) rendered with an explicit type tag.",
+    "cases": [
+        {
+            "input": {
+                "op": "properties",
+                "properties": {
+                    "content_type": "application/json",
+                    "content_encoding": "utf-8",
+                    "application_headers": {
+                        "foo": 1,
+                        "id": "id#1"
+                    },
+                    "delivery_mode": 1,
+                    "priority": 255,
+                    "correlation_id": "df31-142f-34fd-g42d",
+                    "reply_to": "cosmo",
+                    "expiration": "2015-12-23",
+                    "message_id": "3312",
+                    "timestamp": 3912491234,
+                    "type": "generic",
+                    "user_id": "george",
+                    "app_id": "vandelay",
+                    "cluster_id": "NYC"
+                }
+            },
+            "expected_output": "wire=fffc106170706c69636174696f6e2f6a736f6e057574662d380000001503666f6f490000000102696453000000046964233101ff13646633312d313432662d333466642d6734326405636f736d6f0a323031352d31322d3233043333313200000000e933e0e20767656e657269630667656f7267650876616e64656c6179034e5943\napp_id=str:vandelay\napplication_headers=table:{foo=int:1,id=str:id#1}\ncluster_id=str:NYC\ncontent_encoding=str:utf-8\ncontent_type=str:application/json\ncorrelation_id=str:df31-142f-34fd-g42d\ndelivery_mode=int:1\nexpiration=str:2015-12-23\nmessage_id=str:3312\npriority=int:255\nreply_to=str:cosmo\ntimestamp=int:3912491234\ntype=str:generic\nuser_id=str:george"
+        }
+    ]
+}

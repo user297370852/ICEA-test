@@ -1,0 +1,17 @@
+{
+    "description": "Detects a cyclic file='<path>' include chain while resolving a section and aborts instead of recursing forever. A value that, directly or transitively through nested includes, references a file that has already been visited on the current include path is rejected. The case wires two include files that reference each other and prints 'error=include_loop'.",
+    "cases": [
+        {
+            "input": {
+                "op": "resolve",
+                "section": "section_3",
+                "aux_files": {
+                    "incorrect_include.yaml": "\n---\nincluded_file: \"{{ file='incorrect_include2.yaml' }}\"\n",
+                    "incorrect_include2.yaml": "\n---\nincluded_file: \"{{ file='incorrect_include.yaml' }}\"\n"
+                },
+                "config": "common:\n  k8s_namespace: namespace\nsection_3:\n  var: \"{{ file='incorrect_include.yaml' }}\"\n  templates:\n    - template: template1.yaml.j2\n"
+            },
+            "expected_output": "error=include_loop\n"
+        }
+    ]
+}

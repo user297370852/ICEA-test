@@ -1,0 +1,93 @@
+{
+    "description": "Map upstream HTTP error responses to language-neutral error categories while preserving status and domain message signals.",
+    "cases": [
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 400,
+                "upstream_response": "bad_request"
+            },
+            "expected_output": "http_status=400\nerror=bad_request\ndetails={\n \"error\": {\n  \"errors\": [\n   {\n    \"domain\": \"calendar\",\n    \"reason\": \"timeRangeEmpty\",\n    \"message\": \"The specified time range is empty.\",\n    \"locationType\": \"parameter\",\n    \"location\": \"timeMax\",\n   }\n  ],\n  \"code\": 400,\n  \"message\": \"The specified time range is empty.\"\n }\n}\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 403,
+                "upstream_response": "forbidden"
+            },
+            "expected_output": "http_status=403\nerror=forbidden\ndetails=Forbidden\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 403,
+                "upstream_response": "unknown_forbidden"
+            },
+            "expected_output": "http_status=403\nerror=forbidden\ndetails=RandomError\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 403,
+                "upstream_response": "daily_limit"
+            },
+            "expected_output": "http_status=403\nerror=daily_limit_exceeded\ndetails=Daily Limit Exceeded\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 403,
+                "upstream_response": "rate_limit"
+            },
+            "expected_output": "http_status=403\nerror=rate_limit_exceeded\ndetails=Rate Limit Exceeded\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 403,
+                "upstream_response": "user_rate_limit"
+            },
+            "expected_output": "http_status=403\nerror=user_rate_limit_exceeded\ndetails=User Rate Limit Exceeded\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 403,
+                "upstream_response": "calendar_usage_limit"
+            },
+            "expected_output": "http_status=403\nerror=calendar_usage_limit_exceeded\ndetails=Calendar usage limits exceeded.\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 409,
+                "upstream_response": "identifier_conflict"
+            },
+            "expected_output": "http_status=409\nerror=requested_identifier_exists\ndetails=The requested identifier already exists.\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 410,
+                "upstream_response": "gone"
+            },
+            "expected_output": "http_status=410\nerror=gone\ndetails=Resource has been deleted\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 412,
+                "upstream_response": "precondition_failed"
+            },
+            "expected_output": "http_status=412\nerror=precondition_failed\ndetails={\n \"error\": {\n  \"errors\": [\n   {\n    \"domain\": \"global\",\n    \"reason\": \"conditionNotMet\",\n    \"message\": \"Precondition Failed\",\n    \"locationType\": \"header\",\n    \"location\": \"If-Match\",\n    }\n  ],\n  \"code\": 412,\n  \"message\": \"Precondition Failed\"\n }\n}\n"
+        },
+        {
+            "input": {
+                "task": "http_error_response",
+                "status": 500,
+                "upstream_response": "backend_error"
+            },
+            "expected_output": "http_status=500\nerror=backend_error\ndetails={\n \"error\": {\n  \"errors\": [\n   {\n    \"domain\": \"global\",\n    \"reason\": \"backendError\",\n    \"message\": \"Backend Error\",\n   }\n  ],\n  \"code\": 500,\n  \"message\": \"Backend Error\"\n }\n}\n"
+        }
+    ]
+}

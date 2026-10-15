@@ -1,0 +1,53 @@
+{
+    "description": "An optional consumer enrichment callback runs for each consumer span and may copy message data onto the span as a custom attribute; if the callback throws, the span is still created.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "consumerHook": {
+                        "action": "copy_value_to_attribute",
+                        "attribute": "attribute key from hook"
+                    }
+                },
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "resolve"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=ok error=none\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n  attribute key from hook=message content\n"
+        },
+        {
+            "input": {
+                "config": {
+                    "consumerHook": {
+                        "action": "throw",
+                        "message": "error thrown from consumer hook"
+                    }
+                },
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "resolve"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=ok error=none\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        }
+    ]
+}

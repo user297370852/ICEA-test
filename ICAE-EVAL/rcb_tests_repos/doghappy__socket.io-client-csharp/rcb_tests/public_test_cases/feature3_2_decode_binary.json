@@ -1,0 +1,73 @@
+{
+    "description": "Decode an inbound binary message that spans a leading text frame plus one or more raw attachment frames. The text frame declares the attachment count, optional namespace, optional acknowledgement id and the JSON payload (with binary placeholders). The message is only produced once all declared attachment frames have arrived; until then nothing is emitted.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "451-[\"1 params\",{\"_placeholder\":true,\"num\":0}]"
+                    },
+                    {
+                        "bytes": [
+                            0
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "type=binary_event\nevent=1 params\nattachment_count=1\ndata=[{\"_placeholder\":true,\"num\":0}]\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "451-/test,[\"1 params\",{\"_placeholder\":true,\"num\":0}]"
+                    },
+                    {
+                        "bytes": [
+                            0
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "type=binary_event\nevent=1 params\nnamespace=/test\nattachment_count=1\ndata=[{\"_placeholder\":true,\"num\":0}]\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "451-30[\"1 params\",{\"_placeholder\":true,\"num\":0}]"
+                    },
+                    {
+                        "bytes": [
+                            0
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "type=binary_event\nevent=1 params\nid=30\nattachment_count=1\ndata=[{\"_placeholder\":true,\"num\":0}]\n"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "eio": 4,
+                "frames": [
+                    {
+                        "text": "461-6[{\"_placeholder\":true,\"num\":0}]"
+                    },
+                    {
+                        "bytes": [
+                            0
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "type=binary_ack\nid=6\nattachment_count=1\ndata=[{\"_placeholder\":true,\"num\":0}]\n"
+        }
+    ]
+}

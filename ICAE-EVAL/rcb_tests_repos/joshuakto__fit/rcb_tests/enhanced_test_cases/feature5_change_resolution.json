@@ -1,0 +1,94 @@
+{
+  "description": "Additional change resolution cases for baseline-matching untracked files, protected deletions, and local/remote deletion clashes.",
+  "cases": [
+    {
+      "description": "An existing untracked file whose current hash matches baseline can safely receive the remote update.",
+      "input": {
+        "command": "state.resolve",
+        "localChanges": [],
+        "remoteChanges": [
+          {
+            "path": "untracked.md",
+            "type": "MODIFIED"
+          }
+        ],
+        "localScanPaths": [],
+        "protectedPaths": [],
+        "filesystemState": [
+          {
+            "path": "untracked.md",
+            "exists": true
+          }
+        ],
+        "baselineShas": {
+          "untracked.md": "abc"
+        },
+        "currentShas": [
+          {
+            "path": "untracked.md",
+            "sha": "abc"
+          }
+        ]
+      },
+      "expected_output": "checks=[{\"path\":\"untracked.md\",\"remoteOp\":\"MODIFIED\"}]\nsafe_local=[]\nsafe_remote=[{\"path\":\"untracked.md\",\"type\":\"MODIFIED\"}]\nclashes=[]\n"
+    },
+    {
+      "description": "A remote deletion targeting a protected path is reported as a protected clash.",
+      "input": {
+        "command": "state.resolve",
+        "localChanges": [],
+        "remoteChanges": [
+          {
+            "path": ".obsidian/workspace.json",
+            "type": "REMOVED"
+          }
+        ],
+        "localScanPaths": [],
+        "protectedPaths": [
+          ".obsidian/workspace.json"
+        ],
+        "filesystemState": [],
+        "baselineShas": {}
+      },
+      "expected_output": "checks=[]\nsafe_local=[]\nsafe_remote=[]\nclashes=[{\"localState\":\"protected\",\"path\":\".obsidian/workspace.json\",\"remoteOp\":\"REMOVED\"}]\n"
+    },
+    {
+      "description": "Opposite-side changes to the same file are classified as a direct clash while independent changes remain safe.",
+      "input": {
+        "command": "state.resolve",
+        "localChanges": [
+          {
+            "path": "same.md",
+            "type": "REMOVED"
+          },
+          {
+            "path": "local-only.md",
+            "type": "MODIFIED"
+          }
+        ],
+        "remoteChanges": [
+          {
+            "path": "same.md",
+            "type": "ADDED"
+          },
+          {
+            "path": "remote-only.md",
+            "type": "REMOVED"
+          }
+        ],
+        "localScanPaths": [
+          "local-only.md"
+        ],
+        "protectedPaths": [],
+        "filesystemState": [
+          {
+            "path": "remote-only.md",
+            "exists": false
+          }
+        ],
+        "baselineShas": {}
+      },
+      "expected_output": "checks=[{\"path\":\"same.md\",\"remoteOp\":\"ADDED\"},{\"path\":\"remote-only.md\",\"remoteOp\":\"REMOVED\"}]\nsafe_local=[{\"path\":\"local-only.md\",\"type\":\"MODIFIED\"}]\nsafe_remote=[{\"path\":\"remote-only.md\",\"type\":\"REMOVED\"}]\nclashes=[{\"localState\":\"REMOVED\",\"path\":\"same.md\",\"remoteOp\":\"ADDED\"}]\n"
+    }
+  ]
+}

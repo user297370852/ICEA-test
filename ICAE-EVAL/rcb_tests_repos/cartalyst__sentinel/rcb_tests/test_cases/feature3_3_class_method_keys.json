@@ -1,0 +1,17 @@
+{
+    "description": "Class-and-method permission keys. A key of the form Class@method1,method2 is expanded into one grant per comma-separated method (Class@method1, Class@method2) sharing the key's boolean value. Querying an individual Class@method resolves against the expanded grants. Also covers personal-key priority: an exact key match always wins over a wildcard pattern that would otherwise cover it, so an explicit denial on a concrete key holds even when a covering pattern is granted.",
+    "cases": [
+        {
+            "input": {"op": "permissions", "mode": "strict", "permissions": {"Class@method1,method2": true}, "queries": [{"all": ["Class@method1"]}, {"all": ["Class@method2"]}]},
+            "expected_output": "mode=strict\nall[Class@method1]=true\nall[Class@method2]=true\n"
+        },
+        {
+            "input": {"op": "permissions", "mode": "lenient", "permissions": {"Foo\\Bar\\Baz@add,view": true, "Foo\\Bar\\Baz@update,remove": false}, "queries": [{"all": ["Foo\\Bar\\Baz@add"]}, {"all": ["Foo\\Bar\\Baz@view"]}, {"all": ["Foo\\Bar\\Baz@update"]}, {"all": ["Foo\\Bar\\Baz@remove"]}]},
+            "expected_output": "mode=lenient\nall[Foo\\Bar\\Baz@add]=true\nall[Foo\\Bar\\Baz@view]=true\nall[Foo\\Bar\\Baz@update]=false\nall[Foo\\Bar\\Baz@remove]=false\n"
+        },
+        {
+            "input": {"op": "permissions", "mode": "lenient", "permissions": {"user.*": true, "user.delete": false}, "queries": [{"all": ["user.*"]}, {"all": ["user.test"]}, {"all": ["user.delete"]}]},
+            "expected_output": "mode=lenient\nall[user.*]=true\nall[user.test]=true\nall[user.delete]=false\n"
+        }
+    ]
+}

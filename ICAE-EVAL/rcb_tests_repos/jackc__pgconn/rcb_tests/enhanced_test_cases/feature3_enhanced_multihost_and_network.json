@@ -1,0 +1,28 @@
+{
+  "description": "Enhanced coverage for multi-host default ports and TCP versus socket network classification boundaries.",
+  "cases": [
+    {
+      "input": {
+        "operation": "parse_connection_settings",
+        "connection_string": "user=jack password=secret host=alpha,beta,gamma dbname=mydb sslmode=disable"
+      },
+      "expected_output": "status=ok\nhost=alpha\nport=5432\ndatabase=mydb\nuser=jack\npassword=secret\nconnect_timeout_seconds=0\ntls=disabled\nruntime_params={}\nvalidate_connect=false\nfallback.0.host=beta\nfallback.0.port=5432\nfallback.0.tls=disabled\nfallback.1.host=gamma\nfallback.1.port=5432\nfallback.1.tls=disabled\nfallback_count=2\n"
+    },
+    {
+      "input": {
+        "operation": "network_transport_for_host",
+        "host": "relative/socket",
+        "port": 5432
+      },
+      "expected_output": "network=tcp\n"
+    },
+    {
+      "input": {
+        "operation": "network_transport_for_host",
+        "host": "2001:db8::1",
+        "port": 5432
+      },
+      "expected_output": "network=tcp\n"
+    }
+  ]
+}

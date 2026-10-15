@@ -1,0 +1,49 @@
+{
+    "description": "Change the scheme of a parsed URL and observe the result. Switching between compatible schemes succeeds and re-serializes the URL under the new scheme; switching a scheme is rejected (reported as failure, leaving the URL unchanged) when the transition is not allowed for the current URL shape. When a scheme change brings the host's default port into effect, that port is dropped from the serialization.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://www.google.com",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "protocol",
+                        "value": "wss"
+                    },
+                    {
+                        "op": "get",
+                        "field": "protocol"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_protocol=true\nprotocol=wss:\nhref=wss://www.google.com/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://www.google.com:443",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "protocol",
+                        "value": "https"
+                    },
+                    {
+                        "op": "get",
+                        "field": "port"
+                    },
+                    {
+                        "op": "get",
+                        "field": "host"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_protocol=true\nport=\nhost=www.google.com\n"
+        }
+    ]
+}

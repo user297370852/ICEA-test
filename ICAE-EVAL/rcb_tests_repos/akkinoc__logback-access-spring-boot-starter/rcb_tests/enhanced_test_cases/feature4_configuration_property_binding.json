@@ -1,0 +1,86 @@
+{
+  "description": "Enhanced coverage for typed settings binding: tri-state boolean set to false, explicit values equal to defaults, individual nested-group overrides, and a maximal override across every field. The enumerated strategy is rendered lowercase; absent optional fields render as <null>.",
+  "cases": [
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.tomcat.request-attributes-enabled": "false"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=<null>\nlocal_port_strategy=server\ntomcat.request_attributes_enabled=false\nundertow.record_request_start_time=true\ntee_filter.enabled=false\ntee_filter.includes=<null>\ntee_filter.excludes=<null>"
+    },
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.config": "classpath:custom-logback-access.xml"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=classpath:custom-logback-access.xml\nlocal_port_strategy=server\ntomcat.request_attributes_enabled=<null>\nundertow.record_request_start_time=true\ntee_filter.enabled=false\ntee_filter.includes=<null>\ntee_filter.excludes=<null>"
+    },
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.tee-filter.includes": "example.com"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=<null>\nlocal_port_strategy=server\ntomcat.request_attributes_enabled=<null>\nundertow.record_request_start_time=true\ntee_filter.enabled=false\ntee_filter.includes=example.com\ntee_filter.excludes=<null>"
+    },
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.tee-filter.excludes": "localhost"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=<null>\nlocal_port_strategy=server\ntomcat.request_attributes_enabled=<null>\nundertow.record_request_start_time=true\ntee_filter.enabled=false\ntee_filter.includes=<null>\ntee_filter.excludes=localhost"
+    },
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.local-port-strategy": "server"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=<null>\nlocal_port_strategy=server\ntomcat.request_attributes_enabled=<null>\nundertow.record_request_start_time=true\ntee_filter.enabled=false\ntee_filter.includes=<null>\ntee_filter.excludes=<null>"
+    },
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.undertow.record-request-start-time": "true"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=<null>\nlocal_port_strategy=server\ntomcat.request_attributes_enabled=<null>\nundertow.record_request_start_time=true\ntee_filter.enabled=false\ntee_filter.includes=<null>\ntee_filter.excludes=<null>"
+    },
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.tee-filter.enabled": "true",
+          "logback.access.tee-filter.includes": "a.com",
+          "logback.access.tee-filter.excludes": "b.com"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=<null>\nlocal_port_strategy=server\ntomcat.request_attributes_enabled=<null>\nundertow.record_request_start_time=true\ntee_filter.enabled=true\ntee_filter.includes=a.com\ntee_filter.excludes=b.com"
+    },
+    {
+      "input": {
+        "mode": "bind",
+        "properties": {
+          "logback.access.enabled": "true",
+          "logback.access.config": "classpath:custom.xml",
+          "logback.access.local-port-strategy": "local",
+          "logback.access.tomcat.request-attributes-enabled": "true",
+          "logback.access.undertow.record-request-start-time": "false",
+          "logback.access.tee-filter.enabled": "true",
+          "logback.access.tee-filter.includes": "x.example",
+          "logback.access.tee-filter.excludes": "y.example"
+        }
+      },
+      "expected_output": "enabled=true\nconfig=classpath:custom.xml\nlocal_port_strategy=local\ntomcat.request_attributes_enabled=true\nundertow.record_request_start_time=false\ntee_filter.enabled=true\ntee_filter.includes=x.example\ntee_filter.excludes=y.example"
+    }
+  ]
+}

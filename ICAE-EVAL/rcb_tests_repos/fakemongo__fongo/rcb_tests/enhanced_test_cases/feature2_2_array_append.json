@@ -1,0 +1,77 @@
+{
+  "description": "An update engine appends to array fields with the push operator, covering boundary inputs: pushing onto an empty array, pushing an each-modifier with no elements, pushing several elements via the each-modifier to create an absent array, and pushing elements equal to existing ones. The resulting document is returned.",
+  "cases": [
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": []
+        },
+        "update": {
+          "$push": {
+            "a": 1
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : [ 1]}\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": [
+            1,
+            2
+          ]
+        },
+        "update": {
+          "$push": {
+            "a": {
+              "$each": []
+            }
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : [ 1 , 2]}\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {},
+        "update": {
+          "$push": {
+            "a": {
+              "$each": [
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : [ 1 , 2 , 3]}\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": [
+            5
+          ]
+        },
+        "update": {
+          "$push": {
+            "a": {
+              "$each": [
+                5,
+                5
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "{ \"a\" : [ 5 , 5 , 5]}\n"
+    }
+  ]
+}

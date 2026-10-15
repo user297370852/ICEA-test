@@ -1,0 +1,34 @@
+{
+    "description": "Guard applied before mutating a snapshot: when both the snapshot and the operation carry a version they must be equal, otherwise application is rejected with a normalized version-mismatch category. When either side omits its version the guard is skipped and the operation is applied normally, updating the document and advancing its version.",
+    "cases": [
+        {
+            "input": {
+                "action": "apply",
+                "snapshot": {
+                    "v": 0
+                },
+                "op": {
+                    "v": 1,
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "error=ERR_APPLY_OP_VERSION_DOES_NOT_MATCH_SNAPSHOT\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "snapshot": {
+                    "v": 5
+                },
+                "op": {
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "v=6\ntype=http://sharejs.org/types/JSONv0\ndata=null\n"
+        }
+    ]
+}

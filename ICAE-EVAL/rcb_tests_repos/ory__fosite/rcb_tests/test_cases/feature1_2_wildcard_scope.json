@@ -1,0 +1,173 @@
+{
+  "description": "Wildcard scope matching. Scopes are split on dots into segments; a granted pattern matches a request when it has no more segments than the request and every segment matches positionally, where a '*' segment matches exactly one non-empty request segment. A trailing pattern segment that is not '*' only matches when the segment counts are equal. The input names the strategy, the granted patterns, and the requested scopes; for each request the output reports whether it is allowed.",
+  "cases": [
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [],
+        "requests": [
+          "foo.bar.baz",
+          "foo.bar"
+        ]
+      },
+      "expected_output": "request=foo.bar.baz allowed=false\nrequest=foo.bar allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "*"
+        ],
+        "requests": [
+          "",
+          "asdf",
+          "asdf.asdf"
+        ]
+      },
+      "expected_output": "request= allowed=false\nrequest=asdf allowed=true\nrequest=asdf.asdf allowed=true\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "foo"
+        ],
+        "requests": [
+          "*",
+          "foo.*",
+          "fo*",
+          "foo"
+        ]
+      },
+      "expected_output": "request=* allowed=false\nrequest=foo.* allowed=false\nrequest=fo* allowed=false\nrequest=foo allowed=true\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "foo*"
+        ],
+        "requests": [
+          "foo",
+          "fooa",
+          "fo",
+          "foo*"
+        ]
+      },
+      "expected_output": "request=foo allowed=false\nrequest=fooa allowed=false\nrequest=fo allowed=false\nrequest=foo* allowed=true\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "foo.*"
+        ],
+        "requests": [
+          "foo.bar",
+          "foo.baz",
+          "foo.bar.baz",
+          "foo"
+        ]
+      },
+      "expected_output": "request=foo.bar allowed=true\nrequest=foo.baz allowed=true\nrequest=foo.bar.baz allowed=true\nrequest=foo allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "foo.*.baz"
+        ],
+        "requests": [
+          "foo.*.baz",
+          "foo.bar.baz",
+          "foo..baz",
+          "foo.baz",
+          "foo",
+          "foo.bar.bar"
+        ]
+      },
+      "expected_output": "request=foo.*.baz allowed=true\nrequest=foo.bar.baz allowed=true\nrequest=foo..baz allowed=false\nrequest=foo.baz allowed=false\nrequest=foo allowed=false\nrequest=foo.bar.bar allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "foo.*.bar.*"
+        ],
+        "requests": [
+          "foo.baz.bar.baz",
+          "foo.baz.baz.bar.baz",
+          "foo.baz.bar.bar.bar",
+          "foo.baz.bar",
+          "foo.*.bar.*.*.*",
+          "foo.1.bar.1.2.3.4.5"
+        ]
+      },
+      "expected_output": "request=foo.baz.bar.baz allowed=true\nrequest=foo.baz.baz.bar.baz allowed=false\nrequest=foo.baz.bar.bar.bar allowed=true\nrequest=foo.baz.bar allowed=false\nrequest=foo.*.bar.*.*.* allowed=true\nrequest=foo.1.bar.1.2.3.4.5 allowed=true\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "foo.*.bar"
+        ],
+        "requests": [
+          "foo.bar.bar",
+          "foo.bar.bar.bar",
+          "foo..bar",
+          "foo.bar..bar"
+        ]
+      },
+      "expected_output": "request=foo.bar.bar allowed=true\nrequest=foo.bar.bar.bar allowed=false\nrequest=foo..bar allowed=false\nrequest=foo.bar..bar allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "foo.*.bar.*.baz.*"
+        ],
+        "requests": [
+          "foo.*.*",
+          "foo.*.bar",
+          "foo.baz.*",
+          "foo.baz.bar",
+          "foo.b*.bar",
+          "foo.bar.bar.baz.baz.baz",
+          "foo.bar.bar.baz.baz.baz.baz",
+          "foo.bar.bar.baz.baz",
+          "foo.bar.baz.baz.baz.bar"
+        ]
+      },
+      "expected_output": "request=foo.*.* allowed=false\nrequest=foo.*.bar allowed=false\nrequest=foo.baz.* allowed=false\nrequest=foo.baz.bar allowed=false\nrequest=foo.b*.bar allowed=false\nrequest=foo.bar.bar.baz.baz.baz allowed=true\nrequest=foo.bar.bar.baz.baz.baz.baz allowed=true\nrequest=foo.bar.bar.baz.baz allowed=false\nrequest=foo.bar.baz.baz.baz.bar allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "hydra.*",
+          "openid",
+          "offline",
+          "hydra"
+        ],
+        "requests": [
+          "hydra.clients",
+          "hydra.clients.get",
+          "hydra",
+          "offline",
+          "openid"
+        ]
+      },
+      "expected_output": "request=hydra.clients allowed=true\nrequest=hydra.clients.get allowed=true\nrequest=hydra allowed=true\nrequest=offline allowed=true\nrequest=openid allowed=true\n"
+    }
+  ]
+}

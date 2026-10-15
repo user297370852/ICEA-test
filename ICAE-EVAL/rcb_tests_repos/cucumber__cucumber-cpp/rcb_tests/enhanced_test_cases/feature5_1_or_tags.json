@@ -1,0 +1,89 @@
+{
+  "description": "Disjunctive tag matching: '@'-prefixed expression tokens vs bare candidate tags, candidate carrying a literal '@' (no match), empty candidate list, whitespace-only expression, spaced tokens, and a multi-token OR over several candidates.",
+  "cases": [
+    {
+      "input": {
+        "action": "tag_or",
+        "expression": "@a",
+        "queries": [
+          [
+            "a"
+          ],
+          [
+            "@a"
+          ],
+          [
+            "b"
+          ]
+        ]
+      },
+      "expected_output": "query=a matched=true\nquery=@a matched=false\nquery=b matched=false\n"
+    },
+    {
+      "input": {
+        "action": "tag_or",
+        "expression": "  ",
+        "queries": [
+          [
+            "x"
+          ],
+          [
+            "a"
+          ]
+        ]
+      },
+      "expected_output": "query=x matched=false\nquery=a matched=false\n"
+    },
+    {
+      "input": {
+        "action": "tag_or",
+        "expression": "@a , @b , @c",
+        "queries": [
+          [
+            "c"
+          ],
+          [
+            "d"
+          ],
+          [
+            "a",
+            "d"
+          ]
+        ]
+      },
+      "expected_output": "query=c matched=true\nquery=d matched=false\nquery=a,d matched=true\n"
+    },
+    {
+      "input": {
+        "action": "tag_or",
+        "expression": "@only",
+        "queries": [
+          []
+        ]
+      },
+      "expected_output": "query= matched=false\n"
+    },
+    {
+      "input": {
+        "action": "tag_or",
+        "expression": "@wip,@slow",
+        "queries": [
+          [
+            "wip"
+          ],
+          [
+            "slow"
+          ],
+          [
+            "wip",
+            "slow"
+          ],
+          [
+            "fast"
+          ]
+        ]
+      },
+      "expected_output": "query=wip matched=true\nquery=slow matched=true\nquery=wip,slow matched=true\nquery=fast matched=false\n"
+    }
+  ]
+}

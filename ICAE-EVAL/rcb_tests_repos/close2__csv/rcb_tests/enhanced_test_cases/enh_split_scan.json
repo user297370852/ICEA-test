@@ -1,0 +1,49 @@
+{
+  "description": "ENHANCED: Exhaustive split-scan robustness for every two-chunk split point — a plain three-field row, a quoted field containing the delimiter, a quoted field containing a CRLF, and a multi-character-delimiter row, each verifying every split index reconstructs the identical row set.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode_split_scan",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "a,b,c"
+      },
+      "expected_output": "len=5\nsplit[0]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[1]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[2]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[3]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[4]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[5]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_split_scan",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "x,\"y,z\",w"
+      },
+      "expected_output": "len=9\nsplit[0]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[1]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[2]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[3]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[4]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[5]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[6]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[7]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[8]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\nsplit[9]: [ str=\"x\" | str=\"y,z\" | str=\"w\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_split_scan",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ","
+        },
+        "input": "p,\"q\r\nr\",s"
+      },
+      "expected_output": "len=10\nsplit[0]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[1]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[2]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[3]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[4]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[5]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[6]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[7]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[8]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[9]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\nsplit[10]: [ str=\"p\" | str=\"q\\r\\nr\" | str=\"s\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_split_scan",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": "::"
+        },
+        "input": "a::b::c"
+      },
+      "expected_output": "len=7\nsplit[0]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[1]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[2]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[3]: [ str=\"a\" | str=\":b\" | str=\"c\" ]\nsplit[4]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[5]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\nsplit[6]: [ str=\"a\" | str=\"b\" | str=\":c\" ]\nsplit[7]: [ str=\"a\" | str=\"b\" | str=\"c\" ]\n"
+    }
+  ]
+}

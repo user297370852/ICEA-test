@@ -1,0 +1,73 @@
+{
+  "description": "Host connection profile derivation edge cases: slash alias with remote user, placeholder in hostname, config_file only, port only with multiplexing, identity_file placeholder from parent, and forward_agent disabled.",
+  "cases": [
+    {
+      "input": {
+        "alias": "group/web",
+        "values": {
+          "remote_user": "deploy",
+          "port": 22
+        }
+      },
+      "expected_output": "alias=group/web\nhostname=group\nconnection=deploy@group\nremote_user=deploy\nport=22\nssh_arguments=-p 22\n"
+    },
+    {
+      "input": {
+        "alias": "host",
+        "values": {
+          "base": "srv01",
+          "hostname": "{{base}}.internal"
+        }
+      },
+      "expected_output": "alias=host\nhostname=srv01.internal\nconnection=srv01.internal\nssh_arguments=\n"
+    },
+    {
+      "input": {
+        "alias": "host",
+        "values": {
+          "hostname": "h",
+          "config_file": "/etc/ssh/config"
+        }
+      },
+      "expected_output": "alias=host\nhostname=h\nconnection=h\nconfig_file=/etc/ssh/config\nssh_arguments=-F /etc/ssh/config\n"
+    },
+    {
+      "input": {
+        "alias": "host",
+        "values": {
+          "hostname": "h",
+          "port": 2200,
+          "ssh_multiplexing": true
+        }
+      },
+      "expected_output": "alias=host\nhostname=h\nconnection=h\nport=2200\nssh_multiplexing=true\nssh_arguments=-p 2200\n"
+    },
+    {
+      "input": {
+        "alias": "host",
+        "parent_values": {
+          "user": {
+            "computed_result": "ciuser"
+          }
+        },
+        "values": {
+          "hostname": "h",
+          "identity_file": "/keys/{{user}}.pem"
+        }
+      },
+      "expected_output": "alias=host\nhostname=h\nconnection=h\nidentity_file=/keys/ciuser.pem\nssh_arguments=-i /keys/ciuser.pem\n"
+    },
+    {
+      "input": {
+        "alias": "host",
+        "values": {
+          "hostname": "h",
+          "remote_user": "ops",
+          "forward_agent": false,
+          "port": 22
+        }
+      },
+      "expected_output": "alias=host\nhostname=h\nconnection=ops@h\nremote_user=ops\nport=22\nforward_agent=false\nssh_arguments=-p 22\n"
+    }
+  ]
+}

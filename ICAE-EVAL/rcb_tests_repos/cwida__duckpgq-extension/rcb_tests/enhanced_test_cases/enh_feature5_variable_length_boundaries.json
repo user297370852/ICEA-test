@@ -1,0 +1,107 @@
+{
+  "description": "Boundary coverage for variable-length and shortest paths: exact-bound repetition, additional bounded ranges and start vertices, single-hop bounds, and additional rejected unsafe/unsupported path patterns.",
+  "cases": [
+    {
+      "input": {
+        "setup": [
+          "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+          "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+          "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+          "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+          "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+          "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+          "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+          "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+          "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+        ],
+        "query": "SELECT s.a_name, s.b_name FROM GRAPH_TABLE (pg MATCH (a:Person)-[k:Knows]->{2,2}(b:Person) WHERE a.name = 'Peter' COLUMNS (a.name as a_name, b.name as b_name)) s ORDER BY a_name, b_name"
+      },
+      "expected_output": "Peter\tGabor\nPeter\tTavneet\n"
+    },
+    {
+      "input": {
+        "setup": [
+          "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+          "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+          "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+          "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+          "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+          "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+          "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+          "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+          "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+        ],
+        "query": "SELECT s.a_name, s.b_name FROM GRAPH_TABLE (pg MATCH (a:Person)-[k:Knows]->{1,2}(b:Person) WHERE a.name = 'Daniel' COLUMNS (a.name as a_name, b.name as b_name)) s ORDER BY a_name, b_name"
+      },
+      "expected_output": "Daniel\tGabor\nDaniel\tPeter\nDaniel\tTavneet\n"
+    },
+    {
+      "input": {
+        "setup": [
+          "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+          "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+          "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+          "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+          "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+          "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+          "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+          "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+          "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+        ],
+        "query": "FROM GRAPH_TABLE (pg MATCH p = ANY SHORTEST (a:Person WHERE a.name = 'David')-[k:knows]->{1,3}(b:Person) COLUMNS (path_length(p), element_id(p), b.name as b_name)) s ORDER BY b_name"
+      },
+      "expected_output": "2\t[4, 7, 3, 3, 0]\tDaniel\n3\t[4, 7, 3, 3, 0, 1, 2]\tGabor\n1\t[4, 7, 3]\tPeter\n3\t[4, 7, 3, 3, 0, 0, 1]\tTavneet\n"
+    },
+    {
+      "input": {
+        "setup": [
+          "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+          "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+          "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+          "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+          "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+          "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+          "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+          "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+          "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+        ],
+        "query": "SELECT s.a_name, s.b_name FROM GRAPH_TABLE (pg MATCH (a:Person)-[k:Knows]->{1,1}(b:Person) WHERE a.name = 'Gabor' COLUMNS (a.name as a_name, b.name as b_name)) s ORDER BY a_name, b_name"
+      },
+      "expected_output": "Gabor\tPeter\n"
+    },
+    {
+      "input": {
+        "setup": [
+          "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+          "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+          "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+          "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+          "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+          "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+          "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+          "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+          "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+        ],
+        "query": "SELECT s.a_name FROM GRAPH_TABLE (pg MATCH (a:Person WHERE a.name='Daniel')-[k:Knows]-> +(b:Person) COLUMNS (a.name as a_name)) s"
+      },
+      "expected_output": "error=constraint\nmessage=ALL unbounded with path mode WALK is not possible as this could lead to infinite results. Consider specifying an upper bound or path mode other than WALK\n"
+    },
+    {
+      "input": {
+        "setup": [
+          "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+          "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+          "CREATE TABLE know(src BIGINT, dst BIGINT, createDate BIGINT)",
+          "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17)",
+          "CREATE TABLE School(name VARCHAR, Id BIGINT, Kind VARCHAR)",
+          "INSERT INTO School VALUES ('VU',0,'University'),('UVA',1,'University')",
+          "CREATE TABLE StudyAt(personId BIGINT, schoolId BIGINT)",
+          "INSERT INTO StudyAt VALUES (0,0),(1,0),(2,1),(3,1),(4,1)",
+          "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person, School LABEL SCHOOL) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (createDate) LABEL Knows, studyAt SOURCE KEY (personId) REFERENCES Student (id) DESTINATION KEY (SchoolId) REFERENCES School (id) LABEL StudyAt)"
+        ],
+        "query": "FROM GRAPH_TABLE (pg MATCH p = ANY SHORTEST ACYCLIC (a:Person)-[k:knows]-> *(b:Person) WHERE a.name = 'Daniel' COLUMNS (p, a.name as name)) s"
+      },
+      "expected_output": "error=not_implemented\nmessage=Path modes other than WALK have not been implemented yet.\n"
+    }
+  ]
+}

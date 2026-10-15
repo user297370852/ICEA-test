@@ -1,0 +1,113 @@
+{
+  "description": "Enhanced boundary coverage for serializing module manifests and round-tripping them. Exercises the negative side of payload distinctness: two identical manifests (and two empty manifests) produce byte-identical payloads (payloads_distinct=false), while manifests differing by version, by module id, or by ordering produce distinct payloads (payloads_distinct=true). In all cases each manifest deserializes back to an equal (mutually compatible) manifest.",
+  "cases": [
+    {
+      "input": {
+        "action": "serialize_modules",
+        "left": [
+          {
+            "id": "M1",
+            "official": true,
+            "version": "1.2.3.4"
+          },
+          {
+            "id": "M2",
+            "official": false,
+            "version": "1.0.1.23"
+          }
+        ],
+        "right": [
+          {
+            "id": "M1",
+            "official": true,
+            "version": "1.2.3.4"
+          },
+          {
+            "id": "M2",
+            "official": false,
+            "version": "1.0.1.23"
+          }
+        ]
+      },
+      "expected_output": "left_roundtrip_equal=true\nright_roundtrip_equal=true\npayloads_distinct=false\n"
+    },
+    {
+      "input": {
+        "action": "serialize_modules",
+        "left": [],
+        "right": []
+      },
+      "expected_output": "left_roundtrip_equal=true\nright_roundtrip_equal=true\npayloads_distinct=false\n"
+    },
+    {
+      "input": {
+        "action": "serialize_modules",
+        "left": [
+          {
+            "id": "Solo",
+            "official": true,
+            "version": "5.6.7.8"
+          }
+        ],
+        "right": [
+          {
+            "id": "Solo",
+            "official": true,
+            "version": "5.6.7.9"
+          }
+        ]
+      },
+      "expected_output": "left_roundtrip_equal=true\nright_roundtrip_equal=true\npayloads_distinct=true\n"
+    },
+    {
+      "input": {
+        "action": "serialize_modules",
+        "left": [
+          {
+            "id": "Same",
+            "official": true,
+            "version": "1.0.0.0"
+          }
+        ],
+        "right": [
+          {
+            "id": "Different",
+            "official": true,
+            "version": "1.0.0.0"
+          }
+        ]
+      },
+      "expected_output": "left_roundtrip_equal=true\nright_roundtrip_equal=true\npayloads_distinct=true\n"
+    },
+    {
+      "input": {
+        "action": "serialize_modules",
+        "left": [
+          {
+            "id": "M1",
+            "official": true,
+            "version": "1.2.3.4"
+          },
+          {
+            "id": "M2",
+            "official": false,
+            "version": "1.0.1.23"
+          }
+        ],
+        "right": [
+          {
+            "id": "M2",
+            "official": false,
+            "version": "1.0.1.23"
+          },
+          {
+            "id": "M1",
+            "official": true,
+            "version": "1.2.3.4"
+          }
+        ]
+      },
+      "expected_output": "left_roundtrip_equal=true\nright_roundtrip_equal=true\npayloads_distinct=true\n"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+\begin{multicols}{2}
+\section{Prompts for Fuzzy PRD Semantic Equivalence Judge}
+\label{appendix:fuzzy-prd-semantic}
+\end{multicols}
+
+\begin{promptbox}[Fuzzy PRD: Semantic Equivalence Judge]
+\textbf{\#\# Role}
+
+You are an expert benchmark-data auditor. Your job is to judge whether a generated fuzzy task package preserves the original detailed PRD well enough to support a paper claim about semantic equivalence, while separately identifying execution-contract risks that could affect reuse of the same tests.
+
+\textbf{\#\# Inputs}
+\begin{itemize}
+\item Detailed PRD: \texttt{start.md}
+\item Generated task package: JSON containing \texttt{fuzzy\_prd} and \texttt{oracle\_data}
+\end{itemize}
+
+Evaluate \texttt{fuzzy\_prd + oracle\_data} jointly rather than \texttt{fuzzy\_prd} alone.
+
+\textbf{\#\# Key outputs}
+\begin{itemize}
+\item \texttt{task\_semantic\_similarity} in $[0,1]$
+\item \texttt{task\_semantic\_equivalent}
+\item \texttt{execution\_contract\_risk} in \{low, medium, high\}
+\item \texttt{likely\_to\_fail\_same\_tests}
+\item \texttt{paper\_support\_label}
+\end{itemize}
+
+Set \texttt{task\_semantic\_equivalent=true} when similarity is at least 0.90 and there is no material task-level contradiction that would change the implementation or behavioral tests.
+\end{promptbox}
+
+
+
+
+
+
+\begin{multicols}{2}
+\section{Prompts for Fuzzy L3 PRD Construction}
+\label{appendix:fuzzy-prd-easy-prompts}
+\end{multicols}
+
+\begin{promptbox}[Fuzzy L3 Generation: Constraint Extraction]
+\textbf{\#\# Role}
+
+You are a senior engineer performing precision analysis of a PRD.
+
+\textbf{\#\# Task}
+
+Read the detailed PRD together with all supporting files and produce a JSON object with key \texttt{"constraints"} containing every distinct behavioral constraint. The extraction must cover:
+\begin{itemize}
+\item mapping and branching behavior,
+\item exact output field names and sentinel values,
+\item action/dispatch contracts,
+\item tested edge cases,
+\item optional parameters and defaults,
+\item validation and error-rejection rules.
+\end{itemize}
+
+Each item in \texttt{constraints} has the form:
+
+\texttt{\{}\\
+\texttt{~~"id": "C001",}\\
+\texttt{~~"feature": "<short feature name>",}\\
+\texttt{~~"input\_condition": "...",}\\
+\texttt{~~"output\_rule": "...",}\\
+\texttt{~~"exact\_values": ["literal", "tokens"],}\\
+\texttt{~~"ambiguous": false}\\
+\texttt{\}}
+
+Output only \texttt{\{"constraints": [...]\}}.
+\end{promptbox}
+
+\begin{promptbox}[Fuzzy L3 Generation: Constraint Selection and Rewriting]
+\textbf{\#\# Role}
+
+You are reviewing the extracted constraint table for a coding exercise.
+
+\textbf{\#\# Task}
+
+Given the constraint table, do three things and return JSON:
+\begin{enumerate}
+\item Select at most three constraints to hide, restricted to the most unguessable literals such as deliberate typos, obscure magic constants, and non-obvious sentinel values.
+\item For each hidden constraint, provide a vague replacement phrase, exact PRD strings to replace, at least five trigger keywords, and a precise oracle answer.
+\item Pick one or two non-hidden constraints and rewrite them as vague internal references (\texttt{vague\_refs}).
+\end{enumerate}
+
+Do not hide action names, parameter names, default values, error categories, or feature descriptions.
+
+Return only JSON in the form:
+
+\texttt{\{}\\
+\texttt{~~"hide": [\{...\}],}\\
+\texttt{~~"vague\_refs": [\{...\}]}\\
+\texttt{\}}
+\end{promptbox}

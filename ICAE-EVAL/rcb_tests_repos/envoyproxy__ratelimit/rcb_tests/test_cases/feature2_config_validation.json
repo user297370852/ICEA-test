@@ -1,0 +1,251 @@
+{
+    "description": "Loading an invalid configuration is rejected with a categorized error instead of producing a usable configuration. Each category names a distinct structural or semantic problem in the supplied configuration text; the offending element (a domain, composite key, unit, configuration key, or value) is reported in separate fields where one applies.",
+    "cases": [
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "empty_domain.yaml",
+                        "content": "descriptors:\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=empty_domain\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "basic_config.yaml",
+                        "content": "# Basic configuration for testing.\ndomain: test-domain\ndescriptors:\n  # Top level key/value with no default rate limit.\n  - key: key1\n    value: value1\n    descriptors:\n      # 2nd level key only with default rate limit.\n      - key: subkey1\n        rate_limit:\n          unit: second\n          requests_per_unit: 5\n\n      # 2nd level key/value with limit. Specific override at 2nd level.\n      - key: subkey1\n        value: subvalue1\n        rate_limit:\n          unit: second\n          requests_per_unit: 10\n\n  # Top level key only with default rate limit.\n  - key: key2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n\n  # Top level key/value with limit. Specific override at 1st level.\n  - key: key2\n    value: value2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 30\n\n  # First level override with no limit. This effectively whitelists the value.\n  - key: key2\n    value: value3\n\n  - key: key3\n    rate_limit:\n      unit: hour\n      requests_per_unit: 1\n\n  - key: key4\n    rate_limit:\n      unit: day\n      requests_per_unit: 1\n\n  - key: key5\n    value: value5\n    rate_limit:\n      unit: day\n      requests_per_unit: 15\n    descriptors:\n      - key: subkey5\n        value: subvalue5\n        rate_limit:\n          unit: day\n          requests_per_unit: 25\n\n  - key: key6\n    rate_limit:\n      unlimited: true\n\n  # Top level key only with default rate limit.\n\n  - key: key7\n    detailed_metric: true\n    rate_limit:\n      unit: minute\n      requests_per_unit: 70\n"
+                    },
+                    {
+                        "name": "duplicate_domain.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=duplicate_domain\ndomain=test-domain\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "empty_key.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - value: value1\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=empty_key\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "duplicate_key.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n\n  - key: key1\n    value: value1\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=duplicate_key\nkey=test-domain.key1_value1\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": true,
+                "configs": [
+                    {
+                        "name": "merge_domain_key1.yaml",
+                        "content": "# Basic configuration which will be merged with `merge_domain2.yaml`\ndomain: test-domain\ndescriptors:\n  # Top level key/value which is not specified in `merge_domain2.yaml`\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: minute\n      requests_per_unit: 10\n"
+                    },
+                    {
+                        "name": "merge_domain_key1.yaml",
+                        "content": "# Basic configuration which will be merged with `merge_domain2.yaml`\ndomain: test-domain\ndescriptors:\n  # Top level key/value which is not specified in `merge_domain2.yaml`\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: minute\n      requests_per_unit: 10\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=duplicate_key\nkey=test-domain.key1_value1\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "bad_limit_unit.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: foo\n      requests_per_unit: 5\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=invalid_unit\nunit=foo\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "unlimited_with_unit.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: foo\n    rate_limit:\n      unlimited: true\n      unit: day\n      requests_per_unit: 25\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=unlimited_with_unit\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "replaces_self.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n    descriptors:\n      - key: subkey1\n        rate_limit:\n          name: self\n          replaces:\n            - name: self\n          unit: second\n          requests_per_unit: 5\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=replaces_self\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "replaces_empty.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n    descriptors:\n      - key: subkey1\n        rate_limit:\n          name: self\n          replaces:\n            - name:\n          unit: second\n          requests_per_unit: 5\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=replaces_empty\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "misspelled_key.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n    ratelimit:\n      unit: day\n      requests_per_unit: 5\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=unknown_key\nkey=ratelimit\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "misspelled_key2.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: day\n      requestsperunit: 5\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=unknown_key\nkey=requestsperunit\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "non_string_key.yaml",
+                        "content": "0.25: test-domain\ndescriptors:\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: day\n      requests_per_unit: 5\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=non_string_key\nkey=0.25\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "non_map_list.yaml",
+                        "content": "domain: test-domain\ndescriptors:\n  - a\n  - b\n  - c\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=invalid_list_item\nvalue=a\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "x",
+                "merge": false,
+                "configs": [
+                    {
+                        "name": "bad_yaml.yaml",
+                        "content": "'''\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": []
+                }
+            },
+            "expected_output": "error=parse_error\n"
+        }
+    ]
+}

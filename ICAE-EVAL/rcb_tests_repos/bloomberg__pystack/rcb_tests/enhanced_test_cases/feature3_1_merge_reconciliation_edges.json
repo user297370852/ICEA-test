@@ -1,0 +1,127 @@
+{
+  "description": "When native interleaving is requested the renderer reconciles the two views by counting interpreter evaluation frames against call-entry Python frames. With an older interpreter the evaluation frame is recognized from a different symbol; a successful match interleaves the stacks, while a count mismatch falls back to the unable-to-merge notice followed by a plain listing of any Python frames.",
+  "cases": [
+    {
+      "input": {
+        "native": true,
+        "thread": {
+          "tid": 1,
+          "name": null,
+          "holds_the_gil": false,
+          "is_gc_collecting": false,
+          "python_version": [
+            2,
+            7
+          ],
+          "python_frames": [
+            {
+              "filename": "f1.py",
+              "function": "fn1",
+              "lineno": 1,
+              "end_lineno": 1,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            },
+            {
+              "filename": "f2.py",
+              "function": "fn2",
+              "lineno": 2,
+              "end_lineno": 2,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            }
+          ],
+          "native_frames": [
+            {
+              "symbol": "native_function1",
+              "file": "n1.c",
+              "line": 1,
+              "library": "library.so"
+            },
+            {
+              "symbol": "PyEval_EvalFrameEx",
+              "file": "Python/ceval.c",
+              "line": 123,
+              "library": "library.so"
+            },
+            {
+              "symbol": "native_function2",
+              "file": "n2.c",
+              "line": 2,
+              "library": "library.so"
+            },
+            {
+              "symbol": "PyEval_EvalFrameEx",
+              "file": "Python/ceval.c",
+              "line": 123,
+              "library": "library.so"
+            }
+          ]
+        }
+      },
+      "expected_output": "Traceback for thread 1 [] (most recent call last):\n    (C) File \"n1.c\", line 1, in native_function1 (library.so)\n    (Python) File \"f1.py\", line 1, in fn1\n    (C) File \"n2.c\", line 2, in native_function2 (library.so)\n    (Python) File \"f2.py\", line 2, in fn2\n\n"
+    },
+    {
+      "input": {
+        "native": true,
+        "thread": {
+          "tid": 1,
+          "name": null,
+          "holds_the_gil": false,
+          "is_gc_collecting": false,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [
+            {
+              "filename": "f1.py",
+              "function": "fn1",
+              "lineno": 1,
+              "end_lineno": 1,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            },
+            {
+              "filename": "f2.py",
+              "function": "fn2",
+              "lineno": 2,
+              "end_lineno": 2,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            }
+          ],
+          "native_frames": [
+            {
+              "symbol": "native_function1",
+              "file": "n1.c",
+              "line": 1,
+              "library": "library.so"
+            },
+            {
+              "symbol": "_PyEval_EvalFrameDefault",
+              "file": "Python/ceval.c",
+              "line": 123,
+              "library": "library.so"
+            },
+            {
+              "symbol": "native_function2",
+              "file": "n2.c",
+              "line": 2,
+              "library": "library.so"
+            }
+          ]
+        }
+      },
+      "expected_output": "Traceback for thread 1 [] (most recent call last):\n* - Unable to merge native stack due to insufficient native information - *\n    (Python) File \"f1.py\", line 1, in fn1\n    (Python) File \"f2.py\", line 2, in fn2\n\n"
+    }
+  ]
+}

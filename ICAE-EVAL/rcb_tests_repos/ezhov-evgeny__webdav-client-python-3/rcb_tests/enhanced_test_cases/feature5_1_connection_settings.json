@@ -1,0 +1,56 @@
+{
+  "description": "Connection configuration edge cases: token-only auth (no login), trailing-slash hostname normalization, custom root normalization, both login+token, and a non-existent certificate path.",
+  "cases": [
+    {
+      "input": {
+        "options": {
+          "server": "http://localhost:8585",
+          "token": "abc.def.ghi"
+        }
+      },
+      "expected_output": "timeout=30\nroot=\nis_valid=true\nvalid=true\n"
+    },
+    {
+      "input": {
+        "options": {
+          "server": "http://localhost:8585/",
+          "login": "bob",
+          "password": "pw"
+        }
+      },
+      "expected_output": "timeout=30\nroot=\nis_valid=true\nvalid=true\n"
+    },
+    {
+      "input": {
+        "options": {
+          "server": "http://localhost:8585",
+          "login": "bob",
+          "password": "pw",
+          "root": "/dav/"
+        }
+      },
+      "expected_output": "timeout=30\nroot=/dav\nis_valid=true\nvalid=true\n"
+    },
+    {
+      "input": {
+        "options": {
+          "server": "http://localhost:8585",
+          "login": "bob",
+          "token": "tok"
+        }
+      },
+      "expected_output": "timeout=30\nroot=\nis_valid=true\nvalid=true\n"
+    },
+    {
+      "input": {
+        "options": {
+          "server": "http://localhost:8585",
+          "login": "bob",
+          "password": "pw",
+          "certificate_file": "/nonexistent/path/cert.pem"
+        }
+      },
+      "expected_output": "timeout=30\nroot=\nerror=invalid_option\nnamespace=webdav:\nname=cert_path\nvalue=/nonexistent/path/cert.pem\nvalid=false\n"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "description": "Disks can be added to the manager dynamically after construction. Adding a disk under a fresh name makes it resolvable like any configured disk, and resolving it twice returns the same cached instance. Adding a disk under a name that already exists is rejected with a normalized configuration error and the new definition is not applied. The request seeds an initial configuration and then exercises one such scenario.",
+  "cases": [
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "local",
+          "disks": {
+            "local": {
+              "driver": "local",
+              "config": {
+                "root": ""
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "addDisk",
+            "name": "cache",
+            "config": {
+              "driver": "local",
+              "config": {
+                "root": ""
+              }
+            }
+          },
+          {
+            "action": "disk",
+            "name": "cache"
+          },
+          {
+            "action": "sameInstance",
+            "name": "cache"
+          }
+        ]
+      },
+      "expected_output": "added=cache\ndisk=cache driver=local\nsame_instance=true\n"
+    },
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "local",
+          "disks": {
+            "local": {
+              "driver": "local",
+              "config": {
+                "root": ""
+              }
+            },
+            "home": {
+              "driver": "local",
+              "config": {
+                "root": "~"
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "addDisk",
+            "name": "home",
+            "config": {
+              "driver": "local",
+              "config": {
+                "root": ""
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "error=invalid_config\ncode=E_INVALID_CONFIG\nstatus=500\ndetail=A disk named home is already defined\n"
+    }
+  ]
+}

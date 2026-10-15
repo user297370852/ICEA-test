@@ -1,0 +1,115 @@
+{
+  "description": "Enhanced coverage for layer/overlay qualifiers: nested folder separators collapsing to colons, format suffixes on image and video layers, the 'authenticated' delivery type token, a text layer styled from an explicit public_id, text layers styled from font family/size including comma/slash/question-mark double escaping, subtitle assets, http fetch base64 encoding, and the two normalized error paths (text without style, non-text subtitle without public_id).",
+  "cases": [
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "public_id": "folder/sub/logo"
+        }
+      },
+      "expected_output": "layer=l_folder:sub:logo\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "public_id": "logo",
+          "format": "jpg"
+        }
+      },
+      "expected_output": "layer=l_logo.jpg\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "public_id": "logo",
+          "type": "authenticated"
+        }
+      },
+      "expected_output": "layer=l_authenticated:logo\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "resource_type": "video",
+          "public_id": "folder/cat",
+          "format": "mp4"
+        }
+      },
+      "expected_output": "layer=l_video:folder:cat.mp4\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "public_id": "my_image",
+          "text": "A/B,C?"
+        }
+      },
+      "expected_output": "layer=l_text:my_image:A%252FB%252CC%3F\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "text": "Simple",
+          "font_family": "Times",
+          "font_size": "24"
+        }
+      },
+      "expected_output": "layer=l_text:Times_24:Simple\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "text": "a,b/c?d",
+          "font_family": "Verdana",
+          "font_size": "12"
+        }
+      },
+      "expected_output": "layer=l_text:Verdana_12:a%252Cb%252Fc%3Fd\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "resource_type": "subtitles",
+          "public_id": "sub.vtt"
+        }
+      },
+      "expected_output": "layer=l_subtitles:sub.vtt\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "public_id": "img",
+          "fetch": "http://example.com/a.png"
+        }
+      },
+      "expected_output": "layer=l_fetch:aHR0cDovL2V4YW1wbGUuY29tL2EucG5n\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "text": "hi"
+        }
+      },
+      "expected_output": "error=overlay_text_requires_style\n"
+    },
+    {
+      "input": {
+        "op": "overlay",
+        "layer": {
+          "resource_type": "subtitles"
+        }
+      },
+      "expected_output": "error=overlay_requires_public_id\nlayer_type=subtitles\n"
+    }
+  ]
+}

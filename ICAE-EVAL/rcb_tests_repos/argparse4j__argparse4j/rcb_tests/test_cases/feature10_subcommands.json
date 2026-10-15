@@ -1,0 +1,193 @@
+{
+    "description": "Dispatch to one of several named subcommands, each with its own arguments and its own defaults. The chosen subcommand's operands and defaults are merged into the result; subcommands may declare aliases; a unique prefix of a subcommand name is accepted while an ambiguous prefix is rejected listing the candidates; the chosen command name can be recorded under a configured destination; and omitting the subcommand, or placing it after the end-of-options separator, is reported as an error.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    }
+                ],
+                "subparsers": {
+                    "parsers": [
+                        {
+                            "name": "install",
+                            "arguments": [
+                                {
+                                    "name": "pkg1"
+                                }
+                            ],
+                            "defaults": {
+                                "func": "install"
+                            }
+                        },
+                        {
+                            "name": "search",
+                            "arguments": [
+                                {
+                                    "name": "pkg2"
+                                }
+                            ],
+                            "defaults": {
+                                "func": "search"
+                            }
+                        }
+                    ]
+                },
+                "argv": [
+                    "install",
+                    "aria2"
+                ]
+            },
+            "expected_output": "f=null\nfunc=install\npkg1=aria2\n"
+        },
+        {
+            "input": {
+                "subparsers": {
+                    "parsers": [
+                        {
+                            "name": "checkout",
+                            "aliases": [
+                                "co"
+                            ],
+                            "defaults": {
+                                "func": "checkout"
+                            }
+                        }
+                    ]
+                },
+                "argv": [
+                    "co"
+                ]
+            },
+            "expected_output": "func=checkout\n"
+        },
+        {
+            "input": {
+                "subparsers": {
+                    "parsers": [
+                        {
+                            "name": "clone",
+                            "defaults": {
+                                "func": "clone"
+                            }
+                        },
+                        {
+                            "name": "clean",
+                            "defaults": {
+                                "func": "clean"
+                            }
+                        }
+                    ]
+                },
+                "argv": [
+                    "clo"
+                ]
+            },
+            "expected_output": "func=clone\n"
+        },
+        {
+            "input": {
+                "subparsers": {
+                    "parsers": [
+                        {
+                            "name": "clone",
+                            "defaults": {
+                                "func": "clone"
+                            }
+                        },
+                        {
+                            "name": "clean",
+                            "defaults": {
+                                "func": "clean"
+                            }
+                        }
+                    ]
+                },
+                "argv": [
+                    "cle"
+                ]
+            },
+            "expected_output": "func=clean\n"
+        },
+        {
+            "input": {
+                "subparsers": {
+                    "parsers": [
+                        {
+                            "name": "clone",
+                            "defaults": {
+                                "func": "clone"
+                            }
+                        },
+                        {
+                            "name": "clean",
+                            "defaults": {
+                                "func": "clean"
+                            }
+                        }
+                    ]
+                },
+                "argv": [
+                    "cl"
+                ]
+            },
+            "expected_output": "error: ambiguous command: cl could match clean, clone\n"
+        },
+        {
+            "input": {
+                "subparsers": {
+                    "dest": "command",
+                    "parsers": [
+                        {
+                            "name": "install",
+                            "arguments": [
+                                {
+                                    "flags": [
+                                        "--command"
+                                    ],
+                                    "default": "default"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "argv": [
+                    "install"
+                ]
+            },
+            "expected_output": "command=install\n"
+        },
+        {
+            "input": {
+                "subparsers": {
+                    "parsers": [
+                        {
+                            "name": "install"
+                        }
+                    ]
+                },
+                "argv": []
+            },
+            "expected_output": "error: too few arguments\n"
+        },
+        {
+            "input": {
+                "subparsers": {
+                    "parsers": [
+                        {
+                            "name": "install"
+                        }
+                    ]
+                },
+                "argv": [
+                    "--",
+                    "install"
+                ]
+            },
+            "expected_output": "error: unrecognized arguments: 'install'\n"
+        }
+    ]
+}

@@ -1,0 +1,53 @@
+{
+    "cases": [
+        {
+            "input": {
+                "init_container": false, 
+                "annotations": {
+                    "vault.hashicorp.com/role": "foobar", 
+                    "vault.hashicorp.com/agent-inject-secret-foo": "db/creds/foo"
+                }, 
+                "op": "render_config"
+            }, 
+            "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[{\"destination\":\"/vault/secrets/foo\",\"contents\":\"{{ with secret \\\"db/creds/foo\\\" }}{{ range $k, $v := .Data }}{{ $k }}: {{ $v }}\\n{{ end }}{{ end }}\",\"command\":\"\",\"source\":\"\"}],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "init_container": false, 
+                "annotations": {
+                    "vault.hashicorp.com/agent-inject-file-foo": "nested/foofile", 
+                    "vault.hashicorp.com/role": "foobar", 
+                    "vault.hashicorp.com/agent-inject-secret-foo": "db/creds/foo"
+                }, 
+                "op": "render_config"
+            }, 
+            "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[{\"destination\":\"/vault/secrets/nested/foofile\",\"contents\":\"{{ with secret \\\"db/creds/foo\\\" }}{{ range $k, $v := .Data }}{{ $k }}: {{ $v }}\\n{{ end }}{{ end }}\",\"command\":\"\",\"source\":\"\"}],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "init_container": false, 
+                "annotations": {
+                    "vault.hashicorp.com/agent-inject-file-foo": "/special/volume/foofile", 
+                    "vault.hashicorp.com/role": "foobar", 
+                    "vault.hashicorp.com/agent-inject-secret-foo": "db/creds/foo"
+                }, 
+                "op": "render_config"
+            }, 
+            "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[{\"destination\":\"/vault/secrets/special/volume/foofile\",\"contents\":\"{{ with secret \\\"db/creds/foo\\\" }}{{ range $k, $v := .Data }}{{ $k }}: {{ $v }}\\n{{ end }}{{ end }}\",\"command\":\"\",\"source\":\"\"}],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+        }, 
+        {
+            "input": {
+                "init_container": false, 
+                "annotations": {
+                    "vault.hashicorp.com/secret-volume-path": "/new/mount/path", 
+                    "vault.hashicorp.com/agent-inject-file-foo": "foofile_name_is_very_very_very_long", 
+                    "vault.hashicorp.com/role": "foobar", 
+                    "vault.hashicorp.com/agent-inject-secret-foo": "db/creds/foo"
+                }, 
+                "op": "render_config"
+            }, 
+            "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[{\"destination\":\"/new/mount/path/foofile_name_is_very_very_very_long\",\"contents\":\"{{ with secret \\\"db/creds/foo\\\" }}{{ range $k, $v := .Data }}{{ $k }}: {{ $v }}\\n{{ end }}{{ end }}\",\"command\":\"\",\"source\":\"\"}],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+        }
+    ], 
+    "description": "Each declared secret yields a render template whose destination path is computed from the secret name, an optional per-secret file override, and an optional secret-volume-path. A bare secret renders to '<volume>/<name>'. A relative file override nests under the volume; an absolute file override is appended to the volume path. Overriding the global secret-volume-path relocates the destination accordingly."
+}

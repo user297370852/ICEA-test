@@ -1,0 +1,21 @@
+{
+    "description": "Brute-force delay computation from a window of recent failed attempts (each given as seconds-ago, all inside the lookback window). Fixed threshold: if attempts in the window are at least the threshold, the lock lasts a full interval measured from the OLDEST attempt; otherwise zero. Tiered threshold {attempts: delay}: scanning tiers from highest attempt-count downward, the first tier whose attempt-count is below the current count selects that tier's delay, and the remaining lock is that delay measured from the MOST RECENT attempt (zero if already elapsed).",
+    "cases": [
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": 5, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=global\nattempt_count=6\nthreshold_kind=fixed\ndelay_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": 200, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=global\nattempt_count=6\nthreshold_kind=fixed\ndelay_seconds=0\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": {"5": 3, "10": 10}, "attempts": [0, 0, 0, 0, 0, 0]},
+            "expected_output": "type=global\nattempt_count=6\nthreshold_kind=tiered\ndelay_seconds=3\n"
+        },
+        {
+            "input": {"op": "throttle_delay", "type": "global", "interval": 10, "thresholds": {"5": 33, "10": 100}, "attempts": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]},
+            "expected_output": "type=global\nattempt_count=11\nthreshold_kind=tiered\ndelay_seconds=0\n"
+        }
+    ]
+}

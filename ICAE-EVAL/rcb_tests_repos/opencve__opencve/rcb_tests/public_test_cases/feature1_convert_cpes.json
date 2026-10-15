@@ -1,0 +1,30 @@
+{
+    "description": "Extract the vulnerable software identifiers from a vulnerability configuration document. The document embeds one or more standardized component URIs (the CPE 2.3 colon-delimited format) at arbitrary nesting depths under a fixed key. From each URI the vendor and product tokens (the 4th and 5th colon-separated fields) are read, duplicate vendor/product pairs are collapsed, and the result is a mapping from each vendor to the list of its distinct products. An empty document yields an empty mapping.",
+    "cases": [
+        {
+            "input": {"action": "convert_cpes", "conf": {}},
+            "expected_output": "{}\n"
+        },
+        {
+            "input": {
+                "action": "convert_cpes",
+                "conf": {
+                    "configurations": {
+                        "CVE_data_version": "4.0",
+                        "nodes": [
+                            {
+                                "operator": "OR",
+                                "cpe_match": [
+                                    {"vulnerable": true, "cpe23Uri": "cpe:2.3:a:foo:bar:2020:-:*:*:*:*:*:*"},
+                                    {"vulnerable": true, "cpe23Uri": "cpe:2.3:a:foo:baz:2000:-:*:*:*:*:*:*"},
+                                    {"vulnerable": true, "cpe23Uri": "cpe:2.3:a:bar:baz:2000:-:*:*:*:*:*:*"}
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "expected_output": "{\"bar\": [\"baz\"], \"foo\": [\"bar\", \"baz\"]}\n"
+        }
+    ]
+}

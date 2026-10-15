@@ -1,0 +1,50 @@
+{
+    "description": "Validates assertion call arity and promise chains so asynchronous assertions are returned or awaited correctly.",
+    "cases": [
+        {
+            "input": {
+                "source": "it(\"case\", () => { expect() })",
+                "rules": {
+                    "valid-expect": "error"
+                }
+            },
+            "expected_output": "messages=2\nmessage0.rule=jest/valid-expect\nmessage0.text=Expect must have a corresponding matcher call.\nmessage0.line=1\nmessage0.column=20\nmessage0.severity=2\nmessage1.rule=jest/valid-expect\nmessage1.text=Expect requires at least 1 argument.\nmessage1.line=1\nmessage1.column=26\nmessage1.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => { expect(1).toBe(1) })",
+                "rules": {
+                    "valid-expect": "error"
+                }
+            },
+            "expected_output": "messages=0\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => { Promise.resolve().then(() => { expect(1).toBe(1) }) })",
+                "rules": {
+                    "valid-expect-in-promise": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/valid-expect-in-promise\nmessage0.text=Promise should be returned to test its fulfillment or rejection\nmessage0.line=1\nmessage0.column=20\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => Promise.resolve().then(() => { expect(1).toBe(1) }))",
+                "rules": {
+                    "valid-expect-in-promise": "error"
+                }
+            },
+            "expected_output": "messages=0\n"
+        },
+        {
+            "input": {
+                "source": "it(\"case\", () => expect(Promise.resolve()).resolves.toBe(1))",
+                "rules": {
+                    "no-expect-resolves": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-expect-resolves\nmessage0.text=Use `expect(await promise)` instead.\nmessage0.line=1\nmessage0.column=44\nmessage0.severity=2\n"
+        }
+    ]
+}

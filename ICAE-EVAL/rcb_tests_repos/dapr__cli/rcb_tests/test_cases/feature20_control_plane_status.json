@@ -1,0 +1,60 @@
+{
+    "description": "Report the health status of the control-plane services running in the cluster. Pods are grouped by their service identity; replicas of the same service are aggregated into a single row with a replica count. Each row reports readiness (healthy True/False), lifecycle status (Running, Pending, Terminated, or Waiting with its reason), the running image version, and a human-readable age. Querying through an uninitialized client surfaces a neutral error category.",
+    "cases": [
+        {
+            "input": {
+                "action": "control_plane_status",
+                "pods": [
+                    {"name": "dapr-dashboard-58877dbc9d-n8qg2", "app": "dapr-dashboard", "age_minutes": 20, "state": "running", "ready": true}
+                ]
+            },
+            "expected_output": "name=dapr-dashboard\nnamespace=dapr-system\nhealthy=True\nstatus=Running\nreplicas=1\nversion=0.0.1\nage=20m\n"
+        },
+        {
+            "input": {
+                "action": "control_plane_status",
+                "pods": [
+                    {"name": "dapr-dashboard-58877dbc9d-n8qg2", "app": "dapr-dashboard", "age_minutes": 0, "state": "waiting", "reason": "test", "ready": false}
+                ]
+            },
+            "expected_output": "name=dapr-dashboard\nnamespace=dapr-system\nhealthy=False\nstatus=Waiting (test)\nreplicas=1\nversion=0.0.1\nage=0s\n"
+        },
+        {
+            "input": {
+                "action": "control_plane_status",
+                "pods": [
+                    {"name": "dapr-dashboard-58877dbc9d-n8qg2", "app": "dapr-dashboard", "age_minutes": 20, "state": "terminated", "ready": false}
+                ]
+            },
+            "expected_output": "name=dapr-dashboard\nnamespace=dapr-system\nhealthy=False\nstatus=Terminated\nreplicas=1\nversion=0.0.1\nage=20m\n"
+        },
+        {
+            "input": {
+                "action": "control_plane_status",
+                "pods": [
+                    {"name": "dapr-dashboard-58877dbc9d-n8qg2", "app": "dapr-dashboard", "age_minutes": 20, "state": "pending", "ready": false}
+                ]
+            },
+            "expected_output": "name=dapr-dashboard\nnamespace=dapr-system\nhealthy=False\nstatus=Pending\nreplicas=1\nversion=0.0.1\nage=20m\n"
+        },
+        {
+            "input": {
+                "action": "control_plane_status",
+                "pods": [
+                    {"name": "dapr-operator-67d7d7bb6c-7h96c", "app": "dapr-operator", "age_minutes": 20, "state": "running", "ready": true},
+                    {"name": "dapr-operator-67d7d7bb6c-2h96d", "app": "dapr-operator", "age_minutes": 20, "state": "running", "ready": true},
+                    {"name": "dapr-operator-67d7d7bb6c-3h96c", "app": "dapr-operator", "age_minutes": 20, "state": "running", "ready": true},
+                    {"name": "dapr-sentry-647759cd46-9ptks", "app": "dapr-sentry", "age_minutes": 20, "state": "running", "ready": true}
+                ]
+            },
+            "expected_output": "name=dapr-operator\nnamespace=dapr-system\nhealthy=True\nstatus=Running\nreplicas=3\nversion=0.0.1\nage=20m\nname=dapr-sentry\nnamespace=dapr-system\nhealthy=True\nstatus=Running\nreplicas=1\nversion=0.0.1\nage=20m\n"
+        },
+        {
+            "input": {
+                "action": "control_plane_status",
+                "empty_client": true
+            },
+            "expected_output": "error=client_not_initialized\n"
+        }
+    ]
+}

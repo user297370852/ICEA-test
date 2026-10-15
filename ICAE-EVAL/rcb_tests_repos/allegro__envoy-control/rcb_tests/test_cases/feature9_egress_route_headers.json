@@ -1,0 +1,21 @@
+{
+    "description": "Egress route configuration generation. For a calling service and a set of upstream cluster route specifications (cluster name, route domain, redirect flag, optional idle/request timeouts), the factory builds a route configuration. When incoming permissions are enabled a request header carrying the caller's identity is added; when disabled it is omitted. When the upstream-remote-address flag is set a response header exposing that address placeholder is added; otherwise it is omitted. The first generated virtual host's first route targets the specified cluster and carries the configured idle and request timeouts. Output reports the sorted request headers, sorted response headers, and the first route's cluster and timeouts.",
+    "cases": [
+        {
+            "input": {"op": "egress_routes", "incomingPermissionsEnabled": true, "serviceName": "client1", "addUpstreamAddressHeader": false, "clusters": [{"clusterName": "srv1", "routeDomain": "srv1", "handleInternalRedirect": true, "idleTimeout": "10s", "requestTimeout": "10s"}]},
+            "expected_output": "requestHeaders=[x-service-name=client1]\nresponseHeaders=[]\nroute0.cluster=srv1\nroute0.idleTimeout=10s\nroute0.requestTimeout=10s\n"
+        },
+        {
+            "input": {"op": "egress_routes", "incomingPermissionsEnabled": false, "serviceName": "client1", "addUpstreamAddressHeader": false, "clusters": [{"clusterName": "srv1", "routeDomain": "srv1", "handleInternalRedirect": true, "idleTimeout": "10s", "requestTimeout": "10s"}]},
+            "expected_output": "requestHeaders=[]\nresponseHeaders=[]\nroute0.cluster=srv1\nroute0.idleTimeout=10s\nroute0.requestTimeout=10s\n"
+        },
+        {
+            "input": {"op": "egress_routes", "incomingPermissionsEnabled": false, "serviceName": "client1", "addUpstreamAddressHeader": true, "clusters": [{"clusterName": "srv1", "routeDomain": "srv1", "handleInternalRedirect": true, "idleTimeout": "10s", "requestTimeout": "10s"}]},
+            "expected_output": "requestHeaders=[]\nresponseHeaders=[x-envoy-upstream-remote-address=%UPSTREAM_REMOTE_ADDRESS%]\nroute0.cluster=srv1\nroute0.idleTimeout=10s\nroute0.requestTimeout=10s\n"
+        },
+        {
+            "input": {"op": "egress_routes", "incomingPermissionsEnabled": false, "serviceName": "client1", "addUpstreamAddressHeader": false, "clusters": [{"clusterName": "srv1", "routeDomain": "srv1", "handleInternalRedirect": true, "idleTimeout": "10s", "requestTimeout": "10s"}]},
+            "expected_output": "requestHeaders=[]\nresponseHeaders=[]\nroute0.cluster=srv1\nroute0.idleTimeout=10s\nroute0.requestTimeout=10s\n"
+        }
+    ]
+}

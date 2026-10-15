@@ -1,0 +1,45 @@
+{
+  "description": "Submit an update request to an existing member where the attribute map carries several keys supplied out of alphabetical order, covering both a successful persistence and a validation failure carrying multiple error entries. On success the response redirects to the member's canonical URL with a success flash notice naming the resource. On failure the controller re-renders the edit-member view with a success status and no flash. The transcript renders the submitted fields as a key-sorted, comma-separated list.",
+  "cases": [
+    {
+      "input": {
+        "action": "update",
+        "id": "5",
+        "attributes": {
+          "gamma": "3",
+          "alpha": "1",
+          "beta": "2"
+        },
+        "data": {
+          "record": {
+            "id": "5"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=find id=5\nstore=update attrs={alpha=1,beta=2,gamma=3} ok=true\nassign=article\nstatus=302\nredirect=http://test.host/articles/5\nflash.notice=Article was successfully updated.\n"
+    },
+    {
+      "input": {
+        "action": "update",
+        "id": "5",
+        "attributes": {
+          "gamma": "3",
+          "alpha": "1",
+          "beta": "2"
+        },
+        "data": {
+          "record": {
+            "id": "5"
+          },
+          "persist": false,
+          "errors": {
+            "alpha": "is blank",
+            "beta": "is invalid"
+          }
+        }
+      },
+      "expected_output": "store=find id=5\nstore=update attrs={alpha=1,beta=2,gamma=3} ok=false\nassign=article\nstatus=200\nbody=Edit HTML\n"
+    }
+  ]
+}

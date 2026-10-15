@@ -1,0 +1,33 @@
+{
+  "description": "Assembly of the request parameters for a full-table read, accumulated through a fluent builder and rendered with the target table designation. Filter conditions on any attribute contribute a filter expression with associated name and value placeholder bindings: equality and inequality, ordered comparisons, prefix match, range, set membership, substring containment and its negation, and attribute presence/absence. Successive conditions are conjoined and placeholder value names are de-duplicated across clauses. Date-valued operands are rendered as ISO-8601 instants. Nested document paths expand into segmented name placeholders. Builder options including a projected attribute list and a parallel-scan segment assignment are reflected in the parameters.",
+  "cases": [
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "in",
+            [
+              "foo@example.com",
+              "test@example.com"
+            ]
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\",\":email_2\":\"test@example.com\"},\"FilterExpression\":\"(#email IN (:email,:email_2))\",\"TableName\":\"accounts\"}\n"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "description": "Resource-owner denial variants. With state enforcement disabled, an explicit denial still redirects with access_denied and no state component. A single input carrying two independent authorize steps shows an approval (issuing a code) followed by a denial (access_denied), each echoing its own state, proving steps are isolated.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": false,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code"
+            }
+          }
+        ],
+        "config": {
+          "enforce_state": false
+        }
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.error=access_denied\nquery.error_description=The user denied access to your application\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code",
+              "state": "first"
+            }
+          },
+          {
+            "action": "authorize",
+            "is_authorized": false,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com",
+              "response_type": "code",
+              "state": "second"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=first\nissued.identity_token=absent\n\nresponse=1\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.error=access_denied\nquery.error_description=The user denied access to your application\nquery.state=second\n"
+    }
+  ]
+}

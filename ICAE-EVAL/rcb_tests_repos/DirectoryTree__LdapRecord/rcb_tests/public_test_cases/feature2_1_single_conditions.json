@@ -1,0 +1,30 @@
+{
+    "description": "Compile a single attribute condition into an LDAP search filter. A condition names an attribute, a match kind, and (for value-bearing matches) a value. The output reports two lines: \"query=\" carries the wire filter with the value escaped byte-by-byte for transmission, and \"unescaped=\" carries the same filter with values shown in their readable form. Equality wraps as (attr=value); negated equality wraps as (!(attr=value)); approximate, greater-or-equal and less-or-equal use ~=, >= and <=; presence tests use (attr=*) and its negation (!(attr=*)); substring matches place a wildcard before, after, or on both sides of the value, each with a negated variant. When no condition is supplied a default presence filter on the object-class attribute is produced. Attribute names containing reserved characters are themselves escaped.",
+    "cases": [
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "cn",
+                        "match": "equals",
+                        "value": "test"
+                    }
+                ]
+            },
+            "expected_output": "query=(cn=\\74\\65\\73\\74)\nunescaped=(cn=test)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "present"
+                    }
+                ]
+            },
+            "expected_output": "query=(field=*)\nunescaped=(field=*)\n"
+        }
+    ]
+}

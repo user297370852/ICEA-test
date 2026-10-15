@@ -1,0 +1,69 @@
+{
+    "description": "When footnote parsing is enabled, render valid references as numbered superscript links, append only referenced definitions, create backreferences, and leave invalid footnote syntax as ordinary text.",
+    "cases": [
+        {
+            "input": {
+                "markdown": "Here's my footnote![^a]\n\n[^a]: Yep.\n",
+                "extensions": [
+                    "footnotes"
+                ]
+            },
+            "expected_output": "<p>Here's my footnote!<sup class=\"footnote-ref\"><a href=\"#fn-a\" id=\"fnref-a\" data-footnote-ref>1</a></sup></p>\n<section class=\"footnotes\" data-footnotes>\n<ol>\n<li id=\"fn-a\">\n<p>Yep. <a href=\"#fnref-a\" class=\"footnote-backref\" data-footnote-backref data-footnote-backref-idx=\"1\" aria-label=\"Back to reference 1\">↩</a></p>\n</li>\n</ol>\n</section>\n"
+        },
+        {
+            "input": {
+                "markdown": "Here is a footnote reference.[^😄ref]\n\n[^😄ref]: Here is the footnote.\n",
+                "extensions": [
+                    "footnotes"
+                ]
+            },
+            "expected_output": "<p>Here is a footnote reference.<sup class=\"footnote-ref\"><a href=\"#fn-%F0%9F%98%84ref\" id=\"fnref-%F0%9F%98%84ref\" data-footnote-ref>1</a></sup></p>\n<section class=\"footnotes\" data-footnotes>\n<ol>\n<li id=\"fn-%F0%9F%98%84ref\">\n<p>Here is the footnote. <a href=\"#fnref-%F0%9F%98%84ref\" class=\"footnote-backref\" data-footnote-backref data-footnote-backref-idx=\"1\" aria-label=\"Back to reference 1\">↩</a></p>\n</li>\n</ol>\n</section>\n"
+        },
+        {
+            "input": {
+                "markdown": "Here is a footnote reference.[^AB] and [^ab]\n\n[^aB]: Here is the footnote.\n",
+                "extensions": [
+                    "footnotes"
+                ]
+            },
+            "expected_output": "<p>Here is a footnote reference.<sup class=\"footnote-ref\"><a href=\"#fn-aB\" id=\"fnref-aB\" data-footnote-ref>1</a></sup> and <sup class=\"footnote-ref\"><a href=\"#fn-aB\" id=\"fnref-aB-2\" data-footnote-ref>1</a></sup></p>\n<section class=\"footnotes\" data-footnotes>\n<ol>\n<li id=\"fn-aB\">\n<p>Here is the footnote. <a href=\"#fnref-aB\" class=\"footnote-backref\" data-footnote-backref data-footnote-backref-idx=\"1\" aria-label=\"Back to reference 1\">↩</a> <a href=\"#fnref-aB-2\" class=\"footnote-backref\" data-footnote-backref data-footnote-backref-idx=\"1-2\" aria-label=\"Back to reference 1-2\">↩<sup class=\"footnote-ref\">2</sup></a></p>\n</li>\n</ol>\n</section>\n"
+        },
+        {
+            "input": {
+                "markdown": "Foo.[^]\n\n[^]: Here is the footnote.\n",
+                "extensions": [
+                    "footnotes"
+                ]
+            },
+            "expected_output": "<p>Foo.[^]</p>\n<p>[^]: Here is the footnote.</p>\n"
+        },
+        {
+            "input": {
+                "markdown": "A footnote in a paragraph[^1]\n\n| Column1   | Column2 |\n| --------- | ------- |\n| foot [^1] | note    |\n\n[^1]: a footnote\n",
+                "extensions": [
+                    "table",
+                    "footnotes"
+                ]
+            },
+            "expected_output": "<p>A footnote in a paragraph<sup class=\"footnote-ref\"><a href=\"#fn-1\" id=\"fnref-1\" data-footnote-ref>1</a></sup></p>\n<table>\n<thead>\n<tr>\n<th>Column1</th>\n<th>Column2</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>foot <sup class=\"footnote-ref\"><a href=\"#fn-1\" id=\"fnref-1-2\" data-footnote-ref>1</a></sup></td>\n<td>note</td>\n</tr>\n</tbody>\n</table>\n<section class=\"footnotes\" data-footnotes>\n<ol>\n<li id=\"fn-1\">\n<p>a footnote <a href=\"#fnref-1\" class=\"footnote-backref\" data-footnote-backref data-footnote-backref-idx=\"1\" aria-label=\"Back to reference 1\">↩</a> <a href=\"#fnref-1-2\" class=\"footnote-backref\" data-footnote-backref data-footnote-backref-idx=\"1-2\" aria-label=\"Back to reference 1-2\">↩<sup class=\"footnote-ref\">2</sup></a></p>\n</li>\n</ol>\n</section>\n"
+        },
+        {
+            "input": {
+                "markdown": "Foo.[^one two]\n\n[^one two]: Here is the footnote.\n",
+                "extensions": [
+                    "footnotes"
+                ]
+            },
+            "expected_output": "<p>Foo.[^one two]</p>\n<p>[^one two]: Here is the footnote.</p>\n"
+        },
+        {
+            "input": {
+                "markdown": "Foo[^**one**]\n[^**one**]: bar\n",
+                "extensions": [
+                    "footnotes"
+                ]
+            },
+            "expected_output": "<p>Foo<sup class=\"footnote-ref\"><a href=\"#fn-**one**\" id=\"fnref-**one**\" data-footnote-ref>1</a></sup></p>\n<section class=\"footnotes\" data-footnotes>\n<ol>\n<li id=\"fn-**one**\">\n<p>bar <a href=\"#fnref-**one**\" class=\"footnote-backref\" data-footnote-backref data-footnote-backref-idx=\"1\" aria-label=\"Back to reference 1\">↩</a></p>\n</li>\n</ol>\n</section>\n"
+        }
+    ]
+}

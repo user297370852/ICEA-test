@@ -1,0 +1,66 @@
+{
+  "description": "Boundary coverage for endpoint-group metric aggregation: a group whose endpoint list is empty, a group that lists the same endpoint more than once so its sum and count are counted once per listing, an average that yields a non-terminating decimal under the platform number rendering, and a group whose member has a duration sum but no recorded request count. The average request duration is reported in milliseconds, or zero when the group has no requests.",
+  "cases": [
+    {
+      "input": {
+        "action": "aggregate_groups",
+        "sum": {},
+        "count": {},
+        "groups": {
+          "empty": []
+        }
+      },
+      "expected_output": "empty avg=0 count=0\n"
+    },
+    {
+      "input": {
+        "action": "aggregate_groups",
+        "sum": {
+          "/a": 5
+        },
+        "count": {
+          "/a": 2
+        },
+        "groups": {
+          "dup": [
+            "/a",
+            "/a"
+          ]
+        }
+      },
+      "expected_output": "dup avg=2500 count=4\n"
+    },
+    {
+      "input": {
+        "action": "aggregate_groups",
+        "sum": {
+          "/a": 1
+        },
+        "count": {
+          "/a": 3
+        },
+        "groups": {
+          "g": [
+            "/a"
+          ]
+        }
+      },
+      "expected_output": "g avg=333.3333333333333 count=3\n"
+    },
+    {
+      "input": {
+        "action": "aggregate_groups",
+        "sum": {
+          "/a": 5
+        },
+        "count": {},
+        "groups": {
+          "g": [
+            "/a"
+          ]
+        }
+      },
+      "expected_output": "g avg=0 count=0\n"
+    }
+  ]
+}

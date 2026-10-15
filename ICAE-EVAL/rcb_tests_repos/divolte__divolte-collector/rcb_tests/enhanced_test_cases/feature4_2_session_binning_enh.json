@@ -1,0 +1,60 @@
+{
+  "description": "Session-binning file sink edge cases: two events sharing one window land in a single file; two events whose sessions started in distinct windows are filed separately; a late event whose session opened in a closed window moves to the current window's file.",
+  "cases": [
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "binning",
+        "records": [
+          {
+            "ts": 100,
+            "session_start": 100
+          },
+          {
+            "ts": 200,
+            "session_start": 100
+          }
+        ]
+      },
+      "expected_output": "published_files=0\ninflight_files=1\ninflight[0]=.avro.partial|100,200\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "binning",
+        "records": [
+          {
+            "ts": 100,
+            "session_start": 100
+          },
+          {
+            "ts": 5100,
+            "session_start": 5100
+          }
+        ]
+      },
+      "expected_output": "published_files=1\ninflight_files=1\npublished[0]=.avro|100\ninflight[0]=.avro.partial|5100\n"
+    },
+    {
+      "input": {
+        "op": "sink",
+        "strategy": "binning",
+        "records": [
+          {
+            "ts": 100,
+            "session_start": 100
+          },
+          {
+            "ts": 1100,
+            "session_start": 1100
+          },
+          {
+            "ts": 9100,
+            "session_start": 100
+          }
+        ]
+      },
+      "expected_output": "published_files=2\ninflight_files=0\npublished[0]=.avro|100,9100\npublished[1]=.avro|1100\n"
+    }
+  ]
+}

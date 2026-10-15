@@ -1,0 +1,49 @@
+{
+  "description": "A received HTTP response carries a 2xx status code together with a decoded payload. The mapping treats this as the success outcome, exposing the payload as the result's value, and any response headers that were present are carried through and remain observable on the result, with header metadata reported in a stable name-sorted order. These cases probe success-code values other than the most common one, the upper edge of the success range, a present-but-empty payload, multi-header carry-through ordering, and non-ASCII payload content.",
+  "cases": [
+    {
+      "input": {
+        "action": "map_response",
+        "code": 201,
+        "body": "Created"
+      },
+      "expected_output": "result=success\nbody=Created\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 299,
+        "body": "boundary"
+      },
+      "expected_output": "result=success\nbody=boundary\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 200,
+        "body": ""
+      },
+      "expected_output": "result=success\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 200,
+        "body": "payload",
+        "headers": {
+          "X-Two": "2",
+          "A-One": "1"
+        }
+      },
+      "expected_output": "result=success\nbody=payload\nheader.A-One=1\nheader.X-Two=2\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 200,
+        "body": "naïve café 日本語"
+      },
+      "expected_output": "result=success\nbody=naïve café 日本語\n"
+    }
+  ]
+}

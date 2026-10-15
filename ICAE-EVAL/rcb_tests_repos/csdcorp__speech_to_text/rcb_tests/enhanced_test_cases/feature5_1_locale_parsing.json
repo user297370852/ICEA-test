@@ -1,0 +1,69 @@
+{
+  "description": "Catalog parsing edge cases: entries with empty identifier and/or empty name (still well-formed with a single colon), entries dropped for having too many colons or no colon, all-malformed input yielding an empty list with no system locale, display-name ordering when names share a prefix, and the system default being the first well-formed entry in original order even when malformed entries precede it.",
+  "cases": [
+    {
+      "input": {
+        "op": "locales",
+        "raw": [
+          ":",
+          "en_US:English"
+        ]
+      },
+      "expected_output": "count=2\nlocale[0]=|\nlocale[1]=en_US|English\nsystem=\n"
+    },
+    {
+      "input": {
+        "op": "locales",
+        "raw": [
+          "id_only:",
+          "x:y:z",
+          "fr_FR:French"
+        ]
+      },
+      "expected_output": "count=2\nlocale[0]=id_only|\nlocale[1]=fr_FR|French\nsystem=id_only\n"
+    },
+    {
+      "input": {
+        "op": "locales",
+        "raw": [
+          "nocolon",
+          "a:b:c",
+          ""
+        ]
+      },
+      "expected_output": "count=0\nsystem=none\n"
+    },
+    {
+      "input": {
+        "op": "locales",
+        "raw": [
+          "junk",
+          "de_DE:Zebra",
+          "es_ES:Apple"
+        ]
+      },
+      "expected_output": "count=2\nlocale[0]=es_ES|Apple\nlocale[1]=de_DE|Zebra\nsystem=de_DE\n"
+    },
+    {
+      "input": {
+        "op": "locales",
+        "raw": [
+          "b:Apple Pie",
+          "a:Apple",
+          "c:Apricot"
+        ]
+      },
+      "expected_output": "count=3\nlocale[0]=a|Apple\nlocale[1]=b|Apple Pie\nlocale[2]=c|Apricot\nsystem=b\n"
+    },
+    {
+      "input": {
+        "op": "locales",
+        "raw": [
+          "xx:",
+          "yy:Beta"
+        ]
+      },
+      "expected_output": "count=2\nlocale[0]=xx|\nlocale[1]=yy|Beta\nsystem=xx\n"
+    }
+  ]
+}

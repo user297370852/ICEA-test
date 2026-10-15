@@ -1,0 +1,72 @@
+{
+  "description": "File copy coverage: the source remains intact after a copy, an empty file copies to an empty destination, and copying into a destination whose parent directory is missing fails.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/a",
+            "text": "data"
+          },
+          {
+            "op": "copy",
+            "from": "/a",
+            "to": "/b"
+          },
+          {
+            "op": "exists",
+            "path": "/a",
+            "as": "file"
+          },
+          {
+            "op": "read",
+            "path": "/a"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=4\ncopied=/b\nexists=true\ntext=\"data\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/empty"
+          },
+          {
+            "op": "copy",
+            "from": "/empty",
+            "to": "/copy"
+          },
+          {
+            "op": "read",
+            "path": "/copy"
+          },
+          {
+            "op": "length",
+            "path": "/copy"
+          }
+        ]
+      },
+      "expected_output": "created_file=/empty\ncopied=/copy\ntext=\"\"\nlength=0\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/a",
+            "text": "x"
+          },
+          {
+            "op": "copy",
+            "from": "/a",
+            "to": "/no/dest"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=1\nerror=no_such_file_or_directory\n"
+    }
+  ]
+}

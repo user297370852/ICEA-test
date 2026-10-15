@@ -39,8 +39,14 @@
 ```
 ├── README.md                        ← 本文件
 ├── 复现状态与操作手册.md              ← 环境搭建 / 运行命令 / 断点续跑 / 踩坑记录
-├── paper/
-│   └── ICAE-Bench论文解读.md         ← 论文中文通俗解读（写给软件工程师）
+├── models.json.example              ← 本地模型端点配置模板（真实 models.json 含 key，不入库）
+├── paper/                           ← 论文中文解读 + arXiv LaTeX 源快照（仅内部使用）
+├── ICAE-EVAL/                       ← 官方评测框架完整快照（含本仓库的适配，见 patches/）
+│   ├── harness/  user_agent/  scripts/  tools/  images/
+│   ├── model_list.json / user_agent/user_model.json  （⚠️ 入库为脱敏占位符版）
+│   ├── fuzzy_prds{,_easy,_medium}/  repo_alias.json  user_agent/prd_json*/  ← Oracle 数据
+│   ├── rcb_tests_repos/             ← 全部 480 任务的权威测试用例
+│   └── .gitignore.upstream-renamed  （上游 .gitignore 改名保留：其原设计是向被测 agent 隐藏上述数据）
 ├── comparison/                      ← 复现产出
 │   ├── GLM-5.3-Flash复现报告.md      ← 完整报告（结果表 + 图 + 失分点分析）
 │   ├── comparison_table.md          ├── paper_main_results.csv   （论文 Table I/II 数字）
@@ -53,8 +59,13 @@
     └── ark-config-example/          （脱敏后的 model_list / user_model 模板，填入自己的 key）
 ```
 
-**不包含**（体积或版权原因）：官方评测代码与数据集（请自行 clone + 下载，见手册）、
-arXiv 论文 LaTeX 源、语言 Docker 镜像与数据压缩包、任何 API key（配置均为脱敏模板）。
+**未包含**（GitHub 100MB 单文件硬限制，获取方式见手册）：黄金仓库 `realcode_repos/`（3.2GB，
+Zenodo record 21071802）、语言 Docker 镜像 `docker_lang_official/`（按手册 `docker pull` +
+`docker save` 重建）、`realcode_repos.tar.lz4`（1.3GB）。
+
+**🔐 安全说明**：所有 API key 均未入库——根目录真实 `models.json` 被排除（仓库内只有
+`models.json.example` 脱敏模板）；`ICAE-EVAL/model_list.json` 与 `ICAE-EVAL/user_agent/user_model.json`
+入库的是脱敏占位符版本。使用前把占位符替换为自己的 key。
 
 ## 3. 复现方法（摘要）
 

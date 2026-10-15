@@ -1,0 +1,54 @@
+{
+    "description": "Processes snapshot files and flags snapshot assertions that are too large or should be inline.",
+    "cases": [
+        {
+            "input": {
+                "mode": "snapshot",
+                "action": "preprocess",
+                "source": "exports[`a`] = `hello`;"
+            },
+            "expected_output": "part0=exports[`a`] = `hello`;\n"
+        },
+        {
+            "input": {
+                "mode": "snapshot",
+                "action": "postprocess",
+                "messages": [
+                    [
+                        {
+                            "ruleId": "no-console"
+                        },
+                        {
+                            "ruleId": "jest/no-large-snapshots"
+                        }
+                    ]
+                ]
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-large-snapshots\n"
+        },
+        {
+            "input": {
+                "source": "expect(value).toMatchSnapshot()",
+                "rules": {
+                    "prefer-inline-snapshots": "error"
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/prefer-inline-snapshots\nmessage0.text=Use toMatchInlineSnapshot() instead\nmessage0.line=1\nmessage0.column=15\nmessage0.severity=2\n"
+        },
+        {
+            "input": {
+                "source": "expect(value).toMatchInlineSnapshot(`\nline1\nline2\nline3\n`)",
+                "filename": "mock.js",
+                "rules": {
+                    "no-large-snapshots": [
+                        "error",
+                        {
+                            "inlineMaxSize": 2
+                        }
+                    ]
+                }
+            },
+            "expected_output": "messages=1\nmessage0.rule=jest/no-large-snapshots\nmessage0.text=Expected Jest snapshot to be smaller than 2 lines but was 4 lines long\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+        }
+    ]
+}

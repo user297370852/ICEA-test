@@ -1,0 +1,59 @@
+{
+  "description": "Additional failed no-value widening cases covering empty error payloads, correlation-id behavior, not-found messages, and validation metadata.",
+  "cases": [
+    {
+      "input": {
+        "op": "void_to_typed",
+        "factory": "error_empty"
+      },
+      "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "void_to_typed",
+        "factory": "error",
+        "errors": [
+          "",
+          "after empty"
+        ]
+      },
+      "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=|after empty\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "void_to_typed",
+        "factory": "error_correlation",
+        "correlation_id": "trace-xyz",
+        "errors": [
+          "correlated failure"
+        ]
+      },
+      "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=trace-xyz\nerrors=correlated failure\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "void_to_typed",
+        "factory": "invalid",
+        "validation_errors": [
+          {
+            "identifier": "state",
+            "error_message": "Unsupported",
+            "error_code": "State.Unsupported",
+            "severity": "Info"
+          }
+        ]
+      },
+      "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=state;message=Unsupported;code=State.Unsupported;severity=Info\n"
+    },
+    {
+      "input": {
+        "op": "void_to_typed",
+        "factory": "not_found_message",
+        "errors": [
+          "Void source not found"
+        ]
+      },
+      "expected_output": "status=NotFound\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=Void source not found\nvalidationErrors=\n"
+    }
+  ]
+}

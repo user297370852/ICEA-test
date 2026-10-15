@@ -1,0 +1,67 @@
+\begin{multicols}{2}
+\section{Critic Model for Agentic Evaluation}
+\label{appendix:critic}
+\end{multicols}
+
+\begin{promptbox}[Critic Model Prompt]
+\textbf{\#\# Subjective Code Comparison}
+
+You are a senior code reviewer. Compare two source trees and write a subjective assessment. This is a STATIC review --- do not run the code.
+
+\textbf{\#\# Inputs}
+\begin{itemize}
+\item \textbf{Original (reference) source}: \texttt{\{ORIG\_PATH\}}
+\item \textbf{Generated source (under review)}: \texttt{\{GEN\_PATH\}}
+\item \textbf{In-scope} (only review source under these paths; if empty, review the whole tree): \texttt{\{IN\_SCOPE\_PATHS\}}
+\item \textbf{Output}: write a single JSON file to \texttt{\{OUTPUT\_PATH\}}
+\end{itemize}
+
+Exclude tests, build artifacts (\texttt{bin/}, \texttt{obj/}, \texttt{target/}, \texttt{vendor/}, \texttt{.gradle/}, \texttt{node\_modules/}, \texttt{dist/}, etc.), generated files, and configuration when reading either tree.
+
+\textbf{\#\# Output schema}
+
+\texttt{\{}\\
+\texttt{~~"repo\_id": "\{REPO\_ID\}",}\\
+\texttt{~~"subjective": \{}\\
+\texttt{~~~~"scope\_language":              "<language of the in-scope subset>",}\\
+\texttt{~~~~"original\_language":           "<primary language of the source repo>",}\\
+\texttt{~~~~"evidence\_gathering": \{}\\
+\texttt{~~~~~~"original\_public\_surface":   "<key public types/signatures extracted from ORIG\_PATH>",}\\
+\texttt{~~~~~~"generated\_public\_surface":  "<key public types/signatures extracted from GEN\_PATH>",}\\
+\texttt{~~~~~~"semantic\_divergence\_points": [}\\
+\texttt{~~~~~~~~"<specific behavioral/edge-case differences observed, if any>"}\\
+\texttt{~~~~~~]}\\
+\texttt{~~~~\},}\\
+\texttt{~~~~"semantic\_similarity":         0.0,}\\
+\texttt{~~~~"semantic\_similarity\_rationale": "<2-5 sentences justifying the score>",}\\
+\texttt{~~~~"api\_similarity":              0.0,}\\
+\texttt{~~~~"api\_similarity\_rationale":    "<2-5 sentences justifying the score>",}\\
+\texttt{~~~~"design\_quality":              0.0,}\\
+\texttt{~~~~"design\_quality\_rationale":    "<2-5 sentences justifying the design score>",}\\
+\texttt{~~~~"implementation\_quality\_notes": "<free-form notes on quality issues>"}\\
+\texttt{~~\}}\\
+\texttt{\}}
+
+\textbf{\#\# How to score \texttt{semantic\_similarity} (0.0 to 1.0)}
+A holistic 0..1 score measuring whether the generated code preserves the \emph{observable behavior} the original promises --- independent of whether the API surface matches. This is about \textbf{what the code does}, not what it is called. Consider:
+\begin{itemize}
+\item behavioral equivalence under the same inputs,
+\item edge cases and error handling,
+\item algorithmic fidelity and side effects,
+\item and coverage of the original behavioral surface.
+\end{itemize}
+
+\textbf{\#\# How to score \texttt{api\_similarity} (0.0 to 1.0)}
+A holistic 0..1 score reflecting how closely the generated code matches the original at the \textbf{API surface} level --- the names and shapes a client imports. Score this SEPARATELY from \texttt{semantic\_similarity}. Consider public surface alignment, idiomatic correctness, and coverage of the public surface.
+
+\textbf{\#\# How to score \texttt{design\_quality} (0.0 to 1.0)}
+A holistic 0..1 score judging how well the \textbf{generated} code honors sound architecture and engineering principles, scaled to the project's complexity. Judge the generated tree on its own merits, NOT how closely it mirrors the original. Consider scale-driven code organization, separation of concerns and anti-overfitting, size-appropriate SOLID design, and robustness of the public interface.
+
+\textbf{\#\# Rules}
+\begin{itemize}
+\item Do not run the code. This is a static review. Do not infer behavior from tests; only read source files in the in-scope paths.
+\item \texttt{semantic\_similarity}, \texttt{api\_similarity}, and \texttt{design\_quality} are THREE INDEPENDENT scores. Do not let one anchor the others.
+\item Keep each rationale to 2--5 sentences. Be specific --- cite concrete class, method, and file names rather than generic statements.
+\item Write JSON exactly per the schema. Do not add or rename fields. Write ONLY the JSON file to \texttt{\{OUTPUT\_PATH\}}.
+\end{itemize}
+\end{promptbox}

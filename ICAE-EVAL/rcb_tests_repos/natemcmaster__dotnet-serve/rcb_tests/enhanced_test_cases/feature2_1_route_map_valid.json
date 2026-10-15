@@ -1,0 +1,113 @@
+{
+  "description": "Parse a list of raw route-mapping strings into a source-pattern to destination-prefix map. Each string contains exactly one unescaped '=' separator; the part before it is the source pattern and the part after is the destination prefix. A literal equals sign inside either side is escaped by preceding it with a backslash, and each escaped equals is unescaped to a plain equals in the result. The output reports the number of resulting entries followed by one 'source => destination' line per entry in input order.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": []
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "/a=http://x",
+          "/b=http://y"
+        ]
+      },
+      "expected_output": "count=2\n/a => http://x\n/b => http://y\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "/a=x",
+          "/A=y"
+        ]
+      },
+      "expected_output": "count=2\n/a => x\n/A => y\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "   /api=http://host   "
+        ]
+      },
+      "expected_output": "count=1\n/api => http://host\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "a = b"
+        ]
+      },
+      "expected_output": "count=1\na  =>  b\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "a\\=b\\=c=d"
+        ]
+      },
+      "expected_output": "count=1\na=b=c => d\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "\\=abc=def"
+        ]
+      },
+      "expected_output": "count=1\n=abc => def\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "a=b\\="
+        ]
+      },
+      "expected_output": "count=1\na => b=\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "a\\b=c"
+        ]
+      },
+      "expected_output": "count=1\na\\b => c\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "x\\=y=p\\=q"
+        ]
+      },
+      "expected_output": "count=1\nx=y => p=q\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "/api/{**all}=https://localhost:5001/x"
+        ]
+      },
+      "expected_output": "count=1\n/api/{**all} => https://localhost:5001/x\n"
+    },
+    {
+      "input": {
+        "op": "parse_route_map",
+        "mappings": [
+          "a\\==b"
+        ]
+      },
+      "expected_output": "count=1\na= => b\n"
+    }
+  ]
+}

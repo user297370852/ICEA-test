@@ -1,0 +1,79 @@
+{
+  "description": "Place find/detail variants: phonenumber input type, valid field subsets, invalid fields, invalid location bias prefix, and place detail field validation.",
+  "cases": [
+    {
+      "input": {
+        "action": "find_place_request",
+        "request": {
+          "input": "+61210123456",
+          "input_type": "phonenumber"
+        }
+      },
+      "expected_output": "method=GET\nstatus=200\nurl=https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=%2B61210123456&inputtype=phonenumber&key=AIzaasdf\ncandidate_count=0\n"
+    },
+    {
+      "input": {
+        "action": "find_place_request",
+        "request": {
+          "input": "museum",
+          "input_type": "textquery",
+          "fields": [
+            "name",
+            "place_id"
+          ]
+        }
+      },
+      "expected_output": "method=GET\nstatus=200\nurl=https://maps.googleapis.com/maps/api/place/findplacefromtext/json?fields=name%2Cplace_id&input=museum&inputtype=textquery&key=AIzaasdf\ncandidate_count=0\n"
+    },
+    {
+      "input": {
+        "action": "find_place_request",
+        "request": {
+          "input": "x",
+          "input_type": "textquery",
+          "fields": [
+            "bogus_field"
+          ]
+        }
+      },
+      "expected_output": "error=invalid_argument\n"
+    },
+    {
+      "input": {
+        "action": "find_place_request",
+        "request": {
+          "input": "x",
+          "input_type": "textquery",
+          "location_bias": "badprefix:1,2"
+        }
+      },
+      "expected_output": "error=invalid_argument\n"
+    },
+    {
+      "input": {
+        "action": "place_detail_request",
+        "request": {
+          "place_id": "abc",
+          "fields": [
+            "name",
+            "rating"
+          ],
+          "language": "fr"
+        }
+      },
+      "expected_output": "method=GET\nstatus=200\nurl=https://maps.googleapis.com/maps/api/place/details/json?fields=name%2Crating&key=AIzaasdf&language=fr&placeid=abc&reviews_sort=most_relevant\nresult_keys=0\n"
+    },
+    {
+      "input": {
+        "action": "place_detail_request",
+        "request": {
+          "place_id": "abc",
+          "fields": [
+            "nonexistent"
+          ]
+        }
+      },
+      "expected_output": "error=invalid_argument\n"
+    }
+  ]
+}

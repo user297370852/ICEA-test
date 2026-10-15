@@ -1,0 +1,69 @@
+{
+  "description": "Additional leveled logging cases covering JSON ordering for default levels, prefix output with defaulted custom values, custom keys for non-debug severities, and normalized unknown level errors.",
+  "cases": [
+    {
+      "input": {
+        "op": "leveled",
+        "format": "json",
+        "level": "error",
+        "keyvals": [
+          "msg",
+          "failed",
+          "code",
+          500
+        ]
+      },
+      "expected_output": "{\"code\":500,\"level\":\"ERROR\",\"msg\":\"failed\"}\n"
+    },
+    {
+      "input": {
+        "op": "leveled",
+        "format": "prefix",
+        "level": "info",
+        "levelKey": "severity",
+        "levelValues": {
+          "error": "fatal"
+        },
+        "context": [
+          [
+            "request",
+            "r1"
+          ]
+        ],
+        "keyvals": [
+          "msg",
+          "ok"
+        ]
+      },
+      "expected_output": "severity=INFO request=r1 msg=ok\n"
+    },
+    {
+      "input": {
+        "op": "leveled",
+        "format": "json",
+        "level": "error",
+        "levelKey": "sev",
+        "levelValues": {
+          "debug": "dbg",
+          "info": "inf",
+          "error": "err"
+        },
+        "context": [
+          [
+            "component",
+            "worker"
+          ],
+          [
+            "attempt",
+            3
+          ]
+        ],
+        "keyvals": [
+          "msg",
+          "retry"
+        ]
+      },
+      "expected_output": "{\"attempt\":3,\"component\":\"worker\",\"msg\":\"retry\",\"sev\":\"err\"}\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "description": "Maps service identifiers into route paths when the identifier matches configured capture patterns, leaves unmatched identifiers unchanged, and cleans empty path segments from generated routes.",
+  "cases": [
+    {
+      "input": {"servicePattern":"(?<domain>^\\w+)(-(?<name>\\w+)-|-)(?<version>v\\d+$)","routePattern":"${version}/${domain}/${name}","serviceId":"rest-service-v1"},
+      "expected_output": "service_id=rest-service-v1\nroute=v1/rest/service\n"
+    },
+    {
+      "input": {"servicePattern":"(?<domain>^\\w+)(-(?<name>\\w+)-|-)(?<version>v\\d+$)","routePattern":"${version}/${domain}/${name}","serviceId":"rest-service"},
+      "expected_output": "service_id=rest-service\nroute=rest-service\n"
+    },
+    {
+      "input": {"servicePattern":"(?<domain>^\\w+)(-(?<name>\\w+)-|-)(?<version>v\\d+$)(?<nevermatch>.)?","routePattern":"/${version}/${nevermatch}/${domain}/${name}/","serviceId":"domain-service-v1"},
+      "expected_output": "service_id=domain-service-v1\nroute=v1/domain/service\n"
+    },
+    {
+      "input": {"servicePattern":"(?<domain>^\\w+)(-(?<name>\\w+)-|-)(?<version>v\\d+$)(?<nevermatch>.)?","routePattern":"/${version}/${nevermatch}/${domain}/${name}/","serviceId":"domain-v1"},
+      "expected_output": "service_id=domain-v1\nroute=v1/domain\n"
+    }
+  ]
+}

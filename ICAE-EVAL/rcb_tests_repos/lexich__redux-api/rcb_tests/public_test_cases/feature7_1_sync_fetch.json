@@ -1,0 +1,25 @@
+{
+  "description": "A synced fetch only hits the transport when the endpoint's store slice is not already marked synced. The first synced call against an unsynced slice performs a full fetch lifecycle (fetch action carries the syncing flag, then success); the data ends stored in the slice.",
+  "cases": [
+    {
+      "input": {
+        "op": "call_endpoint",
+        "endpoints": {
+          "test": "/api/url"
+        },
+        "fetch": {
+          "fixed": {
+            "msg": "hello"
+          }
+        },
+        "calls": [
+          {
+            "endpoint": "test",
+            "mode": "sync"
+          }
+        ]
+      },
+      "expected_output": "action type=@@redux-api@test syncing=true request={\"params\":{},\"pathvars\":null}\naction type=@@redux-api@test_success syncing=false request={\"params\":{},\"pathvars\":null} data={\"msg\":\"hello\"}\nstate test={\"data\":{\"msg\":\"hello\"},\"error\":null,\"loading\":false,\"sync\":true,\"syncing\":false}\n"
+    }
+  ]
+}

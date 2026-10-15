@@ -1,0 +1,109 @@
+{
+  "description": "Boundary coverage for reading claim values: selecting an empty list of names, selecting the same name more than once, selecting names in an order different from insertion, returning a whole single-element set, and returning values that are non-ASCII strings, large integers and negative integers.",
+  "cases": [
+    {
+      "input": {
+        "op": "payload_get",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 1
+          },
+          {
+            "name": "jti",
+            "value": "foo"
+          }
+        ],
+        "select": []
+      },
+      "expected_output": "[]\n"
+    },
+    {
+      "input": {
+        "op": "payload_get",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 1
+          },
+          {
+            "name": "jti",
+            "value": "foo"
+          }
+        ],
+        "select": [
+          "sub",
+          "sub"
+        ]
+      },
+      "expected_output": "[1,1]\n"
+    },
+    {
+      "input": {
+        "op": "payload_get",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 1
+          },
+          {
+            "name": "jti",
+            "value": "foo"
+          }
+        ],
+        "select": [
+          "jti",
+          "sub"
+        ]
+      },
+      "expected_output": "[\"foo\",1]\n"
+    },
+    {
+      "input": {
+        "op": "payload_get",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 9999999999
+          }
+        ]
+      },
+      "expected_output": "{\"sub\":9999999999}\n"
+    },
+    {
+      "input": {
+        "op": "payload_get",
+        "claims": [
+          {
+            "name": "sub",
+            "value": -1
+          },
+          {
+            "name": "jti",
+            "value": "bär"
+          }
+        ]
+      },
+      "expected_output": "{\"sub\":-1,\"jti\":\"b\\u00e4r\"}\n"
+    },
+    {
+      "input": {
+        "op": "payload_get",
+        "claims": [
+          {
+            "name": "sub",
+            "value": 0
+          },
+          {
+            "name": "jti",
+            "value": ""
+          }
+        ],
+        "select": [
+          "jti"
+        ]
+      },
+      "expected_output": "[\"\"]\n"
+    }
+  ]
+}

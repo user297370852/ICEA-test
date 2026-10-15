@@ -1,0 +1,85 @@
+{
+  "description": "A document matcher treats a plain value as an equality condition, covering boundary inputs: equality against an empty array, a scalar equality that also matches a non-array field equal to a stored array element, and equality against an embedded document including a field-order comparison. Documents are returned in their original order.",
+  "cases": [
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": []
+        },
+        "documents": [
+          {
+            "a": []
+          },
+          {
+            "a": [
+              1
+            ]
+          },
+          {
+            "b": []
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ ]}\n{ \"a\" : [ 1]}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": 5
+        },
+        "documents": [
+          {
+            "a": [
+              4,
+              5,
+              6
+            ]
+          },
+          {
+            "a": 5
+          },
+          {
+            "a": [
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ 4 , 5 , 6]}\n{ \"a\" : 5}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "b": 1,
+            "c": 2
+          }
+        },
+        "documents": [
+          {
+            "a": {
+              "b": 1,
+              "c": 2
+            }
+          },
+          {
+            "a": {
+              "b": 1
+            }
+          },
+          {
+            "a": {
+              "c": 2,
+              "b": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : { \"b\" : 1 , \"c\" : 2}}\n"
+    }
+  ]
+}

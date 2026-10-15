@@ -1,0 +1,152 @@
+{
+  "description": "HTTP transport status mapping: over HTTP the response carries a status code derived from the JSON-RPC outcome - success is 200, an unknown method is 404, malformed input is 400, and a service or parameter error is 500; a batch containing any error reports 500. GET requests build the call from method/id/params query parameters, and a custom status-code provider can remap every category.",
+  "cases": [
+    {
+      "description": "successful call over HTTP is 200",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"hi\"\n"
+    },
+    {
+      "description": "unknown method over HTTP is 404",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "nope",
+          "params": []
+        }
+      },
+      "expected_output": "http_status=404\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n"
+    },
+    {
+      "description": "malformed input over HTTP is 400",
+      "input": {
+        "transport": "http_post",
+        "request_raw": "{bad"
+      },
+      "expected_output": "http_status=400\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=\"null\"\noutcome=error\nerror_code=-32700\nerror_category=parse_error\nerror_message=JSON parse error\n"
+    },
+    {
+      "description": "invalid parameters over HTTP is 500",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      "expected_output": "http_status=500\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n"
+    },
+    {
+      "description": "unmapped service error over HTTP is 500",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "throwsUnmapped",
+          "params": []
+        }
+      },
+      "expected_output": "http_status=500\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32001\nerror_category=error_not_handled\n"
+    },
+    {
+      "description": "batch with an error reports 500",
+      "input": {
+        "transport": "http_post",
+        "request": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "throwsUnmapped",
+            "params": []
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "echo",
+            "params": [
+              "ok"
+            ]
+          }
+        ]
+      },
+      "expected_output": "http_status=500\ncontent_type=application/json-rpc\nbatch_size=2\n--\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32001\nerror_category=error_not_handled\n--\njsonrpc=2.0\nid=2\noutcome=success\nresult=\"ok\"\n"
+    },
+    {
+      "description": "GET builds the call from query parameters",
+      "input": {
+        "transport": "http_get",
+        "query": {
+          "method": "echo",
+          "id": "1",
+          "params": "[\"hi\"]"
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"hi\"\n"
+    },
+    {
+      "description": "custom provider remaps unknown method",
+      "input": {
+        "transport": "http_post",
+        "statusProvider": "custom",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "nope",
+          "params": []
+        }
+      },
+      "expected_output": "http_status=1003\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n"
+    },
+    {
+      "description": "custom provider remaps success",
+      "input": {
+        "transport": "http_post",
+        "statusProvider": "custom",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "http_status=1000\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"hi\"\n"
+    },
+    {
+      "description": "custom provider remaps invalid parameters",
+      "input": {
+        "transport": "http_post",
+        "statusProvider": "custom",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "a",
+            "b"
+          ]
+        }
+      },
+      "expected_output": "http_status=1004\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32602\nerror_category=method_params_invalid\nerror_message=method parameters invalid\n"
+    }
+  ]
+}

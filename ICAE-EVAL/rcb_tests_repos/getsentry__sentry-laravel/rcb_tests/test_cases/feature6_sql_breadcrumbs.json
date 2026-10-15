@@ -1,0 +1,57 @@
+{
+    "description": "Database query events emit SQL breadcrumbs according to query and binding recording settings.",
+    "cases": [
+        {
+            "input": {
+                "feature": "sql_breadcrumbs",
+                "record_queries": true,
+                "record_bindings": false,
+                "query": "SELECT * FROM breadcrumbs WHERE bindings = ?;",
+                "bindings": [
+                    "1"
+                ],
+                "duration_ms": 10
+            },
+            "expected_output": "breadcrumb_count=1\nbreadcrumb_exists=true\nbreadcrumb_category=db.sql.query\nbreadcrumb_level=info\nbreadcrumb_message=SELECT * FROM breadcrumbs WHERE bindings = ?;\nbreadcrumb_metadata={\"connectionName\":\"test\",\"executionTimeMs\":10}\n"
+        },
+        {
+            "input": {
+                "feature": "sql_breadcrumbs",
+                "record_queries": true,
+                "record_bindings": true,
+                "query": "SELECT * FROM breadcrumbs WHERE bindings = ?;",
+                "bindings": [
+                    "1"
+                ],
+                "duration_ms": 10
+            },
+            "expected_output": "breadcrumb_count=1\nbreadcrumb_exists=true\nbreadcrumb_category=db.sql.query\nbreadcrumb_level=info\nbreadcrumb_message=SELECT * FROM breadcrumbs WHERE bindings = ?;\nbreadcrumb_metadata={\"connectionName\":\"test\",\"executionTimeMs\":10,\"bindings\":[\"1\"]}\n"
+        },
+        {
+            "input": {
+                "feature": "sql_breadcrumbs",
+                "record_queries": false,
+                "record_bindings": false,
+                "query": "SELECT * FROM breadcrumbs WHERE bindings = ?;",
+                "bindings": [
+                    "1"
+                ],
+                "duration_ms": 10
+            },
+            "expected_output": "breadcrumb_count=0\nbreadcrumb_exists=false\n"
+        },
+        {
+            "input": {
+                "feature": "sql_breadcrumbs",
+                "record_queries": true,
+                "record_bindings": false,
+                "query": "SELECT * FROM breadcrumbs WHERE bindings <> ?;",
+                "bindings": [
+                    "1"
+                ],
+                "duration_ms": 10
+            },
+            "expected_output": "breadcrumb_count=1\nbreadcrumb_exists=true\nbreadcrumb_category=db.sql.query\nbreadcrumb_level=info\nbreadcrumb_message=SELECT * FROM breadcrumbs WHERE bindings <> ?;\nbreadcrumb_metadata={\"connectionName\":\"test\",\"executionTimeMs\":10}\n"
+        }
+    ]
+}

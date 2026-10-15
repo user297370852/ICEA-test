@@ -1,0 +1,106 @@
+{
+  "description": "Boundary coverage for ignore-rule filtering when building a report. Exercises: an empty ignore list (every file retained), an ignore rule that drops every file (empty report), a plain substring rule matching mid-path, an anchored extension pattern that excludes only true matches at the end of the key while keeping a file that merely contains those letters mid-path, and multiple rules applied together. Retained files keep their line-hit arrays and the report is sorted by path.",
+  "cases": [
+    {
+      "input": {
+        "op": "build_report",
+        "snapshot": {
+          "a.rb": [
+            1
+          ],
+          "b.rb": [
+            2,
+            null
+          ]
+        },
+        "ignore": [],
+        "root": "/full/remote_app/path",
+        "root_paths": []
+      },
+      "expected_output": "count=2\nfile=a.rb\nlines=1\nfile=b.rb\nlines=2,null"
+    },
+    {
+      "input": {
+        "op": "build_report",
+        "snapshot": {
+          "vendor/a.rb": [
+            1
+          ],
+          "vendor/b.rb": [
+            2
+          ]
+        },
+        "ignore": [
+          "vendor"
+        ],
+        "root": "/full/remote_app/path",
+        "root_paths": []
+      },
+      "expected_output": "count=0"
+    },
+    {
+      "input": {
+        "op": "build_report",
+        "snapshot": {
+          "app/test/foo.rb": [
+            1
+          ],
+          "app/main.rb": [
+            2
+          ]
+        },
+        "ignore": [
+          "test"
+        ],
+        "root": "/full/remote_app/path",
+        "root_paths": []
+      },
+      "expected_output": "count=1\nfile=app/main.rb\nlines=2"
+    },
+    {
+      "input": {
+        "op": "build_report",
+        "snapshot": {
+          "a.erbx.rb": [
+            1
+          ],
+          "b.erb": [
+            2
+          ],
+          "c.rb": [
+            3
+          ]
+        },
+        "ignore": [
+          ".erb$"
+        ],
+        "root": "/full/remote_app/path",
+        "root_paths": []
+      },
+      "expected_output": "count=2\nfile=a.erbx.rb\nlines=1\nfile=c.rb\nlines=3"
+    },
+    {
+      "input": {
+        "op": "build_report",
+        "snapshot": {
+          "vendor/x.rb": [
+            1
+          ],
+          "app/y.slim": [
+            2
+          ],
+          "app/z.rb": [
+            3
+          ]
+        },
+        "ignore": [
+          "vendor",
+          ".slim$"
+        ],
+        "root": "/full/remote_app/path",
+        "root_paths": []
+      },
+      "expected_output": "count=1\nfile=app/z.rb\nlines=3"
+    }
+  ]
+}

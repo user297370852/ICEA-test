@@ -1,0 +1,280 @@
+{
+  "description": "Evaluate a native-token event predicate against a sequence of blocks under boundary and edge conditions, including empty block streams, empty accepted-action sets, accepted-action sets that exclude the emitted action, transactions emitting several native-token events, multiple matching transactions within a single block, and selection across multiple blocks. The report states whether any block was selected, how many blocks were selected, and the identifiers of the matched transactions.",
+  "cases": [
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": [
+            "mint"
+          ]
+        },
+        "blocks": []
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": []
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "STXMintEvent",
+                    "data": {
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": [
+            "transfer",
+            "lock"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "STXMintEvent",
+                    "data": {
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": [
+            "transfer"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "STXMintEvent",
+                    "data": {
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  },
+                  {
+                    "type": "STXTransferEvent",
+                    "data": {
+                      "sender": "",
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xaa\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": [
+            "transfer"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xa1",
+                "events": [
+                  {
+                    "type": "STXTransferEvent",
+                    "data": {
+                      "sender": "",
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  }
+                ]
+              },
+              {
+                "txid": "0xa2",
+                "events": [
+                  {
+                    "type": "STXTransferEvent",
+                    "data": {
+                      "sender": "",
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xa1,0xa2\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": [
+            "mint",
+            "transfer",
+            "lock"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xaa",
+                "events": [
+                  {
+                    "type": "STXLockEvent",
+                    "data": {
+                      "locked_amount": "",
+                      "unlock_height": "",
+                      "locked_address": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0xaa\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": [
+            "mint",
+            "transfer"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xa1",
+                "events": [
+                  {
+                    "type": "STXMintEvent",
+                    "data": {
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "transactions": [
+              {
+                "txid": "0xa2",
+                "events": [
+                  {
+                    "type": "STXTransferEvent",
+                    "data": {
+                      "sender": "",
+                      "recipient": "",
+                      "amount": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=2\nmatched_transactions=0xa1,0xa2\n"
+    },
+    {
+      "input": {
+        "predicate": {
+          "scope": "stx_event",
+          "actions": [
+            "lock"
+          ]
+        },
+        "blocks": [
+          {
+            "transactions": [
+              {
+                "txid": "0xa1",
+                "events": [
+                  {
+                    "type": "STXLockEvent",
+                    "data": {
+                      "locked_amount": "",
+                      "unlock_height": "",
+                      "locked_address": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "transactions": [
+              {
+                "txid": "0xa2",
+                "events": [
+                  {
+                    "type": "STXLockEvent",
+                    "data": {
+                      "locked_amount": "",
+                      "unlock_height": "",
+                      "locked_address": ""
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "triggered=true\napply_block_count=2\nmatched_transactions=0xa1,0xa2\n"
+    }
+  ]
+}

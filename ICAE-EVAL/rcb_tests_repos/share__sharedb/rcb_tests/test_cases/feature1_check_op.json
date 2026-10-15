@@ -1,0 +1,149 @@
+{
+    "description": "Validate the structural well-formedness of a single operation envelope. A well-formed envelope is a non-null map that declares exactly one intent: a create whose payload is a map naming a registered document type, a deletion flag set to the literal boolean true, or an edit payload under the op field. Optional source and sequence identifiers, when present, must appear together with the correct primitive shapes (source a string, sequence a number). The check reports whether the envelope is well-formed, and on failure reports a normalized category distinguishing a malformed envelope from a reference to an unregistered type.",
+    "cases": [
+        {
+            "input": {
+                "action": "checkOp",
+                "op": "hi"
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp"
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": 123
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": []
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "v": 5
+                }
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "del": true,
+                    "v": 5,
+                    "src": "hi"
+                }
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "del": true,
+                    "v": 5,
+                    "seq": 123
+                }
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "del": true,
+                    "v": 5,
+                    "src": "hi",
+                    "seq": "there"
+                }
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "create": {}
+                }
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "create": 123
+                }
+            },
+            "expected_output": "valid=false\ncode=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "create": {
+                        "type": "something that does not exist"
+                    }
+                }
+            },
+            "expected_output": "valid=false\ncode=ERR_DOC_TYPE_NOT_RECOGNIZED\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "create": {
+                        "type": "json0"
+                    }
+                }
+            },
+            "expected_output": "valid=true\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "create": {
+                        "type": "json0",
+                        "data": "hi there"
+                    }
+                }
+            },
+            "expected_output": "valid=true\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "del": true
+                }
+            },
+            "expected_output": "valid=true\n"
+        },
+        {
+            "input": {
+                "action": "checkOp",
+                "op": {
+                    "op": [
+                        1,
+                        2,
+                        3
+                    ]
+                }
+            },
+            "expected_output": "valid=true\n"
+        }
+    ]
+}

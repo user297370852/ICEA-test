@@ -1,0 +1,116 @@
+{
+  "description": "While servicing the connection, an inbound QoS 0 PUBLISH is parsed and delivered to the message handler with the topic text, raw payload bytes and payload length. These cases exercise an empty payload, an empty topic, an embedded zero byte and two messages delivered across consecutive services.",
+  "cases": [
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "inbound",
+            "bytes": "30 07 00 05 74 6f 70 69 63"
+          },
+          {
+            "op": "loop"
+          }
+        ]
+      },
+      "expected_output": "loop=1\nmessage topic=topic payload= length=0\nsent=\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "inbound",
+            "bytes": "30 09 00 00 70 61 79 6c 6f 61 64"
+          },
+          {
+            "op": "loop"
+          }
+        ]
+      },
+      "expected_output": "loop=1\nmessage topic= payload=70 61 79 6c 6f 61 64 length=7\nsent=\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "inbound",
+            "bytes": "30 09 00 05 74 6f 70 69 63 00 02 ff"
+          },
+          {
+            "op": "loop"
+          }
+        ]
+      },
+      "expected_output": "loop=1\nmessage topic=topic payload=00 02 length=2\nsent=\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "inbound",
+            "bytes": "30 08 00 05 61 6c 70 68 61 31"
+          },
+          {
+            "op": "loop"
+          },
+          {
+            "op": "inbound",
+            "bytes": "30 07 00 04 62 65 74 61 32"
+          },
+          {
+            "op": "loop"
+          }
+        ]
+      },
+      "expected_output": "loop=1\nmessage topic=alpha payload=31 length=1\nsent=\nloop=1\nmessage topic=beta payload=32 length=1\nsent=\n"
+    }
+  ]
+}

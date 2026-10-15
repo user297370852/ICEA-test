@@ -1,0 +1,94 @@
+{
+  "description": "Enhanced coverage for account deletion after establishing a signed-in user: a fully successful deletion that clears the current session, and an alternate normalized failure category (an invalid/expired credential) reported when the backend rejects the removal.",
+  "cases": [
+    {
+      "input": {
+        "action": "delete_account",
+        "email": "gone@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "register": {
+            "status": 200,
+            "body": {
+              "idToken": "tok-ok-del",
+              "email": "gone@example.com",
+              "refreshToken": "refresh-ok-del",
+              "localId": "uid-ok-del"
+            }
+          },
+          "account": {
+            "status": 200,
+            "body": {
+              "users": [
+                {
+                  "localId": "uid-ok-del",
+                  "email": "gone@example.com",
+                  "createdAt": "1600000000000",
+                  "lastLoginAt": "1600000005000",
+                  "providerUserInfo": [
+                    {
+                      "providerId": "password"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "remove": {
+            "status": 200,
+            "body": {
+              "kind": "identitytoolkit#DeleteAccountResponse"
+            }
+          }
+        }
+      },
+      "expected_output": "deleted=true\ncurrent_user=null\n"
+    },
+    {
+      "input": {
+        "action": "delete_account",
+        "email": "stale@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "register": {
+            "status": 200,
+            "body": {
+              "idToken": "tok-stale",
+              "email": "stale@example.com",
+              "refreshToken": "refresh-stale",
+              "localId": "uid-stale"
+            }
+          },
+          "account": {
+            "status": 200,
+            "body": {
+              "users": [
+                {
+                  "localId": "uid-stale",
+                  "email": "stale@example.com",
+                  "createdAt": "1600000000000",
+                  "lastLoginAt": "1600000005000",
+                  "providerUserInfo": [
+                    {
+                      "providerId": "password"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "remove": {
+            "status": 401,
+            "body": {
+              "error": {
+                "code": 401,
+                "message": "INVALID_ID_TOKEN"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "error=invalid-id-token\n"
+    }
+  ]
+}

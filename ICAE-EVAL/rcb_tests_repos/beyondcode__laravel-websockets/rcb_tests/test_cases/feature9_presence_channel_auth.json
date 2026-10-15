@@ -1,0 +1,56 @@
+{
+    "description": "A presence channel requires an authentication token plus a channel_data JSON describing the joining member. The signed string is '<socket_id>:<channel>:<channel_data>' HMAC-SHA256 keyed by the application secret, prefixed with the application key and a colon. On a valid token the subscription acknowledgement also carries a presence roster in its data field: the list of member ids, a hash mapping each member id to its info, and the member count. On an invalid token the subscription is rejected with a signature error and protocol code.",
+    "cases": [
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "300.3"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "presence-channel",
+                                "auth": "TestKey:4bda51fe69c2da03c4873e227ad9ca7a7f7f78adde3b9551cbc43f89c4f36f87",
+                                "channel_data": "{\"user_id\":1,\"user_info\":{\"name\":\"Marcel\"}}"
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"presence-channel\",\"data\":\"{\\\"presence\\\":{\\\"ids\\\":[\\\"1\\\"],\\\"hash\\\":{\\\"1\\\":{\\\"name\\\":\\\"Marcel\\\"}},\\\"count\\\":1}}\"}\n"
+        },
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "300.3"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "presence-channel",
+                                "auth": "invalid"
+                            }
+                        }
+                    }
+                ]
+            },
+            "expected_output": "error=invalid_signature\ncode=4009\n[a] received 0\n"
+        }
+    ]
+}

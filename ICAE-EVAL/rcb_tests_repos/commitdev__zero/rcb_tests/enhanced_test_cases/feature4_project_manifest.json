@@ -1,0 +1,33 @@
+{
+  "description": "Enhanced edge coverage for load_project_manifest: a project with zero modules, three modules declared out of alphabetical order (verifying ascending-name sorting), a module with parameters but no files block (empty dir/repo with key-sorted params), and a module with a files block declaring only a directory (empty repo).",
+  "cases": [
+    {
+      "input": {
+        "action": "load_project_manifest",
+        "manifest": "name: empty-proj\n"
+      },
+      "expected_output": "name=empty-proj\nmodule_count=0\n"
+    },
+    {
+      "input": {
+        "action": "load_project_manifest",
+        "manifest": "name: zeta-proj\nmodules:\n    zeta:\n        files:\n            dir: z-dir\n            repo: github.com/acme/zeta\n    alpha:\n        files:\n            dir: a-dir\n            repo: github.com/acme/alpha\n    mid:\n        files:\n            dir: m-dir\n            repo: github.com/acme/mid\n"
+      },
+      "expected_output": "name=zeta-proj\nmodule_count=3\nmodule=alpha dir=a-dir repo=github.com/acme/alpha params=\nmodule=mid dir=m-dir repo=github.com/acme/mid params=\nmodule=zeta dir=z-dir repo=github.com/acme/zeta params=\n"
+    },
+    {
+      "input": {
+        "action": "load_project_manifest",
+        "manifest": "name: noFiles\nmodules:\n    solo:\n        parameters:\n            zKey: 1\n            aKey: 2\n"
+      },
+      "expected_output": "name=noFiles\nmodule_count=1\nmodule=solo dir= repo= params=aKey=2,zKey=1\n"
+    },
+    {
+      "input": {
+        "action": "load_project_manifest",
+        "manifest": "name: partialFiles\nmodules:\n    web:\n        files:\n            dir: web-dir\n"
+      },
+      "expected_output": "name=partialFiles\nmodule_count=1\nmodule=web dir=web-dir repo= params=\n"
+    }
+  ]
+}

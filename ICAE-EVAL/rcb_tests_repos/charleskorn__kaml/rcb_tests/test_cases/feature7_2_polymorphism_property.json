@@ -1,0 +1,50 @@
+{
+    "description": "With property-based polymorphism, the concrete type is selected from a discriminator property (default name 'type', configurable); a missing discriminator fails with a normalized missing-property error and an unknown value fails with a normalized unknown-type error.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "shape": "shape",
+                "document": "type: sealedString\nvalue: \"asdfg\"",
+                "config": {
+                    "polymorphismStyle": "property"
+                }
+            },
+            "expected_output": "{\"kind\":\"sealedString\",\"value\":\"asdfg\"}"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "shape",
+                "document": "kind: sealedInt\nvalue: 42",
+                "config": {
+                    "polymorphismStyle": "property",
+                    "polymorphismPropertyName": "kind"
+                }
+            },
+            "expected_output": "{\"kind\":\"sealedInt\",\"value\":42}"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "shape",
+                "document": "value: \"asdfg\"",
+                "config": {
+                    "polymorphismStyle": "property"
+                }
+            },
+            "expected_output": "error=missing_property\nproperty=type\nline=1\ncolumn=1\npath=<root>"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "shape",
+                "document": "type: someOtherType\nvalue: 123",
+                "config": {
+                    "polymorphismStyle": "property"
+                }
+            },
+            "expected_output": "error=unknown_type\ntype=someOtherType\nknown=inlineString, sealedInt, sealedString\nline=1\ncolumn=7"
+        }
+    ]
+}

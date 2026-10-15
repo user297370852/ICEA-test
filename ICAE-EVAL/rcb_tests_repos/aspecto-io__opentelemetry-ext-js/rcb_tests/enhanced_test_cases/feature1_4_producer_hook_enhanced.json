@@ -1,0 +1,61 @@
+{
+  "description": "Enhanced producer-enrichment coverage: the producer hook runs once per producer span so a two-message publish stamps each span with its own message-derived attribute; and when a version attribute is also configured both extra attributes appear together in sorted order on each span.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "producerHook": {
+            "action": "copy_value_to_attribute",
+            "attribute": "attribute-from-hook"
+          }
+        },
+        "steps": [
+          {
+            "action": "produce",
+            "topic": "topic-name-1",
+            "messages": [
+              {
+                "value": "first payload"
+              },
+              {
+                "value": "second payload"
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          }
+        ]
+      },
+      "expected_output": "produce topic=topic-name-1 status=ok result_records=0\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\nspans=2\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  attribute-from-hook=first payload\nspan 1 kind=producer name=topic-name-1 trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  attribute-from-hook=second payload\n"
+    },
+    {
+      "input": {
+        "config": {
+          "moduleVersionAttribute": "module.version",
+          "producerHook": {
+            "action": "copy_value_to_attribute",
+            "attribute": "attribute-from-hook"
+          }
+        },
+        "steps": [
+          {
+            "action": "produce",
+            "topic": "topic-name-1",
+            "messages": [
+              {
+                "value": "payload with version"
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          }
+        ]
+      },
+      "expected_output": "produce topic=topic-name-1 status=ok result_records=0\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  attribute-from-hook=payload with version\n  module.version=<version>\n"
+    }
+  ]
+}

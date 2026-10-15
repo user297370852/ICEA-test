@@ -1,0 +1,283 @@
+{
+  "description": "Additional native-disjoint cases covering focused aliases, skipped suite variants, multi-test assertion accounting, conditional logical assertions, promise assertion validity, title boundaries, matcher fix variants, hook variants, module boundaries, snapshot filtering, and describe/throw contracts.",
+  "cases": [
+    {
+      "input": {
+        "source": "test.skip(\"skips too\", () => {})",
+        "rules": {
+          "no-disabled-tests": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-disabled-tests\nmessage0.text=Skipped test\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "xdescribe(\"old suite\", () => {})",
+        "rules": {
+          "no-disabled-tests": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-disabled-tests\nmessage0.text=Disabled test suite\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "fdescribe(\"suite\", () => {})",
+        "rules": {
+          "no-focused-tests": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-focused-tests\nmessage0.text=Unexpected focused test.\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "test.concurrent.only(\"case\", () => {})",
+        "rules": {
+          "no-focused-tests": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-focused-tests\nmessage0.text=Unexpected focused test.\nmessage0.line=1\nmessage0.column=6\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "it(\"a\", () => expect(1).toBe(1)); it(\"b\", () => {})",
+        "rules": {
+          "expect-expect": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/expect-expect\nmessage0.text=Test has no assertions\nmessage0.line=1\nmessage0.column=35\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "test(\"helper\", () => { assertOk(); })",
+        "rules": {
+          "expect-expect": [
+            "error",
+            {
+              "assertFunctionNames": [
+                "expect",
+                "assertOk"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "messages=0\n"
+    },
+    {
+      "input": {
+        "source": "it(\"case\", () => { ready && expect(value).toBe(1) })",
+        "rules": {
+          "no-conditional-expect": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-conditional-expect\nmessage0.text=Avoid calling `expect` conditionally`\nmessage0.line=1\nmessage0.column=29\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "const value = 1;\nexpect(value).toBe(1)",
+        "rules": {
+          "no-standalone-expect": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-standalone-expect\nmessage0.text=Expect must be inside of a test block.\nmessage0.line=2\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "it(\"case\", () => { expect(1) })",
+        "rules": {
+          "valid-expect": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/valid-expect\nmessage0.text=Expect must have a corresponding matcher call.\nmessage0.line=1\nmessage0.column=20\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "it(\"case\", () => { return Promise.resolve().then(() => { expect(1).toBe(1) }) })",
+        "rules": {
+          "valid-expect-in-promise": "error"
+        }
+      },
+      "expected_output": "messages=0\n"
+    },
+    {
+      "input": {
+        "source": "it(\"case\", async () => { await Promise.resolve().then(() => { expect(1).toBe(1) }) })",
+        "rules": {
+          "valid-expect-in-promise": "error"
+        },
+        "parserOptions": {
+          "ecmaVersion": 2018
+        }
+      },
+      "expected_output": "messages=0\n"
+    },
+    {
+      "input": {
+        "source": "it(\"has trailing \", () => {})",
+        "rules": {
+          "valid-title": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/valid-title\nmessage0.text=should not have leading or trailing spaces\nmessage0.line=1\nmessage0.column=4\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "describe(\"\", () => {})",
+        "rules": {
+          "valid-title": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/valid-title\nmessage0.text=describe should not have an empty title\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "it(\"Does thing\", () => {})",
+        "rules": {
+          "lowercase-name": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/lowercase-name\nmessage0.text=`it`s should begin with lowercase\nmessage0.line=1\nmessage0.column=4\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "expect(fn).toReturn()",
+        "rules": {
+          "no-alias-methods": "error"
+        },
+        "fix": true
+      },
+      "expected_output": "output=expect(fn).toHaveReturned()\nmessages=1\nmessage0.rule=jest/no-alias-methods\nmessage0.text=Replace toReturn() with its canonical name of toHaveReturned()\nmessage0.line=1\nmessage0.column=12\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "expect(value).toEqual(undefined)",
+        "rules": {
+          "prefer-to-be-undefined": "error"
+        },
+        "fix": true
+      },
+      "expected_output": "output=expect(value).toBeUndefined()\nmessages=1\nmessage0.rule=jest/prefer-to-be-undefined\nmessage0.text=Use toBeUndefined() instead\nmessage0.line=1\nmessage0.column=15\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "expect(items.length).toEqual(0)",
+        "rules": {
+          "prefer-to-have-length": "error"
+        },
+        "fix": true
+      },
+      "expected_output": "output=expect(items).toHaveLength(0)\nmessages=1\nmessage0.rule=jest/prefer-to-have-length\nmessage0.text=Use toHaveLength() instead\nmessage0.line=1\nmessage0.column=22\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "describe(\"suite\", () => { afterAll(() => {}); afterAll(() => {}) })",
+        "rules": {
+          "no-duplicate-hooks": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-duplicate-hooks\nmessage0.text=Duplicate afterAll in describe block\nmessage0.line=1\nmessage0.column=47\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "afterAll(() => {})",
+        "rules": {
+          "no-hooks": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-hooks\nmessage0.text=Unexpected 'afterAll' hook\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "const jest = require(\"jest\")",
+        "rules": {
+          "no-jest-import": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-jest-import\nmessage0.text=Jest is automatically in scope. Do not import \"jest\", as Jest doesn't export anything.\nmessage0.line=1\nmessage0.column=22\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "test(\"case\", () => { expect(1).toBe(1); }); export default value;",
+        "rules": {
+          "no-export": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-export\nmessage0.text=Do not export from a test file.\nmessage0.line=1\nmessage0.column=45\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "xit(\"case\", () => {})",
+        "rules": {
+          "no-test-prefixes": "error"
+        },
+        "fix": true
+      },
+      "expected_output": "output=it.skip(\"case\", () => {})\nmessages=1\nmessage0.rule=jest/no-test-prefixes\nmessage0.text=Use \"it.skip\" instead\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "source": "test(\"case\")",
+        "rules": {
+          "prefer-todo": "error"
+        },
+        "fix": true
+      },
+      "expected_output": "output=test.todo(\"case\")\nmessages=1\nmessage0.rule=jest/prefer-todo\nmessage0.text=Prefer todo test case over unimplemented test case\nmessage0.line=1\nmessage0.column=1\nmessage0.severity=2\n"
+    },
+    {
+      "input": {
+        "mode": "snapshot",
+        "action": "postprocess",
+        "messages": [
+          [
+            {
+              "ruleId": "jest/no-large-snapshots"
+            }
+          ],
+          [
+            {
+              "ruleId": "jest/prefer-inline-snapshots"
+            },
+            {
+              "ruleId": "jest/valid-expect"
+            }
+          ]
+        ]
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/no-large-snapshots\n"
+    },
+    {
+      "input": {
+        "source": "expect(value).toMatchInlineSnapshot(`\nline1\nline2\n`)",
+        "filename": "mock.js",
+        "rules": {
+          "no-large-snapshots": [
+            "error",
+            {
+              "inlineMaxSize": 3
+            }
+          ]
+        }
+      },
+      "expected_output": "messages=0\n"
+    },
+    {
+      "input": {
+        "source": "expect(() => run()).toThrow(\"boom\")",
+        "rules": {
+          "require-to-throw-message": "error"
+        }
+      },
+      "expected_output": "messages=0\n"
+    },
+    {
+      "input": {
+        "source": "describe(() => {})",
+        "rules": {
+          "valid-describe": "error"
+        }
+      },
+      "expected_output": "messages=1\nmessage0.rule=jest/valid-describe\nmessage0.text=Describe requires name and callback arguments\nmessage0.line=1\nmessage0.column=10\nmessage0.severity=2\n"
+    }
+  ]
+}

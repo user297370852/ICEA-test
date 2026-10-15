@@ -1,0 +1,101 @@
+{
+  "description": "Additional manifest-availability validation: a single served document passes, a multi-document manifest whose every document is served passes, a multi-document manifest whose second document uses an apiVersion unknown to all catalogs is rejected naming that document, and a single document whose apiVersion is unknown is rejected. Rejections print 'error=resource_not_available' with the offending kind and apiVersion.",
+  "cases": [
+    {
+      "input": {
+        "op": "validate_manifest_availability",
+        "catalogs": [
+          {
+            "style": "core",
+            "group_version": "v1",
+            "kinds": [
+              "Pod",
+              "ConfigMap"
+            ]
+          },
+          {
+            "style": "regular",
+            "group_version": "apps/v1",
+            "kinds": [
+              "Deployment"
+            ]
+          }
+        ],
+        "manifest": "---\napiVersion: v1\nkind: Pod\nmetadata:\n  name: my-pod\n"
+      },
+      "expected_output": "available=true\n"
+    },
+    {
+      "input": {
+        "op": "validate_manifest_availability",
+        "catalogs": [
+          {
+            "style": "core",
+            "group_version": "v1",
+            "kinds": [
+              "Pod",
+              "ConfigMap"
+            ]
+          },
+          {
+            "style": "regular",
+            "group_version": "apps/v1",
+            "kinds": [
+              "Deployment"
+            ]
+          }
+        ],
+        "manifest": "---\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: my-config\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: my-deploy\n"
+      },
+      "expected_output": "available=true\n"
+    },
+    {
+      "input": {
+        "op": "validate_manifest_availability",
+        "catalogs": [
+          {
+            "style": "core",
+            "group_version": "v1",
+            "kinds": [
+              "Pod",
+              "ConfigMap"
+            ]
+          },
+          {
+            "style": "regular",
+            "group_version": "apps/v1",
+            "kinds": [
+              "Deployment"
+            ]
+          }
+        ],
+        "manifest": "---\napiVersion: v1\nkind: Pod\nmetadata:\n  name: ok-pod\n---\napiVersion: batch/v1\nkind: Job\nmetadata:\n  name: bad-job\n"
+      },
+      "expected_output": "error=resource_not_available\nkind=Job\napi_version=batch/v1.\n"
+    },
+    {
+      "input": {
+        "op": "validate_manifest_availability",
+        "catalogs": [
+          {
+            "style": "core",
+            "group_version": "v1",
+            "kinds": [
+              "Pod",
+              "ConfigMap"
+            ]
+          },
+          {
+            "style": "regular",
+            "group_version": "apps/v1",
+            "kinds": [
+              "Deployment"
+            ]
+          }
+        ],
+        "manifest": "---\napiVersion: unknown/v9\nkind: ConfigMap\nmetadata:\n  name: weird\n"
+      },
+      "expected_output": "error=resource_not_available\nkind=ConfigMap\napi_version=unknown/v9.\n"
+    }
+  ]
+}

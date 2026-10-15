@@ -1,0 +1,57 @@
+{
+  "description": "Expand templates that transclude other templates, propagating arguments through each level; arguments are expanded in the calling scope, inner parser functions observe propagated values, and an innermost reference with no default and no supplied value remains literal.",
+  "cases": [
+    {
+      "input": {
+        "wikitext": "{{a|hi}}",
+        "pages": [
+          {
+            "title": "Template:a",
+            "body": "<{{b|{{{1}}}}}>"
+          },
+          {
+            "title": "Template:b",
+            "body": "[{{c|{{{1}}}}}]"
+          },
+          {
+            "title": "Template:c",
+            "body": "{{{1}}}!"
+          }
+        ]
+      },
+      "expected_output": "<[hi!]>"
+    },
+    {
+      "input": {
+        "wikitext": "{{a|3}}",
+        "pages": [
+          {
+            "title": "Template:a",
+            "body": "{{b|{{{1}}}}}"
+          },
+          {
+            "title": "Template:b",
+            "body": "{{#ifeq:{{{1}}}|3|yes|no}}"
+          }
+        ]
+      },
+      "expected_output": "yes"
+    },
+    {
+      "input": {
+        "wikitext": "{{a}}",
+        "pages": [
+          {
+            "title": "Template:a",
+            "body": "{{b|{{{1}}}}}"
+          },
+          {
+            "title": "Template:b",
+            "body": "[{{{1}}}]"
+          }
+        ]
+      },
+      "expected_output": "[{{{1}}}]"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "description": "The replaying stream can have its remembered values cleared. After a clear, a newly attaching subscriber receives nothing from the past, confirming the retained value was truly discarded rather than merely hidden. Values delivered live before the clear still appear in the output, and values recorded after a clear are retained and replayed anew.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "one"
+          },
+          {
+            "op": "send",
+            "value": "two"
+          },
+          {
+            "op": "clear"
+          },
+          {
+            "op": "unsubscribe"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "one\ntwo\n"
+    },
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "send",
+            "value": "one"
+          },
+          {
+            "op": "clear"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "one"
+          },
+          {
+            "op": "clear"
+          },
+          {
+            "op": "send",
+            "value": "two"
+          },
+          {
+            "op": "unsubscribe"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "one\ntwo\ntwo\n"
+    },
+    {
+      "input": {
+        "scenario": "flow",
+        "kind": "dam",
+        "ops": [
+          {
+            "op": "clear"
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "send",
+            "value": "one"
+          }
+        ]
+      },
+      "expected_output": "one\n"
+    }
+  ]
+}

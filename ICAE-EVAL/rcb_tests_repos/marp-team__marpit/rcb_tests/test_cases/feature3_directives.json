@@ -1,0 +1,50 @@
+{
+    "description": "Parse slide directives from front matter and comments so global directives apply to the deck and local directives apply to appropriate slides.",
+    "cases": [
+        {
+            "input": {
+                "markdown": "---\ntheme: test_theme\nclass: all\n_class: first\n---\n***",
+                "themes": [
+                    "/* @theme test_theme */"
+                ]
+            },
+            "expected_output": "html_is_array=false\nhtml_item_count=1\nsection_count=2\nhtml=<div class=\"marpit\"><section id=\"1\" data-class=\"first\" data-theme=\"test_theme\" class=\"first\" style=\"--class:first;--theme:test_theme;\"></section>\n<section id=\"2\" data-class=\"all\" data-theme=\"test_theme\" class=\"all\" style=\"--class:all;--theme:test_theme;\"></section>\n</div>\ncomments=[[],[]]\n"
+        },
+        {
+            "input": {
+                "markdown": "***\nInline<!-- class: test -->comment\n***\n<!-- notDefined: directive -->\n<!-- @invalid_yaml@ -->"
+            },
+            "expected_output": "html_is_array=false\nhtml_item_count=1\nsection_count=3\nhtml=<div class=\"marpit\"><section id=\"1\"></section>\n<section id=\"2\" data-class=\"test\" class=\"test\" style=\"--class:test;\">\n<p>Inlinecomment</p>\n</section>\n<section id=\"3\" data-class=\"test\" class=\"test\" style=\"--class:test;\"></section>\n</div>\ncomments=[[],[],[\"notDefined: directive\",\"@invalid_yaml@\"]]\n"
+        },
+        {
+            "input": {
+                "markdown": "***\n<!-- _class: test -->\n***\n<!-- _notDefined: directive -->"
+            },
+            "expected_output": "html_is_array=false\nhtml_item_count=1\nsection_count=3\nhtml=<div class=\"marpit\"><section id=\"1\"></section>\n<section id=\"2\" data-class=\"test\" class=\"test\" style=\"--class:test;\"></section>\n<section id=\"3\"></section>\n</div>\ncomments=[[],[],[\"_notDefined: directive\"]]\n"
+        },
+        {
+            "input": {
+                "markdown": "<!-- class: [\"one\", \"two\", \"three\"] -->"
+            },
+            "expected_output": "html_is_array=false\nhtml_item_count=1\nsection_count=1\nhtml=<div class=\"marpit\"><section id=\"1\" data-class=\"one two three\" class=\"one two three\" style=\"--class:one two three;\"></section>\n</div>\ncomments=[[]]\n"
+        },
+        {
+            "input": {
+                "markdown": "---\nbackgroundImage:  url('/image.jpg')\n_color:           #123 \t\n---\n\n---",
+                "options": {
+                    "looseYAML": true
+                }
+            },
+            "expected_output": "html_is_array=false\nhtml_item_count=1\nsection_count=2\nhtml=<div class=\"marpit\"><section id=\"1\" data-background-image=\"url('/image.jpg')\" data-color=\"#123\" style=\"--background-image:url('/image.jpg');--color:#123;color:#123;background-image:url('/image.jpg');background-position:center;background-repeat:no-repeat;background-size:cover;\"></section>\n<section id=\"2\" data-background-image=\"url('/image.jpg')\" style=\"--background-image:url('/image.jpg');background-image:url('/image.jpg');background-position:center;background-repeat:no-repeat;background-size:cover;\"></section>\n</div>\ncomments=[[],[]]\n"
+        },
+        {
+            "input": {
+                "markdown": "---\nbackgroundImage:  url('/image.jpg')\n_color:           #123 \t\n---\n\n---",
+                "options": {
+                    "looseYAML": false
+                }
+            },
+            "expected_output": "html_is_array=false\nhtml_item_count=1\nsection_count=2\nhtml=<div class=\"marpit\"><section id=\"1\" data-background-image=\"url('/image.jpg')\" style=\"--background-image:url('/image.jpg');background-image:url('/image.jpg');background-position:center;background-repeat:no-repeat;background-size:cover;\"></section>\n<section id=\"2\" data-background-image=\"url('/image.jpg')\" style=\"--background-image:url('/image.jpg');background-image:url('/image.jpg');background-position:center;background-repeat:no-repeat;background-size:cover;\"></section>\n</div>\ncomments=[[],[]]\n"
+        }
+    ]
+}

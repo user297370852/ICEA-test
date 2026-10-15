@@ -1,0 +1,89 @@
+{
+    "description": "Extract named values from matched path variables and query parameters, decoding percent-escaped values according to whether the capture spans one path segment or multiple segments.",
+    "cases": [
+        {
+            "input": {
+                "operation": "match_request",
+                "routes": [
+                    {
+                        "method": "GET",
+                        "template": "/a/{x}/c/d/e"
+                    },
+                    {
+                        "method": "GET",
+                        "template": "/{x=a/*}/b/{y=*}/c"
+                    }
+                ],
+                "method": "GET",
+                "path": "/a/hello/b/world/c",
+                "query": ""
+            },
+            "expected_output": "matched=true\nroute_index=1\nbody=\nbindings=x=a/hello;y=world\n"
+        },
+        {
+            "input": {
+                "operation": "match_request",
+                "routes": [
+                    {
+                        "method": "GET",
+                        "template": "/a/{x=b/*}/{y=d/**}"
+                    }
+                ],
+                "method": "GET",
+                "path": "/a/b/zoo/d/animal/tiger",
+                "query": ""
+            },
+            "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=b/zoo;y=d/animal/tiger\n"
+        },
+        {
+            "input": {
+                "operation": "match_request",
+                "routes": [
+                    {
+                        "method": "GET",
+                        "template": "/a/{x=p/*/q/*}/c"
+                    }
+                ],
+                "method": "GET",
+                "path": "/a/p/foo%20foo/q/bar%2Fbar/c",
+                "query": ""
+            },
+            "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=p/foo foo/q/bar%2Fbar\n"
+        },
+        {
+            "input": {
+                "operation": "match_request",
+                "unescape": "all_except_slash",
+                "routes": [
+                    {
+                        "method": "GET",
+                        "template": "/a/{x=*}/{y=**}/c"
+                    }
+                ],
+                "method": "GET",
+                "path": "/a/%21%23%24%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D/%21%23%24%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D/c",
+                "query": ""
+            },
+            "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=!#$&'()*+,/:;=?@[];y=!#$&'()*+,%2F:;=?@[]\n"
+        },
+        {
+            "input": {
+                "operation": "match_request",
+                "routes": [
+                    {
+                        "method": "GET",
+                        "template": "/a/{x}/b",
+                        "system_params": [
+                            "key",
+                            "api_key"
+                        ]
+                    }
+                ],
+                "method": "GET",
+                "path": "/a/hello/b",
+                "query": "y=world&api_key=secret"
+            },
+            "expected_output": "matched=true\nroute_index=0\nbody=\nbindings=x=hello;y=world\n"
+        }
+    ]
+}

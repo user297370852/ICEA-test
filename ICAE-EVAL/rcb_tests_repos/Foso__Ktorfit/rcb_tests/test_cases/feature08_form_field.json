@@ -1,0 +1,45 @@
+{
+  "description": "Form-url-encoded field bodies. When a method opts into form encoding, parameters marked as form fields contribute name/value pairs to a form-encoded body; a map-valued field parameter contributes its entries. A field parameter outside a form-encoded method is rejected. A null field value, and null entries inside a field map, are omitted from the body. Map-valued field parameters must be maps keyed by string; other key or container types are rejected at generation time. The adapter prints the issued request's method, resolved URL, body kind and each form field sorted by name, or a neutral error category.",
+  "cases": [
+    {
+      "input": {"http": [{"verb": "GET", "path": "posts"}], "params": [{"kind": "field", "key": "name", "name": "f"}]},
+      "expected_output": "error=field_requires_form_encoding"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "field", "key": "name", "name": "f"}], "args": ["v1"]},
+      "expected_output": "method=POST\nurl=http://localhost/posts\nbody=form\nfield=name=v1"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "fieldMap", "name": "m", "type": "Map<String, String>"}], "args": [{"k1": "v1"}]},
+      "expected_output": "method=POST\nurl=http://localhost/posts\nbody=form\nfield=k1=v1"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "field", "key": "name", "name": "f"}, {"kind": "fieldMap", "name": "m", "type": "Map<String, String>"}], "args": ["v1", {"k2": "v2"}]},
+      "expected_output": "method=POST\nurl=http://localhost/posts\nbody=form\nfield=k2=v2\nfield=name=v1"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "field", "key": "foo", "name": "f"}], "args": ["bar fizz"]},
+      "expected_output": "method=POST\nurl=http://localhost/posts\nbody=form\nfield=foo=bar fizz"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "field", "key": "foo", "encoded": true, "name": "f"}], "args": ["bar fizz"]},
+      "expected_output": "method=POST\nurl=http://localhost/posts\nbody=form\nfield=foo=bar fizz"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "field", "key": "foo", "name": "f", "type": "String?"}], "args": [null]},
+      "expected_output": "method=POST\nurl=http://localhost/posts\nbody=form"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "fieldMap", "name": "m", "type": "Map<String, String?>"}], "args": [{"foo": "bar", "fizz bar": null}]},
+      "expected_output": "method=POST\nurl=http://localhost/posts\nbody=form\nfield=foo=bar"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "fieldMap", "name": "m", "type": "String"}]},
+      "expected_output": "error=field_map_must_be_map"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "posts"}], "encoding": ["form"], "params": [{"kind": "fieldMap", "name": "m", "type": "Map<Int,String>"}]},
+      "expected_output": "error=field_map_keys_must_be_string"
+    }
+  ]
+}

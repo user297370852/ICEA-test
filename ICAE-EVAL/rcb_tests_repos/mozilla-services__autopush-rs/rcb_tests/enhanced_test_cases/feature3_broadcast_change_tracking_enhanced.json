@@ -1,0 +1,150 @@
+{
+  "description": "Additional broadcast change-tracking coverage for initial stale subscriptions, unsubscribed updates, empty clients, subscription deltas, and multiple changed broadcasts.",
+  "cases": [
+    {
+      "input": {
+        "operation": "track_broadcast_changes",
+        "initial": [
+          {
+            "id": "alpha",
+            "version": "v2"
+          },
+          {
+            "id": "beta",
+            "version": "v5"
+          }
+        ],
+        "client": [
+          {
+            "id": "alpha",
+            "version": "v1"
+          },
+          {
+            "id": "beta",
+            "version": "v4"
+          }
+        ],
+        "actions": []
+      },
+      "expected_output": "initial_delta=alpha:v2,beta:v5\n"
+    },
+    {
+      "input": {
+        "operation": "track_broadcast_changes",
+        "initial": [
+          {
+            "id": "alpha",
+            "version": "v1"
+          },
+          {
+            "id": "beta",
+            "version": "v1"
+          }
+        ],
+        "client": [
+          {
+            "id": "alpha",
+            "version": "v1"
+          }
+        ],
+        "actions": [
+          {
+            "type": "update",
+            "id": "beta",
+            "version": "v2"
+          },
+          {
+            "type": "update",
+            "id": "alpha",
+            "version": "v2"
+          }
+        ]
+      },
+      "expected_output": "initial_delta=none\naction_0_delta=none\naction_1_delta=alpha:v2\n"
+    },
+    {
+      "input": {
+        "operation": "track_broadcast_changes",
+        "initial": [
+          {
+            "id": "alpha",
+            "version": "v1"
+          }
+        ],
+        "client": [],
+        "actions": [
+          {
+            "type": "add",
+            "id": "gamma",
+            "version": "g2"
+          },
+          {
+            "type": "subscribe",
+            "broadcasts": [
+              {
+                "id": "alpha",
+                "version": "v1"
+              },
+              {
+                "id": "gamma",
+                "version": "g1"
+              }
+            ]
+          },
+          {
+            "type": "update",
+            "id": "gamma",
+            "version": "g3"
+          }
+        ]
+      },
+      "expected_output": "initial_delta=none\naction_0_delta=none\naction_1_delta=gamma:g2\naction_2_delta=gamma:g3\n"
+    },
+    {
+      "input": {
+        "operation": "track_broadcast_changes",
+        "initial": [
+          {
+            "id": "alpha",
+            "version": "v1"
+          },
+          {
+            "id": "beta",
+            "version": "v1"
+          },
+          {
+            "id": "gamma",
+            "version": "v1"
+          }
+        ],
+        "client": [
+          {
+            "id": "alpha",
+            "version": "v1"
+          },
+          {
+            "id": "beta",
+            "version": "v0"
+          },
+          {
+            "id": "gamma",
+            "version": "v0"
+          }
+        ],
+        "actions": [
+          {
+            "type": "update",
+            "id": "alpha",
+            "version": "v2"
+          },
+          {
+            "type": "update",
+            "id": "gamma",
+            "version": "v2"
+          }
+        ]
+      },
+      "expected_output": "initial_delta=beta:v1,gamma:v1\naction_0_delta=alpha:v2\naction_1_delta=gamma:v2\n"
+    }
+  ]
+}

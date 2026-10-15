@@ -1,0 +1,49 @@
+{
+  "description": "Additional template condition complexity cases covering equality boundary, multiple ngIf bindings, low max-cost stress, and simple safe conditions.",
+  "cases": [
+    {
+      "input": {
+        "action": "lint",
+        "check": "template_condition_complexity",
+        "config": {
+          "max_cost": 1
+        },
+        "source": "\n@Component({\n  template: `\n    <div *ngIf=\"isReady && isEnabled\">Ready</div>\n  `\n})\nclass BoundaryConditionView {}\n"
+      },
+      "expected_output": "check=template_condition_complexity\nfailure_count=0\n"
+    },
+    {
+      "input": {
+        "action": "lint",
+        "check": "template_condition_complexity",
+        "config": {
+          "max_cost": 1
+        },
+        "source": "\n@Component({\n  template: `\n    <div *ngIf=\"isReady && isEnabled && hasAccess\">Ready</div>\n  `\n})\nclass TooComplexView {}\n"
+      },
+      "expected_output": "check=template_condition_complexity\nfailure_count=1\nfailure_index=0\nmessage=The condition complexity (cost '2') exceeded the defined limit (cost '1'). The conditional expression should be moved into the component.\nstart_line=3\nstart_character=9\nend_line=3\nend_character=50\n"
+    },
+    {
+      "input": {
+        "action": "lint",
+        "check": "template_condition_complexity",
+        "config": {
+          "max_cost": 2
+        },
+        "source": "\n@Component({\n  template: `\n    <div *ngIf=\"a === b && c === d && e === f\">First</div>\n    <span *ngIf=\"x !== y || y !== z || z !== w\">Second</span>\n  `\n})\nclass MultipleConditionsView {}\n"
+      },
+      "expected_output": "check=template_condition_complexity\nfailure_count=2\nfailure_index=0\nmessage=The condition complexity (cost '3') exceeded the defined limit (cost '2'). The conditional expression should be moved into the component.\nstart_line=3\nstart_character=9\nend_line=3\nend_character=46\nfailure_index=1\nmessage=The condition complexity (cost '3') exceeded the defined limit (cost '2'). The conditional expression should be moved into the component.\nstart_line=4\nstart_character=10\nend_line=4\nend_character=47\n"
+    },
+    {
+      "input": {
+        "action": "lint",
+        "check": "template_condition_complexity",
+        "config": {
+          "max_cost": 0
+        },
+        "source": "\n@Component({\n  template: `\n    <button *ngIf=\"visible\">Show</button>\n  `\n})\nclass SimpleConditionView {}\n"
+      },
+      "expected_output": "check=template_condition_complexity\nfailure_count=0\n"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "description": "ENHANCED: Delimiter auto-detection edge cases — pipe-delimited content, choosing the most consistent delimiter across multiple lines, a tie favoring the earliest candidate, content with no recognizable delimiter falling back to comma (single field), and multi-line consistency scoring with semicolons.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "input": "A|B|C"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"A\" | str=\"B\" | str=\"C\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "input": "a;b;c\nd;e;f\ng;h;i"
+      },
+      "expected_output": "rows=3\nrow[0]: str=\"a\" | str=\"b\" | str=\"c\"\nrow[1]: str=\"d\" | str=\"e\" | str=\"f\"\nrow[2]: str=\"g\" | str=\"h\" | str=\"i\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "input": "a,b;c\nd,e;f"
+      },
+      "expected_output": "rows=2\nrow[0]: str=\"a\" | str=\"b;c\"\nrow[1]: str=\"d\" | str=\"e;f\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "input": "nodelimiterhere"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"nodelimiterhere\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "input": "a\tb|c\nd\te|f"
+      },
+      "expected_output": "rows=2\nrow[0]: str=\"a\" | str=\"b|c\"\nrow[1]: str=\"d\" | str=\"e|f\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "input": "x;y\nz;w\np;q"
+      },
+      "expected_output": "rows=3\nrow[0]: str=\"x\" | str=\"y\"\nrow[1]: str=\"z\" | str=\"w\"\nrow[2]: str=\"p\" | str=\"q\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "input": "one,two,three\nfour,five,six"
+      },
+      "expected_output": "rows=2\nrow[0]: str=\"one\" | str=\"two\" | str=\"three\"\nrow[1]: str=\"four\" | str=\"five\" | str=\"six\"\n"
+    }
+  ]
+}

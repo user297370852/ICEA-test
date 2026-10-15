@@ -1,0 +1,49 @@
+{
+  "description": "A received HTTP response carries a non-2xx status code. The mapping treats this as a server-error outcome, preserving the numeric status code and exposing the error payload content as the result's error body; when the error response had no content the error body is the empty string (still present, not absent), and any headers present are carried through in a stable name-sorted order. These cases probe the lower edge just above the success range, a high server-side code, a forbidden-style code with an explicitly empty payload, a no-body error declared via the success-type hint, and multi-header carry-through ordering on an error outcome.",
+  "cases": [
+    {
+      "input": {
+        "action": "map_response",
+        "code": 300,
+        "body": "moved"
+      },
+      "expected_output": "result=server_error\ncode=300\nbody=moved\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 500,
+        "body": "Boom"
+      },
+      "expected_output": "result=server_error\ncode=500\nbody=Boom\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 403,
+        "body": ""
+      },
+      "expected_output": "result=server_error\ncode=403\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 404,
+        "success_type": "empty"
+      },
+      "expected_output": "result=server_error\ncode=404\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "map_response",
+        "code": 502,
+        "body": "down",
+        "headers": {
+          "X-Err": "e",
+          "A-Err": "a"
+        }
+      },
+      "expected_output": "result=server_error\ncode=502\nbody=down\nheader.A-Err=a\nheader.X-Err=e\n"
+    }
+  ]
+}

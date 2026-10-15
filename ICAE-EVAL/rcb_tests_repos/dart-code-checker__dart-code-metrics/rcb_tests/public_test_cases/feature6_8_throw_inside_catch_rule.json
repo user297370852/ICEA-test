@@ -1,0 +1,13 @@
+{
+    "description": "Analyze exception-handling code and report throw statements inside catch handlers because they discard the original failure context.",
+    "cases": [
+        {
+            "input": {
+                "command": "analyze_rule",
+                "rule": "throw-inside-catch",
+                "code": "void main() {\n  try {\n    repository();\n  } on Object catch (error, stackTrace) {\n    logError(error, stackTrace);\n  }\n}\n\n/// Where did the original error occur based on the log?\nvoid logError(Object error, StackTrace stackTrace) =>\n    print('$error\\n$stackTrace');\n\nvoid repository() {\n  try {\n    networkDataProvider();\n  } on Object {\n    throw RepositoryException(); // LINT\n  }\n}\n\nvoid networkDataProvider() {\n  try {\n    networkClient();\n  } on Object {\n    throw DataProviderException(); // LINT\n  }\n}\n\nvoid networkClient() {\n  throw 'Some serious problem';\n}\n\nclass RepositoryException {}\n\nclass DataProviderException {}\n"
+            },
+            "expected_output": "rule=avoid-throw-in-catch-block\nseverity=warning\nissue_count=2\nissue[0].line=17\nissue[0].column=5\nissue[0].text=throw RepositoryException()\nissue[0].message=Call throw in a catch block loses the original stack trace and the original exception.\nissue[1].line=25\nissue[1].column=5\nissue[1].text=throw DataProviderException()\nissue[1].message=Call throw in a catch block loses the original stack trace and the original exception.\n"
+        }
+    ]
+}

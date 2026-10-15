@@ -1,0 +1,384 @@
+{
+    "description": "Control how many tokens an argument consumes via a quantifier: a fixed count N, an optional single value '?', zero-or-more '*', and one-or-more '+'. Demonstrates an optional-value argument falling back to its constant when present without a value and to its default when absent; a wrong fixed count being rejected; the empty-list semantics of '*' for optionals (an explicit empty list overrides any default, and under an append action an empty list is appended); and the '*' semantics for positionals (absent positionals yield an empty list unless a default is configured, and a configured default is preserved when no tokens are supplied).",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "?",
+                        "const": "c",
+                        "default": "d"
+                    },
+                    {
+                        "name": "bar",
+                        "nargs": "?",
+                        "default": "d"
+                    }
+                ],
+                "argv": [
+                    "XX",
+                    "--foo",
+                    "YY"
+                ]
+            },
+            "expected_output": "bar=XX\nfoo=YY\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "?",
+                        "const": "c",
+                        "default": "d"
+                    },
+                    {
+                        "name": "bar",
+                        "nargs": "?",
+                        "default": "d"
+                    }
+                ],
+                "argv": [
+                    "XX",
+                    "--foo"
+                ]
+            },
+            "expected_output": "bar=XX\nfoo=c\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "?",
+                        "const": "c",
+                        "default": "d"
+                    },
+                    {
+                        "name": "bar",
+                        "nargs": "?",
+                        "default": "d"
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "bar=d\nfoo=d\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": 2
+                    },
+                    {
+                        "name": "bar"
+                    }
+                ],
+                "argv": [
+                    "--foo=3",
+                    "4"
+                ]
+            },
+            "expected_output": "error: argument --foo: expected 2 argument(s)\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "*"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "*",
+                        "default": "bar"
+                    },
+                    {
+                        "flags": [
+                            "--baz"
+                        ],
+                        "nargs": "*",
+                        "action": "append"
+                    },
+                    {
+                        "flags": [
+                            "--buzz"
+                        ],
+                        "nargs": "*",
+                        "action": "append",
+                        "default": "buzz"
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "bar=bar\nbaz=null\nbuzz=buzz\nfoo=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "*"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "*",
+                        "default": "bar"
+                    },
+                    {
+                        "flags": [
+                            "--baz"
+                        ],
+                        "nargs": "*",
+                        "action": "append"
+                    },
+                    {
+                        "flags": [
+                            "--buzz"
+                        ],
+                        "nargs": "*",
+                        "action": "append",
+                        "default": "buzz"
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "1",
+                    "2",
+                    "--foo"
+                ]
+            },
+            "expected_output": "bar=bar\nbaz=null\nbuzz=buzz\nfoo=[]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "*"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "*",
+                        "default": "bar"
+                    },
+                    {
+                        "flags": [
+                            "--baz"
+                        ],
+                        "nargs": "*",
+                        "action": "append"
+                    },
+                    {
+                        "flags": [
+                            "--buzz"
+                        ],
+                        "nargs": "*",
+                        "action": "append",
+                        "default": "buzz"
+                    }
+                ],
+                "argv": [
+                    "--bar"
+                ]
+            },
+            "expected_output": "bar=[]\nbaz=null\nbuzz=buzz\nfoo=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "*"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "*",
+                        "default": "bar"
+                    },
+                    {
+                        "flags": [
+                            "--baz"
+                        ],
+                        "nargs": "*",
+                        "action": "append"
+                    },
+                    {
+                        "flags": [
+                            "--buzz"
+                        ],
+                        "nargs": "*",
+                        "action": "append",
+                        "default": "buzz"
+                    }
+                ],
+                "argv": [
+                    "--baz"
+                ]
+            },
+            "expected_output": "bar=bar\nbaz=[[]]\nbuzz=buzz\nfoo=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "*"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "*",
+                        "default": "bar"
+                    },
+                    {
+                        "flags": [
+                            "--baz"
+                        ],
+                        "nargs": "*",
+                        "action": "append"
+                    },
+                    {
+                        "flags": [
+                            "--buzz"
+                        ],
+                        "nargs": "*",
+                        "action": "append",
+                        "default": "buzz"
+                    }
+                ],
+                "argv": [
+                    "--buzz"
+                ]
+            },
+            "expected_output": "bar=bar\nbaz=null\nbuzz=[[]]\nfoo=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "nargs": "*"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "nargs": "*",
+                        "default": "bar"
+                    },
+                    {
+                        "flags": [
+                            "--baz"
+                        ],
+                        "nargs": "*",
+                        "action": "append"
+                    },
+                    {
+                        "flags": [
+                            "--buzz"
+                        ],
+                        "nargs": "*",
+                        "action": "append",
+                        "default": "buzz"
+                    }
+                ],
+                "argv": [
+                    "--buzz",
+                    "1",
+                    "2"
+                ]
+            },
+            "expected_output": "bar=bar\nbaz=null\nbuzz=[[1, 2]]\nfoo=null\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "nargs": "*"
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "foo=[]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "nargs": "*",
+                        "default": "foo"
+                    }
+                ],
+                "argv": []
+            },
+            "expected_output": "foo=foo\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "nargs": "*",
+                        "default": "foo"
+                    }
+                ],
+                "argv": [
+                    "a",
+                    "b"
+                ]
+            },
+            "expected_output": "foo=[a, b]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "name": "foo",
+                        "nargs": "*",
+                        "action": "append",
+                        "default": "foo"
+                    }
+                ],
+                "argv": [
+                    "a",
+                    "b"
+                ]
+            },
+            "expected_output": "foo=[[a, b]]\n"
+        }
+    ]
+}

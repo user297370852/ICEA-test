@@ -1,0 +1,72 @@
+{
+  "description": "GraphQL HTTP endpoint: additional runtime-mode, variable, and error-path coverage for root query/mutation operations.",
+  "cases": [
+    {
+      "input": {
+        "action": "graphql_http",
+        "environment": "development",
+        "method": "GET",
+        "path": "/graphql",
+        "graphql": {
+          "query": "query grampsPing { grampsVersion }",
+          "operationName": "grampsPing",
+          "variables": {}
+        }
+      },
+      "expected_output": "{\n  \"body\": {\n    \"data\": {\n      \"grampsVersion\": \"Hello World\"\n    }\n  },\n  \"environment\": \"development\",\n  \"method\": \"GET\",\n  \"path\": \"/graphql\",\n  \"statusCode\": 200\n}\n"
+    },
+    {
+      "input": {
+        "action": "graphql_http",
+        "environment": "development",
+        "method": "POST",
+        "path": "/graphql",
+        "graphql": {
+          "query": "{ grampsVersion }",
+          "variables": {}
+        }
+      },
+      "expected_output": "{\n  \"body\": {\n    \"data\": {\n      \"grampsVersion\": \"Hello World\"\n    }\n  },\n  \"environment\": \"development\",\n  \"method\": \"POST\",\n  \"path\": \"/graphql\",\n  \"statusCode\": 200\n}\n"
+    },
+    {
+      "input": {
+        "action": "graphql_http",
+        "environment": "production",
+        "method": "POST",
+        "path": "/graphql",
+        "graphql": {
+          "query": "{ grampsVersion grampsPing: grampsVersion }",
+          "variables": {}
+        }
+      },
+      "expected_output": "{\n  \"body\": {\n    \"data\": {\n      \"grampsPing\": \"0.0.0-development\",\n      \"grampsVersion\": \"0.0.0-development\"\n    }\n  },\n  \"environment\": \"production\",\n  \"method\": \"POST\",\n  \"path\": \"/graphql\",\n  \"statusCode\": 200\n}\n"
+    },
+    {
+      "input": {
+        "action": "graphql_http",
+        "environment": "production",
+        "method": "GET",
+        "path": "/graphql",
+        "graphql": {
+          "query": "mutation grampsPing { grampsPing }",
+          "operationName": "grampsPing",
+          "variables": {}
+        }
+      },
+      "expected_output": "{\n  \"body\": {},\n  \"environment\": \"production\",\n  \"method\": \"GET\",\n  \"path\": \"/graphql\",\n  \"statusCode\": 405\n}\n"
+    },
+    {
+      "input": {
+        "action": "graphql_http",
+        "environment": "development",
+        "method": "POST",
+        "path": "/graphql",
+        "graphql": {
+          "query": "mutation { grampsPing }",
+          "variables": {}
+        }
+      },
+      "expected_output": "{\n  \"body\": {\n    \"data\": {\n      \"grampsPing\": \"Hello World\"\n    }\n  },\n  \"environment\": \"development\",\n  \"method\": \"POST\",\n  \"path\": \"/graphql\",\n  \"statusCode\": 200\n}\n"
+    }
+  ]
+}

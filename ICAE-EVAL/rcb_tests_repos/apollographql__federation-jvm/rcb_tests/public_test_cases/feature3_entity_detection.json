@@ -1,0 +1,19 @@
+{
+    "description": "Given a subgraph SDL, report which object types are resolvable federation entities, i.e. the members of the entity union exposed by the transformed schema. The output lists the total count followed by each entity type name in sorted order. Types that carry only a non-resolvable key are not entities and are excluded; a subgraph with no entity types yields a count of zero and no names.",
+    "cases": [
+        {
+            "input": {
+                "op": "entities",
+                "sdl": "extend schema\n  @link(\n    url: \"https://specs.apollo.dev/federation/v2.3\"\n    import: [\n      \"@composeDirective\"\n      \"@extends\"\n      \"@external\"\n      \"@key\"\n      \"@inaccessible\"\n      \"@interfaceObject\"\n      \"@override\"\n      \"@provides\"\n      \"@requires\"\n      \"@shareable\"\n      \"@tag\"\n    ]\n  )\n  @link(url: \"https://myspecs.dev/myCustomDirective/v1.0\", import: [\"@custom\"])\n  @composeDirective(name: \"@custom\")\n\n  directive @custom on OBJECT\n\ntype Product\n  @custom\n  @key(fields: \"id\")\n  @key(fields: \"sku package\")\n  @key(fields: \"sku variation { id }\") {\n    id: ID!\n    sku: String\n    package: String\n    variation: ProductVariation\n    dimensions: ProductDimension\n    createdBy: User @provides(fields: \"totalProductsCreated\")\n    notes: String @tag(name: \"internal\")\n    research: [ProductResearch!]!\n}\n\ntype DeprecatedProduct @key(fields: \"sku package\") {\n  sku: String!\n  package: String!\n  reason: String\n  createdBy: User\n}\n\ntype ProductVariation {\n  id: ID!\n}\n\ntype ProductResearch @key(fields: \"study { caseNumber }\") {\n  study: CaseStudy!\n  outcome: String\n}\n\ntype CaseStudy {\n  caseNumber: ID!\n  description: String\n}\n\ntype ProductDimension @shareable {\n  size: String\n  weight: Float\n  unit: String @inaccessible\n}\n\ntype Query {\n  product(id: ID!): Product\n  deprecatedProduct(sku: String!, package: String!): DeprecatedProduct @deprecated(reason: \"Use product query instead\")\n}\n\ntype User @key(fields: \"email\") {\n  averageProductsCreatedPerYear: Int @requires(fields: \"totalProductsCreated yearsOfEmployment\")\n  email: ID! @external\n  name: String @override(from: \"users\")\n  totalProductsCreated: Int @external\n  yearsOfEmployment: Int! @external\n}\n\ntype Inventory @interfaceObject @key(fields: \"id\") {\n  id: ID!\n  deprecatedProducts: [DeprecatedProduct!]!\n}\n"
+            },
+            "expected_output": "entity_count=5\nentity=DeprecatedProduct\nentity=Inventory\nentity=Product\nentity=ProductResearch\nentity=User\n"
+        },
+        {
+            "input": {
+                "op": "entities",
+                "sdl": "type Query {\n    product(id: ID!): Product\n}\n\ntype Product {\n    id: ID!\n    name: String\n}\n"
+            },
+            "expected_output": "entity_count=0\n"
+        }
+    ]
+}

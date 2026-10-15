@@ -1,0 +1,17 @@
+## Product Requirement Document
+
+Hey team, we need a small utility built for managing a single piece of state that gets updated through a series of async steps. The core idea is that we have one value at a time, and we want to push a bunch of update instructions at it — things like setting it to a fixed number or doing some math on it — and have those run strictly one after another, never overlapping. The tricky part is we want to observe each transition as it happens, but only when the value actually changes. Also, and this is the part that burned us last time on the login module flow — if one of the update steps blows up at runtime, the whole pipeline shouldn't die. It should log the problem in some neutral, non-implementation-specific way and keep going with whatever the last good value was. At the end we always want to know the final settled value. We'll need a test runner script that can point at different folders of case files without the outputs stomping on each other. Output should go somewhere predictable so we can diff it. The implementation language is Dart. Keep the I/O wiring separate from the actual queue logic — don't want a god file situation like we ended up with on that other project.
+
+---
+
+## Clarification
+
+This PRD is intentionally incomplete. A requirements oracle can answer questions about hidden implementation details — including exact feature specs, interface contracts, and test cases.
+
+**Oracle** — POST `http://127.0.0.1:50002/`
+```
+{"append_id":"5b3b6db753be455aa9bc850574c68cd1","task_id":"realcode@013","question":"..."}
+```
+Answer is in `data`. Budget shown in `status.remaining`.
+
+Features and test cases have been prepared. Ask before you code. Unasked questions become bugs.

@@ -1,0 +1,72 @@
+{
+    "description": "Tag routing transformation: blacklist filtering of raw tags, plus per-service two/three-tag combination expansion; emits sorted 'tag=<value>' lines or 'tags=none' when nothing survives.",
+    "cases": [
+        {
+            "input": {
+                "op": "tag_routing",
+                "serviceName": "regular-service",
+                "excludedTags": [
+                    ".*id.*",
+                    "port:.*",
+                    "envoy"
+                ],
+                "allowedCombinations": [],
+                "tags": [
+                    "id:332",
+                    "hardware:c32",
+                    "stage:dev",
+                    "version:v0.9",
+                    "env12",
+                    "port:1244",
+                    "gport:1245",
+                    "envoy",
+                    "envoy-test"
+                ]
+            },
+            "expected_output": "tag=env12\ntag=envoy-test\ntag=gport:1245\ntag=hardware:c32\ntag=stage:dev\ntag=version:v0.9\n"
+        },
+        {
+            "input": {
+                "op": "tag_routing",
+                "serviceName": "two-tags-allowed-service",
+                "excludedTags": [
+                    ".*id.*",
+                    "port:.*",
+                    "envoy"
+                ],
+                "allowedCombinations": [
+                    {
+                        "serviceName": "two-tags-allowed-service",
+                        "tags": [
+                            "hardware:.*",
+                            "version:.*"
+                        ]
+                    },
+                    {
+                        "serviceName": "two-tags-allowed-service",
+                        "tags": [
+                            "stage:.*",
+                            "version:.*"
+                        ]
+                    },
+                    {
+                        "serviceName": "three-tags-allowed-service",
+                        "tags": [
+                            "stage:.*",
+                            "version:.*",
+                            "hardware:.*"
+                        ]
+                    }
+                ],
+                "tags": [
+                    "service-id:332",
+                    "hardware:c32",
+                    "stage:dev",
+                    "version:v0.9",
+                    "env12"
+                ]
+            },
+            "expected_output": "tag=env12\ntag=hardware:c32\ntag=hardware:c32,version:v0.9\ntag=stage:dev\ntag=stage:dev,version:v0.9\ntag=version:v0.9\n"
+        }
+    ]
+}

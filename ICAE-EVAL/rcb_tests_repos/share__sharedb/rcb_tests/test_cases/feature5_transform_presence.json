@@ -1,0 +1,129 @@
+{
+    "description": "Transform a presence marker (a cursor-like position bound to a document type and version) so it stays consistent after an operation is applied, advancing the marker version. The marker's type must be registered and must support presence, otherwise a normalized category is returned (type-not-recognized or does-not-support-presence). A create or delete operation discards the marker position (sets it to null). An edit operation asks the type to move the marker, taking into account whether the operation came from the same author. A marker whose position is already null stays null. A malformed operation is rejected with the malformed-envelope category.",
+    "cases": [
+        {
+            "input": {
+                "action": "transformPresence",
+                "presence": {
+                    "p": {
+                        "index": 5
+                    },
+                    "t": "presence-test-type",
+                    "v": 1
+                },
+                "op": {
+                    "op": {
+                        "index": 2,
+                        "value": "foo"
+                    }
+                }
+            },
+            "expected_output": "result={\"p\":{\"index\":8},\"t\":\"presence-test-type\",\"v\":2}\n"
+        },
+        {
+            "input": {
+                "action": "transformPresence",
+                "presence": {
+                    "p": {
+                        "index": 5
+                    },
+                    "t": "presence-test-type",
+                    "v": 1
+                },
+                "op": {
+                    "create": {
+                        "type": "presence-test-type",
+                        "data": "foo"
+                    }
+                }
+            },
+            "expected_output": "result={\"p\":null,\"t\":\"presence-test-type\",\"v\":2}\n"
+        },
+        {
+            "input": {
+                "action": "transformPresence",
+                "presence": {
+                    "p": {
+                        "index": 5
+                    },
+                    "t": "presence-test-type",
+                    "v": 1
+                },
+                "op": {
+                    "del": true
+                }
+            },
+            "expected_output": "result={\"p\":null,\"t\":\"presence-test-type\",\"v\":2}\n"
+        },
+        {
+            "input": {
+                "action": "transformPresence",
+                "presence": {
+                    "p": {
+                        "index": 5
+                    },
+                    "t": "presence-test-type",
+                    "v": 1
+                },
+                "op": {}
+            },
+            "expected_output": "error=ERR_OT_OP_BADLY_FORMED\n"
+        },
+        {
+            "input": {
+                "action": "transformPresence",
+                "presence": {
+                    "p": {
+                        "index": 5
+                    },
+                    "t": "presence-test-type",
+                    "v": 1
+                },
+                "op": {
+                    "op": {
+                        "index": 5,
+                        "value": "foo"
+                    }
+                },
+                "isOwnOp": true
+            },
+            "expected_output": "result={\"p\":{\"index\":8},\"t\":\"presence-test-type\",\"v\":2}\n"
+        },
+        {
+            "input": {
+                "action": "transformPresence",
+                "presence": {
+                    "p": {
+                        "index": 5
+                    },
+                    "t": "json0",
+                    "v": 1
+                },
+                "op": {
+                    "op": {
+                        "index": 5,
+                        "value": "foo"
+                    }
+                }
+            },
+            "expected_output": "error=ERR_TYPE_DOES_NOT_SUPPORT_PRESENCE\n"
+        },
+        {
+            "input": {
+                "action": "transformPresence",
+                "presence": {
+                    "p": null,
+                    "t": "presence-test-type",
+                    "v": 2
+                },
+                "op": {
+                    "op": {
+                        "index": 5,
+                        "value": "foo"
+                    }
+                }
+            },
+            "expected_output": "result={\"p\":null,\"t\":\"presence-test-type\",\"v\":3}\n"
+        }
+    ]
+}

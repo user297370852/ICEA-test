@@ -1,0 +1,106 @@
+{
+    "description": "Combine multiple conditions into one filter. Conditions default to conjunction; a condition may instead be tagged as disjunctive. Two or more conjunctive conditions are wrapped in an AND group (&...). Two or more disjunctive conditions are wrapped in an OR group (|...). A lone disjunctive condition collapses to a single bare condition with no surrounding group. When exactly one conjunctive condition is mixed with exactly one disjunctive condition, the whole query becomes a single OR group of the two. When several conjunctive conditions coexist with several disjunctive ones, the conjunctive conditions sit at the top level of an AND group and the disjunctive ones are nested together inside an OR group within it.",
+    "cases": [
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "equals",
+                        "value": "value"
+                    },
+                    {
+                        "field": "other",
+                        "match": "equals",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(&(field=\\76\\61\\6c\\75\\65)(other=\\76\\61\\6c\\75\\65))\nunescaped=(&(field=value)(other=value))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "bool": "or",
+                        "field": "field",
+                        "match": "equals",
+                        "value": "value"
+                    },
+                    {
+                        "bool": "or",
+                        "field": "other",
+                        "match": "equals",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(|(field=\\76\\61\\6c\\75\\65)(other=\\76\\61\\6c\\75\\65))\nunescaped=(|(field=value)(other=value))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "bool": "or",
+                        "field": "field",
+                        "match": "equals",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(field=\\76\\61\\6c\\75\\65)\nunescaped=(field=value)\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "field",
+                        "match": "equals",
+                        "value": "value"
+                    },
+                    {
+                        "bool": "or",
+                        "field": "or",
+                        "match": "equals",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "query=(|(field=\\76\\61\\6c\\75\\65)(or=\\76\\61\\6c\\75\\65))\nunescaped=(|(field=value)(or=value))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "field": "baz",
+                        "match": "equals",
+                        "value": "zax"
+                    },
+                    {
+                        "field": "lao",
+                        "match": "equals",
+                        "value": "zen"
+                    },
+                    {
+                        "bool": "or",
+                        "field": "foo",
+                        "match": "equals",
+                        "value": "bar"
+                    },
+                    {
+                        "bool": "or",
+                        "field": "zue",
+                        "match": "equals",
+                        "value": "lea"
+                    }
+                ]
+            },
+            "expected_output": "query=(&(baz=\\7a\\61\\78)(lao=\\7a\\65\\6e)(|(foo=\\62\\61\\72)(zue=\\6c\\65\\61)))\nunescaped=(&(baz=zax)(lao=zen)(|(foo=bar)(zue=lea)))\n"
+        }
+    ]
+}

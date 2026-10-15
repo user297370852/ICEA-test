@@ -1,0 +1,43 @@
+{
+  "description": "An update engine rejects invalid modifier specifications with a normalized error signal, covering boundary inputs: two conflicting modifier operators targeting the same field of a non-empty document, and a positional placeholder addressing a sub-field of an array element that is a scalar rather than a document. The normalized error line is returned instead of a result document.",
+  "cases": [
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "a": 1
+        },
+        "update": {
+          "$set": {
+            "a": 2
+          },
+          "$inc": {
+            "a": 1
+          }
+        }
+      },
+      "expected_output": "error=conflicting_modifiers\n"
+    },
+    {
+      "input": {
+        "op": "update",
+        "document": {
+          "b": [
+            1,
+            2,
+            3
+          ]
+        },
+        "update": {
+          "$inc": {
+            "b.$.x": 1
+          }
+        },
+        "query": {
+          "b": 3
+        }
+      },
+      "expected_output": "error=invalid_positional_path\n"
+    }
+  ]
+}

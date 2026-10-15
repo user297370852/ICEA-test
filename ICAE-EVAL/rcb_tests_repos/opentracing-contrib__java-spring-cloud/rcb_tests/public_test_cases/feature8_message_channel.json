@@ -1,0 +1,16 @@
+{
+  "feature": "message_channel",
+  "description": "Message-channel instrumentation for a publish/subscribe broker: a message flowing through the channel creates a span named after the destination, tagged with the channel component and span kind, linked to the surrounding trace (remote parent on server side, active span on client side, with context propagated onward).",
+  "cases": [
+    {
+      "name": "inbound_message_links_remote_parent",
+      "input": {"feature": "message_channel", "span_kind": "server", "destination": "/app/test"},
+      "expected_output": "op=/app/test\ncomponent=websocket\nspan.kind=server\nparent_linked=true\nsame_trace_as_parent=true\n"
+    },
+    {
+      "name": "outbound_message_links_active_parent_and_propagates_context",
+      "input": {"feature": "message_channel", "span_kind": "client", "destination": "/topic/greetings"},
+      "expected_output": "op=/topic/greetings\ncomponent=websocket\nspan.kind=client\nparent_linked=true\nsame_trace_as_parent=true\ncontext_propagated=true\n"
+    }
+  ]
+}

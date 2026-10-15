@@ -1,0 +1,65 @@
+{
+  "description": "Additional focus selector coverage for short-name highlighting, default focus colour, multi-node matches, and filtered labelled edges.",
+  "cases": [
+    {
+      "input": {
+        "heading": "### Focus",
+        "document": "### Focus",
+        "focusPattern": ".*(api|service).*",
+        "dependencies": {
+          ":backend:service": [
+            {
+              "target": ":backend:api",
+              "configuration": "implementation"
+            },
+            {
+              "target": ":frontend:web",
+              "configuration": "implementation"
+            }
+          ],
+          ":backend:api": [
+            {
+              "target": ":data:db",
+              "configuration": "runtimeOnly"
+            }
+          ],
+          ":tools:cli": [
+            {
+              "target": ":frontend:web",
+              "configuration": "implementation"
+            }
+          ]
+        }
+      },
+      "expected_output": "### Focus\n\n```mermaid\n%%{\n  init: {\n    'theme': 'neutral'\n  }\n}%%\n\ngraph LR\n  subgraph backend\n    api\n    service\n  end\n\n  subgraph frontend\n    web\n  end\n\n  service --> api\n  service --> web\n  api --> db\n\nclassDef focus fill:#769566,stroke:#fff,stroke-width:2px,color:#fff;\nclass service focus\nclass api focus\n```"
+    },
+    {
+      "input": {
+        "heading": "### Focus Label",
+        "document": "### Focus Label",
+        "linkText": "configuration",
+        "focusPattern": ".*core.*",
+        "theme": "dark",
+        "dependencies": {
+          ":app": [
+            {
+              "target": ":libs:core",
+              "configuration": "api"
+            },
+            {
+              "target": ":libs:util",
+              "configuration": "implementation"
+            }
+          ],
+          ":libs:core": [
+            {
+              "target": ":libs:util",
+              "configuration": "runtimeOnly"
+            }
+          ]
+        }
+      },
+      "expected_output": "### Focus Label\n\n```mermaid\n%%{\n  init: {\n    'theme': 'dark'\n  }\n}%%\n\ngraph LR\n\n  subgraph libs\n    core\n    util\n  end\n  app -- api --> core\n  core -- runtimeOnly --> util\n\nclassDef focus fill:#769566,stroke:#fff,stroke-width:2px,color:#fff;\nclass core focus\n```"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+    "description": "An event bus is opened over a set of services. Each service publishes a list of named events, every event carrying a subscribe handler. When a caller subscribes by event name with extra arguments, the bus locates every published event across all services whose name matches and invokes that event's subscribe handler exactly once. The handler is always invoked with the bus instance itself as the first argument, followed by the caller's extra arguments in order. Events whose name does not match are not invoked. Each emitted line names the matched event, the action taken, and the argument vector passed to the handler (the bus instance is rendered as the token bus).",
+    "cases": [
+        {
+            "input": {
+                "kind": "bus",
+                "services": {
+                    "db": [
+                        {
+                            "name": "dbtest"
+                        }
+                    ],
+                    "service1": [
+                        {
+                            "name": "test"
+                        }
+                    ]
+                },
+                "program": [
+                    {
+                        "op": "subscribe",
+                        "name": "dbtest",
+                        "args": [
+                            "a",
+                            "b",
+                            "c"
+                        ]
+                    },
+                    {
+                        "op": "subscribe",
+                        "name": "test",
+                        "args": [
+                            "a",
+                            "b",
+                            "c"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "dbtest subscribe args=[bus,\"a\",\"b\",\"c\"]\ntest subscribe args=[bus,\"a\",\"b\",\"c\"]\n"
+        }
+    ]
+}

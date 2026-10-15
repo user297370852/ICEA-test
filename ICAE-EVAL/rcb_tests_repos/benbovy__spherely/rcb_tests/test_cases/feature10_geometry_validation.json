@@ -1,0 +1,267 @@
+{
+    "description": "Construction rejects geographies that violate geometric validity rules, reporting a normalized invalid-geometry error whose detail explains the violation. Rules include the minimum vertex counts for lines and polygon rings, the prohibition of empty components, of duplicate consecutive vertices, of self-crossing or mutually crossing rings, of inconsistent ring orientations when orientation is declared meaningful, and of holes attached to an empty shell.",
+    "cases": [
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "linestring",
+                    "coords": [
+                        [
+                            5,
+                            50
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=linestring is not valid: it must have at least 2 vertices\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "linestring",
+                    "components": [
+                        {
+                            "type": "point",
+                            "coords": [
+                                5,
+                                50
+                            ]
+                        },
+                        {
+                            "type": "point"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=can't create LineString with empty component\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "polygon",
+                    "shell": [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            2
+                        ],
+                        [
+                            0,
+                            2
+                        ],
+                        [
+                            2,
+                            0
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=polygon is not valid: Loop 0: Edge 1 is degenerate (duplicate vertex)\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "polygon",
+                    "shell": [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            2
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=polygon is not valid: Loop 0: Non-empty, non-full loops must have at least 3 vertices\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "polygon",
+                    "shell": [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            2,
+                            0
+                        ],
+                        [
+                            1,
+                            2
+                        ],
+                        [
+                            1,
+                            -2
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=polygon is not valid: Edge 0 crosses edge 2\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "polygon",
+                    "shell": [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            4
+                        ],
+                        [
+                            4,
+                            4
+                        ],
+                        [
+                            4,
+                            0
+                        ]
+                    ],
+                    "holes": [
+                        [
+                            [
+                                0,
+                                1
+                            ],
+                            [
+                                0,
+                                5
+                            ],
+                            [
+                                5,
+                                5
+                            ],
+                            [
+                                5,
+                                1
+                            ]
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=polygon is not valid: Loop 0 edge 0 crosses loop 1 edge 3\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "polygon",
+                    "shell": [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            2,
+                            0
+                        ],
+                        [
+                            2,
+                            2
+                        ],
+                        [
+                            0,
+                            2
+                        ]
+                    ],
+                    "holes": [
+                        [
+                            [
+                                0.5,
+                                0.5
+                            ],
+                            [
+                                1.5,
+                                0.5
+                            ],
+                            [
+                                1.5,
+                                1.5
+                            ],
+                            [
+                                0.5,
+                                1.5
+                            ]
+                        ]
+                    ],
+                    "oriented": true
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=polygon is not valid: Inconsistent loop orientations detected\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "polygon",
+                    "shell": [],
+                    "holes": [
+                        [
+                            [
+                                0.5,
+                                0.5
+                            ],
+                            [
+                                1.5,
+                                0.5
+                            ],
+                            [
+                                1.5,
+                                1.5
+                            ],
+                            [
+                                0.5,
+                                1.5
+                            ]
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=polygon shell is empty but found holes\n"
+        },
+        {
+            "input": {
+                "op": "create",
+                "geometry": {
+                    "type": "polygon",
+                    "shell_geometries": [
+                        {
+                            "type": "point",
+                            "coords": [
+                                5,
+                                50
+                            ]
+                        },
+                        {
+                            "type": "point",
+                            "coords": [
+                                6,
+                                50
+                            ]
+                        },
+                        {
+                            "type": "point"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=invalid_geometry\ndetail=can't create Polygon with empty component\n"
+        }
+    ]
+}

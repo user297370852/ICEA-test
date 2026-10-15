@@ -1,0 +1,152 @@
+{
+  "description": "Timestamp touching nuances. With touching disabled, a later relocation leaves every modified-timestamp at the baseline even as positions change. With touching enabled, only the records whose position actually changed during an insert_at are refreshed.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "column": "pos",
+          "touch_on_update": false
+        },
+        "operations": [
+          {
+            "op": "at_time",
+            "at": "base",
+            "operations": [
+              {
+                "op": "create",
+                "ref": "a"
+              },
+              {
+                "op": "create",
+                "ref": "b"
+              },
+              {
+                "op": "create",
+                "ref": "c"
+              },
+              {
+                "op": "create",
+                "ref": "d"
+              }
+            ]
+          },
+          {
+            "op": "at_time",
+            "at": "later",
+            "operations": [
+              {
+                "op": "move_down",
+                "ref": "a"
+              }
+            ]
+          }
+        ],
+        "queries": [
+          {
+            "q": "timestamp_buckets",
+            "order": "id"
+          }
+        ]
+      },
+      "expected_output": "timestamps=[later, later, base, base]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "pos",
+          "touch_on_update": false
+        },
+        "operations": [
+          {
+            "op": "at_time",
+            "at": "base",
+            "operations": [
+              {
+                "op": "create",
+                "ref": "a"
+              },
+              {
+                "op": "create",
+                "ref": "b"
+              },
+              {
+                "op": "create",
+                "ref": "c"
+              },
+              {
+                "op": "create",
+                "ref": "d"
+              }
+            ]
+          },
+          {
+            "op": "at_time",
+            "at": "later",
+            "operations": [
+              {
+                "op": "delete",
+                "ref": "a"
+              }
+            ]
+          }
+        ],
+        "queries": [
+          {
+            "q": "timestamp_buckets",
+            "order": "id"
+          }
+        ]
+      },
+      "expected_output": "timestamps=[base, base, base]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "pos"
+        },
+        "operations": [
+          {
+            "op": "at_time",
+            "at": "base",
+            "operations": [
+              {
+                "op": "create",
+                "ref": "a"
+              },
+              {
+                "op": "create",
+                "ref": "b"
+              },
+              {
+                "op": "create",
+                "ref": "c"
+              },
+              {
+                "op": "create",
+                "ref": "d"
+              }
+            ]
+          },
+          {
+            "op": "at_time",
+            "at": "later",
+            "operations": [
+              {
+                "op": "insert_at",
+                "ref": "d",
+                "position": 1
+              }
+            ]
+          }
+        ],
+        "queries": [
+          {
+            "q": "timestamp_buckets",
+            "order": "id"
+          }
+        ]
+      },
+      "expected_output": "timestamps=[later, later, later, later]"
+    }
+  ]
+}

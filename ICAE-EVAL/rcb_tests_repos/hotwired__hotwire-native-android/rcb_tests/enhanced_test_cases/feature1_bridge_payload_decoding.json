@@ -1,0 +1,75 @@
+{
+  "description": "Boundary coverage for bridge payload decoding into the title_subtitle shape: values containing spaces, empty-string values, a payload missing a required field, an empty JSON object, and an unsupported payload schema, all returning either the decoded fields or a null data marker.",
+  "cases": [
+    {
+      "input": {
+        "action": "decode_bridge_payload",
+        "message": {
+          "id": "1",
+          "component": "page",
+          "event": "connect",
+          "metadata_url": "https://37signals.com",
+          "json_data": "{\"title\":\"Hello World\",\"subtitle\":\"Foo Bar\"}"
+        },
+        "payload_schema": "title_subtitle"
+      },
+      "expected_output": "title=Hello World\nsubtitle=Foo Bar\n"
+    },
+    {
+      "input": {
+        "action": "decode_bridge_payload",
+        "message": {
+          "id": "1",
+          "component": "page",
+          "event": "connect",
+          "metadata_url": "https://37signals.com",
+          "json_data": "{\"title\":\"\",\"subtitle\":\"\"}"
+        },
+        "payload_schema": "title_subtitle"
+      },
+      "expected_output": "title=\nsubtitle=\n"
+    },
+    {
+      "input": {
+        "action": "decode_bridge_payload",
+        "message": {
+          "id": "1",
+          "component": "page",
+          "event": "connect",
+          "metadata_url": "https://37signals.com",
+          "json_data": "{\"title\":\"only-title\"}"
+        },
+        "payload_schema": "title_subtitle"
+      },
+      "expected_output": "data=null\n"
+    },
+    {
+      "input": {
+        "action": "decode_bridge_payload",
+        "message": {
+          "id": "1",
+          "component": "page",
+          "event": "connect",
+          "metadata_url": "https://37signals.com",
+          "json_data": "{}"
+        },
+        "payload_schema": "title_subtitle"
+      },
+      "expected_output": "data=null\n"
+    },
+    {
+      "input": {
+        "action": "decode_bridge_payload",
+        "message": {
+          "id": "1",
+          "component": "page",
+          "event": "connect",
+          "metadata_url": "https://37signals.com",
+          "json_data": "{\"title\":\"Page-title\",\"subtitle\":\"Page-subtitle\"}"
+        },
+        "payload_schema": "card_layout"
+      },
+      "expected_output": "data=null\n"
+    }
+  ]
+}

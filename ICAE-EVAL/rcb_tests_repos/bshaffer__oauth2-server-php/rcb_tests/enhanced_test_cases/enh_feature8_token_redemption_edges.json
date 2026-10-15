@@ -1,0 +1,162 @@
+{
+  "description": "Token-endpoint redemption boundaries chained from a fresh authorize step. Redeeming with a wrong client secret yields invalid_client; redeeming the same code twice succeeds once then fails with invalid_grant (single-use); an unsupported grant_type yields unsupported_grant_type. Direct token requests with a missing code, a non-existent code, or no grant_type at all yield the corresponding invalid_request / invalid_grant errors. A multi-redirect client's code redeems successfully when the matching redirect_uri is supplied.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "response_type": "code",
+              "state": "xyz"
+            }
+          },
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "client_secret": "WRONG",
+              "grant_type": "authorization_code",
+              "code": "@AUTH_CODE@"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=brentertainment.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=xyz\nissued.identity_token=absent\n\nresponse=1\nstatus=400\ntype=response\nbody.error=invalid_client\nbody.error_description=The client credentials are invalid\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "response_type": "code",
+              "state": "xyz"
+            }
+          },
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "client_secret": "TestSecret2",
+              "grant_type": "authorization_code",
+              "code": "@AUTH_CODE@"
+            }
+          },
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "client_secret": "TestSecret2",
+              "grant_type": "authorization_code",
+              "code": "@AUTH_CODE@"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=brentertainment.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=xyz\nissued.identity_token=absent\n\nresponse=1\nstatus=200\ntype=response\nbody.access_token=ACCESS_TOKEN\nbody.expires_in=3600\nbody.refresh_token=REFRESH_TOKEN\nbody.scope=\nbody.token_type=Bearer\n\nresponse=2\nstatus=400\ntype=response\nbody.error=invalid_grant\nbody.error_description=Authorization code doesn't exist or is invalid for the client\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "response_type": "code",
+              "state": "xyz"
+            }
+          },
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "client_secret": "TestSecret2",
+              "grant_type": "password",
+              "code": "@AUTH_CODE@"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=brentertainment.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=xyz\nissued.identity_token=absent\n\nresponse=1\nstatus=400\ntype=response\nbody.error=unsupported_grant_type\nbody.error_description=Grant type \"password\" not supported\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "client_secret": "TestSecret2",
+              "grant_type": "authorization_code"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=invalid_request\nbody.error_description=Missing parameter: \"code\" is required\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "client_secret": "TestSecret2",
+              "grant_type": "authorization_code",
+              "code": "does-not-exist"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=invalid_grant\nbody.error_description=Authorization code doesn't exist or is invalid for the client\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Redirect Uri",
+              "client_secret": "TestSecret2",
+              "code": "sometestcode"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=invalid_request\nbody.error_description=The grant type was not specified in the request\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID with Multiple Redirect Uris",
+              "redirect_uri": "http://morehazards.com",
+              "response_type": "code",
+              "state": "q"
+            }
+          },
+          {
+            "action": "token",
+            "request": {
+              "client_id": "Test Client ID with Multiple Redirect Uris",
+              "client_secret": "TestSecret3",
+              "grant_type": "authorization_code",
+              "code": "@AUTH_CODE@",
+              "redirect_uri": "http://morehazards.com"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=morehazards.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=q\nissued.identity_token=absent\n\nresponse=1\nstatus=200\ntype=response\nbody.access_token=ACCESS_TOKEN\nbody.expires_in=3600\nbody.refresh_token=REFRESH_TOKEN\nbody.scope=\nbody.token_type=Bearer\n"
+    }
+  ]
+}

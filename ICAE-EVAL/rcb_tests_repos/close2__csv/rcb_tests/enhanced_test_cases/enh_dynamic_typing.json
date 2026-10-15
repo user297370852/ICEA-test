@@ -1,0 +1,125 @@
+{
+  "description": "ENHANCED: Dynamic value typing edge cases (explicit comma delimiter) — leading zeros, an explicit plus sign, negative zero, scientific notation, a trailing-dot and leading-dot float, an integer too large for 64 bits falling back to double, an empty field staying textual, whitespace-padded numerals, and near-boolean strings that must remain strings.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "007,0"
+      },
+      "expected_output": "rows=1\nrow[0]: int=7 | int=0\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "+5,-0"
+      },
+      "expected_output": "rows=1\nrow[0]: int=5 | int=0\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "1.,.25,3.0"
+      },
+      "expected_output": "rows=1\nrow[0]: double=1.0 | double=0.25 | double=3.0\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "1e3,2E2,-1.5e-2"
+      },
+      "expected_output": "rows=1\nrow[0]: double=1000.0 | double=200.0 | double=-0.015\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "99999999999999999999999999"
+      },
+      "expected_output": "rows=1\nrow[0]: double=1e+26\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": ",x"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"\" | str=\"x\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "True,FALSE,yes,no"
+      },
+      "expected_output": "rows=1\nrow[0]: str=\"True\" | str=\"FALSE\" | str=\"yes\" | str=\"no\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "1 ,2,3a"
+      },
+      "expected_output": "rows=1\nrow[0]: int=1 | int=2 | str=\"3a\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "0x1A,0b10"
+      },
+      "expected_output": "rows=1\nrow[0]: int=26 | str=\"0b10\"\n"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "config": {
+          "autoDetect": false,
+          "fieldDelimiter": ",",
+          "dynamicTyping": true
+        },
+        "input": "\" 42 \",\"true\""
+      },
+      "expected_output": "rows=1\nrow[0]: int=42 | bool=true\n"
+    }
+  ]
+}

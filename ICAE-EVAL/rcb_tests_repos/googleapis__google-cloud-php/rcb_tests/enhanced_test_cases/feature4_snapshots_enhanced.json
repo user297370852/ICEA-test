@@ -1,0 +1,76 @@
+{
+  "description": "Enhanced snapshot cases for missing documents, exact segmented paths containing dots, top-level array reads, and unset immutability.",
+  "cases": [
+    {
+      "input": {
+        "feature": "snapshots",
+        "operation": "identity",
+        "snapshot": {
+          "name": "projects/example_project/databases/(default)/documents/users/missing",
+          "exists": false,
+          "info": {},
+          "fields": []
+        }
+      },
+      "expected_output": "{\n    \"name\": \"projects/example_project/databases/(default)/documents/users/missing\",\n    \"path\": \"users/missing\",\n    \"id\": \"missing\",\n    \"exists\": false\n}\n"
+    },
+    {
+      "input": {
+        "feature": "snapshots",
+        "operation": "get",
+        "snapshot": {
+          "name": "projects/example_project/databases/(default)/documents/a/b",
+          "exists": true,
+          "info": {},
+          "fields": {
+            "literal.dot": {
+              "inner": "exact"
+            },
+            "literal": {
+              "dot": "split"
+            }
+          }
+        },
+        "path": [
+          "literal.dot",
+          "inner"
+        ]
+      },
+      "expected_output": "{\n    \"value\": \"exact\"\n}\n"
+    },
+    {
+      "input": {
+        "feature": "snapshots",
+        "operation": "array_read",
+        "snapshot": {
+          "name": "projects/example_project/databases/(default)/documents/a/b",
+          "exists": true,
+          "info": {},
+          "fields": {
+            "zero": 0,
+            "flag": false
+          }
+        },
+        "key": "zero",
+        "missing_key": "flag"
+      },
+      "expected_output": "{\n    \"value\": 0,\n    \"has_key\": true,\n    \"has_missing\": true\n}\n"
+    },
+    {
+      "input": {
+        "feature": "snapshots",
+        "operation": "array_unset",
+        "snapshot": {
+          "name": "projects/example_project/databases/(default)/documents/a/b",
+          "exists": true,
+          "info": {},
+          "fields": {
+            "foo": "bar"
+          }
+        },
+        "key": "foo"
+      },
+      "expected_output": "error=read_only_snapshot\n"
+    }
+  ]
+}

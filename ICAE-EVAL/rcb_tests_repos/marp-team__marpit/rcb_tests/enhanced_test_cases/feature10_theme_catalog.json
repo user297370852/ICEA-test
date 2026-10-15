@@ -1,0 +1,56 @@
+{
+  "description": "Enhanced theme catalog coverage for fallback get, missing delete, default fallback properties, and multi-node circular imports.",
+  "cases": [
+    {
+      "input": {
+        "stylesheets": [
+          "/* @theme primary */ section { width: 800px; }"
+        ],
+        "default_stylesheet": "/* @theme default */\nsection { width: 1024px; height: 768px; }",
+        "checks": [
+          {
+            "kind": "get",
+            "name": "primary"
+          },
+          {
+            "kind": "get",
+            "name": "missing",
+            "fallback": false
+          },
+          {
+            "kind": "get",
+            "name": "missing",
+            "fallback": true
+          },
+          {
+            "kind": "property",
+            "theme": "missing",
+            "key": "height"
+          },
+          {
+            "kind": "delete",
+            "name": "missing"
+          }
+        ]
+      },
+      "expected_output": "size=1\nthemes=[\"primary\"]\ncheck_0=primary\ncheck_1=undefined\ncheck_2=default\ncheck_3=768px\ncheck_4=false\nfinal_size=1\n"
+    },
+    {
+      "input": {
+        "stylesheets": [
+          "/* @theme a */\n@import \"b\";",
+          "/* @theme b */\n@import \"c\";",
+          "/* @theme c */\n@import \"a\";"
+        ],
+        "checks": [
+          {
+            "kind": "metadata",
+            "theme": "a",
+            "key": "theme"
+          }
+        ]
+      },
+      "expected_output": "error=circular_theme_import\ntheme=a\n"
+    }
+  ]
+}

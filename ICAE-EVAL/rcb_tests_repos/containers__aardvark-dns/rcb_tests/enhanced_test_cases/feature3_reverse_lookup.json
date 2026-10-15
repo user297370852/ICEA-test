@@ -1,0 +1,49 @@
+{
+  "description": "Turn a target address back into the registered name(s) for it, from the perspective of a requesting container on the same network. Exercises a target that owns a single name with no aliases, an IPv6 target that owns several names, a target address that is not registered on the requester's network, and a request issued by a source address that is not registered in any network; the last two yield the non-existent-domain outcome.",
+  "cases": [
+    {
+      "input": {
+        "op": "reverse_lookup",
+        "config": {
+          "appnet": "10.20.0.1\nc1 10.20.0.2  alpha,a1\nc2 10.20.0.3  beta\nc3 10.20.0.4,10.20.0.5 fd20::4,fd20::5 gamma,g1\n"
+        },
+        "requester": "10.20.0.2",
+        "target": "10.20.0.3"
+      },
+      "expected_output": "names=beta\n"
+    },
+    {
+      "input": {
+        "op": "reverse_lookup",
+        "config": {
+          "appnet": "10.20.0.1\nc1 10.20.0.2  alpha,a1\nc2 10.20.0.3  beta\nc3 10.20.0.4,10.20.0.5 fd20::4,fd20::5 gamma,g1\n"
+        },
+        "requester": "10.20.0.2",
+        "target": "fd20::5"
+      },
+      "expected_output": "names=gamma,g1\n"
+    },
+    {
+      "input": {
+        "op": "reverse_lookup",
+        "config": {
+          "appnet": "10.20.0.1\nc1 10.20.0.2  alpha,a1\nc2 10.20.0.3  beta\nc3 10.20.0.4,10.20.0.5 fd20::4,fd20::5 gamma,g1\n"
+        },
+        "requester": "10.20.0.2",
+        "target": "10.20.0.99"
+      },
+      "expected_output": "nxdomain\n"
+    },
+    {
+      "input": {
+        "op": "reverse_lookup",
+        "config": {
+          "appnet": "10.20.0.1\nc1 10.20.0.2  alpha,a1\nc2 10.20.0.3  beta\nc3 10.20.0.4,10.20.0.5 fd20::4,fd20::5 gamma,g1\n"
+        },
+        "requester": "10.99.0.99",
+        "target": "10.20.0.2"
+      },
+      "expected_output": "nxdomain\n"
+    }
+  ]
+}

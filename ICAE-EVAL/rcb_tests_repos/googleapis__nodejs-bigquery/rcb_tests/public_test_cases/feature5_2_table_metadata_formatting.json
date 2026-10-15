@@ -1,0 +1,35 @@
+{
+    "description": "Table metadata formatting converts friendly names, schema shortcuts, partitioning shortcuts, and view SQL into the API request body shape.",
+    "cases": [
+        {
+            "input": {
+                "operation": "format_table_metadata",
+                "metadata": {
+                    "name": "friendly",
+                    "schema": "name:string, age:integer",
+                    "timePartitioning": "DAY",
+                    "view": "select 1"
+                }
+            },
+            "expected_output": "{\n  \"schema\": {\n    \"fields\": [\n      {\n        \"name\": \"name\",\n        \"type\": \"STRING\"\n      },\n      {\n        \"name\": \"age\",\n        \"type\": \"INTEGER\"\n      }\n    ]\n  },\n  \"timePartitioning\": \"DAY\",\n  \"view\": {\n    \"query\": \"select 1\",\n    \"useLegacySql\": false\n  },\n  \"friendlyName\": \"friendly\"\n}\n"
+        },
+        {
+            "input": {
+                "operation": "format_table_metadata",
+                "metadata": {
+                    "schema": [
+                        {
+                            "name": "id",
+                            "type": "INTEGER"
+                        }
+                    ],
+                    "view": {
+                        "query": "select 2",
+                        "useLegacySql": true
+                    }
+                }
+            },
+            "expected_output": "{\n  \"schema\": {\n    \"fields\": [\n      {\n        \"name\": \"id\",\n        \"type\": \"INTEGER\"\n      }\n    ]\n  },\n  \"view\": {\n    \"query\": \"select 2\",\n    \"useLegacySql\": true\n  }\n}\n"
+        }
+    ]
+}

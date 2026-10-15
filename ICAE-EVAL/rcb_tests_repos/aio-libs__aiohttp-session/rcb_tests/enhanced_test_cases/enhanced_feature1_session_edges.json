@@ -1,0 +1,88 @@
+{
+  "description": "Additional session container edge cases covering empty prior records, membership queries, unicode identity/content, booleans/nulls/lists, and invalidate on an already empty new session.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "init": {
+          "identity": null,
+          "data": {},
+          "new": false
+        },
+        "actions": [
+          {
+            "do": "contains",
+            "key": "missing"
+          },
+          {
+            "do": "set",
+            "key": "numbers",
+            "value": [
+              1,
+              2,
+              3
+            ]
+          },
+          {
+            "do": "contains",
+            "key": "numbers"
+          }
+        ]
+      },
+      "expected_output": "state new=true changed=false empty=true len=0 identity=null created=1000000000 contents={}\ncontains \"missing\"=false\nstate new=true changed=true empty=false len=1 identity=null created=1000000000 contents={\"numbers\": [1, 2, 3]}\ncontains \"numbers\"=true\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "init": {
+          "identity": {
+            "user": "ü",
+            "roles": [
+              "admin",
+              "qa"
+            ]
+          },
+          "data": {
+            "session": {
+              "flag": true,
+              "none": null,
+              "nested": {
+                "z": 0
+              }
+            },
+            "created": 123456789
+          },
+          "new": false
+        },
+        "actions": [
+          {
+            "do": "set",
+            "key": "emoji",
+            "value": "snowman ☃"
+          },
+          {
+            "do": "del",
+            "key": "none"
+          }
+        ]
+      },
+      "expected_output": "state new=false changed=false empty=false len=3 identity={\"roles\": [\"admin\", \"qa\"], \"user\": \"ü\"} created=123456789 contents={\"flag\": true, \"nested\": {\"z\": 0}, \"none\": null}\nstate new=false changed=true empty=false len=4 identity={\"roles\": [\"admin\", \"qa\"], \"user\": \"ü\"} created=123456789 contents={\"emoji\": \"snowman ☃\", \"flag\": true, \"nested\": {\"z\": 0}, \"none\": null}\nstate new=false changed=true empty=false len=3 identity={\"roles\": [\"admin\", \"qa\"], \"user\": \"ü\"} created=123456789 contents={\"emoji\": \"snowman ☃\", \"flag\": true, \"nested\": {\"z\": 0}}\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "init": {
+          "identity": "empty_invalidate",
+          "data": null,
+          "new": true
+        },
+        "actions": [
+          {
+            "do": "invalidate"
+          }
+        ]
+      },
+      "expected_output": "state new=true changed=false empty=true len=0 identity=\"empty_invalidate\" created=1000000000 contents={}\nstate new=true changed=true empty=true len=0 identity=\"empty_invalidate\" created=1000000000 contents={}\n"
+    }
+  ]
+}

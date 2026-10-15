@@ -1,0 +1,135 @@
+{
+  "description": "Enhanced boundary coverage for the screen-frame watch/backup behavior. Covers: starting the watch on an already non-zero frame (get returns the live frame immediately); a frame that stays all-zero across two gets (no backup ever observed, both report zeros); a watch started on all-zero, a tick that observes a non-zero frame (saved as backup), a get returning the live non-zero frame, then a tick collapsing to all-zero and a get returning the remembered backup; and a watch on a frame with only one non-zero side that persists through a collapse via backup.",
+  "cases": [
+    {
+      "input": {
+        "op": "screen_frame_watch",
+        "steps": [
+          {
+            "set": {
+              "width": 1440,
+              "height": 900,
+              "availWidth": 1367,
+              "availHeight": 853,
+              "availLeft": 49,
+              "availTop": 11
+            },
+            "do": "watch"
+          },
+          {
+            "do": "get"
+          }
+        ]
+      },
+      "expected_output": "frame=[11,24,36,49]"
+    },
+    {
+      "input": {
+        "op": "screen_frame_watch",
+        "steps": [
+          {
+            "set": {
+              "width": 640,
+              "height": 480,
+              "availWidth": 640,
+              "availHeight": 480,
+              "availLeft": 0,
+              "availTop": 0
+            },
+            "do": "watch"
+          },
+          {
+            "do": "get"
+          },
+          {
+            "do": "get"
+          }
+        ]
+      },
+      "expected_output": "frame=[0,0,0,0]\nframe=[0,0,0,0]"
+    },
+    {
+      "input": {
+        "op": "screen_frame_watch",
+        "steps": [
+          {
+            "set": {
+              "width": 640,
+              "height": 480,
+              "availWidth": 640,
+              "availHeight": 480,
+              "availLeft": 0,
+              "availTop": 0
+            },
+            "do": "watch"
+          },
+          {
+            "set": {
+              "width": 640,
+              "height": 480,
+              "availWidth": 600,
+              "availHeight": 470,
+              "availLeft": 20,
+              "availTop": 5
+            },
+            "do": "tick"
+          },
+          {
+            "do": "get"
+          },
+          {
+            "set": {
+              "width": 640,
+              "height": 480,
+              "availWidth": 640,
+              "availHeight": 480,
+              "availLeft": 0,
+              "availTop": 0
+            },
+            "do": "tick"
+          },
+          {
+            "do": "get"
+          }
+        ]
+      },
+      "expected_output": "frame=[5,20,5,20]\nframe=[5,20,5,20]"
+    },
+    {
+      "input": {
+        "op": "screen_frame_watch",
+        "steps": [
+          {
+            "set": {
+              "width": 1280,
+              "height": 720,
+              "availWidth": 1280,
+              "availHeight": 700,
+              "availLeft": 0,
+              "availTop": 0
+            },
+            "do": "watch"
+          },
+          {
+            "do": "get"
+          },
+          {
+            "set": {
+              "width": 1280,
+              "height": 720,
+              "availWidth": 1280,
+              "availHeight": 720,
+              "availLeft": 0,
+              "availTop": 0
+            },
+            "do": "tick"
+          },
+          {
+            "do": "get"
+          }
+        ]
+      },
+      "expected_output": "frame=[0,0,20,0]\nframe=[0,0,20,0]"
+    }
+  ]
+}

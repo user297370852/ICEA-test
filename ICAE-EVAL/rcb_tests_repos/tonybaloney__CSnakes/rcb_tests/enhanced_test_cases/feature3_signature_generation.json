@@ -1,0 +1,75 @@
+{
+  "description": "Generate a target-language instance method signature from a single Python function definition supplied as source text. The Python function name is converted to PascalCase to form the method name. The return annotation is mapped to the target type, with the special none-return annotation producing a void method. Each parameter is rendered as its mapped target type followed by its name converted to lower-camelCase; a parameter whose name collides with a reserved keyword of the target language is escaped with a leading at-sign. A variadic positional parameter is modeled as a one-arity value-tuple of the opaque dynamic object type and is always named with the conventional variadic name; a variadic keyword parameter is modeled as a read-only dictionary from string to the opaque dynamic object type. A bare keyword-only separator introduces the same variadic-positional placeholder. Parameter default values are rendered idiomatically. Output is the rendered signature followed by a trailing newline.",
+  "cases": [
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def empty() -> int:\n    ...\n"
+      },
+      "expected_output": "long Empty()\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def transform(values: list[int]) -> dict[str, int]:\n    ...\n"
+      },
+      "expected_output": "IReadOnlyDictionary<string, long> Transform(IEnumerable<long> values)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def with_defaults(a: int = 1, b: float = 2.5, c: bool = False) -> None:\n    ...\n"
+      },
+      "expected_output": "void WithDefaults(long a = 1, double b = 2.5, bool c = false)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def only_kwargs(**kwargs) -> None:\n    ...\n"
+      },
+      "expected_output": "void OnlyKwargs(IReadOnlyDictionary<string, PyObject> kwargs)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def nested(a: list[tuple[int, str]]) -> tuple[int, int]:\n    ...\n"
+      },
+      "expected_output": "(long, long) Nested(IEnumerable<(long, string)> a)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def f(params) -> None:\n    ...\n"
+      },
+      "expected_output": "void _(PyObject @params)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def f(event) -> None:\n    ...\n"
+      },
+      "expected_output": "void _(PyObject @event)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def f(base) -> None:\n    ...\n"
+      },
+      "expected_output": "void _(PyObject @base)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def f(a: dict[str, int]) -> bool:\n    ...\n"
+      },
+      "expected_output": "bool _(IReadOnlyDictionary<string, long> a)\n"
+    },
+    {
+      "input": {
+        "action": "generate_signature",
+        "source": "def f(a: int = None) -> None:\n    ...\n"
+      },
+      "expected_output": "void _(long a = null)\n"
+    }
+  ]
+}

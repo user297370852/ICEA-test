@@ -1,0 +1,29 @@
+{
+    "description": "Persisting a sequence of values through the value-setting operation. The store starts empty and one observer is attached, so it first receives the configured default value. Each set operation delegates the write to the backing key-value store (recording the key and the value written, in call order) and reports whether the write succeeded, and then notifies the active observer which re-reads the freshly stored value. The observer therefore sees each newly persisted value in turn.",
+    "cases": [
+        {
+            "input": {
+                "key": "key",
+                "default": "default value",
+                "ops": [
+                    {
+                        "op": "observe"
+                    },
+                    {
+                        "op": "put",
+                        "value": "value1"
+                    },
+                    {
+                        "op": "put",
+                        "value": "value2"
+                    },
+                    {
+                        "op": "put",
+                        "value": "value3"
+                    }
+                ]
+            },
+            "expected_output": "emit[0] default value\nstore write key=key value=value1\nput ok=true\nemit[0] value1\nstore write key=key value=value2\nput ok=true\nemit[0] value2\nstore write key=key value=value3\nput ok=true\nemit[0] value3\n"
+        }
+    ]
+}

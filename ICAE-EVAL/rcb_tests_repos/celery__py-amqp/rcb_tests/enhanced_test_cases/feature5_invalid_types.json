@@ -1,0 +1,71 @@
+{
+  "description": "Rejection paths: decoding streams whose format string carries assorted unknown type codes must normalize to a frame-syntax error at the decode site; serializing a table or an array that contains an unsupported value must report the encode_table / encode_array rejection site.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode",
+        "format": "z",
+        "wire": "00"
+      },
+      "expected_output": "error=frame_syntax\nwhere=decode"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "format": "Q",
+        "wire": "0000"
+      },
+      "expected_output": "error=frame_syntax\nwhere=decode"
+    },
+    {
+      "input": {
+        "op": "decode",
+        "format": "9",
+        "wire": "ffff"
+      },
+      "expected_output": "error=frame_syntax\nwhere=decode"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "A",
+        "values": [
+          {
+            "t": "array",
+            "v": [
+              {
+                "t": "int",
+                "v": 1
+              },
+              {
+                "t": "unsupported"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=frame_syntax\nwhere=encode_array"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "format": "F",
+        "values": [
+          {
+            "t": "table",
+            "v": {
+              "ok": {
+                "t": "int",
+                "v": 1
+              },
+              "bad": {
+                "t": "unsupported"
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "error=frame_syntax\nwhere=encode_table"
+    }
+  ]
+}

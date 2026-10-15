@@ -1,0 +1,72 @@
+{
+  "description": "Boundary/edge cases for envelope transport: severity normalization inside events, empty event objects, transaction item-type passthrough, missing sdk metadata, native-disabled errors, and transport delegation.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "send_error_event",
+        "event": {
+          "event_id": "e1",
+          "message": "hello",
+          "level": "critical",
+          "sdk": {
+            "name": "n",
+            "version": "9"
+          }
+        }
+      },
+      "expected_output": "envelope.header={\"event_id\":\"e1\",\"sdk\":{\"name\":\"n\",\"version\":\"9\"}}\nenvelope.item={\"content_type\":\"application/json\",\"length\":96,\"type\":\"event\"}\nenvelope.payload={\"event_id\":\"e1\",\"message\":{\"message\":\"hello\"},\"level\":\"fatal\",\"sdk\":{\"name\":\"n\",\"version\":\"9\"}}\ncapture_status=ok\n"
+    },
+    {
+      "input": {
+        "scenario": "send_error_event",
+        "event": {}
+      },
+      "expected_output": "envelope.header={}\nenvelope.item={\"content_type\":\"application/json\",\"length\":14,\"type\":\"event\"}\nenvelope.payload={\"message\":{}}\ncapture_status=ok\n"
+    },
+    {
+      "input": {
+        "scenario": "send_error_event",
+        "event": {
+          "event_id": "e2",
+          "message": "m",
+          "type": "transaction",
+          "sdk": {
+            "name": "n",
+            "version": "1"
+          }
+        }
+      },
+      "expected_output": "envelope.header={\"event_id\":\"e2\",\"sdk\":{\"name\":\"n\",\"version\":\"1\"}}\nenvelope.item={\"content_type\":\"application/json\",\"length\":97,\"type\":\"transaction\"}\nenvelope.payload={\"event_id\":\"e2\",\"message\":{\"message\":\"m\"},\"type\":\"transaction\",\"sdk\":{\"name\":\"n\",\"version\":\"1\"}}\ncapture_status=ok\n"
+    },
+    {
+      "input": {
+        "scenario": "send_error_event",
+        "event": {
+          "event_id": "e3",
+          "message": "m"
+        }
+      },
+      "expected_output": "envelope.header={\"event_id\":\"e3\"}\nenvelope.item={\"content_type\":\"application/json\",\"length\":43,\"type\":\"event\"}\nenvelope.payload={\"event_id\":\"e3\",\"message\":{\"message\":\"m\"}}\ncapture_status=ok\n"
+    },
+    {
+      "input": {
+        "scenario": "send_event_through_transport",
+        "event": {
+          "event_id": "t1"
+        }
+      },
+      "expected_output": "transport_status=200\nsend_event_calls=1\n"
+    },
+    {
+      "input": {
+        "scenario": "send_error_event",
+        "enabled": false,
+        "event": {
+          "event_id": "x",
+          "message": "y"
+        }
+      },
+      "expected_output": "error=native_disabled\nbridge_length_calls=0\nbridge_capture_calls=0\n"
+    }
+  ]
+}

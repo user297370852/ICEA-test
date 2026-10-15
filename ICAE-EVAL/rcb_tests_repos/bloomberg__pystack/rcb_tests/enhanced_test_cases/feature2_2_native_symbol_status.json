@@ -1,0 +1,98 @@
+{
+  "description": "When a thread exposes native frames but no Python frames and native rendering is requested, the native stack lists directly while the status bracket is derived from recognized native symbols: a lock-acquire routine marks the thread as waiting for the lock, a lock-release routine as dropping it, and a collection routine as collecting garbage.",
+  "cases": [
+    {
+      "input": {
+        "native": true,
+        "thread": {
+          "tid": 3,
+          "name": null,
+          "holds_the_gil": false,
+          "is_gc_collecting": false,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [],
+          "native_frames": [
+            {
+              "symbol": "native_function1",
+              "file": "n1.c",
+              "line": 1,
+              "library": "library.so"
+            },
+            {
+              "symbol": "take_gil",
+              "file": "ceval_gil.h",
+              "line": 224,
+              "library": "library.so"
+            }
+          ]
+        }
+      },
+      "expected_output": "Traceback for thread 3 [Waiting for the GIL] (most recent call last):\n    (C) File \"n1.c\", line 1, in native_function1 (library.so)\n    (C) File \"ceval_gil.h\", line 224, in take_gil (library.so)\n\n"
+    },
+    {
+      "input": {
+        "native": true,
+        "thread": {
+          "tid": 3,
+          "name": null,
+          "holds_the_gil": false,
+          "is_gc_collecting": false,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [],
+          "native_frames": [
+            {
+              "symbol": "native_function1",
+              "file": "n1.c",
+              "line": 1,
+              "library": "library.so"
+            },
+            {
+              "symbol": "drop_gil",
+              "file": "ceval_gil.h",
+              "line": 180,
+              "library": "library.so"
+            }
+          ]
+        }
+      },
+      "expected_output": "Traceback for thread 3 [Dropping the GIL] (most recent call last):\n    (C) File \"n1.c\", line 1, in native_function1 (library.so)\n    (C) File \"ceval_gil.h\", line 180, in drop_gil (library.so)\n\n"
+    },
+    {
+      "input": {
+        "native": true,
+        "thread": {
+          "tid": 3,
+          "name": null,
+          "holds_the_gil": false,
+          "is_gc_collecting": false,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [],
+          "native_frames": [
+            {
+              "symbol": "native_function1",
+              "file": "n1.c",
+              "line": 1,
+              "library": "library.so"
+            },
+            {
+              "symbol": "gc_collect",
+              "file": "gcmodule.c",
+              "line": 1300,
+              "library": "library.so"
+            }
+          ]
+        }
+      },
+      "expected_output": "Traceback for thread 3 [Garbage collecting] (most recent call last):\n    (C) File \"n1.c\", line 1, in native_function1 (library.so)\n    (C) File \"gcmodule.c\", line 1300, in gc_collect (library.so)\n\n"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "description": "Enhanced positional dispatch / id handling / notifications: boundary id values (negative, zero, empty string), boundary integer arithmetic (negative operands, zero, large magnitudes), empty-string echo, unicode payloads, and notifications (missing id) for both value-returning and void operations.",
+  "cases": [
+    {
+      "description": "negative integer id is preserved",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": -42,
+          "method": "echo",
+          "params": [
+            "x"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=-42\noutcome=success\nresult=\"x\"\n"
+    },
+    {
+      "description": "zero integer id is preserved",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 0,
+          "method": "echo",
+          "params": [
+            "x"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=0\noutcome=success\nresult=\"x\"\n"
+    },
+    {
+      "description": "empty-string id is preserved",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": "",
+          "method": "echo",
+          "params": [
+            "x"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=\"\"\noutcome=success\nresult=\"x\"\n"
+    },
+    {
+      "description": "echo of empty string",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            ""
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"\"\n"
+    },
+    {
+      "description": "echo of a unicode string",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "héllo-世界"
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=\"héllo-世界\"\n"
+    },
+    {
+      "description": "addInts of two negative operands",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            -7,
+            -3
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=-10\n"
+    },
+    {
+      "description": "addInts that yields zero",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            5,
+            -5
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=0\n"
+    },
+    {
+      "description": "addInts at 32-bit integer boundary",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "addInts",
+          "params": [
+            2147483646,
+            1
+          ]
+        }
+      },
+      "expected_output": "jsonrpc=2.0\nid=1\noutcome=success\nresult=2147483647\n"
+    },
+    {
+      "description": "void method invoked as a notification yields no response",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "method": "voidMethod",
+          "params": [
+            5
+          ]
+        }
+      },
+      "expected_output": "no_response\n"
+    },
+    {
+      "description": "echo invoked as a notification (no id field) yields no response",
+      "input": {
+        "transport": "raw",
+        "request": {
+          "jsonrpc": "2.0",
+          "method": "echo",
+          "params": [
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "no_response\n"
+    }
+  ]
+}

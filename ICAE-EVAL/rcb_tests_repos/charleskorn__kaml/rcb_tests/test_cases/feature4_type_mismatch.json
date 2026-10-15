@@ -1,0 +1,53 @@
+{
+    "description": "Decoding a document whose shape does not match the requested type (a sequence where a scalar is expected, a mapping where a list is expected, etc.) fails with a normalized incorrect-type error describing what was expected versus what was found.",
+    "cases": [
+        {
+            "input": {
+                "op": "decode",
+                "shape": "string",
+                "document": "- thing"
+            },
+            "expected_output": "error=incorrect_type\ndetail=Expected a string, but got a list\nline=1\ncolumn=1"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "int",
+                "document": "- thing"
+            },
+            "expected_output": "error=incorrect_type\ndetail=Expected an integer, but got a list\nline=1\ncolumn=1"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "string",
+                "document": "key: value"
+            },
+            "expected_output": "error=incorrect_type\ndetail=Expected a string, but got a map\nline=1\ncolumn=1"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "string-list",
+                "document": "key: value"
+            },
+            "expected_output": "error=incorrect_type\ndetail=Expected a list, but got a map\nline=1\ncolumn=1"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "group",
+                "document": "members: some_value"
+            },
+            "expected_output": "error=invalid_property_value\nproperty=members\nreason=Expected a list, but got a scalar value\nline=1\ncolumn=10"
+        },
+        {
+            "input": {
+                "op": "decode",
+                "shape": "string-list",
+                "document": "- [ some_value ]"
+            },
+            "expected_output": "error=incorrect_type\ndetail=Expected a string, but got a list\nline=1\ncolumn=3"
+        }
+    ]
+}

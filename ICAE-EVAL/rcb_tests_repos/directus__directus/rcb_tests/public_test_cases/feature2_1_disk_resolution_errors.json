@@ -1,0 +1,39 @@
+{
+  "description": "The storage manager resolves a named disk from a configuration object into a usable storage backend. Resolution fails fast with a normalized error when the configuration is incomplete or references an unknown backend kind. The request supplies the manager configuration (an optional default disk name and a map of disk definitions) and asks the manager to resolve a disk (using the default when no explicit name is given). The covered failures are: no default disk name available, a referenced disk has no configuration entry, a disk entry omits its backend kind, and a disk entry names a backend kind that has not been registered. Configuration errors carry a stable config error code and a status of 500; an unregistered backend kind reports a distinct category with a status of 400 and echoes the offending kind.",
+  "cases": [
+    {
+      "input": {
+        "op": "manager",
+        "config": {},
+        "steps": [
+          {
+            "action": "disk"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_config\ncode=E_INVALID_CONFIG\nstatus=500\ndetail=Make sure to define a default disk name inside config file\n"
+    },
+    {
+      "input": {
+        "op": "manager",
+        "config": {
+          "default": "local",
+          "disks": {
+            "local": {
+              "driver": "foo",
+              "config": {
+                "root": ""
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "action": "disk"
+          }
+        ]
+      },
+      "expected_output": "error=driver_not_supported\nstatus=400\ndriver=foo\ndetail=Driver foo is not supported\n"
+    }
+  ]
+}

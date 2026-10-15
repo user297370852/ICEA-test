@@ -1,0 +1,80 @@
+{
+  "description": "Error normalization coverage: writing text onto a directory is is-a-directory, deleting a missing file is not-found, reading a directory as bytes is is-a-directory, traversing a path through a file is not-a-directory, and copying from a directory source is is-a-directory.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/d"
+          },
+          {
+            "op": "write",
+            "path": "/d",
+            "text": "x"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/d\nerror=is_a_directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "delete",
+            "path": "/gone",
+            "as": "file"
+          }
+        ]
+      },
+      "expected_output": "error=no_such_file_or_directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/d"
+          },
+          {
+            "op": "read",
+            "path": "/d",
+            "as": "bytes"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/d\nerror=is_a_directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/f"
+          },
+          {
+            "op": "create_file",
+            "path": "/f/child"
+          }
+        ]
+      },
+      "expected_output": "created_file=/f\nerror=not_a_directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/d"
+          },
+          {
+            "op": "copy",
+            "from": "/d",
+            "to": "/x"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/d\nerror=is_a_directory\n"
+    }
+  ]
+}

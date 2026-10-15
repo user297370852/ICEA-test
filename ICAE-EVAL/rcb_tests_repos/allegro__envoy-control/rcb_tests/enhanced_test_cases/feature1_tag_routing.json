@@ -1,0 +1,126 @@
+{
+  "description": "Enhanced tag-routing boundaries: empty tag set, no blacklist (no filtering), combination rules configured only for OTHER services, only-one-member-of-a-pair surviving the blacklist, and a three-tag service that has only a subset of the triple present so only matching sub-pairs are joined.",
+  "cases": [
+    {
+      "input": {
+        "op": "tag_routing",
+        "serviceName": "svc",
+        "excludedTags": [
+          "x"
+        ],
+        "allowedCombinations": [],
+        "tags": []
+      },
+      "expected_output": "tags=none\n"
+    },
+    {
+      "input": {
+        "op": "tag_routing",
+        "serviceName": "no-exclusions",
+        "excludedTags": [],
+        "allowedCombinations": [],
+        "tags": [
+          "beta",
+          "alpha",
+          "gamma"
+        ]
+      },
+      "expected_output": "tag=alpha\ntag=beta\ntag=gamma\n"
+    },
+    {
+      "input": {
+        "op": "tag_routing",
+        "serviceName": "regular-service",
+        "excludedTags": [
+          ".*id.*"
+        ],
+        "allowedCombinations": [
+          {
+            "serviceName": "two-tags-allowed-service",
+            "tags": [
+              "hardware:.*",
+              "version:.*"
+            ]
+          }
+        ],
+        "tags": [
+          "hardware:c32",
+          "version:v0.9",
+          "stage:dev"
+        ]
+      },
+      "expected_output": "tag=hardware:c32\ntag=stage:dev\ntag=version:v0.9\n"
+    },
+    {
+      "input": {
+        "op": "tag_routing",
+        "serviceName": "two-tags-allowed-service",
+        "excludedTags": [
+          "version:.*"
+        ],
+        "allowedCombinations": [
+          {
+            "serviceName": "two-tags-allowed-service",
+            "tags": [
+              "hardware:.*",
+              "version:.*"
+            ]
+          }
+        ],
+        "tags": [
+          "hardware:c32",
+          "version:v0.9"
+        ]
+      },
+      "expected_output": "tag=hardware:c32\n"
+    },
+    {
+      "input": {
+        "op": "tag_routing",
+        "serviceName": "three-tags-allowed-service",
+        "excludedTags": [
+          ".*id.*"
+        ],
+        "allowedCombinations": [
+          {
+            "serviceName": "three-tags-allowed-service",
+            "tags": [
+              "stage:.*",
+              "version:.*",
+              "hardware:.*"
+            ]
+          }
+        ],
+        "tags": [
+          "stage:dev",
+          "version:v0.9"
+        ]
+      },
+      "expected_output": "tag=stage:dev\ntag=stage:dev,version:v0.9\ntag=version:v0.9\n"
+    },
+    {
+      "input": {
+        "op": "tag_routing",
+        "serviceName": "three-tags-allowed-service",
+        "excludedTags": [],
+        "allowedCombinations": [
+          {
+            "serviceName": "three-tags-allowed-service",
+            "tags": [
+              "stage:.*",
+              "version:.*",
+              "hardware:.*"
+            ]
+          }
+        ],
+        "tags": [
+          "stage:dev",
+          "version:v0.9",
+          "hardware:c32",
+          "extra:tag"
+        ]
+      },
+      "expected_output": "tag=extra:tag\ntag=hardware:c32\ntag=hardware:c32,stage:dev\ntag=hardware:c32,stage:dev,version:v0.9\ntag=hardware:c32,version:v0.9\ntag=stage:dev\ntag=stage:dev,version:v0.9\ntag=version:v0.9\n"
+    }
+  ]
+}

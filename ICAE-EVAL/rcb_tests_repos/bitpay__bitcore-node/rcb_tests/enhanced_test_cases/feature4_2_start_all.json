@@ -1,0 +1,138 @@
+{
+  "description": "Sequential start-all edge cases: three non-conflicting services start in order with the union of methods; an empty service list starts nothing; a single service with no methods starts cleanly; a single service that declares the same method name twice conflicts on that name; and two services each declaring the same two names conflict on both names in order. The adapter normalizes every startup error (including a service whose start hook fails) into the api_method_conflict contract, so a start-hook failure surfaces with an empty offending-method list.",
+  "cases": [
+    {
+      "input": {
+        "kind": "start_all",
+        "services": [
+          {
+            "name": "a",
+            "startError": null,
+            "apiMethods": [
+              {
+                "name": "m1"
+              }
+            ]
+          },
+          {
+            "name": "b",
+            "startError": null,
+            "apiMethods": [
+              {
+                "name": "m2"
+              }
+            ]
+          },
+          {
+            "name": "c",
+            "startError": null,
+            "apiMethods": [
+              {
+                "name": "m3"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "started=[\"a\",\"b\",\"c\"]\napi_methods=[\"m1\",\"m2\",\"m3\"]\n"
+    },
+    {
+      "input": {
+        "kind": "start_all",
+        "services": []
+      },
+      "expected_output": "started=[]\napi_methods=[]\n"
+    },
+    {
+      "input": {
+        "kind": "start_all",
+        "services": [
+          {
+            "name": "a",
+            "startError": null,
+            "apiMethods": []
+          }
+        ]
+      },
+      "expected_output": "started=[\"a\"]\napi_methods=[]\n"
+    },
+    {
+      "input": {
+        "kind": "start_all",
+        "services": [
+          {
+            "name": "a",
+            "startError": null,
+            "apiMethods": [
+              {
+                "name": "dup"
+              },
+              {
+                "name": "dup"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=api_method_conflict\nmethods=[\"dup\"]\n"
+    },
+    {
+      "input": {
+        "kind": "start_all",
+        "services": [
+          {
+            "name": "a",
+            "startError": null,
+            "apiMethods": [
+              {
+                "name": "x"
+              },
+              {
+                "name": "y"
+              }
+            ]
+          },
+          {
+            "name": "b",
+            "startError": null,
+            "apiMethods": [
+              {
+                "name": "x"
+              },
+              {
+                "name": "y"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=api_method_conflict\nmethods=[\"x\",\"y\"]\n"
+    },
+    {
+      "input": {
+        "kind": "start_all",
+        "services": [
+          {
+            "name": "a",
+            "startError": null,
+            "apiMethods": [
+              {
+                "name": "m1"
+              }
+            ]
+          },
+          {
+            "name": "b",
+            "startError": "failB",
+            "apiMethods": [
+              {
+                "name": "m2"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=api_method_conflict\nmethods=[]\n"
+    }
+  ]
+}

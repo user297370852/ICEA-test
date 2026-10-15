@@ -1,0 +1,38 @@
+{
+    "description": "Block serialization is version-sensitive. A block carries a name, a handle, an owning layer, an external-reference path, a base point, and contained entities. For an R13-class target the block-begin and block-end records both include the entity subclass markers and the owning layer. Reading the equivalent R13 form recovers the block contents.",
+    "cases": [
+        {
+            "input": {
+                "op": "write_block",
+                "version": "R13",
+                "name": "<block name>",
+                "handle": 66,
+                "layer": "<layer>",
+                "xref_name": "<xref>",
+                "base_point": [
+                    11,
+                    22,
+                    33
+                ],
+                "entities": [
+                    {
+                        "type": "point",
+                        "location": [
+                            111,
+                            222,
+                            333
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\n42\n330\n0\n100\nAcDbEntity\n  8\n<layer>\n100\nAcDbBlockBegin\n  2\n<block name>\n 70\n0\n 10\n11.0\n 20\n22.0\n 30\n33.0\n  3\n<block name>\n  1\n<xref>\n  0\nPOINT\n100\nAcDbEntity\n  8\n0\n100\nAcDbPoint\n 10\n111.0\n 20\n222.0\n 30\n333.0\n  0\nENDBLK\n  5\n42\n100\nAcDbEntity\n  8\n<layer>\n100\nAcDbBlockEnd\n  0\nENDSEC\n"
+        },
+        {
+            "input": {
+                "op": "read_blocks",
+                "dxf": "  0\nSECTION\n  2\nHEADER\n  9\n$ACADVER\n  1\nAC1012\n  0\nENDSEC\n  0\nSECTION\n  2\nBLOCKS\n  0\nBLOCK\n  5\n42\n100\nAcDbEntity\n  8\n<layer>\n100\nAcDbBlockBegin\n  2\n<block name>\n 70\n0\n 10\n11\n 20\n22\n 30\n33\n  3\n<block name>\n  1\n<xref path>\n  0\nPOINT\n 10\n1.1\n 20\n2.2\n 30\n3.3\n  0\nENDBLK\n  5\n42\n100\nAcDbEntity\n  8\n<layer>\n100\nAcDbBlockEnd\n  0\nENDSEC\n  0\nEOF"
+            },
+            "expected_output": "block_count=1\nblock.0.name=<block name>\nblock.0.handle=42\nblock.0.layer=<layer>\nblock.0.xref_name=<xref path>\nblock.0.base_point=11,22,33\nblock.0.entity_count=1\nblock.0.entity.0.type=point\nblock.0.entity.0.location=1.1,2.2,3.3\n"
+        }
+    ]
+}

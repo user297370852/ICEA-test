@@ -1,0 +1,81 @@
+{
+  "description": "Additional value coercion and option binding coverage: exercise integer truncation from fractional values, negative integer coercion, local enum coercion, duration canonicalization, binding for enum and duration values, and missing-key behavior when unrelated options exist.",
+  "cases": [
+    {
+      "input": {
+        "op": "coerce",
+        "kind": "integer",
+        "value": 123.9
+      },
+      "expected_output": "value=123\n"
+    },
+    {
+      "input": {
+        "op": "coerce",
+        "kind": "integer",
+        "value": -7
+      },
+      "expected_output": "value=-7\n"
+    },
+    {
+      "input": {
+        "op": "coerce",
+        "kind": "validationDepth",
+        "value": "local"
+      },
+      "expected_output": "value=LOCAL\n"
+    },
+    {
+      "input": {
+        "op": "coerce",
+        "kind": "duration",
+        "value": "PT90S"
+      },
+      "expected_output": "value=PT1M30S\n"
+    },
+    {
+      "input": {
+        "op": "bind",
+        "kind": "validationDepth",
+        "key": "depth",
+        "options": {
+          "depth": "LOCAL"
+        }
+      },
+      "expected_output": "bound=true\nvalue=LOCAL\n"
+    },
+    {
+      "input": {
+        "op": "bind",
+        "kind": "duration",
+        "key": "timeout",
+        "options": {
+          "timeout": "PT90S"
+        }
+      },
+      "expected_output": "bound=true\nvalue=PT1M30S\n"
+    },
+    {
+      "input": {
+        "op": "bind",
+        "kind": "integer",
+        "key": "missing",
+        "options": {
+          "value": "456"
+        }
+      },
+      "expected_output": "bound=false\n"
+    },
+    {
+      "input": {
+        "op": "bind",
+        "kind": "validationDepth",
+        "key": "depth",
+        "options": {
+          "depth": "far"
+        }
+      },
+      "expected_output": "error=option_conversion_failed\noption=depth\n"
+    }
+  ]
+}

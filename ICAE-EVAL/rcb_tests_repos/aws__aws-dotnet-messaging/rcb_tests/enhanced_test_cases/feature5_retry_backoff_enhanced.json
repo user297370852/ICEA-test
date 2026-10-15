@@ -1,0 +1,163 @@
+{
+  "description": "Boundary and category coverage for retry backoff: fatal categories (queue_missing, unsupported_operation, invalid_address, invalid_security, kms_*) suppress backoff; non-fatal generic/unknown errors trigger backoff; retry-count boundaries for capped exponential (0, large cap saturation) and interval policies.",
+  "cases": [
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "generic_queue_error",
+        "retryCount": 0
+      },
+      "expected_output": "should_backoff=true\nmax_backoff_seconds=1\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "generic_queue_error",
+        "retryCount": 10
+      },
+      "expected_output": "should_backoff=true\nmax_backoff_seconds=60\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 5,
+        "errorCategory": "generic_queue_error",
+        "retryCount": 8
+      },
+      "expected_output": "should_backoff=true\nmax_backoff_seconds=5\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "queue_missing",
+        "retryCount": 3
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=8\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "unsupported_operation",
+        "retryCount": 2
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=4\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "invalid_address",
+        "retryCount": 2
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=4\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "invalid_security",
+        "retryCount": 2
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=4\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "kms_access_denied",
+        "retryCount": 2
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=4\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "kms_invalid_key_usage",
+        "retryCount": 2
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=4\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "kms_invalid_state",
+        "retryCount": 2
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=4\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "capped_exponential",
+        "capBackoffTime": 60,
+        "errorCategory": "unclassified_error",
+        "retryCount": 1
+      },
+      "expected_output": "should_backoff=true\nmax_backoff_seconds=2\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "interval",
+        "fixedInterval": 1,
+        "errorCategory": "generic_queue_error",
+        "retryCount": 0
+      },
+      "expected_output": "should_backoff=true\nmax_backoff_seconds=1\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "interval",
+        "fixedInterval": 30,
+        "errorCategory": "generic_queue_error",
+        "retryCount": 100
+      },
+      "expected_output": "should_backoff=true\nmax_backoff_seconds=30\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "interval",
+        "fixedInterval": 5,
+        "errorCategory": "invalid_security",
+        "retryCount": 4
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=5\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "none",
+        "errorCategory": "queue_missing",
+        "retryCount": 0
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=0\nobserved_within_max=true\n"
+    },
+    {
+      "input": {
+        "operation": "retry_backoff",
+        "policy": "none",
+        "errorCategory": "generic_queue_error",
+        "retryCount": 0
+      },
+      "expected_output": "should_backoff=false\nmax_backoff_seconds=0\nobserved_within_max=true\n"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+    "description": "Parse a URL and read its canonical serialized form. Serialization normalizes the input: a special scheme and its host are lower-cased, ignored or zero-width characters in a host are removed, dot path segments are resolved, and characters not allowed literally in a path are percent-encoded while already-encoded sequences and permitted characters are preserved. A relative reference resolved against a base is serialized as an absolute URL with its path percent-encoded.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "HTTP://AMAZON.COM",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=http://amazon.com/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://​123.123.123.123",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=http://123.123.123.123/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "file:///foo/.bar/../baz.js",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\npathname=/foo/baz.js\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "file:///foo/bar/baz.js",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\npathname=/foo/bar/baz.js\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://www.google.com/%37/ /",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=http://www.google.com/%37/%20/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://www.google.com/",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "href",
+                        "value": "http://www.google.com/  /  /+/"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_href=true\nhref=http://www.google.com/%20%20/%20%20/+/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://www.google.com/%37+/",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=http://www.google.com/%37+/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "http://www.google+com/",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=http://www.google+com/\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "/안녕",
+                "base": "https://non-ascii-location-header.sys.workers.dev/redirect",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nhref=https://non-ascii-location-header.sys.workers.dev/%EC%95%88%EB%85%95\n"
+        }
+    ]
+}

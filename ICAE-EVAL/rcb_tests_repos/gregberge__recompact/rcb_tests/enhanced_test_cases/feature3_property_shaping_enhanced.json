@@ -1,0 +1,202 @@
+{
+  "description": "Enhanced synthetic cases for property shaping covering empty pick/omit, null and false values, missing rename sources, nested flatten collisions, empty joins, and multi-stage pipelines with overriding and sorting behavior.",
+  "cases": [
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "merge",
+            "props": {
+              "alpha": 1,
+              "enabled": false,
+              "meta": {
+                "z": 9
+              }
+            }
+          }
+        ],
+        "props": {
+          "alpha": 99,
+          "beta": null
+        }
+      },
+      "expected_output": "alpha=1\nbeta=null\nenabled=false\nmeta={\"z\":9}\n"
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "defaults",
+            "props": {
+              "count": 10,
+              "flag": true,
+              "label": "fallback"
+            }
+          }
+        ],
+        "props": {
+          "count": 0,
+          "flag": false
+        }
+      },
+      "expected_output": "count=0\nflag=false\nlabel=\"fallback\"\n"
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "pick",
+            "keys": []
+          }
+        ],
+        "props": {
+          "a": 1,
+          "b": 2
+        }
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "omit",
+            "keys": []
+          }
+        ],
+        "props": {
+          "a": 1,
+          "b": "two"
+        }
+      },
+      "expected_output": "a=1\nb=\"two\"\n"
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "rename",
+            "from": "old",
+            "to": "new"
+          }
+        ],
+        "props": {
+          "old": null,
+          "present": 7
+        }
+      },
+      "expected_output": "new=null\npresent=7\n"
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "rename_map",
+            "map": {
+              "a": "x",
+              "b": "y"
+            }
+          }
+        ],
+        "props": {
+          "a": false,
+          "b": [
+            1,
+            2
+          ],
+          "keep": "yes"
+        }
+      },
+      "expected_output": "keep=\"yes\"\nx=false\ny=[1,2]\n"
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "flatten",
+            "keys": [
+              "state",
+              "extra"
+            ]
+          }
+        ],
+        "props": {
+          "counter": 99,
+          "state": {
+            "counter": 1,
+            "name": "n"
+          },
+          "extra": {
+            "counter": 2,
+            "ok": true
+          }
+        }
+      },
+      "expected_output": "counter=2\nextra={\"counter\":2,\"ok\":true}\nname=\"n\"\nok=true\nstate={\"counter\":1,\"name\":\"n\"}\n"
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "derive_join",
+            "source": "parts",
+            "separator": "/",
+            "target": "path"
+          }
+        ],
+        "props": {
+          "parts": [],
+          "ignored": "value"
+        }
+      },
+      "expected_output": "path=\"\"\n"
+    },
+    {
+      "input": {
+        "command": "transform_props",
+        "stages": [
+          {
+            "op": "defaults",
+            "props": {
+              "role": "user",
+              "active": true
+            }
+          },
+          {
+            "op": "merge",
+            "props": {
+              "active": false,
+              "score": 5
+            }
+          },
+          {
+            "op": "rename",
+            "from": "score",
+            "to": "points"
+          },
+          {
+            "op": "pick",
+            "keys": [
+              "role",
+              "active",
+              "points"
+            ]
+          }
+        ],
+        "props": {
+          "role": "admin",
+          "drop": "me"
+        }
+      },
+      "expected_output": "active=false\npoints=5\nrole=\"admin\"\n"
+    }
+  ]
+}

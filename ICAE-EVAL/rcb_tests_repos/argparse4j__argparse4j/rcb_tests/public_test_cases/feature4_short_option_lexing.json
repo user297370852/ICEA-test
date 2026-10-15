@@ -1,0 +1,104 @@
+{
+    "description": "Lexing of single-prefix short options: several boolean/short options may be concatenated into one token, and a trailing option that needs a value takes the rest of the token as its embedded value (or, if empty, the next token); a unique prefix of a longer option name is accepted while an ambiguous prefix that could match several options is rejected; an alternative prefix character can be configured and still supports concatenation; and tokens that look like negative numbers are treated as values rather than options unless a matching numeric option is defined.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-1"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-2"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-3"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-ff"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-f"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-c"
+                        ],
+                        "action": "append_const",
+                        "const": true
+                    }
+                ],
+                "argv": [
+                    "-123=x",
+                    "-ff=a",
+                    "-fx",
+                    "-cccc"
+                ]
+            },
+            "expected_output": "1=true\n2=3=x\n3=null\nc=[true, true, true, true]\nf=x\nff=a\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-a"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-b"
+                        ]
+                    },
+                    {
+                        "flags": [
+                            "-aaa"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "-bbb"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "-aaa"
+                ]
+            },
+            "expected_output": "a=false\naaa=true\nb=null\nbbb=false\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-x"
+                        ]
+                    },
+                    {
+                        "name": "foo",
+                        "nargs": "?"
+                    }
+                ],
+                "argv": [
+                    "-x",
+                    "-1"
+                ]
+            },
+            "expected_output": "foo=null\nx=-1\n"
+        }
+    ]
+}

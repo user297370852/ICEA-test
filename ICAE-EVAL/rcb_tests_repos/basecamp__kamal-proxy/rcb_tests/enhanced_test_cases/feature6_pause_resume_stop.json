@@ -1,0 +1,93 @@
+{
+  "description": "Enhanced lifecycle edge cases: pausing then resuming before any request restores normal routing so the next request reaches the backend, and a stopped service still answers its health endpoint path with a success and empty body while rejecting all other paths with service-unavailable. Each lifecycle command reports success and each probe reports the response status with the body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "live-app"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "pause",
+            "name": "s1",
+            "pause_timeout_ms": 40
+          },
+          {
+            "op": "resume",
+            "name": "s1"
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\npause s1 ok\nresume s1 ok\nstatus=200 target=live-app\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "live-app"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "stop",
+            "name": "s1",
+            "message": "bye"
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/up",
+            "method": "GET"
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/foo",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nstop s1 ok\nstatus=200 target=\nstatus=503 target=Service Unavailable\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "live-app"
+          }
+        },
+        "steps": [
+          {
+            "op": "resume",
+            "name": "ghost"
+          }
+        ]
+      },
+      "expected_output": "resume ghost error=service_not_found\n"
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "description": "Decide whether an incoming request to a given route is subject to rate limiting. The configuration declares a set of named routes (each with an id and a path prefix) and a map of rate-limit policies keyed by route id. For a request URI, the system first resolves the matching route by scanning declared routes in order and selecting the first whose path is a prefix of the URI; if a route matches, it looks up a policy by that route's id. Rate limiting applies only when the feature is enabled AND a policy governs the resolved route. The output reports whether a route matched the URI and whether the request will be rate limited.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "enabled": false,
+          "behindProxy": true,
+          "keyPrefix": "rate-limit-application",
+          "policies": {
+            "serviceA": {
+              "limit": 2,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 0
+      },
+      "expected_output": "route_matched=true\nshould_limit=false\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "policies": {
+            "serviceA": {
+              "limit": 2,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": []
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 0
+      },
+      "expected_output": "route_matched=false\nshould_limit=false\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "policies": {},
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 0
+      },
+      "expected_output": "route_matched=true\nshould_limit=false\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "policies": {
+            "api": {
+              "limit": 5,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "api",
+              "path": "/api"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/api/v1/users/42",
+          "remoteAddr": "192.168.1.5"
+        },
+        "runs": 0
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "policies": {
+            "root": {
+              "limit": 3,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "root",
+              "path": "/"
+            },
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 0
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "policies": {
+            "serviceA": {
+              "limit": 2,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "open",
+              "path": "/open"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/open/resource",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 0
+      },
+      "expected_output": "route_matched=true\nshould_limit=false\n"
+    }
+  ]
+}

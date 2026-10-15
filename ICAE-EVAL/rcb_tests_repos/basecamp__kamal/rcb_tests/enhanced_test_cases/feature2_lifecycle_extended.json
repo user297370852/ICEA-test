@@ -1,0 +1,100 @@
+{
+  "description": "Lifecycle command edge cases: stop with both a graceful stop-wait-time and an explicit version (the timeout flag still applies on the exact-name path), start of a differently named service with a destination, and info for a non-web role under a destination.",
+  "cases": [
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          },
+          "stop_wait_time": 30
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "stop",
+        "args": {
+          "version": "123"
+        }
+      },
+      "expected_output": "docker container ls --all --filter name=^app-web-123$ --quiet | xargs docker stop -t 30"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "billing",
+          "image": "acme/billing",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "888",
+        "destination": "production",
+        "role": "web",
+        "action": "start"
+      },
+      "expected_output": "docker start billing-web-production-888"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": {
+            "web": [
+              "1.1.1.1"
+            ],
+            "workers": {
+              "hosts": [
+                "1.1.1.2"
+              ],
+              "cmd": "bin/jobs"
+            }
+          },
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "destination": "production",
+        "role": "workers",
+        "action": "info"
+      },
+      "expected_output": "docker ps --filter label=service=app --filter label=destination=production --filter label=role=workers"
+    }
+  ]
+}

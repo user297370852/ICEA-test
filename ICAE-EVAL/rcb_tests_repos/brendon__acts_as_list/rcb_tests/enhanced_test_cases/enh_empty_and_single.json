@@ -1,0 +1,165 @@
+{
+  "description": "Boundary coverage for empty lists and single-element lists. Querying an empty scope yields empty id and position collections. A single element is simultaneously first and last; nudging it up or down (it has no neighbour) is a no-op that leaves it in place, and moving it to either end likewise changes nothing.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 99
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 99
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[]\npositions=[]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "move_up",
+            "ref": "a"
+          },
+          {
+            "op": "move_down",
+            "ref": "a"
+          }
+        ],
+        "queries": [
+          {
+            "q": "item_status",
+            "ref": "a"
+          },
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "position=1 first=true last=true in_list=true\nids=[1]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "move_to_top",
+            "ref": "a"
+          },
+          {
+            "op": "move_to_bottom",
+            "ref": "a"
+          }
+        ],
+        "queries": [
+          {
+            "q": "item_status",
+            "ref": "a"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "position=1 first=true last=true in_list=true\npositions=[1]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 5
+            }
+          },
+          {
+            "op": "move_up",
+            "ref": "a"
+          },
+          {
+            "op": "move_down",
+            "ref": "c"
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 5
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[1, 2, 3]\npositions=[1, 2, 3]"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+    "description": "A canary rollout selects a deterministic fraction of clients into a rollout group based on a per-client identifier value carried by the request. Membership is decided by a stable 32-bit FNV-1a hash of the identifier reduced modulo one hundred and compared against the configured target percentage, so the same identifier always yields the same decision and the selected fraction is reproducible across a large population. Identifiers present in an explicit allowlist are always in the group; a request that carries no identifier is never in the group. Each evaluation reports the identifier and whether it falls in the rollout group; a population sweep reports the number selected out of the total.",
+    "cases": [
+        {
+            "input": {
+                "kind": "rollout_split",
+                "percent": 0,
+                "allowlist": [
+                    "vip"
+                ],
+                "cookie_values": [
+                    "vip",
+                    "00001",
+                    null
+                ]
+            },
+            "expected_output": "value=vip group=true\nvalue=00001 group=false\nvalue=<none> group=false\n"
+        },
+        {
+            "input": {
+                "kind": "rollout_split",
+                "percent": 100,
+                "cookie_values": [
+                    "00001",
+                    "00002"
+                ]
+            },
+            "expected_output": "value=00001 group=true\nvalue=00002 group=true\n"
+        },
+        {
+            "input": {
+                "kind": "rollout_split",
+                "percent": 60,
+                "generate": 1000
+            },
+            "expected_output": "matched=613 total=1000\n"
+        },
+        {
+            "input": {
+                "kind": "rollout_split",
+                "percent": 50,
+                "cookie_values": [
+                    "00001",
+                    "00002",
+                    "00003",
+                    "00004"
+                ]
+            },
+            "expected_output": "value=00001 group=true\nvalue=00002 group=true\nvalue=00003 group=true\nvalue=00004 group=true\n"
+        }
+    ]
+}

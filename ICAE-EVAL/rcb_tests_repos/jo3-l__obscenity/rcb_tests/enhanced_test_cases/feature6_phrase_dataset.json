@@ -1,0 +1,80 @@
+{
+  "description": "Enhanced phrase dataset coverage for empty datasets, merge with boundaries and whitelists, and metadata removal after merging with payload lookup.",
+  "cases": [
+    {
+      "input": {
+        "phrases": []
+      },
+      "expected_output": "{\"blacklisted_terms\":[],\"whitelisted_terms\":[]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "|alpha|"
+            ],
+            "whitelist": [
+              "allow"
+            ],
+            "metadata": "m1"
+          }
+        ],
+        "merge": {
+          "phrases": [
+            {
+              "patterns": [
+                "b?d"
+              ],
+              "whitelist": [
+                "ok"
+              ],
+              "metadata": "m2"
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":true,\"boundary_end\":true,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"alpha\",\"code_points\":[\"U+0061\",\"U+006C\",\"U+0070\",\"U+0068\",\"U+0061\"]}]}},{\"id\":1,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"b\",\"code_points\":[\"U+0062\"]},{\"kind\":\"wildcard\"},{\"kind\":\"literal\",\"chars\":\"d\",\"code_points\":[\"U+0064\"]}]}}],\"whitelisted_terms\":[\"allow\",\"ok\"]}"
+    },
+    {
+      "input": {
+        "phrases": [
+          {
+            "patterns": [
+              "a"
+            ],
+            "metadata": "drop"
+          },
+          {
+            "patterns": [
+              "b"
+            ],
+            "metadata": "keep"
+          }
+        ],
+        "merge": {
+          "phrases": [
+            {
+              "patterns": [
+                "c"
+              ],
+              "metadata": "drop"
+            }
+          ]
+        },
+        "remove_metadata": [
+          "drop"
+        ],
+        "payloads": [
+          {
+            "term_id": 0,
+            "start_index": 2,
+            "end_index": 2,
+            "match_length": 1
+          }
+        ]
+      },
+      "expected_output": "{\"blacklisted_terms\":[{\"id\":0,\"pattern\":{\"boundary_start\":false,\"boundary_end\":false,\"nodes\":[{\"kind\":\"literal\",\"chars\":\"b\",\"code_points\":[\"U+0062\"]}]}}],\"whitelisted_terms\":[],\"payloads\":[{\"term_id\":0,\"start_index\":2,\"end_index\":2,\"match_length\":1,\"phrase_metadata\":\"keep\"}]}"
+    }
+  ]
+}

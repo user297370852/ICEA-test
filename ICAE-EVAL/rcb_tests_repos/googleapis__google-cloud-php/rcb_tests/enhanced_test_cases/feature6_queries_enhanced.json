@@ -1,0 +1,109 @@
+{
+  "description": "Enhanced query cases for inequality filters, NaN/null unary filters, start-after/end-before cursors, field-path projections, result decoding, and cursor ordering errors.",
+  "cases": [
+    {
+      "input": {
+        "feature": "queries",
+        "parent": "projects/example_project/databases/(default)/documents",
+        "collection": "metrics",
+        "steps": [
+          {
+            "type": "where",
+            "field": "score",
+            "operator": ">=",
+            "value": 10
+          },
+          {
+            "type": "where",
+            "field": "status",
+            "operator": "!=",
+            "value": null
+          }
+        ]
+      },
+      "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"metrics\"\n                        }\n                    ],\n                    \"where\": {\n                        \"compositeFilter\": {\n                            \"op\": 1,\n                            \"filters\": [\n                                {\n                                    \"fieldFilter\": {\n                                        \"field\": {\n                                            \"fieldPath\": \"score\"\n                                        },\n                                        \"op\": 4,\n                                        \"value\": {\n                                            \"integerValue\": 10\n                                        }\n                                    }\n                                },\n                                {\n                                    \"unaryFilter\": {\n                                        \"field\": {\n                                            \"fieldPath\": \"status\"\n                                        },\n                                        \"op\": 5\n                                    }\n                                }\n                            ]\n                        }\n                    }\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [],\n    \"size\": 0,\n    \"is_empty\": true\n}\n"
+    },
+    {
+      "input": {
+        "feature": "queries",
+        "parent": "projects/example_project/databases/(default)/documents",
+        "collection": "metrics",
+        "steps": [
+          {
+            "type": "order",
+            "field": "score",
+            "direction": "ASC"
+          },
+          {
+            "type": "start_after",
+            "values": [
+              10
+            ]
+          },
+          {
+            "type": "end_before",
+            "values": [
+              20
+            ]
+          }
+        ]
+      },
+      "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"metrics\"\n                        }\n                    ],\n                    \"orderBy\": [\n                        {\n                            \"field\": {\n                                \"fieldPath\": \"score\"\n                            },\n                            \"direction\": 1\n                        }\n                    ],\n                    \"startAt\": {\n                        \"before\": false,\n                        \"values\": [\n                            {\n                                \"integerValue\": 10\n                            }\n                        ]\n                    },\n                    \"endAt\": {\n                        \"before\": true,\n                        \"values\": [\n                            {\n                                \"integerValue\": 20\n                            }\n                        ]\n                    }\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [],\n    \"size\": 0,\n    \"is_empty\": true\n}\n"
+    },
+    {
+      "input": {
+        "feature": "queries",
+        "parent": "projects/example_project/databases/(default)/documents",
+        "collection": "users",
+        "steps": [],
+        "rows": [
+          {
+            "document": {
+              "name": "projects/example_project/databases/(default)/documents/users/alice",
+              "fields": {
+                "age": {
+                  "integerValue": 31
+                },
+                "active": {
+                  "booleanValue": true
+                }
+              }
+            },
+            "readTime": {
+              "seconds": 101,
+              "nanos": 2
+            }
+          },
+          {
+            "document": {
+              "name": "projects/example_project/databases/(default)/documents/users/bob",
+              "fields": {
+                "name": {
+                  "stringValue": "Bob"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "{\n    \"calls\": [\n        {\n            \"operation\": \"run_query\",\n            \"request\": {\n                \"parent\": \"projects/example_project/databases/(default)/documents\",\n                \"structuredQuery\": {\n                    \"from\": [\n                        {\n                            \"collectionId\": \"users\"\n                        }\n                    ]\n                },\n                \"retries\": 0\n            }\n        }\n    ],\n    \"rows\": [\n        {\n            \"name\": \"projects/example_project/databases/(default)/documents/users/alice\",\n            \"fields\": {\n                \"age\": 31,\n                \"active\": true\n            }\n        },\n        {\n            \"name\": \"projects/example_project/databases/(default)/documents/users/bob\",\n            \"fields\": {\n                \"name\": \"Bob\"\n            }\n        }\n    ],\n    \"size\": 2,\n    \"is_empty\": false\n}\n"
+    },
+    {
+      "input": {
+        "feature": "queries",
+        "parent": "projects/example_project/databases/(default)/documents",
+        "collection": "foo",
+        "steps": [
+          {
+            "type": "start_at",
+            "values": [
+              "orphan"
+            ]
+          }
+        ],
+        "execute": false
+      },
+      "expected_output": "error=invalid_cursor\n"
+    }
+  ]
+}

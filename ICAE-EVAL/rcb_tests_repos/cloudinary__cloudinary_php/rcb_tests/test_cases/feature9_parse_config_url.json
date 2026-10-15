@@ -1,0 +1,11 @@
+{
+    "description": "Parse a Cloudinary connection URL of the form 'cloudinary://[<api_key>:<api_secret>@]<cloud_name>[/<secure_cname>]' into a normalized configuration tree, rendered as 'config=<json>'. The cloud_name always lands under cloud.cloud_name; when credentials are present they populate cloud.api_key and cloud.api_secret; an extra path segment becomes url.secure_cname and implies url.private_cdn=true. A null/empty URL is rejected as 'error=empty_config_url'; a wrong scheme or an otherwise unparseable URL is rejected as 'error=invalid_config_url'.",
+    "cases": [
+        {"input": {"op": "parse_config_url", "url": "cloudinary://test123"}, "expected_output": "config={\"cloud\":{\"cloud_name\":\"test123\"}}\n"},
+        {"input": {"op": "parse_config_url", "url": "cloudinary://key:secret@test123"}, "expected_output": "config={\"cloud\":{\"cloud_name\":\"test123\",\"api_key\":\"key\",\"api_secret\":\"secret\"}}\n"},
+        {"input": {"op": "parse_config_url", "url": "cloudinary://key:secret@test123/secure-dist"}, "expected_output": "config={\"cloud\":{\"cloud_name\":\"test123\",\"api_key\":\"key\",\"api_secret\":\"secret\"},\"url\":{\"secure_cname\":\"secure-dist\",\"private_cdn\":true}}\n"},
+        {"input": {"op": "parse_config_url", "url": null}, "expected_output": "error=empty_config_url\n"},
+        {"input": {"op": "parse_config_url", "url": "notcloudinary://key:secret@test123"}, "expected_output": "error=invalid_config_url\n"},
+        {"input": {"op": "parse_config_url", "url": "cloudinary:///test123"}, "expected_output": "error=invalid_config_url\n"}
+    ]
+}

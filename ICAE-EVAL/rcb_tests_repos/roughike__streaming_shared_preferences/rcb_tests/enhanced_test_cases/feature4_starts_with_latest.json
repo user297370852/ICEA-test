@@ -1,0 +1,64 @@
+{
+  "description": "Boundary coverage for a freshly attached observer starting from the latest stored value: several side-channel writes applied before a single observer attaches so it sees only the most recent value, an observer attached before a side-channel write so it keeps the value present at attachment while a later observer sees the newer value, and a side-channel write of an empty string so the attaching observer starts from an empty value.",
+  "cases": [
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "preset",
+            "value": "a"
+          },
+          {
+            "op": "preset",
+            "value": "b"
+          },
+          {
+            "op": "preset",
+            "value": "c"
+          },
+          {
+            "op": "observe"
+          }
+        ]
+      },
+      "expected_output": "emit[0] c\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "preset",
+            "value": "later"
+          },
+          {
+            "op": "observe"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nemit[1] later\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "preset",
+            "value": ""
+          },
+          {
+            "op": "observe"
+          }
+        ]
+      },
+      "expected_output": "emit[0] \n"
+    }
+  ]
+}

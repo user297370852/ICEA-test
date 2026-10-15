@@ -1,0 +1,365 @@
+{
+    "description": "Apply one resource-definition watch event, ignoring initial-list events, rescanning the affected API group for follow-up changes, updating served resources from API discovery, handling disappeared groups as empty, and filling core backbone resources from core API discovery.",
+    "cases": [
+        {
+            "input": {
+                "action": "apply_resource_definition_event",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "group": "group1",
+                    "version": "version1",
+                    "plural": "plural1"
+                },
+                "initial_resources": [],
+                "event": {
+                    "type": null,
+                    "spec": {
+                        "group": "group1"
+                    }
+                },
+                "apis": {
+                    "/apis": {
+                        "body": {
+                            "groups": [
+                                {
+                                    "name": "group1",
+                                    "preferredVersion": {
+                                        "version": "version1"
+                                    },
+                                    "versions": [
+                                        {
+                                            "version": "version1"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "/apis/group1/version1": {
+                        "body": {
+                            "resources": [
+                                {
+                                    "kind": "kind1",
+                                    "name": "plural1",
+                                    "singularName": "singular1",
+                                    "namespaced": true,
+                                    "categories": [
+                                        "category1a",
+                                        "category1b"
+                                    ],
+                                    "shortNames": [
+                                        "shortname1a",
+                                        "shortname1b"
+                                    ],
+                                    "verbs": [
+                                        "list",
+                                        "watch",
+                                        "patch"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "notified=no\nresources=\ncore_namespaces_ready=no\napi_calls=\n"
+        },
+        {
+            "input": {
+                "action": "apply_resource_definition_event",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "group": "group1",
+                    "version": "version1",
+                    "plural": "plural1"
+                },
+                "initial_resources": [],
+                "event": {
+                    "type": "ADDED",
+                    "spec": {
+                        "group": "group1"
+                    }
+                },
+                "apis": {
+                    "/apis": {
+                        "body": {
+                            "groups": [
+                                {
+                                    "name": "group1",
+                                    "preferredVersion": {
+                                        "version": "version1"
+                                    },
+                                    "versions": [
+                                        {
+                                            "version": "version1"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "/apis/group1/version1": {
+                        "body": {
+                            "resources": [
+                                {
+                                    "kind": "kind1",
+                                    "name": "plural1",
+                                    "singularName": "singular1",
+                                    "namespaced": true,
+                                    "categories": [
+                                        "category1a",
+                                        "category1b"
+                                    ],
+                                    "shortNames": [
+                                        "shortname1a",
+                                        "shortname1b"
+                                    ],
+                                    "verbs": [
+                                        "list",
+                                        "watch",
+                                        "patch"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "notified=yes\nresources=group1/version1/plural1\ncore_namespaces_ready=no\napi_calls=/apis,/apis/group1/version1\n"
+        },
+        {
+            "input": {
+                "action": "apply_resource_definition_event",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "group": "group1",
+                    "version": "version1",
+                    "plural": "plural1"
+                },
+                "initial_resources": [],
+                "event": {
+                    "type": "MODIFIED",
+                    "spec": {
+                        "group": "group1"
+                    }
+                },
+                "apis": {
+                    "/apis": {
+                        "body": {
+                            "groups": [
+                                {
+                                    "name": "group1",
+                                    "preferredVersion": {
+                                        "version": "version1"
+                                    },
+                                    "versions": [
+                                        {
+                                            "version": "version1"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "/apis/group1/version1": {
+                        "body": {
+                            "resources": [
+                                {
+                                    "kind": "kind1",
+                                    "name": "plural1",
+                                    "singularName": "singular1",
+                                    "namespaced": true,
+                                    "categories": [
+                                        "category1a",
+                                        "category1b"
+                                    ],
+                                    "shortNames": [
+                                        "shortname1a",
+                                        "shortname1b"
+                                    ],
+                                    "verbs": [
+                                        "list",
+                                        "watch",
+                                        "patch"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "notified=yes\nresources=group1/version1/plural1\ncore_namespaces_ready=no\napi_calls=/apis,/apis/group1/version1\n"
+        },
+        {
+            "input": {
+                "action": "apply_resource_definition_event",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "group": "group1",
+                    "version": "version1",
+                    "plural": "plural1"
+                },
+                "initial_resources": [
+                    {
+                        "group": "group1",
+                        "version": "version1",
+                        "plural": "plural1",
+                        "kind": "kind1",
+                        "singular": "singular1",
+                        "namespaced": true,
+                        "categories": [
+                            "category1a",
+                            "category1b"
+                        ],
+                        "shortcuts": [
+                            "shortname1a",
+                            "shortname1b"
+                        ],
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    }
+                ],
+                "event": {
+                    "type": "DELETED",
+                    "spec": {
+                        "group": "group1"
+                    }
+                },
+                "apis": {
+                    "/apis": {
+                        "body": {
+                            "groups": [
+                                {
+                                    "name": "group1",
+                                    "preferredVersion": {
+                                        "version": "version1"
+                                    },
+                                    "versions": [
+                                        {
+                                            "version": "version1"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "/apis/group1/version1": {
+                        "body": {
+                            "resources": []
+                        }
+                    }
+                }
+            },
+            "expected_output": "notified=yes\nresources=\ncore_namespaces_ready=no\napi_calls=/apis,/apis/group1/version1\n"
+        },
+        {
+            "input": {
+                "action": "apply_resource_definition_event",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "group": "group1",
+                    "version": "version1",
+                    "plural": "plural1"
+                },
+                "initial_resources": [
+                    {
+                        "group": "group1",
+                        "version": "version1",
+                        "plural": "plural1",
+                        "kind": "kind1",
+                        "singular": "singular1",
+                        "namespaced": true,
+                        "categories": [
+                            "category1a",
+                            "category1b"
+                        ],
+                        "shortcuts": [
+                            "shortname1a",
+                            "shortname1b"
+                        ],
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    }
+                ],
+                "event": {
+                    "type": "DELETED",
+                    "spec": {
+                        "group": "group1"
+                    }
+                },
+                "apis": {
+                    "/apis": {
+                        "body": {
+                            "groups": [
+                                {
+                                    "name": "group1",
+                                    "preferredVersion": {
+                                        "version": "version1"
+                                    },
+                                    "versions": [
+                                        {
+                                            "version": "version1"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "/apis/group1/version1": {
+                        "status": 404
+                    }
+                }
+            },
+            "expected_output": "notified=yes\nresources=\ncore_namespaces_ready=no\napi_calls=/apis,/apis/group1/version1\n"
+        },
+        {
+            "input": {
+                "action": "apply_resource_definition_event",
+                "handler_mode": null,
+                "selector": null,
+                "initial_resources": [],
+                "event": {
+                    "type": "DELETED",
+                    "spec": {
+                        "group": ""
+                    }
+                },
+                "apis": {
+                    "/api": {
+                        "body": {
+                            "versions": [
+                                "v1"
+                            ]
+                        }
+                    },
+                    "/api/v1": {
+                        "body": {
+                            "resources": [
+                                {
+                                    "kind": "Namespace",
+                                    "name": "namespaces",
+                                    "singularName": "namespace",
+                                    "namespaced": false,
+                                    "categories": [],
+                                    "shortNames": [],
+                                    "verbs": [
+                                        "list",
+                                        "watch",
+                                        "patch"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "notified=yes\nresources=\ncore_namespaces_ready=yes\napi_calls=/api,/api/v1\n"
+        }
+    ]
+}

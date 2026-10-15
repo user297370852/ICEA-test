@@ -1,0 +1,23 @@
+{
+    "description": "Every document added to the index must carry exactly one integer identifier. Adding a document that violates this rule is rejected and reported as a neutral, language-independent error category instead of being indexed: a document with no identifier field reports 'missing_id'; a document whose identifier field is not an integer reports 'invalid_id_type'; a document declaring more than one identifier field reports 'multiple_ids'. Each rejected add emits one line 'error=<category>'.",
+    "cases": [
+        {
+            "input": {"op": "index", "actions": [
+                {"action": "add", "doc": {"type": "no_id", "title": "Test"}}
+            ]},
+            "expected_output": "error=missing_id\n"
+        },
+        {
+            "input": {"op": "index", "actions": [
+                {"action": "add", "doc": {"type": "string_id", "id": "abc", "title": "Test"}}
+            ]},
+            "expected_output": "error=invalid_id_type\n"
+        },
+        {
+            "input": {"op": "index", "actions": [
+                {"action": "add", "doc": {"type": "two_id", "a": 1, "b": 2}}
+            ]},
+            "expected_output": "error=multiple_ids\n"
+        }
+    ]
+}

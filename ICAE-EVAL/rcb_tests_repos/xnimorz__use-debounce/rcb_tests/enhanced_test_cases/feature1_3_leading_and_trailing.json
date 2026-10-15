@@ -1,0 +1,97 @@
+{
+  "description": "Boundary coverage for combined leading-and-trailing action behavior: a single isolated trigger produces only the leading execution, a larger multi-trigger burst still produces exactly two executions, and the trailing execution carries the most recent argument list of the burst.",
+  "cases": [
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 300,
+        "options": {
+          "leading": true,
+          "trailing": true
+        },
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              "one"
+            ]
+          },
+          {
+            "do": "advance",
+            "ms": 300
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[\"one\"] tag=fn\ncalls=1\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 1000,
+        "options": {
+          "leading": true
+        },
+        "steps": [
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "call",
+            "args": []
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[] tag=fn\ncall#2 args=[] tag=fn\ncalls=2\n"
+    },
+    {
+      "input": {
+        "hook": "callback",
+        "delay": 400,
+        "options": {
+          "leading": true
+        },
+        "steps": [
+          {
+            "do": "call",
+            "args": [
+              "first"
+            ]
+          },
+          {
+            "do": "call",
+            "args": [
+              "middle"
+            ]
+          },
+          {
+            "do": "call",
+            "args": [
+              "last"
+            ]
+          },
+          {
+            "do": "runAll"
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "call#1 args=[\"first\"] tag=fn\ncall#2 args=[\"last\"] tag=fn\ncalls=2\n"
+    }
+  ]
+}

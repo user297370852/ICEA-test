@@ -1,0 +1,101 @@
+{
+    "description": "Drive a case-insensitive HTTP header collection through a scripted sequence of operations and observe the results. The collection is built from an initial map of header name to a list of string values, then operations are applied in order: appending a value under a differently-cased name, reading a single-valued header, attempting to read a header that holds multiple values (reported as a normalized error rather than a raw value), listing the number of values under a name, removing one specific value, removing an entire header, counting all values via iteration, rendering the whole collection to its canonical wire-format text, replacing a header's values with a single value and then with a list, setting and reading a value on a freshly relevant name, and finally clearing the collection and checking emptiness. Each read or observe step prints one labelled line (the multi-value read prints a normalized error category and the offending name); the text rendering prints the wire-format block; unknown or missing names read back as a null marker.",
+    "cases": [
+        {
+            "input": {
+                "op": "headers",
+                "init": {
+                    "set-cookie": [
+                        "k=v",
+                        "k1=v1"
+                    ],
+                    "content-length": [
+                        "200"
+                    ],
+                    "test": [
+                        "1",
+                        "2"
+                    ]
+                },
+                "actions": [
+                    {
+                        "action": "add",
+                        "name": "SET-COOKIE",
+                        "value": "k2=v2"
+                    },
+                    {
+                        "action": "value",
+                        "name": "content-length"
+                    },
+                    {
+                        "action": "value",
+                        "name": "test"
+                    },
+                    {
+                        "action": "len",
+                        "name": "set-cookie"
+                    },
+                    {
+                        "action": "remove",
+                        "name": "set-cookie",
+                        "value": "k=v"
+                    },
+                    {
+                        "action": "len",
+                        "name": "set-cookie"
+                    },
+                    {
+                        "action": "removeAll",
+                        "name": "set-cookie"
+                    },
+                    {
+                        "action": "get",
+                        "name": "set-cookie"
+                    },
+                    {
+                        "action": "foreachCount"
+                    },
+                    {
+                        "action": "toString"
+                    },
+                    {
+                        "action": "set",
+                        "name": "content-length",
+                        "value": "300"
+                    },
+                    {
+                        "action": "value",
+                        "name": "content-length"
+                    },
+                    {
+                        "action": "set",
+                        "name": "content-length",
+                        "value": [
+                            "400"
+                        ]
+                    },
+                    {
+                        "action": "value",
+                        "name": "content-length"
+                    },
+                    {
+                        "action": "set",
+                        "name": "xx",
+                        "value": "v"
+                    },
+                    {
+                        "action": "value",
+                        "name": "xx"
+                    },
+                    {
+                        "action": "clear"
+                    },
+                    {
+                        "action": "isEmpty"
+                    }
+                ]
+            },
+            "expected_output": "value[content-length]=200\nerror=multiple_header_values\nname=test\nlen[set-cookie]=3\nlen[set-cookie]=2\nget[set-cookie]=null\nforeach_count=3\ncontent-length: 200\ntest: 1\ntest: 2\nvalue[content-length]=300\nvalue[content-length]=400\nvalue[xx]=v\nisEmpty=true\n"
+        }
+    ]
+}

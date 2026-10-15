@@ -1,0 +1,32 @@
+{
+    "description": "Login enforces a maximum number of active sessions per account.",
+    "cases": [
+        {
+            "description": "When an account already has the configured maximum number of active sessions, a new login is rejected with a forbidden HTTP response.",
+            "input": {
+                "operation": "token_limit",
+                "settings": {
+                    "session_limit_per_account": 10
+                },
+                "valid_existing": 10,
+                "login_attempts": 1,
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "login1.status=403\nlogin1.url=/api/login/\nlogin1.error=Maximum amount of tokens allowed per user exceeded.\nvalid_tokens_after=10\ntotal_tokens_after=10\n"
+        },
+        {
+            "description": "Expired sessions do not count toward the active-session limit; after the last available slot is filled, the next login is rejected.",
+            "input": {
+                "operation": "token_limit",
+                "settings": {
+                    "session_limit_per_account": 10
+                },
+                "valid_existing": 9,
+                "expired_existing": 1,
+                "login_attempts": 2,
+                "frozen_time": "2020-01-01T00:00:00"
+            },
+            "expected_output": "login1.status=200\nlogin1.url=/api/login/\nlogin1.expiry=\"2020-01-01T10:00:00Z\"\nlogin1.token_present=true\nlogin1.token_prefix=\nlogin1.token_length=64\nlogin2.status=403\nlogin2.url=/api/login/\nlogin2.error=Maximum amount of tokens allowed per user exceeded.\nvalid_tokens_after=10\ntotal_tokens_after=11\n"
+        }
+    ]
+}

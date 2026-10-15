@@ -1,0 +1,47 @@
+{
+  "description": "Show how the post-write redirect target is resolved when the member page is unavailable, across additional write actions. By default a successful write redirects to the canonical URL of the affected member; when the member (show) action is disabled for the controller there is no member URL to redirect to, so the controller falls back to redirecting to the collection URL instead. The flash notice is unaffected by the fallback.",
+  "cases": [
+    {
+      "input": {
+        "action": "update",
+        "id": "42",
+        "attributes": {
+          "title": "New"
+        },
+        "config": {
+          "disabled_actions": [
+            "show"
+          ]
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=find id=42\nstore=update attrs={title=New} ok=true\nassign=article\nstatus=302\nredirect=http://test.host/articles\nflash.notice=Article was successfully updated.\n"
+    },
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "config": {
+          "disabled_actions": [
+            "show",
+            "edit"
+          ]
+        },
+        "data": {
+          "record": {
+            "id": "77"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=build attrs={title=Hello}\nstore=save ok=true\nassign=article\nstatus=302\nredirect=http://test.host/articles\nflash.notice=Article was successfully created.\n"
+    }
+  ]
+}

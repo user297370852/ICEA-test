@@ -1,0 +1,50 @@
+{
+    "description": "Query parameter type inference maps primitive, custom, array, and structured values into the expected query parameter type descriptors and reports neutral errors when a type cannot be inferred.",
+    "cases": [
+        {
+            "input": {
+                "operation": "infer_parameter_type",
+                "value": true
+            },
+            "expected_output": "{\n  \"type\": \"BOOL\"\n}\n"
+        },
+        {
+            "input": {
+                "operation": "infer_parameter_type",
+                "value": 1.5
+            },
+            "expected_output": "{\n  \"type\": \"FLOAT64\"\n}\n"
+        },
+        {
+            "input": {
+                "operation": "infer_parameter_type",
+                "value": {
+                    "name": "a",
+                    "scores": [
+                        1,
+                        2
+                    ],
+                    "when": {
+                        "__custom": "date",
+                        "value": "2020-01-02"
+                    }
+                }
+            },
+            "expected_output": "{\n  \"type\": \"STRUCT\",\n  \"structTypes\": [\n    {\n      \"name\": \"name\",\n      \"type\": {\n        \"type\": \"STRING\"\n      }\n    },\n    {\n      \"name\": \"scores\",\n      \"type\": {\n        \"type\": \"ARRAY\",\n        \"arrayType\": {\n          \"type\": \"INT64\"\n        }\n      }\n    },\n    {\n      \"name\": \"when\",\n      \"type\": {\n        \"type\": \"DATE\"\n      }\n    }\n  ]\n}\n"
+        },
+        {
+            "input": {
+                "operation": "infer_parameter_type",
+                "value": []
+            },
+            "expected_output": "error=missing_parameter_type\nreason=empty_array\n"
+        },
+        {
+            "input": {
+                "operation": "infer_parameter_type",
+                "value": null
+            },
+            "expected_output": "error=missing_parameter_type\nreason=null_value\n"
+        }
+    ]
+}

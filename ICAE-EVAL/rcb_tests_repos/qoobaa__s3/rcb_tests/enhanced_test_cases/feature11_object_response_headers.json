@@ -1,0 +1,39 @@
+{
+  "description": "Enhanced: Object response header application - minimal headers (body becomes content, size from content-length), quoted ETag stripped with multiple custom metadata headers collected and sorted, and a partial content-range with no other headers (size from range total, body not stored). Disjoint from native cases.",
+  "cases": [
+    {
+      "input": {
+        "feature": "object_response_headers",
+        "body": "hello",
+        "headers": {
+          "content-type": "text/plain",
+          "content-length": "5"
+        }
+      },
+      "expected_output": "content=hello\ncontent_type=text/plain\ncontent_disposition=\ncontent_encoding=\nsize=5\netag=\nmetadata=\n"
+    },
+    {
+      "input": {
+        "feature": "object_response_headers",
+        "body": "data",
+        "headers": {
+          "etag": "\"abc123\"",
+          "content-length": "4",
+          "x-amz-meta-author": "jane",
+          "x-amz-meta-version": "2"
+        }
+      },
+      "expected_output": "content=data\ncontent_type=\ncontent_disposition=\ncontent_encoding=\nsize=4\netag=abc123\nmetadata=x-amz-meta-author:jane,x-amz-meta-version:2\n"
+    },
+    {
+      "input": {
+        "feature": "object_response_headers",
+        "body": null,
+        "headers": {
+          "content-range": "bytes 10-19/100"
+        }
+      },
+      "expected_output": "content=\ncontent_type=\ncontent_disposition=\ncontent_encoding=\nsize=100\netag=\nmetadata=\n"
+    }
+  ]
+}

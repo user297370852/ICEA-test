@@ -1,0 +1,70 @@
+{
+    "description": "Accepts binary batches while the total queued bytes stay within the configured limit, rejects batches that would exceed it, and releases capacity when a batch is borrowed.",
+    "cases": [
+        {
+            "input": {
+                "operation": "byte_queue",
+                "max_bytes": 10,
+                "operations": [
+                    {
+                        "action": "offer",
+                        "batch_id": 0,
+                        "items": 1,
+                        "data": [
+                            0,
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    {
+                        "action": "offer",
+                        "batch_id": 1,
+                        "items": 1,
+                        "data": [
+                            4,
+                            5,
+                            6,
+                            7
+                        ]
+                    },
+                    {
+                        "action": "offer",
+                        "batch_id": 2,
+                        "items": 1,
+                        "data": [
+                            8,
+                            9,
+                            10,
+                            11
+                        ]
+                    },
+                    {
+                        "action": "borrow",
+                        "return": true
+                    },
+                    {
+                        "action": "offer",
+                        "batch_id": 2,
+                        "items": 1,
+                        "data": [
+                            8,
+                            9,
+                            10,
+                            11
+                        ]
+                    },
+                    {
+                        "action": "borrow",
+                        "return": true
+                    },
+                    {
+                        "action": "borrow",
+                        "return": true
+                    }
+                ]
+            },
+            "expected_output": "offer batch_id=0 accepted=true queued_bytes=4\noffer batch_id=1 accepted=true queued_bytes=8\noffer batch_id=2 accepted=false queued_bytes=8\nborrow batch_id=0 items=1 bytes=4 data=[0,1,2,3] queued_bytes=4\noffer batch_id=2 accepted=true queued_bytes=8\nborrow batch_id=1 items=1 bytes=4 data=[4,5,6,7] queued_bytes=4\nborrow batch_id=2 items=1 bytes=4 data=[8,9,10,11] queued_bytes=0\n"
+        }
+    ]
+}

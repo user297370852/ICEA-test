@@ -1,0 +1,99 @@
+{
+    "description": "The caching layer derives a cache key for each request so that only genuinely equivalent requests share a stored response. The key is sensitive to the request method, the URL path and the full set of query parameters, but treats query parameters as order-independent (the same parameters supplied in a different order map to the same key). Methods that are not safely cacheable bypass the cache entirely. With an always-storable origin response, output per request reports the request index, status code, cache disposition (fresh generation, reuse, or cache skip), cookie header, tracked custom header, and body, so the keying behaviour is visible through which requests reuse earlier responses.",
+    "cases": [
+        {
+            "input": {
+                "action": "cache",
+                "upstream": {
+                    "cacheControl": "public, max-age=60",
+                    "bodyMode": "constant",
+                    "body": "Hello"
+                },
+                "requests": [
+                    {
+                        "url": "http://example.com/one"
+                    },
+                    {
+                        "url": "http://example.com/two"
+                    },
+                    {
+                        "url": "http://example.com/three"
+                    },
+                    {
+                        "url": "http://example.com/three"
+                    }
+                ]
+            },
+            "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=2\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=3\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hello\n"
+        },
+        {
+            "input": {
+                "action": "cache",
+                "upstream": {
+                    "cacheControl": "public, max-age=60",
+                    "bodyMode": "constant",
+                    "body": "Hello"
+                },
+                "requests": [
+                    {
+                        "url": "http://example.com?name=kevin"
+                    },
+                    {
+                        "url": "http://example.com?name=kevin"
+                    },
+                    {
+                        "url": "http://example.com?name=bob"
+                    }
+                ]
+            },
+            "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hello\nrequest=2\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\n"
+        },
+        {
+            "input": {
+                "action": "cache",
+                "upstream": {
+                    "cacheControl": "public, max-age=60",
+                    "bodyMode": "constant",
+                    "body": "Hello"
+                },
+                "requests": [
+                    {
+                        "url": "http://example.com?a=1&b=2"
+                    },
+                    {
+                        "url": "http://example.com?a=1&b=2"
+                    },
+                    {
+                        "url": "http://example.com?b=2&a=1"
+                    }
+                ]
+            },
+            "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hello\nrequest=2\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=Hello\n"
+        },
+        {
+            "input": {
+                "action": "cache",
+                "upstream": {
+                    "cacheControl": "public, max-age=60",
+                    "bodyMode": "constant",
+                    "body": "Hello"
+                },
+                "requests": [
+                    {
+                        "method": "GET",
+                        "url": "http://example.com/one"
+                    },
+                    {
+                        "method": "HEAD",
+                        "url": "http://example.com/one"
+                    },
+                    {
+                        "method": "POST",
+                        "url": "http://example.com/one"
+                    }
+                ]
+            },
+            "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=1\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=Hello\nrequest=2\nstatus=200\nx_cache=bypass\nset_cookie=-\nextra=-\nbody=Hello\n"
+        }
+    ]
+}

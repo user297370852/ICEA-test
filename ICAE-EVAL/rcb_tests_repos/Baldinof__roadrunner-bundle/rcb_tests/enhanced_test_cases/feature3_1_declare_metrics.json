@@ -1,0 +1,120 @@
+{
+  "description": "Metric declaration boundaries: empty collector map (no output), an unrecognized type rejected as a neutral error naming the type, a fully-populated histogram, single gauge/counter definitions, and multiple collectors declared in input order.",
+  "cases": [
+    {
+      "input": {
+        "handler": "metrics",
+        "collectors": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "handler": "metrics",
+        "collectors": {
+          "bad": {
+            "type": "summary"
+          }
+        }
+      },
+      "expected_output": "error=invalid_metric_type\ntype=summary\n"
+    },
+    {
+      "input": {
+        "handler": "metrics",
+        "collectors": {
+          "full": {
+            "type": "histogram",
+            "namespace": "ns",
+            "subsystem": "sub",
+            "help": "all fields",
+            "labels": [
+              "a",
+              "b",
+              "c"
+            ],
+            "buckets": [
+              0.005,
+              0.01,
+              0.25,
+              1,
+              2.5,
+              10
+            ]
+          }
+        }
+      },
+      "expected_output": "metric=full\ntype=histogram\nnamespace=ns\nsubsystem=sub\nhelp=all fields\nlabels=a,b,c\nbuckets=0.005,0.01,0.25,1,2.5,10\n"
+    },
+    {
+      "input": {
+        "handler": "metrics",
+        "collectors": {
+          "g": {
+            "type": "gauge",
+            "namespace": "app",
+            "subsystem": "web",
+            "help": "current value",
+            "labels": [
+              "region"
+            ]
+          }
+        }
+      },
+      "expected_output": "metric=g\ntype=gauge\nnamespace=app\nsubsystem=web\nhelp=current value\nlabels=region\nbuckets=\n"
+    },
+    {
+      "input": {
+        "handler": "metrics",
+        "collectors": {
+          "c": {
+            "type": "counter",
+            "labels": [
+              "method",
+              "status"
+            ]
+          }
+        }
+      },
+      "expected_output": "metric=c\ntype=counter\nnamespace=\nsubsystem=\nhelp=\nlabels=method,status\nbuckets=\n"
+    },
+    {
+      "input": {
+        "handler": "metrics",
+        "collectors": {
+          "h": {
+            "type": "histogram",
+            "buckets": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      },
+      "expected_output": "metric=h\ntype=histogram\nnamespace=\nsubsystem=\nhelp=\nlabels=\nbuckets=1,2,3\n"
+    },
+    {
+      "input": {
+        "handler": "metrics",
+        "collectors": {
+          "first": {
+            "type": "counter",
+            "namespace": "n1"
+          },
+          "second": {
+            "type": "gauge",
+            "subsystem": "s2"
+          },
+          "third": {
+            "type": "histogram",
+            "buckets": [
+              0.5
+            ]
+          }
+        }
+      },
+      "expected_output": "metric=first\ntype=counter\nnamespace=n1\nsubsystem=\nhelp=\nlabels=\nbuckets=\nmetric=second\ntype=gauge\nnamespace=\nsubsystem=s2\nhelp=\nlabels=\nbuckets=\nmetric=third\ntype=histogram\nnamespace=\nsubsystem=\nhelp=\nlabels=\nbuckets=0.5\n"
+    }
+  ]
+}

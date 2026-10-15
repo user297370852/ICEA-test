@@ -1,0 +1,7 @@
+{
+    "description": "Walk a generator-based workflow one step at a time and assert that each step yields the expected coordination instruction (wait-for-action, emit-action, invoke-function, background-invoke) in order, then assert the sequence is exhausted. Stepping advances the generator; an optional injected value can be passed to a resume so later steps observe it.",
+    "cases": [
+        {"input": {"mode": "unit", "saga": {"args": [40, 2, 20], "body": [{"yield": {"take": "HELLO"}}, {"yield": {"put": {"type": "ADD", "payload": {"$op": "add", "args": [{"$var": "arg0"}, {"$var": "arg1"}]}}}}, {"yield": {"call": {"fn": "identity", "args": [7]}}}, {"yield": {"fork": {"fn": "otherSaga", "args": [{"$var": "arg2"}]}}}]}, "steps": [{"next": true}, {"assert": {"take": "HELLO"}}, {"next": true}, {"assert": {"put": {"type": "ADD", "payload": 42}}}, {"next": true}, {"assert": {"call": {"fn": "identity", "args": [7]}}}, {"next": true}, {"assert": {"fork": {"fn": "otherSaga", "args": [20]}}}, {"next": true}, {"assert": {"isDone": true}}]}, "expected_output": "assertion 1 met\nassertion 2 met\nassertion 3 met\nassertion 4 met\nassertion 5 met\n"},
+        {"input": {"mode": "unit", "saga": {"body": [{"yield": {"take": "REQUEST"}, "as": "action"}, {"yield": {"select": {"selector": "getName"}}}]}, "steps": [{"next": true}, {"assert": {"take": "REQUEST"}}, {"nextWith": {"type": "REQUEST"}}, {"assert": {"select": {"selector": "getName"}}}]}, "expected_output": "assertion 1 met\nassertion 2 met\n"}
+    ]
+}

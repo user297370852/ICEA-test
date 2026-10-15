@@ -1,0 +1,63 @@
+{
+  "description": "Additional low-level response output coverage for empty end, mixed write/end encodings, status line without message, and failed write-after-end normalization.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "finish_body",
+            "payload": {
+              "kind": "none"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=true\nheaders_sent=true\nwritable_finished=true\ndata_length_valid=true\n"
+    },
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "write_body_part",
+            "payload": {
+              "kind": "value",
+              "value": "hé"
+            },
+            "encoding": "utf8"
+          },
+          {
+            "type": "finish_body",
+            "payload": {
+              "kind": "value",
+              "value": "llo"
+            },
+            "encoding": "latin1"
+          }
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={}\ndata=héllo\nbuffer=\nencoding=latin1\nended=true\nheaders_sent=true\nwritable_finished=true\ndata_length_valid=true\n"
+    },
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "write_status_line",
+            "args": [
+              204
+            ]
+          },
+          {
+            "type": "finish_body",
+            "payload": {
+              "kind": "none"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=204\nstatus_message=OK\nheaders={}\ncookies={}\ndata=\nbuffer=\nencoding=absent\nended=true\nheaders_sent=true\nwritable_finished=true\ndata_length_valid=true\n"
+    }
+  ]
+}

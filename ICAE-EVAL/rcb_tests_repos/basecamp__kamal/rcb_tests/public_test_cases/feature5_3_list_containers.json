@@ -1,0 +1,59 @@
+{
+    "description": "Generate docker commands that enumerate containers for the service/role. list_containers lists all (including stopped) by label filters; with a destination a destination filter is inserted. list_container_names is the same query with a Go-template name format appended.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "list_containers"
+            },
+            "expected_output": "docker container ls --all --filter label=service=app --filter label=role=web"
+        },
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "list_container_names"
+            },
+            "expected_output": "docker container ls --all --filter label=service=app --filter label=role=web --format '{{ .Names }}'"
+        }
+    ]
+}

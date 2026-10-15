@@ -1,0 +1,70 @@
+{
+  "description": "Strip the API stage prefix from the path by default so handlers are stage-agnostic; retain the stage prefix when explicitly requested.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/dev/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          },
+          "requestContext": {
+            "resourcePath": "/test",
+            "stage": "dev"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/test\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "options": {
+          "retainStage": true
+        },
+        "route": {
+          "method": "GET",
+          "path": "/dev/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/dev/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          },
+          "requestContext": {
+            "resourcePath": "/test",
+            "stage": "dev"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/dev/test\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

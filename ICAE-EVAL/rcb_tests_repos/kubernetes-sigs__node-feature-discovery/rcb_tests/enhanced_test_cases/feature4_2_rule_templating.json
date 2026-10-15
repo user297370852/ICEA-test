@@ -1,0 +1,154 @@
+{
+  "description": "Boundary rule templating after a match: a labels template iterating a key-value feature set, a vars template iterating an instance feature set, static entries taking precedence over template entries on key collision, a template expansion producing a line without a value reporting the neutral template error, and a template whose blank lines are ignored.",
+  "cases": [
+    {
+      "input": {
+        "action": "execute_rule",
+        "rule": {
+          "matchFeatures": [
+            {
+              "feature": "dom.vs",
+              "matchExpressions": {
+                "a": {
+                  "op": "Exists"
+                }
+              }
+            }
+          ],
+          "labelsTemplate": "{{range .dom.vs}}v-{{.Name}}={{.Value}}\n{{end}}"
+        },
+        "features": {
+          "dom": {
+            "values": {
+              "vs": {
+                "a": "1",
+                "b": "2"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "labels:\nv-a=1\nvars:\n"
+    },
+    {
+      "input": {
+        "action": "execute_rule",
+        "rule": {
+          "matchFeatures": [
+            {
+              "feature": "dom.is",
+              "matchExpressions": {
+                "x": {
+                  "op": "Exists"
+                }
+              }
+            }
+          ],
+          "varsTemplate": "{{range .dom.is}}i-{{index . \"x\"}}=yes\n{{end}}"
+        },
+        "features": {
+          "dom": {
+            "instances": {
+              "is": [
+                {
+                  "x": "1"
+                },
+                {
+                  "x": "2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "labels:\nvars:\ni-1=yes\ni-2=yes\n"
+    },
+    {
+      "input": {
+        "action": "execute_rule",
+        "rule": {
+          "labels": {
+            "k": "static"
+          },
+          "labelsTemplate": "k=fromtemplate\nother=t\n",
+          "matchFeatures": [
+            {
+              "feature": "dom.ks",
+              "matchExpressions": {
+                "a": {
+                  "op": "Exists"
+                }
+              }
+            }
+          ]
+        },
+        "features": {
+          "dom": {
+            "keys": {
+              "ks": [
+                "a"
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "labels:\nk=static\nother=t\nvars:\n"
+    },
+    {
+      "input": {
+        "action": "execute_rule",
+        "rule": {
+          "matchFeatures": [
+            {
+              "feature": "dom.ks",
+              "matchExpressions": {
+                "a": {
+                  "op": "Exists"
+                }
+              }
+            }
+          ],
+          "varsTemplate": "novalueline"
+        },
+        "features": {
+          "dom": {
+            "keys": {
+              "ks": [
+                "a"
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "error=template_error\n"
+    },
+    {
+      "input": {
+        "action": "execute_rule",
+        "rule": {
+          "matchFeatures": [
+            {
+              "feature": "dom.ks",
+              "matchExpressions": {
+                "a": {
+                  "op": "Exists"
+                }
+              }
+            }
+          ],
+          "labelsTemplate": "\n\nx=1\n\ny=2\n\n"
+        },
+        "features": {
+          "dom": {
+            "keys": {
+              "ks": [
+                "a"
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "labels:\nx=1\ny=2\nvars:\n"
+    }
+  ]
+}

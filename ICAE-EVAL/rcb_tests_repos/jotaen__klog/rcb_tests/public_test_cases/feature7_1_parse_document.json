@@ -1,0 +1,26 @@
+{
+    "description": "Parse a plain-text document into structured records. Each record exposes its date, optional should-total (in minutes), optional record summary, and its ordered entries; each entry exposes its kind (duration / range / open_range), serialised value, duration in minutes, and summary (lines joined by '|').",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_document",
+                "text": "2000-01-01"
+            },
+            "expected_output": "records=1\nrecord[0].date=2000-01-01\nrecord[0].should_total=0\nrecord[0].summary=\nrecord[0].entries=0\n"
+        },
+        {
+            "input": {
+                "action": "parse_document",
+                "text": "1970-08-29 (8h15m!)\nRecord summary\n    1h Work\n    8:00 - 9:30\n    11:00 - ?\n        Open range"
+            },
+            "expected_output": "records=1\nrecord[0].date=1970-08-29\nrecord[0].should_total=495\nrecord[0].summary=Record summary\nrecord[0].entries=3\nrecord[0].entry[0].type=duration\nrecord[0].entry[0].value=1h\nrecord[0].entry[0].minutes=60\nrecord[0].entry[0].summary=Work\nrecord[0].entry[1].type=range\nrecord[0].entry[1].value=8:00 - 9:30\nrecord[0].entry[1].minutes=90\nrecord[0].entry[1].summary=\nrecord[0].entry[2].type=open_range\nrecord[0].entry[2].value=11:00 - ?\nrecord[0].entry[2].minutes=0\nrecord[0].entry[2].summary=|Open range\n"
+        },
+        {
+            "input": {
+                "action": "parse_document",
+                "text": "1999-05-31\n\n1999-06-03\n  1h"
+            },
+            "expected_output": "records=2\nrecord[0].date=1999-05-31\nrecord[0].should_total=0\nrecord[0].summary=\nrecord[0].entries=0\nrecord[1].date=1999-06-03\nrecord[1].should_total=0\nrecord[1].summary=\nrecord[1].entries=1\nrecord[1].entry[0].type=duration\nrecord[1].entry[0].value=1h\nrecord[1].entry[0].minutes=60\nrecord[1].entry[0].summary=\n"
+        }
+    ]
+}

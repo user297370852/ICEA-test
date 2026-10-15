@@ -1,0 +1,89 @@
+{
+    "description": "Compact expanded JSON-LD using a supplied context so IRIs, types, native values, and context declarations are rendered in their shortest valid JSON-LD form.",
+    "cases": [
+        {
+            "input": {
+                "options": {},
+                "document": [
+                    {
+                        "@id": "http://example.com/id1",
+                        "@type": [
+                            "http://example.com/t1"
+                        ],
+                        "http://example.com/term1": [
+                            "v1"
+                        ],
+                        "http://example.com/term2": [
+                            {
+                                "@value": "v2",
+                                "@type": "http://example.com/t2"
+                            }
+                        ],
+                        "http://example.com/term3": [
+                            {
+                                "@value": "v3",
+                                "@language": "en"
+                            }
+                        ],
+                        "http://example.com/term4": [
+                            4
+                        ],
+                        "http://example.com/term5": [
+                            50,
+                            51
+                        ]
+                    }
+                ],
+                "algorithm": "compact",
+                "context": {
+                    "@context": {
+                        "t1": "http://example.com/t1",
+                        "t2": "http://example.com/t2",
+                        "term1": "http://example.com/term1",
+                        "term2": "http://example.com/term2",
+                        "term3": "http://example.com/term3",
+                        "term4": "http://example.com/term4",
+                        "term5": "http://example.com/term5"
+                    }
+                },
+                "base": "http://json-ld.org/test-suite/tests/compact-0002-in.jsonld"
+            },
+            "expected_output": "{\n  \"@id\" : \"http://example.com/id1\",\n  \"@type\" : \"t1\",\n  \"term1\" : \"v1\",\n  \"term2\" : {\n    \"@type\" : \"t2\",\n    \"@value\" : \"v2\"\n  },\n  \"term3\" : {\n    \"@language\" : \"en\",\n    \"@value\" : \"v3\"\n  },\n  \"term4\" : 4,\n  \"term5\" : [ 50, 51 ],\n  \"@context\" : {\n    \"t1\" : \"http://example.com/t1\",\n    \"t2\" : \"http://example.com/t2\",\n    \"term1\" : \"http://example.com/term1\",\n    \"term2\" : \"http://example.com/term2\",\n    \"term3\" : \"http://example.com/term3\",\n    \"term4\" : \"http://example.com/term4\",\n    \"term5\" : \"http://example.com/term5\"\n  }\n}\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@id": "http://example.org/id1",
+                    "@type": [
+                        "http://example.org/Type1",
+                        "http://example.org/Type2"
+                    ],
+                    "http://example.org/term1": {
+                        "@value": "v1",
+                        "@type": "http://example.org/datatype"
+                    },
+                    "http://example.org/term2": {
+                        "@id": "http://example.org/id2"
+                    }
+                },
+                "algorithm": "compact",
+                "context": {
+                    "@context": {
+                        "ex": "http://example.org/",
+                        "term1": {
+                            "@id": "ex:term1",
+                            "@type": "ex:datatype"
+                        },
+                        "term2": {
+                            "@id": "ex:term2",
+                            "@type": "@id"
+                        }
+                    }
+                },
+                "base": "http://json-ld.org/test-suite/tests/compact-0005-in.jsonld"
+            },
+            "expected_output": "{\n  \"@id\" : \"ex:id1\",\n  \"@type\" : [ \"ex:Type1\", \"ex:Type2\" ],\n  \"term1\" : \"v1\",\n  \"term2\" : \"ex:id2\",\n  \"@context\" : {\n    \"ex\" : \"http://example.org/\",\n    \"term1\" : {\n      \"@id\" : \"ex:term1\",\n      \"@type\" : \"ex:datatype\"\n    },\n    \"term2\" : {\n      \"@id\" : \"ex:term2\",\n      \"@type\" : \"@id\"\n    }\n  }\n}\n"
+        }
+    ]
+}

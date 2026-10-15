@@ -1,0 +1,37 @@
+{
+  "description": "List all running package-manager services by combining the root-level listing (services started at boot, queried with privilege) with the user-level listing (services started at login, queried as the invoking user), de-duplicated while preserving first-seen order. The adapter issues two listing commands: the privileged one (prefixed for root) and the user one. Each result is split into names and blank lines dropped; the two lists are concatenated and duplicates removed. The output echoes both issued commands (privileged first, then user) followed by one line per unique running service, in first-seen order.",
+  "cases": [
+    {
+      "input": {
+        "action": "all_running_services",
+        "root_response": "",
+        "user_response": ""
+      },
+      "expected_output": "cmd=sudo brew services list | grep started | awk '{ print $1; }'\ncmd=brew services list | grep started | awk '{ print $1; }'\n"
+    },
+    {
+      "input": {
+        "action": "all_running_services",
+        "root_response": "",
+        "user_response": "redis\nmysql\n"
+      },
+      "expected_output": "cmd=sudo brew services list | grep started | awk '{ print $1; }'\ncmd=brew services list | grep started | awk '{ print $1; }'\nservice=redis\nservice=mysql\n"
+    },
+    {
+      "input": {
+        "action": "all_running_services",
+        "root_response": "nginx\ndnsmasq\n",
+        "user_response": "nginx\ndnsmasq\n"
+      },
+      "expected_output": "cmd=sudo brew services list | grep started | awk '{ print $1; }'\ncmd=brew services list | grep started | awk '{ print $1; }'\nservice=nginx\nservice=dnsmasq\n"
+    },
+    {
+      "input": {
+        "action": "all_running_services",
+        "root_response": "alpha\nalpha\nbeta\n",
+        "user_response": "beta\ngamma\n"
+      },
+      "expected_output": "cmd=sudo brew services list | grep started | awk '{ print $1; }'\ncmd=brew services list | grep started | awk '{ print $1; }'\nservice=alpha\nservice=beta\nservice=gamma\n"
+    }
+  ]
+}

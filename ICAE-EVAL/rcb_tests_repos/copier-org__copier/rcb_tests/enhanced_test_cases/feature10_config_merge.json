@@ -1,0 +1,73 @@
+{
+  "description": "Boundary coverage for config merge precedence: an explicit exclude arg fully replacing the config _exclude list, an explicit skip_if_exists arg replacing the config value, an explicit tasks arg replacing config _tasks, and a build with no config file at all reporting built-in defaults.",
+  "cases": [
+    {
+      "input": {
+        "op": "build_config",
+        "config_file": {
+          "name": "copier.yml",
+          "content": "_exclude:\n  - \"cfg1\"\n  - \"cfg2\"\n"
+        },
+        "args": {
+          "exclude": [
+            "argonly"
+          ]
+        },
+        "report": [
+          "exclude"
+        ]
+      },
+      "expected_output": "exclude=[\"argonly\"]\n"
+    },
+    {
+      "input": {
+        "op": "build_config",
+        "config_file": {
+          "name": "copier.yml",
+          "content": "_skip_if_exists:\n  - \"cfgskip\"\n"
+        },
+        "args": {
+          "skip_if_exists": [
+            "argskip"
+          ]
+        },
+        "report": [
+          "skip_if_exists"
+        ]
+      },
+      "expected_output": "skip_if_exists=[\"argskip\"]\n"
+    },
+    {
+      "input": {
+        "op": "build_config",
+        "config_file": {
+          "name": "copier.yml",
+          "content": "_tasks:\n  - \"cfg task\"\n"
+        },
+        "args": {
+          "tasks": [
+            "arg task a",
+            "arg task b"
+          ]
+        },
+        "report": [
+          "tasks"
+        ]
+      },
+      "expected_output": "tasks=[\"arg task a\", \"arg task b\"]\n"
+    },
+    {
+      "input": {
+        "op": "build_config",
+        "args": {},
+        "report": [
+          "include",
+          "skip_if_exists",
+          "tasks",
+          "folder_name"
+        ]
+      },
+      "expected_output": "include=[]\nskip_if_exists=[]\ntasks=[]\nfolder_name=\"out_project\"\n"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+    "description": "Successive successful items are batched into fixed-size groups; each full group is emitted as soon as it fills, and any trailing partial group is emitted when the stream ends. Each emitted group lists its items in order. If the stream yields an error outcome, any already-buffered partial group is emitted first and then the error is reported.",
+    "cases": [
+        {
+            "input": {
+                "source": [
+                    1,
+                    2,
+                    3
+                ],
+                "pipeline": [],
+                "sink": {
+                    "kind": "chunks",
+                    "size": 3
+                }
+            },
+            "expected_output": "chunk=1,2,3\nend\n"
+        },
+        {
+            "input": {
+                "source": [
+                    1,
+                    2,
+                    3
+                ],
+                "pipeline": [],
+                "sink": {
+                    "kind": "chunks",
+                    "size": 1
+                }
+            },
+            "expected_output": "chunk=1\nchunk=2\nchunk=3\nend\n"
+        },
+        {
+            "input": {
+                "source": [
+                    1,
+                    2,
+                    3
+                ],
+                "pipeline": [],
+                "sink": {
+                    "kind": "chunks",
+                    "size": 2
+                }
+            },
+            "expected_output": "chunk=1,2\nchunk=3\nend\n"
+        },
+        {
+            "input": {
+                "source": [
+                    1,
+                    2,
+                    {
+                        "err": 3
+                    }
+                ],
+                "pipeline": [],
+                "sink": {
+                    "kind": "chunks",
+                    "size": 3
+                }
+            },
+            "expected_output": "chunk=1,2\nerror=3\n"
+        }
+    ]
+}

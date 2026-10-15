@@ -1,0 +1,97 @@
+{
+    "description": "Build DELETE statements from deletion targets, source tables, joins, filters, ordering, limits, offsets, suffixes, and placeholder style.",
+    "cases": [
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "full_delete",
+                "clauses": {
+                    "source": "a",
+                    "filter": "b = ?",
+                    "order_by": [
+                        "c"
+                    ],
+                    "limit": 2,
+                    "offset": 3,
+                    "prefix": "WITH prefix AS ?",
+                    "suffix": "RETURNING ?"
+                }
+            },
+            "expected_output": "sql=WITH prefix AS ? DELETE FROM a WHERE b = ? ORDER BY c LIMIT 2 OFFSET 3 RETURNING ?\nargs=[0,1,4]\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "explicit_source_over_target",
+                "clauses": {
+                    "target": "b",
+                    "source": "a",
+                    "filter": "b = ?"
+                }
+            },
+            "expected_output": "sql=DELETE FROM a WHERE b = ?\nargs=[1]\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "target_as_source",
+                "clauses": {
+                    "target": "a",
+                    "filter": "b = ?"
+                }
+            },
+            "expected_output": "sql=DELETE FROM a WHERE b = ?\nargs=[1]\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "multiple_targets_with_joins",
+                "clauses": {
+                    "targets": [
+                        "a1",
+                        "a2"
+                    ],
+                    "source": "z1 AS a1",
+                    "joins": [
+                        "INNER JOIN a2 ON a1.id = a2.ref_id",
+                        "JOIN a3"
+                    ],
+                    "filter": "b = ?"
+                }
+            },
+            "expected_output": "sql=DELETE a1, a2 FROM z1 AS a1 INNER JOIN a2 ON a1.id = a2.ref_id JOIN a3 WHERE b = ?\nargs=[1]\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "zero_limit_offset",
+                "clauses": {
+                    "source": "b",
+                    "limit": 0,
+                    "offset": 0
+                }
+            },
+            "expected_output": "sql=DELETE FROM b LIMIT 0 OFFSET 0\nargs=[]\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "missing_target",
+                "clauses": {}
+            },
+            "expected_output": "error=missing_delete_target\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "numbered_placeholders",
+                "clauses": {
+                    "target": "test",
+                    "filter": "x = ? AND y = ?",
+                    "placeholder_style": "numbered"
+                }
+            },
+            "expected_output": "sql=DELETE FROM test WHERE x = $1 AND y = $2\nargs=[1,2]\n"
+        }
+    ]
+}

@@ -1,0 +1,159 @@
+{
+  "description": "Compile a single attribute condition into an LDAP search filter, reporting the escaped wire form and the readable unescaped form. The condition names an attribute, a match kind, and (for value-bearing matches) a value.",
+  "cases": [
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "cn",
+            "match": "equals",
+            "value": ""
+          }
+        ]
+      },
+      "expected_output": "query=(cn=)\nunescaped=(cn=)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "cn",
+            "match": "equals",
+            "value": "a*b"
+          }
+        ]
+      },
+      "expected_output": "query=(cn=\\61\\2a\\62)\nunescaped=(cn=a*b)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "(x)",
+            "match": "present"
+          }
+        ]
+      },
+      "expected_output": "query=(\\28x\\29=*)\nunescaped=((x)=*)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "cn",
+            "match": "absent"
+          }
+        ]
+      },
+      "expected_output": "query=(!(cn=*))\nunescaped=(!(cn=*))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "cn",
+            "match": "starts_with",
+            "value": ""
+          }
+        ]
+      },
+      "expected_output": "query=(cn=*)\nunescaped=(cn=*)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "cn",
+            "match": "contains",
+            "value": "a)b"
+          }
+        ]
+      },
+      "expected_output": "query=(cn=*\\61\\29\\62*)\nunescaped=(cn=*a)b*)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "age",
+            "match": "gte",
+            "value": "10"
+          }
+        ]
+      },
+      "expected_output": "query=(age>=\\31\\30)\nunescaped=(age>=10)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "age",
+            "match": "lte",
+            "value": "99"
+          }
+        ]
+      },
+      "expected_output": "query=(age<=\\39\\39)\nunescaped=(age<=99)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "sn",
+            "match": "approx",
+            "value": "smyth"
+          }
+        ]
+      },
+      "expected_output": "query=(sn~=\\73\\6d\\79\\74\\68)\nunescaped=(sn~=smyth)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "mail",
+            "match": "not_equals",
+            "value": "a@b"
+          }
+        ]
+      },
+      "expected_output": "query=(!(mail=\\61\\40\\62))\nunescaped=(!(mail=a@b))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "cn",
+            "match": "equals",
+            "value": "café"
+          }
+        ]
+      },
+      "expected_output": "query=(cn=\\63\\61\\66\\c3\\a9)\nunescaped=(cn=café)\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "field": "cn",
+            "match": "ends_with",
+            "value": "de"
+          }
+        ]
+      },
+      "expected_output": "query=(cn=*\\64\\65)\nunescaped=(cn=*de)\n"
+    }
+  ]
+}

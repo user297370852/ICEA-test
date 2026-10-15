@@ -1,0 +1,39 @@
+{
+    "description": "Configuration loading accepts a single file or a directory of configuration files, merges directory files in name order, ignores editor temporary files, and reports missing or malformed inputs as normalized errors.",
+    "cases": [
+        {
+            "input": {
+                "path": "missing"
+            },
+            "expected_output": "error=path_not_found\n"
+        },
+        {
+            "input": {
+                "path": "file",
+                "files": [
+                    {
+                        "name": "main.hcl",
+                        "content": "default_evaluation_interval = \"10s\""
+                    }
+                ]
+            },
+            "expected_output": "default_evaluation_interval_ns=10000000000\nplugin_dir=\n"
+        },
+        {
+            "input": {
+                "path": "dir",
+                "files": [
+                    {
+                        "name": "config1.hcl",
+                        "content": "default_evaluation_interval = \"10s\""
+                    },
+                    {
+                        "name": "config2.hcl",
+                        "content": "plugin_dir = \"/opt/nomad-autoscaler/plugins\""
+                    }
+                ]
+            },
+            "expected_output": "default_evaluation_interval_ns=10000000000\nplugin_dir=/opt/nomad-autoscaler/plugins\n"
+        }
+    ]
+}

@@ -1,0 +1,48 @@
+\begin{multicols}{2}
+\section{Coding Agent Task Instruction}
+\label{appendix:agent-task}
+\end{multicols}
+
+\begin{promptbox}[Coding Agent Task Instruction]
+\textbf{\#\# Task}
+
+A Docker container is already up and running; its container ID is \texttt{\{docker\_id\}}. Inside the container, \texttt{\{workdir\}/\{prd\_name\}} is the PRD document for this task. \textbf{Enter that container} and implement the required functionality based solely on the PRD. All development, compilation, execution, and self-testing MUST be done \textbf{inside this container}.
+
+\textbf{\#\# Inputs}
+
+\begin{itemize}
+\item Running container: \texttt{\{docker\_id\}}
+\item PRD document: \texttt{\{workdir\}/\{prd\_name\}} (inside the container)
+\item Target programming language: \{lang\}
+\end{itemize}
+
+\textbf{\#\# How to enter the container}
+
+The container is already running in the background (\texttt{sleep infinity}). Use \texttt{docker exec} to run commands, for example:
+
+\texttt{docker exec -w \{workdir\} \{docker\_id\} bash -lc 'cat \{prd\_name\}'}\\
+\texttt{docker exec -w \{workdir\} \{docker\_id\} bash -lc '<your build/run command>'}
+
+\texttt{\{workdir\}} is bind-mounted to the host's current working directory, so any code you generate under \texttt{\{workdir\}} inside the container automatically appears in the host's current directory for evaluation. \textbf{Write all of your deliverables under the container's \texttt{\{workdir\}} directory.}
+
+\textbf{\#\# Requirements}
+
+\begin{enumerate}
+\item You MUST implement the full functionality yourself. Downloading the source code of the target repository from the internet, or directly calling its existing API, is prohibited.
+\item First read \texttt{\{workdir\}/\{prd\_name\}} thoroughly. If the PRD contains a ``Clarification'' interaction section, the requirement is \textbf{intentionally incomplete and vague} --- you should \textbf{first ask the User Agent questions as instructed} to clarify the hidden interface contracts, feature details, and test cases, and \textbf{only start coding once things are clear}. Anything left unclarified will turn into bugs. The number of questions is budgeted, so watch \texttt{status.remaining}.
+\item Any Public example cases made available in the PRD or recovered through User Agent interaction define the dispatcher's input/output contract. You need to design the dispatcher / runner / \texttt{rcb\_tests/test.sh} yourself, and turn recovered examples into \texttt{rcb\_tests/public\_test\_cases/*.json} for self-checking.
+\item \texttt{bash rcb\_tests/test.sh} MUST support \texttt{-{}-cases-dir <subdir>} to switch the cases directory, and MUST write each case's stdout to \texttt{rcb\_tests/stdout/<cases-dir>/\{stem\}@\{idx:03\}.txt} (each file contains only the raw stdout of the program under test, without any PASS/FAIL markers). This is the evaluation protocol; you must follow it exactly.
+\end{enumerate}
+
+\textbf{\#\# Environment \& dependencies (must read)}
+
+\begin{enumerate}
+\setcounter{enumi}{4}
+\item \textbf{You are root inside the container, and it has network access.} You are allowed and expected to install missing dependencies yourself using tools such as \texttt{apt / pip / npm / cargo add / dotnet add package / mvn / composer / gem / pub get}. When you hit build/run errors (missing packages, missing SDKs, version mismatches, etc.), fix them based on the feedback; do not assume dependencies are already declared.
+\item \textbf{Network note:} the direct connection is the default and is usually enough. If a download fails with a network error (DNS failure, timeout, unreachable host), a proxy is available --- run \texttt{source \textasciitilde/proxy.sh} in that shell and retry only the command that failed. Do not export the proxy globally for unrelated commands.
+\item \textbf{Evaluation runs your \texttt{rcb\_tests/test.sh} in a FRESH container started from the SAME base image, with NO network guaranteed and NONE of your interactive installs preserved.} Therefore every install/build step needed to run the tests MUST be reproducible from your committed files: put install commands inside \texttt{rcb\_tests/test.sh} (or a helper script it calls), and record library dependencies in the language's declaration file (for example \texttt{requirements.txt}, \texttt{package.json}, \texttt{go.mod}, \texttt{Cargo.toml}, \texttt{pom.xml}, \texttt{Gemfile}, \texttt{pubspec.yaml}, or \texttt{.csproj}).
+\item System packages count too. Anything you install with \texttt{apt} must also be installed by \texttt{rcb\_tests/test.sh} idempotently, because the evaluation container starts clean.
+\item \textbf{Do not hard-code absolute paths.} Use relative paths or environment variables only.
+\item \textbf{Rebuild from a clean state before self-checking}: delete language-specific build caches such as \texttt{target/}, \texttt{bin/}, \texttt{obj/}, \texttt{node\_modules/}, and \texttt{build/}, then run \texttt{bash rcb\_tests/test.sh -{}-cases-dir public\_test\_cases}. Only when the public cases pass from a clean bootstrap is the task complete.
+\end{enumerate}
+\end{promptbox}

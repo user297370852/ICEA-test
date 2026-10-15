@@ -1,0 +1,59 @@
+{
+    "description": "Flatten JSON-LD into a deterministic node list that preserves graph membership, native values, and embedded graph data after expansion.",
+    "cases": [
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@context": {
+                        "t1": "http://example.com/t1",
+                        "t2": "http://example.com/t2",
+                        "term1": "http://example.com/term1",
+                        "term2": "http://example.com/term2",
+                        "term3": "http://example.com/term3",
+                        "term4": "http://example.com/term4",
+                        "term5": "http://example.com/term5"
+                    },
+                    "@id": "http://example.com/id1",
+                    "@type": "t1",
+                    "term1": "v1",
+                    "term2": {
+                        "@value": "v2",
+                        "@type": "t2"
+                    },
+                    "term3": {
+                        "@value": "v3",
+                        "@language": "en"
+                    },
+                    "term4": 4,
+                    "term5": [
+                        50,
+                        51
+                    ]
+                },
+                "algorithm": "flatten",
+                "base": "http://json-ld.org/test-suite/tests/flatten-0002-in.jsonld"
+            },
+            "expected_output": "[ {\n  \"@id\" : \"http://example.com/id1\",\n  \"@type\" : [ \"http://example.com/t1\" ],\n  \"http://example.com/term1\" : [ {\n    \"@value\" : \"v1\"\n  } ],\n  \"http://example.com/term2\" : [ {\n    \"@type\" : \"http://example.com/t2\",\n    \"@value\" : \"v2\"\n  } ],\n  \"http://example.com/term3\" : [ {\n    \"@language\" : \"en\",\n    \"@value\" : \"v3\"\n  } ],\n  \"http://example.com/term4\" : [ {\n    \"@value\" : 4\n  } ],\n  \"http://example.com/term5\" : [ {\n    \"@value\" : 50\n  }, {\n    \"@value\" : 51\n  } ]\n} ]\n"
+        },
+        {
+            "input": {
+                "options": {},
+                "document": {
+                    "@context": {
+                        "d": "http://purl.org/dc/elements/1.1/",
+                        "e": "http://example.org/vocab#",
+                        "f": "http://xmlns.com/foaf/0.1/",
+                        "xsd": "http://www.w3.org/2001/XMLSchema#"
+                    },
+                    "@id": "http://example.org/test",
+                    "e:bool": true,
+                    "e:int": 123
+                },
+                "algorithm": "flatten",
+                "base": "http://json-ld.org/test-suite/tests/flatten-0010-in.jsonld"
+            },
+            "expected_output": "[ {\n  \"@id\" : \"http://example.org/test\",\n  \"http://example.org/vocab#bool\" : [ {\n    \"@value\" : true\n  } ],\n  \"http://example.org/vocab#int\" : [ {\n    \"@value\" : 123\n  } ]\n} ]\n"
+        }
+    ]
+}

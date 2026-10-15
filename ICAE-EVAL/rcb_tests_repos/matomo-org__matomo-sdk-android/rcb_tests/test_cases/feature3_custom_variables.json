@@ -1,0 +1,119 @@
+{
+  "description": "Builds JSON for indexed custom name/value pairs, preserving valid inherited entries, escaping JSON characters, trimming overlong text, and ignoring invalid indexes or malformed value arrays.",
+  "cases": [
+    {
+      "input": {
+        "feature": "custom_variables",
+        "inherit": false,
+        "variables": [
+          {
+            "index": 1,
+            "name": "name",
+            "value": "value"
+          },
+          {
+            "index": 2,
+            "name": "name2",
+            "value": "uńicódę"
+          }
+        ]
+      },
+      "expected_output": "custom_variables_json={\"1\":[\"name\",\"value\"],\"2\":[\"name2\",\"uńicódę\"]}\n"
+    },
+    {
+      "input": {
+        "feature": "custom_variables",
+        "inherit": true,
+        "ancestor_variables": [
+          {
+            "index": 1,
+            "name": "name",
+            "value": "value"
+          }
+        ],
+        "variables": [
+          {
+            "index": 2,
+            "name": "name2",
+            "value": "uńicódę"
+          }
+        ]
+      },
+      "expected_output": "custom_variables_json={\"1\":[\"name\",\"value\"],\"2\":[\"name2\",\"uńicódę\"]}\n"
+    },
+    {
+      "input": {
+        "feature": "custom_variables",
+        "inherit": false,
+        "variables": [
+          {
+            "index": 5,
+            "name": "name 1",
+            "value": "\"@<& '"
+          }
+        ]
+      },
+      "expected_output": "custom_variables_json={\"5\":[\"name 1\",\"\\\"@<& '\"]}\n"
+    },
+    {
+      "input": {
+        "feature": "custom_variables",
+        "inherit": false,
+        "variables": [
+          {
+            "index": 1,
+            "name": "name",
+            "value": "value"
+          },
+          {
+            "index": -1,
+            "name": "name-1",
+            "value": "value"
+          }
+        ]
+      },
+      "expected_output": "custom_variables_json={\"1\":[\"name\",\"value\"]}\n"
+    },
+    {
+      "input": {
+        "feature": "custom_variables",
+        "inherit": false,
+        "variables": [
+          {
+            "index": "test",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          }
+        ]
+      },
+      "expected_output": "custom_variables_json=null\n"
+    },
+    {
+      "input": {
+        "feature": "custom_variables",
+        "inherit": false,
+        "variables": [
+          {
+            "index": "test",
+            "values": [
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          {
+            "index": "test",
+            "values": [
+              "1",
+              "2"
+            ]
+          }
+        ]
+      },
+      "expected_output": "custom_variables_json={\"test\":[\"1\",\"2\"]}\n"
+    }
+  ]
+}

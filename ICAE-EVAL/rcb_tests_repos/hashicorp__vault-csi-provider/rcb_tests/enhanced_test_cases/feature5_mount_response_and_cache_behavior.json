@@ -1,0 +1,41 @@
+{
+  "description": "Additional mount coverage for zero repeat boundary, default permission max, query-bearing paths in trace/content, and cache refresh at the final run.",
+  "cases": [
+    {
+      "input": {
+        "action": "mount_secrets",
+        "default_file_permission": 511,
+        "repeats": 0,
+        "secrets": [
+          {
+            "object_name": "single",
+            "secret_path": "/already/v1ish",
+            "secret_key": "the-key"
+          }
+        ]
+      },
+      "expected_output": "run[0].files_count=1\nrun[0].file[0].path=single\nrun[0].file[0].mode=511\nrun[0].file[0].contents=secret v1 from: /v1/already/v1ish\nrun[0].version[0].id=single\nrun[0].version[0].value=BKM-9fkwD-3txBR2JHFgOpSIF1sWqcn6_mVmJlXZ738=\nrequest[0].method=POST\nrequest[0].path=/v1/auth//login\nrequest[0].query=\nrequest[0].body={\"jwt\":\"\",\"role\":\"mount-role\"}\nrequest[1].method=GET\nrequest[1].path=/v1/already/v1ish\nrequest[1].query=\nrequest[1].body=\n"
+    },
+    {
+      "input": {
+        "action": "mount_secrets",
+        "default_file_permission": 256,
+        "repeats": 2,
+        "secrets": [
+          {
+            "object_name": "post-body",
+            "secret_path": "pki/issue/example",
+            "secret_key": "the-key",
+            "method": "PUT",
+            "file_permission": 0
+          },
+          {
+            "object_name": "whole-response",
+            "secret_path": "v1/kv/data/app?version=7"
+          }
+        ]
+      },
+      "expected_output": "run[0].files_count=2\nrun[0].file[0].path=post-body\nrun[0].file[0].mode=256\nrun[0].file[0].contents=secret v1 from: /v1/pki/issue/example\nrun[0].version[0].id=post-body\nrun[0].version[0].value=L--StPzxp1vyblkGd2cOWEa3y_pbQO7tAoVVZkb4qeg=\nrun[0].file[1].path=whole-response\nrun[0].file[1].mode=256\nrun[0].file[1].contents={\"request_id\":\"\",\"lease_id\":\"\",\"lease_duration\":0,\"renewable\":false,\"data\":{\"the-key\":\"secret v1 from: /v1/kv/data/app?version=7\"},\"warnings\":null}\nrun[0].version[1].id=whole-response\nrun[0].version[1].value=-_P_9TJ_QG58LToKxj4BqXyOZ6MRBfKZXwJYhS-Ls84=\nrun[1].files_count=2\nrun[1].file[0].path=post-body\nrun[1].file[0].mode=256\nrun[1].file[0].contents=secret v1 from: /v1/pki/issue/example\nrun[1].version[0].id=post-body\nrun[1].version[0].value=L--StPzxp1vyblkGd2cOWEa3y_pbQO7tAoVVZkb4qeg=\nrun[1].file[1].path=whole-response\nrun[1].file[1].mode=256\nrun[1].file[1].contents={\"request_id\":\"\",\"lease_id\":\"\",\"lease_duration\":0,\"renewable\":false,\"data\":{\"the-key\":\"secret v1 from: /v1/kv/data/app?version=7\"},\"warnings\":null}\nrun[1].version[1].id=whole-response\nrun[1].version[1].value=-_P_9TJ_QG58LToKxj4BqXyOZ6MRBfKZXwJYhS-Ls84=\nrun[2].files_count=2\nrun[2].file[0].path=post-body\nrun[2].file[0].mode=256\nrun[2].file[0].contents=secret v2 from: /v1/pki/issue/example\nrun[2].version[0].id=post-body\nrun[2].version[0].value=_tQwjwkGPvJtnPc6yXgcxA5q-eUG7kaFoX5sIlnkIhE=\nrun[2].file[1].path=whole-response\nrun[2].file[1].mode=256\nrun[2].file[1].contents={\"request_id\":\"\",\"lease_id\":\"\",\"lease_duration\":0,\"renewable\":false,\"data\":{\"the-key\":\"secret v2 from: /v1/kv/data/app?version=7\"},\"warnings\":null}\nrun[2].version[1].id=whole-response\nrun[2].version[1].value=SbzK9LyZfz65EyR3koT1CV-ycjwzfUbTqBpiVVbOqIQ=\nrequest[0].method=POST\nrequest[0].path=/v1/auth//login\nrequest[0].query=\nrequest[0].body={\"jwt\":\"\",\"role\":\"mount-role\"}\nrequest[1].method=GET\nrequest[1].path=/v1/pki/issue/example\nrequest[1].query=\nrequest[1].body=\nrequest[2].method=GET\nrequest[2].path=/v1/kv/data/app?version=7\nrequest[2].query=\nrequest[2].body=\nrequest[3].method=POST\nrequest[3].path=/v1/auth//login\nrequest[3].query=\nrequest[3].body={\"jwt\":\"\",\"role\":\"mount-role\"}\nrequest[4].method=GET\nrequest[4].path=/v1/pki/issue/example\nrequest[4].query=\nrequest[4].body=\nrequest[5].method=GET\nrequest[5].path=/v1/kv/data/app?version=7\nrequest[5].query=\nrequest[5].body=\n"
+    }
+  ]
+}

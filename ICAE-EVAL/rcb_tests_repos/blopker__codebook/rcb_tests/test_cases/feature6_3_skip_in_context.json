@@ -1,0 +1,29 @@
+{
+  "description": "During an end-to-end check, technical strings embedded in prose or source are masked before tokenizing, so the letters inside web URLs, email addresses, hex color codes, and absolute filesystem paths are never reported as misspellings even though they are not real words. Ordinary misspelled words around them are still flagged. Each reported misspelling is its UTF-8 start byte offset, end byte offset, and text, one per line, ordered by position. The request is {\"op\":\"spellcheck\",\"text\":<text>,\"lang\":\"text\"}.",
+  "cases": [
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "text": "\n        Visit https://www.exampl.com/badspeling for more info.\n        But this actualbadword should be flagged.\n    "
+      },
+      "expected_output": "81 94 actualbadword\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "text": "\n        Contact usr@exampl.com or admin@badspeling.org\n        This misspelledword should be flagged though.\n    "
+      },
+      "expected_output": "69 83 misspelledword\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "text": "\n        Set the color to #deadbeef for the background.\n        But this badcolorname should be flagged.\n    "
+      },
+      "expected_output": "73 85 badcolorname\n"
+    }
+  ]
+}

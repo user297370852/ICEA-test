@@ -1,0 +1,34 @@
+{
+  "description": "ContributesTo edge cases: an object (non-interface) declaration is rejected like an abstract class; a nested public interface is contributable and reported in dotted form for both the outer and inner inspect targets; and two non-public contributions in different packages collapse to a single deduplicated reason line.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\nobject ComponentInterface\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Only interfaces can be contributed.\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.nest\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninterface Outer {\n    @ContributesTo(Unit::class)\n    interface Inner\n}\n"
+        ],
+        "inspect": [
+          "com.nest.Outer",
+          "com.nest.Outer.Inner"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.nest.Outer\nextends com.nest.Outer\ncontribution origin=com.nest.Outer.Inner\nextends com.nest.Outer.Inner\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.one\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\nprivate interface First\n",
+          "package com.two\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\nprivate interface Second\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Contributed component interfaces must be public.\n"
+    }
+  ]
+}

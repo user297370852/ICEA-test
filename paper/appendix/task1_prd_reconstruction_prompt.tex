@@ -1,0 +1,56 @@
+\begin{multicols}{2}
+\section{Prompt for Test Refactoring and GroundPRD Construction}
+\label{appendix:task1-prompt}
+\end{multicols}
+
+\begin{promptbox}[GroundPRD Construction \& Test Refactoring]
+\textbf{\#\# Task Description}
+
+You are given an original runnable Docker environment containing the repository, its runtime environment, and its original test scripts. Without modifying the repository's functional code, refactor the original tests into a standardized black-box input/output format and produce a PRD that describes only ``what input leads to what output.''
+
+\textbf{\#\# Inputs}
+
+Original Docker install and test script: \texttt{\{test\_script\}}
+
+\textbf{\#\# Outputs}
+\begin{itemize}
+\item \texttt{repos/\{username\}\_\_\{repo\_name\}/rcb\_tests/test\_cases/featureN\_[name].json} --- a subset of original repository tests used as the hidden evaluation set
+\item \texttt{repos/\{username\}\_\_\{repo\_name\}/rcb\_tests/public\_test\_cases/featureN\_[name].json} --- the strict mirror of the example cases embedded in the PRD
+\item \texttt{repos/\{username\}\_\_\{repo\_name\}/start.md}
+\item \texttt{repos/\{username\}\_\_\{repo\_name\}/rcb\_tests/test.sh} --- a single entry point supporting \texttt{--cases-dir <subdir>}
+\item \texttt{repos/\{username\}\_\_\{repo\_name\}/<dispatcher source>} --- placed idiomatically for the chosen language
+\end{itemize}
+
+\textbf{\#\# Workflow}
+\begin{enumerate}
+\item Read the source code and the original repository tests.
+\item For each original test, decide whether it checks externally visible behavior that is independent of the implementation choice. Keep those tests; discard white-box or implementation-specific assertions.
+\item Write the PRD and generate \texttt{test\_cases}: each retained test is converted into JSON cases, and the PRD describes the behavior in pure input/output terms. The PRD must be self-contained: each leaf feature block should be understandable from its text and embedded example cases alone.
+\item Run \texttt{bash rcb\_tests/test.sh --cases-dir test\_cases} inside the original Docker image. The result must be zero FAIL. If a case fails, either the dispatcher is inconsistent with the golden implementation or the case should not have been retained.
+\end{enumerate}
+
+\textbf{\#\# Requirements}
+\begin{enumerate}
+\item Do not modify the repository's functional code. The only files you may add or change are the test data, \texttt{test.sh}, and the Task-1 dispatcher/adapter.
+\item \texttt{bash rcb\_tests/test.sh} must support \texttt{--cases-dir <subdir>} (default \texttt{test\_cases}). For every case it writes the raw stdout to \texttt{rcb\_tests/stdout/<cases-dir>/\{stem\}@\{idx:03d\}.txt}. Different case directories must never overwrite one another.
+\item Each JSON file uses schema \texttt{\{description, cases:[\{input, expected\_output\}]\}}. One leaf feature corresponds to one JSON file.
+\item \texttt{test\_cases} must remain a subset of the original repository tests. Do not invent new behavior at this stage.
+\item \texttt{input} must be the program's real input data, not source-level method names or class names.
+\item \texttt{expected\_output} must be the program's real stdout and must be directly comparable to the contents of \texttt{rcb\_tests/stdout/*.txt}. Avoid weak pass/fail markers or single booleans when richer behavior can be exposed.
+\item Errors must be normalized into language-neutral black-box contracts rather than leaking host-language exception names or runtime-specific formatting.
+\item \texttt{description} must let a reader understand the scenario together with \texttt{input} and \texttt{expected\_output}, but it must not copy the concrete input values or exact expected output verbatim.
+\item The PRD must not leak original repository identifiers or implementation details such as repository names, author names, original class or method names, namespaces, or language-locked framework labels.
+\item Use multi-level features when necessary. Every leaf feature corresponds to one independent functionality point and one JSON file.
+\end{enumerate}
+
+\textbf{\#\# PRD Template}
+
+The PRD should contain a neutral function-based title, a project goal, background and problem statement, architecture and engineering constraints, and a core-features section in which each leaf feature includes: a short user-story style statement, expected behavior in plain language, a pointer to \texttt{rcb\_tests/public\_test\_cases/...}, and one or more embedded example JSON cases.
+
+\textbf{\#\# Deliverables}
+\begin{enumerate}
+\item A maintainable core system description reflected in the PRD.
+\item An execution/test adapter that reads JSON from stdin, invokes the core behavior, and prints the required stdout contract.
+\item An automated harness \texttt{bash rcb\_tests/test.sh} that runs all cases from a selected case directory and records per-case stdout files exactly as specified.
+\end{enumerate}
+\end{promptbox}

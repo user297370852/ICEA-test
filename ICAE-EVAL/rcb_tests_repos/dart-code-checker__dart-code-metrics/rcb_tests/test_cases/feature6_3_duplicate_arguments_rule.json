@@ -1,0 +1,42 @@
+{
+    "description": "Analyze calls and report repeated non-literal arguments passed to separate positional or named parameters, with configurable named-parameter exceptions.",
+    "cases": [
+        {
+            "input": {
+                "command": "analyze_rule",
+                "rule": "duplicate-arguments",
+                "code": "class User {\n  final String firstName;\n  final String lastName;\n\n  const User(this.firstName, this.lastName);\n\n  String getName() => firstName;\n\n  String getFirstName() => firstName;\n\n  String getNewName(String name) => firstName + name;\n}\n\nUser createUser(String firstName, String lastName) {\n  return User(\n    firstName,\n    firstName, // LINT\n  );\n}\n\nvoid getUserData(User user) {\n  String getFullName(String firstName, String lastName) {\n    return firstName + ' ' + lastName;\n  }\n\n  String getUserImage({String firstName, String lastName}) {\n    return '/test_url/' + firstName ?? '' + lastName ?? '';\n  }\n\n  final fullName = getFullName(\n    user.firstName,\n    user.firstName, // LINT\n  );\n\n  final fullName = getFullName(\n    user.getName,\n    user.getName, // LINT\n  );\n\n  final fullName = getFullName(\n    user.getFirstName(),\n    user.getFirstName(), // LINT\n  );\n\n  final fullName = getFullName(\n    user.getNewName('name'),\n    user.getNewName('name'), // LINT\n  );\n\n  final name = 'name';\n\n  final fullName = getFullName(\n    user.getNewName(name),\n    user.getNewName(name), // LINT\n  );\n\n  final image = getUserImage(\n    firstName: user.firstName,\n    lastName: user.firstName, // LINT\n  );\n}\n"
+            },
+            "expected_output": "rule=no-equal-arguments\nseverity=warning\nissue_count=7\nissue[0].line=17\nissue[0].column=5\nissue[0].text=firstName\nissue[0].message=The argument has already been passed.\nissue[1].line=32\nissue[1].column=5\nissue[1].text=user.firstName\nissue[1].message=The argument has already been passed.\nissue[2].line=37\nissue[2].column=5\nissue[2].text=user.getName\nissue[2].message=The argument has already been passed.\nissue[3].line=42\nissue[3].column=5\nissue[3].text=user.getFirstName()\nissue[3].message=The argument has already been passed.\nissue[4].line=47\nissue[4].column=5\nissue[4].text=user.getNewName('name')\nissue[4].message=The argument has already been passed.\nissue[5].line=54\nissue[5].column=5\nissue[5].text=user.getNewName(name)\nissue[5].message=The argument has already been passed.\nissue[6].line=59\nissue[6].column=5\nissue[6].text=lastName: user.firstName\nissue[6].message=The argument has already been passed.\n"
+        },
+        {
+            "input": {
+                "command": "analyze_rule",
+                "rule": "duplicate-arguments",
+                "code": "class User {\n  final String firstName;\n  final String lastName;\n\n  const User(this.firstName, this.lastName);\n\n  String getName() => firstName;\n\n  String getFirstName() => firstName;\n\n  String getLastName() => lastName;\n\n  String getNewName(String name) => firstName + name;\n}\n\nUser createUser(String firstName, String lastName) {\n  return User(\n    firstName,\n    lastName,\n  );\n}\n\nvoid getUserData(User user) {\n  String getFullName(String firstName, String lastName) {\n    return firstName + ' ' + lastName;\n  }\n\n  String getUserImage({String firstName, String lastName}) {\n    return '/test_url/' + firstName! ?? '' + lastName! ?? '';\n  }\n\n  final fullName = getFullName(\n    user.firstName,\n    user.lastName,\n  );\n\n  final fullName = getFullName(\n    user.getName,\n    user.lastName,\n  );\n\n  final fullName = getFullName(\n    'firstName',\n    lastName,\n  );\n\n  final fullName = getFullName(\n    'firstName',\n    'lastName',\n  );\n\n  final fullName = getFullName(\n    'firstName',\n    'firstName',\n  );\n\n  final fullName = getFullName(\n    user.getFirstName(),\n    user.getLastName(),\n  );\n\n  final fullName = getFullName(\n    user.getNewName('name'),\n    user.getNewName('new name'),\n  );\n\n  final name = 'name';\n  final newName = 'new name';\n\n  final fullName = getFullName(\n    user.getNewName(name),\n    user.getNewName(newName),\n  );\n\n  final image = getUserImage(\n    firstName: user.firstName,\n    lastName: user.lastName,\n  );\n\n  final image = getUserImage(\n    firstName: 'name',\n    lastName: 'name',\n  );\n}\n\nint getWidthAndHeight() {\n  int calculate(int width, int height) => width + height;\n\n  return calculate(\n    -1,\n    -1,\n  );\n}\n"
+            },
+            "expected_output": "rule=no-equal-arguments\nseverity=warning\nissue_count=0\n"
+        },
+        {
+            "input": {
+                "command": "analyze_rule",
+                "rule": "duplicate-arguments",
+                "code": "String getUserImage({String firstName, String lastName}) {\n  return '/test_url/' + firstName ?? '' + lastName ?? '';\n}\n\nconst firstName = 'name';\n\nfinal image = getUserImage(\n  firstName: firstName,\n  lastName: firstName, // LINT\n);\n"
+            },
+            "expected_output": "rule=no-equal-arguments\nseverity=warning\nissue_count=1\nissue[0].line=9\nissue[0].column=3\nissue[0].text=lastName: firstName\nissue[0].message=The argument has already been passed.\n"
+        },
+        {
+            "input": {
+                "command": "analyze_rule",
+                "rule": "duplicate-arguments",
+                "code": "String getUserImage({String firstName, String lastName}) {\n  return '/test_url/' + firstName ?? '' + lastName ?? '';\n}\n\nconst firstName = 'name';\n\nfinal image = getUserImage(\n  firstName: firstName,\n  lastName: firstName, // LINT\n);\n",
+                "config": {
+                    "ignored-parameters": [
+                        "lastName"
+                    ]
+                }
+            },
+            "expected_output": "rule=no-equal-arguments\nseverity=warning\nissue_count=0\n"
+        }
+    ]
+}

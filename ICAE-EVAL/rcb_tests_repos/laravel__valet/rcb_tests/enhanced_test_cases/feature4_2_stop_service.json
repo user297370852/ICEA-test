@@ -1,0 +1,29 @@
+{
+  "description": "Stop a background service managed by the package manager's service supervisor. The adapter first confirms the service's package is installed (issuing the metadata query and checking for a non-empty installed set). When installed, it issues two supervisor commands in order: a plain stop followed by a privileged stop. When the package is not installed, no supervisor commands are issued. The output echoes the installed-check query followed by any supervisor commands in the exact order issued.",
+  "cases": [
+    {
+      "input": {
+        "action": "stop_service",
+        "service": "nginx",
+        "info_response": "[{\"name\":\"nginx\",\"full_name\":\"nginx\",\"aliases\":[],\"versioned_formulae\":[],\"versions\":{\"stable\":\"1.21.0\"},\"installed\":[]}]"
+      },
+      "expected_output": "cmd=brew info nginx --json\n"
+    },
+    {
+      "input": {
+        "action": "stop_service",
+        "service": "dnsmasq",
+        "info_response": ""
+      },
+      "expected_output": "cmd=brew info dnsmasq --json\n"
+    },
+    {
+      "input": {
+        "action": "stop_service",
+        "service": "php@8.1",
+        "info_response": "[{\"name\":\"php@8.1\",\"full_name\":\"php@8.1\",\"aliases\":[],\"versioned_formulae\":[],\"versions\":{\"stable\":\"8.1.0\"},\"installed\":[{\"version\":\"8.1.0\"}]}]"
+      },
+      "expected_output": "cmd=brew info php@8.1 --json\ncmd=brew services stop php@8.1\ncmd=sudo brew services stop php@8.1\n"
+    }
+  ]
+}

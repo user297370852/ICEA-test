@@ -1,0 +1,64 @@
+{
+  "description": "Serialize transformed resources under a fixed top-level data key: a single record is wrapped as an object under data, a list of records as an array under data, and metadata is emitted under a separate top-level meta key. Records are transformed first (year normalized to integer, private underscore-prefixed fields dropped). These cases exercise empty collections, records that are entirely private, already-integer years, and metadata on collections.",
+  "cases": [
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "data",
+        "resource": "collection",
+        "data": []
+      },
+      "expected_output": "{\"data\":[]}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "data",
+        "resource": "item",
+        "data": {
+          "_secret": "x"
+        }
+      },
+      "expected_output": "{\"data\":[]}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "data",
+        "resource": "item",
+        "data": {
+          "year": 2000
+        }
+      },
+      "expected_output": "{\"data\":{\"year\":2000}}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "data",
+        "resource": "item",
+        "data": {
+          "title": "T",
+          "year": "0"
+        }
+      },
+      "expected_output": "{\"data\":{\"title\":\"T\",\"year\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "serializer": "data",
+        "resource": "collection",
+        "meta": {
+          "page": "first"
+        },
+        "data": [
+          {
+            "foo": "bar"
+          }
+        ]
+      },
+      "expected_output": "{\"data\":[{\"foo\":\"bar\"}],\"meta\":{\"page\":\"first\"}}\n"
+    }
+  ]
+}

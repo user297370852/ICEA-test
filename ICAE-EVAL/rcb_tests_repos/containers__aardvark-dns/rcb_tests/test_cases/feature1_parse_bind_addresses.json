@@ -1,0 +1,33 @@
+{
+    "description": "Parse a set of textual network-configuration files and report, per network, the gateway/bind addresses split into IPv4 and IPv6 families. Each file represents one network whose name is the file name; the file's first line lists the network's bind addresses (comma-separated, optionally followed by network-level upstream servers). The parser groups bind addresses by family preserving their listed order, and tolerates a malformed file by skipping that network entirely without failing the whole parse.",
+    "cases": [
+        {
+            "input": {
+                "op": "bind_addresses",
+                "config": {
+                    "net0": "10.88.0.1\n68fb291b0318b54a71f6f3636e58bd0896f084e5ba4fa311ecf36e019c5e6e43 10.88.0.2  condescendingnash\n68fb291b0318b54a71f6f3636e58bd0896f084e5ba4fa311ecf36e019c5e6e48 10.88.0.5  HelloWorld\n95655fb6832ba134efa66e9c80862a6c9b04f3cc6abf8adfdda8c38112c2c6fa 10.88.0.3  hopefulmontalcini,testdbctr\n8bcc5fe0cb09bee5dfb71d61503a87688cfc82aa5f130bcedb19357a17765926 10.88.0.4  trustingzhukovsky,ctr1,ctra\n"
+                }
+            },
+            "expected_output": "network=net0\nbind_v4=10.88.0.1\nbind_v6=\n"
+        },
+        {
+            "input": {
+                "op": "bind_addresses",
+                "config": {
+                    "net0": "10.89.0.1\n7b46c7ad93fcbcb945c35286a5ba19d6976093e2ce39d2cb38ba1eba636404ab 10.89.0.2  test1,7b46c7ad93fc\n7b46c7ad93fcbcb945c35286a5ba19d6976093e2ce39d2cb38ba1eba636404ab  fdfd:733b:dc3:220b::2 test1,7b46c7ad93fc\n88dde8a2489780d3c8c90db54a9a97faf5dbe4f555b23e27880ca189dae0e2b0 10.89.0.3  test2,88dde8a24897\n88dde8a2489780d3c8c90db54a9a97faf5dbe4f555b23e27880ca189dae0e2b0  fdfd:733b:dc3:220b::3 test2,88dde8a24897\n",
+                    "net1": "10.0.0.1,10.0.1.1,fdfd::1,fddd::1\nf35256b5e2f72ec8cb7d974d4f8841686fc8921fdfbc867285b50164e313f715 10.0.0.2,10.0.1.2 fdfd::2,fddd::2 testmulti1\ne5df0cdbe0136a30cc3e848d495d2cc6dada25b7dedc776b4584ce2cbba6f06f 10.0.0.3,10.0.1.3 fdfd::3,fddd::3 testmulti2\n"
+                }
+            },
+            "expected_output": "network=net0\nbind_v4=10.89.0.1\nbind_v6=\nnetwork=net1\nbind_v4=10.0.0.1,10.0.1.1\nbind_v6=fdfd::1,fddd::1\n"
+        },
+        {
+            "input": {
+                "op": "bind_addresses",
+                "config": {
+                    "net0": "10.88.0.1 dfdsfds\n10.88.0.2  condescendingnash\n95655fb6832ba134efa66e9c80862a6c9b04f3cc6abf8adfdda8c38112c2c6fa hopefulmontalcini,testdbctr\n"
+                }
+            },
+            "expected_output": ""
+        }
+    ]
+}

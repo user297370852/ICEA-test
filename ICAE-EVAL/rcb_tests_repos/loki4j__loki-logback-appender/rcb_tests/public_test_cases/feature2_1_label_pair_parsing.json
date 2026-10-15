@@ -1,0 +1,35 @@
+{
+    "description": "Parses rendered label text into ordered key/value fields, honoring configured separators, regex separators, and empty segments.",
+    "cases": [
+        {
+            "input": {
+                "operation": "label_pairs",
+                "pattern": "level=%level,app=\"my\"app",
+                "pair_separator": ",",
+                "key_value_separator": "=",
+                "rendered_labels": "level=INFO,app=\"my\"app,test=test"
+            },
+            "expected_output": "label=level value=INFO\nlabel=app value=\"my\"app\nlabel=test value=test\n"
+        },
+        {
+            "input": {
+                "operation": "label_pairs",
+                "pattern": ",,level=%level,,app=\"my\"app,",
+                "pair_separator": ",",
+                "key_value_separator": "=",
+                "rendered_labels": ",,level=INFO,,app=\"my\"app,test=test,"
+            },
+            "expected_output": "label=level value=INFO\nlabel=app value=\"my\"app\nlabel=test value=test\n"
+        },
+        {
+            "input": {
+                "operation": "label_pairs",
+                "pattern": "\n\n// level is label\nlevel=%level\n// another comment\n\napp=\"my\"app\n\n// end comment",
+                "pair_separator": "regex:(\n|//[^\n]+)+",
+                "key_value_separator": "=",
+                "rendered_labels": "\n\n// level is label\nlevel=INFO\n// another comment\n\napp=\"my\"app\n\n// end comment"
+            },
+            "expected_output": "label=level value=INFO\nlabel=app value=\"my\"app\n"
+        }
+    ]
+}

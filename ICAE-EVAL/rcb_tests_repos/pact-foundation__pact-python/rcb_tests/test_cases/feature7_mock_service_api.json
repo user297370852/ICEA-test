@@ -1,0 +1,72 @@
+{
+    "description": "Register interactions with and verify interactions against the mock service HTTP API, reporting request method, URL, headers, payload, status, and normalized failure details.",
+    "cases": [
+        {
+            "input": {
+                "operation": "register_interaction",
+                "state": "I am creating a new contract",
+                "description_text": "a specific request to the server",
+                "request": {
+                    "method": "GET",
+                    "path": "/path"
+                },
+                "response": {
+                    "status": 200,
+                    "body": "success"
+                },
+                "statuses": [
+                    200,
+                    200
+                ]
+            },
+            "expected_output": "api=completed\ncalls=[{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"method\":\"DELETE\",\"url\":\"http://localhost:1234/interactions\"},{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"json\":{\"description\":\"a specific request to the server\",\"provider_state\":\"I am creating a new contract\",\"request\":{\"method\":\"GET\",\"path\":\"/path\"},\"response\":{\"body\":\"success\",\"status\":200}},\"method\":\"POST\",\"url\":\"http://localhost:1234/interactions\"}]\n"
+        },
+        {
+            "input": {
+                "operation": "register_interaction",
+                "state": "I am creating a new contract",
+                "description_text": "a specific request to the server",
+                "request": {
+                    "method": "GET",
+                    "path": "/path"
+                },
+                "response": {
+                    "status": 200,
+                    "body": "success"
+                },
+                "statuses": [
+                    500
+                ],
+                "contents": [
+                    "deletion error"
+                ]
+            },
+            "expected_output": "error=remote_interaction_failed\ndetail=deletion error\noperation=register_interaction\ncalls=[{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"method\":\"DELETE\",\"url\":\"http://localhost:1234/interactions\"}]\n"
+        },
+        {
+            "input": {
+                "operation": "verify_interactions",
+                "statuses": [
+                    200,
+                    200
+                ],
+                "pact_dir": "/contracts"
+            },
+            "expected_output": "api=completed\ncalls=[{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"method\":\"GET\",\"url\":\"http://localhost:1234/interactions/verification\"},{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"json\":{\"consumer\":{\"name\":\"TestConsumer\"},\"pact_dir\":\"/contracts\",\"provider\":{\"name\":\"TestProvider\"}},\"method\":\"POST\",\"url\":\"http://localhost:1234/pact\"}]\n"
+        },
+        {
+            "input": {
+                "operation": "verify_interactions",
+                "statuses": [
+                    200,
+                    500
+                ],
+                "contents": [
+                    "",
+                    "error writing pact to file"
+                ]
+            },
+            "expected_output": "error=remote_interaction_failed\ndetail=error writing pact to file\noperation=verify_interactions\ncalls=[{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"method\":\"GET\",\"url\":\"http://localhost:1234/interactions/verification\"},{\"headers\":{\"X-Pact-Mock-Service\":\"true\"},\"json\":{\"consumer\":{\"name\":\"TestConsumer\"},\"pact_dir\":\"/testbed\",\"provider\":{\"name\":\"TestProvider\"}},\"method\":\"POST\",\"url\":\"http://localhost:1234/pact\"}]\n"
+        }
+    ]
+}

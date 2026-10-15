@@ -1,0 +1,32 @@
+{
+    "description": "Programmatically turn feature flags on and off at runtime, overriding any resolver. Activating a feature stores a truthy value so subsequent checks report it active; deactivating stores false so checks report it inactive. The same action may be applied to several features at once by supplying a list of feature names. Toggling is idempotent and re-applies cleanly.",
+    "cases": [
+        {
+            "input": {"operations": [
+                {"op": "activate", "feature": "foo"},
+                {"op": "active", "feature": "foo"},
+                {"op": "deactivate", "feature": "foo"},
+                {"op": "active", "feature": "foo"},
+                {"op": "activate", "feature": "foo"},
+                {"op": "active", "feature": "foo"}
+            ]},
+            "expected_output": "active foo = true\nactive foo = false\nactive foo = true\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "activate", "feature": ["foo", "bar"]},
+                {"op": "active", "feature": "foo"},
+                {"op": "active", "feature": "bar"},
+                {"op": "active", "feature": "baz"},
+                {"op": "deactivate", "feature": ["foo", "bar"]},
+                {"op": "active", "feature": "foo"},
+                {"op": "active", "feature": "bar"},
+                {"op": "activate", "feature": ["bar", "baz"]},
+                {"op": "active", "feature": "foo"},
+                {"op": "active", "feature": "bar"},
+                {"op": "active", "feature": "baz"}
+            ]},
+            "expected_output": "active foo = true\nactive bar = true\nactive baz = false\nactive foo = false\nactive bar = false\nactive foo = false\nactive bar = true\nactive baz = true\n"
+        }
+    ]
+}

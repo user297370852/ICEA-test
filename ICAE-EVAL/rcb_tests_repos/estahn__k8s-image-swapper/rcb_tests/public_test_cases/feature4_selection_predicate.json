@@ -1,0 +1,77 @@
+{
+    "description": "Evaluate a single selection expression against a context built from a pod (namespace) and the container currently under consideration. A boolean-true result matches; a boolean-false result does not match; an expression that errors or yields a non-boolean value does not match and reports the neutral reason category.",
+    "cases": [
+        {
+            "input": {
+                "op": "filter_match",
+                "namespace": "kube-system",
+                "container": {
+                    "name": "nginx",
+                    "image": "nginx:latest"
+                },
+                "expression": "obj.metadata.namespace == 'kube-system'"
+            },
+            "expected_output": "namespace=kube-system\ncontainer=nginx\nexpression=obj.metadata.namespace == 'kube-system'\nmatch=true\n"
+        },
+        {
+            "input": {
+                "op": "filter_match",
+                "namespace": "kube-system",
+                "container": {
+                    "name": "nginx",
+                    "image": "nginx:latest"
+                },
+                "expression": "obj.metadata.namespace != 'kube-system'"
+            },
+            "expected_output": "namespace=kube-system\ncontainer=nginx\nexpression=obj.metadata.namespace != 'kube-system'\nmatch=false\n"
+        },
+        {
+            "input": {
+                "op": "filter_match",
+                "namespace": "kube-system",
+                "container": {
+                    "name": "nginx",
+                    "image": "nginx:latest"
+                },
+                "expression": "container.name == 'nginx'"
+            },
+            "expected_output": "namespace=kube-system\ncontainer=nginx\nexpression=container.name == 'nginx'\nmatch=true\n"
+        },
+        {
+            "input": {
+                "op": "filter_match",
+                "namespace": "kube-system",
+                "container": {
+                    "name": "nginx",
+                    "image": "nginx:latest"
+                },
+                "expression": "obj"
+            },
+            "expected_output": "namespace=kube-system\ncontainer=nginx\nexpression=obj\nmatch=false\nreason=non_boolean_result\n"
+        },
+        {
+            "input": {
+                "op": "filter_match",
+                "namespace": "kube-system",
+                "container": {
+                    "name": "nginx",
+                    "image": "nginx:latest"
+                },
+                "expression": "."
+            },
+            "expected_output": "namespace=kube-system\ncontainer=nginx\nexpression=.\nmatch=false\nreason=evaluation_error\n"
+        },
+        {
+            "input": {
+                "op": "filter_match",
+                "namespace": "kube-system",
+                "container": {
+                    "name": "nginx",
+                    "image": "nginx:latest"
+                },
+                "expression": "contains(container.image, '.dkr.ecr.') && contains(container.image, '.amazonaws.com')"
+            },
+            "expected_output": "namespace=kube-system\ncontainer=nginx\nexpression=contains(container.image, '.dkr.ecr.') && contains(container.image, '.amazonaws.com')\nmatch=false\n"
+        }
+    ]
+}

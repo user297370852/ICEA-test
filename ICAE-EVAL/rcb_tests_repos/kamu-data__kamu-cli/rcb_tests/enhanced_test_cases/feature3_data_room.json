@@ -1,0 +1,190 @@
+{
+  "description": "Enhanced data room: fetch a non-existent path (null entry), empty-content upload then re-upload by path producing version 2, and move/remove failure paths against an existing file.",
+  "cases": [
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "ROOMA",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_1",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "1"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!, $path: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest {\n    entry(path: $path) {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest {\n        version contentHash contentType changeBy accessLevel description categories tags\n      } }\n    }\n  } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_1",
+              "path": "/missing.txt"
+            }
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "ROOMB",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "2"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          project { account { accountName } }\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2",
+              "path": "/empty.txt",
+              "content": "",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "public",
+              "description": "empty file",
+              "categories": [
+                "c1"
+              ],
+              "tags": [
+                "t1"
+              ],
+              "contentText": "",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          project { account { accountName } }\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2",
+              "path": "/empty.txt",
+              "content": "d29ybGQ",
+              "contentType": "text/markdown",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "holders",
+              "description": "now has content",
+              "categories": [
+                "c1",
+                "c2"
+              ],
+              "tags": [
+                "t1",
+                "t2"
+              ],
+              "contentText": "world",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest { entries {\n    totalCount\n    nodes {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest { contentType categories tags accessLevel version description } }\n    }\n  } } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_2"
+            }
+          }
+        ]
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "create_projects_dataset": true,
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "ROOMC",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "3"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          project { account { accountName } }\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3",
+              "path": "/a.txt",
+              "content": "aGVsbG8",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "public",
+              "description": "a",
+              "categories": [],
+              "tags": [],
+              "contentText": "hello",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $fromPath: CollectionPath!, $toPath: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    moveEntry(fromPath: $fromPath, toPath: $toPath) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3",
+              "fromPath": "/nope.txt",
+              "toPath": "/b.txt"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    removeEntry(path: $path) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3",
+              "path": "/nope.txt"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $fromPath: CollectionPath!, $toPath: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    moveEntry(fromPath: $fromPath, toPath: $toPath) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3",
+              "fromPath": "/a.txt",
+              "toPath": "/b.txt"
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest { entries {\n    totalCount\n    nodes {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest { contentType categories tags accessLevel version description } }\n    }\n  } } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_3"
+            }
+          }
+        ]
+      },
+      "expected_output": ""
+    }
+  ]
+}

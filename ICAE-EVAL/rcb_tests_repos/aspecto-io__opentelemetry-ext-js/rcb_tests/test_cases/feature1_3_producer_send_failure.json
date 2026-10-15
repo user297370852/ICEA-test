@@ -1,0 +1,86 @@
+{
+    "description": "When the underlying client rejects a send or batch-send, every span created for that operation is marked with an error status whose message is the client failure reason, and the failure is surfaced to the caller.",
+    "cases": [
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "testing message content"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "error",
+                            "message": "error thrown from kafka client send"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=error error=client_send_failure\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=error thrown from kafka client send\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n"
+        },
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "m1"
+                            },
+                            {
+                                "value": "m2"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "error",
+                            "message": "error thrown from kafka client send"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=error error=client_send_failure\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\nspans=2\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=error thrown from kafka client send\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 1 kind=producer name=topic-name-1 trace=t1 parent=root status=error\n  status_message=error thrown from kafka client send\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n"
+        },
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "produce_batch",
+                        "topicMessages": [
+                            {
+                                "topic": "topic-name-1",
+                                "messages": [
+                                    {
+                                        "value": "message1-1"
+                                    },
+                                    {
+                                        "value": "message1-2"
+                                    }
+                                ]
+                            },
+                            {
+                                "topic": "topic-name-2",
+                                "messages": [
+                                    {
+                                        "value": "message2-1"
+                                    }
+                                ]
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "error",
+                            "message": "error thrown from kafka client send"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce_batch status=error error=client_send_failure\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\ninject msg=2 carries=span#2\nspans=3\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=error\n  status_message=error thrown from kafka client send\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 1 kind=producer name=topic-name-1 trace=t1 parent=root status=error\n  status_message=error thrown from kafka client send\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 2 kind=producer name=topic-name-2 trace=t2 parent=root status=error\n  status_message=error thrown from kafka client send\n  messaging.system=kafka\n  messaging.destination=topic-name-2\n  messaging.destination_kind=topic\n"
+        }
+    ]
+}

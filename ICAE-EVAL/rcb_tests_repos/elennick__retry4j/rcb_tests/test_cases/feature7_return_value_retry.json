@@ -1,0 +1,152 @@
+{
+    "description": "Treat selected returned values as retry-triggering failures and continue until the attempt limit is reached or a non-matching value is returned.",
+    "cases": [
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception",
+                    "retry_on_value": "should retry!"
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": "should retry!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception",
+                    "retry_on_value": "should retry!"
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": "should NOT retry!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=should NOT retry!\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception",
+                    "retry_on_value": false
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": false
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception",
+                    "retry_on_value": false
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": true
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=true\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception",
+                    "retry_on_value": {
+                        "label": "should retry on this value!"
+                    }
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": {
+                                "label": "should retry on this value!"
+                            }
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "any_exception",
+                    "retry_on_value": {
+                        "label": "should retry on this value!"
+                    }
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": {
+                                "label": "should NOT retry on this value!"
+                            }
+                        }
+                    ]
+                }
+            },
+            "expected_output": "result=object(label=should NOT retry on this value!)\nsuccessful=true\ncall_name=\ntotal_tries=1\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 100,
+                    "backoff": "fixed",
+                    "delay_ms": 0,
+                    "retry_on": "specific_exceptions",
+                    "exceptions": [
+                        "file_not_found"
+                    ],
+                    "retry_on_value": false
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "return": false
+                        },
+                        {
+                            "throw": "file_not_found"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=100\nlast_exception=file_not_found\n"
+        }
+    ]
+}

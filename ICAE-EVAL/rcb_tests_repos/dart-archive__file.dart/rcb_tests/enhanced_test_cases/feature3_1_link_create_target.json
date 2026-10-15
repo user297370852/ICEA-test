@@ -1,0 +1,66 @@
+{
+  "description": "Link creation/target coverage: a link may point at a directory target, a link may point at another link (target stores the literal string), and creating a link where a directory already exists fails.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/dir"
+          },
+          {
+            "op": "create_link",
+            "path": "/ld",
+            "target": "/dir"
+          },
+          {
+            "op": "target",
+            "path": "/ld"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/dir\ncreated_link=/ld\nlink_target=/dir\ntarget=/dir\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_link",
+            "path": "/l1",
+            "target": "/l2"
+          },
+          {
+            "op": "create_link",
+            "path": "/l2",
+            "target": "/foo"
+          },
+          {
+            "op": "target",
+            "path": "/l1"
+          },
+          {
+            "op": "target",
+            "path": "/l2"
+          }
+        ]
+      },
+      "expected_output": "created_link=/l1\nlink_target=/l2\ncreated_link=/l2\nlink_target=/foo\ntarget=/l2\ntarget=/foo\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/d"
+          },
+          {
+            "op": "create_link",
+            "path": "/d",
+            "target": "/foo"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/d\nerror=file_exists\n"
+    }
+  ]
+}

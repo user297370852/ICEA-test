@@ -1,0 +1,45 @@
+{
+    "description": "Parse a single raw standard log line and re-emit it as structured key=value pairs. An optional leading date (YYYY/MM/DD) and time (HH:MM:SS with optional fractional seconds) are joined into a single timestamp under key \"ts\"; an optional file:line reference goes under key \"file\"; the remaining message text goes under key \"msg\". Absent fields are omitted. Fields appear in the order ts, file, msg.",
+    "cases": [
+        {
+            "input": {"op": "adapt_line", "line": "hello"},
+            "expected_output": "msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "2009/01/23: hello"},
+            "expected_output": "ts=2009/01/23 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "2009/01/23 01:23:23: hello"},
+            "expected_output": "ts=2009/01/23 01:23:23 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "01:23:23: hello"},
+            "expected_output": "ts=01:23:23 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "2009/01/23 01:23:23.123123: hello"},
+            "expected_output": "ts=2009/01/23 01:23:23.123123 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "2009/01/23 01:23:23.123123 /a/b/c/d.go:23: hello"},
+            "expected_output": "ts=2009/01/23 01:23:23.123123 file=/a/b/c/d.go:23 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "01:23:23.123123 /a/b/c/d.go:23: hello"},
+            "expected_output": "ts=01:23:23.123123 file=/a/b/c/d.go:23 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "2009/01/23 01:23:23 /a/b/c/d.go:23: hello"},
+            "expected_output": "ts=2009/01/23 01:23:23 file=/a/b/c/d.go:23 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "2009/01/23 /a/b/c/d.go:23: hello"},
+            "expected_output": "ts=2009/01/23 file=/a/b/c/d.go:23 msg=hello\n"
+        },
+        {
+            "input": {"op": "adapt_line", "line": "/a/b/c/d.go:23: hello"},
+            "expected_output": "file=/a/b/c/d.go:23 msg=hello\n"
+        }
+    ]
+}

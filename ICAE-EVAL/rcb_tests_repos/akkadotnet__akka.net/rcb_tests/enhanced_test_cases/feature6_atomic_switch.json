@@ -1,0 +1,69 @@
+{
+  "description": "Latch edge logic: a guarded-throw transition that is a no-op because the latch is already in the target state (action never runs, reports ok), revert-after-failure followed by a successful manual transition, and conditional runners exercised from the on state.",
+  "cases": [
+    {
+      "input": {
+        "op": "switch",
+        "start": false,
+        "commands": [
+          "switch_off_throw",
+          "is_off",
+          "is_on"
+        ]
+      },
+      "expected_output": "switch_off_throw -> ok\nis_off -> true\nis_on -> false\n"
+    },
+    {
+      "input": {
+        "op": "switch",
+        "start": true,
+        "commands": [
+          "switch_on_throw",
+          "is_on",
+          "is_off"
+        ]
+      },
+      "expected_output": "switch_on_throw -> ok\nis_on -> true\nis_off -> false\n"
+    },
+    {
+      "input": {
+        "op": "switch",
+        "start": false,
+        "commands": [
+          "switch_on_throw",
+          "switch_on",
+          "is_on",
+          "switch_off_throw",
+          "is_off"
+        ]
+      },
+      "expected_output": "switch_on_throw -> error=action_failed\nswitch_on -> true\nis_on -> true\nswitch_off_throw -> error=action_failed\nis_off -> false\n"
+    },
+    {
+      "input": {
+        "op": "switch",
+        "start": true,
+        "commands": [
+          "if_on",
+          "if_off",
+          "while_on",
+          "while_off"
+        ]
+      },
+      "expected_output": "if_on -> true\nif_off -> false\nwhile_on -> true\nwhile_off -> false\n"
+    },
+    {
+      "input": {
+        "op": "switch",
+        "start": true,
+        "commands": [
+          "switch_on",
+          "switch_off",
+          "switch_off",
+          "switch_on"
+        ]
+      },
+      "expected_output": "switch_on -> false\nswitch_off -> true\nswitch_off -> false\nswitch_on -> true\n"
+    }
+  ]
+}

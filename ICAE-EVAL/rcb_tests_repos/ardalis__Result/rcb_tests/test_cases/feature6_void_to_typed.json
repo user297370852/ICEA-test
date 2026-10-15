@@ -1,0 +1,64 @@
+{
+    "description": "Implicitly convert a no-value result that is in a failure state into a value-carrying result of an arbitrary value type. The conversion preserves the failure status and copies across the failure payload: error messages for an error result, validation errors for an invalid result, and the bare status for not-found, forbidden and unauthorized results. The converted result carries no value.",
+    "cases": [
+        {
+            "input": {
+                "op": "void_to_typed",
+                "factory": "error",
+                "errors": [
+                    "test1"
+                ]
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=test1\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "void_to_typed",
+                "factory": "error",
+                "errors": [
+                    "test1",
+                    "test2"
+                ]
+            },
+            "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=test1|test2\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "void_to_typed",
+                "factory": "invalid",
+                "validation_errors": [
+                    {
+                        "identifier": "name",
+                        "error_message": "Name is required"
+                    },
+                    {
+                        "identifier": "postalCode",
+                        "error_message": "PostalCode cannot exceed 10 characters"
+                    }
+                ]
+            },
+            "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=name;message=Name is required;code=;severity=Error|identifier=postalCode;message=PostalCode cannot exceed 10 characters;code=;severity=Error\n"
+        },
+        {
+            "input": {
+                "op": "void_to_typed",
+                "factory": "not_found"
+            },
+            "expected_output": "status=NotFound\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "void_to_typed",
+                "factory": "forbidden"
+            },
+            "expected_output": "status=Forbidden\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        },
+        {
+            "input": {
+                "op": "void_to_typed",
+                "factory": "unauthorized"
+            },
+            "expected_output": "status=Unauthorized\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+        }
+    ]
+}

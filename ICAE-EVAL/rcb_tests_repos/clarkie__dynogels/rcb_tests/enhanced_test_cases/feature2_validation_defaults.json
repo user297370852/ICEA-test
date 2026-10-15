@@ -1,0 +1,125 @@
+{
+  "description": "ENHANCED validation & defaults edge cases: a missing required attribute fails validation, a number coerced from its string form succeeds, an unknown attribute not declared in the schema fails validation, defaults are NOT applied to an attribute the caller already supplied, numeric-zero and empty-string defaults are respected, a nested-object default fills the leaf, and a required attribute supplied as null fails.",
+  "cases": [
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "validate",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": {
+              "type": "string",
+              "required": true
+            },
+            "name": "string"
+          }
+        },
+        "data": {
+          "name": "Tim"
+        }
+      },
+      "expected_output": "{\"error\":\"validation_failed\",\"value\":{\"name\":\"Tim\"}}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "validate",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "age": "number"
+          }
+        },
+        "data": {
+          "id": "x",
+          "age": "42"
+        }
+      },
+      "expected_output": "{\"error\":null,\"value\":{\"age\":42,\"id\":\"x\"}}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "validate",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string"
+          }
+        },
+        "data": {
+          "id": "x",
+          "extra": "nope"
+        }
+      },
+      "expected_output": "{\"error\":\"validation_failed\",\"value\":{\"extra\":\"nope\",\"id\":\"x\"}}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "defaults",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "role": {
+              "type": "string",
+              "default": "admin"
+            }
+          }
+        },
+        "data": {
+          "id": "x",
+          "role": "guest"
+        }
+      },
+      "expected_output": "{\"id\":\"x\",\"role\":\"guest\"}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "defaults",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "count": {
+              "type": "number",
+              "default": 0
+            },
+            "label": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        },
+        "data": {
+          "id": "x"
+        }
+      },
+      "expected_output": "{\"count\":0,\"id\":\"x\",\"label\":\"\"}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "validate",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": {
+              "type": "string",
+              "email": true,
+              "required": true
+            }
+          }
+        },
+        "data": {
+          "email": null
+        }
+      },
+      "expected_output": "{\"error\":\"validation_failed\",\"value\":{\"email\":null}}\n"
+    }
+  ]
+}

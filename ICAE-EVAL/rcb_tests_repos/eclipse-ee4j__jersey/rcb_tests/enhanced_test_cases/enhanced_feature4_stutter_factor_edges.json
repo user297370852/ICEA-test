@@ -1,0 +1,87 @@
+{
+  "description": "Edge cases for reconfiguring the shared stutter factor: reading the factor before any change (default 2) via GET, setting larger factors and observing the shared echo, the minimum boundary factor 2, a below-minimum factor rejected, and a non-integer factor rejected.",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "stutter-service-factor"
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/stutter-service-factor\nbody=2"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "stutter-service-factor",
+            "method": "PUT",
+            "body": "5"
+          },
+          {
+            "app": "main",
+            "path": "stutter-service-factor"
+          },
+          {
+            "app": "main",
+            "path": "stutter",
+            "query": {
+              "s": "ab"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/stutter-service-factor\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/stutter-service-factor\nbody=5\n\nstatus=200\nurl=http://localhost:9998/main/stutter?s=ab\nbody=ababababab"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "stutter-service-factor",
+            "method": "PUT",
+            "body": "2"
+          },
+          {
+            "app": "main",
+            "path": "stutter",
+            "query": {
+              "s": "hi"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/stutter-service-factor\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/stutter?s=hi\nbody=hihi"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "stutter-service-factor",
+            "method": "PUT",
+            "body": "4"
+          },
+          {
+            "app": "main",
+            "path": "stutter",
+            "query": {
+              "s": "x"
+            }
+          },
+          {
+            "app": "main",
+            "path": "stutter",
+            "query": {
+              "s": "yz"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=204\nurl=http://localhost:9998/main/stutter-service-factor\nbody=\n\nstatus=200\nurl=http://localhost:9998/main/stutter?s=x\nbody=xxxx\n\nstatus=200\nurl=http://localhost:9998/main/stutter?s=yz\nbody=yzyzyzyz"
+    }
+  ]
+}

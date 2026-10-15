@@ -1,0 +1,192 @@
+{
+  "description": "Boundary coverage for accumulating successive snapshots into the store. Exercises element-wise summation edge cases: a no-data (null) position on either side stays null even when the other side has a count; array-length mismatches between the new and previously stored arrays (shorter new array, longer new array); three-way accumulation; zeros being preserved as covered (distinct from null); and merging disjoint file sets (retain earlier-only, add later-only). Verified on both backends.",
+  "cases": [
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "redis",
+        "snapshots": [
+          {
+            "acc.rb": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "acc.rb": [
+              null,
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=1\nfile=acc.rb\nlines=null,2,4"
+    },
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "redis",
+        "snapshots": [
+          {
+            "acc.rb": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "acc.rb": [
+              5,
+              6
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=1\nfile=acc.rb\nlines=6,8"
+    },
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "redis",
+        "snapshots": [
+          {
+            "acc.rb": [
+              1,
+              2
+            ]
+          },
+          {
+            "acc.rb": [
+              3,
+              4,
+              5,
+              6
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=1\nfile=acc.rb\nlines=4,6,null,null"
+    },
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "redis",
+        "snapshots": [
+          {
+            "acc.rb": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "acc.rb": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "acc.rb": [
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=1\nfile=acc.rb\nlines=3,3,3"
+    },
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "redis",
+        "snapshots": [
+          {
+            "acc.rb": [
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "acc.rb": [
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=1\nfile=acc.rb\nlines=0,0,0"
+    },
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "redis",
+        "snapshots": [
+          {
+            "acc.rb": [
+              null,
+              5,
+              null
+            ]
+          },
+          {
+            "acc.rb": [
+              1,
+              5,
+              1
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=1\nfile=acc.rb\nlines=null,10,null"
+    },
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "redis",
+        "snapshots": [
+          {
+            "a.rb": [
+              1,
+              2
+            ]
+          },
+          {
+            "b.rb": [
+              3,
+              4
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=2\nfile=a.rb\nlines=1,2\nfile=b.rb\nlines=3,4"
+    },
+    {
+      "input": {
+        "op": "accumulate",
+        "backend": "file",
+        "snapshots": [
+          {
+            "acc.rb": [
+              2,
+              3
+            ]
+          },
+          {
+            "acc.rb": [
+              2,
+              3
+            ]
+          }
+        ]
+      },
+      "expected_output": "count=1\nfile=acc.rb\nlines=4,6"
+    }
+  ]
+}

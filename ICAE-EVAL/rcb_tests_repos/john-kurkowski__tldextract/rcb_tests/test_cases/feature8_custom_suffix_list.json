@@ -1,0 +1,10 @@
+{
+    "description": "Supply a caller-provided suffix list instead of the built-in data, so that only the listed entries (including wildcard rules) count as suffixes. Inputs carry the custom suffix entries plus the host to parse; hosts whose final label is not in the custom list resolve to an empty suffix, and wildcard entries consume one extra label.",
+    "cases": [
+        {"input": {"suffix_list": ["foo", "bar", "baz", "*.co.jp"], "url": "www.google.com"}, "expected_output": "fqdn=\nsubdomain=www.google\ndomain=com\nsuffix=\nipv4=\nipv6=\n"},
+        {"input": {"suffix_list": ["foo", "bar", "baz", "*.co.jp"], "url": "www.foo.bar.baz.quux.foo"}, "expected_output": "fqdn=www.foo.bar.baz.quux.foo\nsubdomain=www.foo.bar.baz\ndomain=quux\nsuffix=foo\nipv4=\nipv6=\n"},
+        {"input": {"suffix_list": ["foo", "bar", "baz", "*.co.jp"], "url": "www.foo.bar.baz.quux.bar"}, "expected_output": "fqdn=www.foo.bar.baz.quux.bar\nsubdomain=www.foo.bar.baz\ndomain=quux\nsuffix=bar\nipv4=\nipv6=\n"},
+        {"input": {"suffix_list": ["foo", "bar", "baz", "*.co.jp"], "url": "www.foo.bar.baz.quux.baz"}, "expected_output": "fqdn=www.foo.bar.baz.quux.baz\nsubdomain=www.foo.bar.baz\ndomain=quux\nsuffix=baz\nipv4=\nipv6=\n"},
+        {"input": {"suffix_list": ["foo", "bar", "baz", "*.co.jp"], "url": "a.b.co.jp"}, "expected_output": "fqdn=a.b.co.jp\nsubdomain=\ndomain=a\nsuffix=b.co.jp\nipv4=\nipv6=\n"}
+    ]
+}

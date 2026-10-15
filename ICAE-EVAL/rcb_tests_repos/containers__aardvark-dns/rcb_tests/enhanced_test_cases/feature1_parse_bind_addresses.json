@@ -1,0 +1,50 @@
+{
+  "description": "Parse textual network-configuration files and report, per network, the bind/gateway addresses split into IPv4 and IPv6 families, ordered by network name. Exercises boundary inputs: an empty configuration set, a network that binds only addresses of a single family, multiple networks whose emitted order must follow the network name ordering, a configuration mixing a well-formed network with a malformed one (the malformed network is skipped without aborting the whole parse), and a network whose first line carries both interleaved dual-family bind addresses and a trailing network-level resolver token that must not leak into the bind output.",
+  "cases": [
+    {
+      "input": {
+        "op": "bind_addresses",
+        "config": {}
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "op": "bind_addresses",
+        "config": {
+          "v6net": "fd00::1,fd00::2\n"
+        }
+      },
+      "expected_output": "network=v6net\nbind_v4=\nbind_v6=fd00::1,fd00::2\n"
+    },
+    {
+      "input": {
+        "op": "bind_addresses",
+        "config": {
+          "zeta": "10.5.0.1\n",
+          "alpha": "10.6.0.1\n"
+        }
+      },
+      "expected_output": "network=alpha\nbind_v4=10.6.0.1\nbind_v6=\nnetwork=zeta\nbind_v4=10.5.0.1\nbind_v6=\n"
+    },
+    {
+      "input": {
+        "op": "bind_addresses",
+        "config": {
+          "good": "10.7.0.1\n",
+          "broken": "notanip\n"
+        }
+      },
+      "expected_output": "network=good\nbind_v4=10.7.0.1\nbind_v6=\n"
+    },
+    {
+      "input": {
+        "op": "bind_addresses",
+        "config": {
+          "mix": "10.8.0.1,fd00:8::1,10.8.0.2,fd00:8::2 9.9.9.9\n"
+        }
+      },
+      "expected_output": "network=mix\nbind_v4=10.8.0.1,10.8.0.2\nbind_v6=fd00:8::1,fd00:8::2\n"
+    }
+  ]
+}

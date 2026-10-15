@@ -1,0 +1,24 @@
+{
+  "description": "An endpoint can declare prefetch dependencies that must run before its own request. This case configures one endpoint whose prefetch step dispatches another endpoint first; the reported routed URLs show the dependency is fetched before the dependent endpoint.",
+  "cases": [
+    {
+      "input": {
+        "op": "call_endpoint",
+        "endpoints": {
+          "test": "/test",
+          "test1": {
+            "url": "/test1",
+            "prefetchOf": "test"
+          }
+        },
+        "fetch": "echo_url",
+        "calls": [
+          {
+            "endpoint": "test1"
+          }
+        ]
+      },
+      "expected_output": "action type=@@redux-api@test1 syncing=false request={\"params\":null,\"pathvars\":null}\naction type=@@redux-api@test syncing=false request={\"params\":{},\"pathvars\":null}\naction type=@@redux-api@test_success syncing=false request={\"params\":{},\"pathvars\":null} data={\"data\":\"/test\"}\naction type=@@redux-api@test1_success syncing=false request={\"params\":null,\"pathvars\":null} data={\"data\":\"/test1\"}\nstate test={\"data\":{\"data\":\"/test\"},\"error\":null,\"loading\":false,\"sync\":true,\"syncing\":false}\nstate test1={\"data\":{\"data\":\"/test1\"},\"error\":null,\"loading\":false,\"sync\":true,\"syncing\":false}\n"
+    }
+  ]
+}

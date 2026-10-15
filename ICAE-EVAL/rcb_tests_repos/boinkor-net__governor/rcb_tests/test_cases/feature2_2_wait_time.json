@@ -1,0 +1,75 @@
+{
+    "description": "Verify that the wait time reported on a rejected admission is exact. After draining the burst budget, a further request is rejected and reports the precise remaining wait time. Advancing the virtual clock by exactly that reported wait time makes the next request succeed. Advancing by strictly less than the reported wait time leaves the limiter still rejecting, and the new rejection reports the smaller remaining wait. Wait times and absolute clock readings are reported in nanoseconds.",
+    "cases": [
+        {
+            "input": {
+                "action": "simulate",
+                "quota": {
+                    "per_second": 5
+                },
+                "ops": [
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 200
+                    },
+                    {
+                        "check": {}
+                    }
+                ]
+            },
+            "expected_output": "check allow\ncheck allow\ncheck allow\ncheck allow\ncheck allow\ncheck deny wait_ns=200000000\nadvance now_ns=200000000\ncheck allow\n"
+        },
+        {
+            "input": {
+                "action": "simulate",
+                "quota": {
+                    "per_second": 5
+                },
+                "ops": [
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 199
+                    },
+                    {
+                        "check": {}
+                    }
+                ]
+            },
+            "expected_output": "check allow\ncheck allow\ncheck allow\ncheck allow\ncheck allow\ncheck deny wait_ns=200000000\nadvance now_ns=199000000\ncheck deny wait_ns=1000000\n"
+        }
+    ]
+}

@@ -1,0 +1,41 @@
+{
+  "description": "Eager loading triggers nested side effects without explicit access, and a deeper namespace chain is fully evaluated so its leaf signal fires.",
+  "cases": [
+    {
+      "input": {
+        "operation": "eager_loading",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "alpha.rb": "class Alpha; $global_signals['alpha'] = 'loaded'; end",
+          "beta/gamma.rb": "class Beta::Gamma; $global_signals['gamma'] = 'loaded'; end"
+        },
+        "check_globals": [
+          "alpha",
+          "gamma"
+        ]
+      },
+      "expected_output": "signal=alpha\nvalue=loaded\nsignal=gamma\nvalue=loaded\n"
+    },
+    {
+      "input": {
+        "operation": "eager_loading",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "app1/foo.rb": "module App1::Foo; end",
+          "app1/foo/bar/baz/qux.rb": "class App1::Foo::Bar::Baz::Qux; $global_signals['deep'] = 'loaded'; end"
+        },
+        "check_globals": [
+          "deep"
+        ],
+        "access": [
+          "App1::Foo::Bar::Baz::Qux"
+        ]
+      },
+      "expected_output": "signal=deep\nvalue=loaded\nconstant=App1::Foo::Bar::Baz::Qux\nvalue=class\n"
+    }
+  ]
+}

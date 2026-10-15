@@ -1,0 +1,37 @@
+{
+    "description": "HTTP middleware clears per-request state, reports thrown route errors, forwards them to later error handlers, and leaves successful routes unreported.",
+    "cases": [
+        {
+            "input": {
+                "route": "/user",
+                "okStatus": 200,
+                "okBody": "{\"name\":\"john\"}",
+                "throwError": false,
+                "installRequestState": false,
+                "installErrorReporter": false
+            },
+            "expected_output": "route=/user\nstatus=200\nbody={\"name\":\"john\"}\nnotify_count=0\nnotified_message=none\nnext_error_handler_count=0\nclear_count=0\n"
+        },
+        {
+            "input": {
+                "route": "/",
+                "throwError": true,
+                "errorMessage": "Badgers!",
+                "installRequestState": true,
+                "installErrorReporter": true
+            },
+            "expected_output": "route=/\nstatus=500\nbody=internal_error_response\nnotify_count=1\nnotified_message=Badgers!\nnext_error_handler_count=1\nclear_count=1\n"
+        },
+        {
+            "input": {
+                "route": "/",
+                "okStatus": 200,
+                "okBody": "Hello World!",
+                "throwError": false,
+                "installRequestState": true,
+                "installErrorReporter": true
+            },
+            "expected_output": "route=/\nstatus=200\nbody=Hello World!\nnotify_count=0\nnotified_message=none\nnext_error_handler_count=0\nclear_count=1\n"
+        }
+    ]
+}

@@ -1,0 +1,142 @@
+{
+  "description": "Generate the time-bucketed counter key for a descriptor, exercising each coarser unit's window flooring, a timestamp that lands exactly on a window boundary, a zero timestamp, a non-empty prefix, and a multi-entry descriptor; the per-second granularity flag is reported for each.",
+  "cases": [
+    {
+      "input": {
+        "action": "cache_key",
+        "prefix": "",
+        "domain": "domain",
+        "now": 1234,
+        "entries": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ],
+        "limit": {
+          "requests_per_unit": 10,
+          "unit": "MINUTE"
+        }
+      },
+      "expected_output": "key=domain_key_value_1200\nper_second=false\n"
+    },
+    {
+      "input": {
+        "action": "cache_key",
+        "prefix": "",
+        "domain": "domain",
+        "now": 1234,
+        "entries": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ],
+        "limit": {
+          "requests_per_unit": 10,
+          "unit": "HOUR"
+        }
+      },
+      "expected_output": "key=domain_key_value_0\nper_second=false\n"
+    },
+    {
+      "input": {
+        "action": "cache_key",
+        "prefix": "",
+        "domain": "domain",
+        "now": 100000,
+        "entries": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ],
+        "limit": {
+          "requests_per_unit": 10,
+          "unit": "DAY"
+        }
+      },
+      "expected_output": "key=domain_key_value_86400\nper_second=false\n"
+    },
+    {
+      "input": {
+        "action": "cache_key",
+        "prefix": "",
+        "domain": "domain",
+        "now": 0,
+        "entries": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ],
+        "limit": {
+          "requests_per_unit": 10,
+          "unit": "SECOND"
+        }
+      },
+      "expected_output": "key=domain_key_value_0\nper_second=true\n"
+    },
+    {
+      "input": {
+        "action": "cache_key",
+        "prefix": "",
+        "domain": "domain",
+        "now": 60,
+        "entries": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ],
+        "limit": {
+          "requests_per_unit": 10,
+          "unit": "MINUTE"
+        }
+      },
+      "expected_output": "key=domain_key_value_60\nper_second=false\n"
+    },
+    {
+      "input": {
+        "action": "cache_key",
+        "prefix": "px_",
+        "domain": "domain",
+        "now": 7200,
+        "entries": [
+          {
+            "key": "key",
+            "value": "value"
+          }
+        ],
+        "limit": {
+          "requests_per_unit": 10,
+          "unit": "HOUR"
+        }
+      },
+      "expected_output": "key=px_domain_key_value_7200\nper_second=false\n"
+    },
+    {
+      "input": {
+        "action": "cache_key",
+        "prefix": "",
+        "domain": "domain",
+        "now": 90000,
+        "entries": [
+          {
+            "key": "k1",
+            "value": "v1"
+          },
+          {
+            "key": "k2",
+            "value": "v2"
+          }
+        ],
+        "limit": {
+          "requests_per_unit": 10,
+          "unit": "DAY"
+        }
+      },
+      "expected_output": "key=domain_k1_v1_k2_v2_86400\nper_second=false\n"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "description": "Endpoint parsing boundary coverage: mixed-case protocols, addresses containing '://', bare ':80'/'/'/'fakehost' addresses, leading-whitespace and near-miss prefixes (udp, unixx), and missing-separator/empty-address errors.",
+  "cases": [
+    {
+      "input": {
+        "endpoint": "Unix://fake.sock"
+      },
+      "expected_output": "protocol=Unix\naddress=fake.sock\n"
+    },
+    {
+      "input": {
+        "endpoint": "uNiX://addr"
+      },
+      "expected_output": "protocol=uNiX\naddress=addr\n"
+    },
+    {
+      "input": {
+        "endpoint": "Tcp://host:1"
+      },
+      "expected_output": "protocol=Tcp\naddress=host:1\n"
+    },
+    {
+      "input": {
+        "endpoint": "tCp://1.2.3.4:9090"
+      },
+      "expected_output": "protocol=tCp\naddress=1.2.3.4:9090\n"
+    },
+    {
+      "input": {
+        "endpoint": "unix://a://b"
+      },
+      "expected_output": "protocol=unix\naddress=a://b\n"
+    },
+    {
+      "input": {
+        "endpoint": "tcp://:80"
+      },
+      "expected_output": "protocol=tcp\naddress=:80\n"
+    },
+    {
+      "input": {
+        "endpoint": "unix:///"
+      },
+      "expected_output": "protocol=unix\naddress=/\n"
+    },
+    {
+      "input": {
+        "endpoint": "unix://UPPER.SOCK"
+      },
+      "expected_output": "protocol=unix\naddress=UPPER.SOCK\n"
+    },
+    {
+      "input": {
+        "endpoint": " unix://x"
+      },
+      "expected_output": "error=invalid_endpoint\nendpoint= unix://x\n"
+    },
+    {
+      "input": {
+        "endpoint": "udp://x"
+      },
+      "expected_output": "error=invalid_endpoint\nendpoint=udp://x\n"
+    },
+    {
+      "input": {
+        "endpoint": "unixx://a"
+      },
+      "expected_output": "error=invalid_endpoint\nendpoint=unixx://a\n"
+    },
+    {
+      "input": {
+        "endpoint": "unix"
+      },
+      "expected_output": "error=invalid_endpoint\nendpoint=unix\n"
+    },
+    {
+      "input": {
+        "endpoint": "tcp:/127.0.0.1"
+      },
+      "expected_output": "error=invalid_endpoint\nendpoint=tcp:/127.0.0.1\n"
+    },
+    {
+      "input": {
+        "endpoint": "TCP://"
+      },
+      "expected_output": "error=invalid_endpoint\nendpoint=TCP://\n"
+    },
+    {
+      "input": {
+        "endpoint": "tcp://fakehost"
+      },
+      "expected_output": "protocol=tcp\naddress=fakehost\n"
+    }
+  ]
+}

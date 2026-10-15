@@ -1,0 +1,92 @@
+{
+  "description": "Enhanced boundary coverage for JSON payload marshalling: an empty JSON object and an empty JSON array, a multi-key object with nested object/array members (insertion order preserved), a heterogeneous array mixing number/string/boolean/null, domain entities with only one of the optional bean properties supplied (age-only, puppy-only), a domain entity whose name contains characters requiring JSON string escaping, and a JSON object with non-string scalar values.",
+  "cases": [
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "json_object",
+        "data": {}
+      },
+      "expected_output": "media_type=application/json\nbody={}\n"
+    },
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "json_array",
+        "data": []
+      },
+      "expected_output": "media_type=application/json\nbody=[]\n"
+    },
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "json_object",
+        "data": {
+          "a": 1,
+          "b": {
+            "c": 2
+          },
+          "d": [
+            1,
+            2
+          ]
+        }
+      },
+      "expected_output": "media_type=application/json\nbody={\"a\":1,\"b\":{\"c\":2},\"d\":[1,2]}\n"
+    },
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "json_array",
+        "data": [
+          1,
+          "two",
+          true,
+          null
+        ]
+      },
+      "expected_output": "media_type=application/json\nbody=[1,\"two\",true,null]\n"
+    },
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "domain",
+        "name": "Rex",
+        "breed": "Boxer",
+        "age": 7
+      },
+      "expected_output": "media_type=application/json\nbody={\"age\":7,\"name\":\"Rex\",\"breed\":\"Boxer\",\"puppy\":false}\n"
+    },
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "domain",
+        "name": "Milo",
+        "breed": "Pug",
+        "puppy": true
+      },
+      "expected_output": "media_type=application/json\nbody={\"age\":null,\"name\":\"Milo\",\"breed\":\"Pug\",\"puppy\":true}\n"
+    },
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "domain",
+        "name": "Re\"x",
+        "breed": "Bo\\xer"
+      },
+      "expected_output": "media_type=application/json\nbody={\"age\":null,\"name\":\"Re\\\"x\",\"breed\":\"Bo\\\\xer\",\"puppy\":false}\n"
+    },
+    {
+      "input": {
+        "op": "marshal_json",
+        "kind": "json_object",
+        "data": {
+          "flag": true,
+          "num": 5,
+          "nothing": null
+        }
+      },
+      "expected_output": "media_type=application/json\nbody={\"flag\":true,\"num\":5,\"nothing\":null}\n"
+    }
+  ]
+}

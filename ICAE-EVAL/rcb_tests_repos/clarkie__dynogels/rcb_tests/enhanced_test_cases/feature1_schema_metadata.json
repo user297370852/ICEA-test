@@ -1,0 +1,138 @@
+{
+  "description": "ENHANCED schema/metadata edge cases: suppression of only the created timestamp, suppression of both timestamps, a dynamic (function) table-name designation, an empty/absent index list, multiple global+local indexes, a uuid-typed scalar resolving to a string code, custom created name while keeping default updated, and an unrecognized report verb surfacing as a neutral error.",
+  "cases": [
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "datatypes",
+        "config": {
+          "hashKey": "id",
+          "timestamps": true,
+          "createdAt": false,
+          "schema": {
+            "id": "string"
+          }
+        }
+      },
+      "expected_output": "{\"id\":\"S\",\"updatedAt\":\"DATE\"}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "datatypes",
+        "config": {
+          "hashKey": "id",
+          "timestamps": true,
+          "createdAt": false,
+          "updatedAt": false,
+          "schema": {
+            "id": "string"
+          }
+        }
+      },
+      "expected_output": "{}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "datatypes",
+        "config": {
+          "hashKey": "id",
+          "timestamps": true,
+          "createdAt": "made",
+          "schema": {
+            "id": "string"
+          }
+        }
+      },
+      "expected_output": "{\"id\":\"S\",\"made\":\"DATE\",\"updatedAt\":\"DATE\"}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "datatypes",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "uuid",
+            "flag": "boolean",
+            "when": "date"
+          }
+        }
+      },
+      "expected_output": "{\"flag\":\"BOOL\",\"id\":\"S\",\"when\":\"DATE\"}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "indexes",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string"
+          }
+        }
+      },
+      "expected_output": "{\"globalIndexes\":[],\"secondaryIndexes\":[]}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "indexes",
+        "config": {
+          "hashKey": "foo",
+          "indexes": [
+            {
+              "hashKey": "g1",
+              "type": "global",
+              "name": "Gamma"
+            },
+            {
+              "hashKey": "g2",
+              "type": "global",
+              "name": "Alpha"
+            },
+            {
+              "hashKey": "foo",
+              "rangeKey": "l1",
+              "type": "local",
+              "name": "Zeta"
+            },
+            {
+              "hashKey": "foo",
+              "rangeKey": "l2",
+              "type": "local",
+              "name": "Beta"
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"globalIndexes\":[\"Alpha\",\"Gamma\"],\"secondaryIndexes\":[\"Beta\",\"Zeta\"]}\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "keys",
+        "config": {
+          "hashKey": "id",
+          "rangeKey": "ts",
+          "tableName": "accounts"
+        }
+      },
+      "expected_output": "hashKey=id\nrangeKey=ts\ntableName=accounts\n"
+    },
+    {
+      "input": {
+        "op": "schema_setup",
+        "report": "bogus_report",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string"
+          }
+        }
+      },
+      "expected_output": "error=unknown_report\n"
+    }
+  ]
+}

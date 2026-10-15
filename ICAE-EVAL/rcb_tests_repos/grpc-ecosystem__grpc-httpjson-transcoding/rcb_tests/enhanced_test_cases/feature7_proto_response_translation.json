@@ -1,0 +1,103 @@
+{
+  "description": "Unary proto-to-JSON edge cases: default-primitive omission vs always-print, nested messages, int64-as-string, escaped strings, and raw-frame boundary handling.",
+  "cases": [
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "messages": [
+          {
+            "proto_text": "name : \"only\""
+          }
+        ]
+      },
+      "expected_output": "json={\"name\":\"only\"}\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "always_print_primitive_fields": true,
+        "messages": [
+          {
+            "proto_text": "name : \"n\""
+          }
+        ]
+      },
+      "expected_output": "json={\"name\":\"n\",\"theme\":\"\"}\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "book",
+        "messages": [
+          {
+            "proto_text": "name : \"b\""
+          }
+        ]
+      },
+      "expected_output": "json={\"name\":\"b\"}\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "book",
+        "always_print_primitive_fields": true,
+        "messages": [
+          {
+            "proto_text": ""
+          }
+        ]
+      },
+      "expected_output": "json={\"author\":\"\",\"name\":\"\",\"title\":\"\"}\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "messages": [
+          {
+            "proto_text": "name : \"a\\\"b\" theme : \"t\""
+          }
+        ]
+      },
+      "expected_output": "json={\"name\":\"a\\\"b\",\"theme\":\"t\"}\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "book",
+        "messages": [
+          {
+            "proto_text": "author_info { bio { year_born : 1234567890123 } }"
+          }
+        ]
+      },
+      "expected_output": "json={\"authorInfo\":{\"bio\":{\"yearBorn\":\"1234567890123\"}}}\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "raw_frame": "00"
+      },
+      "expected_output": "error=incomplete_frame_header\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "raw_frame": "0000000000"
+      },
+      "expected_output": "json={}\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "raw_frame": "00000000ff"
+      },
+      "expected_output": "error=incomplete_frame\n"
+    }
+  ]
+}

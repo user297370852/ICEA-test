@@ -1,0 +1,65 @@
+{
+    "description": "Generate the docker run command when the deployment declares extra container features: a bind-mount volume, a custom HTTP healthcheck path, a custom healthcheck shell command, a role-scoped healthcheck command, or a custom logging driver with options. Each input adds one feature to the base deployment and the output is the full docker run invocation reflecting that feature in the correct argument position.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    },
+                    "volumes": [
+                        "/local/path:/container/path"
+                    ]
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "run"
+            },
+            "expected_output": "docker run --detach --restart unless-stopped --name app-web-999 -e MRSK_CONTAINER_NAME=\"app-web-999\" -e RAILS_MASTER_KEY=\"456\" --health-cmd \"curl -f http://localhost:3000/up || exit 1\" --health-interval \"1s\" --log-opt max-size=\"10m\" --volume /local/path:/container/path --label service=\"app\" --label role=\"web\" --label traefik.http.services.app-web.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.app-web.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.app-web-retry.retry.attempts=\"5\" --label traefik.http.middlewares.app-web-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.app-web.middlewares=\"app-web-retry@docker\" dhh/app:999"
+        },
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1"
+                    ],
+                    "env": {
+                        "secret": [
+                            "RAILS_MASTER_KEY"
+                        ]
+                    },
+                    "healthcheck": {
+                        "path": "/healthz"
+                    }
+                },
+                "env": {
+                    "RAILS_MASTER_KEY": "456"
+                },
+                "version": "999",
+                "role": "web",
+                "action": "run"
+            },
+            "expected_output": "docker run --detach --restart unless-stopped --name app-web-999 -e MRSK_CONTAINER_NAME=\"app-web-999\" -e RAILS_MASTER_KEY=\"456\" --health-cmd \"curl -f http://localhost:3000/healthz || exit 1\" --health-interval \"1s\" --log-opt max-size=\"10m\" --label service=\"app\" --label role=\"web\" --label traefik.http.services.app-web.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.app-web.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.app-web-retry.retry.attempts=\"5\" --label traefik.http.middlewares.app-web-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.app-web.middlewares=\"app-web-retry@docker\" dhh/app:999"
+        }
+    ]
+}

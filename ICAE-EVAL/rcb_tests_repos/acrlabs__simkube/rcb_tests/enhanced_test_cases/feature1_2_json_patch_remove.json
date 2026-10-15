@@ -1,0 +1,78 @@
+{
+  "description": "Boundary coverage for the removal wildcard JSON patch operation. Exercises the case where the target key is absent at every resolved location (document unchanged), where the key is present at every resolved location and gets deleted, where the wildcard resolves to no locations at all, and where deleting the key leaves a now-empty object. The whole mutated document is emitted as compact, key-sorted JSON.",
+  "cases": [
+    {
+      "input": {
+        "action": "patch_remove",
+        "path": "/foo/*/baz",
+        "key": "missing",
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "a": 1
+              }
+            },
+            {
+              "baz": {
+                "b": 2
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"a\":1}},{\"baz\":{\"b\":2}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_remove",
+        "path": "/foo/*/baz",
+        "key": "a",
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "a": 1,
+                "c": 3
+              }
+            },
+            {
+              "baz": {
+                "a": 2
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{\"c\":3}},{\"baz\":{}}]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_remove",
+        "path": "/foo/*/baz",
+        "key": "a",
+        "document": {
+          "foo": []
+        }
+      },
+      "expected_output": "{\"foo\":[]}\n"
+    },
+    {
+      "input": {
+        "action": "patch_remove",
+        "path": "/foo/*/baz",
+        "key": "only",
+        "document": {
+          "foo": [
+            {
+              "baz": {
+                "only": 1
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "{\"foo\":[{\"baz\":{}}]}\n"
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "description": "Feature 10 (dependency metadata) coverage: filename generation for zero, 19-digit max, multi-number batches and a negative number (signed D19 padding); equality differences in package_version/package_name/file_name; order-sensitivity of probe-path lists; native-path length mismatch; empty-vs-empty and multi-path equal records; and file round-trips for both an empty record and a fully-populated one.",
+  "cases": [
+    {
+      "input": {
+        "op": "metadata_filename",
+        "numbers": [
+          0
+        ]
+      },
+      "expected_output": "filename=dependencyProviderMetadata_0000000000000000000"
+    },
+    {
+      "input": {
+        "op": "metadata_filename",
+        "numbers": [
+          42
+        ]
+      },
+      "expected_output": "filename=dependencyProviderMetadata_0000000000000000042"
+    },
+    {
+      "input": {
+        "op": "metadata_filename",
+        "numbers": [
+          999999999999999999
+        ]
+      },
+      "expected_output": "filename=dependencyProviderMetadata_0999999999999999999"
+    },
+    {
+      "input": {
+        "op": "metadata_filename",
+        "numbers": [
+          5,
+          50,
+          500,
+          5000
+        ]
+      },
+      "expected_output": "filename=dependencyProviderMetadata_0000000000000000005\nfilename=dependencyProviderMetadata_0000000000000000050\nfilename=dependencyProviderMetadata_0000000000000000500\nfilename=dependencyProviderMetadata_0000000000000005000"
+    },
+    {
+      "input": {
+        "op": "metadata_filename",
+        "numbers": [
+          -1
+        ]
+      },
+      "expected_output": "filename=dependencyProviderMetadata_-0000000000000000001"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "p.1.0.0.nupkg",
+              "package_name": "p",
+              "package_version": "1.0.0"
+            }
+          ]
+        },
+        "right": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "p.1.0.0.nupkg",
+              "package_name": "p",
+              "package_version": "2.0.0"
+            }
+          ]
+        }
+      },
+      "expected_output": "equal=false"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "p.1.0.0.nupkg",
+              "package_name": "p",
+              "package_version": "1.0.0"
+            }
+          ]
+        },
+        "right": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "p.1.0.0.nupkg",
+              "package_name": "other",
+              "package_version": "1.0.0"
+            }
+          ]
+        }
+      },
+      "expected_output": "equal=false"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "p.1.0.0.nupkg",
+              "package_name": "p",
+              "package_version": "1.0.0"
+            }
+          ]
+        },
+        "right": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "q.1.0.0.nupkg",
+              "package_name": "p",
+              "package_version": "1.0.0"
+            }
+          ]
+        }
+      },
+      "expected_output": "equal=false"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [
+            "/a",
+            "/b"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": []
+        },
+        "right": {
+          "assembly_paths": [
+            "/b",
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": []
+        }
+      },
+      "expected_output": "equal=false"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n1",
+            "/n2"
+          ],
+          "nugets": []
+        },
+        "right": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n1"
+          ],
+          "nugets": []
+        }
+      },
+      "expected_output": "equal=false"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [],
+          "native_paths": [],
+          "nugets": []
+        },
+        "right": {
+          "assembly_paths": [],
+          "native_paths": [],
+          "nugets": []
+        }
+      },
+      "expected_output": "equal=true"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [
+            "/a",
+            "/b"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": []
+        },
+        "right": {
+          "assembly_paths": [
+            "/a",
+            "/b"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": []
+        }
+      },
+      "expected_output": "equal=true"
+    },
+    {
+      "input": {
+        "op": "metadata_equals",
+        "left": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "p.1.0.0.nupkg",
+              "package_name": "p",
+              "package_version": "1.0.0"
+            },
+            {
+              "file_name": "q.2.0.0.nupkg",
+              "package_name": "q",
+              "package_version": "2.0.0"
+            }
+          ]
+        },
+        "right": {
+          "assembly_paths": [
+            "/a"
+          ],
+          "native_paths": [
+            "/n"
+          ],
+          "nugets": [
+            {
+              "file_name": "p.1.0.0.nupkg",
+              "package_name": "p",
+              "package_version": "1.0.0"
+            },
+            {
+              "file_name": "q.2.0.0.nupkg",
+              "package_name": "q",
+              "package_version": "2.0.0"
+            }
+          ]
+        }
+      },
+      "expected_output": "equal=true"
+    },
+    {
+      "input": {
+        "op": "metadata_roundtrip",
+        "metadata": {
+          "assembly_paths": [],
+          "native_paths": [],
+          "nugets": []
+        }
+      },
+      "expected_output": "equal=true"
+    },
+    {
+      "input": {
+        "op": "metadata_roundtrip",
+        "metadata": {
+          "assembly_paths": [
+            "/x/y"
+          ],
+          "native_paths": [
+            "/z"
+          ],
+          "nugets": [
+            {
+              "file_name": "a.b.1.2.3.nupkg",
+              "package_name": "a.b",
+              "package_version": "1.2.3"
+            }
+          ]
+        }
+      },
+      "expected_output": "equal=true"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+    "description": "Attach arbitrary key/value context (a labels map) to a log record. Each label is emitted as its own JSON field after the logger field. By default every label key is namespaced with a 'labels.' prefix so that user context cannot collide with reserved top-level fields. The input provides the labels under the optional 'labels' object; insertion order of the labels is preserved in the output. The output is the full log line with one prefixed field per label.",
+    "cases": [
+        {"input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"DEBUG\",\"message\":\"test\",\"service_name\":\"test\",\"thread_name\":\"main\",\"logger_name\":\"L\",\"labels\":{\"foo\":\"bar\"}}", "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":\"DEBUG\", \"message\":\"test\", \"service.name\":\"test\",\"process.thread.name\":\"main\",\"log.logger\":\"L\",\"labels.foo\":\"bar\"}\n"},
+        {"input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"m\",\"service_name\":\"svc\",\"thread_name\":\"worker-1\",\"logger_name\":\"a.b.C\",\"labels\":{\"user\":\"alice\",\"region\":\"eu\"}}", "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"m\", \"service.name\":\"svc\",\"process.thread.name\":\"worker-1\",\"log.logger\":\"a.b.C\",\"labels.user\":\"alice\",\"labels.region\":\"eu\"}\n"}
+    ]
+}

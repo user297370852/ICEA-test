@@ -1,0 +1,21 @@
+{
+    "description": "A directory-listing HTTP server renders a page footer offering a single shell command that recursively downloads the currently-viewed folder. The input materializes a directory tree on disk and requests one folder of that tree; the output is the exact download command string the server advertises for that folder. The command always fetches the folder in the server's flat/raw form and instructs the downloader to mirror the directory recursively while skipping auto-generated index pages. The wording of the command adapts to how deep the requested folder sits below the served root: the top-level folder is captured into a destination named after the request authority, a folder one level deep needs no path adjustment, and folders two or more levels deep ask the downloader to drop the appropriate number of leading remote path segments so files are not nested under redundant directories. The absolute URL embedded in the command reflects the host the client addressed.",
+    "cases": [
+        {
+            "input": {"dirs": ["dira", "very/deeply/nested"], "files": ["test.txt", "very/deeply/nested/test.rs"], "request": "/", "raw": false},
+            "expected_output": "wget -rcnHp -R 'index.html*' -P 'localhost:8080' 'http://localhost:8080/?raw=true'\n"
+        },
+        {
+            "input": {"dirs": ["dira", "very/deeply/nested"], "files": ["test.txt", "very/deeply/nested/test.rs"], "request": "/dira/", "raw": false},
+            "expected_output": "wget -rcnHp -R 'index.html*' 'http://localhost:8080/dira/?raw=true'\n"
+        },
+        {
+            "input": {"dirs": ["dira", "very/deeply/nested"], "files": ["test.txt", "very/deeply/nested/test.rs"], "request": "/very/deeply/", "raw": false},
+            "expected_output": "wget -rcnHp -R 'index.html*' --cut-dirs=1 'http://localhost:8080/very/deeply/?raw=true'\n"
+        },
+        {
+            "input": {"dirs": ["dira", "very/deeply/nested"], "files": ["test.txt", "very/deeply/nested/test.rs"], "request": "/very/deeply/nested/", "raw": false},
+            "expected_output": "wget -rcnHp -R 'index.html*' --cut-dirs=2 'http://localhost:8080/very/deeply/nested/?raw=true'\n"
+        }
+    ]
+}

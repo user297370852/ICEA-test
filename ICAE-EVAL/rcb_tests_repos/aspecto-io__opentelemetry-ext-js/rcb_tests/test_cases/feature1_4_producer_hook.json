@@ -1,0 +1,57 @@
+{
+    "description": "An optional producer enrichment callback runs for each producer span and may copy message data onto the span as a custom attribute; if the callback throws, the span is still created and finishes with an unset (non-error) status.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "producerHook": {
+                        "action": "copy_value_to_attribute",
+                        "attribute": "attribute-from-hook"
+                    }
+                },
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "testing message content"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "success",
+                            "records": []
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=ok result_records=0\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  attribute-from-hook=testing message content\n"
+        },
+        {
+            "input": {
+                "config": {
+                    "producerHook": {
+                        "action": "throw",
+                        "message": "error thrown from producer hook"
+                    }
+                },
+                "steps": [
+                    {
+                        "action": "produce",
+                        "topic": "topic-name-1",
+                        "messages": [
+                            {
+                                "value": "testing message content"
+                            }
+                        ],
+                        "clientResponse": {
+                            "status": "success",
+                            "records": []
+                        }
+                    }
+                ]
+            },
+            "expected_output": "produce topic=topic-name-1 status=ok result_records=0\ninject msg=0 carries=span#0\nspans=1\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n"
+        }
+    ]
+}

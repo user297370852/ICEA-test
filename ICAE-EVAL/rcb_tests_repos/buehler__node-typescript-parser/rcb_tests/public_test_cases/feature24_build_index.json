@@ -1,0 +1,31 @@
+{
+    "description": "Build a reverse declaration index from a set of source files, mapping each exported declaration name to the list of origins that provide it (kind, name, and the source path it is reachable from). Re-exports are resolved: \"export * from\" moves all declarations to the re-exporting origin, \"export { } from\" moves only the named ones, and aliased re-exports rename them at the new origin.",
+    "cases": [
+        {
+            "input": {
+                "action": "buildIndex",
+                "files": {
+                    "classes.ts": "export class Class1 { }\nexport class Class2 { }\nexport class Class3 { }\n"
+                },
+                "entry": [
+                    "classes.ts"
+                ]
+            },
+            "expected_output": "{\n  \"Class1\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Class1\",\n      \"from\": \"/classes\"\n    }\n  ],\n  \"Class2\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Class2\",\n      \"from\": \"/classes\"\n    }\n  ],\n  \"Class3\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Class3\",\n      \"from\": \"/classes\"\n    }\n  ]\n}"
+        },
+        {
+            "input": {
+                "action": "buildIndex",
+                "files": {
+                    "classes.ts": "export class Class1 { }\nexport class Class2 { }\nexport class Class3 { }\n",
+                    "export-all.ts": "export * from './classes';"
+                },
+                "entry": [
+                    "export-all.ts",
+                    "classes.ts"
+                ]
+            },
+            "expected_output": "{\n  \"Class1\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Class1\",\n      \"from\": \"/export-all\"\n    }\n  ],\n  \"Class2\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Class2\",\n      \"from\": \"/export-all\"\n    }\n  ],\n  \"Class3\": [\n    {\n      \"kind\": \"class\",\n      \"name\": \"Class3\",\n      \"from\": \"/export-all\"\n    }\n  ]\n}"
+        }
+    ]
+}

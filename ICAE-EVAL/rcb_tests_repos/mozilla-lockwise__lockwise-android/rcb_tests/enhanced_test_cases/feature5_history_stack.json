@@ -1,0 +1,136 @@
+{
+  "description": "Boundary coverage for the replayable history stack: broadcasting a single push to multiple pre-existing subscribers, replaying the same top to several late subscribers, popping an empty stack as a no-op, trim that pops nothing when the top is absent, trim_tail no-op on a single-element stack, and interleaved subscribe/push/pop emission ordering.",
+  "cases": [
+    {
+      "input": {
+        "feature": "history_stack",
+        "operations": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "push",
+            "value": 5
+          }
+        ]
+      },
+      "expected_output": "size=1\ntop=5\nobserved=5,5\n"
+    },
+    {
+      "input": {
+        "feature": "history_stack",
+        "operations": [
+          {
+            "op": "push",
+            "value": 10
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "push",
+            "value": 20
+          }
+        ]
+      },
+      "expected_output": "size=2\ntop=20\nobserved=10,10,20,20\n"
+    },
+    {
+      "input": {
+        "feature": "history_stack",
+        "operations": [
+          {
+            "op": "pop"
+          },
+          {
+            "op": "push",
+            "value": 7
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "push",
+            "value": 8
+          }
+        ]
+      },
+      "expected_output": "size=2\ntop=8\nobserved=7,8\n"
+    },
+    {
+      "input": {
+        "feature": "history_stack",
+        "operations": [
+          {
+            "op": "push",
+            "value": 1
+          },
+          {
+            "op": "push",
+            "value": 2
+          },
+          {
+            "op": "trim",
+            "values": [
+              9
+            ]
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "size=2\ntop=2\nobserved=2\n"
+    },
+    {
+      "input": {
+        "feature": "history_stack",
+        "operations": [
+          {
+            "op": "push",
+            "value": 5
+          },
+          {
+            "op": "trim_tail"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "size=1\ntop=5\nobserved=5\n"
+    },
+    {
+      "input": {
+        "feature": "history_stack",
+        "operations": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "push",
+            "value": 1
+          },
+          {
+            "op": "push",
+            "value": 2
+          },
+          {
+            "op": "pop"
+          },
+          {
+            "op": "push",
+            "value": 3
+          }
+        ]
+      },
+      "expected_output": "size=2\ntop=3\nobserved=1,2,3\n"
+    }
+  ]
+}

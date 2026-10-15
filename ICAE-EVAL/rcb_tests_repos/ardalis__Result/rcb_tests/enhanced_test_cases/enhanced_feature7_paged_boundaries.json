@@ -1,0 +1,107 @@
+{
+  "description": "Additional paginated result construction/conversion cases for varied page metadata, nested values, unauthorized conversion, rich invalid payloads, and large totals.",
+  "cases": [
+    {
+      "input": {
+        "op": "paged_ctor",
+        "value": [],
+        "paged_info": {
+          "page_number": 1,
+          "page_size": 0,
+          "total_pages": 0,
+          "total_records": 0
+        }
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue=[]\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\npageNumber=1\npageSize=0\ntotalPages=0\ntotalRecords=0\n"
+    },
+    {
+      "input": {
+        "op": "paged_ctor",
+        "value": {
+          "items": [
+            {
+              "id": 1
+            },
+            {
+              "id": 2
+            }
+          ]
+        },
+        "paged_info": {
+          "page_number": 5,
+          "page_size": 25,
+          "total_pages": 10,
+          "total_records": 241
+        }
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue={\"items\":[{\"id\":1},{\"id\":2}]}\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\npageNumber=5\npageSize=25\ntotalPages=10\ntotalRecords=241\n"
+    },
+    {
+      "input": {
+        "op": "to_paged",
+        "factory": "success_message",
+        "value": true,
+        "message": "Boolean page",
+        "paged_info": {
+          "page_number": 2,
+          "page_size": 1,
+          "total_pages": 2,
+          "total_records": 2
+        }
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue=true\nsuccessMessage=Boolean page\ncorrelationId=\nerrors=\nvalidationErrors=\npageNumber=2\npageSize=1\ntotalPages=2\ntotalRecords=2\n"
+    },
+    {
+      "input": {
+        "op": "to_paged",
+        "factory": "unauthorized",
+        "paged_info": {
+          "page_number": 9,
+          "page_size": 50,
+          "total_pages": 100,
+          "total_records": 5000
+        }
+      },
+      "expected_output": "status=Unauthorized\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\npageNumber=9\npageSize=50\ntotalPages=100\ntotalRecords=5000\n"
+    },
+    {
+      "input": {
+        "op": "to_paged",
+        "factory": "invalid",
+        "validation_errors": [
+          {
+            "identifier": "page",
+            "error_message": "Page too large",
+            "error_code": "Page.Max",
+            "severity": "Warning"
+          }
+        ],
+        "paged_info": {
+          "page_number": 999,
+          "page_size": 100,
+          "total_pages": 10,
+          "total_records": 1000
+        }
+      },
+      "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=page;message=Page too large;code=Page.Max;severity=Warning\npageNumber=999\npageSize=100\ntotalPages=10\ntotalRecords=1000\n"
+    },
+    {
+      "input": {
+        "op": "to_paged",
+        "factory": "error",
+        "errors": [
+          "E1",
+          "E2",
+          "E3"
+        ],
+        "paged_info": {
+          "page_number": 2147483647,
+          "page_size": 2147483647,
+          "total_pages": 2147483647,
+          "total_records": 9223372036854775807
+        }
+      },
+      "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=E1|E2|E3\nvalidationErrors=\npageNumber=2147483647\npageSize=2147483647\ntotalPages=2147483647\ntotalRecords=9223372036854775807\n"
+    }
+  ]
+}

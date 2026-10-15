@@ -1,0 +1,21 @@
+{
+    "description": "Partially redact a named field by masking the leading portion of its value while preserving the last four characters. A masking rule is configured for a field name; when that field is found in a message, the converter keeps the field name and separator (optionally quoted), replaces the leading run of value characters with a single mask token, and leaves the final four characters visible. Other matching fields configured for full redaction are still fully masked in the same message.",
+    "cases": [
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "orderNumber=77887765567abc123"},
+            "expected_output": "masked=orderNumber=*****c123\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "orderNumber:abc123"},
+            "expected_output": "masked=orderNumber:*****c123\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "\"orderNumber\":\"abc123\""},
+            "expected_output": "masked=\"orderNumber\":\"*****c123\"\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "\"orderNumber\":\"abc123\",signature=foo"},
+            "expected_output": "masked=\"orderNumber\":\"*****c123\",signature=*****\n"
+        }
+    ]
+}

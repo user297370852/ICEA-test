@@ -1,0 +1,39 @@
+{
+    "description": "Inject sidecar opt-in annotations into a single targeted workload document (a pod). The annotator locates the resource by name and adds an 'enabled=true' annotation plus any annotations derived from the supplied option set (for example an application id, a custom sidecar image, a log level, or a profiling flag), while preserving the rest of the document. When no application id is supplied, only the enabled marker is added.",
+    "cases": [
+        {
+            "input": {
+                "action": "annotate",
+                "yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: mypod\n  labels:\n    name: nginx\nspec:\n  containers:\n  - name: nginx\n  image: nginx\n  ports:\n  - containerPort: 80",
+                "target_resource": "mypod",
+                "options": {
+                    "app_id": "test-app"
+                }
+            },
+            "expected_output": "apiVersion: v1\nkind: Pod\nmetadata:\n  annotations:\n    dapr.io/app-id: test-app\n    dapr.io/enabled: \"true\"\n  labels:\n    name: nginx\n  name: mypod\nspec:\n  containers:\n  - name: nginx\n  image: nginx\n  ports:\n  - containerPort: 80\n"
+        },
+        {
+            "input": {
+                "action": "annotate",
+                "yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: mypod\n  labels:\n    name: nginx\nspec:\n  containers:\n  - name: nginx\n  image: nginx\n  ports:\n  - containerPort: 80",
+                "target_resource": "mypod",
+                "options": {
+                    "app_id": "test-app",
+                    "profile_enabled": true,
+                    "log_level": "info",
+                    "dapr_image": "custom-image"
+                }
+            },
+            "expected_output": "apiVersion: v1\nkind: Pod\nmetadata:\n  annotations:\n    dapr.io/app-id: test-app\n    dapr.io/enable-profiling: \"true\"\n    dapr.io/enabled: \"true\"\n    dapr.io/log-level: info\n    dapr.io/sidecar-image: custom-image\n  labels:\n    name: nginx\n  name: mypod\nspec:\n  containers:\n  - name: nginx\n  image: nginx\n  ports:\n  - containerPort: 80\n"
+        },
+        {
+            "input": {
+                "action": "annotate",
+                "yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: mypod\n  labels:\n    name: nginx\nspec:\n  containers:\n  - name: nginx\n  image: nginx\n  ports:\n  - containerPort: 80",
+                "target_resource": "mypod",
+                "options": {}
+            },
+            "expected_output": "apiVersion: v1\nkind: Pod\nmetadata:\n  annotations:\n    dapr.io/app-id: default-pod-mypod\n    dapr.io/enabled: \"true\"\n  labels:\n    name: nginx\n  name: mypod\nspec:\n  containers:\n  - name: nginx\n  image: nginx\n  ports:\n  - containerPort: 80\n"
+        }
+    ]
+}

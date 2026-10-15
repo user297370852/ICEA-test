@@ -1,0 +1,70 @@
+{
+  "description": "Directory deletion coverage: recursive delete of a deep multi-level subtree, recursive delete of an already-empty directory, and deleting a directory that does not exist surfaces a not-found category.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/a/b/c",
+            "recursive": true
+          },
+          {
+            "op": "create_file",
+            "path": "/a/b/c/f"
+          },
+          {
+            "op": "create_file",
+            "path": "/a/b/g"
+          },
+          {
+            "op": "delete",
+            "path": "/a",
+            "as": "directory",
+            "recursive": true
+          },
+          {
+            "op": "exists",
+            "path": "/a",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/a/b/c\ncreated_file=/a/b/c/f\ncreated_file=/a/b/g\ndeleted=/a\nexists=false\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/empty"
+          },
+          {
+            "op": "delete",
+            "path": "/empty",
+            "as": "directory",
+            "recursive": true
+          },
+          {
+            "op": "exists",
+            "path": "/empty",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/empty\ndeleted=/empty\nexists=false\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "delete",
+            "path": "/ghost",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "error=no_such_file_or_directory\n"
+    }
+  ]
+}

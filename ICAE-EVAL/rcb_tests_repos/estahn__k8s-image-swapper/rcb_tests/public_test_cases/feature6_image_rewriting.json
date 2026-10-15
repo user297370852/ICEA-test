@@ -1,0 +1,65 @@
+{
+    "description": "Process a pod admission request and emit the ordered set of image-reference rewrite operations needed to point every container and init-container at the target registry. Each rewrite preserves the original image coordinates (including digest pinning) under a registry-prefixed path. The output reports the target registry, the rewrite operations, and whether any warnings were produced.",
+    "cases": [
+        {
+            "input": {
+                "op": "swap_images",
+                "admission_review": {
+                    "apiVersion": "admission.k8s.io/v1",
+                    "kind": "AdmissionReview",
+                    "request": {
+                        "uid": "c78e0c58-7389-4838-b4f5-28d6005c1cc3",
+                        "name": "nginx28",
+                        "namespace": "default",
+                        "operation": "CREATE",
+                        "kind": {
+                            "group": "",
+                            "kind": "Pod",
+                            "version": "v1"
+                        },
+                        "resource": {
+                            "group": "",
+                            "resource": "pods",
+                            "version": "v1"
+                        },
+                        "object": {
+                            "apiVersion": "v1",
+                            "kind": "Pod",
+                            "metadata": {
+                                "creationTimestamp": null,
+                                "name": "nginx28",
+                                "namespace": "default"
+                            },
+                            "spec": {
+                                "containers": [
+                                    {
+                                        "name": "nginx28",
+                                        "image": "nginx",
+                                        "imagePullPolicy": "Always",
+                                        "resources": {}
+                                    },
+                                    {
+                                        "name": "ingress-nginx28",
+                                        "image": "k8s.gcr.io/ingress-nginx/controller:v0.43.0@sha256:9bba603b99bf25f6d117cf1235b6598c16033ad027b143c90fa5b3cc583c5713",
+                                        "imagePullPolicy": "Always",
+                                        "resources": {}
+                                    }
+                                ],
+                                "initContainers": [
+                                    {
+                                        "name": "init-container28",
+                                        "image": "init-container",
+                                        "imagePullPolicy": "Always",
+                                        "resources": {}
+                                    }
+                                ]
+                            },
+                            "status": {}
+                        }
+                    }
+                }
+            },
+            "expected_output": "target_registry=123456789.dkr.ecr.ap-southeast-2.amazonaws.com\npatch_ops=3\nreplace /spec/containers/0/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/docker.io/library/nginx:latest\nreplace /spec/containers/1/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/k8s.gcr.io/ingress-nginx/controller@sha256:9bba603b99bf25f6d117cf1235b6598c16033ad027b143c90fa5b3cc583c5713\nreplace /spec/initContainers/0/image 123456789.dkr.ecr.ap-southeast-2.amazonaws.com/docker.io/library/init-container:latest\nwarnings=none\n"
+        }
+    ]
+}

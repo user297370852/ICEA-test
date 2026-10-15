@@ -1,0 +1,137 @@
+{
+    "description": "Independent namespaces can use the same logical keys without collisions; removal or clearing in one namespace does not remove values in another namespace.",
+    "cases": [
+        {
+            "input": {
+                "shared_store": true,
+                "steps": [
+                    {
+                        "action": "save",
+                        "namespace": "alpha",
+                        "key": "foo",
+                        "value": "value-alpha"
+                    },
+                    {
+                        "action": "save",
+                        "namespace": "beta",
+                        "key": "foo",
+                        "value": "value-beta"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "alpha",
+                        "key": "foo",
+                        "label": "alpha_foo"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "beta",
+                        "key": "foo",
+                        "label": "beta_foo"
+                    }
+                ]
+            },
+            "expected_output": "saved=true\nsaved=true\nalpha_foo=value-alpha\nbeta_foo=value-beta\n"
+        },
+        {
+            "input": {
+                "shared_store": true,
+                "steps": [
+                    {
+                        "action": "save",
+                        "namespace": "alpha",
+                        "key": "foo",
+                        "value": "value-alpha"
+                    },
+                    {
+                        "action": "save",
+                        "namespace": "beta",
+                        "key": "foo",
+                        "value": "value-beta"
+                    },
+                    {
+                        "action": "remove",
+                        "namespace": "alpha",
+                        "key": "foo",
+                        "label": "removed_alpha"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "alpha",
+                        "key": "foo",
+                        "label": "alpha_after"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "beta",
+                        "key": "foo",
+                        "label": "beta_after"
+                    }
+                ]
+            },
+            "expected_output": "saved=true\nsaved=true\nremoved_alpha=true\nalpha_after=undefined\nbeta_after=value-beta\n"
+        },
+        {
+            "input": {
+                "shared_store": true,
+                "steps": [
+                    {
+                        "action": "save",
+                        "namespace": "alpha",
+                        "key": "foo",
+                        "value": "value-alpha"
+                    },
+                    {
+                        "action": "save",
+                        "namespace": "alpha",
+                        "key": "bar",
+                        "value": "value-alpha"
+                    },
+                    {
+                        "action": "save",
+                        "namespace": "beta",
+                        "key": "foo",
+                        "value": "value-beta"
+                    },
+                    {
+                        "action": "save",
+                        "namespace": "beta",
+                        "key": "bar",
+                        "value": "value-beta"
+                    },
+                    {
+                        "action": "clear",
+                        "namespace": "alpha",
+                        "label": "clear_alpha"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "alpha",
+                        "key": "foo",
+                        "label": "alpha_foo"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "alpha",
+                        "key": "bar",
+                        "label": "alpha_bar"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "beta",
+                        "key": "foo",
+                        "label": "beta_foo"
+                    },
+                    {
+                        "action": "read",
+                        "namespace": "beta",
+                        "key": "bar",
+                        "label": "beta_bar"
+                    }
+                ],
+                "backend": "temporary_file"
+            },
+            "expected_output": "saved=true\nsaved=true\nsaved=true\nsaved=true\nclear_alpha=undefined\nalpha_foo=undefined\nalpha_bar=undefined\nbeta_foo=value-beta\nbeta_bar=value-beta\n"
+        }
+    ]
+}

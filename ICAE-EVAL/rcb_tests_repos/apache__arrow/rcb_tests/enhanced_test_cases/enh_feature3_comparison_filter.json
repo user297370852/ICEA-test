@@ -1,0 +1,147 @@
+{
+  "description": "Enhanced column-vs-constant less-than filters: exercises the empty selection vector (no survivors), the full selection vector (all survive), strict-inequality boundary (value equal to the constant is excluded), and a negative threshold.",
+  "cases": [
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          }
+        ],
+        "columns": {
+          "a": [
+            5.0,
+            6.0,
+            7.0
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "less_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "float64",
+              "value": 5.0
+            }
+          ],
+          "return": "bool"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=0\nindices=[]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          }
+        ],
+        "columns": {
+          "a": [
+            1.0,
+            2.0,
+            3.0
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "less_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "float64",
+              "value": 10.0
+            }
+          ],
+          "return": "bool"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=3\nindices=[0, 1, 2]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          }
+        ],
+        "columns": {
+          "a": [
+            2.999,
+            3.0,
+            3.001,
+            2.5
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "less_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "float64",
+              "value": 3.0
+            }
+          ],
+          "return": "bool"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=2\nindices=[0, 3]\n"
+    },
+    {
+      "input": {
+        "operation": "filter",
+        "schema": [
+          {
+            "name": "a",
+            "type": "float64"
+          }
+        ],
+        "columns": {
+          "a": [
+            -5.0,
+            -1.0,
+            0.0,
+            1.0
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "less_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "literal",
+              "type": "float64",
+              "value": -1.0
+            }
+          ],
+          "return": "bool"
+        }
+      },
+      "expected_output": "op=filter\nselection_type=uint32\nlength=1\nindices=[0]\n"
+    }
+  ]
+}

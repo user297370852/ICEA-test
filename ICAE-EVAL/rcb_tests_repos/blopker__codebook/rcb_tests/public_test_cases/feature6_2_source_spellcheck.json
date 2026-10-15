@@ -1,0 +1,29 @@
+{
+  "description": "Source code is checked end to end: the spell-checkable regions (declared names, comments, string literals) are extracted with a syntax-aware parse, split into words, and each word not found in the active dictionaries is reported as a misspelling. Keywords, syntax, numbers, and dictionary-known words produce no output, so dotted call targets and standard identifiers are not flagged. The supplied language id selects the parser. Each misspelling is reported as its UTF-8 start byte offset within the whole input, end byte offset, and text, one per line, ordered by position. The request is {\"op\":\"spellcheck\",\"text\":<source>,\"lang\":<id>}.",
+  "cases": [
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "rust",
+        "text": "\n        // Comment with a typo: mment\n        "
+      },
+      "expected_output": "33 38 mment\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "rust",
+        "text": "\n        pub struct BadSpeler {\n            /// Terrible spelling: dwnloader\n            pub dataz: String,\n        }\n        "
+      },
+      "expected_output": "23 29 Speler\n67 76 dwnloader\n93 98 dataz\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "python",
+        "text": "\n        def calculat_user_age(bithDate) -> int:\n            # This is an examle_function that calculates age\n            usrAge = get_curent_date() - bithDate\n            userAge\n    "
+      },
+      "expected_output": "13 21 calculat\n31 35 bith\n74 80 examle\n"
+    }
+  ]
+}

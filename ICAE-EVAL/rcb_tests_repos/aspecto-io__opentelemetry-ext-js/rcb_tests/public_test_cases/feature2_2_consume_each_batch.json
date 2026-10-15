@@ -1,0 +1,31 @@
+{
+    "description": "Delivering a batch to a per-batch consumer handler creates one receiving CONSUMER span for the batch (operation receive, root of a new trace) plus one processing CONSUMER span per message (operation process) that is a child of the receiving span; the spans are created whether or not the handler returns a promise.",
+    "cases": [
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "consume_batch",
+                        "topic": "topic-name-1",
+                        "partition": 1234,
+                        "messages": [
+                            {
+                                "value": "message content",
+                                "offset": "124"
+                            },
+                            {
+                                "value": "message content",
+                                "offset": "125"
+                            }
+                        ],
+                        "handler": {
+                            "behavior": "resolve"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_batch topic=topic-name-1 delivered=ok error=none\nspans=3\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\nspan 2 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        }
+    ]
+}

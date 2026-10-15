@@ -1,0 +1,71 @@
+{
+  "description": "Import-validation boundaries: a successful build/instantiate with a different import return value, an import named under a wrong namespace, an import named under a wrong name, and a memory supplied where a function is expected.",
+  "cases": [
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "someFn",
+            "behavior": "return",
+            "arity": 4,
+            "value": 999
+          }
+        ],
+        "build": true,
+        "report_build": true
+      },
+      "expected_output": "instantiated=true\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "other",
+            "name": "someFn",
+            "behavior": "return",
+            "arity": 4,
+            "value": 1
+          }
+        ],
+        "build": true
+      },
+      "expected_output": "error=import_not_found\nimport=other::someFn\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "function",
+            "module": "env",
+            "name": "nope",
+            "behavior": "return",
+            "arity": 4,
+            "value": 1
+          }
+        ],
+        "build": true
+      },
+      "expected_output": "error=import_not_found\nimport=env::nope\n"
+    },
+    {
+      "input": {
+        "module": "0061736d01000000010c0260047f7e7d7c017e600000020e0103656e7606736f6d65466e0000030201010405017001010105030100020608017f01418088040b071102066d656d6f7279020004626c616800010a1d011b004101420243000040404400000000000010401080808080001a0b",
+        "imports": [
+          {
+            "kind": "memory",
+            "module": "env",
+            "name": "someFn",
+            "pages": 1
+          }
+        ]
+      },
+      "expected_output": "error=import_kind_mismatch\nexpected=memory\n"
+    }
+  ]
+}

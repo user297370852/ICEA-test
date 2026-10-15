@@ -1,0 +1,65 @@
+{
+    "description": "Translates high-level rollout rules into route rules with route tags, weights, precedence, and optional header match operators.",
+    "cases": [
+        {
+            "input": {
+                "rule": {
+                    "policyType": "RULE",
+                    "ruleItems": [
+                        {
+                            "groupName": "test",
+                            "groupCondition": "version=1.0",
+                            "policyCondition": "foo=bar",
+                            "versions": [
+                                "1.0"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "expected_output": "rules=1\nrule_index=0 precedence=1 routes=1\nroute_index=0 weight=100 version=1.0\nheader=Foo caseInsensitive=false\nheader=Foo exact=bar\n"
+        },
+        {
+            "input": {
+                "rule": {
+                    "policyType": "RULE",
+                    "ruleItems": [
+                        {
+                            "groupName": "test",
+                            "groupCondition": "version=",
+                            "policyCondition": "Foo",
+                            "versions": [
+                                "1.0"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "expected_output": "rules=1\nrule_index=0 precedence=1 routes=1\nroute_index=0 weight=100 version=\n"
+        },
+        {
+            "input": {
+                "rule": {
+                    "policyType": "RATE",
+                    "ruleItems": [
+                        {
+                            "groupName": "test",
+                            "groupCondition": "version=1.0",
+                            "policyCondition": "50",
+                            "versions": [
+                                "1.0"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "expected_output": "rules=1\nrule_index=0 precedence=1 routes=1\nroute_index=0 weight=50 version=1.0\n"
+        },
+        {
+            "input": {
+                "raw_json": "{\"policyType\":\"RATE\",\"ruleItems\":[{\"groupName\":\"s0\"},{\"groupName\":\"s1\"}]}"
+            },
+            "expected_output": "rules=1\nrule_index=0 precedence=1 routes=2\nroute_index=0 weight=0 version=\nroute_index=1 weight=0 version=\n"
+        }
+    ]
+}

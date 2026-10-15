@@ -1,0 +1,95 @@
+{
+  "description": "Enhanced HTTP dispatch and decoding cases covering HEAD, OPTIONS, 201/204 success boundaries, structured error payloads, form encoding of reserved characters, empty list decode, and multi-entry map decode.",
+  "cases": [
+    {
+      "input": {
+        "op": "http_request",
+        "baseUrl": "http://localhost:8000/api/",
+        "method": "HEAD",
+        "path": "/status",
+        "query": {
+          "check": "true"
+        },
+        "headers": {
+          "x-head": "1"
+        },
+        "response": {
+          "body": "",
+          "status": 204
+        }
+      },
+      "expected_output": "request_method=HEAD\nrequest_url=http://localhost:8000/api/status?check=true\nrequest_header.x-head=1\nresponse_status=204\nresponse_successful=true\nresponse_body=\n"
+    },
+    {
+      "input": {
+        "op": "http_request",
+        "baseUrl": "http://localhost:8000",
+        "method": "OPTIONS",
+        "path": "/options",
+        "headers": {
+          "z": "last",
+          "a": "first"
+        },
+        "response": {
+          "body": {
+            "allowed": [
+              "GET",
+              "POST"
+            ]
+          },
+          "status": 200
+        }
+      },
+      "expected_output": "request_method=OPTIONS\nrequest_url=http://localhost:8000/options\nrequest_header.a=first\nrequest_header.z=last\nresponse_status=200\nresponse_successful=true\nresponse_body={\"allowed\":[\"GET\",\"POST\"]}\n"
+    },
+    {
+      "input": {
+        "op": "http_request",
+        "baseUrl": "http://localhost:8000",
+        "method": "POST",
+        "path": "/encoded",
+        "converter": "form",
+        "body": {
+          "space": "a b",
+          "sym": "x&y"
+        },
+        "response": {
+          "body": "created",
+          "status": 201
+        }
+      },
+      "expected_output": "request_method=POST\nrequest_url=http://localhost:8000/encoded\nrequest_header.content-type=application/x-www-form-urlencoded; charset=utf-8\nrequest_body=space=a+b&sym=x%26y\nresponse_status=201\nresponse_successful=true\nresponse_body=created\n"
+    },
+    {
+      "input": {
+        "op": "http_request",
+        "baseUrl": "http://localhost:8000",
+        "method": "GET",
+        "path": "/missing",
+        "response": {
+          "body": {
+            "message": "not found"
+          },
+          "status": 404
+        }
+      },
+      "expected_output": "request_method=GET\nrequest_url=http://localhost:8000/missing\nresponse_status=404\nresponse_successful=false\nresponse_error={\"message\":\"not found\"}\n"
+    },
+    {
+      "input": {
+        "op": "decode_body",
+        "payload": "[]",
+        "bodyType": "ListString"
+      },
+      "expected_output": "body=[]\n"
+    },
+    {
+      "input": {
+        "op": "decode_body",
+        "payload": "{\"alpha\":\"1\",\"beta\":\"two\"}",
+        "bodyType": "Map"
+      },
+      "expected_output": "body={\"alpha\":\"1\",\"beta\":\"two\"}\n"
+    }
+  ]
+}

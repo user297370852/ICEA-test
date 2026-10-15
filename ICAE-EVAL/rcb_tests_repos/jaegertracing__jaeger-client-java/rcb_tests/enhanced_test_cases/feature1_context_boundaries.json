@@ -1,0 +1,29 @@
+{
+  "description": "Additional boundary coverage for trace-context encoding and decoding, including signed 64-bit extrema, zero values, full-byte flags, and malformed field counts not present in native cases.",
+  "cases": [
+    {
+      "input": {
+        "op": "context_encode",
+        "trace_id": 0,
+        "span_id": 9223372036854775807,
+        "parent_id": -9223372036854775808,
+        "flags": 255
+      },
+      "expected_output": "context=0:7fffffffffffffff:8000000000000000:ff\n"
+    },
+    {
+      "input": {
+        "op": "context_decode",
+        "value": "0:7fffffffffffffff:8000000000000000:ff"
+      },
+      "expected_output": "trace_id=0\nspan_id=9223372036854775807\nparent_id=-9223372036854775808\nflags=-1\n"
+    },
+    {
+      "input": {
+        "op": "context_decode",
+        "value": "1:2:3:4:5"
+      },
+      "expected_output": "error=malformed_tracer_state_string\nvalue=1:2:3:4:5\n"
+    }
+  ]
+}

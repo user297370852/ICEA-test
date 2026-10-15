@@ -1,0 +1,66 @@
+{
+  "description": "Boundary coverage for foreground-auth gating: repeated locks each re-emit false, background clearing force-lock re-enables auth, toggling the unlocking flag on and off, lock/background/lock alternation, multiple auth events passing through without changing the gate, and unlocking combined with lock keeping the gate closed.",
+  "cases": [
+    {
+      "input": {
+        "feature": "lock_foreground_auth",
+        "events": [
+          "lock",
+          "lock"
+        ]
+      },
+      "expected_output": "foreground_auth_values=true,false,false\nauthentication_events=\n"
+    },
+    {
+      "input": {
+        "feature": "lock_foreground_auth",
+        "events": [
+          "background"
+        ]
+      },
+      "expected_output": "foreground_auth_values=true,true\nauthentication_events=\n"
+    },
+    {
+      "input": {
+        "feature": "lock_foreground_auth",
+        "events": [
+          "unlocking_true",
+          "unlocking_false"
+        ]
+      },
+      "expected_output": "foreground_auth_values=true,false,true\nauthentication_events=\n"
+    },
+    {
+      "input": {
+        "feature": "lock_foreground_auth",
+        "events": [
+          "lock",
+          "background",
+          "lock"
+        ]
+      },
+      "expected_output": "foreground_auth_values=true,false,true,false\nauthentication_events=\n"
+    },
+    {
+      "input": {
+        "feature": "lock_foreground_auth",
+        "events": [
+          "auth_success",
+          "auth_success"
+        ]
+      },
+      "expected_output": "foreground_auth_values=true\nauthentication_events=success,success\n"
+    },
+    {
+      "input": {
+        "feature": "lock_foreground_auth",
+        "events": [
+          "unlocking_true",
+          "lock",
+          "background"
+        ]
+      },
+      "expected_output": "foreground_auth_values=true,false,false,false\nauthentication_events=\n"
+    }
+  ]
+}

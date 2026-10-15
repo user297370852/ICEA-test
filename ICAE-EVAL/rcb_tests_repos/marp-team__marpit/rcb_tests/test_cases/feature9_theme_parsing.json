@@ -1,0 +1,45 @@
+{
+    "description": "Parse theme stylesheets into named themes with metadata, imports, slide size properties, pixel conversions for absolute units, and normalized failures for missing required metadata.",
+    "cases": [
+        {
+            "input": {
+                "stylesheet": "/* @theme test-theme */"
+            },
+            "expected_output": "name=test-theme\ncss=/* @theme test-theme */\nmetadata={\"theme\":\"test-theme\"}\nimports=[]\nwidth=undefined\nheight=undefined\nwidth_px=undefined\nheight_px=undefined\n"
+        },
+        {
+            "input": {
+                "stylesheet": "/* @theme test-theme */\nsection {\n  width: 960px;\n  height: 720px;\n}"
+            },
+            "expected_output": "name=test-theme\ncss=/* @theme test-theme */\nsection {\n  width: 960px;\n  height: 720px;\n}\nmetadata={\"theme\":\"test-theme\"}\nimports=[]\nwidth=960px\nheight=720px\nwidth_px=960\nheight_px=720\n"
+        },
+        {
+            "input": {
+                "stylesheet": "/* @theme test-theme */\n@import \"another-theme\";\n@import-theme \"yet-another\""
+            },
+            "expected_output": "name=test-theme\ncss=/* @theme test-theme */\n@import \"another-theme\";\n@import-theme \"yet-another\"\nmetadata={\"theme\":\"test-theme\"}\nimports=[\"yet-another\",\"another-theme\"]\nwidth=undefined\nheight=undefined\nwidth_px=undefined\nheight_px=undefined\n"
+        },
+        {
+            "input": {
+                "stylesheet": "/**\n * @theme test\n * @string A\n * @string B\n * @array A\n * @array B\n * @unknown A\n * @unknown B\n */",
+                "metadata_types": {
+                    "string": "string",
+                    "array": "array"
+                }
+            },
+            "expected_output": "name=test\ncss=/**\n * @theme test\n * @string A\n * @string B\n * @array A\n * @array B\n * @unknown A\n * @unknown B\n */\nmetadata={\"theme\":\"test\",\"string\":\"B\",\"array\":[\"A\",\"B\"],\"unknown\":\"B\"}\nimports=[]\nwidth=undefined\nheight=undefined\nwidth_px=undefined\nheight_px=undefined\n"
+        },
+        {
+            "input": {
+                "stylesheet": "/* @theme absolute */\nsection { width: 127cm; height: 5.625pt; }"
+            },
+            "expected_output": "name=absolute\ncss=/* @theme absolute */\nsection { width: 127cm; height: 5.625pt; }\nmetadata={\"theme\":\"absolute\"}\nimports=[]\nwidth=127cm\nheight=5.625pt\nwidth_px=4800\nheight_px=7.5\n"
+        },
+        {
+            "input": {
+                "stylesheet": "section { background: #fff; }"
+            },
+            "expected_output": "error=missing_theme_metadata\n"
+        }
+    ]
+}

@@ -1,0 +1,314 @@
+{
+  "description": "Every encryption uses a freshly generated initialization vector, and in the salt-bearing mode a freshly generated salt as well, so these values vary across attributes, across instances, and across successive encryptions of the same attribute. Under the default mode an initialization vector is generated but no salt; the salt-bearing mode adds a salt. The default symmetric algorithm is a fixed authenticated AES variant, the initialization vector is base64-encoded for storage unless that encoding is disabled. Each transcript line reports a uniqueness or presence flag, a base64-encoding flag, or the algorithm name.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "differs_per_attribute",
+            "attrs": [
+              "email",
+              "password"
+            ],
+            "value": "x@y.com",
+            "facet": "iv"
+          }
+        ]
+      },
+      "expected_output": "iv_differs_per_attribute=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            }
+          }
+        },
+        "ops": [
+          {
+            "kind": "algorithm",
+            "attr": "email"
+          }
+        ]
+      },
+      "expected_output": "algorithm[email]=aes-256-gcm\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "differs_per_attribute",
+            "attrs": [
+              "email",
+              "password"
+            ],
+            "value": "x@y.com",
+            "facet": "salt"
+          }
+        ]
+      },
+      "expected_output": "salt_differs_per_attribute=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "differs_per_instance",
+            "attr": "email",
+            "value": "email@example.com",
+            "facet": "salt"
+          }
+        ]
+      },
+      "expected_output": "salt_differs_per_instance[email]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            },
+            {
+              "names": [
+                "password"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "prefix": "crypted_",
+                "suffix": "_test"
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "iv_changes_on_reassign",
+            "attr": "email",
+            "value_a": "initial@test.com",
+            "value_b": "revised@test.com"
+          }
+        ]
+      },
+      "expected_output": "iv_changes_on_reassign[email]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            }
+          }
+        },
+        "ops": [
+          {
+            "kind": "iv_present",
+            "attr": "email",
+            "value": "thing@thing.com"
+          }
+        ]
+      },
+      "expected_output": "iv_present[email]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            }
+          }
+        },
+        "ops": [
+          {
+            "kind": "salt_present",
+            "attr": "email",
+            "value": "thing@thing.com"
+          }
+        ]
+      },
+      "expected_output": "salt_present[email]=false\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            }
+          }
+        },
+        "ops": [
+          {
+            "kind": "iv_base64",
+            "attr": "email",
+            "value": "thing@thing.com"
+          }
+        ]
+      },
+      "expected_output": "iv_base64[email]=true\n"
+    }
+  ]
+}

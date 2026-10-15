@@ -1,0 +1,117 @@
+{
+    "description": "Match a URL path against a route pattern. Output reports whether the pattern matches and, when it does, the captured named parameters. Covers static segments, single and multiple named parameters, leading parameters, trailing literal segments, optional parameters with and without values, query/hash stripping, and that values are not URL-decoded.",
+    "cases": [
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/contact",
+                "active_route": "/contact"
+            },
+            "expected_output": "active=true"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id",
+                "active_route": "/product/1"
+            },
+            "expected_output": "active=true\nparam.id=1"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id",
+                "active_route": "/other/1"
+            },
+            "expected_output": "active=false"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id",
+                "active_route": "/product/1/edit"
+            },
+            "expected_output": "active=false"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id/edit",
+                "active_route": "/product/1/edit"
+            },
+            "expected_output": "active=true\nparam.id=1"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id/:time",
+                "active_route": "/product/1/nov2017"
+            },
+            "expected_output": "active=true\nparam.id=1\nparam.time=nov2017"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/:id/product",
+                "active_route": "/1/product"
+            },
+            "expected_output": "active=true\nparam.id=1"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id?",
+                "active_route": "/product"
+            },
+            "expected_output": "active=true\nparam.id="
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id?",
+                "active_route": "/product/1"
+            },
+            "expected_output": "active=true\nparam.id=1"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id?/:time?",
+                "active_route": "/product"
+            },
+            "expected_output": "active=true\nparam.id=\nparam.time="
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id?/:time?",
+                "active_route": "/product/1"
+            },
+            "expected_output": "active=true\nparam.id=1\nparam.time="
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id?/:time?",
+                "active_route": "/product/1/nov2017"
+            },
+            "expected_output": "active=true\nparam.id=1\nparam.time=nov2017"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id",
+                "active_route": "/product/1?asdf=123"
+            },
+            "expected_output": "active=true\nparam.id=1"
+        },
+        {
+            "input": {
+                "op": "match_route",
+                "route": "/product/:id",
+                "active_route": "/product/before%2Fafter"
+            },
+            "expected_output": "active=true\nparam.id=before%2Fafter"
+        }
+    ]
+}

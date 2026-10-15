@@ -1,0 +1,75 @@
+{
+  "description": "Enhanced boundary and logical-path coverage for the email value object: an explicitly empty primary-recipient list is still a valid construction (renders an empty 'to'); multi-element cc/bcc lists are semicolon-joined; a single custom header and a three-header set exercise the header-count and key-sort logic with more than the two headers the native suite covers; and the missing-required-field precedence is probed by supplying only a strict prefix of the mandatory fields so the FIRST absent field in validation order is the one reported.",
+  "cases": [
+    {
+      "input": {
+        "op": "email.build",
+        "from": "a@b.c",
+        "to": [],
+        "subject": "S",
+        "body": "B"
+      },
+      "expected_output": "from=a@b.c\nto=\ncc=\nbcc=\nsubject=S\nbody=B\ncustom_header_count=0\n"
+    },
+    {
+      "input": {
+        "op": "email.build",
+        "from": "a@b.c",
+        "to": [
+          "x@y.z",
+          "p@q.r"
+        ],
+        "cc": [
+          "c1@x.y",
+          "c2@x.y"
+        ],
+        "bcc": [
+          "b1@x.y",
+          "b2@x.y"
+        ],
+        "subject": "S",
+        "body": "B"
+      },
+      "expected_output": "from=a@b.c\nto=x@y.z;p@q.r\ncc=c1@x.y;c2@x.y\nbcc=b1@x.y;b2@x.y\nsubject=S\nbody=B\ncustom_header_count=0\n"
+    },
+    {
+      "input": {
+        "op": "email.build",
+        "from": "a@b.c",
+        "to": [
+          "x@y.z"
+        ],
+        "subject": "S",
+        "body": "B",
+        "customHeaders": {
+          "X-Only": "1"
+        }
+      },
+      "expected_output": "from=a@b.c\nto=x@y.z\ncc=\nbcc=\nsubject=S\nbody=B\ncustom_header_count=1\ncustom_header.X-Only=1\n"
+    },
+    {
+      "input": {
+        "op": "email.build",
+        "from": "a@b.c",
+        "to": [
+          "x@y.z"
+        ],
+        "subject": "S",
+        "body": "B",
+        "customHeaders": {
+          "Zeta": "z",
+          "Alpha": "a",
+          "Mike": "m"
+        }
+      },
+      "expected_output": "from=a@b.c\nto=x@y.z\ncc=\nbcc=\nsubject=S\nbody=B\ncustom_header_count=3\ncustom_header.Alpha=a\ncustom_header.Mike=m\ncustom_header.Zeta=z\n"
+    },
+    {
+      "input": {
+        "op": "email.build",
+        "from": "a@b.c"
+      },
+      "expected_output": "error=missing_required_field\nfield=to\n"
+    }
+  ]
+}

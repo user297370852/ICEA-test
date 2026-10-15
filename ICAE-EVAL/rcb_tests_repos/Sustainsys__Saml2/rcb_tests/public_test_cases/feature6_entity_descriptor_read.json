@@ -1,0 +1,33 @@
+{
+    "description": "Parse a SAML2 metadata entity-descriptor XML element. The mandatory shape requires an entityID attribute and at least one role-descriptor child; these are surfaced as entityId plus an indexed list of role descriptors with their protocolSupportEnumeration. Optional attributes (the descriptor id, a cache duration, and a valid-until expiry timestamp) are surfaced when present. Parsing is rejected with a neutral error category when entityID is absent (missing attribute), when the root element is in the wrong XML namespace (unexpected namespace), when the root element has the wrong local name (unexpected local name), or when no role-descriptor children are present (missing element).",
+    "cases": [
+        {
+            "input": {
+                "action": "read_entity_descriptor",
+                "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" entityID=\"https://stubidp.example.com/Metadata\"><RoleDescriptor protocolSupportEnumeration=\"urn:whatever\"/></EntityDescriptor>"
+            },
+            "expected_output": "entityId=https://stubidp.example.com/Metadata\nroleDescriptor[0].protocolSupportEnumeration=urn:whatever\n"
+        },
+        {
+            "input": {
+                "action": "read_entity_descriptor",
+                "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\" ID=\"_eb83b59a-572a-480b-b36c-e3a3edfd92d0\" entityID=\"https://stubidp.example.com/Metadata\" cacheDuration=\"PT15M\" validUntil=\"2022-03-15T20:47:00Z\"><RoleDescriptor protocolSupportEnumeration=\"urn:whatever\"/></EntityDescriptor>"
+            },
+            "expected_output": "entityId=https://stubidp.example.com/Metadata\nid=_eb83b59a-572a-480b-b36c-e3a3edfd92d0\ncacheDuration=PT15M\nvalidUntil=2022-03-15T20:47:00Z\nroleDescriptor[0].protocolSupportEnumeration=urn:whatever\n"
+        },
+        {
+            "input": {
+                "action": "read_entity_descriptor",
+                "xml": "<EntityDescriptor xmlns=\"urn:oasis:names:tc:SAML:2.0:metadata\"><RoleDescriptor protocolSupportEnumeration=\"urn:whatever\"/></EntityDescriptor>"
+            },
+            "expected_output": "error=missing_attribute\n"
+        },
+        {
+            "input": {
+                "action": "read_entity_descriptor",
+                "xml": "<EntityDescriptor xmlns=\"urn:incorrect:namespace\" entityID=\"https://stubidp.example.com/Metadata\"></EntityDescriptor>"
+            },
+            "expected_output": "error=unexpected_namespace\n"
+        }
+    ]
+}

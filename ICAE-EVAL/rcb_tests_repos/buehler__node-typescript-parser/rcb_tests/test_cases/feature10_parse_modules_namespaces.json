@@ -1,0 +1,13 @@
+{
+    "description": "Parse ambient module (\"declare module 'X'\") and namespace (\"declare namespace X\") blocks into nested sub-resources, each with their own declarations.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse",
+                "source": "declare module 'Module' {\n    export function modFunc(): void;\n}\n\ndeclare namespace Namespace {\n    class NotExported { }\n\n    export enum Exported {\n        MemberA,\n        MemberB\n    }\n}\n",
+                "scriptKind": "TS"
+            },
+            "expected_output": "{\n  \"kind\": \"file\",\n  \"imports\": [],\n  \"exports\": [],\n  \"declarations\": [],\n  \"resources\": [\n    {\n      \"kind\": \"module\",\n      \"name\": \"Module\",\n      \"start\": 0,\n      \"end\": 64,\n      \"imports\": [],\n      \"exports\": [],\n      \"declarations\": [\n        {\n          \"kind\": \"function\",\n          \"name\": \"modFunc\",\n          \"isExported\": true,\n          \"type\": \"void\",\n          \"parameters\": [],\n          \"variables\": [],\n          \"start\": 30,\n          \"end\": 62\n        }\n      ],\n      \"resources\": [],\n      \"usages\": []\n    },\n    {\n      \"kind\": \"namespace\",\n      \"name\": \"Namespace\",\n      \"start\": 66,\n      \"end\": 190,\n      \"imports\": [],\n      \"exports\": [],\n      \"declarations\": [\n        {\n          \"kind\": \"class\",\n          \"name\": \"NotExported\",\n          \"isExported\": false,\n          \"accessors\": [],\n          \"properties\": [],\n          \"methods\": [],\n          \"start\": 100,\n          \"end\": 121\n        },\n        {\n          \"kind\": \"enum\",\n          \"name\": \"Exported\",\n          \"isExported\": true,\n          \"members\": [\n            \"MemberA\",\n            \"MemberB\"\n          ],\n          \"start\": 127,\n          \"end\": 188\n        }\n      ],\n      \"resources\": [],\n      \"usages\": [\n        \"Namespace\",\n        \"MemberA\",\n        \"MemberB\"\n      ]\n    }\n  ],\n  \"usages\": []\n}"
+        }
+    ]
+}

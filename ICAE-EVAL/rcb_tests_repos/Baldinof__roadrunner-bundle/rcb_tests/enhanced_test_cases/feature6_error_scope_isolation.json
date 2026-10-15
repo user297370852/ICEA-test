@@ -1,0 +1,72 @@
+{
+  "description": "Per-request reporting-scope boundaries: a single request with/without a breadcrumb, two breadcrumb-adding requests (final still sees only its own), and three-request sequences where only an earlier request adds a breadcrumb.",
+  "cases": [
+    {
+      "input": {
+        "handler": "sentry",
+        "requests": [
+          {
+            "add_breadcrumb": false
+          }
+        ]
+      },
+      "expected_output": "last_event_breadcrumbs=0\n"
+    },
+    {
+      "input": {
+        "handler": "sentry",
+        "requests": [
+          {
+            "add_breadcrumb": true
+          }
+        ]
+      },
+      "expected_output": "last_event_breadcrumbs=1\n"
+    },
+    {
+      "input": {
+        "handler": "sentry",
+        "requests": [
+          {
+            "add_breadcrumb": true
+          },
+          {
+            "add_breadcrumb": true
+          }
+        ]
+      },
+      "expected_output": "last_event_breadcrumbs=1\n"
+    },
+    {
+      "input": {
+        "handler": "sentry",
+        "requests": [
+          {
+            "add_breadcrumb": false
+          },
+          {
+            "add_breadcrumb": true
+          }
+        ]
+      },
+      "expected_output": "last_event_breadcrumbs=1\n"
+    },
+    {
+      "input": {
+        "handler": "sentry",
+        "requests": [
+          {
+            "add_breadcrumb": true
+          },
+          {
+            "add_breadcrumb": false
+          },
+          {
+            "add_breadcrumb": false
+          }
+        ]
+      },
+      "expected_output": "last_event_breadcrumbs=0\n"
+    }
+  ]
+}

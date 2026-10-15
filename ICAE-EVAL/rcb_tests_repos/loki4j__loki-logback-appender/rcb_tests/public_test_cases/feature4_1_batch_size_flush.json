@@ -1,0 +1,36 @@
+{
+    "description": "Buffers appended log events until the configured item threshold is reached, then sends one grouped payload.",
+    "cases": [
+        {
+            "input": {
+                "operation": "append_batching",
+                "batch_max_items": 3,
+                "batch_timeout_ms": 1000,
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    },
+                    {
+                        "timestamp_ms": 104,
+                        "level": "WARN",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 2"
+                    },
+                    {
+                        "timestamp_ms": 107,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 3"
+                    }
+                ]
+            },
+            "expected_output": "sent_before_threshold=false\nstream=[level, INFO, app, my-app]\nrecord=ts=100 l=INFO c=test.TestApp t=thread-1 | Test message 1 \nrecord=ts=107 l=INFO c=test.TestApp t=thread-1 | Test message 3 \nstream=[level, WARN, app, my-app]\nrecord=ts=104 l=WARN c=test.TestApp t=thread-2 | Test message 2 \n"
+        }
+    ]
+}

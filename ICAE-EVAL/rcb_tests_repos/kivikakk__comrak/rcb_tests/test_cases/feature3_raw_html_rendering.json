@@ -1,0 +1,44 @@
+{
+    "description": "Render raw HTML according to safety options, allowing recognized raw blocks when unsafe output is enabled and filtering disallowed tag names when requested.",
+    "cases": [
+        {
+            "input": {
+                "markdown": "<script>\n*ok* </script> *ok*\n\n*ok*\n",
+                "render": {
+                    "unsafe_html": true
+                }
+            },
+            "expected_output": "<script>\n*ok* </script> *ok*\n<p><em>ok</em></p>\n"
+        },
+        {
+            "input": {
+                "markdown": "hi <xmp> ok\n\n<xmp>\n",
+                "extensions": [
+                    "tag_filter"
+                ],
+                "render": {
+                    "unsafe_html": true
+                }
+            },
+            "expected_output": "<p>hi &lt;xmp> ok</p>\n&lt;xmp>\n"
+        },
+        {
+            "input": {
+                "markdown": "   <!-- abc\n\nok --> *hi*\n*hi*\n",
+                "render": {
+                    "unsafe_html": true
+                }
+            },
+            "expected_output": "   <!-- abc\n\nok --> *hi*\n<p><em>hi</em></p>\n"
+        },
+        {
+            "input": {
+                "markdown": "URI autolink: <https://www.pixiv.net>\n\nEmail autolink: <bill@microsoft.com>\n\n* Inline <em>tag</em> **ha**.\n",
+                "render": {
+                    "unsafe_html": true
+                }
+            },
+            "expected_output": "<p>URI autolink: <a href=\"https://www.pixiv.net\">https://www.pixiv.net</a></p>\n<p>Email autolink: <a href=\"mailto:bill@microsoft.com\">bill@microsoft.com</a></p>\n<ul>\n<li>Inline <em>tag</em> <strong>ha</strong>.</li>\n</ul>\n"
+        }
+    ]
+}

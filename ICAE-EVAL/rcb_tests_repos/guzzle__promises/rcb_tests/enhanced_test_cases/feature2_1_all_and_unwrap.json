@@ -1,0 +1,120 @@
+{
+  "description": "All-required batches over empty, single, and many inputs; first rejection in resolution order wins; keyed and list unwrap variants.",
+  "cases": [
+    {
+      "input": {
+        "operation": "batch_all_required",
+        "values": [],
+        "resolution_order": []
+      },
+      "expected_output": "result_state=fulfilled\nresult_value=[]\n"
+    },
+    {
+      "input": {
+        "operation": "batch_all_required",
+        "values": [
+          {
+            "state": "fulfilled",
+            "value": "solo"
+          }
+        ],
+        "resolution_order": [
+          0
+        ]
+      },
+      "expected_output": "result_state=fulfilled\nresult_value=[\"solo\"]\n"
+    },
+    {
+      "input": {
+        "operation": "batch_all_required",
+        "values": [
+          {
+            "state": "fulfilled",
+            "value": "a"
+          },
+          {
+            "state": "fulfilled",
+            "value": "b"
+          },
+          {
+            "state": "fulfilled",
+            "value": "c"
+          },
+          {
+            "state": "fulfilled",
+            "value": "d"
+          },
+          {
+            "state": "fulfilled",
+            "value": "e"
+          }
+        ],
+        "resolution_order": [
+          4,
+          3,
+          2,
+          1,
+          0
+        ]
+      },
+      "expected_output": "result_state=fulfilled\nresult_value=[\"a\",\"b\",\"c\",\"d\",\"e\"]\n"
+    },
+    {
+      "input": {
+        "operation": "batch_all_required",
+        "values": [
+          {
+            "state": "fulfilled",
+            "value": "a"
+          },
+          {
+            "state": "rejected",
+            "reason": "first"
+          },
+          {
+            "state": "rejected",
+            "reason": "second"
+          }
+        ],
+        "resolution_order": [
+          2,
+          1,
+          0
+        ]
+      },
+      "expected_output": "result_state=rejected\nresult_reason=second\n"
+    },
+    {
+      "input": {
+        "operation": "batch_unwrap_values",
+        "items": {
+          "only": {
+            "state": "fulfilled",
+            "value": "v"
+          }
+        }
+      },
+      "expected_output": "values={\"only\":\"v\"}\n"
+    },
+    {
+      "input": {
+        "operation": "batch_unwrap_values",
+        "items": [
+          {
+            "state": "fulfilled",
+            "value": "a"
+          },
+          {
+            "state": "fulfilled",
+            "value": "b"
+          },
+          {
+            "state": "fulfilled",
+            "value": "c"
+          }
+        ]
+      },
+      "expected_output": "values=[\"a\",\"b\",\"c\"]\n"
+    }
+  ]
+}

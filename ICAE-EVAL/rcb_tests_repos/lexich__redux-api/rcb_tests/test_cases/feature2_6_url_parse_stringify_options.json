@@ -1,0 +1,73 @@
+{
+  "description": "Independent parse and stringify options can be supplied. A parse-format option controls how an existing bracketed query string in the template is interpreted, while a separate stringify-format option controls how outgoing array params are encoded; when no stringify override is given the default bracket-indexed encoding is used (URL-encoded brackets).",
+  "cases": [
+    {
+      "input": {
+        "op": "build_url",
+        "template": "/t?id[0]=1&id[1]=2",
+        "params": {
+          "a": 0
+        },
+        "options": {
+          "arrayFormat": "repeat",
+          "qsParseOptions": {
+            "arrayFormat": "indices"
+          }
+        }
+      },
+      "expected_output": "url=/t?id=1&id=2&a=0\n"
+    },
+    {
+      "input": {
+        "op": "build_url",
+        "template": "/t?id[0]=1&id[1]=2",
+        "params": {
+          "a": [
+            1,
+            2
+          ]
+        },
+        "options": {
+          "arrayFormat": "repeat",
+          "qsParseOptions": {
+            "arrayFormat": "indices"
+          }
+        }
+      },
+      "expected_output": "url=/t?id=1&id=2&a=1&a=2\n"
+    },
+    {
+      "input": {
+        "op": "build_url",
+        "template": "/test",
+        "params": {
+          "id": [
+            1,
+            2
+          ]
+        },
+        "options": {}
+      },
+      "expected_output": "url=/test?id%5B0%5D=1&id%5B1%5D=2\n"
+    },
+    {
+      "input": {
+        "op": "build_url",
+        "template": "/test",
+        "params": {
+          "id": [
+            1,
+            2
+          ]
+        },
+        "options": {
+          "arrayFormat": "brackets",
+          "qsStringifyOptions": {
+            "arrayFormat": "repeat"
+          }
+        }
+      },
+      "expected_output": "url=/test?id=1&id=2\n"
+    }
+  ]
+}

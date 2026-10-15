@@ -1,0 +1,55 @@
+{
+    "description": "Resolve the latest stable runtime release version from a GitHub-style releases listing (a JSON array of release objects). Release candidate tags (those containing '-rc') are skipped; among the remaining stable tags the highest semantic version is selected and returned without its leading 'v'. An empty listing, or a listing containing only release candidates, yields a neutral no-releases error. A non-200 HTTP response yields a neutral http-status error carrying the status code. A body that is not valid JSON yields a neutral parse error.",
+    "cases": [
+        {
+            "input": {
+                "action": "version_github",
+                "body": "[{\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.2.3-rc.1\", \"id\": 1, \"tag_name\": \"v1.2.3-rc.1\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.2.3-rc.1\", \"draft\": false, \"prerelease\": false}, {\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.2.2\", \"id\": 1, \"tag_name\": \"v1.2.2\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.2.2\", \"draft\": false, \"prerelease\": false}]"
+            },
+            "expected_output": "version=1.2.2\n"
+        },
+        {
+            "input": {
+                "action": "version_github",
+                "body": "[{\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.4.4\", \"id\": 1, \"tag_name\": \"v1.4.4\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.4.4\", \"draft\": false, \"prerelease\": false}, {\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.5.1\", \"id\": 1, \"tag_name\": \"v1.5.1\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.5.1\", \"draft\": false, \"prerelease\": false}]"
+            },
+            "expected_output": "version=1.5.1\n"
+        },
+        {
+            "input": {
+                "action": "version_github",
+                "body": "[{\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.5.2-rc.1\", \"id\": 1, \"tag_name\": \"v1.5.2-rc.1\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.5.2-rc.1\", \"draft\": false, \"prerelease\": true}, {\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.4.4\", \"id\": 1, \"tag_name\": \"v1.4.4\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.4.4\", \"draft\": false, \"prerelease\": false}, {\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.5.1\", \"id\": 1, \"tag_name\": \"v1.5.1\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.5.1\", \"draft\": false, \"prerelease\": false}]"
+            },
+            "expected_output": "version=1.5.1\n"
+        },
+        {
+            "input": {
+                "action": "version_github",
+                "body": "["
+            },
+            "expected_output": "error=parse_error\n"
+        },
+        {
+            "input": {
+                "action": "version_github",
+                "body": "[{\"url\": \"https://api.example/x\", \"html_url\": \"https://example/tag/v1.2.3-rc.1\", \"id\": 1, \"tag_name\": \"v1.2.3-rc.1\", \"target_commitish\": \"master\", \"name\": \"Runtime v1.2.3-rc.1\", \"draft\": false, \"prerelease\": false}]"
+            },
+            "expected_output": "error=no_releases\n"
+        },
+        {
+            "input": {
+                "action": "version_github",
+                "body": "[]"
+            },
+            "expected_output": "error=no_releases\n"
+        },
+        {
+            "input": {
+                "action": "version_github",
+                "body": "x",
+                "status": 404
+            },
+            "expected_output": "error=http_status\nstatus=404\n"
+        }
+    ]
+}

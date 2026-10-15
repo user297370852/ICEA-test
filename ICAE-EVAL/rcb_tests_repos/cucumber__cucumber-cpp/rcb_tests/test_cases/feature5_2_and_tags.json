@@ -1,0 +1,107 @@
+{
+    "description": "Evaluate a conjunctive tag expression against one or more candidate tag lists. The expression is a comma-separated list of quoted sub-expressions (optionally spaced), and matches a tag list only when every sub-expression matches it; each quoted sub-expression is itself a disjunctive (comma-separated) group that matches when any of its tokens is present. An empty expression matches every tag list. For each candidate tag list the comma-joined tags and whether the expression matched are reported, one line per candidate.",
+    "cases": [
+        {
+            "input": {
+                "action": "tag_and",
+                "expression": "",
+                "queries": [
+                    [
+                        "x"
+                    ],
+                    [
+                        "a",
+                        "b"
+                    ]
+                ]
+            },
+            "expected_output": "query=x matched=true\nquery=a,b matched=true\n"
+        },
+        {
+            "input": {
+                "action": "tag_and",
+                "expression": "\"@a\"",
+                "queries": [
+                    [
+                        "a"
+                    ],
+                    [
+                        "x"
+                    ]
+                ]
+            },
+            "expected_output": "query=a matched=true\nquery=x matched=false\n"
+        },
+        {
+            "input": {
+                "action": "tag_and",
+                "expression": "\"@a\",\"@b\"",
+                "queries": [
+                    [
+                        "a",
+                        "b"
+                    ],
+                    [
+                        "x",
+                        "a",
+                        "b"
+                    ],
+                    [
+                        "a"
+                    ],
+                    [
+                        "b"
+                    ],
+                    [
+                        "a",
+                        "y"
+                    ],
+                    [
+                        "x",
+                        "b"
+                    ],
+                    [
+                        "x",
+                        "y"
+                    ]
+                ]
+            },
+            "expected_output": "query=a,b matched=true\nquery=x,a,b matched=true\nquery=a matched=false\nquery=b matched=false\nquery=a,y matched=false\nquery=x,b matched=false\nquery=x,y matched=false\n"
+        },
+        {
+            "input": {
+                "action": "tag_and",
+                "expression": " \"@a\" , \"@b\" ",
+                "queries": [
+                    [
+                        "a",
+                        "b"
+                    ],
+                    [
+                        "a"
+                    ]
+                ]
+            },
+            "expected_output": "query=a,b matched=true\nquery=a matched=false\n"
+        },
+        {
+            "input": {
+                "action": "tag_and",
+                "expression": "\"@a,@b\", \"@c\", \"@d,@e,@f\"",
+                "queries": [
+                    [
+                        "a",
+                        "c",
+                        "d"
+                    ],
+                    [
+                        "x",
+                        "c",
+                        "f"
+                    ]
+                ]
+            },
+            "expected_output": "query=a,c,d matched=true\nquery=x,c,f matched=false\n"
+        }
+    ]
+}

@@ -1,0 +1,143 @@
+{
+  "description": "Enhanced route-selection logical paths: empty rule map, source-name match and non-match gating, multi-precedence ordering picking the highest precedence, and a deterministic 50/50 split that resolves to the second candidate.",
+  "cases": [
+    {
+      "input": {
+        "rules": {},
+        "service": "svc",
+        "headers": {}
+      },
+      "expected_output": "service=svc\nerror=none\nselected=false\n"
+    },
+    {
+      "input": {
+        "rules": {
+          "svc": [
+            {
+              "precedence": 2,
+              "match": {
+                "source": "caller"
+              },
+              "route": [
+                {
+                  "weight": 100,
+                  "tags": {
+                    "version": "v9"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "service": "svc",
+        "headers": {},
+        "source": {
+          "name": "caller",
+          "tags": {}
+        }
+      },
+      "expected_output": "service=svc\nerror=none\nselected=true\nversion=v9\n"
+    },
+    {
+      "input": {
+        "rules": {
+          "svc": [
+            {
+              "precedence": 2,
+              "match": {
+                "source": "caller"
+              },
+              "route": [
+                {
+                  "weight": 100,
+                  "tags": {
+                    "version": "v9"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "service": "svc",
+        "headers": {},
+        "source": {
+          "name": "other",
+          "tags": {}
+        }
+      },
+      "expected_output": "service=svc\nerror=none\nselected=false\n"
+    },
+    {
+      "input": {
+        "rules": {
+          "s": [
+            {
+              "precedence": 1,
+              "route": [
+                {
+                  "weight": 100,
+                  "tags": {
+                    "version": "low"
+                  }
+                }
+              ]
+            },
+            {
+              "precedence": 5,
+              "route": [
+                {
+                  "weight": 100,
+                  "tags": {
+                    "version": "high"
+                  }
+                }
+              ]
+            },
+            {
+              "precedence": 3,
+              "route": [
+                {
+                  "weight": 100,
+                  "tags": {
+                    "version": "mid"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "service": "s",
+        "headers": {}
+      },
+      "expected_output": "service=s\nerror=none\nselected=true\nversion=high\n"
+    },
+    {
+      "input": {
+        "rules": {
+          "svc": [
+            {
+              "precedence": 1,
+              "route": [
+                {
+                  "weight": 50,
+                  "tags": {
+                    "version": "a"
+                  }
+                },
+                {
+                  "weight": 50,
+                  "tags": {
+                    "version": "b"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "service": "svc",
+        "headers": {}
+      },
+      "expected_output": "service=svc\nerror=none\nselected=true\nversion=b\n"
+    }
+  ]
+}

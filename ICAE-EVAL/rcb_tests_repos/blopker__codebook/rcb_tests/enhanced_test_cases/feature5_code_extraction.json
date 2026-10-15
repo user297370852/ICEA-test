@@ -1,0 +1,53 @@
+{
+  "description": "Enhanced source-region extraction cases across additional languages and edge logic: Rust function with a typed parameter, Python class with method/field declarations and a string literal, an unrecognized language id falling back to plain-prose handling, a Go function with a string-literal body, a C function declaration, and a Rust comment containing multi-byte UTF-8 words (byte offsets must stay on UTF-8 boundaries). Each resulting word is reported as its UTF-8 start byte offset within the whole input, end byte offset, and text, one per line, ordered by position. The request is {\"op\":\"split\",\"text\":<source>,\"lang\":<id>}.",
+  "cases": [
+    {
+      "input": {
+        "op": "split",
+        "lang": "rust",
+        "text": "fn doThing(myArg: i32) -> bool { true }"
+      },
+      "expected_output": "3 5 do\n5 10 Thing\n11 13 my\n13 16 Arg\n"
+    },
+    {
+      "input": {
+        "op": "split",
+        "lang": "python",
+        "text": "class MyClass:\n    def __init__(self):\n        self.userName = 'bob'"
+      },
+      "expected_output": "6 8 My\n8 13 Class\n25 29 init\n32 36 self\n64 67 bob\n"
+    },
+    {
+      "input": {
+        "op": "split",
+        "lang": "unknownlang",
+        "text": "plainProse goesHere now"
+      },
+      "expected_output": "0 5 plain\n5 10 Prose\n11 15 goes\n15 19 Here\n20 23 now\n"
+    },
+    {
+      "input": {
+        "op": "split",
+        "lang": "go",
+        "text": "func parseValue() string { return \"helloWorld\" }"
+      },
+      "expected_output": "5 10 parse\n10 15 Value\n18 24 string\n35 40 hello\n40 45 World\n"
+    },
+    {
+      "input": {
+        "op": "split",
+        "lang": "c",
+        "text": "int mainFunc() { return 0; }"
+      },
+      "expected_output": "4 8 main\n8 12 Func\n"
+    },
+    {
+      "input": {
+        "op": "split",
+        "lang": "rust",
+        "text": "// café résumé comment\nlet x = 1;"
+      },
+      "expected_output": "3 8 café\n9 17 résumé\n18 25 comment\n30 31 x\n"
+    }
+  ]
+}

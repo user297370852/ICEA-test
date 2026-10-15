@@ -1,0 +1,155 @@
+{
+  "description": "A highway layer mixes a transformed branch and a carried-through branch using learned transform/carry gates: output = H(x)*T(x) + x*(1 - T(x)). A trailing linear identity layer exposes the gated result.",
+  "cases": [
+    {
+      "input": {
+        "mode": "feed_forward",
+        "config": {
+          "defaults": {},
+          "inputs": [
+            {
+              "name": "x0",
+              "offset": 0.0,
+              "scale": 1.0
+            },
+            {
+              "name": "x1",
+              "offset": 0.0,
+              "scale": 1.0
+            }
+          ],
+          "layers": [
+            {
+              "architecture": "highway",
+              "activation": "rectified",
+              "components": {
+                "t": {
+                  "weights": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "bias": [
+                    0.0,
+                    0.0
+                  ]
+                },
+                "carry": {
+                  "weights": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "bias": [
+                    0.0,
+                    0.0
+                  ]
+                }
+              }
+            },
+            {
+              "architecture": "dense",
+              "weights": [
+                1.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bias": [
+                0.0,
+                0.0
+              ],
+              "activation": "linear"
+            }
+          ],
+          "outputs": [
+            "a",
+            "b"
+          ]
+        },
+        "values": {
+          "x0": 1.0,
+          "x1": 1.0
+        }
+      },
+      "expected_output": "a 1\nb 1\n"
+    },
+    {
+      "input": {
+        "mode": "feed_forward",
+        "config": {
+          "defaults": {},
+          "inputs": [
+            {
+              "name": "x0",
+              "offset": 0.0,
+              "scale": 1.0
+            },
+            {
+              "name": "x1",
+              "offset": 0.0,
+              "scale": 1.0
+            }
+          ],
+          "layers": [
+            {
+              "architecture": "highway",
+              "activation": "rectified",
+              "components": {
+                "t": {
+                  "weights": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "bias": [
+                    -10.0,
+                    -10.0
+                  ]
+                },
+                "carry": {
+                  "weights": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "bias": [
+                    0.0,
+                    0.0
+                  ]
+                }
+              }
+            },
+            {
+              "architecture": "dense",
+              "weights": [
+                1.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "bias": [
+                0.0,
+                0.0
+              ],
+              "activation": "linear"
+            }
+          ],
+          "outputs": [
+            "a",
+            "b"
+          ]
+        },
+        "values": {
+          "x0": 4.0,
+          "x1": -5.0
+        }
+      },
+      "expected_output": "a 2\nb -2.5\n"
+    }
+  ]
+}

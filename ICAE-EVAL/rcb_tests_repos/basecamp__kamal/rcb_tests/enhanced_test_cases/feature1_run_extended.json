@@ -1,0 +1,199 @@
+{
+  "description": "Edge-case docker run invocations not covered by the native suite: a destination (which injects a destination label and rewrites the traefik router/service/middleware keys to service-role-destination), multiple secret+clear env vars, a non-web role with several raw options and multiple hosts, a volume combined with a custom healthcheck path, an alternate logging driver, and a differently-named service/image to exercise name composition and quoting.",
+  "cases": [
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "destination": "staging",
+        "role": "web",
+        "action": "run"
+      },
+      "expected_output": "docker run --detach --restart unless-stopped --name app-web-staging-999 -e MRSK_CONTAINER_NAME=\"app-web-staging-999\" -e RAILS_MASTER_KEY=\"456\" --health-cmd \"curl -f http://localhost:3000/up || exit 1\" --health-interval \"1s\" --log-opt max-size=\"10m\" --label service=\"app\" --label role=\"web\" --label destination=\"staging\" --label traefik.http.services.app-web-staging.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.app-web-staging.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.app-web-staging-retry.retry.attempts=\"5\" --label traefik.http.middlewares.app-web-staging-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.app-web-staging.middlewares=\"app-web-staging-retry@docker\" dhh/app:999"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "clear": {
+              "PORT": "3000"
+            },
+            "secret": [
+              "RAILS_MASTER_KEY",
+              "SECRET_KEY_BASE"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456",
+          "SECRET_KEY_BASE": "abcdef"
+        },
+        "version": "20240101000000",
+        "role": "web",
+        "action": "run"
+      },
+      "expected_output": "docker run --detach --restart unless-stopped --name app-web-20240101000000 -e MRSK_CONTAINER_NAME=\"app-web-20240101000000\" -e RAILS_MASTER_KEY=\"456\" -e SECRET_KEY_BASE=\"abcdef\" -e PORT=\"3000\" --health-cmd \"curl -f http://localhost:3000/up || exit 1\" --health-interval \"1s\" --log-opt max-size=\"10m\" --label service=\"app\" --label role=\"web\" --label traefik.http.services.app-web.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.app-web.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.app-web-retry.retry.attempts=\"5\" --label traefik.http.middlewares.app-web-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.app-web.middlewares=\"app-web-retry@docker\" dhh/app:20240101000000"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": {
+            "web": [
+              "1.1.1.1"
+            ],
+            "workers": {
+              "hosts": [
+                "1.1.1.2",
+                "1.1.1.3"
+              ],
+              "cmd": "bin/jobs --queue=default",
+              "options": {
+                "network": "host",
+                "cap-add": true,
+                "memory": "512m"
+              }
+            }
+          },
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "workers",
+        "action": "run"
+      },
+      "expected_output": "docker run --detach --restart unless-stopped --name app-workers-999 -e MRSK_CONTAINER_NAME=\"app-workers-999\" -e RAILS_MASTER_KEY=\"456\" --log-opt max-size=\"10m\" --label service=\"app\" --label role=\"workers\" --network \"host\" --cap-add --memory \"512m\" dhh/app:999 bin/jobs --queue=default"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          },
+          "volumes": [
+            "/data:/rails/data"
+          ],
+          "healthcheck": {
+            "path": "/health"
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "run"
+      },
+      "expected_output": "docker run --detach --restart unless-stopped --name app-web-999 -e MRSK_CONTAINER_NAME=\"app-web-999\" -e RAILS_MASTER_KEY=\"456\" --health-cmd \"curl -f http://localhost:3000/health || exit 1\" --health-interval \"1s\" --log-opt max-size=\"10m\" --volume /data:/rails/data --label service=\"app\" --label role=\"web\" --label traefik.http.services.app-web.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.app-web.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.app-web-retry.retry.attempts=\"5\" --label traefik.http.middlewares.app-web-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.app-web.middlewares=\"app-web-retry@docker\" dhh/app:999"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          },
+          "logging": {
+            "driver": "json-file",
+            "options": {
+              "max-size": "50m"
+            }
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "run"
+      },
+      "expected_output": "docker run --detach --restart unless-stopped --name app-web-999 -e MRSK_CONTAINER_NAME=\"app-web-999\" -e RAILS_MASTER_KEY=\"456\" --health-cmd \"curl -f http://localhost:3000/up || exit 1\" --health-interval \"1s\" --log-driver \"json-file\" --log-opt max-size=\"50m\" --label service=\"app\" --label role=\"web\" --label traefik.http.services.app-web.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.app-web.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.app-web-retry.retry.attempts=\"5\" --label traefik.http.middlewares.app-web-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.app-web.middlewares=\"app-web-retry@docker\" dhh/app:999"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "myservice",
+          "image": "acme/myservice",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "10.0.0.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "v2",
+        "role": "web",
+        "action": "run"
+      },
+      "expected_output": "docker run --detach --restart unless-stopped --name myservice-web-v2 -e MRSK_CONTAINER_NAME=\"myservice-web-v2\" -e RAILS_MASTER_KEY=\"456\" --health-cmd \"curl -f http://localhost:3000/up || exit 1\" --health-interval \"1s\" --log-opt max-size=\"10m\" --label service=\"myservice\" --label role=\"web\" --label traefik.http.services.myservice-web.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.myservice-web.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.myservice-web-retry.retry.attempts=\"5\" --label traefik.http.middlewares.myservice-web-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.myservice-web.middlewares=\"myservice-web-retry@docker\" acme/myservice:v2"
+    }
+  ]
+}

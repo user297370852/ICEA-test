@@ -1,0 +1,13 @@
+{
+    "description": "Build the outbound HTTP request for a template-based SMS provider that uses an HTTP GET with query parameters. The query carries the recipient's local number, the template identifier, the template variables (URL-encoded as a '#name#'-keyed query string), a JSON response-format flag, and the API key. The provider's JSON reply carries a numeric error code: zero means accepted, and any non-zero code is surfaced as a normalized gateway error with that code and the provider's reason. The output reports the request method, endpoint URL, the sorted query parameters, and the outcome.",
+    "cases": [
+        {
+            "input": {"action": "gateway_send", "gateway": "juhe", "config": {"app_key": "mock-key"}, "to": {"number": 18188888888}, "message": {"content": "This is a test message.", "template": "mock-tpl-id", "data": {"code": 1234}}, "response": {"reason": "操作成功", "error_code": 0}},
+            "expected_output": "method=GET\nurl=http://v.juhe.cn/sms/send\nparam.dtype=json\nparam.key=mock-key\nparam.mobile=18188888888\nparam.tpl_id=mock-tpl-id\nparam.tpl_value=%23code%23=1234\noutcome=sent\n"
+        },
+        {
+            "input": {"action": "gateway_send", "gateway": "juhe", "config": {"app_key": "mock-key"}, "to": {"number": 18188888888}, "message": {"content": "x", "template": "mock-tpl-id", "data": {"code": 1234}}, "response": {"reason": "操作失败", "error_code": 21000}},
+            "expected_output": "method=GET\nurl=http://v.juhe.cn/sms/send\nparam.dtype=json\nparam.key=mock-key\nparam.mobile=18188888888\nparam.tpl_id=mock-tpl-id\nparam.tpl_value=%23code%23=1234\noutcome=error\nerror_code=21000\nerror_message=操作失败\n"
+        }
+    ]
+}

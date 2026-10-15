@@ -1,0 +1,111 @@
+{
+  "description": "Compose cascades over the public handler set: a single acceptable handler, an immediately-acceptable non-default status, an explicit cascading-status list that skips an otherwise-acceptable handler, a custom list that stops on a forbidden response, all toggles disabled, and a redirect returned by default.",
+  "cases": [
+    {
+      "input": {
+        "action": "cascade",
+        "handlers": [
+          {
+            "type": "ok",
+            "body": "only"
+          }
+        ]
+      },
+      "expected_output": "status=200\nbody=only\n"
+    },
+    {
+      "input": {
+        "action": "cascade",
+        "handlers": [
+          {
+            "type": "forbidden",
+            "body": "first"
+          },
+          {
+            "type": "ok",
+            "body": "second"
+          }
+        ]
+      },
+      "expected_output": "status=403\nbody=first\n"
+    },
+    {
+      "input": {
+        "action": "cascade",
+        "statusCodes": [
+          200
+        ],
+        "handlers": [
+          {
+            "type": "ok",
+            "body": "h1"
+          },
+          {
+            "type": "notfound",
+            "body": "h2"
+          }
+        ]
+      },
+      "expected_output": "status=404\nbody=h2\n"
+    },
+    {
+      "input": {
+        "action": "cascade",
+        "statusCodes": [
+          404,
+          405,
+          403
+        ],
+        "handlers": [
+          {
+            "type": "forbidden",
+            "body": "h1"
+          },
+          {
+            "type": "ok",
+            "body": "h2"
+          }
+        ]
+      },
+      "expected_output": "status=200\nbody=h2\n"
+    },
+    {
+      "input": {
+        "action": "cascade",
+        "handlers": [
+          {
+            "type": "toggle",
+            "header": "a",
+            "body": "h1"
+          },
+          {
+            "type": "toggle",
+            "header": "b",
+            "body": "h2"
+          }
+        ],
+        "requestHeaders": {
+          "a": "false",
+          "b": "false"
+        }
+      },
+      "expected_output": "status=404\nbody=h2\n"
+    },
+    {
+      "input": {
+        "action": "cascade",
+        "handlers": [
+          {
+            "type": "found",
+            "location": "/go"
+          },
+          {
+            "type": "ok",
+            "body": "h2"
+          }
+        ]
+      },
+      "expected_output": "status=302\nbody=\n"
+    }
+  ]
+}

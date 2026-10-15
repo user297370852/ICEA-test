@@ -1,0 +1,117 @@
+{
+    "description": "Parse a flag value from bar-separated text. Tokens are flag names or '0x'-prefixed hex literals separated by '|', surrounding whitespace is ignored, and the empty string parses to the empty value. Unknown bits supplied as hex are retained. An unrecognized name yields an unrecognized-named-flag error and an unparsable or oversized hex token yields an invalid-hex-flag error.",
+    "cases": [
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": ""
+            },
+            "expected_output": "bits=0 hex=0x00 bin=00000000"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "A"
+            },
+            "expected_output": "bits=1 hex=0x01 bin=00000001"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": " A "
+            },
+            "expected_output": "bits=1 hex=0x01 bin=00000001"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "A | B | C"
+            },
+            "expected_output": "bits=7 hex=0x07 bin=00000111"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "A\n|\tB\r\n|   C "
+            },
+            "expected_output": "bits=7 hex=0x07 bin=00000111"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "A|B|C"
+            },
+            "expected_output": "bits=7 hex=0x07 bin=00000111"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "0x8"
+            },
+            "expected_output": "bits=8 hex=0x08 bin=00001000"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "A | 0x8"
+            },
+            "expected_output": "bits=9 hex=0x09 bin=00001001"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "0x1 | 0x8 | B"
+            },
+            "expected_output": "bits=11 hex=0x0b bin=00001011"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "unicode",
+                "text": "一 | 二"
+            },
+            "expected_output": "bits=3 hex=0x03 bin=00000011"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "a"
+            },
+            "expected_output": "error=unrecognized_named_flag"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "A & B"
+            },
+            "expected_output": "error=unrecognized_named_flag"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "0xg"
+            },
+            "expected_output": "error=invalid_hex_flag"
+        },
+        {
+            "input": {
+                "op": "parse",
+                "set": "abc",
+                "text": "0xffffffffffff"
+            },
+            "expected_output": "error=invalid_hex_flag"
+        }
+    ]
+}

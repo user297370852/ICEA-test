@@ -1,0 +1,44 @@
+{
+  "description": "Group updates avoid duplicate includes, preserve user overrides when refreshing added groups, and remove checks for removed groups.",
+  "cases": [
+    {
+      "input": {
+        "feature": "update_groups",
+        "initial_yaml": "---\nchallenge: Yes\nincludes:\n  - keep\n  - refresh\n  - old\nversion: 0.2.2\nchecks:\n- from: keep\n  test: keep-pattern\n  method: Contains\n  enable: true\n  description: \"keep desc\"\n- from: refresh\n  test: refresh-pattern\n  method: Regex\n  enable: false\n  challenge: Math\n  description: \"custom refresh desc\"\n- from: old\n  test: old-pattern\n  method: Regex\n  enable: true\n  description: \"old desc\"\n",
+        "available_checks": [
+          {
+            "group": "refresh",
+            "pattern": "refresh-pattern",
+            "method": "regex",
+            "enabled": true,
+            "description": "catalog refresh desc"
+          },
+          {
+            "group": "new-one",
+            "pattern": "new-pattern",
+            "method": "contains",
+            "enabled": true,
+            "description": "new contains desc",
+            "challenge": "Enter"
+          },
+          {
+            "group": "old",
+            "pattern": "old-pattern",
+            "method": "regex",
+            "enabled": true,
+            "description": "old catalog desc"
+          }
+        ],
+        "add": [
+          "refresh",
+          "new-one",
+          "refresh"
+        ],
+        "remove": [
+          "old"
+        ]
+      },
+      "expected_output": "challenge=Yes\nincludes=keep,refresh,new-one\ncheck_count=4\ncheck=keep|Contains|true|Default|keep desc\ncheck=refresh|Regex|false|Math|catalog refresh desc\ncheck=new-one|Contains|true|Enter|new contains desc\ncheck=refresh|Regex|false|Math|catalog refresh desc\n"
+    }
+  ]
+}

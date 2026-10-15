@@ -1,0 +1,57 @@
+{
+  "description": "CSP mode boundaries: a plain enabled policy, disabling each of block-all-mixed-content / upgrade-insecure-requests individually, report-only with empty report-uri rejected, and legacy-compat combined with a sandbox.",
+  "cases": [
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {}
+        }
+      },
+      "expected_output": "Content-Security-Policy: block-all-mixed-content;upgrade-insecure-requests;\n"
+    },
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {
+            "block_all_mixed_content": false
+          }
+        }
+      },
+      "expected_output": "Content-Security-Policy: upgrade-insecure-requests;\n"
+    },
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {
+            "upgrade_insecure_requests": false
+          }
+        }
+      },
+      "expected_output": "Content-Security-Policy: block-all-mixed-content;\n"
+    },
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {
+            "report_only": true,
+            "report_uri": ""
+          }
+        }
+      },
+      "expected_output": "error=missing_required_value\nfield=report_uri\n"
+    },
+    {
+      "input": {
+        "headers": {
+          "content_security_policy": {
+            "legacy_compat": true,
+            "sandbox": [
+              "allow-scripts"
+            ]
+          }
+        }
+      },
+      "expected_output": "Content-Security-Policy: sandbox allow-scripts;block-all-mixed-content;upgrade-insecure-requests;\nX-Content-Security-Policy: sandbox allow-scripts;block-all-mixed-content;upgrade-insecure-requests;\n"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "description": "Manifest-reading boundary coverage: an empty manifest yields an empty field list; a single-field manifest; a manifest mixing object, array, number, boolean and string values (verifying sorted keys and JSON-encoded values); a manifest whose string values contain characters that must be JSON-escaped; and a safe read of an absent manifest returning an empty object.",
+  "cases": [
+    {
+      "input": {
+        "command": "read_manifest",
+        "manifest": {}
+      },
+      "expected_output": "fields=\n"
+    },
+    {
+      "input": {
+        "command": "read_manifest",
+        "manifest": {
+          "name": "solo"
+        }
+      },
+      "expected_output": "fields=name\nname=\"solo\"\n"
+    },
+    {
+      "input": {
+        "command": "read_manifest",
+        "manifest": {
+          "name": "native-app",
+          "version": "2.1.0",
+          "private": true,
+          "keywords": [
+            "native",
+            "addon"
+          ],
+          "engines": {
+            "node": ">=10"
+          },
+          "scripts": {
+            "build": "tsc"
+          }
+        }
+      },
+      "expected_output": "fields=engines,keywords,name,private,scripts,version\nengines={\"node\":\">=10\"}\nkeywords=[\"native\",\"addon\"]\nname=\"native-app\"\nprivate=true\nscripts={\"build\":\"tsc\"}\nversion=\"2.1.0\"\n"
+    },
+    {
+      "input": {
+        "command": "read_manifest",
+        "manifest": {
+          "description": "a \"quoted\" value",
+          "main": "lib/index.js"
+        }
+      },
+      "expected_output": "fields=description,main\ndescription=\"a \\\"quoted\\\" value\"\nmain=\"lib/index.js\"\n"
+    },
+    {
+      "input": {
+        "command": "read_manifest",
+        "missing": true,
+        "safe": true
+      },
+      "expected_output": "fields=\n"
+    }
+  ]
+}

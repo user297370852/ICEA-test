@@ -1,0 +1,32 @@
+{
+    "description": "A public interface annotated as a scope contribution generates a component-interface stub in the lookup package whose origin is the source type and which extends that source interface. Non-public or non-interface declarations are rejected with a domain reason.",
+    "cases": [
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninterface ComponentInterface\n"
+                ],
+                "inspect": [
+                    "com.example.ComponentInterface"
+                ]
+            },
+            "expected_output": "status=compiled\ncontribution origin=com.example.ComponentInterface\nextends com.example.ComponentInterface\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\nprivate interface ComponentInterface\n"
+                ]
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=Contributed component interfaces must be public.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\nabstract class ComponentInterface\n"
+                ]
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=Only interfaces can be contributed.\n"
+        }
+    ]
+}

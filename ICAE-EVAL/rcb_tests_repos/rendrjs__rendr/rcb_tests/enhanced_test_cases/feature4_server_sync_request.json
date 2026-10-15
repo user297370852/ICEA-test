@@ -1,0 +1,64 @@
+{
+  "description": "Translate a server-side persistence operation on a record into a transport-agnostic request descriptor that is handed to the data adapter. The record has an id, a resource root path, an API name, and request headers. The descriptor carries: the HTTP method derived from the operation (read -> GET, create -> POST, update -> PUT, delete -> DELETE), the resource path (root plus the record id), a parsed query map, the supplied headers, the API name, and a body. For read/delete the body is empty; for create/update the body is the record's full serialized attributes.",
+  "cases": [
+    {
+      "input": {
+        "op": "server_sync",
+        "method": "create",
+        "id": 0,
+        "urlRoot": "/listings",
+        "api": "foo",
+        "headers": {
+          "foo": "bar"
+        },
+        "set": {
+          "name": "x"
+        }
+      },
+      "expected_output": "method=POST\npath=/listings/0\nquery={}\nheaders={\"foo\":\"bar\"}\napi=foo\nbody={\"id\":0,\"name\":\"x\"}\n"
+    },
+    {
+      "input": {
+        "op": "server_sync",
+        "method": "delete",
+        "id": 0,
+        "urlRoot": "/listings",
+        "api": "foo",
+        "headers": {
+          "foo": "bar"
+        }
+      },
+      "expected_output": "method=DELETE\npath=/listings/0\nquery={}\nheaders={\"foo\":\"bar\"}\napi=foo\nbody={}\n"
+    },
+    {
+      "input": {
+        "op": "server_sync",
+        "method": "read",
+        "id": 99,
+        "urlRoot": "/things",
+        "api": "bar",
+        "headers": {}
+      },
+      "expected_output": "method=GET\npath=/things/99\nquery={}\nheaders={}\napi=bar\nbody={}\n"
+    },
+    {
+      "input": {
+        "op": "server_sync",
+        "method": "create",
+        "id": 1,
+        "urlRoot": "/a",
+        "api": "v1",
+        "headers": {
+          "h": "1"
+        },
+        "set": {
+          "n": "m",
+          "obj": {
+            "k": "v"
+          }
+        }
+      },
+      "expected_output": "method=POST\npath=/a/1\nquery={}\nheaders={\"h\":\"1\"}\napi=v1\nbody={\"id\":1,\"n\":\"m\",\"obj\":{\"k\":\"v\"}}\n"
+    }
+  ]
+}

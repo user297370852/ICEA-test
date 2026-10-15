@@ -1,0 +1,60 @@
+{
+    "description": "When configured for leading-edge-only behavior (invoke on the leading edge, suppress the trailing edge), the function runs immediately on the first invocation of a burst and then suppresses every further invocation that arrives while the quiet period is still active, including the trailing edge. Once the quiet period has elapsed, a subsequent invocation is treated as a new leading edge and runs immediately again.",
+    "cases": [
+        {
+            "input": {
+                "hook": "callback",
+                "delay": 1000,
+                "options": {
+                    "leading": true,
+                    "trailing": false
+                },
+                "steps": [
+                    {
+                        "do": "call",
+                        "args": []
+                    },
+                    {
+                        "do": "observe"
+                    },
+                    {
+                        "do": "runAll"
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "call#1 args=[] tag=fn\ncalls=1\ncalls=1\n"
+        },
+        {
+            "input": {
+                "hook": "callback",
+                "delay": 1000,
+                "options": {
+                    "leading": true,
+                    "trailing": false
+                },
+                "steps": [
+                    {
+                        "do": "call",
+                        "args": []
+                    },
+                    {
+                        "do": "callAt",
+                        "delay": 1001,
+                        "args": []
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 1001
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "call#1 args=[] tag=fn\ncall#2 args=[] tag=fn\ncalls=2\n"
+        }
+    ]
+}

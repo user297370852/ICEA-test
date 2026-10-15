@@ -1,0 +1,14 @@
+{
+    "description": "Produce a lightweight structural outline of a source file using a line-oriented scan (no full parser). Input supplies a file name, a language label, and the raw source text. The first output line is a file header reporting the file's base name, its language label, and its total line count. Each subsequent line describes one detected top-level construct in source order: its kind (function, class, struct, trait, impl, interface, type), an extracted name, and its 1-based line number. Constructs are recognised by keyword patterns appearing on a line (e.g. 'fn', 'struct', 'impl', 'trait', 'mod'/'def'/'func'/'class'/'function'/'async'); the name is the token following the recognised keyword with trailing punctuation stripped. At most thirty constructs are reported.",
+    "cases": [
+        {
+            "input": {
+                "action": "outline",
+                "filename": "test.rs",
+                "language": "rust",
+                "source": "\nstruct TestStruct {\n    field1: i32,\n    field2: String,\n}\n\nimpl TestStruct {\n    fn new() -> Self {\n        Self {\n            field1: 0,\n            field2: String::new(),\n        }\n    }\n\n    fn test_method(&self) -> i32 {\n        self.field1\n    }\n}\n\nfn test_function() -> i32 {\n    42\n}\n\ntrait TestTrait {\n    fn trait_method(&self) -> bool;\n}\n\nmod test_module {\n    pub fn module_function() {\n        println!(\"Hello from module\");\n    }\n}\n"
+            },
+            "expected_output": "file=test.rs language=rust lines=32\nstruct\tTestStruct\t2\nimpl\tTestStruct\t7\nfunction\tnew\t8\nfunction\ttest_method(&self\t15\nfunction\ttest_function\t20\ntrait\tTestTrait\t24\nfunction\ttrait_method(&self\t25\nfunction\tmodule_function\t29\n"
+        }
+    ]
+}

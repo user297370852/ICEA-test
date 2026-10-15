@@ -1,0 +1,21 @@
+{
+    "description": "A received HTTP response carries a non-2xx status code. The mapping treats this as a server-error outcome, preserving the numeric status code and exposing the error payload content as the result's error body. When the error response had no content the error body is the empty string (still present, not absent), and any headers present on the response are carried through and remain observable.",
+    "cases": [
+        {
+            "input": {"action": "map_response", "code": 404, "body": "An error occurred"},
+            "expected_output": "result=server_error\ncode=404\nbody=An error occurred\n"
+        },
+        {
+            "input": {"action": "map_response", "code": 404, "body": "{\"error\": \"Not Found\"}"},
+            "expected_output": "result=server_error\ncode=404\nbody={\"error\": \"Not Found\"}\n"
+        },
+        {
+            "input": {"action": "map_response", "code": 404, "headers": {"TEST": "test"}},
+            "expected_output": "result=server_error\ncode=404\nbody=\nheader.TEST=test\n"
+        },
+        {
+            "input": {"action": "map_response", "code": 400, "success_type": "empty"},
+            "expected_output": "result=server_error\ncode=400\nbody=\n"
+        }
+    ]
+}

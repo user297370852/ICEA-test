@@ -1,0 +1,185 @@
+{
+  "description": "ENHANCED full-scan read edge cases: three conjoined filter conditions accumulating an AND chain; a greater-than ordered comparison; an equality on numeric zero retaining the value binding; a projected attribute list combined with a parallel-scan segment assignment; a non-positive limit rejected as a neutral error; a string-form select option; and a between range on numbers producing a de-duplicated second placeholder.",
+  "cases": [
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "age": "number"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "name"
+          ],
+          [
+            "equals",
+            "Tim"
+          ],
+          [
+            "where",
+            "email"
+          ],
+          [
+            "contains",
+            "foo"
+          ],
+          [
+            "where",
+            "age"
+          ],
+          [
+            "gt",
+            18
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\",\"#email\":\"email\",\"#name\":\"name\"},\"ExpressionAttributeValues\":{\":age\":18,\":email\":\"foo\",\":name\":\"Tim\"},\"FilterExpression\":\"(#name = :name) AND (contains(#email, :email)) AND (#age > :age)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string",
+            "age": "number"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "age"
+          ],
+          [
+            "gt",
+            30
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\"},\"ExpressionAttributeValues\":{\":age\":30},\"FilterExpression\":\"(#age > :age)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string",
+            "count": "number"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "count"
+          ],
+          [
+            "equals",
+            0
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#count\":\"count\"},\"ExpressionAttributeValues\":{\":count\":0},\"FilterExpression\":\"(#count = :count)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "attributes",
+            [
+              "name",
+              "email"
+            ]
+          ],
+          [
+            "segments",
+            1,
+            3
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\",\"#name\":\"name\"},\"ProjectionExpression\":\"#name,#email\",\"Segment\":1,\"TableName\":\"accounts\",\"TotalSegments\":3}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string"
+          }
+        },
+        "ops": [
+          [
+            "limit",
+            -5
+          ]
+        ]
+      },
+      "expected_output": "error=invalid_limit\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string"
+          }
+        },
+        "ops": [
+          [
+            "select",
+            "COUNT"
+          ]
+        ]
+      },
+      "expected_output": "{\"Select\":\"COUNT\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string",
+            "age": "number"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "age"
+          ],
+          [
+            "between",
+            10,
+            20
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#age\":\"age\"},\"ExpressionAttributeValues\":{\":age\":10,\":age_2\":20},\"FilterExpression\":\"(#age BETWEEN :age AND :age_2)\",\"TableName\":\"accounts\"}\n"
+    }
+  ]
+}

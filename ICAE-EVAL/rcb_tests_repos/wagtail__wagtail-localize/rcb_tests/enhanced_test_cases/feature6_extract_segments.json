@@ -1,0 +1,47 @@
+{
+  "description": "Extract the ordered list of translatable segments from a rich-text document. Each contiguous run of visible text together with the inline tags wrapping it becomes one segment; block-level structure is not part of a segment. Leading/trailing line-break tags inside a segment are excluded, an inline tag containing block content is split, and empty inline tags contribute nothing. Each extracted segment is itself a normalized inline string. The output reports how many segments were found and, for each, the normalized segment markup and its attribute map in order.",
+  "cases": [
+    {
+      "input": {
+        "op": "extract_segments",
+        "html": ""
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "op": "extract_segments",
+        "html": "<p>Only paragraph</p>"
+      },
+      "expected_output": "count=1\nsegment[0]=Only paragraph\nattrs[0]={}\n"
+    },
+    {
+      "input": {
+        "op": "extract_segments",
+        "html": "<p>   </p>"
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "op": "extract_segments",
+        "html": "<div><p>Alpha</p><p>Beta</p></div>"
+      },
+      "expected_output": "count=2\nsegment[0]=Alpha\nattrs[0]={}\nsegment[1]=Beta\nattrs[1]={}\n"
+    },
+    {
+      "input": {
+        "op": "extract_segments",
+        "html": "<h2>Heading two</h2><h3>Heading three</h3><p>Body</p>"
+      },
+      "expected_output": "count=3\nsegment[0]=Heading two\nattrs[0]={}\nsegment[1]=Heading three\nattrs[1]={}\nsegment[2]=Body\nattrs[2]={}\n"
+    },
+    {
+      "input": {
+        "op": "extract_segments",
+        "html": "<p><a href=\"u\">link only</a></p>"
+      },
+      "expected_output": "count=1\nsegment[0]=link only\nattrs[0]={}\n"
+    }
+  ]
+}

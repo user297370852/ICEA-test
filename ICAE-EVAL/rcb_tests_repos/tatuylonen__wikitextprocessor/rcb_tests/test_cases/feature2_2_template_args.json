@@ -1,0 +1,101 @@
+{
+    "description": "Resolve template arguments with the full argument model: a triple-brace reference may carry a default value used when the argument is absent; arguments may be passed by name as key=value or by position; a named default can fall back to a positional reference; and an argument name may itself be computed by nesting another reference inside the braces so the selected argument index is dynamic. Named arguments may contain spaces.",
+    "cases": [
+        {
+            "input": {
+                "wikitext": "{{testmod}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "test {{{1|}}} content"
+                    }
+                ]
+            },
+            "expected_output": "test  content"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "test {{{1|def}}} content"
+                    }
+                ]
+            },
+            "expected_output": "test def content"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|foo}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "test {{{1|def}}} content"
+                    }
+                ]
+            },
+            "expected_output": "test foo content"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|foo=zap}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "test {{{foo|{{{1}}}}}} content"
+                    }
+                ]
+            },
+            "expected_output": "test zap content"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|Zap}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "test {{{foo|{{{1}}}}}} content"
+                    }
+                ]
+            },
+            "expected_output": "test Zap content"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|2|foo|bar}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "test {{{{{{1}}}}}} content"
+                    }
+                ]
+            },
+            "expected_output": "test foo content"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|3|foo|bar}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "test {{{{{{1}}}}}} content"
+                    }
+                ]
+            },
+            "expected_output": "test bar content"
+        },
+        {
+            "input": {
+                "wikitext": "{{testmod|1|zz foo=2|bar=3}}",
+                "pages": [
+                    {
+                        "title": "Template:testmod",
+                        "body": "a{{{zz foo|}}}b"
+                    }
+                ]
+            },
+            "expected_output": "a2b"
+        }
+    ]
+}

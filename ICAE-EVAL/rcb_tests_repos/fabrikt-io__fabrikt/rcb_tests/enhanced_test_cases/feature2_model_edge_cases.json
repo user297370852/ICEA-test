@@ -1,0 +1,47 @@
+{
+  "description": "Additional model mapping edge cases for primitive deserialization, enum deserialization, uniqueness semantics, and fallback map serialization.",
+  "cases": [
+    {
+      "input": {
+        "feature": "model_primitive_deserialization",
+        "json": "{\n  \"integer\" : 0,\n  \"integer32\" : -2147483648,\n  \"integer64\" : -9223372036854775808,\n  \"boolean\" : false,\n  \"string\" : \"edge-case\",\n  \"stringUuid\" : \"00000000-0000-0000-0000-000000000000\",\n  \"stringUri\" : \"urn:example:test\",\n  \"stringDate\" : \"1970-01-01\",\n  \"stringDateTime\" : \"1970-01-01T00:00:00Z\",\n  \"number\" : -0.0000000000000000001,\n  \"numberFloat\" : -1.5,\n  \"numberDouble\" : -2.25,\n  \"byte\" : \"\",\n  \"binary\" : \"AQIDBA==\",\n  \"arrayOfString\" : [ ],\n  \"arrayOfUuid\" : [ ]\n}"
+      },
+      "expected_output": "integer=0\ninteger32=-2147483648\ninteger64=-9223372036854775808\nboolean=false\nstring=edge-case\nstringUuid=00000000-0000-0000-0000-000000000000\nstringUri=urn:example:test\nstringDate=1970-01-01\nstringDateTime=1970-01-01T00:00Z\nnumber=-1E-19\nnumberFloat=-1.5\nnumberDouble=-2.25\nbyte_length=0\nbinary_length=4\narrayOfString=\narrayOfUuid=\n"
+    },
+    {
+      "input": {
+        "feature": "model_enum_deserialization",
+        "json": "{\n  \"array_of_enums\" : [ \"c\", \"a\", \"c\" ],\n  \"inlined_extensible_enum\" : \"custom value with spaces\",\n  \"list_enums\" : [ \"list enum value 1\", \"list enum value 2\" ]\n}"
+      },
+      "expected_output": "arrayOfEnums=c,a,c\ninlinedExtensibleEnum=custom value with spaces\nlistEnums=list enum value 1,list enum value 2\n"
+    },
+    {
+      "input": {
+        "feature": "model_array_uniqueness",
+        "json": "{\n  \"unique_ints\" : [ 1, 1, 2, 3, 2, 4, 1 ]\n}"
+      },
+      "expected_output": "unique_ints=1,2,3,4\n"
+    },
+    {
+      "input": {
+        "feature": "model_array_uniqueness",
+        "json": "{\n  \"non_unique_objects\" : [ {\n    \"one\" : \"repeat\"\n  }, {\n    \"one\" : \"repeat\"\n  }, {\n    \"one\" : \"unique\"\n  } ]\n}"
+      },
+      "expected_output": "non_unique_objects=repeat,repeat,unique\n"
+    },
+    {
+      "input": {
+        "feature": "model_array_uniqueness",
+        "json": "{\n  \"unique_objects\" : [ ]\n}"
+      },
+      "expected_output": "unique_objects=\n"
+    },
+    {
+      "input": {
+        "feature": "model_map_serialization",
+        "variant": "fallback_unknown"
+      },
+      "expected_output": "{\n  \"wild_card\" : null,\n  \"string_map\" : null,\n  \"typed_object_map\" : null,\n  \"object_map\" : null,\n  \"inlined_string_map\" : null,\n  \"inlined_object_map\" : null,\n  \"inlined_unknown_map\" : {\n    \"Key 1\" : 1\n  },\n  \"inlined_typed_object_map\" : null,\n  \"complex_object_with_untyped_map\" : null,\n  \"complex_object_with_typed_map\" : null,\n  \"inlined_complex_object_with_untyped_map\" : null,\n  \"inlined_complex_object_with_typed_map\" : null\n}\n"
+    }
+  ]
+}

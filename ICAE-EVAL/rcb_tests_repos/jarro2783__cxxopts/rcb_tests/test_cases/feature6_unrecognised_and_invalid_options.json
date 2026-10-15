@@ -1,0 +1,25 @@
+{
+  "description": "Handling of unrecognized and malformed options. By default an unknown option token aborts parsing with a no_such_option error, and a malformed short-option token aborts with an invalid_option_syntax error; a single-character token written in long form (`--a`) is likewise an invalid_option_syntax error. When unrecognized options are explicitly allowed, unknown tokens (including the unmatched tail of a grouped short run and malformed short tokens) are collected into the unmatched list instead of aborting.",
+  "cases": [
+    {
+      "input": {"program": "unknown_options", "options": [{"opts": "long"}, {"opts": "s,short"}], "argv": ["--unknown", "--long", "-su", "--another_unknown", "-a"], "queries": []},
+      "expected_output": "error=no_such_option\nparam=unknown"
+    },
+    {
+      "input": {"program": "unknown_options", "allow_unrecognised": true, "options": [{"opts": "long"}, {"opts": "s,short"}], "argv": ["--unknown", "--long", "-su", "--another_unknown", "-a"], "queries": [{"q": "unmatched"}]},
+      "expected_output": "unmatched=4\nunmatched[0]=--unknown\nunmatched[1]=-u\nunmatched[2]=--another_unknown\nunmatched[3]=-a"
+    },
+    {
+      "input": {"program": "--ab?", "options": [{"opts": "long"}, {"opts": "s,short"}], "argv": ["-?b?#@"], "queries": []},
+      "expected_output": "error=invalid_option_syntax\nparam=-?b?#@"
+    },
+    {
+      "input": {"program": "--ab?", "allow_unrecognised": true, "options": [{"opts": "long"}, {"opts": "s,short"}], "argv": ["-?b?#@"], "queries": [{"q": "unmatched"}]},
+      "expected_output": "unmatched=1\nunmatched[0]=-?b?#@"
+    },
+    {
+      "input": {"program": "invalid_syntax", "options": [], "argv": ["--a"], "queries": []},
+      "expected_output": "error=invalid_option_syntax\nparam=--a"
+    }
+  ]
+}

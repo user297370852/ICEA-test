@@ -1,0 +1,35 @@
+{
+  "description": "The root aggregation file accepts only a fixed set of top-level keys, and each section has a strict shape. The generator rejects unknown top-level keys, non-array stage/merge collections, stage entries that are not maps, stage maps missing the required condition key or carrying unrecognized keys, duplicate stage names, non-string merge entries, a non-map custom block, and reserved keys inside the custom block. Each rejection reports the location and reason.",
+  "cases": [
+    {
+      "input": {
+        "files": {
+          "mono_repo.yaml": "other:\n  stages: 5\n",
+          "sub_pkg/mono_pkg.yaml": "dart:\n - dev\n\nstages:\n  - analyze:\n    - dartanalyzer\n",
+          "sub_pkg/pubspec.yaml": "name: pkg_name\n"
+        }
+      },
+      "expected_output": "error=config_parse\nmessage=line 2, column 3 of mono_repo.yaml: Unsupported value for \"other\". Only `travis`, `merge_stages` keys are supported.\n  ╷\n2 │   stages: 5\n  │   ^^^^^^^^^\n  ╵\n"
+    },
+    {
+      "input": {
+        "files": {
+          "mono_repo.yaml": "travis:\n  stages: 5\n",
+          "sub_pkg/mono_pkg.yaml": "dart:\n - dev\n\nstages:\n  - analyze:\n    - dartanalyzer\n",
+          "sub_pkg/pubspec.yaml": "name: pkg_name\n"
+        }
+      },
+      "expected_output": "error=config_parse\nmessage=line 2, column 11 of mono_repo.yaml: Unsupported value for \"stages\". `stages` must be an array.\n  ╷\n2 │   stages: 5\n  │           ^\n  ╵\n"
+    },
+    {
+      "input": {
+        "files": {
+          "mono_repo.yaml": "travis:\n  stages:\n    - name: bob\n",
+          "sub_pkg/mono_pkg.yaml": "dart:\n - dev\n\nstages:\n  - analyze:\n    - dartanalyzer\n",
+          "sub_pkg/pubspec.yaml": "name: pkg_name\n"
+        }
+      },
+      "expected_output": "error=config_parse\nmessage=line 3, column 7 of mono_repo.yaml: Required keys are missing: if.\n  ╷\n3 │     - name: bob\n  │       ^^^^^^^^^\n  ╵\n"
+    }
+  ]
+}

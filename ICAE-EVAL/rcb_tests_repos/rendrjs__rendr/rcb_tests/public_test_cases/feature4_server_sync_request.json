@@ -1,0 +1,35 @@
+{
+    "description": "Translate a server-side persistence operation on a record into a transport-agnostic request descriptor that is handed to the data adapter. The record has an id, a resource root path, an API name, and request headers. The descriptor carries: the HTTP method derived from the operation (read -> GET, create -> POST, update -> PUT, delete -> DELETE), the resource path (root plus the record id), a parsed query map, the supplied headers, the API name, and a body. For read/delete the body is empty; for create/update the body is the record's full serialized attributes.",
+    "cases": [
+        {
+            "input": {
+                "op": "server_sync",
+                "method": "read",
+                "id": 0,
+                "urlRoot": "/listings",
+                "api": "foo",
+                "headers": {
+                    "foo": "bar"
+                }
+            },
+            "expected_output": "method=GET\npath=/listings/0\nquery={}\nheaders={\"foo\":\"bar\"}\napi=foo\nbody={}\n"
+        },
+        {
+            "input": {
+                "op": "server_sync",
+                "method": "update",
+                "id": 0,
+                "urlRoot": "/listings",
+                "api": "foo",
+                "headers": {
+                    "foo": "bar"
+                },
+                "set": {
+                    "foo": "bar",
+                    "bar": "foo"
+                }
+            },
+            "expected_output": "method=PUT\npath=/listings/0\nquery={}\nheaders={\"foo\":\"bar\"}\napi=foo\nbody={\"id\":0,\"foo\":\"bar\",\"bar\":\"foo\"}\n"
+        }
+    ]
+}

@@ -1,0 +1,91 @@
+{
+  "description": "Deduplication across multiple distinct identifiers and interleaved repeats. Default dedup notifies once per identifier on first occurrence (first-seen order preserved); disabling dedup notifies on every occurrence.",
+  "cases": [
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "triggers": [
+          {
+            "package": "acme/a",
+            "link": "https://dep.example.com/a",
+            "message": "ma"
+          },
+          {
+            "package": "acme/b",
+            "link": "https://dep.example.com/b",
+            "message": "mb"
+          },
+          {
+            "package": "acme/a",
+            "link": "https://dep.example.com/a",
+            "message": "ma"
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=ma\npackage=acme/a\nlink=https://dep.example.com/a\nevent=deprecation_notice\nbackend=trigger_error\nmessage=mb\npackage=acme/b\nlink=https://dep.example.com/b\nunique_count=3\ncount[https://dep.example.com/a]=2\ncount[https://dep.example.com/b]=1\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "deduplication": false,
+        "triggers": [
+          {
+            "package": "acme/a",
+            "link": "https://dep.example.com/a",
+            "message": "ma"
+          },
+          {
+            "package": "acme/b",
+            "link": "https://dep.example.com/b",
+            "message": "mb"
+          },
+          {
+            "package": "acme/a",
+            "link": "https://dep.example.com/a",
+            "message": "ma"
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=ma\npackage=acme/a\nlink=https://dep.example.com/a\nevent=deprecation_notice\nbackend=trigger_error\nmessage=mb\npackage=acme/b\nlink=https://dep.example.com/b\nevent=deprecation_notice\nbackend=trigger_error\nmessage=ma\npackage=acme/a\nlink=https://dep.example.com/a\nunique_count=3\ncount[https://dep.example.com/a]=2\ncount[https://dep.example.com/b]=1\n"
+    },
+    {
+      "input": {
+        "enable": [
+          "trigger"
+        ],
+        "deduplication": false,
+        "triggers": [
+          {
+            "package": "acme/x",
+            "link": "https://dep.example.com/x",
+            "message": "n%d",
+            "args": [
+              1
+            ]
+          },
+          {
+            "package": "acme/x",
+            "link": "https://dep.example.com/x",
+            "message": "n%d",
+            "args": [
+              2
+            ]
+          },
+          {
+            "package": "acme/x",
+            "link": "https://dep.example.com/x",
+            "message": "n%d",
+            "args": [
+              3
+            ]
+          }
+        ]
+      },
+      "expected_output": "event=deprecation_notice\nbackend=trigger_error\nmessage=n1\npackage=acme/x\nlink=https://dep.example.com/x\nevent=deprecation_notice\nbackend=trigger_error\nmessage=n2\npackage=acme/x\nlink=https://dep.example.com/x\nevent=deprecation_notice\nbackend=trigger_error\nmessage=n3\npackage=acme/x\nlink=https://dep.example.com/x\nunique_count=3\ncount[https://dep.example.com/x]=3\n"
+    }
+  ]
+}

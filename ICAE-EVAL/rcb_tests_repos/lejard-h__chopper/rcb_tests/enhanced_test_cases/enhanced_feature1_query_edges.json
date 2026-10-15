@@ -1,0 +1,70 @@
+{
+  "description": "Enhanced query serialization cases covering empty maps, percent encoding of keys/values, Unicode, skipped empty list elements, include-null nested bracket notation, and deeply nested bracket keys.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize_query",
+        "map": {}
+      },
+      "expected_output": "query=\n"
+    },
+    {
+      "input": {
+        "op": "serialize_query",
+        "map": {
+          "special key": "a+b&c=d?x/y",
+          "unicode": "café"
+        }
+      },
+      "expected_output": "query=special+key=a%2Bb%26c%3Dd%3Fx%2Fy&unicode=caf%C3%A9\n"
+    },
+    {
+      "input": {
+        "op": "serialize_query",
+        "map": {
+          "foo": [
+            "",
+            null
+          ],
+          "bar": "baz"
+        }
+      },
+      "expected_output": "query=bar=baz\n"
+    },
+    {
+      "input": {
+        "op": "serialize_query",
+        "map": {
+          "root": {
+            "items": [
+              "one",
+              "",
+              null,
+              "two"
+            ],
+            "nil": null
+          }
+        },
+        "includeNullQueryVars": true,
+        "useBrackets": true
+      },
+      "expected_output": "query=root%5Bitems%5D%5B%5D=one&root%5Bitems%5D%5B%5D=two&root%5Bnil%5D=\n"
+    },
+    {
+      "input": {
+        "op": "serialize_query",
+        "map": {
+          "a": {
+            "b": {
+              "c": {
+                "d": "deep"
+              }
+            }
+          }
+        },
+        "useBrackets": true
+      },
+      "expected_output": "query=a%5Bb%5D%5Bc%5D%5Bd%5D=deep\n"
+    }
+  ]
+}

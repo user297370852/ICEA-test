@@ -1,0 +1,59 @@
+{
+    "description": "Render a component that, depending on a boolean in its state, produces a child element bound to one of two different reference names. After toggling the state and applying a scheduled update, the reference that no longer appears in the new tree is removed and the reference present in the new tree is bound. Each observation point lists the currently bound references (sorted by name) with their serialized nodes, plus the serialized tree and flattened text.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "root": {
+                    "state": {
+                        "condition": true
+                    },
+                    "render": {
+                        "if": "condition",
+                        "then": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "el": "span",
+                                    "ref": "greeting",
+                                    "children": [
+                                        "Hello"
+                                    ]
+                                }
+                            ]
+                        },
+                        "else": {
+                            "el": "div",
+                            "children": [
+                                {
+                                    "el": "span",
+                                    "ref": "greeted",
+                                    "children": [
+                                        "World"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "before"
+                    },
+                    {
+                        "set": {
+                            "condition": false
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "after"
+                    }
+                ]
+            },
+            "expected_output": "== before ==\nelement=<div#n1><span#n2>Hello</span></div>\ntext=Hello\nrefs:\n  greeting=<span#n2>Hello</span>\n== after ==\nelement=<div#n1><span#n2>World</span></div>\ntext=World\nrefs:\n  greeted=<span#n2>World</span>\n"
+        }
+    ]
+}

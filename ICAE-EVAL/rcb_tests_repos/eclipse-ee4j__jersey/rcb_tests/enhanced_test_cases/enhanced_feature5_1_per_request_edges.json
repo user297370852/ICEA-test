@@ -1,0 +1,79 @@
+{
+  "description": "Edge cases for the per-request echo: missing x query parameter, empty x, encoded punctuation, and two requests in one sequence both reporting counter 0 (fresh instance per request).",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/per-request"
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request\nbody=http://localhost:9998/main/jcdibean/per-request: queryParam=null 0"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/per-request",
+            "query": {
+              "x": ""
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=\nbody=http://localhost:9998/main/jcdibean/per-request?x=: queryParam= 0"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/per-request",
+            "query": {
+              "x": "100%"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=100%25\nbody=http://localhost:9998/main/jcdibean/per-request?x=100%25: queryParam=100% 0"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/per-request",
+            "query": {
+              "x": "a&b=c"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=a%26b%3Dc\nbody=http://localhost:9998/main/jcdibean/per-request?x=a%26b%3Dc: queryParam=a&b=c 0"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/per-request",
+            "query": {
+              "x": "first"
+            }
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/per-request",
+            "query": {
+              "x": "second"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=first\nbody=http://localhost:9998/main/jcdibean/per-request?x=first: queryParam=first 0\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=second\nbody=http://localhost:9998/main/jcdibean/per-request?x=second: queryParam=second 0"
+    }
+  ]
+}

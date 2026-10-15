@@ -1,0 +1,45 @@
+{
+  "description": "Complete federated schema generation covering the federationV2=true schema-definition-block path (absent from the native suite), shareable/inaccessible plumbing, empty subgraphs with no entities, multiple entities with @extends, and non-resolvable keys.",
+  "cases": [
+    {
+      "input": {
+        "op": "federated_schema_sdl",
+        "federationV2": true,
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.0\", import: [\"@key\"])\n\ntype Query {\n  product(id: ID!): Product\n}\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n  name: String\n}\n"
+      },
+      "expected_output": "schema @link(import : [\"@key\"], url : \"https://specs.apollo.dev/federation/v2.0\"){\n  query: Query\n}\n\ndirective @federation__extends on OBJECT | INTERFACE\n\ndirective @federation__external on OBJECT | FIELD_DEFINITION\n\ndirective @federation__override(from: String!) on FIELD_DEFINITION\n\ndirective @federation__provides(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__requires(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__shareable on OBJECT | FIELD_DEFINITION\n\ndirective @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\ndirective @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\nunion _Entity = Product\n\ntype Product @key(fields : \"id\", resolvable : true) {\n  id: ID!\n  name: String\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  product(id: ID!): Product\n}\n\ntype _Service {\n  sdl: String!\n}\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}\n\nscalar _Any\n\nscalar federation__FieldSet\n\nscalar link__Import\n"
+    },
+    {
+      "input": {
+        "op": "federated_schema_sdl",
+        "federationV2": true,
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\", \"@shareable\", \"@inaccessible\"])\n\ntype Query {\n  product(id: ID!): Product\n}\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n  dim: Dimension\n}\n\ntype Dimension @shareable {\n  w: Float\n  h: Float @inaccessible\n}\n"
+      },
+      "expected_output": "schema @link(import : [\"@key\", \"@shareable\", \"@inaccessible\"], url : \"https://specs.apollo.dev/federation/v2.3\"){\n  query: Query\n}\n\ndirective @federation__composeDirective(name: String!) repeatable on SCHEMA\n\ndirective @federation__extends on OBJECT | INTERFACE\n\ndirective @federation__external on OBJECT | FIELD_DEFINITION\n\ndirective @federation__interfaceObject on OBJECT\n\ndirective @federation__override(from: String!) on FIELD_DEFINITION\n\ndirective @federation__provides(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__requires(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\ndirective @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @shareable repeatable on OBJECT | FIELD_DEFINITION\n\ndirective @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\nunion _Entity = Product\n\ntype Dimension @shareable {\n  h: Float @inaccessible\n  w: Float\n}\n\ntype Product @key(fields : \"id\", resolvable : true) {\n  dim: Dimension\n  id: ID!\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  product(id: ID!): Product\n}\n\ntype _Service {\n  sdl: String!\n}\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}\n\nscalar _Any\n\nscalar federation__FieldSet\n\nscalar link__Import\n"
+    },
+    {
+      "input": {
+        "op": "federated_schema_sdl",
+        "federationV2": false,
+        "sdl": "type Query {\n  hello: String\n}\n"
+      },
+      "expected_output": "directive @extends on OBJECT | INTERFACE\n\ndirective @external on FIELD_DEFINITION\n\ndirective @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE\n\ndirective @provides(fields: _FieldSet!) on FIELD_DEFINITION\n\ndirective @requires(fields: _FieldSet!) on FIELD_DEFINITION\n\ntype Query {\n  _service: _Service!\n  hello: String\n}\n\ntype _Service {\n  sdl: String!\n}\n\nscalar _FieldSet\n"
+    },
+    {
+      "input": {
+        "op": "federated_schema_sdl",
+        "federationV2": false,
+        "sdl": "type Query {\n  a: A\n}\n\ntype A @key(fields: \"id\") {\n  id: ID!\n}\n\ntype B @key(fields: \"code\") @extends {\n  code: ID! @external\n}\n"
+      },
+      "expected_output": "directive @extends on OBJECT | INTERFACE\n\ndirective @external on FIELD_DEFINITION\n\ndirective @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE\n\ndirective @provides(fields: _FieldSet!) on FIELD_DEFINITION\n\ndirective @requires(fields: _FieldSet!) on FIELD_DEFINITION\n\nunion _Entity = A | B\n\ntype A @key(fields : \"id\") {\n  id: ID!\n}\n\ntype B @extends @key(fields : \"code\") {\n  code: ID! @external\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  a: A\n}\n\ntype _Service {\n  sdl: String!\n}\n\nscalar _Any\n\nscalar _FieldSet\n"
+    },
+    {
+      "input": {
+        "op": "federated_schema_sdl",
+        "federationV2": true,
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\"])\n\ntype Query {\n  product(id: ID!): Product\n}\n\ntype Product @key(fields: \"id\") {\n  id: ID!\n}\n\ntype Ref @key(fields: \"id\", resolvable: false) {\n  id: ID!\n}\n"
+      },
+      "expected_output": "schema @link(import : [\"@key\"], url : \"https://specs.apollo.dev/federation/v2.3\"){\n  query: Query\n}\n\ndirective @federation__composeDirective(name: String!) repeatable on SCHEMA\n\ndirective @federation__extends on OBJECT | INTERFACE\n\ndirective @federation__external on OBJECT | FIELD_DEFINITION\n\ndirective @federation__interfaceObject on OBJECT\n\ndirective @federation__override(from: String!) on FIELD_DEFINITION\n\ndirective @federation__provides(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__requires(fields: federation__FieldSet!) on FIELD_DEFINITION\n\ndirective @federation__shareable repeatable on OBJECT | FIELD_DEFINITION\n\ndirective @inaccessible on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\ndirective @key(fields: federation__FieldSet!, resolvable: Boolean = true) repeatable on OBJECT | INTERFACE\n\ndirective @link(as: String, for: link__Purpose, import: [link__Import], url: String!) repeatable on SCHEMA\n\ndirective @tag(name: String!) repeatable on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION\n\nunion _Entity = Product | Ref\n\ntype Product @key(fields : \"id\", resolvable : true) {\n  id: ID!\n}\n\ntype Query {\n  _entities(representations: [_Any!]!): [_Entity]!\n  _service: _Service!\n  product(id: ID!): Product\n}\n\ntype Ref @key(fields : \"id\", resolvable : false) {\n  id: ID!\n}\n\ntype _Service {\n  sdl: String!\n}\n\nenum link__Purpose {\n  EXECUTION\n  SECURITY\n}\n\nscalar _Any\n\nscalar federation__FieldSet\n\nscalar link__Import\n"
+    }
+  ]
+}

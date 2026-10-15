@@ -1,0 +1,9 @@
+{
+    "description": "Parse a location reference for an image archive stored in object storage. The reference has the form //<bucket>[/<key>][:<suffix>]: everything up to the first colon names a storage bucket and an optional object key (the key is empty when omitted, and a trailing slash with no key also yields an empty key). The optional suffix after the first colon is either a docker image reference (a repository with an optional tag) or a zero-based source index introduced by an '@'. A successful parse reports the bucket, the object key, the normalized docker reference, and the source index. A docker reference is normalized to its canonical fully-qualified repository form, and a missing tag defaults to the conventional 'latest' tag; when no docker reference is supplied a none-marker is reported. When no source index is supplied a sentinel negative value is reported. The reference is rejected as invalid when it is empty, when the embedded docker reference is malformed, when it carries a content digest, when a docker reference and a source index are supplied together, or when the source index is negative.",
+    "cases": [
+        {"input": {"op": "parse_reference", "ref": "//bucket/a/b"}, "expected_output": "valid=true\nbucket=bucket\nkey=a/b\nref=(none)\nsource_index=-1\n"},
+        {"input": {"op": "parse_reference", "ref": "//bucket:busybox"}, "expected_output": "valid=true\nbucket=bucket\nkey=\nref=docker.io/library/busybox:latest\nsource_index=-1\n"},
+        {"input": {"op": "parse_reference", "ref": "//bucket:@0"}, "expected_output": "valid=true\nbucket=bucket\nkey=\nref=(none)\nsource_index=0\n"},
+        {"input": {"op": "parse_reference", "ref": "//bucket:@-1"}, "expected_output": "valid=false\n"}
+    ]
+}

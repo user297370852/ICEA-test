@@ -1,0 +1,45 @@
+{
+  "description": "Boundary coverage for the HTTP front door beyond the documented examples: the well-known liveness endpoint /ping is served unauthenticated with a 200 status and an 'OK' body; the site root is a protected path so it yields a 403 sign-in challenge whose embedded redirect target is '/'; a protected path that carries a query string embeds the full original request URI (path plus query) as the redirect target; requesting the robots endpoint while extracting the redirect target finds no embedded target.",
+  "cases": [
+    {
+      "input": {
+        "action": "http_request",
+        "path": "/ping",
+        "extract": "body"
+      },
+      "expected_output": "status=200\nbody=OK\n"
+    },
+    {
+      "input": {
+        "action": "http_request",
+        "path": "/",
+        "extract": "redirect"
+      },
+      "expected_output": "status=403\nredirect=/\n"
+    },
+    {
+      "input": {
+        "action": "http_request",
+        "path": "/dashboard?tab=main&id=42",
+        "extract": "redirect"
+      },
+      "expected_output": "status=403\nredirect=/dashboard?tab=main&amp;id=42\n"
+    },
+    {
+      "input": {
+        "action": "http_request",
+        "path": "/robots.txt",
+        "extract": "redirect"
+      },
+      "expected_output": "status=200\nredirect=<none>\n"
+    },
+    {
+      "input": {
+        "action": "http_request",
+        "path": "/a/b/c/d/e",
+        "extract": "redirect"
+      },
+      "expected_output": "status=403\nredirect=/a/b/c/d/e\n"
+    }
+  ]
+}

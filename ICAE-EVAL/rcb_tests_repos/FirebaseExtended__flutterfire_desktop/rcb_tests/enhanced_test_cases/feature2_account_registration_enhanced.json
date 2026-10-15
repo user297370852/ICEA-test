@@ -1,0 +1,156 @@
+{
+  "description": "Enhanced boundary coverage for account registration: an account with no linked providers (reported as anonymous with a provider_count of zero), an account with several linked providers, a zero-valued creation timestamp, and a very large epoch-millisecond creation timestamp. The sign-in provider id is always reported as the email/password provider for a sign-up flow.",
+  "cases": [
+    {
+      "input": {
+        "action": "sign_up",
+        "email": "no.providers@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "register": {
+            "status": 200,
+            "body": {
+              "idToken": "tok-np",
+              "email": "no.providers@example.com",
+              "refreshToken": "refresh-np",
+              "localId": "uid-np"
+            }
+          },
+          "account": {
+            "status": 200,
+            "body": {
+              "users": [
+                {
+                  "localId": "uid-np",
+                  "email": "no.providers@example.com",
+                  "createdAt": "1600000000000",
+                  "lastLoginAt": "1600000005000",
+                  "providerUserInfo": []
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "email=no.providers@example.com\nuid=uid-np\nis_new_user=true\nprovider_id=password\nis_anonymous=true\nprovider_count=0\ncreation_time_ms=1600000000000\n"
+    },
+    {
+      "input": {
+        "action": "sign_up",
+        "email": "many@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "register": {
+            "status": 200,
+            "body": {
+              "idToken": "tok-many",
+              "email": "many@example.com",
+              "refreshToken": "refresh-many",
+              "localId": "uid-many"
+            }
+          },
+          "account": {
+            "status": 200,
+            "body": {
+              "users": [
+                {
+                  "localId": "uid-many",
+                  "email": "many@example.com",
+                  "createdAt": "1234567890123",
+                  "lastLoginAt": "1234567899999",
+                  "providerUserInfo": [
+                    {
+                      "providerId": "password",
+                      "email": "many@example.com",
+                      "federatedId": "many@example.com"
+                    },
+                    {
+                      "providerId": "google.com",
+                      "email": "many@example.com",
+                      "federatedId": "g-123"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "email=many@example.com\nuid=uid-many\nis_new_user=true\nprovider_id=password\nis_anonymous=false\nprovider_count=2\ncreation_time_ms=1234567890123\n"
+    },
+    {
+      "input": {
+        "action": "sign_up",
+        "email": "epoch.zero@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "register": {
+            "status": 200,
+            "body": {
+              "idToken": "tok-zero",
+              "email": "epoch.zero@example.com",
+              "refreshToken": "refresh-zero",
+              "localId": "uid-zero"
+            }
+          },
+          "account": {
+            "status": 200,
+            "body": {
+              "users": [
+                {
+                  "localId": "uid-zero",
+                  "email": "epoch.zero@example.com",
+                  "createdAt": "0",
+                  "lastLoginAt": "0",
+                  "providerUserInfo": [
+                    {
+                      "providerId": "password"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "email=epoch.zero@example.com\nuid=uid-zero\nis_new_user=true\nprovider_id=password\nis_anonymous=false\nprovider_count=1\ncreation_time_ms=0\n"
+    },
+    {
+      "input": {
+        "action": "sign_up",
+        "email": "future@example.com",
+        "password": "secret-pass",
+        "responses": {
+          "register": {
+            "status": 200,
+            "body": {
+              "idToken": "tok-fut",
+              "email": "future@example.com",
+              "refreshToken": "refresh-fut",
+              "localId": "uid-fut"
+            }
+          },
+          "account": {
+            "status": 200,
+            "body": {
+              "users": [
+                {
+                  "localId": "uid-fut",
+                  "email": "future@example.com",
+                  "createdAt": "4102444800000",
+                  "lastLoginAt": "4102444800000",
+                  "providerUserInfo": [
+                    {
+                      "providerId": "password"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "email=future@example.com\nuid=uid-fut\nis_new_user=true\nprovider_id=password\nis_anonymous=false\nprovider_count=1\ncreation_time_ms=4102444800000\n"
+    }
+  ]
+}

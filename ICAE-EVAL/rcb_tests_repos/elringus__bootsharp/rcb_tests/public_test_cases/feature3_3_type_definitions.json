@@ -1,0 +1,58 @@
+{
+    "description": "The emitted type declaration bundle includes only allowed runtime definitions, declares assembly-shaped APIs, maps host types to script types, and reports missing imports with a neutral error.",
+    "cases": [
+        {
+            "input": {
+                "assemblies": [],
+                "probes": [
+                    "export interface Interop {}",
+                    "export interface Boot {}",
+                    "import from",
+                    "other"
+                ]
+            },
+            "expected_output": "contains=export interface Interop {}\nvalue=true\ncontains=export interface Boot {}\nvalue=true\ncontains=import from\nvalue=false\ncontains=other\nvalue=false\n"
+        },
+        {
+            "input": {
+                "assemblies": [
+                    {
+                        "name": "bar.nya.dll",
+                        "members": [
+                            "[JSFunction] public static void Fun () { }"
+                        ]
+                    },
+                    {
+                        "name": "foo.dll",
+                        "members": [
+                            "[JSInvokable] public static void Foo () { }"
+                        ]
+                    }
+                ],
+                "probes": [
+                    "export declare const bar: { nya: {\n    Fun: () => void,\n}};",
+                    "export declare const foo: {\n    Foo: () => void,\n};"
+                ]
+            },
+            "expected_output": "contains=export declare const bar: { nya: {\n    Fun: () => void,\n}};\nvalue=true\ncontains=export declare const foo: {\n    Foo: () => void,\n};\nvalue=true\n"
+        },
+        {
+            "input": {
+                "assemblies": [
+                    {
+                        "name": "test.dll",
+                        "members": [
+                            "[JSInvokable] public static Task<bool> AsyBool () => default;",
+                            "[JSInvokable] public static ValueTask AsyVoid () => default;"
+                        ]
+                    }
+                ],
+                "probes": [
+                    "AsyBool: () => Promise<boolean>",
+                    "AsyVoid: () => Promise<void>"
+                ]
+            },
+            "expected_output": "contains=AsyBool: () => Promise<boolean>\nvalue=true\ncontains=AsyVoid: () => Promise<void>\nvalue=true\n"
+        }
+    ]
+}

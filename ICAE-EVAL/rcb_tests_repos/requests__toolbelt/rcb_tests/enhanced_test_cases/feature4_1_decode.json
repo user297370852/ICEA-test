@@ -1,0 +1,29 @@
+{
+  "description": "Boundary coverage for multipart decoding: a single part with an empty body, an unquoted boundary parameter, an uppercase multipart subtype, and a body with several parts each carrying a single header.",
+  "cases": [
+    {
+      "input": {
+        "action": "multipart_decode",
+        "content_type": "multipart/form-data; boundary=b1",
+        "content": "--b1\r\nContent-Disposition: form-data; name=\"only\"\r\n\r\nsolo\r\n--b1--\r\n"
+      },
+      "expected_output": "parts=1\npart0.header.Content-Disposition=form-data; name=\"only\"\npart0.content=solo\n"
+    },
+    {
+      "input": {
+        "action": "multipart_decode",
+        "content_type": "multipart/mixed; boundary=xyz",
+        "content": "--xyz\r\nX-A: 1\r\n\r\n\r\n--xyz--\r\n"
+      },
+      "expected_output": "parts=1\npart0.header.X-A=1\npart0.content=\n"
+    },
+    {
+      "input": {
+        "action": "multipart_decode",
+        "content_type": "multipart/form-data; boundary=\"edge\"",
+        "content": "--edge\r\nA: 1\r\nB: 2\r\nC: 3\r\n\r\nbody\r\n--edge--\r\n"
+      },
+      "expected_output": "parts=1\npart0.header.A=1\npart0.header.B=2\npart0.header.C=3\npart0.content=body\n"
+    }
+  ]
+}

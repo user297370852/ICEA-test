@@ -1,0 +1,41 @@
+{
+  "description": "HTTP transport status mapping: over HTTP the response carries a status code derived from the JSON-RPC outcome - success is 200, an unknown method is 404, malformed input is 400, and a service or parameter error is 500; a batch containing any error reports 500. GET requests build the call from method/id/params query parameters, and a custom status-code provider can remap every category.",
+  "cases": [
+    {
+      "description": "successful call over HTTP is 200",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "echo",
+          "params": [
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "http_status=200\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=success\nresult=\"hi\"\n"
+    },
+    {
+      "description": "unknown method over HTTP is 404",
+      "input": {
+        "transport": "http_post",
+        "request": {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "nope",
+          "params": []
+        }
+      },
+      "expected_output": "http_status=404\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=1\noutcome=error\nerror_code=-32601\nerror_category=method_not_found\nerror_message=method not found\n"
+    },
+    {
+      "description": "malformed input over HTTP is 400",
+      "input": {
+        "transport": "http_post",
+        "request_raw": "{bad"
+      },
+      "expected_output": "http_status=400\ncontent_type=application/json-rpc\njsonrpc=2.0\nid=\"null\"\noutcome=error\nerror_code=-32700\nerror_category=parse_error\nerror_message=JSON parse error\n"
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "description": "Enhanced boundary coverage for query-string construction. A nullable single query whose value is null still emits the literal string 'null'; two plain queries preserve declaration order; a string-keyed map with Int values renders numeric values; a list-valued query repeats the key per element; an encoded bare query-name has its value appended to the already-encoded section verbatim (the plus sign is percent-encoded); and the three roles (single, bare name, map) combine in declaration order. The adapter prints the issued request's method, resolved URL and body kind.",
+  "cases": [
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "query",
+            "key": "q",
+            "name": "q",
+            "type": "String?"
+          }
+        ],
+        "args": [
+          null
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts?q=null\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "query",
+            "key": "a",
+            "name": "a"
+          },
+          {
+            "kind": "query",
+            "key": "b",
+            "name": "b"
+          }
+        ],
+        "args": [
+          "1",
+          "2"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts?a=1&b=2\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "queryMap",
+            "name": "m",
+            "type": "Map<String, Int>"
+          }
+        ],
+        "args": [
+          {
+            "n": 5
+          }
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts?n=5\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "query",
+            "key": "t",
+            "name": "q",
+            "type": "List<String>"
+          }
+        ],
+        "args": [
+          [
+            "x",
+            "y"
+          ]
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts?t=x&t=y\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "search"
+          }
+        ],
+        "params": [
+          {
+            "kind": "queryName",
+            "encoded": true,
+            "name": "q"
+          }
+        ],
+        "args": [
+          "a+b"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/search?a%2Bb\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "query",
+            "key": "name",
+            "name": "q"
+          },
+          {
+            "kind": "queryName",
+            "name": "qn"
+          },
+          {
+            "kind": "queryMap",
+            "name": "qm",
+            "type": "Map<String, String>"
+          }
+        ],
+        "args": [
+          "v1",
+          "flag",
+          {
+            "k": "v"
+          }
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts?name=v1&flag&k=v\nbody=none"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+    "description": "A caller obtains a shared loading context and threads it through every collection load. The first wave of concurrent loads is satisfied by one batched round-trip; a second wave that repeats the exact same loads is served entirely from the context's cache and triggers no further round-trips. The reported signals are the total number of underlying round-trips across both waves (which stays at the single initial batch) and the linked-record id set returned to each owner in each wave (identical across waves).",
+    "cases": [
+        {
+            "input": {
+                "scenario": "simple_model",
+                "context": true,
+                "rounds": 2,
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "members"
+                    },
+                    {
+                        "project": 2,
+                        "as": "members"
+                    }
+                ]
+            },
+            "expected_output": "queries=1\nbatch=1,2\nr0.op0=members=101,102,103,104\nr0.op1=members=104,105,106,107\nr1.op0=members=101,102,103,104\nr1.op1=members=104,105,106,107\n"
+        },
+        {
+            "input": {
+                "scenario": "simple_string",
+                "context": true,
+                "rounds": 2,
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "members"
+                    },
+                    {
+                        "project": 3,
+                        "as": "members"
+                    }
+                ]
+            },
+            "expected_output": "queries=1\nbatch=1,3\nr0.op0=members=101,102,103,104\nr0.op1=members=107,108,109\nr1.op0=members=101,102,103,104\nr1.op1=members=107,108,109\n"
+        }
+    ]
+}

@@ -1,0 +1,149 @@
+{
+  "description": "ENHANCED mutation action-map edge cases: a non-PUT action verb passed through verbatim; numeric zero written as a plain PUT value (not dropped); a $add on a number set; a $del operand given as a single scalar wrapped into a one-element set; a $add of a single number; the sort key omitted while a non-key attribute remains; and a date-typed attribute serialized to ISO-8601 in the action value.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "ADD",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "count": "number"
+          }
+        },
+        "item": {
+          "id": "x",
+          "count": 4
+        }
+      },
+      "expected_output": "{\"count\":{\"Action\":\"ADD\",\"Value\":4}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "count": "number"
+          }
+        },
+        "item": {
+          "id": "x",
+          "count": 0
+        }
+      },
+      "expected_output": "{\"count\":{\"Action\":\"PUT\",\"Value\":0}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "scores": {
+              "set": "number"
+            }
+          }
+        },
+        "item": {
+          "id": "x",
+          "scores": {
+            "$add": [
+              10,
+              20
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"scores\":{\"Action\":\"ADD\",\"Value\":{\"NS\":[10,20]}}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "names": {
+              "set": "string"
+            }
+          }
+        },
+        "item": {
+          "id": "x",
+          "names": {
+            "$del": "solo"
+          }
+        }
+      },
+      "expected_output": "{\"names\":{\"Action\":\"DELETE\",\"Value\":{\"SS\":[\"solo\"]}}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "count": "number"
+          }
+        },
+        "item": {
+          "id": "x",
+          "count": {
+            "$add": 1
+          }
+        }
+      },
+      "expected_output": "{\"count\":{\"Action\":\"ADD\",\"Value\":1}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "id",
+          "rangeKey": "ts",
+          "schema": {
+            "id": "string",
+            "ts": "number",
+            "title": "string"
+          }
+        },
+        "item": {
+          "id": "x",
+          "ts": 5,
+          "title": "hi"
+        }
+      },
+      "expected_output": "{\"title\":{\"Action\":\"PUT\",\"Value\":\"hi\"}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "id",
+          "schema": {
+            "id": "string",
+            "when": "date"
+          }
+        },
+        "item": {
+          "id": "x",
+          "when": {
+            "__date__": "2023-03-03T03:03:03.000Z"
+          }
+        }
+      },
+      "expected_output": "{\"when\":{\"Action\":\"PUT\",\"Value\":\"2023-03-03T03:03:03.000Z\"}}\n"
+    }
+  ]
+}

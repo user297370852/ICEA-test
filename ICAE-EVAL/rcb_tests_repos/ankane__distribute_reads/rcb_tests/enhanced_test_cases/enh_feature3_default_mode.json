@@ -1,0 +1,84 @@
+{
+  "description": "Default-distribution mode boundaries: several reads with no write, alternating read/write stickiness, write-before-read pinning, and a forced-primary scope that writes then a later plain read.",
+  "cases": [
+    {
+      "input": {
+        "by_default": true,
+        "program": [
+          {
+            "op": "read"
+          },
+          {
+            "op": "read"
+          }
+        ]
+      },
+      "expected_output": "read=replica\nread=replica\n"
+    },
+    {
+      "input": {
+        "by_default": true,
+        "program": [
+          {
+            "op": "read"
+          },
+          {
+            "op": "write"
+          },
+          {
+            "op": "read"
+          },
+          {
+            "op": "write"
+          },
+          {
+            "op": "read"
+          }
+        ]
+      },
+      "expected_output": "read=replica\nread=primary\nread=primary\n"
+    },
+    {
+      "input": {
+        "by_default": true,
+        "program": [
+          {
+            "op": "write"
+          },
+          {
+            "op": "read"
+          }
+        ]
+      },
+      "expected_output": "read=primary\n"
+    },
+    {
+      "input": {
+        "by_default": true,
+        "program": [
+          {
+            "op": "scope",
+            "options": {
+              "primary": true
+            },
+            "body": [
+              {
+                "op": "read"
+              },
+              {
+                "op": "write"
+              },
+              {
+                "op": "read"
+              }
+            ]
+          },
+          {
+            "op": "read"
+          }
+        ]
+      },
+      "expected_output": "read=primary\nread=primary\nread=primary\n"
+    }
+  ]
+}

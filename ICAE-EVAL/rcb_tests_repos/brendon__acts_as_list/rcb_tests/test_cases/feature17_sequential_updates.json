@@ -1,0 +1,121 @@
+{
+    "description": "When the position column is backed by a unique constraint, the library shifts intermediate elements one at a time (stepwise) during a relocation instead of in a single bulk update, so the unique constraint is never transiently violated; this stepwise mode turns on automatically in the presence of a unique index and can be explicitly overridden off. Relocations still produce a contiguous, duplicate-free ordering. A relocation target below the top of the list is rejected with a neutral error. Reports cover whether stepwise shuffling is active, the ordering after a relocation, and the rejection of an out-of-range target.",
+    "cases": [
+        {
+            "input": {
+                "config": {
+                    "column": "pos",
+                    "unique": true,
+                    "positive": true
+                },
+                "queries": [
+                    {
+                        "q": "stepwise_shuffle"
+                    }
+                ]
+            },
+            "expected_output": "stepwise_shuffle=true"
+        },
+        {
+            "input": {
+                "config": {
+                    "column": "pos",
+                    "unique": true,
+                    "positive": true,
+                    "sequential_updates": false
+                },
+                "queries": [
+                    {
+                        "q": "stepwise_shuffle"
+                    }
+                ]
+            },
+            "expected_output": "stepwise_shuffle=false"
+        },
+        {
+            "input": {
+                "config": {
+                    "column": "pos",
+                    "unique": true,
+                    "positive": true
+                },
+                "operations": [
+                    {
+                        "op": "create",
+                        "ref": "a",
+                        "attrs": {
+                            "pos": 1
+                        }
+                    },
+                    {
+                        "op": "create",
+                        "ref": "b",
+                        "attrs": {
+                            "pos": 2
+                        }
+                    },
+                    {
+                        "op": "create",
+                        "ref": "c",
+                        "attrs": {
+                            "pos": 3
+                        }
+                    },
+                    {
+                        "op": "create",
+                        "ref": "d",
+                        "attrs": {
+                            "pos": 4
+                        }
+                    },
+                    {
+                        "op": "create",
+                        "ref": "e"
+                    },
+                    {
+                        "op": "insert_at",
+                        "ref": "e",
+                        "position": 1
+                    }
+                ],
+                "queries": [
+                    {
+                        "q": "order_ids",
+                        "order": "pos"
+                    },
+                    {
+                        "q": "position_values",
+                        "order": "pos"
+                    }
+                ]
+            },
+            "expected_output": "ids=[5, 1, 2, 3, 4]\npositions=[1, 2, 3, 4, 5]"
+        },
+        {
+            "input": {
+                "config": {
+                    "column": "pos",
+                    "unique": true,
+                    "positive": true
+                },
+                "operations": [
+                    {
+                        "op": "create",
+                        "ref": "a",
+                        "attrs": {
+                            "pos": 1
+                        }
+                    }
+                ],
+                "queries": [
+                    {
+                        "q": "insert_at_outcome",
+                        "ref": "a",
+                        "position": 0
+                    }
+                ]
+            },
+            "expected_output": "error=position_below_top"
+        }
+    ]
+}

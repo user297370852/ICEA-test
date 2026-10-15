@@ -1,0 +1,64 @@
+{
+  "description": "Enhanced boundary coverage for $(NAME) substitution: empty $() token left intact, matched and unmatched tokens interleaved, strict case-sensitivity of names, replacement values containing '=' and ';', repeated tokens, replacement values containing spaces, and a no-token string that still contains '$' and parentheses.",
+  "cases": [
+    {
+      "input": {
+        "env": {},
+        "text": "a$()b"
+      },
+      "expected_output": "result=a$()b\n"
+    },
+    {
+      "input": {
+        "env": {
+          "Greeting": "1"
+        },
+        "text": "$(Greeting)$(Missing)$(Greeting)"
+      },
+      "expected_output": "result=1$(Missing)1\n"
+    },
+    {
+      "input": {
+        "env": {
+          "Greeting": "X"
+        },
+        "text": "$(GREETING) $(Greeting)"
+      },
+      "expected_output": "result=$(GREETING) X\n"
+    },
+    {
+      "input": {
+        "env": {
+          "Conn": "a=b;c"
+        },
+        "text": "x=$(Conn)"
+      },
+      "expected_output": "result=x=a=b;c\n"
+    },
+    {
+      "input": {
+        "env": {
+          "Ztoken": "q"
+        },
+        "text": "$(Ztoken)-$(Ztoken)-$(Ztoken)"
+      },
+      "expected_output": "result=q-q-q\n"
+    },
+    {
+      "input": {
+        "env": {
+          "Phrase": "hello world"
+        },
+        "text": "say $(Phrase)!"
+      },
+      "expected_output": "result=say hello world!\n"
+    },
+    {
+      "input": {
+        "env": {},
+        "text": "cost is $5 (USD)"
+      },
+      "expected_output": "result=cost is $5 (USD)\n"
+    }
+  ]
+}

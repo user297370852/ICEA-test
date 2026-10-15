@@ -1,0 +1,16 @@
+{
+  "feature": "gateway_route",
+  "description": "Edge-gateway (reverse proxy) routing spans: route host, downstream status, error recording, and non-routed pass-through.",
+  "cases": [
+    {
+      "name": "successful_route_records_status_and_route_host",
+      "input": {"feature": "gateway_route", "path": "/test"},
+      "expected_output": "spans=3\ndistinct_traces=1\ncomponent.java-web-servlet=2\ncomponent.zuul=1\ngateway.op=GET\ngateway.http.status=200\ngateway.route.host=http://localhost:53751/hello\ngateway.error=false\n"
+    },
+    {
+      "name": "unreachable_downstream_records_500_and_error",
+      "input": {"feature": "gateway_route", "path": "/wrong-port"},
+      "expected_output": "spans=2\ndistinct_traces=1\ncomponent.java-web-servlet=1\ncomponent.zuul=1\ngateway.op=GET\ngateway.http.status=500\ngateway.route.host=http://localhost:53752/wrong-port\ngateway.error=true\n"
+    }
+  ]
+}

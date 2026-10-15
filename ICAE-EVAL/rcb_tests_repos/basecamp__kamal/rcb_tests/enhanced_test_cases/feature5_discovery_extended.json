@@ -1,0 +1,182 @@
+{
+  "description": "Discovery/cleanup edge cases: listing images for a repository that includes a registry server prefix, list_versions with only a status filter, list_versions with only extra docker flags, an exact-name container_id lookup for an arbitrary name, image pruning under a destination, and locating the current running container id under a destination.",
+  "cases": [
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "server": "registry.example.com",
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "list_images"
+      },
+      "expected_output": "docker image ls registry.example.com/dhh/app"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "list_versions",
+        "args": {
+          "status": "running"
+        }
+      },
+      "expected_output": "docker ps --filter label=service=app --filter label=role=web --filter status=running --format \"{{.Names}}\" | grep -oE \"\\-[^-]+$\" | cut -c 2-"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "list_versions",
+        "args": {
+          "docker_args": [
+            "--last",
+            "2"
+          ]
+        }
+      },
+      "expected_output": "docker ps --filter label=service=app --filter label=role=web --last 2 --format \"{{.Names}}\" | grep -oE \"\\-[^-]+$\" | cut -c 2-"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "role": "web",
+        "action": "container_id_for",
+        "args": {
+          "container_name": "myapp-web-abc123"
+        }
+      },
+      "expected_output": "docker container ls --all --filter name=^myapp-web-abc123$ --quiet"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "destination": "production",
+        "role": "web",
+        "action": "remove_images"
+      },
+      "expected_output": "docker image prune --all --force --filter label=service=app --filter label=destination=production --filter label=role=web"
+    },
+    {
+      "input": {
+        "deploy": {
+          "service": "app",
+          "image": "dhh/app",
+          "registry": {
+            "username": "dhh",
+            "password": "secret"
+          },
+          "servers": [
+            "1.1.1.1"
+          ],
+          "env": {
+            "secret": [
+              "RAILS_MASTER_KEY"
+            ]
+          }
+        },
+        "env": {
+          "RAILS_MASTER_KEY": "456"
+        },
+        "version": "999",
+        "destination": "production",
+        "role": "web",
+        "action": "current_running_container_id"
+      },
+      "expected_output": "docker ps --quiet --filter label=service=app --filter label=destination=production --filter label=role=web --filter status=running --latest"
+    }
+  ]
+}

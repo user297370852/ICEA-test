@@ -1,0 +1,96 @@
+{
+  "description": "Streaming proto-to-JSON edge cases: single/multi element arrays, empty default messages, neutral malformed-frame error categories.",
+  "cases": [
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "streaming": true,
+        "messages": [
+          {
+            "proto_text": "name : \"1\""
+          }
+        ]
+      },
+      "expected_output": "json=[{\"name\":\"1\"}]\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "streaming": true,
+        "messages": [
+          {
+            "proto_text": ""
+          },
+          {
+            "proto_text": ""
+          }
+        ]
+      },
+      "expected_output": "json=[{},{}]\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "book",
+        "streaming": true,
+        "messages": [
+          {
+            "proto_text": "name : \"x\" author_info { first_name : \"A\" }"
+          }
+        ]
+      },
+      "expected_output": "json=[{\"authorInfo\":{\"firstName\":\"A\"},\"name\":\"x\"}]\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "streaming": true,
+        "raw_frame": ""
+      },
+      "expected_output": "json=[]\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "streaming": true,
+        "raw_frame": "010000000000"
+      },
+      "expected_output": "error=unsupported_frame_flag\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "shelf",
+        "streaming": true,
+        "raw_frame": "0000000003"
+      },
+      "expected_output": "error=incomplete_frame\n"
+    },
+    {
+      "input": {
+        "operation": "proto_to_json",
+        "schema": "book",
+        "streaming": true,
+        "messages": [
+          {
+            "proto_text": "name:\"1\""
+          },
+          {
+            "proto_text": "name:\"2\""
+          },
+          {
+            "proto_text": "name:\"3\""
+          },
+          {
+            "proto_text": "name:\"4\""
+          }
+        ]
+      },
+      "expected_output": "json=[{\"name\":\"1\"},{\"name\":\"2\"},{\"name\":\"3\"},{\"name\":\"4\"}]\n"
+    }
+  ]
+}

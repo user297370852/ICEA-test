@@ -1,0 +1,80 @@
+{
+  "description": "Edge coverage for position tracking and cursor reads: pos_value with zero and max u16 prefixes, generic array with mixed/max bytes, generic array truncated (EOF), cursor with non-zero seek/set and overlapping reads, cursor with empty read list, and cursor reading past end of empty buffer.",
+  "cases": [
+    {
+      "input": {
+        "feature": "pos_value",
+        "bytes": "000005"
+      },
+      "expected_output": "status=ok\na=0\ntracked_pos=2\ninitial_value=5\nmutated_value=1\nclone_value=1\nclone_pos=2\n"
+    },
+    {
+      "input": {
+        "feature": "pos_value",
+        "bytes": "ffff42"
+      },
+      "expected_output": "status=ok\na=65535\ntracked_pos=2\ninitial_value=66\nmutated_value=1\nclone_value=1\nclone_pos=2\n"
+    },
+    {
+      "input": {
+        "feature": "generic_array",
+        "bytes": "ff00aa"
+      },
+      "expected_output": "status=ok\nvalues=255,0,170\n"
+    },
+    {
+      "input": {
+        "feature": "generic_array",
+        "bytes": "0001"
+      },
+      "expected_output": "error=unexpected_eof\n"
+    },
+    {
+      "input": {
+        "feature": "cursor",
+        "bytes": "0102030405",
+        "start_position": 2,
+        "set_position": 1,
+        "read_lengths": [
+          2,
+          3
+        ]
+      },
+      "expected_output": "initial_pos=0\nstart_seek=2\nafter_set=1\nread0_len=2\nread0_bytes=2,3\nread0_pos=3\nread1_len=2\nread1_bytes=4,5,0\nread1_pos=5\n"
+    },
+    {
+      "input": {
+        "feature": "cursor",
+        "bytes": "0102030405",
+        "start_position": 10,
+        "set_position": 3,
+        "read_lengths": [
+          2
+        ]
+      },
+      "expected_output": "initial_pos=0\nstart_seek=10\nafter_set=3\nread0_len=2\nread0_bytes=4,5\nread0_pos=5\n"
+    },
+    {
+      "input": {
+        "feature": "cursor",
+        "bytes": "0102030405",
+        "start_position": 0,
+        "set_position": 0,
+        "read_lengths": []
+      },
+      "expected_output": "initial_pos=0\nstart_seek=0\nafter_set=0\n"
+    },
+    {
+      "input": {
+        "feature": "cursor",
+        "bytes": "",
+        "start_position": 0,
+        "set_position": 0,
+        "read_lengths": [
+          3
+        ]
+      },
+      "expected_output": "initial_pos=0\nstart_seek=0\nafter_set=0\nread0_len=0\nread0_bytes=0,0,0\nread0_pos=0\n"
+    }
+  ]
+}

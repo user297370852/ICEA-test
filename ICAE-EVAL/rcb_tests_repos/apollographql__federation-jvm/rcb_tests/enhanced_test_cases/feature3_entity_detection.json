@@ -1,0 +1,47 @@
+{
+  "description": "Resolvable entity discovery edge cases: non-resolvable-only keys (real library inclusion behavior), case-sensitive sorted ordering across many entities, interfaceObject entities, multi-key entities counted once, no-entity subgraphs, and mixed resolvable/non-resolvable entities.",
+  "cases": [
+    {
+      "input": {
+        "op": "entities",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\"])\n\ntype Query {\n  p: Product\n}\n\ntype Product @key(fields: \"id\", resolvable: false) {\n  id: ID!\n}\n"
+      },
+      "expected_output": "entity_count=1\nentity=Product\n"
+    },
+    {
+      "input": {
+        "op": "entities",
+        "sdl": "type Query {\n  z: Zebra\n}\n\ntype Zebra @key(fields: \"id\") { id: ID! }\n\ntype Apple @key(fields: \"id\") { id: ID! }\n\ntype mango @key(fields: \"id\") { id: ID! }\n\ntype Banana @key(fields: \"id\") { id: ID! }\n"
+      },
+      "expected_output": "entity_count=4\nentity=Apple\nentity=Banana\nentity=Zebra\nentity=mango\n"
+    },
+    {
+      "input": {
+        "op": "entities",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\", \"@interfaceObject\"])\n\ntype Query {\n  m: Media\n}\n\ntype Media @key(fields: \"id\") @interfaceObject {\n  id: ID!\n  views: Int\n}\n"
+      },
+      "expected_output": "entity_count=1\nentity=Media\n"
+    },
+    {
+      "input": {
+        "op": "entities",
+        "sdl": "type Query {\n  p: Product\n}\n\ntype Product @key(fields: \"id\") @key(fields: \"sku\") {\n  id: ID!\n  sku: String!\n}\n"
+      },
+      "expected_output": "entity_count=1\nentity=Product\n"
+    },
+    {
+      "input": {
+        "op": "entities",
+        "sdl": "type Query {\n  ping: String\n}\n"
+      },
+      "expected_output": "entity_count=0\n"
+    },
+    {
+      "input": {
+        "op": "entities",
+        "sdl": "extend schema @link(url: \"https://specs.apollo.dev/federation/v2.3\", import: [\"@key\"])\n\ntype Query { x: X }\n\ntype X @key(fields: \"id\") { id: ID! }\n\ntype Y @key(fields: \"id\", resolvable: false) { id: ID! }\n"
+      },
+      "expected_output": "entity_count=2\nentity=X\nentity=Y\n"
+    }
+  ]
+}

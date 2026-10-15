@@ -1,0 +1,101 @@
+{
+  "description": "A document matcher resolves dotted field paths into nested documents and arrays, covering boundary inputs: a deep multi-level path with a comparison condition, a membership condition applied through a path, and a comparison through a path that traverses an array of sub-documents matching if any element satisfies it. A path that cannot be resolved does not match; documents are returned in their original order.",
+  "cases": [
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a.b.c": {
+            "$gt": 0
+          }
+        },
+        "documents": [
+          {
+            "a": {
+              "b": {
+                "c": 1
+              }
+            }
+          },
+          {
+            "a": {
+              "b": {
+                "c": -1
+              }
+            }
+          },
+          {
+            "a": {
+              "b": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : { \"b\" : { \"c\" : 1}}}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a.b": {
+            "$in": [
+              5,
+              6
+            ]
+          }
+        },
+        "documents": [
+          {
+            "a": {
+              "b": 5
+            }
+          },
+          {
+            "a": {
+              "b": 7
+            }
+          },
+          {
+            "a": 5
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : { \"b\" : 5}}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a.b": {
+            "$gte": 2
+          }
+        },
+        "documents": [
+          {
+            "a": [
+              {
+                "b": 1
+              },
+              {
+                "b": 2
+              }
+            ]
+          },
+          {
+            "a": [
+              {
+                "b": 0
+              }
+            ]
+          },
+          {
+            "a": {
+              "b": 3
+            }
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : [ { \"b\" : 1} , { \"b\" : 2}]}\n{ \"a\" : { \"b\" : 3}}\n"
+    }
+  ]
+}

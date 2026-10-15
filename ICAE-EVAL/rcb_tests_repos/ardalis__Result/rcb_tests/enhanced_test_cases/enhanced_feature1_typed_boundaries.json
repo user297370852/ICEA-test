@@ -1,0 +1,99 @@
+{
+  "description": "Additional value-carrying construction cases covering booleans, large integers, nested structured values, unauthorized status, multiple/not-null error messages, and validation metadata with codes and non-default severities.",
+  "cases": [
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "ctor",
+        "value": true
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue=true\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "success",
+        "value": -9223372036854775808
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue=-9223372036854775808\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "generic_success",
+        "value": {
+          "id": 2,
+          "tags": [
+            "alpha",
+            "beta"
+          ],
+          "active": false,
+          "meta": {
+            "score": 3.5
+          }
+        }
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue={\"id\":2,\"tags\":[\"alpha\",\"beta\"],\"active\":false,\"meta\":{\"score\":3.5}}\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "generic_success_message",
+        "value": "",
+        "message": "created with empty payload"
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue=\nsuccessMessage=created with empty payload\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "error",
+        "errors": [
+          "",
+          "Second error",
+          "Pipe | stays inside message"
+        ]
+      },
+      "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=|Second error|Pipe | stays inside message\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "invalid",
+        "validation_errors": [
+          {
+            "identifier": "email",
+            "error_message": "Email is malformed",
+            "error_code": "Email.Invalid",
+            "severity": "Warning"
+          },
+          {
+            "identifier": "age",
+            "error_message": "Age must be positive",
+            "error_code": "Range",
+            "severity": "Info"
+          }
+        ]
+      },
+      "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=email;message=Email is malformed;code=Email.Invalid;severity=Warning|identifier=age;message=Age must be positive;code=Range;severity=Info\n"
+    },
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "not_found_message",
+        "errors": [
+          "Order 42 missing",
+          "Tenant archived"
+        ]
+      },
+      "expected_output": "status=NotFound\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=Order 42 missing|Tenant archived\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "build_typed",
+        "factory": "unauthorized"
+      },
+      "expected_output": "status=Unauthorized\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    }
+  ]
+}

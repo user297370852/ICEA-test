@@ -1,0 +1,29 @@
+{
+    "description": "Workload annotation injection additional cases: an alternate app id, and an option set adding app-port and config annotations alongside the enabled marker.",
+    "cases": [
+        {
+            "input": {
+                "action": "annotate",
+                "yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: web\n  labels:\n    app: web\nspec:\n  containers:\n  - name: web\n  image: web",
+                "target_resource": "web",
+                "options": {
+                    "app_id": "web-app"
+                }
+            },
+            "expected_output": "apiVersion: v1\nkind: Pod\nmetadata:\n  annotations:\n    dapr.io/app-id: web-app\n    dapr.io/enabled: \"true\"\n  labels:\n    app: web\n  name: web\nspec:\n  containers:\n  - name: web\n  image: web\n"
+        },
+        {
+            "input": {
+                "action": "annotate",
+                "yaml": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: web\n  labels:\n    app: web\nspec:\n  containers:\n  - name: web\n  image: web",
+                "target_resource": "web",
+                "options": {
+                    "app_id": "web-app",
+                    "app_port": 8080,
+                    "config": "appcfg"
+                }
+            },
+            "expected_output": "apiVersion: v1\nkind: Pod\nmetadata:\n  annotations:\n    dapr.io/app-id: web-app\n    dapr.io/app-port: \"8080\"\n    dapr.io/config: appcfg\n    dapr.io/enabled: \"true\"\n  labels:\n    app: web\n  name: web\nspec:\n  containers:\n  - name: web\n  image: web\n"
+        }
+    ]
+}

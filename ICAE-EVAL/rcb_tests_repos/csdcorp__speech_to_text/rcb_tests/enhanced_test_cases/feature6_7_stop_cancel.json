@@ -1,0 +1,59 @@
+{
+  "description": "Stop/cancel edge cases: after a successful initialization but with no active listen, stop and cancel still invoke the corresponding platform operation (initialization, not listening, gates them), and stopping after a listen shuts down the listener so the snapshot reports the session is no longer listening.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "stop"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nstop invoked=true\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "cancel"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\ncancel invoked=true\nlistening=false recognized=false available=true has_error=false last_recognized= last_status= last_level=0.0\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize"
+          },
+          {
+            "do": "listen"
+          },
+          {
+            "do": "stop"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nstop invoked=true\nlistening=false recognized=false available=true has_error=false last_recognized= last_status=listening last_level=0.0\n"
+    }
+  ]
+}

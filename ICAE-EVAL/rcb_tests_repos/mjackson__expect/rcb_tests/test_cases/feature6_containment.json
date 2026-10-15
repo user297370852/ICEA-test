@@ -1,0 +1,73 @@
+{
+    "description": "Containment assertions across arrays, objects, and strings. Inclusion holds when: an array contains an element deeply equal to the expected value; an object contains the expected object as a deep subset (every key in the expected object is present in the actual object with a deeply-equal value, recursing into nested objects); or a string contains the expected substring. Exclusion is the logical negation for arrays and strings. A violation diagnostic renders the container and the searched value. Inclusion accepts an array, object, or string as the actual value; exclusion accepts only an array or string; any other actual type is rejected with a neutral error category.",
+    "cases": [
+        {
+            "input": {"check": "include", "actual": 1, "expected": 2},
+            "expected_output": "check=include\noutcome=error\nerror=unsupported_actual_type\n"
+        },
+        {
+            "input": {"check": "include", "actual": [1, 2, 3], "expected": 2},
+            "expected_output": "check=include\noutcome=hold\n"
+        },
+        {
+            "input": {"check": "include", "actual": [{"a": 1}, {"c": 2}], "expected": {"c": 2}},
+            "expected_output": "check=include\noutcome=hold\n"
+        },
+        {
+            "input": {"check": "include", "actual": {"a": 1, "b": 2, "c": 3}, "expected": {"b": 2}},
+            "expected_output": "check=include\noutcome=hold\n"
+        },
+        {
+            "input": {"check": "include", "actual": {"a": 1, "b": 2, "c": 3}, "expected": {"d": 4}},
+            "expected_output": "check=include\noutcome=violation\nmessage=Expected { a: 1, b: 2, c: 3 } to include { d: 4 }\n"
+        },
+        {
+            "input": {"check": "include", "actual": {"a": 1, "b": 2, "c": 3}, "expected": {"b": 4}},
+            "expected_output": "check=include\noutcome=violation\nmessage=Expected { a: 1, b: 2, c: 3 } to include { b: 4 }\n"
+        },
+        {
+            "input": {"check": "include", "actual": {"a": 1, "b": 2, "c": {"d": 4, "e": {"f": 5, "g": 6, "h": 7}}}, "expected": {"b": 2, "c": {"e": {"f": 5, "g": 6, "h": 7}}}},
+            "expected_output": "check=include\noutcome=hold\n"
+        },
+        {
+            "input": {"check": "include", "actual": {"a": 1, "b": 2, "c": {"d": 4, "e": {"f": 5, "g": 6, "h": 7}}}, "expected": {"b": 2, "c": {"e": {"f": 5, "g": 999, "h": 7}}}},
+            "expected_output": "check=include\noutcome=violation\nmessage=Expected { a: 1, b: 2, c: { d: 4, e: { f: 5, g: 6, h: 7 } } } to include { b: 2, c: { e: { f: 5, g: 999, h: 7 } } }\n"
+        },
+        {
+            "input": {"check": "include", "actual": [1, 2, 3], "expected": 4},
+            "expected_output": "check=include\noutcome=violation\nmessage=Expected [ 1, 2, 3 ] to include 4\n"
+        },
+        {
+            "input": {"check": "include", "actual": [{"a": 1}, {"c": 2}], "expected": {"a": 2}},
+            "expected_output": "check=include\noutcome=violation\nmessage=Expected [ { a: 1 }, { c: 2 } ] to include { a: 2 }\n"
+        },
+        {
+            "input": {"check": "include", "actual": "hello world", "expected": "world"},
+            "expected_output": "check=include\noutcome=hold\n"
+        },
+        {
+            "input": {"check": "include", "actual": "hello world", "expected": "goodbye"},
+            "expected_output": "check=include\noutcome=violation\nmessage=Expected 'hello world' to include 'goodbye'\n"
+        },
+        {
+            "input": {"check": "exclude", "actual": 1, "expected": 2},
+            "expected_output": "check=exclude\noutcome=error\nerror=unsupported_actual_type\n"
+        },
+        {
+            "input": {"check": "exclude", "actual": [1, 2, 3], "expected": 4},
+            "expected_output": "check=exclude\noutcome=hold\n"
+        },
+        {
+            "input": {"check": "exclude", "actual": [1, 2, 3], "expected": 2},
+            "expected_output": "check=exclude\noutcome=violation\nmessage=Expected [ 1, 2, 3 ] to exclude 2\n"
+        },
+        {
+            "input": {"check": "exclude", "actual": "hello world", "expected": "goodbye"},
+            "expected_output": "check=exclude\noutcome=hold\n"
+        },
+        {
+            "input": {"check": "exclude", "actual": "hello world", "expected": "hello"},
+            "expected_output": "check=exclude\noutcome=violation\nmessage=Expected 'hello world' to exclude 'hello'\n"
+        }
+    ]
+}

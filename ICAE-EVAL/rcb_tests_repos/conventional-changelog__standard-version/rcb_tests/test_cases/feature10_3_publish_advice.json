@@ -1,0 +1,25 @@
+{
+    "description": "Post-release publishing advice. After a release the tool emits a suggested command for pushing the release and publishing the package. The advice always includes pushing with follow-tags to the current branch. It appends a publish step only when a publishable primary manifest was bumped and the package is not marked private; for a pre-release the publish step carries a dist-tag derived from the pre-release identifier (or a default tag when the identifier is empty). Input describes a release run and requests the advice; output reports the suggested command line.",
+    "cases": [
+        {
+            "input": {"kind": "release", "packageVersion": "1.0.0", "ops": [{"commit": "feat: first commit"}], "args": [], "report": ["publish"]},
+            "expected_output": "publish=git push --follow-tags origin master && npm publish\n"
+        },
+        {
+            "input": {"kind": "release", "packageVersion": "1.0.0", "ops": [{"commit": "feat: first commit"}], "args": ["--prerelease"], "report": ["publish"]},
+            "expected_output": "publish=git push --follow-tags origin master && npm publish --tag prerelease\n"
+        },
+        {
+            "input": {"kind": "release", "packageVersion": "1.0.0", "ops": [{"commit": "feat: first commit"}], "args": ["--prerelease", "alpha"], "report": ["publish"]},
+            "expected_output": "publish=git push --follow-tags origin master && npm publish --tag alpha\n"
+        },
+        {
+            "input": {"kind": "release", "packageVersion": "1.0.0", "packageOptions": {"private": true}, "ops": [{"commit": "feat: first commit"}], "args": ["--prerelease"], "report": ["publish"]},
+            "expected_output": "publish=git push --follow-tags origin master\n"
+        },
+        {
+            "input": {"kind": "release", "packageVersion": null, "ops": [{"commit": "feat: first commit"}], "args": [], "report": ["publish"]},
+            "expected_output": "publish=git push --follow-tags origin master\n"
+        }
+    ]
+}

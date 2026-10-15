@@ -1,0 +1,101 @@
+{
+  "description": "Additional boundary-focused session timeout cases covering exact threshold transitions, foreground grace behavior, and repeated background timeout checks.",
+  "cases": [
+    {
+      "input": {
+        "timeout_ms": 1000,
+        "events": [
+          {
+            "op": "background"
+          },
+          {
+            "op": "bump"
+          },
+          {
+            "op": "advance",
+            "ms": 999
+          },
+          {
+            "op": "check"
+          },
+          {
+            "op": "advance",
+            "ms": 1
+          },
+          {
+            "op": "check"
+          }
+        ]
+      },
+      "expected_output": "timed_out=false\ntimed_out=true\n"
+    },
+    {
+      "input": {
+        "timeout_ms": 1000,
+        "events": [
+          {
+            "op": "background"
+          },
+          {
+            "op": "bump"
+          },
+          {
+            "op": "advance",
+            "ms": 999
+          },
+          {
+            "op": "foreground"
+          },
+          {
+            "op": "check"
+          },
+          {
+            "op": "bump"
+          },
+          {
+            "op": "advance",
+            "ms": 5000
+          },
+          {
+            "op": "check"
+          }
+        ]
+      },
+      "expected_output": "timed_out=false\ntimed_out=false\n"
+    },
+    {
+      "input": {
+        "timeout_ms": 2500,
+        "events": [
+          {
+            "op": "background"
+          },
+          {
+            "op": "bump"
+          },
+          {
+            "op": "advance",
+            "ms": 2500
+          },
+          {
+            "op": "check"
+          },
+          {
+            "op": "advance",
+            "ms": 1
+          },
+          {
+            "op": "check"
+          },
+          {
+            "op": "bump"
+          },
+          {
+            "op": "check"
+          }
+        ]
+      },
+      "expected_output": "timed_out=true\ntimed_out=true\ntimed_out=false\n"
+    }
+  ]
+}

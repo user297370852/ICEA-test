@@ -1,0 +1,164 @@
+{
+  "description": "Enhanced router-level rollout edge cases: after a rollout backend is deployed alongside the active backend and a split is set, a request carrying an allowlisted rollout cookie is served by the rollout backend while a request with no rollout cookie is served by the active backend; stopping the rollout reverts all clients to the active backend; setting a split before any rollout backend is deployed fails with a rollout-target-not-set error; and deploying a rollout target for a missing service fails with a service-not-found error. Each command reports success or the normalized error category and each probe reports the response status with the backend body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "active"
+          },
+          "r": {
+            "body": "rollout"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "rollout_deploy",
+            "name": "s1",
+            "target": "r"
+          },
+          {
+            "op": "rollout_set",
+            "name": "s1",
+            "percent": 0,
+            "allowlist": [
+              "vip"
+            ]
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "GET",
+            "cookies": [
+              {
+                "name": "kamal-rollout",
+                "value": "vip"
+              }
+            ]
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nrollout_deploy s1 ok\nrollout_set s1 ok\nstatus=200 target=rollout\nstatus=200 target=active\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "active"
+          },
+          "r": {
+            "body": "rollout"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "rollout_deploy",
+            "name": "s1",
+            "target": "r"
+          },
+          {
+            "op": "rollout_set",
+            "name": "s1",
+            "percent": 100,
+            "allowlist": []
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "GET",
+            "cookies": [
+              {
+                "name": "kamal-rollout",
+                "value": "u1"
+              }
+            ]
+          },
+          {
+            "op": "rollout_stop",
+            "name": "s1"
+          },
+          {
+            "op": "request",
+            "url": "http://h.example.com/",
+            "method": "GET",
+            "cookies": [
+              {
+                "name": "kamal-rollout",
+                "value": "u1"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nrollout_deploy s1 ok\nrollout_set s1 ok\nstatus=200 target=rollout\nrollout_stop s1 ok\nstatus=200 target=active\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "active"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "s1",
+            "hosts": [
+              "h.example.com"
+            ],
+            "target": "a"
+          },
+          {
+            "op": "rollout_set",
+            "name": "s1",
+            "percent": 50,
+            "allowlist": []
+          }
+        ]
+      },
+      "expected_output": "deploy s1 ok\nrollout_set s1 error=rollout_target_not_set\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "a": {
+            "body": "x"
+          }
+        },
+        "steps": [
+          {
+            "op": "rollout_deploy",
+            "name": "ghost",
+            "target": "a"
+          }
+        ]
+      },
+      "expected_output": "rollout_deploy ghost error=service_not_found\n"
+    }
+  ]
+}

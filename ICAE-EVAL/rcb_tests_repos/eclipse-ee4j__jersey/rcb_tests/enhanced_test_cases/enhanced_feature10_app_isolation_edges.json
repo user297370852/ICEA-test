@@ -1,0 +1,55 @@
+{
+  "description": "Edge cases for two side-by-side applications: a different x-test header value on the main app, and cross-application route isolation - the main app does not expose the secondary app's /2 sub-paths and vice versa (HTTP 404).",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "non-jaxrs-bean-injected/header/1",
+            "headers": {
+              "x-test": "another-value"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/non-jaxrs-bean-injected/header/1\nbody=another-value"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "non-jaxrs-bean-injected/path/2"
+          }
+        ]
+      },
+      "expected_output": "status=404\nurl=http://localhost:9998/main/non-jaxrs-bean-injected/path/2\nbody="
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "secondary",
+            "path": "non-jaxrs-bean-injected/path/1"
+          }
+        ]
+      },
+      "expected_output": "status=404\nurl=http://localhost:9998/secondary/non-jaxrs-bean-injected/path/1\nbody="
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "secondary",
+            "path": "non-jaxrs-bean-injected/header/2",
+            "headers": {
+              "x-test": "second-app"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/secondary/non-jaxrs-bean-injected/header/2\nbody=second-app"
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "description": "Applying an edit operation hands its payload to the document's type to transform the current content, advancing the version by one on success. Editing a document that does not exist is rejected with a normalized does-not-exist category; editing when the snapshot references an unregistered type is rejected with a normalized type-not-recognized category.",
+  "cases": [
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 1,
+          "type": "json0",
+          "data": {
+            "title": "Men"
+          }
+        },
+        "op": {
+          "v": 1,
+          "op": [
+            {
+              "p": [
+                "title",
+                0
+              ],
+              "si": "X "
+            }
+          ]
+        }
+      },
+      "expected_output": "v=2\ntype=json0\ndata={\"title\":\"X Men\"}\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 1,
+          "type": "json0",
+          "data": {
+            "a": 1
+          }
+        },
+        "op": {
+          "v": 1,
+          "op": [
+            {
+              "p": [
+                "b"
+              ],
+              "oi": 2
+            }
+          ]
+        }
+      },
+      "expected_output": "v=2\ntype=json0\ndata={\"a\":1,\"b\":2}\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 1,
+          "type": "nope"
+        },
+        "op": {
+          "v": 1,
+          "op": [
+            {
+              "p": [
+                0
+              ],
+              "si": "x"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=ERR_DOC_TYPE_NOT_RECOGNIZED\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 2
+        },
+        "op": {
+          "v": 2,
+          "op": [
+            {
+              "p": [
+                0
+              ],
+              "si": "x"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=ERR_DOC_DOES_NOT_EXIST\n"
+    },
+    {
+      "input": {
+        "action": "apply",
+        "snapshot": {
+          "v": 0,
+          "type": "json0",
+          "data": "World"
+        },
+        "op": {
+          "v": 0,
+          "op": [
+            {
+              "p": [
+                0
+              ],
+              "si": "Hello "
+            }
+          ]
+        }
+      },
+      "expected_output": "v=1\ntype=json0\ndata=\"Hello World\"\n"
+    }
+  ]
+}

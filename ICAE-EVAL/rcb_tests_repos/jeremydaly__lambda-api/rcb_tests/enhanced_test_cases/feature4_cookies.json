@@ -1,0 +1,61 @@
+{
+  "description": "Cookie parsing edge cases: incoming Cookie headers with numeric values, percent-encoded values, and a single cookie, exercising request-side cookie decoding beyond the native suite.",
+  "cases": [
+    {
+      "input": {
+        "feature": "cookies",
+        "method": "get",
+        "path": "/parse",
+        "headers": {
+          "Cookie": "count=42"
+        },
+        "multiValueHeaders": {
+          "Cookie": [
+            "count=42"
+          ]
+        }
+      },
+      "expected_output": "status=200\nbase64=false\nheaders={\"content-type\":[\"application/json\"]}\nbody={\"cookies\":{\"count\":42}}\n"
+    },
+    {
+      "input": {
+        "feature": "cookies",
+        "method": "get",
+        "path": "/parse",
+        "headers": {
+          "Cookie": "enc=http%3A%2F%2Ffoo"
+        },
+        "multiValueHeaders": {
+          "Cookie": [
+            "enc=http%3A%2F%2Ffoo"
+          ]
+        }
+      },
+      "expected_output": "status=200\nbase64=false\nheaders={\"content-type\":[\"application/json\"]}\nbody={\"cookies\":{\"enc\":\"http://foo\"}}\n"
+    },
+    {
+      "input": {
+        "feature": "cookies",
+        "method": "get",
+        "path": "/parse",
+        "headers": {
+          "Cookie": "only=one"
+        },
+        "multiValueHeaders": {
+          "Cookie": [
+            "only=one"
+          ]
+        }
+      },
+      "expected_output": "status=200\nbase64=false\nheaders={\"content-type\":[\"application/json\"]}\nbody={\"cookies\":{\"only\":\"one\"}}\n"
+    },
+    {
+      "input": {
+        "feature": "cookies",
+        "method": "get",
+        "path": "/parse"
+      },
+      "expected_output": "status=200\nbase64=false\nheaders={\"content-type\":[\"application/json\"]}\nbody={\"cookies\":{}}\n"
+    }
+  ]
+}

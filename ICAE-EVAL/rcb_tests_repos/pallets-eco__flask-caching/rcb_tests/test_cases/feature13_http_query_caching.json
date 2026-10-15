@@ -1,0 +1,46 @@
+{
+    "description": "Caches HTTP responses by normalized query parameters so reordered equivalent queries share a response and changed values use a separate response.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "cache http query responses",
+                "requests": [
+                    {
+                        "label": "first",
+                        "url": "/works?mock=true&offset=20&limit=15"
+                    },
+                    {
+                        "label": "same_reordered",
+                        "url": "/works?limit=15&mock=true&offset=20"
+                    },
+                    {
+                        "label": "different",
+                        "url": "/works?limit=20&mock=true&offset=60"
+                    }
+                ]
+            },
+            "expected_output": "request=first status=200 url=/works?mock=true&offset=20&limit=15 body=count-1\nrequest=same_reordered status=200 url=/works?limit=15&mock=true&offset=20 body=count-1\nrequest=different status=200 url=/works?limit=20&mock=true&offset=60 body=count-2\nhandler_calls=2\n"
+        },
+        {
+            "input": {
+                "scenario": "cache http query responses",
+                "include_repeated_values_in_body": true,
+                "requests": [
+                    {
+                        "label": "first",
+                        "url": "/works?mock=true&offset=20&limit=15&user[]=123&user[]=124"
+                    },
+                    {
+                        "label": "same_reordered_repeated",
+                        "url": "/works?mock=true&offset=20&limit=15&user[]=124&user[]=123"
+                    },
+                    {
+                        "label": "different_repeated",
+                        "url": "/works?mock=true&offset=20&limit=15&user[]=125&user[]=124"
+                    }
+                ]
+            },
+            "expected_output": "request=first status=200 url=/works?mock=true&offset=20&limit=15&user[]=123&user[]=124 body=values=[\"123\",\"124\",\"15\",\"20\",\"true\"] count=1\nrequest=same_reordered_repeated status=200 url=/works?mock=true&offset=20&limit=15&user[]=124&user[]=123 body=values=[\"123\",\"124\",\"15\",\"20\",\"true\"] count=1\nrequest=different_repeated status=200 url=/works?mock=true&offset=20&limit=15&user[]=125&user[]=124 body=values=[\"124\",\"125\",\"15\",\"20\",\"true\"] count=2\nhandler_calls=2\n"
+        }
+    ]
+}

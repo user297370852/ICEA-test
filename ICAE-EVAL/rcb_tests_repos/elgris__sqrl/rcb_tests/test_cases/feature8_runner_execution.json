@@ -1,0 +1,86 @@
+{
+    "description": "Execute rendered statements through an injected execution/query interface and report which SQL string the runner receives, including normalized errors when no runner is configured.",
+    "cases": [
+        {
+            "input": {
+                "operation": "runner",
+                "scenario": "select_runner",
+                "statement": {
+                    "kind": "select",
+                    "columns": [
+                        "test"
+                    ]
+                }
+            },
+            "expected_output": "exec_sql=SELECT test\nquery_sql=SELECT test\nqueryrow_sql=SELECT test\nscan_error=none\n"
+        },
+        {
+            "input": {
+                "operation": "runner",
+                "scenario": "insert_runner",
+                "statement": {
+                    "kind": "insert",
+                    "target": "test",
+                    "rows": [
+                        [
+                            1
+                        ]
+                    ]
+                }
+            },
+            "expected_output": "exec_sql=INSERT INTO test VALUES (?)\n"
+        },
+        {
+            "input": {
+                "operation": "runner",
+                "scenario": "update_runner",
+                "statement": {
+                    "kind": "update",
+                    "target": "test",
+                    "assignments": {
+                        "x": 1
+                    }
+                }
+            },
+            "expected_output": "exec_sql=UPDATE test SET x = ?\n"
+        },
+        {
+            "input": {
+                "operation": "runner",
+                "scenario": "delete_runner",
+                "statement": {
+                    "kind": "delete",
+                    "target": "test",
+                    "filter": "x = ?"
+                }
+            },
+            "expected_output": "exec_sql=DELETE FROM test WHERE x = ?\n"
+        },
+        {
+            "input": {
+                "operation": "runner",
+                "scenario": "no_runner",
+                "statement": {
+                    "kind": "select",
+                    "columns": [
+                        "test"
+                    ]
+                }
+            },
+            "expected_output": "exec_error=runner_not_configured\nquery_error=runner_not_configured\nscan_error=runner_not_configured\n"
+        },
+        {
+            "input": {
+                "operation": "runner",
+                "scenario": "direct_helpers",
+                "statement": {
+                    "kind": "select",
+                    "columns": [
+                        "test"
+                    ]
+                }
+            },
+            "expected_output": "exec_sql=SELECT test\nquery_sql=SELECT test\nqueryrow_sql=SELECT test\n"
+        }
+    ]
+}

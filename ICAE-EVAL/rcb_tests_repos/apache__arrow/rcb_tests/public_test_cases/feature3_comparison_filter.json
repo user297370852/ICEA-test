@@ -1,0 +1,47 @@
+{
+    "description": "Filter a record batch with a compiled boolean condition that compares a column against a constant. The schema has one double-precision column. The condition keeps rows whose value is strictly less than a fixed numeric literal. Filtering yields a selection vector of zero-based row positions (an unsigned 32-bit index list) identifying the surviving rows in ascending order. The adapter reports the operation, the selection index element type, the number of surviving rows, and the selected positions as an ordered index list.",
+    "cases": [
+        {
+            "input": {
+                "operation": "filter",
+                "schema": [
+                    {
+                        "name": "a",
+                        "type": "float64"
+                    }
+                ],
+                "columns": {
+                    "a": [
+                        0.0,
+                        1.0,
+                        2.0,
+                        3.0,
+                        4.0,
+                        5.0,
+                        6.0,
+                        7.0,
+                        8.0,
+                        9.0
+                    ]
+                },
+                "condition": {
+                    "node": "function",
+                    "name": "less_than",
+                    "args": [
+                        {
+                            "node": "field",
+                            "name": "a"
+                        },
+                        {
+                            "node": "literal",
+                            "type": "float64",
+                            "value": 5.0
+                        }
+                    ],
+                    "return": "bool"
+                }
+            },
+            "expected_output": "op=filter\nselection_type=uint32\nlength=5\nindices=[0, 1, 2, 3, 4]\n"
+        }
+    ]
+}

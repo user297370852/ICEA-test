@@ -1,0 +1,55 @@
+{
+    "description": "Whether a thumbnail section is written depends on the target version: pre-R2000 targets omit the section entirely, while R2000-class targets emit it. The payload may be supplied either as raw preview bytes or as a full bitmap (in which case the fixed bitmap header is stripped before storing). When the section is omitted the result reports its absence.",
+    "cases": [
+        {
+            "input": {
+                "op": "write_thumbnail",
+                "version": "R14",
+                "raw_thumbnail": [
+                    1,
+                    35,
+                    69
+                ]
+            },
+            "expected_output": "thumbnail_section=absent\n"
+        },
+        {
+            "input": {
+                "op": "write_thumbnail",
+                "version": "R2000",
+                "raw_thumbnail": [
+                    1,
+                    35,
+                    69
+                ]
+            },
+            "expected_output": "  0\nSECTION\n  2\nTHUMBNAILIMAGE\n 90\n3\n310\n012345\n  0\nENDSEC\n"
+        },
+        {
+            "input": {
+                "op": "write_thumbnail",
+                "version": "R2000",
+                "set_bitmap": [
+                    66,
+                    77,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    54,
+                    4,
+                    0,
+                    0,
+                    1,
+                    35,
+                    69
+                ]
+            },
+            "expected_output": "  0\nSECTION\n  2\nTHUMBNAILIMAGE\n 90\n3\n310\n012345\n  0\nENDSEC\n"
+        }
+    ]
+}

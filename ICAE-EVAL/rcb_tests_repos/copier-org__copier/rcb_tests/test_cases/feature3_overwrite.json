@@ -1,0 +1,78 @@
+{
+  "description": "Behaviour when a produced file already exists in the destination. A skip-if-exists list (whose patterns are themselves rendered with the answers) preserves the pre-existing content of matching files even when overwriting is forced. A global skip mode preserves every pre-existing file, while a global force mode overwrites every pre-existing file. Output reports the final destination contents.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "OVERWRITTEN\n",
+          "b.txt": "OVERWRITTEN\n",
+          "meh/c.txt": "OVERWRITTEN\n"
+        },
+        "dst_prefill": {
+          "a.txt": "SKIPPED\n",
+          "b.txt": "SKIPPED\n",
+          "meh/c.txt": "SKIPPED\n"
+        },
+        "skip_if_exists": [
+          "b.txt",
+          "meh/c.txt"
+        ],
+        "force": true,
+        "data": {}
+      },
+      "expected_output": "produced=3\npath: a.txt\npath: b.txt\npath: meh/c.txt\nfile: a.txt -> \"OVERWRITTEN\\n\"\nfile: b.txt -> \"SKIPPED\\n\"\nfile: meh/c.txt -> \"SKIPPED\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "OVERWRITTEN\n",
+          "b.txt": "OVERWRITTEN\n",
+          "meh/c.txt": "OVERWRITTEN\n"
+        },
+        "dst_prefill": {
+          "a.txt": "SKIPPED\n",
+          "b.txt": "SKIPPED\n",
+          "meh/c.txt": "SKIPPED\n"
+        },
+        "skip_if_exists": [
+          "[[ name ]]/c.txt"
+        ],
+        "data": {
+          "name": "meh"
+        },
+        "force": true
+      },
+      "expected_output": "produced=3\npath: a.txt\npath: b.txt\npath: meh/c.txt\nfile: a.txt -> \"OVERWRITTEN\\n\"\nfile: b.txt -> \"OVERWRITTEN\\n\"\nfile: meh/c.txt -> \"SKIPPED\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "f.txt": "NEW\n"
+        },
+        "dst_prefill": {
+          "f.txt": "OLD\n"
+        },
+        "skip": true,
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: f.txt\nfile: f.txt -> \"OLD\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "f.txt": "NEW\n"
+        },
+        "dst_prefill": {
+          "f.txt": "OLD\n"
+        },
+        "force": true,
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: f.txt\nfile: f.txt -> \"NEW\\n\"\n"
+    }
+  ]
+}

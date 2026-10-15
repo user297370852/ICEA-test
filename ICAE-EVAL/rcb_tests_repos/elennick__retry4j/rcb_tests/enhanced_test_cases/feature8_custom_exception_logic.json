@@ -1,0 +1,128 @@
+{
+  "description": "Enhanced coverage for custom exception predicates (message and custom-value rules).",
+  "cases": [
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 1,
+          "custom_exception_rule": "message_contains_retry"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "io_error",
+              "message": "please should retry! now"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=2\nlast_exception=io_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 1,
+          "custom_exception_rule": "message_contains_retry"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "custom_error",
+              "message": "nope"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=unexpected_exception\nexception=custom_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 2,
+          "backoff": "fixed",
+          "delay_ms": 1,
+          "custom_exception_rule": "custom_value_positive"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "custom_error",
+              "message": "x",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=2\nlast_exception=custom_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 1,
+          "custom_exception_rule": "custom_value_positive"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "custom_error",
+              "message": "x",
+              "value": 0
+            }
+          ]
+        }
+      },
+      "expected_output": "error=unexpected_exception\nexception=custom_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 3,
+          "backoff": "fixed",
+          "delay_ms": 1,
+          "custom_exception_rule": "custom_value_positive"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "io_error",
+              "message": "should retry!"
+            }
+          ]
+        }
+      },
+      "expected_output": "error=unexpected_exception\nexception=io_error\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "max_tries": 5,
+          "backoff": "fixed",
+          "delay_ms": 1,
+          "custom_exception_rule": "message_contains_retry"
+        },
+        "operation": {
+          "outcomes": [
+            {
+              "throw": "runtime_error",
+              "message": "should retry!"
+            },
+            {
+              "throw": "runtime_error",
+              "message": "should retry!"
+            },
+            {
+              "return": "ok"
+            }
+          ]
+        }
+      },
+      "expected_output": "result=ok\nsuccessful=true\ncall_name=\ntotal_tries=3\n"
+    }
+  ]
+}

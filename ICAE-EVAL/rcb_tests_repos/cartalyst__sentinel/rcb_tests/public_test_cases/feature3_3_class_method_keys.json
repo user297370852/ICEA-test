@@ -1,0 +1,13 @@
+{
+    "description": "Class-and-method permission keys. A key of the form Class@method1,method2 is expanded into one grant per comma-separated method (Class@method1, Class@method2) sharing the key's boolean value, and an individual Class@method query resolves against the expansion. Also covers personal-key priority: an exact key match wins over a covering wildcard pattern, so an explicit denial on a concrete key holds even when a covering pattern is granted.",
+    "cases": [
+        {
+            "input": {"op": "permissions", "mode": "strict", "permissions": {"Class@method1,method2": true}, "queries": [{"all": ["Class@method1"]}, {"all": ["Class@method2"]}]},
+            "expected_output": "mode=strict\nall[Class@method1]=true\nall[Class@method2]=true\n"
+        },
+        {
+            "input": {"op": "permissions", "mode": "lenient", "permissions": {"user.*": true, "user.delete": false}, "queries": [{"all": ["user.*"]}, {"all": ["user.test"]}, {"all": ["user.delete"]}]},
+            "expected_output": "mode=lenient\nall[user.*]=true\nall[user.test]=true\nall[user.delete]=false\n"
+        }
+    ]
+}

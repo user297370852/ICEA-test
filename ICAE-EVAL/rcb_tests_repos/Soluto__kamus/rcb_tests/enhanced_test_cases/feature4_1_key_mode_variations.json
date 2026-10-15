@@ -1,0 +1,35 @@
+{
+  "description": "Configuration-level variations of the secret key. A 16-byte (AES-128) key still produces a lossless shared-key round trip with a 16-byte IV. In derived-key mode the configured key is a master key fed into HKDF, so even a short (5-byte) master key derives a valid 32-byte encryption key and round-trips losslessly, demonstrating derivation is independent of the master-key length.",
+  "cases": [
+    {
+      "input": {
+        "action": "roundtrip",
+        "key": "AAAAAAAAAAAAAAAAAAAAAA==",
+        "derivation": false,
+        "plaintext": "hello",
+        "context": "sa"
+      },
+      "expected_output": "envelope_segments=2\niv_byte_length=16\nciphertext_byte_length=16\ndecrypted=hello\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "key": "aGVsbG8=",
+        "derivation": true,
+        "plaintext": "hello",
+        "context": "sa"
+      },
+      "expected_output": "envelope_segments=2\niv_byte_length=16\nciphertext_byte_length=16\ndecrypted=hello\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "key": "aGVsbG8=",
+        "derivation": true,
+        "plaintext": "short-master-key-derivation",
+        "context": "tenant-7"
+      },
+      "expected_output": "envelope_segments=2\niv_byte_length=16\nciphertext_byte_length=32\ndecrypted=short-master-key-derivation\n"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+    "description": "Brute-force login gate. Before a login proceeds the gate consults three independent delay sources, each reporting a remaining lock duration in seconds: a global source (all accounts), an optional IP-address source (only when an IP is supplied), and a per-user source. The action determines which sources are consulted: a login attempt checks global, then IP, then user; a session check (re-validating an already-logged-in user) checks only IP; recording a failed attempt first re-runs the login checks then logs the attempt. If any consulted source reports a positive delay the gate denies with a throttling error carrying which source tripped, the remaining delay, and the seconds until unlock; otherwise it permits. The first positive source in order global > ip > user determines the reported type.",
+    "cases": [
+        {
+            "input": {"op": "throttle_gate", "action": "login", "delays": {"global": 0, "user": 0}},
+            "expected_output": "outcome=allowed\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "check"},
+            "expected_output": "outcome=allowed\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "login", "delays": {"global": 10}},
+            "expected_output": "error=throttling\nthrottle_type=global\ndelay_seconds=10\nunlock_in_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "fail", "ip": "127.0.0.1", "delays": {"global": 0, "ip": 10}},
+            "expected_output": "error=throttling\nthrottle_type=ip\ndelay_seconds=10\nunlock_in_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "fail", "ip": "127.0.0.1", "delays": {"global": 0, "ip": 0, "user": 10}},
+            "expected_output": "error=throttling\nthrottle_type=user\ndelay_seconds=10\nunlock_in_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "fail", "ip": "127.0.0.1", "delays": {"global": 0, "ip": 0, "user": 0}},
+            "expected_output": "outcome=attempt_logged\n"
+        }
+    ]
+}

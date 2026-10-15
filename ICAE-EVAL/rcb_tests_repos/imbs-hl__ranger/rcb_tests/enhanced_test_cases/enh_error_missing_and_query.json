@@ -1,0 +1,81 @@
+{
+  "description": "Missing-data detection at training and prediction time, plus invalid-prediction-type and importance/timepoint/mtry validation categories. A NA injected into a predictor column names that column; a NA in the response is a distinct response category; a NA introduced at prediction time names the offending predictor column.",
+  "cases": [
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Species ~ .",
+        "num_trees": 5,
+        "na_cell": [
+          [
+            10,
+            "Petal.Width"
+          ]
+        ]
+      },
+      "expected_output": "error=missing_data_in_predictors\ncolumns=Petal.Width\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Sepal.Length ~ .",
+        "num_trees": 5,
+        "na_cell": [
+          [
+            7,
+            "Sepal.Length"
+          ]
+        ]
+      },
+      "expected_output": "error=missing_data_in_response\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Species ~ .",
+        "predict_after": true,
+        "num_trees": 5,
+        "na_cell_predict": [
+          [
+            12,
+            "Petal.Length"
+          ]
+        ]
+      },
+      "expected_output": "error=missing_data_in_predictors\ncolumns=Petal.Length\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Sepal.Length ~ .",
+        "num_trees": 5,
+        "importance_query": true
+      },
+      "expected_output": "error=importance_not_available\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Sepal.Length ~ .",
+        "num_trees": 5,
+        "timepoints_on": true
+      },
+      "expected_output": "error=not_a_survival_forest\n"
+    },
+    {
+      "input": {
+        "op": "error",
+        "dataset": "iris",
+        "formula": "Species ~ .",
+        "num_trees": 5,
+        "mtry_error": true
+      },
+      "expected_output": "error=mtry_function_error\n"
+    }
+  ]
+}

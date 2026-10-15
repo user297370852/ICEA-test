@@ -1,0 +1,222 @@
+{
+	"description": "Tokenize a single HTML start tag into a stream of typed segments (tag open, tag name, attribute names/values in their quoting modes, whitespace boundaries, self-closing marker, close). Malformed input terminates with an ILLEGAL segment marking the offending position.",
+	"cases": [
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": ""
+			},
+			"expected_output": "ILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "f"
+			},
+			"expected_output": "ILLEGAL \"f\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nILLEGAL \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag\u0000>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nILLEGAL \"\\u0000\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag <>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nILLEGAL \"<\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag attr"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"attr\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a\"=123>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nILLEGAL \"\\\"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a=\"123\u0000\">"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"123\"\nILLEGAL \"\\u0000\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a='123\u0000'>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"='\"\nATTRIBUTE_VALUE_SINGLE_QUOTED \"123\"\nILLEGAL \"\\u0000\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a='123"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"='\"\nATTRIBUTE_VALUE_SINGLE_QUOTED \"123\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a=123"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nATTRIBUTE_VALUE_UNQUOTED \"123\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a=123\u0000"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nATTRIBUTE_VALUE_UNQUOTED \"123\"\nILLEGAL \"\\u0000\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a=>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nILLEGAL \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name /"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nSELF_CLOSING_START_TAG_STATE \"/\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a=\"123 b>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"123 b>\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a=\"123 b\""
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"123 b\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"\\\"\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<name a="
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"name\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"a\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nILLEGAL \"\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag />"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nSELF_CLOSING_START_TAG_STATE \"/\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag\t\n />"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \"\\t\\n \"\nSELF_CLOSING_START_TAG_STATE \"/\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1=\"attribute value\" some2='attribute value2'>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"attribute value\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"\\\"\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some2\"\nBEFORE_ATTRIBUTE_VALUE \"='\"\nATTRIBUTE_VALUE_SINGLE_QUOTED \"attribute value2\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"'\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1=value some2 = 123 >"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nATTRIBUTE_VALUE_UNQUOTED \"value\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some2\"\nAFTER_ATTRIBUTE_NAME \" \"\nBEFORE_ATTRIBUTE_VALUE \"= \"\nATTRIBUTE_VALUE_UNQUOTED \"123\"\nBEFORE_ATTRIBUTE_NAME \" \"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1 = value some2 = 123 />"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nAFTER_ATTRIBUTE_NAME \" \"\nBEFORE_ATTRIBUTE_VALUE \"= \"\nATTRIBUTE_VALUE_UNQUOTED \"value\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some2\"\nAFTER_ATTRIBUTE_NAME \" \"\nBEFORE_ATTRIBUTE_VALUE \"= \"\nATTRIBUTE_VALUE_UNQUOTED \"123\"\nBEFORE_ATTRIBUTE_NAME \" \"\nSELF_CLOSING_START_TAG_STATE \"/\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1=value some2=123>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nATTRIBUTE_VALUE_UNQUOTED \"value\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some2\"\nBEFORE_ATTRIBUTE_VALUE \"=\"\nATTRIBUTE_VALUE_UNQUOTED \"123\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1 some2 >"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nAFTER_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some2\"\nAFTER_ATTRIBUTE_NAME \" \"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1 some2 />"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nAFTER_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some2\"\nAFTER_ATTRIBUTE_NAME \" \"\nSELF_CLOSING_START_TAG_STATE \"/\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag\t\n some1\t\n some2\t\n />"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \"\\t\\n \"\nATTRIBUTE_NAME \"some1\"\nAFTER_ATTRIBUTE_NAME \"\\t\\n \"\nATTRIBUTE_NAME \"some2\"\nAFTER_ATTRIBUTE_NAME \"\\t\\n \"\nSELF_CLOSING_START_TAG_STATE \"/\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<tag some1/>"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"tag\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"some1\"\nSELF_CLOSING_START_TAG_STATE \"/\"\nTAG_CLOSE \">\"\n"
+		},
+		{
+			"input": {
+				"op": "tokenize_tag",
+				"html": "<div id=\"css-stamp\" style=\"position: absolute !important; visibility: hidden !important\" class=\"\">"
+			},
+			"expected_output": "TAG_OPEN \"<\"\nTAG_NAME \"div\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"id\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"css-stamp\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"\\\"\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"style\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"position: absolute !important; visibility: hidden !important\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"\\\"\"\nBEFORE_ATTRIBUTE_NAME \" \"\nATTRIBUTE_NAME \"class\"\nBEFORE_ATTRIBUTE_VALUE \"=\\\"\"\nATTRIBUTE_VALUE_DOUBLE_QUOTED \"\"\nAFTER_ATTRIBUTE_VALUE_QUOTED \"\\\"\"\nTAG_CLOSE \">\"\n"
+		}
+	]
+}

@@ -1,0 +1,166 @@
+{
+  "description": "Construction of the lookup key record used to address a single item. A key may be built from a bare partition value (optionally accompanied by a sort value) or from a record object that already carries the relevant key attributes. The builder extracts only the attributes that serve as keys: the partition attribute, the sort attribute when one is declared, and the partition/sort attributes contributed by any declared secondary indexes (global and local). Extracted values pass through the same type-driven serialization as item attributes, so for example a date-typed key renders as an ISO-8601 instant and a boolean index key is preserved as a boolean. Attributes that are not part of any key are dropped.",
+  "cases": [
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": "string"
+          }
+        },
+        "hashKey": "test@test.com"
+      },
+      "expected_output": "{\"email\":\"test@test.com\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "year",
+          "schema": {
+            "year": "number"
+          }
+        },
+        "hashKey": 1999
+      },
+      "expected_output": "{\"year\":1999}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "timestamp",
+          "schema": {
+            "timestamp": "date"
+          }
+        },
+        "hashKey": {
+          "__date__": "2020-12-31T23:59:59.000Z"
+        }
+      },
+      "expected_output": "{\"timestamp\":\"2020-12-31T23:59:59.000Z\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "slug": "string"
+          }
+        },
+        "hashKey": "Tim Tester",
+        "rangeKey": "test@test.com"
+      },
+      "expected_output": "{\"email\":\"test@test.com\",\"name\":\"Tim Tester\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "year",
+          "rangeKey": "name",
+          "schema": {
+            "year": "number",
+            "name": "string",
+            "slug": "string"
+          }
+        },
+        "hashKey": {
+          "year": 1988,
+          "name": "Joe"
+        }
+      },
+      "expected_output": "{\"name\":\"Joe\",\"year\":1988}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "email",
+          "rangeKey": "age",
+          "schema": {
+            "email": "string",
+            "age": "number",
+            "name": "string"
+          },
+          "indexes": [
+            {
+              "hashKey": "email",
+              "rangeKey": "name",
+              "type": "local",
+              "name": "NameIndex"
+            }
+          ]
+        },
+        "hashKey": {
+          "email": "test@example.com",
+          "age": 22,
+          "name": "Foo Bar"
+        }
+      },
+      "expected_output": "{\"age\":22,\"email\":\"test@example.com\",\"name\":\"Foo Bar\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "email",
+          "rangeKey": "age",
+          "schema": {
+            "email": "string",
+            "age": "number",
+            "name": "string"
+          },
+          "indexes": [
+            {
+              "hashKey": "age",
+              "rangeKey": "name",
+              "type": "global",
+              "name": "AgeNameIndex"
+            }
+          ]
+        },
+        "hashKey": {
+          "email": "test@example.com",
+          "age": 22,
+          "name": "Foo Bar"
+        }
+      },
+      "expected_output": "{\"age\":22,\"email\":\"test@example.com\",\"name\":\"Foo Bar\"}\n"
+    },
+    {
+      "input": {
+        "op": "build_key",
+        "config": {
+          "hashKey": "email",
+          "rangeKey": "age",
+          "schema": {
+            "email": "string",
+            "age": "number",
+            "name": "string",
+            "adult": "boolean"
+          },
+          "indexes": [
+            {
+              "hashKey": "adult",
+              "rangeKey": "email",
+              "type": "global",
+              "name": "AdultEmailIndex"
+            }
+          ]
+        },
+        "hashKey": {
+          "email": "test@example.com",
+          "adult": false
+        }
+      },
+      "expected_output": "{\"adult\":false,\"email\":\"test@example.com\"}\n"
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "description": "Legacy / non-JSON stored content. Read as text it is returned verbatim; a whitespace-only or empty stored form reads back as null yet still counts as an entry; reading legacy non-JSON content as a number is rejected as an invalid-JSON error.",
+  "cases": [
+    {
+      "input": {
+        "mode": "sync",
+        "preset": [
+          {
+            "key": "k",
+            "raw": "plain legacy text"
+          }
+        ],
+        "steps": [
+          {
+            "op": "get",
+            "key": "k",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "value=plain legacy text\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "preset": [
+          {
+            "key": "k",
+            "raw": "plain legacy text"
+          }
+        ],
+        "steps": [
+          {
+            "op": "get_string",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "raw=plain legacy text\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "preset": [
+          {
+            "key": "k",
+            "raw": "   "
+          }
+        ],
+        "steps": [
+          {
+            "op": "length"
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "length=1\nvalue=<null>\n"
+    },
+    {
+      "input": {
+        "mode": "async",
+        "preset": [
+          {
+            "key": "k",
+            "raw": ""
+          }
+        ],
+        "steps": [
+          {
+            "op": "length"
+          },
+          {
+            "op": "get",
+            "key": "k",
+            "type": "string"
+          }
+        ]
+      },
+      "expected_output": "length=1\nvalue=<null>\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "preset": [
+          {
+            "key": "k",
+            "raw": "not-a-number"
+          }
+        ],
+        "steps": [
+          {
+            "op": "get",
+            "key": "k",
+            "type": "int"
+          }
+        ]
+      },
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": {
+        "mode": "sync",
+        "preset": [
+          {
+            "key": "k",
+            "raw": "{\"Id\":5,\"Name\":\"Leg\"}"
+          }
+        ],
+        "steps": [
+          {
+            "op": "get",
+            "key": "k",
+            "type": "object"
+          }
+        ]
+      },
+      "expected_output": "value={\"Id\":5,\"Name\":\"Leg\"}\n"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "description": "Type-casting edge cases: negative path/query values, an out-of-int-range query integer falling back to default, and non-numeric double/long falling back to schema defaults; plus zero values and cookie-derived typed values.",
+  "cases": [
+    {
+      "input": {
+        "op": "map_event",
+        "scenario": "type_cast",
+        "location": "http://example.com/-5/true/-2.5/-9000000000/whatever?i=7&b=true&d=-0.001&l=-9000000000",
+        "fields": [
+          "queryparamInteger",
+          "queryparamBoolean",
+          "queryparamDouble",
+          "queryparamLong",
+          "pathInteger",
+          "pathBoolean",
+          "pathDouble",
+          "pathLong"
+        ]
+      },
+      "expected_output": "queryparamInteger=7\nqueryparamBoolean=true\nqueryparamDouble=-0.001\nqueryparamLong=-9000000000\npathInteger=-5\npathBoolean=true\npathDouble=-2.5\npathLong=-9000000000\n"
+    },
+    {
+      "input": {
+        "op": "map_event",
+        "scenario": "type_cast",
+        "location": "http://example.com/42/false/3.14/100/whatever?i=99999999999&d=notnum&l=notnum",
+        "fields": [
+          "queryparamInteger",
+          "queryparamDouble",
+          "queryparamLong"
+        ]
+      },
+      "expected_output": "queryparamInteger=null\nqueryparamDouble=-1.0\nqueryparamLong=-1\n"
+    },
+    {
+      "input": {
+        "op": "map_event",
+        "scenario": "type_cast",
+        "location": "http://example.com/0/true/0.0/0/whatever?i=0&b=true&d=0.0&l=0",
+        "fields": [
+          "cookieInteger",
+          "cookieBoolean",
+          "queryparamInteger",
+          "pathInteger"
+        ]
+      },
+      "expected_output": "cookieInteger=42\ncookieBoolean=true\nqueryparamInteger=0\npathInteger=0\n"
+    }
+  ]
+}

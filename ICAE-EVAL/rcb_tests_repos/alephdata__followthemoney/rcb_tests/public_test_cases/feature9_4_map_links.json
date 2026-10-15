@@ -1,0 +1,62 @@
+{
+    "description": "A single record can yield multiple linked entities, where a relation entity references others by their mapping key.",
+    "cases": [
+        {
+            "input": {
+                "command": "map_record",
+                "entities": {
+                    "director": {
+                        "schema": "Person",
+                        "key": "id",
+                        "properties": {
+                            "name": {
+                                "column": "name"
+                            }
+                        }
+                    },
+                    "company": {
+                        "schema": "Company",
+                        "key": "comp_id",
+                        "properties": {
+                            "name": {
+                                "column": "comp_name"
+                            }
+                        }
+                    },
+                    "directorship": {
+                        "schema": "Directorship",
+                        "keys": [
+                            "comp_id",
+                            "id"
+                        ],
+                        "properties": {
+                            "director": {
+                                "entity": "director"
+                            },
+                            "organization": {
+                                "entity": "company"
+                            },
+                            "role": {
+                                "column": "role"
+                            }
+                        }
+                    }
+                },
+                "record": {
+                    "id": "1",
+                    "name": "Bob",
+                    "comp_id": "9",
+                    "comp_name": "ACME",
+                    "role": "boss"
+                },
+                "capture": [
+                    {
+                        "ref": "company",
+                        "property": "name"
+                    }
+                ]
+            },
+            "expected_output": "entities=3\ncompany.id=0ade7c2cf97f75d009975f4d720d1fa6c19f4897\ndirector.id=356a192b7913b04c54574d18c28d46e6395428ab\ndirectorship.id=b3f0c7f6bb763af1be91d9e74eabfeb199dc1f1f\ncompany.name=ACME"
+        }
+    ]
+}

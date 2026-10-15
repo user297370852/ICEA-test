@@ -1,0 +1,104 @@
+{
+  "description": "Apply targeted changes: replace a multi-valued header with a single value, drop one of several context entries, add headers while removing another via an empty list, and change a response's headers over a byte-body base.",
+  "cases": [
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "h": [
+              "v1",
+              "v2"
+            ]
+          }
+        },
+        "change": {
+          "headers": {
+            "h": [
+              "new"
+            ]
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheaders[h]=new\nheadersAll[content-length]=[\"0\"]\nheadersAll[h]=[\"new\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "context": {
+            "c1": "one",
+            "c2": "two"
+          }
+        },
+        "change": {
+          "context": {
+            "c1": null
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheadersAll[content-length]=[\"0\"]\ncontext[c2]=two\nheadersSame=true\ncontextSame=false\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "request",
+        "base": {
+          "headers": {
+            "a": "A"
+          }
+        },
+        "change": {
+          "headers": {
+            "a": [],
+            "b": "B"
+          }
+        }
+      },
+      "expected_output": "headers[b]=B\nheaders[content-length]=0\nheadersAll[b]=[\"B\"]\nheadersAll[content-length]=[\"0\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "response",
+        "base": {
+          "body": {
+            "type": "bytes",
+            "value": [
+              120,
+              121,
+              122
+            ]
+          }
+        },
+        "change": {
+          "headers": {
+            "x": "1"
+          }
+        }
+      },
+      "expected_output": "headers[content-length]=3\nheaders[x]=1\nheadersAll[content-length]=[\"3\"]\nheadersAll[x]=[\"1\"]\nheadersSame=false\ncontextSame=true\n"
+    },
+    {
+      "input": {
+        "action": "change",
+        "kind": "response",
+        "base": {
+          "headers": {
+            "h1": "v1"
+          },
+          "context": {
+            "k": "v"
+          }
+        },
+        "change": {
+          "headers": {},
+          "context": {}
+        }
+      },
+      "expected_output": "headers[content-length]=0\nheaders[h1]=v1\nheadersAll[content-length]=[\"0\"]\nheadersAll[h1]=[\"v1\"]\ncontext[k]=v\nheadersSame=true\ncontextSame=true\n"
+    }
+  ]
+}

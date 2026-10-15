@@ -1,0 +1,49 @@
+{
+  "description": "Enhanced whole response body verification: alternate exact/containment matches and normalized mismatch failures.",
+  "cases": [
+    {
+      "input": {
+        "feature": "response_body_verification",
+        "mode": "exact",
+        "path": "/empty-response-body",
+        "response_status": 200,
+        "response_body": "",
+        "expected": ""
+      },
+      "expected_output": "method=GET\nrequest_path=/empty-response-body\nstatus=200\nbody=\nverification=body_matched\n"
+    },
+    {
+      "input": {
+        "feature": "response_body_verification",
+        "mode": "contains",
+        "path": "/greeting-response-body",
+        "response_status": 200,
+        "response_body": "Hello, world! Welcome aboard.",
+        "contains": "world"
+      },
+      "expected_output": "method=GET\nrequest_path=/greeting-response-body\nstatus=200\nbody=Hello, world! Welcome aboard.\nverification=body_matched\n"
+    },
+    {
+      "input": {
+        "feature": "response_body_verification",
+        "mode": "exact",
+        "path": "/json-object-response-body",
+        "response_status": 200,
+        "response_body": "{\"status\": \"ok\", \"count\": 3}",
+        "expected": "{\"status\": \"ok\", \"count\": 3}"
+      },
+      "expected_output": "method=GET\nrequest_path=/json-object-response-body\nstatus=200\nbody={\"status\": \"ok\", \"count\": 3}\nverification=body_matched\n"
+    },
+    {
+      "input": {
+        "feature": "response_body_verification",
+        "mode": "exact",
+        "path": "/body-mismatch",
+        "response_status": 200,
+        "response_body": "actual content here",
+        "expected": "expected content here"
+      },
+      "expected_output": "error=assertion_failed\nmessage=Actual response body did not match expected response body.\\nExpected: expected content here\\nActual: actual content here\n"
+    }
+  ]
+}

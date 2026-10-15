@@ -1,0 +1,67 @@
+{
+  "description": "Serialising a cache record into a flat persistable record under boundary conditions: a record whose validity deadline is absent so it is written as zero, a record without an id so the id entry is omitted, a zero validity deadline serialised against a zero current clock, a record without an explicit key so the key defaults to the URL, and a negative validity deadline written through unchanged.",
+  "cases": [
+    {
+      "input": {
+        "action": "serialize",
+        "url": "cdn.example.org/s1",
+        "key": "k1",
+        "relativePath": "s1.bin",
+        "eTag": "e1",
+        "id": 5,
+        "now_millis": 1585387560000
+      },
+      "expected_output": "url=cdn.example.org/s1\nkey=k1\nrelativePath=s1.bin\neTag=e1\nvalidTill=0\ntouched=1585387560000\nlength=null\nid=5\n"
+    },
+    {
+      "input": {
+        "action": "serialize",
+        "url": "cdn.example.org/s2",
+        "key": "k2",
+        "relativePath": "s2.bin",
+        "validTill_millis": 1585301160000,
+        "eTag": "e2",
+        "now_millis": 1585387560000
+      },
+      "expected_output": "url=cdn.example.org/s2\nkey=k2\nrelativePath=s2.bin\neTag=e2\nvalidTill=1585301160000\ntouched=1585387560000\nlength=null\nid=absent\n"
+    },
+    {
+      "input": {
+        "action": "serialize",
+        "url": "cdn.example.org/s3",
+        "key": "k3",
+        "relativePath": "s3.bin",
+        "validTill_millis": 0,
+        "eTag": "e3",
+        "id": 6,
+        "now_millis": 0
+      },
+      "expected_output": "url=cdn.example.org/s3\nkey=k3\nrelativePath=s3.bin\neTag=e3\nvalidTill=0\ntouched=0\nlength=null\nid=6\n"
+    },
+    {
+      "input": {
+        "action": "serialize",
+        "url": "cdn.example.org/s4",
+        "relativePath": "s4.bin",
+        "validTill_millis": 1585301160000,
+        "eTag": "e4",
+        "id": 7,
+        "now_millis": 1585387560000
+      },
+      "expected_output": "url=cdn.example.org/s4\nkey=cdn.example.org/s4\nrelativePath=s4.bin\neTag=e4\nvalidTill=1585301160000\ntouched=1585387560000\nlength=null\nid=7\n"
+    },
+    {
+      "input": {
+        "action": "serialize",
+        "url": "cdn.example.org/s5",
+        "key": "k5",
+        "relativePath": "s5.bin",
+        "validTill_millis": -2000,
+        "eTag": "e5",
+        "id": 8,
+        "now_millis": 1585387560000
+      },
+      "expected_output": "url=cdn.example.org/s5\nkey=k5\nrelativePath=s5.bin\neTag=e5\nvalidTill=-2000\ntouched=1585387560000\nlength=null\nid=8\n"
+    }
+  ]
+}

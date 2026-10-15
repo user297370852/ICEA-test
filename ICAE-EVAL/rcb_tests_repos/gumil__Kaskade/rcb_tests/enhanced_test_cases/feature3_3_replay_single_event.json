@@ -1,0 +1,88 @@
+{
+  "description": "When a state container is observed through a replaying stream, the latest regular state is replayed to a new subscriber, but single-event states are never retained for replay. Reducing an action to a regular state records it for replay; emitting a single event delivers it live only; on detaching and re-attaching, only the latest regular state is replayed while the single event is omitted.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "kaskade",
+        "flow": "dam",
+        "initial": "loaded",
+        "single_events": [
+          "toast"
+        ],
+        "reducers": {
+          "load": {
+            "to": "loaded"
+          },
+          "notify": {
+            "to": "toast"
+          }
+        },
+        "ops": [
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "process",
+            "action": "load"
+          },
+          {
+            "op": "process",
+            "action": "notify"
+          },
+          {
+            "op": "unsubscribe"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "loaded\nloaded\ntoast\nloaded\n"
+    },
+    {
+      "input": {
+        "scenario": "kaskade",
+        "flow": "dam",
+        "initial": "loaded",
+        "single_events": [
+          "toast"
+        ],
+        "reducers": {
+          "load": {
+            "to": "loaded"
+          },
+          "notify": {
+            "to": "toast"
+          },
+          "refresh": {
+            "to": "ready"
+          }
+        },
+        "ops": [
+          {
+            "op": "process",
+            "action": "load"
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "process",
+            "action": "notify"
+          },
+          {
+            "op": "process",
+            "action": "refresh"
+          },
+          {
+            "op": "unsubscribe"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "loaded\ntoast\nready\nloaded\nready\n"
+    }
+  ]
+}

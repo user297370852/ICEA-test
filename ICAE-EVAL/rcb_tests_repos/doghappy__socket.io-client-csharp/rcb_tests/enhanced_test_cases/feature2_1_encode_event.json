@@ -1,0 +1,136 @@
+{
+  "description": "Outbound event encoding edge cases: protocol v3, empty event name, nested arrays/objects, negative and large numbers, unicode strings, multiple and nested binary attachments preserving placeholder numbering order.",
+  "cases": [
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 3,
+        "event": "chat",
+        "namespace": "/room",
+        "data": [
+          "hi"
+        ]
+      },
+      "expected_output": "frame=42/room,[\"chat\",\"hi\"]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 4,
+        "event": "",
+        "namespace": "",
+        "data": [
+          1
+        ]
+      },
+      "expected_output": "frame=42[\"\",1]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 4,
+        "event": "nums",
+        "namespace": "",
+        "data": [
+          -1,
+          -2.5,
+          1000000000000
+        ]
+      },
+      "expected_output": "frame=42[\"nums\",-1,-2.5,1000000000000]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 4,
+        "event": "nest",
+        "namespace": "",
+        "data": [
+          [
+            1,
+            2,
+            [
+              3
+            ]
+          ],
+          {
+            "k": {
+              "deep": true
+            }
+          }
+        ]
+      },
+      "expected_output": "frame=42[\"nest\",[1,2,[3]],{\"k\":{\"deep\":true}}]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 4,
+        "event": "uni",
+        "namespace": "/n",
+        "data": [
+          "héllo é",
+          "😀"
+        ]
+      },
+      "expected_output": "frame=42/n,[\"uni\",\"héllo é\",\"😀\"]\n"
+    },
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 4,
+        "event": "bin",
+        "namespace": "",
+        "data": [
+          {
+            "$bytes": [
+              0
+            ]
+          },
+          "mid",
+          {
+            "$bytes": [
+              255,
+              254
+            ]
+          }
+        ]
+      },
+      "expected_output": "frame=452-[\"bin\",{\"_placeholder\":true,\"num\":0},\"mid\",{\"_placeholder\":true,\"num\":1}]\nattachment=0\nattachment=255,254\n"
+    },
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 4,
+        "event": "arrbin",
+        "namespace": "/x",
+        "data": [
+          [
+            {
+              "$bytes": [
+                9,
+                8,
+                7
+              ]
+            }
+          ]
+        ]
+      },
+      "expected_output": "frame=451-/x,[\"arrbin\",[{\"_placeholder\":true,\"num\":0}]]\nattachment=9,8,7\n"
+    },
+    {
+      "input": {
+        "op": "encode_event",
+        "eio": 4,
+        "event": "empty_bytes",
+        "namespace": "",
+        "data": [
+          {
+            "$bytes": []
+          }
+        ]
+      },
+      "expected_output": "frame=451-[\"empty_bytes\",{\"_placeholder\":true,\"num\":0}]\nattachment=\n"
+    }
+  ]
+}

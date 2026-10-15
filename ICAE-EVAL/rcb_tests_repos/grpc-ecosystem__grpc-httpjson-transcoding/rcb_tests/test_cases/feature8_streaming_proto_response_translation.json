@@ -1,0 +1,76 @@
+{
+    "description": "Translate a stream of framed binary response messages into one JSON array and report malformed frame errors using neutral error categories.",
+    "cases": [
+        {
+            "input": {
+                "operation": "proto_to_json",
+                "schema": "shelf",
+                "streaming": true,
+                "messages": [
+                    {
+                        "proto_text": "name : \"1\" theme : \"History\""
+                    },
+                    {
+                        "proto_text": "name : \"2\" theme : \"Mistery\""
+                    },
+                    {
+                        "proto_text": "name : \"3\" theme : \"Russian\""
+                    }
+                ]
+            },
+            "expected_output": "json=[{\"name\":\"1\",\"theme\":\"History\"},{\"name\":\"2\",\"theme\":\"Mistery\"},{\"name\":\"3\",\"theme\":\"Russian\"}]\n"
+        },
+        {
+            "input": {
+                "operation": "proto_to_json",
+                "schema": "book",
+                "streaming": true,
+                "messages": [
+                    {
+                        "proto_text": "name : \"8\" author : \"Leo Tolstoy\" title : \"War and Peace\" author_info { first_name : \"Leo\" last_name : \"Tolstoy\" }"
+                    },
+                    {
+                        "proto_text": "name : \"88\" author : \"Fyodor Dostoevski\" title : \"Crime & Punishment\" author_info { first_name : \"Fyodor\" last_name : \"Dostoevski\" }"
+                    }
+                ]
+            },
+            "expected_output": "json=[{\"author\":\"Leo Tolstoy\",\"authorInfo\":{\"firstName\":\"Leo\",\"lastName\":\"Tolstoy\"},\"name\":\"8\",\"title\":\"War and Peace\"},{\"author\":\"Fyodor Dostoevski\",\"authorInfo\":{\"firstName\":\"Fyodor\",\"lastName\":\"Dostoevski\"},\"name\":\"88\",\"title\":\"Crime & Punishment\"}]\n"
+        },
+        {
+            "input": {
+                "operation": "proto_to_json",
+                "schema": "shelf",
+                "streaming": true,
+                "messages": []
+            },
+            "expected_output": "json=[]\n"
+        },
+        {
+            "input": {
+                "operation": "proto_to_json",
+                "schema": "shelf",
+                "streaming": true,
+                "raw_frame": "0a"
+            },
+            "expected_output": "error=incomplete_frame_header\n"
+        },
+        {
+            "input": {
+                "operation": "proto_to_json",
+                "schema": "shelf",
+                "streaming": true,
+                "raw_frame": "0a00000000"
+            },
+            "expected_output": "error=unsupported_frame_flag\n"
+        },
+        {
+            "input": {
+                "operation": "proto_to_json",
+                "schema": "shelf",
+                "streaming": true,
+                "raw_frame": "000000000500"
+            },
+            "expected_output": "error=incomplete_frame\n"
+        }
+    ]
+}

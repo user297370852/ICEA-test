@@ -1,0 +1,21 @@
+{
+    "description": "Control how a feature behaves when checked with a null scope. A resolver that does not require a particular scope is evaluated normally for a null scope and produces its value. A resolver that requires a concrete (non-null) scope cannot run against a null scope; in that situation the feature resolves to inactive instead of failing, while still resolving normally when a concrete scope is provided.",
+    "cases": [
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "const", "value": true}},
+                {"op": "active", "feature": "foo", "scope": null},
+                {"op": "active", "feature": "foo", "scope": {"user": 1}}
+            ]},
+            "expected_output": "active foo = true\nactive foo = true\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "bar", "resolver": {"type": "requiresUserScope", "value": true}},
+                {"op": "active", "feature": "bar", "scope": null},
+                {"op": "active", "feature": "bar", "scope": {"user": 1}}
+            ]},
+            "expected_output": "active bar = false\nactive bar = true\n"
+        }
+    ]
+}

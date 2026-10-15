@@ -1,0 +1,211 @@
+{
+  "description": "Disjoint branch and commit route variations: API-version body naming, protect/unprotect, cherry-pick, comments, diffs, statuses, references, and create-commit with/without actions not covered by the native suite.",
+  "cases": [
+    {
+      "input": {
+        "feature": "api route",
+        "area": "branch refs",
+        "request": "create branch",
+        "project": 42,
+        "branch": "feature/login",
+        "ref": "develop"
+      },
+      "expected_output": "http_method=POST\nurl=projects/42/repository/branches\nquery=\nbody={\"branch\":\"feature/login\",\"ref\":\"develop\"}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "branch refs",
+        "request": "create branch",
+        "project": 42,
+        "branch": "feature/login",
+        "ref": "develop",
+        "api_version": 3
+      },
+      "expected_output": "http_method=POST\nurl=projects/42/repository/branches\nquery=\nbody={\"branchName\":\"feature/login\",\"ref\":\"develop\"}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "branch refs",
+        "request": "protect branch",
+        "project": 9,
+        "branch": "main"
+      },
+      "expected_output": "http_method=POST\nurl=projects/9/protected_branches\nquery=\nbody={\"name\":\"main\"}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "branch refs",
+        "request": "unprotect branch",
+        "project": 9,
+        "branch": "main"
+      },
+      "expected_output": "http_method=PUT\nurl=projects/9/repository/branches/main/unprotect\nquery=\nbody={}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "branch refs",
+        "request": "delete branch",
+        "project": 9,
+        "branch": "stale"
+      },
+      "expected_output": "http_method=DELETE\nurl=projects/9/repository/branches/stale\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "branch refs",
+        "request": "show branch",
+        "project": 9,
+        "branch": "main"
+      },
+      "expected_output": "http_method=GET\nurl=projects/9/repository/branches/main\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "branch refs",
+        "request": "list branches",
+        "project": 777
+      },
+      "expected_output": "http_method=GET\nurl=projects/777/repository/branches\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "create commit",
+        "project": 3,
+        "branch": "main",
+        "message": "Empty actions commit"
+      },
+      "expected_output": "http_method=POST\nurl=projects/3/repository/commits\nquery=\nbody={\"actions\":[],\"branch\":\"main\",\"commitMessage\":\"Empty actions commit\"}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "create commit",
+        "project": 3,
+        "branch": "main",
+        "message": "Multi action commit",
+        "actions": [
+          {
+            "action": "create",
+            "filePath": "a.txt",
+            "content": "alpha"
+          },
+          {
+            "action": "delete",
+            "filePath": "b.txt"
+          }
+        ]
+      },
+      "expected_output": "http_method=POST\nurl=projects/3/repository/commits\nquery=\nbody={\"actions\":[{\"action\":\"create\",\"content\":\"alpha\",\"filePath\":\"a.txt\"},{\"action\":\"delete\",\"filePath\":\"b.txt\"}],\"branch\":\"main\",\"commitMessage\":\"Multi action commit\"}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "cherry-pick commit",
+        "project": 3,
+        "sha": "abc123",
+        "branch": "release"
+      },
+      "expected_output": "http_method=POST\nurl=projects/3/repository/commits/abc123/cherry_pick\nquery=\nbody={\"branch\":\"release\"}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "add commit comment",
+        "project": 3,
+        "sha": "abc123",
+        "note": "looks good"
+      },
+      "expected_output": "http_method=POST\nurl=projects/3/repository/commits/abc123/comments\nquery=\nbody={\"note\":\"looks good\"}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "commit comments",
+        "project": 3,
+        "sha": "abc123"
+      },
+      "expected_output": "http_method=GET\nurl=projects/3/repository/commits/abc123/comments\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "commit diff",
+        "project": 3,
+        "sha": "abc123"
+      },
+      "expected_output": "http_method=GET\nurl=projects/3/repository/commits/abc123/diff\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "set commit status",
+        "project": 3,
+        "ref": "abc123"
+      },
+      "expected_output": "http_method=POST\nurl=projects/3/statuses/abc123\nquery=\nbody={}\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "commit references",
+        "project": 3,
+        "sha": "abc123"
+      },
+      "expected_output": "http_method=GET\nurl=projects/3/repository/commits/abc123/refs\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "commit statuses",
+        "project": 3,
+        "sha": "abc123"
+      },
+      "expected_output": "http_method=GET\nurl=projects/3/repository/commits/abc123/statuses\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "show commit",
+        "project": 3,
+        "sha": "abc123"
+      },
+      "expected_output": "http_method=GET\nurl=projects/3/repository/commits/abc123\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "commit merge requests",
+        "project": 3,
+        "sha": "abc123"
+      },
+      "expected_output": "http_method=GET\nurl=projects/3/repository/commits/abc123/merge_requests\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    },
+    {
+      "input": {
+        "feature": "api route",
+        "area": "commit records",
+        "request": "list commits",
+        "project": 1234
+      },
+      "expected_output": "http_method=GET\nurl=projects/1234/repository/commits\nquery={}\nbody=\nsudo=\nresponse_status=200\n"
+    }
+  ]
+}

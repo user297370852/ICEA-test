@@ -1,0 +1,35 @@
+{
+  "description": "Split command matching removes quoted text before evaluating pipe and ampersand separated command segments.",
+  "cases": [
+    {
+      "input": {
+        "feature": "match_split_command",
+        "checks": [
+          {
+            "group": "remove",
+            "pattern": "rm",
+            "method": "contains",
+            "enabled": true,
+            "description": "unquoted rm"
+          },
+          {
+            "group": "curl-start",
+            "pattern": " curl",
+            "method": "starts_with",
+            "enabled": true,
+            "description": "pipe segment starts curl"
+          },
+          {
+            "group": "wget-regex",
+            "pattern": "wget\\s+https?://",
+            "method": "regex",
+            "enabled": true,
+            "description": "wget url"
+          }
+        ],
+        "command": "echo 'rm -rf /' && rm -i safe | curl http://example && echo \"wget http://quoted\" && wget https://real"
+      },
+      "expected_output": "original_command=echo 'rm -rf /' && rm -i safe | curl http://example && echo \"wget http://quoted\" && wget https://real\nevaluated_command=echo  && rm -i safe | curl http://example && echo  && wget https://real\nmatch_count=3\nmatch_group=remove\nmatch_description=unquoted rm\nmatch_group=curl-start\nmatch_description=pipe segment starts curl\nmatch_group=wget-regex\nmatch_description=wget url\n"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+    "description": "Several owner records each need the collection of peer records linked to them through a join table. The owner-side collection getters are invoked for multiple owners within the same execution tick, without awaiting in between. Instead of issuing one underlying SELECT per owner, the loader folds all of those requests into a single batched round-trip whose filter carries the full set of owner keys, then de-multiplexes the rows back to each owner. The reported signals are the number of underlying round-trips actually issued, the owner-key set folded into each round-trip, and the linked-record id set returned to each owner. The join table can be declared either by name or as an explicit model; behavior is identical.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "simple_string",
+                "ops": [
+                    {
+                        "project": 1,
+                        "as": "members"
+                    },
+                    {
+                        "project": 2,
+                        "as": "members"
+                    }
+                ]
+            },
+            "expected_output": "queries=1\nbatch=1,2\nr0.op0=members=101,102,103,104\nr0.op1=members=104,105,106,107\n"
+        }
+    ]
+}

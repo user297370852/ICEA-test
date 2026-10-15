@@ -1,0 +1,150 @@
+{
+    "description": "Resolve broad resource selectors against discovered resources, excluding ambiguous specific matches, preferring the core API when a plain name collides with an extension API, allowing explicit catch-all selection, and warning when no resource matches.",
+    "cases": [
+        {
+            "input": {
+                "action": "refresh_resources",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "plural": "plural"
+                },
+                "group": null,
+                "resources": [
+                    {
+                        "group": "g1",
+                        "version": "v1",
+                        "plural": "plural",
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    },
+                    {
+                        "group": "g2",
+                        "version": "v2",
+                        "plural": "plural",
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    }
+                ],
+                "report_warnings": true
+            },
+            "expected_output": "resources=\nwarnings=ambiguous_resource\n"
+        },
+        {
+            "input": {
+                "action": "refresh_resources",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "plural": "pods"
+                },
+                "group": null,
+                "resources": [
+                    {
+                        "group": "",
+                        "version": "v1",
+                        "plural": "pods",
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    },
+                    {
+                        "group": "metrics.k8s.io",
+                        "version": "v1",
+                        "plural": "pods",
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    }
+                ],
+                "report_warnings": true
+            },
+            "expected_output": "resources=/v1/pods\nwarnings=\n"
+        },
+        {
+            "input": {
+                "action": "refresh_resources",
+                "handler_mode": "watch_event",
+                "selector": "all",
+                "group": null,
+                "resources": [
+                    {
+                        "group": "g1",
+                        "version": "v1",
+                        "plural": "plural",
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    },
+                    {
+                        "group": "g2",
+                        "version": "v2",
+                        "plural": "plural",
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    }
+                ],
+                "report_warnings": true
+            },
+            "expected_output": "resources=g1/v1/plural,g2/v2/plural\nwarnings=\n"
+        },
+        {
+            "input": {
+                "action": "refresh_resources",
+                "handler_mode": "watch_event",
+                "selector": {
+                    "plural": "plural3"
+                },
+                "group": null,
+                "resources": [
+                    {
+                        "group": "group1",
+                        "version": "version1",
+                        "plural": "plural1",
+                        "kind": "kind1",
+                        "singular": "singular1",
+                        "namespaced": true,
+                        "categories": [
+                            "category1a",
+                            "category1b"
+                        ],
+                        "shortcuts": [
+                            "shortname1a",
+                            "shortname1b"
+                        ],
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    },
+                    {
+                        "group": "group2",
+                        "version": "version2",
+                        "plural": "plural2",
+                        "verbs": [
+                            "list",
+                            "watch",
+                            "patch"
+                        ]
+                    }
+                ],
+                "report_warnings": true
+            },
+            "expected_output": "resources=\nwarnings=unresolved_resource\n"
+        }
+    ]
+}

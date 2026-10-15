@@ -1,0 +1,38 @@
+{
+  "description": "Fragment-handling boundaries. A supplied https target carrying a non-empty fragment is rejected directly with invalid_uri ('must not contain a fragment'), independent of scheme. A target ending in a bare '#' has an EMPTY fragment component (not rejected); processing then continues and, since state is enforced by default, the state-required error is reported back via the rebuilt target.",
+  "cases": [
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "https://example.com/cb#section",
+              "response_type": "code",
+              "state": "s"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=400\ntype=response\nbody.error=invalid_uri\nbody.error_description=The redirect URI must not contain a fragment\n"
+    },
+    {
+      "input": {
+        "steps": [
+          {
+            "action": "authorize",
+            "is_authorized": true,
+            "request": {
+              "client_id": "Test Client ID",
+              "redirect_uri": "http://adobe.com#",
+              "response_type": "code"
+            }
+          }
+        ]
+      },
+      "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=adobe.com\nredirect.port=\nredirect.path=\nredirect.fragment=?error=invalid_request&error_description=The+state+parameter+is+required\n"
+    }
+  ]
+}

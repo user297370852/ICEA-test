@@ -1,0 +1,69 @@
+{
+  "description": "Form validation partial-submission and persistence edge cases: a valid submission requires the name to be an existing configured flag, a known condition, and a value (the saved fields are echoed verbatim including multi-word conditions). Each missing required field is reported in stable sorted order; a name that is not a configured flag is rejected as an invalid 'name' choice, and an unknown condition is rejected as an invalid 'condition' choice.",
+  "cases": [
+    {
+      "input": {
+        "op": "submit_form",
+        "data": {
+          "name": "FLAG_DISABLED",
+          "condition": "user",
+          "value": "alice"
+        }
+      },
+      "expected_output": "valid=true\nname=FLAG_DISABLED\ncondition=user\nvalue=alice\n"
+    },
+    {
+      "input": {
+        "op": "submit_form",
+        "data": {
+          "name": "FLAG_ENABLED",
+          "condition": "after date",
+          "value": "2020-01-01T00:00:00"
+        }
+      },
+      "expected_output": "valid=true\nname=FLAG_ENABLED\ncondition=after date\nvalue=2020-01-01T00:00:00\n"
+    },
+    {
+      "input": {
+        "op": "submit_form",
+        "data": {
+          "name": "NOT_A_FLAG",
+          "condition": "boolean",
+          "value": "True"
+        }
+      },
+      "expected_output": "valid=false\ninvalid_fields=name\n"
+    },
+    {
+      "input": {
+        "op": "submit_form",
+        "data": {
+          "name": "FLAG_ENABLED",
+          "condition": "not_a_condition",
+          "value": "True"
+        }
+      },
+      "expected_output": "valid=false\ninvalid_fields=condition\n"
+    },
+    {
+      "input": {
+        "op": "submit_form",
+        "data": {
+          "name": "F",
+          "condition": "boolean"
+        }
+      },
+      "expected_output": "valid=false\ninvalid_fields=name,value\n"
+    },
+    {
+      "input": {
+        "op": "submit_form",
+        "data": {
+          "name": "F",
+          "value": "True"
+        }
+      },
+      "expected_output": "valid=false\ninvalid_fields=condition,name\n"
+    }
+  ]
+}

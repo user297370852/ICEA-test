@@ -1,0 +1,43 @@
+{
+  "description": "[ENHANCED] Enhanced template-destination coverage: two secrets, a secret with inline template + command, and a relative file override combined with secret-volume-path.",
+  "cases": [
+    {
+      "input": {
+        "op": "render_config",
+        "init_container": false,
+        "annotations": {
+          "vault.hashicorp.com/role": "foobar",
+          "vault.hashicorp.com/agent-inject-secret-a": "db/creds/a",
+          "vault.hashicorp.com/agent-inject-secret-b": "db/creds/b"
+        }
+      },
+      "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[{\"destination\":\"/vault/secrets/a\",\"contents\":\"{{ with secret \\\"db/creds/a\\\" }}{{ range $k, $v := .Data }}{{ $k }}: {{ $v }}\\n{{ end }}{{ end }}\",\"command\":\"\",\"source\":\"\"},{\"destination\":\"/vault/secrets/b\",\"contents\":\"{{ with secret \\\"db/creds/b\\\" }}{{ range $k, $v := .Data }}{{ $k }}: {{ $v }}\\n{{ end }}{{ end }}\",\"command\":\"\",\"source\":\"\"}],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "render_config",
+        "init_container": false,
+        "annotations": {
+          "vault.hashicorp.com/role": "foobar",
+          "vault.hashicorp.com/agent-inject-secret-foo": "db/creds/foo",
+          "vault.hashicorp.com/agent-inject-template-foo": "CUSTOM",
+          "vault.hashicorp.com/agent-inject-command-foo": "reload"
+        }
+      },
+      "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[{\"destination\":\"/vault/secrets/foo\",\"contents\":\"CUSTOM\",\"command\":\"reload\",\"source\":\"\"}],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "render_config",
+        "init_container": false,
+        "annotations": {
+          "vault.hashicorp.com/role": "foobar",
+          "vault.hashicorp.com/agent-inject-secret-foo": "db/creds/foo",
+          "vault.hashicorp.com/agent-inject-file-foo": "sub/f",
+          "vault.hashicorp.com/secret-volume-path": "/alt/mount"
+        }
+      },
+      "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[{\"destination\":\"/alt/mount/sub/f\",\"contents\":\"{{ with secret \\\"db/creds/foo\\\" }}{{ range $k, $v := .Data }}{{ $k }}: {{ $v }}\\n{{ end }}{{ end }}\",\"command\":\"\",\"source\":\"\"}],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+    }
+  ]
+}

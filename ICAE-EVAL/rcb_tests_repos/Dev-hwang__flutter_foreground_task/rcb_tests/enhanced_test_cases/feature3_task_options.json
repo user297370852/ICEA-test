@@ -1,0 +1,86 @@
+{
+  "description": "Enhanced boundary coverage for recurring-task scheduling serialization: the non-periodic dispatch modes (nothing=1, once=2) which carry a null interval, periodic interval boundaries (0, very large, and a negative value which the model passes through unvalidated), all lifecycle toggles disabled, and the invalid event-type error path.",
+  "cases": [
+    {
+      "input": {
+        "op": "task_options",
+        "event": {
+          "type": "nothing"
+        },
+        "autoRunOnBoot": false,
+        "autoRunOnMyPackageReplaced": false,
+        "allowWakeLock": false,
+        "allowWifiLock": false
+      },
+      "expected_output": "{\"taskEventAction\":{\"taskEventType\":1,\"taskEventInterval\":null},\"autoRunOnBoot\":false,\"autoRunOnMyPackageReplaced\":false,\"allowWakeLock\":false,\"allowWifiLock\":false}\n"
+    },
+    {
+      "input": {
+        "op": "task_options",
+        "event": {
+          "type": "once"
+        },
+        "autoRunOnBoot": true,
+        "autoRunOnMyPackageReplaced": false,
+        "allowWakeLock": true,
+        "allowWifiLock": false
+      },
+      "expected_output": "{\"taskEventAction\":{\"taskEventType\":2,\"taskEventInterval\":null},\"autoRunOnBoot\":true,\"autoRunOnMyPackageReplaced\":false,\"allowWakeLock\":true,\"allowWifiLock\":false}\n"
+    },
+    {
+      "input": {
+        "op": "task_options",
+        "event": {
+          "type": "repeat",
+          "interval": 0
+        },
+        "autoRunOnBoot": false,
+        "autoRunOnMyPackageReplaced": true,
+        "allowWakeLock": false,
+        "allowWifiLock": true
+      },
+      "expected_output": "{\"taskEventAction\":{\"taskEventType\":3,\"taskEventInterval\":0},\"autoRunOnBoot\":false,\"autoRunOnMyPackageReplaced\":true,\"allowWakeLock\":false,\"allowWifiLock\":true}\n"
+    },
+    {
+      "input": {
+        "op": "task_options",
+        "event": {
+          "type": "repeat",
+          "interval": 86400000
+        },
+        "autoRunOnBoot": true,
+        "autoRunOnMyPackageReplaced": true,
+        "allowWakeLock": false,
+        "allowWifiLock": false
+      },
+      "expected_output": "{\"taskEventAction\":{\"taskEventType\":3,\"taskEventInterval\":86400000},\"autoRunOnBoot\":true,\"autoRunOnMyPackageReplaced\":true,\"allowWakeLock\":false,\"allowWifiLock\":false}\n"
+    },
+    {
+      "input": {
+        "op": "task_options",
+        "event": {
+          "type": "repeat",
+          "interval": -500
+        },
+        "autoRunOnBoot": false,
+        "autoRunOnMyPackageReplaced": false,
+        "allowWakeLock": true,
+        "allowWifiLock": true
+      },
+      "expected_output": "{\"taskEventAction\":{\"taskEventType\":3,\"taskEventInterval\":-500},\"autoRunOnBoot\":false,\"autoRunOnMyPackageReplaced\":false,\"allowWakeLock\":true,\"allowWifiLock\":true}\n"
+    },
+    {
+      "input": {
+        "op": "task_options",
+        "event": {
+          "type": "every"
+        },
+        "autoRunOnBoot": true,
+        "autoRunOnMyPackageReplaced": true,
+        "allowWakeLock": true,
+        "allowWifiLock": true
+      },
+      "expected_output": "error=invalid_argument\nfield=event_type\n"
+    }
+  ]
+}

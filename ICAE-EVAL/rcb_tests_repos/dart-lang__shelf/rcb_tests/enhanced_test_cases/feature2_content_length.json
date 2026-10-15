@@ -1,0 +1,79 @@
+{
+  "description": "Determine content length for empty bodies of each body kind, a multi-byte astral character, a stream paired with a content-length header, and a byte body under a non-identity transfer-encoding.",
+  "cases": [
+    {
+      "input": {
+        "action": "msg_content_length",
+        "body": ""
+      },
+      "expected_output": "contentLength=0\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_length",
+        "body": []
+      },
+      "expected_output": "contentLength=0\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_length",
+        "body": {
+          "type": "bytes",
+          "value": []
+        }
+      },
+      "expected_output": "contentLength=0\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_length",
+        "body": "😀"
+      },
+      "expected_output": "contentLength=4\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_length",
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              104,
+              105
+            ]
+          ]
+        },
+        "headers": {
+          "content-length": "7"
+        }
+      },
+      "expected_output": "contentLength=7\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_length",
+        "body": [
+          1,
+          2,
+          3
+        ],
+        "headers": {
+          "transfer-encoding": "chunked"
+        }
+      },
+      "expected_output": "contentLength=null\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_length",
+        "body": "abcdef",
+        "encoding": "latin1",
+        "headers": {
+          "content-length": "99"
+        }
+      },
+      "expected_output": "contentLength=6\n"
+    }
+  ]
+}

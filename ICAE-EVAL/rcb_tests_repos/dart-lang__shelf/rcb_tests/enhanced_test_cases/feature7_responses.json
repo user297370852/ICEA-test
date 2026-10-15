@@ -1,0 +1,83 @@
+{
+  "description": "Construct responses observing status, body and key headers: empty success body, arbitrary 2xx statuses with bodies, the lowest valid status boundary, an off-by-one invalid status, a redirect carrying a body, and an error factory given an explicit body.",
+  "cases": [
+    {
+      "input": {
+        "action": "response",
+        "kind": "ok"
+      },
+      "expected_output": "status=200\ncontentType=null\nlocation=null\nhasDate=false\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "status",
+        "status": 201,
+        "body": "created"
+      },
+      "expected_output": "status=201\ncontentType=null\nlocation=null\nhasDate=false\nbody=created\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "status",
+        "status": 100
+      },
+      "expected_output": "status=100\ncontentType=null\nlocation=null\nhasDate=false\nbody=\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "status",
+        "status": 99
+      },
+      "expected_output": "error=invalid_argument\nmessage=Invalid status code: 99.\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "movedPermanently",
+        "location": "/new",
+        "body": "moved"
+      },
+      "expected_output": "status=301\ncontentType=null\nlocation=/new\nhasDate=false\nbody=moved\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "seeOther",
+        "location": "/other",
+        "body": "see"
+      },
+      "expected_output": "status=303\ncontentType=null\nlocation=/other\nhasDate=false\nbody=see\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "internalServerError",
+        "body": "boom"
+      },
+      "expected_output": "status=500\ncontentType=null\nlocation=null\nhasDate=false\nbody=boom\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "found",
+        "location": "/",
+        "body": "f"
+      },
+      "expected_output": "status=302\ncontentType=null\nlocation=/\nhasDate=false\nbody=f\n"
+    },
+    {
+      "input": {
+        "action": "response",
+        "kind": "ok",
+        "body": "ok",
+        "headers": {
+          "content-type": "application/json"
+        }
+      },
+      "expected_output": "status=200\ncontentType=application/json\nlocation=null\nhasDate=false\nbody=ok\n"
+    }
+  ]
+}

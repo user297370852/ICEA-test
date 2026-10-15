@@ -1,0 +1,38 @@
+{
+  "description": "Type casting of mapped values: string-typed signals from query, URL path and cookie are cast to the schema's integer, boolean, double and long types; a value that cannot be parsed falls back to the schema default.",
+  "cases": [
+    {
+      "input": {
+        "op": "map_event",
+        "scenario": "type_cast",
+        "location": "http://example.com/42/false/3.14159265359/34359738368/whatever?i=-42&b=true&d=3.14159265359&l=34359738368",
+        "referer": "https://www.example.com/about.html",
+        "fields": [
+          "queryparamInteger",
+          "queryparamBoolean",
+          "queryparamDouble",
+          "queryparamLong",
+          "pathInteger",
+          "pathBoolean",
+          "pathDouble",
+          "pathLong",
+          "cookieInteger",
+          "cookieBoolean"
+        ]
+      },
+      "expected_output": "queryparamInteger=-42\nqueryparamBoolean=true\nqueryparamDouble=3.14159265359\nqueryparamLong=34359738368\npathInteger=42\npathBoolean=false\npathDouble=3.14159265359\npathLong=34359738368\ncookieInteger=42\ncookieBoolean=true\n"
+    },
+    {
+      "input": {
+        "op": "map_event",
+        "scenario": "type_cast",
+        "location": "http://example.com/NotAnInt/false/3.14159265359/34359738368/whatever?i=-42&b=true&d=3.14159265359&l=34359738368",
+        "referer": "https://www.example.com/about.html",
+        "fields": [
+          "pathInteger"
+        ]
+      },
+      "expected_output": "pathInteger=-1\n"
+    }
+  ]
+}

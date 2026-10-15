@@ -1,0 +1,96 @@
+{
+  "description": "Bulk plan representation must count ops/batches for an inserts-only plan, an inserts-then-update plan, and an interleaved insert/update/insert plan, in both object and string formats.",
+  "cases": [
+    {
+      "input": {
+        "collection": "a",
+        "format": "object",
+        "operations": [
+          {
+            "insert": {
+              "item": "a"
+            }
+          },
+          {
+            "insert": {
+              "item": "b"
+            }
+          },
+          {
+            "insert": {
+              "item": "c"
+            }
+          }
+        ]
+      },
+      "expected_output": "nInsertOps=3\nnUpdateOps=0\nnRemoveOps=0\nnBatches=1\n"
+    },
+    {
+      "input": {
+        "collection": "a",
+        "format": "object",
+        "operations": [
+          {
+            "insert": {
+              "item": "a"
+            }
+          },
+          {
+            "insert": {
+              "item": "b"
+            }
+          },
+          {
+            "insert": {
+              "item": "c"
+            }
+          },
+          {
+            "update": {
+              "query": {
+                "item": "a"
+              },
+              "change": {
+                "$set": {
+                  "status": "X"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "nInsertOps=3\nnUpdateOps=1\nnRemoveOps=0\nnBatches=2\n"
+    },
+    {
+      "input": {
+        "collection": "a",
+        "format": "string",
+        "operations": [
+          {
+            "insert": {
+              "item": "a"
+            }
+          },
+          {
+            "update": {
+              "query": {
+                "item": "a"
+              },
+              "change": {
+                "$set": {
+                  "status": "X"
+                }
+              }
+            }
+          },
+          {
+            "insert": {
+              "item": "b"
+            }
+          }
+        ]
+      },
+      "expected_output": "nInsertOps=2\nnUpdateOps=1\nnRemoveOps=0\nnBatches=3\n"
+    }
+  ]
+}

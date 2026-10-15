@@ -1,0 +1,38 @@
+{
+  "description": "Enhanced boundary coverage for basic schema packaging: ordinal ordering of multiple tables, intra-project view dependency resolution, an empty project with no schema objects, and a non-dbo user schema.",
+  "cases": [
+    {
+      "input": {
+        "sql_files": {
+          "Zebra.sql": "CREATE TABLE [dbo].[Zebra]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n",
+          "Apple.sql": "CREATE TABLE [dbo].[Apple]\n(\n\tc1 int NOT NULL PRIMARY KEY\n)\n"
+        }
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Apple],[dbo].[Zebra]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    },
+    {
+      "input": {
+        "sql_files": {
+          "Customer.sql": "CREATE TABLE [dbo].[Customer]\n(\n\tid int NOT NULL PRIMARY KEY,\n\tname nvarchar(100) NULL\n)\n",
+          "CustomerView.sql": "CREATE VIEW [dbo].[CustomerView]\n  AS SELECT id, name FROM [dbo].[Customer]\n"
+        }
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=[dbo].[Customer]\nviews=[dbo].[CustomerView]\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    },
+    {
+      "input": {
+        "sql_files": {}
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    },
+    {
+      "input": {
+        "sql_files": {
+          "Schema.sql": "CREATE SCHEMA [sales]\n",
+          "Product.sql": "CREATE TABLE [sales].[Product]\n(\n\tid int NOT NULL PRIMARY KEY,\n\tprice money NULL\n)\n"
+        }
+      },
+      "expected_output": "exit_code=0\npackage_exists=true\ntables=[sales].[Product]\nviews=\npre_deploy_script=false\npost_deploy_script=false\ndiagnostics=none\n"
+    }
+  ]
+}

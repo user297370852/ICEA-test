@@ -1,0 +1,78 @@
+{
+  "description": "Boundary coverage for routing-key extraction. Exercises culture-invariant decimal rendering (preserved scale and fractional digits), negative and extreme 32-bit integers, default/empty GUID rendering, and the null-routing-member error path on a different member value than the native suite.",
+  "cases": [
+    {
+      "input": {
+        "action": "routing_key",
+        "message": {
+          "number": "3.14159",
+          "text": "pi",
+          "identifier": "22222222-2222-2222-2222-222222222222"
+        }
+      },
+      "expected_output": "routing_key=3.14159.pi.22222222-2222-2222-2222-222222222222\npart_count=3\n"
+    },
+    {
+      "input": {
+        "action": "routing_key",
+        "message": {
+          "number": "1.00",
+          "text": "x",
+          "identifier": "22222222-2222-2222-2222-222222222222"
+        }
+      },
+      "expected_output": "routing_key=1.00.x.22222222-2222-2222-2222-222222222222\npart_count=3\n"
+    },
+    {
+      "input": {
+        "action": "routing_key",
+        "message": {
+          "int_a": "-100",
+          "int_b": "-200"
+        }
+      },
+      "expected_output": "routing_key=-100.-200\npart_count=2\n"
+    },
+    {
+      "input": {
+        "action": "routing_key",
+        "message": {
+          "int_a": "2147483647",
+          "int_b": "-2147483648"
+        }
+      },
+      "expected_output": "routing_key=2147483647.-2147483648\npart_count=2\n"
+    },
+    {
+      "input": {
+        "action": "routing_key",
+        "message": {
+          "int_a": "0",
+          "int_b": "0"
+        }
+      },
+      "expected_output": "routing_key=0.0\npart_count=2\n"
+    },
+    {
+      "input": {
+        "action": "routing_key",
+        "message": {
+          "number": "1",
+          "text": "y"
+        }
+      },
+      "expected_output": "routing_key=1.y.00000000-0000-0000-0000-000000000000\npart_count=3\n"
+    },
+    {
+      "input": {
+        "action": "routing_key",
+        "message": {
+          "number": "5",
+          "text": null,
+          "identifier": "22222222-2222-2222-2222-222222222222"
+        }
+      },
+      "expected_output": "error=routing_member_null\nposition=2\n"
+    }
+  ]
+}

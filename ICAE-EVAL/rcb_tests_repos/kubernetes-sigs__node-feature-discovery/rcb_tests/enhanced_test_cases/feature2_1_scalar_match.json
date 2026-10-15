@@ -1,0 +1,169 @@
+{
+  "description": "Boundary evaluation of a single expression against one scalar value with a validity flag: membership negatives, regex misses, large and negative integer comparisons, the range operator exactly at its exclusive lower and upper bounds, presence operators against an arbitrary present value, literal true/false tests against non-canonical inputs, the unconditional operator, and a value operator suppressed by a false validity flag.",
+  "cases": [
+    {
+      "input": {
+        "action": "match",
+        "op": "In",
+        "values": [
+          "a",
+          "b",
+          "c"
+        ],
+        "valid": true,
+        "input": "z"
+      },
+      "expected_output": "match=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "InRegexp",
+        "values": [
+          "^foo$",
+          "bar"
+        ],
+        "valid": true,
+        "input": "baz"
+      },
+      "expected_output": "match=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "Gt",
+        "values": [
+          "100"
+        ],
+        "valid": true,
+        "input": 1000000
+      },
+      "expected_output": "error=not_a_number\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "Lt",
+        "values": [
+          "-100"
+        ],
+        "valid": true,
+        "input": -200
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "GtLt",
+        "values": [
+          "0",
+          "100"
+        ],
+        "valid": true,
+        "input": "50"
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "GtLt",
+        "values": [
+          "0",
+          "100"
+        ],
+        "valid": true,
+        "input": "0"
+      },
+      "expected_output": "match=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "GtLt",
+        "values": [
+          "0",
+          "100"
+        ],
+        "valid": true,
+        "input": "100"
+      },
+      "expected_output": "match=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "Exists",
+        "values": [],
+        "valid": true,
+        "input": "anything"
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "DoesNotExist",
+        "values": [],
+        "valid": true,
+        "input": "x"
+      },
+      "expected_output": "match=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "IsTrue",
+        "values": [],
+        "valid": true,
+        "input": "true"
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "IsFalse",
+        "values": [],
+        "valid": true,
+        "input": "FALSE"
+      },
+      "expected_output": "match=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "In",
+        "values": [
+          ""
+        ],
+        "valid": true,
+        "input": ""
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "",
+        "values": [],
+        "valid": true,
+        "input": "x"
+      },
+      "expected_output": "match=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "op": "Gt",
+        "values": [
+          "2"
+        ],
+        "valid": false,
+        "input": 5
+      },
+      "expected_output": "match=false\n"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "description": "File length coverage: length reflects multi-byte UTF-8 byte counts, length grows after an append, and querying length of a directory surfaces an is-a-directory category.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/u",
+            "text": "ééé"
+          },
+          {
+            "op": "length",
+            "path": "/u"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=6\nlength=6\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "abc"
+          },
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "de",
+            "mode": "append"
+          },
+          {
+            "op": "length",
+            "path": "/f"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=3\nwrote_bytes=2\nlength=5\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/d"
+          },
+          {
+            "op": "length",
+            "path": "/d"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/d\nerror=is_a_directory\n"
+    }
+  ]
+}

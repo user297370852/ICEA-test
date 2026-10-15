@@ -1,0 +1,56 @@
+{
+    "description": "Once a container has been torn down it must no longer be used: lifecycle-affecting operations (creating a child, registering an observer, looking up a service) raise an error indicating the container is no longer usable. Repeating the teardown itself is a harmless no-op. Errors are reported as a neutral category, never leaking host-language runtime details. The input queries liveness, tears the container down, then attempts each forbidden operation and tears down again; the output reports the liveness queries and, per attempted operation, either success or the neutral error category.",
+    "cases": [
+        {
+            "input": {
+                "action": "scope",
+                "ops": [
+                    {
+                        "op": "create_root",
+                        "id": "r"
+                    },
+                    {
+                        "op": "is_destroyed",
+                        "scope": "r"
+                    },
+                    {
+                        "op": "destroy",
+                        "scope": "r"
+                    },
+                    {
+                        "op": "is_destroyed",
+                        "scope": "r"
+                    },
+                    {
+                        "op": "try",
+                        "kind": "build_child",
+                        "scope": "r",
+                        "name": "x"
+                    },
+                    {
+                        "op": "try",
+                        "kind": "register",
+                        "scope": "r",
+                        "tracker": "t"
+                    },
+                    {
+                        "op": "try",
+                        "kind": "get_service",
+                        "scope": "r",
+                        "key": ""
+                    },
+                    {
+                        "op": "destroy_times",
+                        "scope": "r",
+                        "times": 1
+                    },
+                    {
+                        "op": "is_destroyed",
+                        "scope": "r"
+                    }
+                ]
+            },
+            "expected_output": "destroyed[r]=false\ndestroyed[r]=true\ntry[build_child]=error=scope_destroyed\ntry[register]=error=scope_destroyed\ntry[get_service]=error=scope_destroyed\ndestroyed[r]=true\n"
+        }
+    ]
+}

@@ -1,0 +1,50 @@
+{
+  "description": "Edge coverage for optional and pointer reads: empty stream optional (none), optional successful read with distinct values, offset_after pointer with surplus bytes, direct pointer with non-1 offset, try-mode pointer resolving to zero byte, and direct pointer with empty stream (EOF).",
+  "cases": [
+    {
+      "input": {
+        "feature": "fallible_optional_read",
+        "bytes": ""
+      },
+      "expected_output": "status=ok\nvalue=none\n"
+    },
+    {
+      "input": {
+        "feature": "fallible_optional_read",
+        "bytes": "0000000100000002"
+      },
+      "expected_output": "status=ok\nvalue=1,2\n"
+    },
+    {
+      "input": {
+        "feature": "pointer_offset_after",
+        "bytes": "010304ff05"
+      },
+      "expected_output": "status=ok\npointed_value=5\nb=3\n"
+    },
+    {
+      "input": {
+        "feature": "after_parse_pointer",
+        "bytes": "0200ff",
+        "mode": "direct"
+      },
+      "expected_output": "status=ok\nvalue=255\n"
+    },
+    {
+      "input": {
+        "feature": "after_parse_pointer",
+        "bytes": "00",
+        "mode": "try"
+      },
+      "expected_output": "status=ok\nvalue=0\n"
+    },
+    {
+      "input": {
+        "feature": "after_parse_pointer",
+        "bytes": "",
+        "mode": "direct"
+      },
+      "expected_output": "error=unexpected_eof\n"
+    }
+  ]
+}

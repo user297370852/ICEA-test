@@ -1,0 +1,53 @@
+{
+  "description": "Additional YAML parsing edge cases for quoted scalar preservation, anchor/alias detection, alias enum resolution, and encoding metadata validation.",
+  "cases": [
+    {
+      "input": {
+        "feature": "yaml_quote_preservation",
+        "operation": "read",
+        "yaml": "StatusCodes:\n  type: \"string\"\n  x-extensible-enum:\n    - \"01\"\n    - \"true\"",
+        "field": "x-extensible-enum"
+      },
+      "expected_output": "is_array=true\nfirst_value_json=\"01\"\n"
+    },
+    {
+      "input": {
+        "feature": "yaml_quote_preservation",
+        "operation": "merge",
+        "yaml": "PaymentStates:\n  type: \"string\"\n  x-extensible-enum:\n    - \"PENDING-REVIEW\"\n    - \"COMPLETED\"",
+        "field": "x-extensible-enum"
+      },
+      "expected_output": "is_array=true\nfirst_value_json=\"PENDING-REVIEW\"\n"
+    },
+    {
+      "input": {
+        "feature": "yaml_alias_detection",
+        "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Anchors\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    Shared:\n      type: object\n      properties:\n        code:\n          type: string\n          enum: &status.values-v2\n            - alpha\n            - beta\n    Consumer:\n      type: object\n      properties:\n        code: {type: string, enum: *status.values-v2}"
+      },
+      "expected_output": "contains_anchor_and_alias=true\n"
+    },
+    {
+      "input": {
+        "feature": "yaml_alias_detection",
+        "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Plain\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    Plain:\n      type: object\n      properties:\n        name:\n          type: string\n          description: uses ampersands and asterisks as prose only"
+      },
+      "expected_output": "contains_anchor_and_alias=false\n"
+    },
+    {
+      "input": {
+        "feature": "yaml_alias_enum_resolution",
+        "yaml": "openapi: \"3.0.0\"\ninfo:\n  title: Inline Enum\n  version: \"1.0\"\npaths: {}\ncomponents:\n  schemas:\n    InlineConsumer:\n      type: object\n      properties:\n        priority:\n          type: string\n          enum:\n            - low\n            - medium\n            - high",
+        "schema": "InlineConsumer",
+        "property": "priority"
+      },
+      "expected_output": "enum_values=low,medium,high\n"
+    },
+    {
+      "input": {
+        "feature": "openapi_encoding_validation",
+        "yaml": "openapi: 3.0.1\ninfo:\n  title: Multipart API\n  version: \"1.0\"\npaths:\n  /upload:\n    post:\n      requestBody:\n        required: true\n        content:\n          multipart/form-data:\n            schema:\n              type: object\n              properties:\n                document:\n                  type: string\n                  format: binary\n                metadata:\n                  type: string\n            encoding:\n              document:\n                contentType: application/pdf\n              metadata:\n                contentType: application/json\n      responses:\n        201:\n          description: Created"
+      },
+      "expected_output": "is_valid=true\n"
+    }
+  ]
+}

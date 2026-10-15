@@ -1,0 +1,45 @@
+{
+    "description": "Loads route rules from an in-memory configuration source, then reflects create, update, and delete events in the fetched rule counts for named destinations.",
+    "cases": [
+        {
+            "input": {
+                "initial": {
+                    "servicecomb.darklaunch.policy.order": "{\"policyType\":\"RATE\",\"ruleItems\":[{\"groupName\":\"s0\"},{\"groupName\":\"s1\"}]}",
+                    "servicecomb.routeRule.web": "\n      - precedence: 1\n        route:\n        - tags:\n            version: 1.0\n            project: x\n          weight: 50\n        - tags:\n            version: 2.0\n            project: z\n          weight: 50\n"
+                },
+                "fetch": [
+                    "web",
+                    "order"
+                ]
+            },
+            "expected_output": "service=web rules=1\nservice=order rules=1\n"
+        },
+        {
+            "input": {
+                "initial": {
+                    "servicecomb.routeRule.web": "\n      - precedence: 1\n        route:\n        - tags:\n            version: 1.0\n            project: x\n          weight: 50\n        - tags:\n            version: 2.0\n            project: z\n          weight: 50\n"
+                },
+                "actions": [
+                    {
+                        "action": "set",
+                        "key": "servicecomb.routeRule.test",
+                        "value": "\n      - precedence: 1\n        route:\n        - tags:\n            version: 1.0\n            project: x\n          weight: 50\n        - tags:\n            version: 2.0\n            project: z\n          weight: 50\n",
+                        "service": "test"
+                    },
+                    {
+                        "action": "set",
+                        "key": "servicecomb.routeRule.web",
+                        "value": "\n      - precedence: 1\n        route:\n        - tags:\n            version: 1.0\n            project: x\n          weight: 100\n      - precedence: 2\n        route:\n        - tags:\n            version: 2.0\n            project: x\n          weight: 100\n",
+                        "service": "web"
+                    },
+                    {
+                        "action": "delete",
+                        "key": "servicecomb.routeRule.web",
+                        "service": "web"
+                    }
+                ]
+            },
+            "expected_output": "after=set service=test rules=1\nafter=set service=web rules=2\nafter=delete service=web rules=0\n"
+        }
+    ]
+}

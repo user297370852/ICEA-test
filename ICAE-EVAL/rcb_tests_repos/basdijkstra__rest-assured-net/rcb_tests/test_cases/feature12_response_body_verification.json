@@ -1,0 +1,49 @@
+{
+    "description": "Whole response bodies can be checked exactly or by substring containment, with normalized failures on mismatches.",
+    "cases": [
+        {
+            "input": {
+                "feature": "response_body_verification",
+                "mode": "exact",
+                "path": "/plaintext-response-body",
+                "response_status": 200,
+                "response_body": "Here's a plaintext response body.",
+                "expected": "Here's a plaintext response body."
+            },
+            "expected_output": "method=GET\nrequest_path=/plaintext-response-body\nstatus=200\nbody=Here's a plaintext response body.\nverification=body_matched\n"
+        },
+        {
+            "input": {
+                "feature": "response_body_verification",
+                "mode": "exact",
+                "path": "/json-string-response-body",
+                "response_status": 200,
+                "response_body": "{\"id\": 1, \"user\": \"John Doe\"}",
+                "expected": "{\"id\": 1, \"user\": \"John Doe\"}"
+            },
+            "expected_output": "method=GET\nrequest_path=/json-string-response-body\nstatus=200\nbody={\"id\": 1, \"user\": \"John Doe\"}\nverification=body_matched\n"
+        },
+        {
+            "input": {
+                "feature": "response_body_verification",
+                "mode": "contains",
+                "path": "/json-string-response-body",
+                "response_status": 200,
+                "response_body": "{\"id\": 1, \"user\": \"John Doe\"}",
+                "contains": "John Doe"
+            },
+            "expected_output": "method=GET\nrequest_path=/json-string-response-body\nstatus=200\nbody={\"id\": 1, \"user\": \"John Doe\"}\nverification=body_matched\n"
+        },
+        {
+            "input": {
+                "feature": "response_body_verification",
+                "mode": "exact",
+                "path": "/plaintext-response-body",
+                "response_status": 200,
+                "response_body": "Here's a plaintext response body.",
+                "expected": "This is a different plaintext response body."
+            },
+            "expected_output": "error=assertion_failed\nmessage=Actual response body did not match expected response body.\\nExpected: This is a different plaintext response body.\\nActual: Here's a plaintext response body.\n"
+        }
+    ]
+}

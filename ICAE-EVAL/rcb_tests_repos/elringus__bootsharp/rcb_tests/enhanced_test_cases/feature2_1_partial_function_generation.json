@@ -1,0 +1,35 @@
+{
+  "description": "Partial forwarding-body generation across return-type and parameter shapes: void-with-params synchronous calls, typed synchronous results, async (ValueTask) void calls, file-scoped namespaces, and multiple marked declarations within one type.",
+  "cases": [
+    {
+      "input": {
+        "source": "\npartial class Foo\n{\n    [JSFunction]\n    partial void Bar (int a, string b);\n}\n"
+      },
+      "expected_output": "\npartial class Foo\n{\n    partial void Bar (int a, string b) => JS.Invoke(\"dotnet.TestProject.Bar\", a, b);\n}\n"
+    },
+    {
+      "input": {
+        "source": "\npartial class Foo\n{\n    [JSFunction]\n    partial int Compute (int a, int b);\n}\n"
+      },
+      "expected_output": "\npartial class Foo\n{\n    partial int Compute (int a, int b) => JS.Invoke<int>(\"dotnet.TestProject.Compute\", a, b);\n}\n"
+    },
+    {
+      "input": {
+        "source": "\npartial class Foo\n{\n    [JSFunction]\n    partial ValueTask Save (string id);\n}\n"
+      },
+      "expected_output": "\npartial class Foo\n{\n    partial ValueTask Save (string id) => JS.InvokeAsync(\"dotnet.TestProject.Save\", id);\n}\n"
+    },
+    {
+      "input": {
+        "source": "\nnamespace FileScoped;\npublic static partial class Foo\n{\n    [JSFunction]\n    private static partial ValueTask SaveAsync (string a, int b);\n}\n"
+      },
+      "expected_output": "\nnamespace FileScoped;\npublic static partial class Foo\n{\n    private static partial ValueTask SaveAsync (string a, int b) => JS.InvokeAsync(\"dotnet.TestProject.SaveAsync\", a, b);\n}\n"
+    },
+    {
+      "input": {
+        "source": "\npartial class Foo\n{\n    [JSFunction]\n    partial void A ();\n    [JSFunction]\n    partial void B (int x);\n}\n"
+      },
+      "expected_output": "\npartial class Foo\n{\n    partial void A () => JS.Invoke(\"dotnet.TestProject.A\");\n    partial void B (int x) => JS.Invoke(\"dotnet.TestProject.B\", x);\n}\n"
+    }
+  ]
+}

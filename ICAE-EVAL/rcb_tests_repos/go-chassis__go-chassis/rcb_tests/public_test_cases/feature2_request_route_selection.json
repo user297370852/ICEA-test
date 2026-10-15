@@ -1,0 +1,54 @@
+{
+    "description": "Selects destination metadata for an invocation by evaluating route rules for the requested destination, including header matches, default rules, zero-weight alternatives, and missing destinations.",
+    "cases": [
+        {
+            "input": {
+                "rules": {
+                    "RPCServer": [
+                        {
+                            "precedence": 2,
+                            "match": {
+                                "headers": {
+                                    "test": {
+                                        "exact": "user"
+                                    }
+                                }
+                            },
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "v2"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "precedence": 1,
+                            "route": [
+                                {
+                                    "weight": 100,
+                                    "tags": {
+                                        "version": "v3"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "service": "RPCServer",
+                "headers": {
+                    "cookie": "user=jason",
+                    "X-Age": "18",
+                    "test": "user"
+                },
+                "source": {
+                    "tags": {
+                        "version": "v2"
+                    }
+                }
+            },
+            "expected_output": "service=RPCServer\nerror=none\nselected=true\nversion=v2\n"
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "description": "Match a hierarchical routing key against a subscription pattern. A pattern is a sequence of dot-separated parts; a part may be a literal token, the single-level wildcard '*' (matches exactly one part in that position, regardless of value), or the multi-level wildcard '#' (matches the remainder of the routing key, including zero further parts). A pattern that is empty, or that consists of the single token '#', matches every routing key. Otherwise a routing key matches only when each of its parts agrees with the corresponding pattern part and the two have the same number of parts (unless a '#' short-circuits the comparison). The output echoes the canonical form of the pattern and of the routing key (an empty/match-all pattern renders as '#'), then reports whether they match.",
+    "cases": [
+        {"input": {"action": "match", "binding_key": "*", "routing_key": "whatever"}, "expected_output": "binding_key=*\nrouting_key=whatever\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "*", "routing_key": "*"}, "expected_output": "binding_key=*\nrouting_key=*\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "*", "routing_key": "#"}, "expected_output": "binding_key=*\nrouting_key=#\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "#", "routing_key": "whatever"}, "expected_output": "binding_key=#\nrouting_key=whatever\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "#", "routing_key": "*"}, "expected_output": "binding_key=#\nrouting_key=*\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "#", "routing_key": "#"}, "expected_output": "binding_key=#\nrouting_key=#\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": null, "routing_key": "whatever"}, "expected_output": "binding_key=#\nrouting_key=whatever\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": null, "routing_key": "*"}, "expected_output": "binding_key=#\nrouting_key=*\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": null, "routing_key": "#"}, "expected_output": "binding_key=#\nrouting_key=#\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "*.*.*", "routing_key": "a.b.c"}, "expected_output": "binding_key=*.*.*\nrouting_key=a.b.c\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "*.*.*", "routing_key": "b.c.d"}, "expected_output": "binding_key=*.*.*\nrouting_key=b.c.d\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "a.b.*", "routing_key": "a.b.c"}, "expected_output": "binding_key=a.b.*\nrouting_key=a.b.c\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "a.*.*", "routing_key": "a.b.c"}, "expected_output": "binding_key=a.*.*\nrouting_key=a.b.c\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "a.*.c", "routing_key": "a.b.c"}, "expected_output": "binding_key=a.*.c\nrouting_key=a.b.c\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "*.b.c", "routing_key": "a.b.c"}, "expected_output": "binding_key=*.b.c\nrouting_key=a.b.c\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "a.b.#", "routing_key": "a.b.c"}, "expected_output": "binding_key=a.b.#\nrouting_key=a.b.c\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "a.#", "routing_key": "a.b.c"}, "expected_output": "binding_key=a.#\nrouting_key=a.b.c\nmatch=true\n"},
+        {"input": {"action": "match", "binding_key": "a.b.c.d", "routing_key": "a.b"}, "expected_output": "binding_key=a.b.c.d\nrouting_key=a.b\nmatch=false\n"},
+        {"input": {"action": "match", "binding_key": "a.b.c.d", "routing_key": "d.*"}, "expected_output": "binding_key=a.b.c.d\nrouting_key=d.*\nmatch=false\n"},
+        {"input": {"action": "match", "binding_key": "a.b.c.d", "routing_key": "d.#"}, "expected_output": "binding_key=a.b.c.d\nrouting_key=d.#\nmatch=false\n"},
+        {"input": {"action": "match", "binding_key": "a.b.c", "routing_key": "a.b.c"}, "expected_output": "binding_key=a.b.c\nrouting_key=a.b.c\nmatch=true\n"}
+    ]
+}

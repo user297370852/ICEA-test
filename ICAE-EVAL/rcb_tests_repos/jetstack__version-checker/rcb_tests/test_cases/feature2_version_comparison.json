@@ -1,0 +1,85 @@
+{
+    "description": "Determine whether one image tag represents an older version than another, returning a boolean ordering result. Comparison first weighs the numeric major/minor/patch triple; ties are broken by tokenising the metadata suffix into alternating number/word segments and comparing them left-to-right (numbers compared numerically, words lexicographically). A tag with no metadata is considered newer than the same numeric version with a pre-release metadata suffix. Empty tags order purely by length. Two arbitrary non-numeric strings never order as less-than.",
+    "cases": [
+        {
+            "input": {"action": "compare_versions", "first": "", "second": ""},
+            "expected_output": "first=\nsecond=\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "hello", "second": "aworld"},
+            "expected_output": "first=hello\nsecond=aworld\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "", "second": "1"},
+            "expected_output": "first=\nsecond=1\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "1", "second": ""},
+            "expected_output": "first=1\nsecond=\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "hello", "second": "world-1"},
+            "expected_output": "first=hello\nsecond=world-1\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "hello-1", "second": "aworld"},
+            "expected_output": "first=hello-1\nsecond=aworld\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.2", "second": "v0.1.2"},
+            "expected_output": "first=v0.1.2\nsecond=v0.1.2\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.2", "second": "v0.1.3"},
+            "expected_output": "first=v0.1.2\nsecond=v0.1.3\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.2", "second": "v0.1.3-alpha"},
+            "expected_output": "first=v0.1.2\nsecond=v0.1.3-alpha\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.2", "second": "v0.1.3-alpha.0"},
+            "expected_output": "first=v0.1.2\nsecond=v0.1.3-alpha.0\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.3-alpha.0", "second": "v0.1.3-alpha.1"},
+            "expected_output": "first=v0.1.3-alpha.0\nsecond=v0.1.3-alpha.1\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.3-beta.0", "second": "v0.1.3-alpha.1"},
+            "expected_output": "first=v0.1.3-beta.0\nsecond=v0.1.3-alpha.1\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.3-12.alpha.1", "second": "v0.1.3-12.beta.1"},
+            "expected_output": "first=v0.1.3-12.alpha.1\nsecond=v0.1.3-12.beta.1\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v0.1.3-alpha.103.gke", "second": "v0.1.3-alpha.0113.gke"},
+            "expected_output": "first=v0.1.3-alpha.103.gke\nsecond=v0.1.3-alpha.0113.gke\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v1.3.hello1-debian-3.hello-world-12", "second": "v1.3.hello1-debian-9.hello-world-12"},
+            "expected_output": "first=v1.3.hello1-debian-3.hello-world-12\nsecond=v1.3.hello1-debian-9.hello-world-12\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v1.3.hello1-debian-9.hello-world-125", "second": "v1.3.hello1-debian-9.hello-world-115"},
+            "expected_output": "first=v1.3.hello1-debian-9.hello-world-125\nsecond=v1.3.hello1-debian-9.hello-world-115\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "v1.3.hello1-debian-9.hello-world-12", "second": "v1.3.hello1-debian-9.hello-world-12"},
+            "expected_output": "first=v1.3.hello1-debian-9.hello-world-12\nsecond=v1.3.hello1-debian-9.hello-world-12\nless_than=false"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "0.21.0-debian-10-r9", "second": "0.21.0-debian-10-r39"},
+            "expected_output": "first=0.21.0-debian-10-r9\nsecond=0.21.0-debian-10-r39\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "0.21.0-debian-10-r9-hello", "second": "0.21.0-debian-10-r39-hello"},
+            "expected_output": "first=0.21.0-debian-10-r9-hello\nsecond=0.21.0-debian-10-r39-hello\nless_than=true"
+        },
+        {
+            "input": {"action": "compare_versions", "first": "0.21.0-debian-10-r39-hello", "second": "0.21.0-debian-10-r9-hello"},
+            "expected_output": "first=0.21.0-debian-10-r39-hello\nsecond=0.21.0-debian-10-r9-hello\nless_than=false"
+        }
+    ]
+}

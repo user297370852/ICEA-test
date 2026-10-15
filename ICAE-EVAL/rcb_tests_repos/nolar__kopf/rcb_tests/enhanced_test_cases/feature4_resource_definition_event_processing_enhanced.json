@@ -1,0 +1,193 @@
+{
+  "description": "Enhanced resource-definition watch-event coverage for disappeared API groups preserving other resources, rediscovery across multiple versions, and core discovery without the namespace backbone resource.",
+  "cases": [
+    {
+      "input": {
+        "action": "apply_resource_definition_event",
+        "handler_mode": "watch_event",
+        "selector": [
+          {
+            "group": "gone.io",
+            "version": "v1",
+            "plural": "things"
+          },
+          {
+            "group": "keep.io",
+            "version": "v1",
+            "plural": "keeps"
+          }
+        ],
+        "initial_resources": [
+          {
+            "group": "gone.io",
+            "version": "v1",
+            "plural": "things",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          },
+          {
+            "group": "keep.io",
+            "version": "v1",
+            "plural": "keeps",
+            "verbs": [
+              "list",
+              "watch",
+              "patch"
+            ]
+          }
+        ],
+        "event": {
+          "type": "DELETED",
+          "spec": {
+            "group": "gone.io"
+          }
+        },
+        "apis": {
+          "/apis": {
+            "body": {
+              "groups": [
+                {
+                  "name": "keep.io",
+                  "preferredVersion": {
+                    "version": "v1"
+                  },
+                  "versions": [
+                    {
+                      "version": "v1"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "notified=yes\nresources=keep.io/v1/keeps\ncore_namespaces_ready=no\napi_calls=/apis\n"
+    },
+    {
+      "input": {
+        "action": "apply_resource_definition_event",
+        "handler_mode": "watch_event",
+        "selector": {
+          "group": "multi.io",
+          "version": "v2",
+          "plural": "gadgets"
+        },
+        "initial_resources": [],
+        "event": {
+          "type": "ADDED",
+          "spec": {
+            "group": "multi.io"
+          }
+        },
+        "apis": {
+          "/apis": {
+            "body": {
+              "groups": [
+                {
+                  "name": "multi.io",
+                  "preferredVersion": {
+                    "version": "v2"
+                  },
+                  "versions": [
+                    {
+                      "version": "v1"
+                    },
+                    {
+                      "version": "v2"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "/apis/multi.io/v1": {
+            "body": {
+              "resources": [
+                {
+                  "kind": "Gadgets",
+                  "name": "gadgets",
+                  "singularName": "gadget",
+                  "namespaced": true,
+                  "categories": [],
+                  "shortNames": [],
+                  "verbs": [
+                    "list",
+                    "watch",
+                    "patch"
+                  ]
+                }
+              ]
+            }
+          },
+          "/apis/multi.io/v2": {
+            "body": {
+              "resources": [
+                {
+                  "kind": "Gadgets",
+                  "name": "gadgets",
+                  "singularName": "gadget",
+                  "namespaced": true,
+                  "categories": [],
+                  "shortNames": [],
+                  "verbs": [
+                    "list",
+                    "watch",
+                    "patch"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "notified=yes\nresources=multi.io/v2/gadgets\ncore_namespaces_ready=no\napi_calls=/apis,/apis/multi.io/v1,/apis/multi.io/v2\n"
+    },
+    {
+      "input": {
+        "action": "apply_resource_definition_event",
+        "handler_mode": null,
+        "selector": null,
+        "initial_resources": [],
+        "event": {
+          "type": "ADDED",
+          "spec": {
+            "group": ""
+          }
+        },
+        "apis": {
+          "/api": {
+            "body": {
+              "versions": [
+                "v1"
+              ]
+            }
+          },
+          "/api/v1": {
+            "body": {
+              "resources": [
+                {
+                  "kind": "Pods",
+                  "name": "pods",
+                  "singularName": "pod",
+                  "namespaced": true,
+                  "categories": [],
+                  "shortNames": [],
+                  "verbs": [
+                    "list",
+                    "watch",
+                    "patch"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "expected_output": "notified=yes\nresources=\ncore_namespaces_ready=no\napi_calls=/api,/api/v1\n"
+    }
+  ]
+}

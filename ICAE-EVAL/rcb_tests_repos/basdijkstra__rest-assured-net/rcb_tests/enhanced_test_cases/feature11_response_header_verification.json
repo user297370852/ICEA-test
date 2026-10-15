@@ -1,0 +1,89 @@
+{
+  "description": "Enhanced response header verification: alternate exact/contains matches, content-type checks, and normalized failures for absent or mismatched headers.",
+  "cases": [
+    {
+      "input": {
+        "feature": "response_header_verification",
+        "mode": "exact",
+        "path": "/etag-header",
+        "response_status": 200,
+        "response_headers": {
+          "ETag": "W/\"abc123\""
+        },
+        "header": "ETag",
+        "expected": "W/\"abc123\""
+      },
+      "expected_output": "method=GET\nrequest_path=/etag-header\nstatus=200\nheader=ETag\nverification=header_matched\n"
+    },
+    {
+      "input": {
+        "feature": "response_header_verification",
+        "mode": "contains",
+        "path": "/location-header",
+        "response_status": 201,
+        "response_headers": {
+          "Location": "/resources/12345"
+        },
+        "header": "Location",
+        "contains": "/resources/"
+      },
+      "expected_output": "method=GET\nrequest_path=/location-header\nstatus=201\nheader=Location\nverification=header_matched\n"
+    },
+    {
+      "input": {
+        "feature": "response_header_verification",
+        "mode": "content_type_exact",
+        "path": "/content-type-json-exact",
+        "response_status": 200,
+        "response_headers": {
+          "Content-Type": "application/json"
+        },
+        "header": "Content-Type",
+        "expected": "application/json"
+      },
+      "expected_output": "method=GET\nrequest_path=/content-type-json-exact\nstatus=200\nheader=Content-Type\nverification=header_matched\n"
+    },
+    {
+      "input": {
+        "feature": "response_header_verification",
+        "mode": "content_type_contains",
+        "path": "/content-type-json-contains",
+        "response_status": 200,
+        "response_headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "header": "Content-Type",
+        "contains": "json"
+      },
+      "expected_output": "method=GET\nrequest_path=/content-type-json-contains\nstatus=200\nheader=Content-Type\nverification=header_matched\n"
+    },
+    {
+      "input": {
+        "feature": "response_header_verification",
+        "mode": "exact",
+        "path": "/missing-header-check",
+        "response_status": 200,
+        "response_headers": {
+          "X-Present": "yes"
+        },
+        "header": "X-Absent",
+        "expected": "anything"
+      },
+      "expected_output": "error=assertion_failed\nmessage=Expected header with name 'X-Absent' to be in the response, but it could not be found.\n"
+    },
+    {
+      "input": {
+        "feature": "response_header_verification",
+        "mode": "exact",
+        "path": "/mismatch-header-check",
+        "response_status": 200,
+        "response_headers": {
+          "X-Version": "1.0"
+        },
+        "header": "X-Version",
+        "expected": "2.0"
+      },
+      "expected_output": "error=assertion_failed\nmessage=Expected value for response header with name 'X-Version' to be '2.0', but was '1.0'.\n"
+    }
+  ]
+}

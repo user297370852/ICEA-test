@@ -1,0 +1,35 @@
+{
+  "description": "Additional transparent execution passthrough cases covering no trailing newline stdout, multiline stdin transformation, commands that produce stdout while exiting non-zero, and stdin-driven command with no matches.",
+  "cases": [
+    {
+      "input": {
+        "op": "execute",
+        "command": "printf edge-no-newline"
+      },
+      "expected_output": "exit_status=0\nstdout<<<\nedge-no-newline\n>>>\n"
+    },
+    {
+      "input": {
+        "op": "execute",
+        "command": "tr a-z A-Z",
+        "stdin": "alpha\nbeta\nGamma\n"
+      },
+      "expected_output": "exit_status=0\nstdout<<<\nALPHA\nBETA\nGAMMA\n>>>\n"
+    },
+    {
+      "input": {
+        "op": "execute",
+        "command": "printf before-fail; exit 42"
+      },
+      "expected_output": "exit_status=42\nstdout<<<\nbefore-fail\n>>>\n"
+    },
+    {
+      "input": {
+        "op": "execute",
+        "command": "grep missing",
+        "stdin": "present\nvalues\nonly\n"
+      },
+      "expected_output": "exit_status=1\nstdout<<<\n>>>\n"
+    }
+  ]
+}

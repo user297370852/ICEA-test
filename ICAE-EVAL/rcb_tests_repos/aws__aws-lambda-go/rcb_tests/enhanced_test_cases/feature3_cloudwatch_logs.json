@@ -1,0 +1,32 @@
+{
+  "description": "Enhanced coverage for compressed log-batch decoding (disjoint from native case). Freshly generated gzip+base64 payloads exercise: multiple subscription filters rendered as a comma-separated list with a single CONTROL_MESSAGE event; an empty batch with zero filters and zero events (empty subscriptionFilters line, events=0, no entry lines); and a three-event batch whose messages contain commas, semicolons and equals signs to confirm raw message text is reported verbatim.",
+  "cases": [
+    {
+      "input": {
+        "action": "cloudwatch_logs_parse",
+        "awslogs": {
+          "data": "H4sIALVOLWoC/0WOQQuCQBCF/4rMuWitg9UtwrxUQnoLiTUnW1J32V2TEP97Oyb0TjPzHt+8HmTXoIatBxuntVPgBDMPKllGWraKPKVlseBKTPfEauQ1GWLOeH73lytyTJubuxbKCtkcRGVRG5e5wmOc4wYp9FvSTkLmthqN4SWmH4WE28fn9BIfb6cwSXZROL0L39jYEdWDKCiHPmNkWuEAltdU0g/YJFfnj6b4E7m2OXLryRcM2fAFkJRD9PYAAAA="
+        }
+      },
+      "expected_output": "owner=999988887777\nlogGroup=prod/api\nlogStream=i-0abc123\nsubscriptionFilters=filterOne,filterTwo\nmessageType=CONTROL_MESSAGE\nevents=1\n[0] id=e100 timestamp=1700000000123 message=heartbeat ok\n"
+    },
+    {
+      "input": {
+        "action": "cloudwatch_logs_parse",
+        "awslogs": {
+          "data": "H4sIALVOLWoC/6tWyi/PSy1SslJQMgQCIyAwBgIlHQWlnPx096L80gKQXGpuQUmlbjqYC5EKLilKTcwFyRWDWbpgJSDJ4tKk4uSizIKSzPw8t8ycktSiYqCy6FigVG5qcXFiempIZUEqSKeLY4hjvK9rcLCjuyvUWNey1LwSiPpaAIhLQAucAAAA"
+        }
+      },
+      "expected_output": "owner=111122223333\nlogGroup=empty-group\nlogStream=stream-empty\nsubscriptionFilters=\nmessageType=DATA_MESSAGE\nevents=0\n"
+    },
+    {
+      "input": {
+        "action": "cloudwatch_logs_parse",
+        "awslogs": {
+          "data": "H4sIALVOLWoC/3WOy2rDMBBFf0XMWiWy7DRJixeGul51Ze9KKGoySYUfMtLYIQT/eyW3tLQhdyGB7pmjuYA5dWjhgcHS595n5QOcQWOOhTVDHzo37hYnY2tPfjUlWVRtqEi5+m4Tnt3w7nZW96RN96wbQus88AqHKLQHOZ8xbP3VonPqiNW5x+B4yqrs7SUvy6zIvz/IR+xonr+A3gdIzRrSfpZUG9aKkkQkidysV0KIX2uAi7xiC8WZR2lwqRQCJs5+VPK2avlfVeM5HVUz4CMz9IE2jbjk8R9dfFO3vtpsbzqEaTt9AsUVkmx6AQAA"
+        }
+      },
+      "expected_output": "owner=555566667777\nlogGroup=svc/worker\nlogStream=task-9\nsubscriptionFilters=f1,f2,f3\nmessageType=DATA_MESSAGE\nevents=3\n[0] id=a1 timestamp=1440442987000 message=GET /a, status=200\n[1] id=a2 timestamp=1440442987500 message=key=value; other=1,2,3\n[2] id=a3 timestamp=1440442988000 message=done\n"
+    }
+  ]
+}

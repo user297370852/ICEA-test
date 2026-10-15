@@ -1,0 +1,35 @@
+{
+  "description": "Extra-context merge boundary coverage: multiple context keys merge in deterministic (sorted) order, and non-string values are merged faithfully — a number, a boolean, and a nested object are each rendered as compact JSON on the event root rather than being stringified or dropped. A single-key context is also exercised.",
+  "cases": [
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "event": {
+          "message": "m",
+          "context": {
+            "user": "alice"
+          }
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nmessage=m\nmerged.user=alice\nevent_id_length=32\nlast_event_id=0\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "event": {
+          "message": "",
+          "context": {
+            "b": "2",
+            "a": "1",
+            "count": 5,
+            "flag": true,
+            "obj": {
+              "x": 1
+            }
+          }
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nmessage=\nmerged.a=1\nmerged.b=2\nmerged.count=5\nmerged.flag=true\nmerged.obj={\"x\":1}\nevent_id_length=32\nlast_event_id=0\n"
+    }
+  ]
+}

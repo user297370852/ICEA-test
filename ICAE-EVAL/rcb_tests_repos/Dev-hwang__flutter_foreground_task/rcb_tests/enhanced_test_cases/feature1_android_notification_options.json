@@ -1,0 +1,162 @@
+{
+  "description": "Enhanced boundary coverage for Android notification channel serialization: every importance code (none=0,min=1,default=3,high=4,max=5), every priority code (min=-2,default=0,high=1,max=2), every visibility code (secret=-1,private=0), absent channel description emitted as null, explicit/omitted onlyAlertOnce, all boolean toggles enabled, plus invalid-token and empty-identifier error paths normalized by the adapter.",
+  "cases": [
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "c",
+        "channelName": "n",
+        "importance": "none",
+        "priority": "min",
+        "enableVibration": true,
+        "playSound": true,
+        "showWhen": true,
+        "showBadge": true,
+        "onlyAlertOnce": true,
+        "visibility": "secret"
+      },
+      "expected_output": "{\"notificationId\":null,\"notificationChannelId\":\"c\",\"notificationChannelName\":\"n\",\"notificationChannelDescription\":null,\"notificationChannelImportance\":0,\"notificationPriority\":-2,\"enableVibration\":true,\"playSound\":true,\"showWhen\":true,\"showBadge\":true,\"onlyAlertOnce\":true,\"visibility\":-1}\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "chan.min",
+        "channelName": "Min Channel",
+        "channelDescription": "desc",
+        "importance": "min",
+        "priority": "default",
+        "enableVibration": true,
+        "playSound": false,
+        "showWhen": true,
+        "showBadge": false,
+        "onlyAlertOnce": false,
+        "visibility": "private"
+      },
+      "expected_output": "{\"notificationId\":null,\"notificationChannelId\":\"chan.min\",\"notificationChannelName\":\"Min Channel\",\"notificationChannelDescription\":\"desc\",\"notificationChannelImportance\":1,\"notificationPriority\":0,\"enableVibration\":true,\"playSound\":false,\"showWhen\":true,\"showBadge\":false,\"onlyAlertOnce\":false,\"visibility\":0}\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "default_chan",
+        "channelName": "Default",
+        "importance": "default",
+        "priority": "high",
+        "enableVibration": false,
+        "playSound": true,
+        "showWhen": false,
+        "showBadge": true,
+        "visibility": "public"
+      },
+      "expected_output": "{\"notificationId\":null,\"notificationChannelId\":\"default_chan\",\"notificationChannelName\":\"Default\",\"notificationChannelDescription\":null,\"notificationChannelImportance\":3,\"notificationPriority\":1,\"enableVibration\":false,\"playSound\":true,\"showWhen\":false,\"showBadge\":true,\"onlyAlertOnce\":false,\"visibility\":1}\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "hi",
+        "channelName": "High",
+        "channelDescription": "",
+        "importance": "high",
+        "priority": "max",
+        "enableVibration": true,
+        "playSound": true,
+        "showWhen": false,
+        "showBadge": false,
+        "onlyAlertOnce": true,
+        "visibility": "private"
+      },
+      "expected_output": "{\"notificationId\":null,\"notificationChannelId\":\"hi\",\"notificationChannelName\":\"High\",\"notificationChannelDescription\":\"\",\"notificationChannelImportance\":4,\"notificationPriority\":2,\"enableVibration\":true,\"playSound\":true,\"showWhen\":false,\"showBadge\":false,\"onlyAlertOnce\":true,\"visibility\":0}\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "max_chan",
+        "channelName": "Max ünico",
+        "channelDescription": "emoji 🚀 desc",
+        "importance": "max",
+        "priority": "low",
+        "enableVibration": true,
+        "playSound": true,
+        "showWhen": true,
+        "showBadge": true,
+        "onlyAlertOnce": true,
+        "visibility": "secret"
+      },
+      "expected_output": "{\"notificationId\":null,\"notificationChannelId\":\"max_chan\",\"notificationChannelName\":\"Max ünico\",\"notificationChannelDescription\":\"emoji 🚀 desc\",\"notificationChannelImportance\":5,\"notificationPriority\":-1,\"enableVibration\":true,\"playSound\":true,\"showWhen\":true,\"showBadge\":true,\"onlyAlertOnce\":true,\"visibility\":-1}\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "",
+        "channelName": "Empty Id",
+        "importance": "low",
+        "priority": "low",
+        "enableVibration": false,
+        "playSound": false,
+        "showWhen": false,
+        "showBadge": false,
+        "visibility": "public"
+      },
+      "expected_output": "error=invalid_configuration\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "ok",
+        "channelName": "",
+        "importance": "low",
+        "priority": "low",
+        "enableVibration": false,
+        "playSound": false,
+        "showWhen": false,
+        "showBadge": false,
+        "visibility": "public"
+      },
+      "expected_output": "error=invalid_configuration\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "ok",
+        "channelName": "Bad Importance",
+        "importance": "urgent",
+        "priority": "low",
+        "enableVibration": false,
+        "playSound": false,
+        "showWhen": false,
+        "showBadge": false,
+        "visibility": "public"
+      },
+      "expected_output": "error=invalid_argument\nfield=importance\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "ok",
+        "channelName": "Bad Priority",
+        "importance": "low",
+        "priority": "critical",
+        "enableVibration": false,
+        "playSound": false,
+        "showWhen": false,
+        "showBadge": false,
+        "visibility": "public"
+      },
+      "expected_output": "error=invalid_argument\nfield=priority\n"
+    },
+    {
+      "input": {
+        "op": "android_options",
+        "channelId": "ok",
+        "channelName": "Bad Visibility",
+        "importance": "low",
+        "priority": "low",
+        "enableVibration": false,
+        "playSound": false,
+        "showWhen": false,
+        "showBadge": false,
+        "visibility": "hidden"
+      },
+      "expected_output": "error=invalid_argument\nfield=visibility\n"
+    }
+  ]
+}

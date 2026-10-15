@@ -1,0 +1,39 @@
+{
+    "description": "Detect unsafe negation or loose equality around asynchronous template values and provide source rewrites when available.",
+    "cases": [
+        {
+            "input": {
+                "action": "lint",
+                "check": "async_boolean_expression",
+                "apply_fix": true,
+                "source": "\n@Component({\n  selector: 'sample-view',\n  template: '{{ !(foo | async) }}'\n})\nclass SampleView {\n  constructor(public foo: Observable<Boolean>) {}\n}\n"
+            },
+            "expected_output": "check=async_boolean_expression\nfailure_count=1\nfailure_index=0\nmessage=Async pipes can not be negated, use (observable | async) === false instead\nstart_line=3\nstart_character=16\nend_line=3\nend_character=31\nfixed_source<<EOF\n\n@Component({\n  selector: 'sample-view',\n  template: '{{ (foo | async) === false }}'\n})\nclass SampleView {\n  constructor(public foo: Observable<Boolean>) {}\n}\n\nEOF\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "async_boolean_expression",
+                "apply_fix": true,
+                "source": "\n@Component({\n  selector: 'sample-view',\n  template: '{{ (foo | async) == false }}'\n})\nclass SampleView {\n  constructor(public foo: Observable<Boolean>) {}\n}\n"
+            },
+            "expected_output": "check=async_boolean_expression\nfailure_count=1\nfailure_index=0\nmessage=Async pipes must use strict equality `===` when comparing with `false`\nstart_line=3\nstart_character=17\nend_line=3\nend_character=39\nfixed_source<<EOF\n\n@Component({\n  selector: 'sample-view',\n  template: '{{ (foo | async) === false }}'\n})\nclass SampleView {\n  constructor(public foo: Observable<Boolean>) {}\n}\n\nEOF\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "async_boolean_expression",
+                "source": "\n@Component({\n  selector: 'sample-view',\n  template: '{{ (foo | async) === false }}'\n})\nclass SampleView {\n  constructor(public foo: Observable<Boolean>) {}\n}\n"
+            },
+            "expected_output": "check=async_boolean_expression\nfailure_count=0\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "async_boolean_expression",
+                "source": "\n@Component({\n  selector: 'sample-view',\n  template: '{{ !(foo | notAnAsyncPipe) }}'\n})\nclass SampleView {\n  constructor(public foo: Observable<Boolean>) {}\n}\n"
+            },
+            "expected_output": "check=async_boolean_expression\nfailure_count=0\n"
+        }
+    ]
+}

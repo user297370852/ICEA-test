@@ -1,0 +1,64 @@
+{
+  "description": "A connected client sends protocol-level ping control messages. The server replies to that same client with one pong event per ping and nothing else; subscription acknowledgements and pongs accumulate in the order the messages were processed.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "5.5"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:ping"
+            }
+          },
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:ping"
+            }
+          }
+        ]
+      },
+      "expected_output": "[a] received 2\n{\"event\":\"pusher:pong\"}\n{\"event\":\"pusher:pong\"}\n"
+    },
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "5.5"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "ping-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:ping"
+            }
+          }
+        ]
+      },
+      "expected_output": "[a] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"ping-channel\"}\n{\"event\":\"pusher:pong\"}\n"
+    }
+  ]
+}

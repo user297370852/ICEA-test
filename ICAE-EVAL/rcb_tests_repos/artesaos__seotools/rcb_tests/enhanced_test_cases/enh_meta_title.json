@@ -1,0 +1,115 @@
+{
+  "description": "Enhanced boundary coverage for document-head title composition: empty page title, HTML/quote characters in the title, explicit append_default=true, combining a custom default_title with a page title, separator override together with a custom default, last-write-wins when the title is set twice, a Unicode (CJK) title, and no-translate styling applied to a composed (non-default) title.",
+  "cases": [
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "title": ""
+          }
+        ]
+      },
+      "expected_output": "<title> - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "title": "A <b> & \"c\""
+          }
+        ]
+      },
+      "expected_output": "<title>A  & \"c\" - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "title": {
+              "text": "Foo",
+              "append_default": true
+            }
+          }
+        ]
+      },
+      "expected_output": "<title>Foo - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "default_title": "Site"
+          },
+          {
+            "title": "Page"
+          }
+        ]
+      },
+      "expected_output": "<title>Page - Site</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "title_separator": " :: "
+          },
+          {
+            "default_title": "Site"
+          },
+          {
+            "title": "Page"
+          }
+        ]
+      },
+      "expected_output": "<title>Page :: Site</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "title": "First"
+          },
+          {
+            "title": "Second"
+          }
+        ]
+      },
+      "expected_output": "<title>Second - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "steps": [
+          {
+            "title": "日本語タイトル"
+          }
+        ]
+      },
+      "expected_output": "<title>日本語タイトル - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    },
+    {
+      "input": {
+        "channel": "meta",
+        "config": {
+          "add_notranslate_class": true,
+          "defaults": {
+            "title": "It's Over 9000!",
+            "description": "For those who helped create the Genki Dama"
+          }
+        },
+        "steps": [
+          {
+            "title": "Page"
+          }
+        ]
+      },
+      "expected_output": "<title class=\"notranslate\">Page - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\">"
+    }
+  ]
+}

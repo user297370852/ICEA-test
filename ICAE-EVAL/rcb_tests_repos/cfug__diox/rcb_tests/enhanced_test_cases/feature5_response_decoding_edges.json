@@ -1,0 +1,131 @@
+{
+  "description": "Response body decoding across value kinds and content-type/response-type gating: JSON scalars (integer, float, boolean), JSON null, a quoted JSON string (string kind), an empty object and empty array, deeply nested structures, non-ASCII string values round-tripped, a +json structured-syntax content-type triggering parsing, an empty body (null result), a JSON body served under a non-JSON content-type (returned as raw string, not parsed), and a JSON body requested as a non-JSON response type (returned as raw string).",
+  "cases": [
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "42",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=scalar\nvalue=42\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "3.14",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=scalar\nvalue=3.14\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "true",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=scalar\nvalue=true\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "null",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=null\nvalue=null\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "\"hello\"",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=string\nvalue=\"hello\"\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "{}",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=map\nvalue={}\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "[]",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=list\nvalue=[]\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "{\"a\":{\"b\":{\"c\":[1,2,{\"d\":null}]}}}",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=map\nvalue={\"a\":{\"b\":{\"c\":[1,2,{\"d\":null}]}}}\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "{\"k\":\"你好\"}",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=map\nvalue={\"k\":\"你好\"}\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "{\"id\":1}",
+        "contentType": "application/vnd.api+json",
+        "responseType": "json"
+      },
+      "expected_output": "type=map\nvalue={\"id\":1}\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "",
+        "contentType": "application/json",
+        "responseType": "json"
+      },
+      "expected_output": "type=null\nvalue=null\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "{\"x\":1}",
+        "contentType": "text/plain",
+        "responseType": "json"
+      },
+      "expected_output": "type=string\nvalue=\"{\\\"x\\\":1}\"\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "{\"x\":1}",
+        "contentType": "application/json",
+        "responseType": "plain"
+      },
+      "expected_output": "type=string\nvalue=\"{\\\"x\\\":1}\"\n"
+    },
+    {
+      "input": {
+        "op": "transform_response",
+        "body": "[1,2,3]",
+        "contentType": "application/json",
+        "responseType": "plain"
+      },
+      "expected_output": "type=string\nvalue=\"[1,2,3]\"\n"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "description": "Boundary coverage for translating connection options into client environment variables, isolating each option that the native suite only tests in combination. Covers a custom host supplied alone (verify-TLS stays empty), the verify-TLS switch enabled alone (host falls back to the default socket), and an API version supplied alone (which does not affect the reported host/verify-TLS variables). Output reports the resolved host and the resolved verify-TLS variable.",
+  "cases": [
+    {
+      "input": {
+        "action": "docker_env",
+        "host": "tcp://10.0.0.5:2375"
+      },
+      "expected_output": "docker_host=tcp://10.0.0.5:2375\ndocker_tls_verify=\n"
+    },
+    {
+      "input": {
+        "action": "docker_env",
+        "tlsverify": true
+      },
+      "expected_output": "docker_host=unix:///var/run/docker.sock\ndocker_tls_verify=1\n"
+    },
+    {
+      "input": {
+        "action": "docker_env",
+        "api_version": "1.40"
+      },
+      "expected_output": "docker_host=unix:///var/run/docker.sock\ndocker_tls_verify=\n"
+    }
+  ]
+}

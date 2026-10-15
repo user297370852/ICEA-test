@@ -1,0 +1,21 @@
+{
+  "description": "Intercept a state-selection effect during a whole-workflow run and supply a mock selected value instead of reading from the actual state, while non-mocked selections still read real state. The workflow combines mocked and real values into a downstream emitted action.",
+  "cases": [
+    {
+      "input": {
+        "mode": "integration",
+        "saga": {
+          "body": [
+            { "yield": { "select": { "selector": "getName" } }, "as": "mocked" },
+            { "yield": { "select": { "selector": "getAge" } }, "as": "real" },
+            { "put": { "type": "DONE", "payload": { "name": { "$var": "mocked" }, "age": { "$var": "real" } } } }
+          ]
+        },
+        "state": { "name": "Tucker", "age": 11 },
+        "mocks": [ { "select": { "selector": "getName", "value": "Rex" } } ],
+        "expect": [ { "put": { "type": "DONE", "payload": { "name": "Rex", "age": 11 } } } ]
+      },
+      "expected_output": "expectation 1 met\n"
+    }
+  ]
+}

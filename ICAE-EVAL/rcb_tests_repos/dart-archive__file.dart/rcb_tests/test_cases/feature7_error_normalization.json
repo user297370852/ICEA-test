@@ -1,0 +1,92 @@
+{
+  "description": "All failures are surfaced as language-neutral POSIX-style error categories on an `error=` line, never as host-language exception artifacts. Categories include not-found (missing path), is-a-directory (file operation targeting a directory), not-a-directory (directory operation targeting a file), file-exists (creating over an existing entity), and directory-not-empty (non-recursive delete of a populated directory).",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "read",
+            "path": "/nope.txt"
+          }
+        ]
+      },
+      "expected_output": "error=no_such_file_or_directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/foo"
+          },
+          {
+            "op": "read",
+            "path": "/foo"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/foo\nerror=is_a_directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/foo"
+          },
+          {
+            "op": "create_directory",
+            "path": "/foo"
+          }
+        ]
+      },
+      "expected_output": "created_file=/foo\nerror=not_a_directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/foo"
+          },
+          {
+            "op": "create_link",
+            "path": "/foo",
+            "target": "/bar"
+          }
+        ]
+      },
+      "expected_output": "created_file=/foo\nerror=file_exists\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_directory",
+            "path": "/foo"
+          },
+          {
+            "op": "create_file",
+            "path": "/foo/x"
+          },
+          {
+            "op": "delete",
+            "path": "/foo",
+            "as": "directory"
+          }
+        ]
+      },
+      "expected_output": "created_directory=/foo\ncreated_file=/foo/x\nerror=directory_not_empty\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "frobnicate"
+          }
+        ]
+      },
+      "expected_output": "error=unknown_operation\n"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+    "description": "The same per-request reboot voter can also be told to recycle explicitly via a force-reboot signal carrying a human-readable reason, and its per-request state can be reset. When forced, the voter both records the reason (emitted as a dedicated field) and votes to recycle. Resetting the voter clears any previously observed error or force signal, returning it to abstain. Input is the ordered list of signals (errors, force-with-reason, reset); output reports any forced reason followed by the final decision.",
+    "cases": [
+        {"input": {"handler": "reboot", "op": "on_exception", "allowed": ["app"], "actions": [{"type": "force", "reason": "something bad happened"}]}, "expected_output": "forced_reboot_reason=something bad happened\nshould_reboot=true\n"},
+        {"input": {"handler": "reboot", "op": "on_exception", "allowed": ["app"], "actions": [{"type": "exception", "category": "runtime"}, {"type": "clear"}]}, "expected_output": "should_reboot=false\n"},
+        {"input": {"handler": "reboot", "op": "on_exception", "allowed": ["app"], "actions": [{"type": "force", "reason": "manual recycle"}, {"type": "clear"}]}, "expected_output": "should_reboot=false\n"}
+    ]
+}

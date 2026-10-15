@@ -1,0 +1,29 @@
+{
+    "description": "GET data loading reports cache lookup failures and failed outbound requests as normalized errors that include domain status and endpoint signals where available.",
+    "cases": [
+        {
+            "input": {
+                "action": "connector_get_request_data",
+                "uri": "https://api.example.test/cache-error",
+                "statusCode": 200,
+                "body": {
+                    "unused": true
+                },
+                "redis": {
+                    "error": "redis unavailable"
+                }
+            },
+            "expected_output": "{\n  \"error\": \"cache_error\",\n  \"value\": \"redis unavailable\"\n}\n"
+        },
+        {
+            "input": {
+                "action": "connector_get_request_data",
+                "uri": "https://api.example.test/reject",
+                "statusCode": 200,
+                "body": {},
+                "rejectMessage": "upstream exploded"
+            },
+            "expected_output": "{\n  \"code\": \"GRAPHQL_QUERY_ERROR\",\n  \"component\": \"ExampleConnector\",\n  \"description\": \"There was an error with the query: upstream exploded\",\n  \"docsLink\": \"https://ibm.biz/graphql\",\n  \"error\": \"domain_error\",\n  \"hasGuid\": true,\n  \"message\": \"An internal server error occurred\",\n  \"statusCode\": 500,\n  \"targetEndpoint\": \"https://api.example.test/reject\"\n}\n"
+        }
+    ]
+}

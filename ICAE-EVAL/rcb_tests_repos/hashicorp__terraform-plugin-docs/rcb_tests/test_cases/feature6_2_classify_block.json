@@ -1,0 +1,101 @@
+{
+    "description": "Classify a single nested block into the documentation grouping role. A block with a minimum item count above zero yields role=required; a zero-minimum block that is empty or contains any required/optional descendant yields role=optional; a block whose every leaf is computed-only yields role=read_only.",
+    "cases": [
+        {
+            "input": {
+                "op": "classify_block",
+                "block": {
+                    "nesting_mode": "single",
+                    "min_items": 1,
+                    "block": {
+                        "description": "b",
+                        "attributes": {
+                            "foo": {
+                                "type": "string",
+                                "required": true,
+                                "description": "a"
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "role=required\n"
+        },
+        {
+            "input": {
+                "op": "classify_block",
+                "block": {
+                    "nesting_mode": "single",
+                    "block": {
+                        "description": "b",
+                        "attributes": {
+                            "foo": {
+                                "type": "string",
+                                "optional": true,
+                                "description": "a"
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "role=optional\n"
+        },
+        {
+            "input": {
+                "op": "classify_block",
+                "block": {
+                    "nesting_mode": "single",
+                    "block": {
+                        "description": "b",
+                        "attributes": {
+                            "foo": {
+                                "type": "string",
+                                "computed": true,
+                                "description": "a"
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "role=read_only\n"
+        },
+        {
+            "input": {
+                "op": "classify_block",
+                "block": {
+                    "nesting_mode": "single",
+                    "block": {
+                        "description": "empty"
+                    }
+                }
+            },
+            "expected_output": "role=optional\n"
+        },
+        {
+            "input": {
+                "op": "classify_block",
+                "block": {
+                    "nesting_mode": "single",
+                    "block": {
+                        "description": "b",
+                        "block_types": {
+                            "foo": {
+                                "min_items": 1,
+                                "block": {
+                                    "attributes": {
+                                        "foo": {
+                                            "type": "string",
+                                            "required": true,
+                                            "description": "a"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "role=optional\n"
+        }
+    ]
+}

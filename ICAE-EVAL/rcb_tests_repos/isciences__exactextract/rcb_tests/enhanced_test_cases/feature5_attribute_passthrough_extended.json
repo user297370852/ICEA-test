@@ -1,0 +1,113 @@
+{
+  "description": "Attribute pass-through for a single attribute, float/string attribute types, and request ordering distinct from feature declaration order.",
+  "cases": [
+    {
+      "input": {
+        "features": [
+          {
+            "id": 1,
+            "label": "north",
+            "geometry": "POLYGON ((0.5 0.5, 2.5 0.5, 2.5 2, 0.5 2, 0.5 0.5))"
+          }
+        ],
+        "rasters": [
+          {
+            "data": [
+              [
+                1,
+                2,
+                3,
+                4
+              ],
+              [
+                1,
+                2,
+                2,
+                5
+              ],
+              [
+                3,
+                3,
+                3,
+                2
+              ]
+            ],
+            "dtype": "int16",
+            "name": "metric"
+          }
+        ],
+        "statistics": [
+          {
+            "operation": "mean",
+            "raster": "metric"
+          }
+        ],
+        "options": {
+          "identifier": "id",
+          "copy_attributes": [
+            "label"
+          ]
+        }
+      },
+      "expected_output": "id,label,metric_mean\n\"1\",north,2.16666674613953\n"
+    },
+    {
+      "input": {
+        "features": [
+          {
+            "id": 1,
+            "score": 1.5,
+            "rank": 10,
+            "geometry": "POLYGON ((0.5 0.5, 2.5 0.5, 2.5 2, 0.5 2, 0.5 0.5))"
+          },
+          {
+            "id": 2,
+            "score": 2.5,
+            "rank": 20,
+            "geometry": "POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))"
+          }
+        ],
+        "rasters": [
+          {
+            "data": [
+              [
+                1,
+                2,
+                3,
+                4
+              ],
+              [
+                1,
+                2,
+                2,
+                5
+              ],
+              [
+                3,
+                3,
+                3,
+                2
+              ]
+            ],
+            "dtype": "int16",
+            "name": "metric"
+          }
+        ],
+        "statistics": [
+          {
+            "operation": "sum",
+            "raster": "metric"
+          }
+        ],
+        "options": {
+          "identifier": "id",
+          "copy_attributes": [
+            "rank",
+            "score"
+          ]
+        }
+      },
+      "expected_output": "id,rank,score,metric_sum\n\"1\",\"10\",1.5,6.5\n\"2\",\"20\",2.5,3\n"
+    }
+  ]
+}

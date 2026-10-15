@@ -1,0 +1,162 @@
+{
+  "description": "Process a whole command line of tool selectors with an action label, exercising boundary shapes: single-argument rejections where the lone token is a floating tag or a bare version under differing action labels, two-argument space-separated mistakes whose second token is a floating tag, a single version-like token bearing an explicit version which is accepted, built-in reordering that pulls node then npm then yarn ahead of packages, duplicate built-in selectors, multiple packages retaining relative order, a single plain package, and a three-argument list that is not subject to the two-argument rejection rule. Output reports either the neutral error with its fields or the resolved selector count followed by one encoded line per selector.",
+  "cases": [
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "latest"
+        ]
+      },
+      "expected_output": "error=bare_version\naction=pin\nversion=latest\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "install",
+        "args": [
+          "lts"
+        ]
+      },
+      "expected_output": "error=bare_version\naction=install\nversion=lts\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "fetch",
+        "args": [
+          "3.0.0"
+        ]
+      },
+      "expected_output": "error=bare_version\naction=fetch\nversion=3.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "potato",
+          "latest"
+        ]
+      },
+      "expected_output": "error=tool_space_version\naction=pin\nname=potato\nversion=latest\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "potato",
+          "lts"
+        ]
+      },
+      "expected_output": "error=tool_space_version\naction=pin\nname=potato\nversion=lts\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "widget@4.5.6"
+        ]
+      },
+      "expected_output": "count=1\npackage:widget:exact:4.5.6\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "npm",
+          "node",
+          "yarn"
+        ]
+      },
+      "expected_output": "count=3\nnode::default:<default>\nnpm::default:<default>\nyarn::default:<default>\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "yarn",
+          "npm",
+          "node"
+        ]
+      },
+      "expected_output": "count=3\nnode::default:<default>\nnpm::default:<default>\nyarn::default:<default>\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "express",
+          "npm@5",
+          "node",
+          "yarn@2"
+        ]
+      },
+      "expected_output": "count=4\nnode::default:<default>\nnpm::range:>= 5.0.0 < 6.0.0\nyarn::range:>= 2.0.0 < 3.0.0\npackage:express:default:<default>\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "node",
+          "node@3"
+        ]
+      },
+      "expected_output": "count=2\nnode::default:<default>\nnode::range:>= 3.0.0 < 4.0.0\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "alpha",
+          "beta",
+          "gamma",
+          "node"
+        ]
+      },
+      "expected_output": "count=4\nnode::default:<default>\npackage:alpha:default:<default>\npackage:beta:default:<default>\npackage:gamma:default:<default>\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "express"
+        ]
+      },
+      "expected_output": "count=1\npackage:express:default:<default>\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "potato",
+          "1.2.3",
+          "extra"
+        ]
+      },
+      "expected_output": "count=3\npackage:potato:default:<default>\npackage:1.2.3:default:<default>\npackage:extra:default:<default>\n"
+    },
+    {
+      "input": {
+        "op": "tool_list",
+        "action": "pin",
+        "args": [
+          "node@1.2.3",
+          "npm@4.5.6",
+          "yarn@7.8.9"
+        ]
+      },
+      "expected_output": "count=3\nnode::exact:1.2.3\nnpm::exact:4.5.6\nyarn::exact:7.8.9\n"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "description": "Boundary coverage for guarded transitions: a positive guard listing the same always-true check more than once, a positive guard where one of several listed checks fails so the edge is blocked, a single transition carrying both a positive and a negative guard at once, and a lone transition whose negative guard rejects an always-true check so no move occurs.",
+  "cases": [
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "conditions": [
+              "cond_pass",
+              "cond_pass"
+            ]
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nstate=B\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "conditions": [
+              "cond_pass",
+              "cond_fail"
+            ]
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=false state=A\nstate=A\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "conditions": "cond_pass",
+            "unless": "cond_fail"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=true state=B\nstate=B\n"
+    },
+    {
+      "input": {
+        "machine": {
+          "states": [
+            "A",
+            "B",
+            "C"
+          ],
+          "initial": "A"
+        },
+        "commands": [
+          {
+            "op": "add_transition",
+            "trigger": "advance",
+            "source": "A",
+            "dest": "B",
+            "unless": "cond_pass"
+          },
+          {
+            "op": "trigger",
+            "name": "advance"
+          },
+          {
+            "op": "state"
+          }
+        ]
+      },
+      "expected_output": "trigger=advance result=false state=A\nstate=A\n"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "description": "Additional API-deprecation coverage with semantic-version comparisons: an apiVersion absent from the table is never deprecated, a server version below 'since' is not deprecated, a server version exactly at 'since' is deprecated, an empty 'until' is ignored while 'since' still applies, a server version exactly at 'until' is deprecated (unsupported), and multi-digit minor versions compare numerically (1.16 below 1.9 is false). Each prints apiVersion, kind, server version and a 'deprecated=' boolean.",
+  "cases": [
+    {
+      "input": {
+        "op": "check_deprecation",
+        "server_version": "1.20.0",
+        "api_version": "other/v1",
+        "kind": "Deployment",
+        "deprecations": {
+          "apps/v1beta1": {
+            "Deployment": {
+              "since": "1.16.0",
+              "until": "1.18.0"
+            }
+          }
+        }
+      },
+      "expected_output": "api_version=other/v1\nkind=Deployment\nserver_version=1.20.0\ndeprecated=false\n"
+    },
+    {
+      "input": {
+        "op": "check_deprecation",
+        "server_version": "1.15.9",
+        "api_version": "apps/v1beta1",
+        "kind": "Deployment",
+        "deprecations": {
+          "apps/v1beta1": {
+            "Deployment": {
+              "since": "1.16.0",
+              "until": "1.18.0"
+            }
+          }
+        }
+      },
+      "expected_output": "api_version=apps/v1beta1\nkind=Deployment\nserver_version=1.15.9\ndeprecated=false\n"
+    },
+    {
+      "input": {
+        "op": "check_deprecation",
+        "server_version": "1.16.0",
+        "api_version": "apps/v1beta1",
+        "kind": "Deployment",
+        "deprecations": {
+          "apps/v1beta1": {
+            "Deployment": {
+              "since": "1.16.0",
+              "until": ""
+            }
+          }
+        }
+      },
+      "expected_output": "api_version=apps/v1beta1\nkind=Deployment\nserver_version=1.16.0\ndeprecated=true\n"
+    },
+    {
+      "input": {
+        "op": "check_deprecation",
+        "server_version": "1.18.0",
+        "api_version": "apps/v1beta1",
+        "kind": "Deployment",
+        "deprecations": {
+          "apps/v1beta1": {
+            "Deployment": {
+              "since": "1.16.0",
+              "until": "1.18.0"
+            }
+          }
+        }
+      },
+      "expected_output": "api_version=apps/v1beta1\nkind=Deployment\nserver_version=1.18.0\ndeprecated=true\n"
+    },
+    {
+      "input": {
+        "op": "check_deprecation",
+        "server_version": "1.9.0",
+        "api_version": "apps/v1beta1",
+        "kind": "Deployment",
+        "deprecations": {
+          "apps/v1beta1": {
+            "Deployment": {
+              "since": "1.16.0",
+              "until": "1.18.0"
+            }
+          }
+        }
+      },
+      "expected_output": "api_version=apps/v1beta1\nkind=Deployment\nserver_version=1.9.0\ndeprecated=false\n"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "description": "Enhanced boundary/edge coverage for adding a subscription recipient (subscribe). Covers: adding a recipient that already exists (no duplication), creating a new key with several recipients at once joined by semicolons, adding a new key alongside an unrelated existing subscription (output sorted by key), and appending a batch that mixes already-present and new recipients (only the new ones are appended). Expected outputs are the raw adapter stdout captured from the reference implementation, listing the resulting annotation entries as '<key>=<value>' lines sorted by key.",
+  "cases": [
+    {
+      "input": {
+        "action": "subscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.my-trigger.slack": "c1"
+        },
+        "trigger": "my-trigger",
+        "service": "slack",
+        "recipients": [
+          "c1"
+        ]
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.my-trigger.slack=c1\n"
+    },
+    {
+      "input": {
+        "action": "subscribe",
+        "annotations": {},
+        "trigger": "t",
+        "service": "slack",
+        "recipients": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.t.slack=a;b;c\n"
+    },
+    {
+      "input": {
+        "action": "subscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.email": "e"
+        },
+        "trigger": "t",
+        "service": "slack",
+        "recipients": [
+          "s"
+        ]
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.t.email=e\nnotifications.argoproj.io/subscribe.t.slack=s\n"
+    },
+    {
+      "input": {
+        "action": "subscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.slack": "a;b"
+        },
+        "trigger": "t",
+        "service": "slack",
+        "recipients": [
+          "b",
+          "c"
+        ]
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.t.slack=a;b;c\n"
+    }
+  ]
+}

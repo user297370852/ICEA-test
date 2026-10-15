@@ -1,0 +1,94 @@
+{
+  "description": "Bidirectional text handling for update expressions. Parsing splits an expression string into its four action groups, returning, for each verb, the ordered list of operand clauses that follow it (handling nested parentheses in operands) or a null marker when that verb is absent; a null or empty input yields all four markers null. Stringifying performs the inverse: given a mapping of action verbs to clause lists (or a single clause string), it renders the canonical multi-clause expression, joining sibling clauses with commas and separating action groups by spaces, while skipping empty or null groups; an empty or null mapping renders the empty string.",
+  "cases": [
+    {
+      "input": {
+        "op": "expr_parse",
+        "expression": "SET foo = :x"
+      },
+      "expected_output": "{\"ADD\":null,\"DELETE\":null,\"REMOVE\":null,\"SET\":[\"foo = :x\"]}\n"
+    },
+    {
+      "input": {
+        "op": "expr_parse",
+        "expression": "ADD num :y SET name = :n"
+      },
+      "expected_output": "{\"ADD\":[\"num :y\"],\"DELETE\":null,\"REMOVE\":null,\"SET\":[\"name = :n\"]}\n"
+    },
+    {
+      "input": {
+        "op": "expr_parse",
+        "expression": "SET list[0] = :val1 REMOVE #m.nestedField1, #m.nestedField2 ADD aNumber :val2, anotherNumber :val3 DELETE aSet :val4"
+      },
+      "expected_output": "{\"ADD\":[\"aNumber :val2\",\"anotherNumber :val3\"],\"DELETE\":[\"aSet :val4\"],\"REMOVE\":[\"#m.nestedField1\",\"#m.nestedField2\"],\"SET\":[\"list[0] = :val1\"]}\n"
+    },
+    {
+      "input": {
+        "op": "expr_parse",
+        "expression": null
+      },
+      "expected_output": "{\"ADD\":null,\"DELETE\":null,\"REMOVE\":null,\"SET\":null}\n"
+    },
+    {
+      "input": {
+        "op": "expr_stringify",
+        "expressions": {
+          "SET": [
+            "#email = :email"
+          ]
+        }
+      },
+      "expected_output": "SET #email = :email\n"
+    },
+    {
+      "input": {
+        "op": "expr_stringify",
+        "expressions": {
+          "SET": [
+            "#email = :email"
+          ],
+          "ADD": [
+            "#age :n",
+            "#foo :bar"
+          ]
+        }
+      },
+      "expected_output": "SET #email = :email ADD #age :n, #foo :bar\n"
+    },
+    {
+      "input": {
+        "op": "expr_stringify",
+        "expressions": {
+          "SET": [
+            "#email = :email"
+          ],
+          "ADD": [
+            "#age :n",
+            "#foo :bar"
+          ],
+          "REMOVE": [
+            "#title",
+            "#picture",
+            "#settings"
+          ],
+          "DELETE": [
+            "#color :c"
+          ]
+        }
+      },
+      "expected_output": "SET #email = :email ADD #age :n, #foo :bar REMOVE #title, #picture, #settings DELETE #color :c\n"
+    },
+    {
+      "input": {
+        "op": "expr_stringify",
+        "expressions": {
+          "SET": [],
+          "ADD": [],
+          "REMOVE": [],
+          "DELETE": []
+        }
+      },
+      "expected_output": "\n"
+    }
+  ]
+}

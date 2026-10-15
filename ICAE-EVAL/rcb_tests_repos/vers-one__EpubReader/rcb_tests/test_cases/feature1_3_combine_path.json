@@ -1,0 +1,65 @@
+{
+    "description": "Combine a base directory with a relative file reference into a single normalized content path. Before combining, repeated consecutive slashes in either input are collapsed to a single slash. If the directory is null or empty, the file reference alone is the result; if the file reference is null or empty, the directory alone is the result; if both are null, the result is null. Each leading parent-traversal segment ('../') in the file reference removes the last segment of the directory and is itself consumed; traversal that exhausts the directory leaves the remaining file reference as the result. The directory and the (remaining) file reference are otherwise joined with a single slash. A null combined result is reported with the literal token <null>.",
+    "cases": [
+        {
+            "input": {"op": "combine_path", "directory": "Directory", "file": "File.html"},
+            "expected_output": "combined=Directory/File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory/Subdirectory", "file": "File.html"},
+            "expected_output": "combined=Directory/Subdirectory/File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "", "file": "File.html"},
+            "expected_output": "combined=File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": null, "file": "File.html"},
+            "expected_output": "combined=File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory/Subdirectory", "file": "../File.html"},
+            "expected_output": "combined=Directory/File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory//Subdirectory", "file": "..//File.html"},
+            "expected_output": "combined=Directory/File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory///Subdirectory", "file": "..///File.html"},
+            "expected_output": "combined=Directory/File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory", "file": "../File.html"},
+            "expected_output": "combined=File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory/Subdirectory/Subsubdirectory", "file": "../../File.html"},
+            "expected_output": "combined=Directory/File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory/Subdirectory", "file": "../../File.html"},
+            "expected_output": "combined=File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory", "file": "../../File.html"},
+            "expected_output": "combined=File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "", "file": "../File.html"},
+            "expected_output": "combined=../File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": null, "file": "../File.html"},
+            "expected_output": "combined=../File.html\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": "Directory", "file": null},
+            "expected_output": "combined=Directory\n"
+        },
+        {
+            "input": {"op": "combine_path", "directory": null, "file": null},
+            "expected_output": "combined=<null>\n"
+        }
+    ]
+}

@@ -1,0 +1,21 @@
+{
+  "description": "A bounded capacity controller grants requested capacity up to its configured maximum, performs minimum-size warmup grants when below the minimum, reports remaining capacity after each operation, and rejects returns that would exceed the maximum.",
+  "cases": [
+    {
+      "input": {"scenario":"size_strategy_sequence","min":0,"max":1,"operations":[{"op":"get","value":100},{"op":"get","value":1}]},
+      "expected_output": "initial_permits=1\nget(100)=1\npermits=0\nget(1)=0\npermits=0\n"
+    },
+    {
+      "input": {"scenario":"size_strategy_sequence","min":4,"max":8,"operations":[{"op":"get","value":0},{"op":"return","value":3},{"op":"get","value":0}]},
+      "expected_output": "initial_permits=8\nget(0)=4\npermits=4\nreturn(3)=accepted\npermits=7\nget(0)=3\npermits=4\n"
+    },
+    {
+      "input": {"scenario":"size_strategy_sequence","min":2,"max":3,"operations":[{"op":"get","value":1},{"op":"get","value":2},{"op":"get","value":1}]},
+      "expected_output": "initial_permits=3\nget(1)=2\npermits=1\nget(2)=1\npermits=0\nget(1)=0\npermits=0\n"
+    },
+    {
+      "input": {"scenario":"size_strategy_sequence","min":0,"max":1,"operations":[{"op":"return","value":100}]},
+      "expected_output": "initial_permits=1\nreturn(100)=rejected\nerror=too_many_permits_returned\nreturned=100\npermits=1\n"
+    }
+  ]
+}

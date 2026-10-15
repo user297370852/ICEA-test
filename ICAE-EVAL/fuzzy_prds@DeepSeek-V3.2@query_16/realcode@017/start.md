@@ -1,0 +1,17 @@
+## Product Requirement Document
+
+Hey team, we need to build out that ripple/wave click feedback thing for our component library — you know, like the material design effect where you tap a button and a circle spreads out from your finger. We talked about this in the last sprint retro. The main pain points we've been hearing from devs are: (1) they keep rewriting the same geometry math every time they need this effect on a new component, (2) the thing breaks in older app shells — I think Jess mentioned something about it not working in the legacy plugin system, same kind of fix we did for that login directive back in Q2, you can check that compatibility logic for reference — and (3) there's no consistent way to scope which elements actually respond to taps vs. which ones should be ignored (like disabled buttons). The library needs a clean adapter so we can test it from the command line by piping in JSON and reading the output. Default behavior should just work out of the box with no config needed. Visual timing, colors, and whether clicks bubble up should all be tunable. We also need to handle the case where someone wants to name their activation zones so multiple independent ripple regions don't step on each other. Please make sure the test harness writes output files per case so QA can diff them directly.
+
+---
+
+## Clarification
+
+This PRD is intentionally incomplete. A requirements oracle can answer questions about hidden implementation details — including exact feature specs, interface contracts, and test cases.
+
+**Oracle** — POST `http://127.0.0.1:50002/`
+```
+{"append_id":"5b3b6db753be455aa9bc850574c68cd1","task_id":"realcode@017","question":"..."}
+```
+Answer is in `data`. Budget shown in `status.remaining`.
+
+Features and test cases have been prepared. Ask before you code. Unasked questions become bugs.

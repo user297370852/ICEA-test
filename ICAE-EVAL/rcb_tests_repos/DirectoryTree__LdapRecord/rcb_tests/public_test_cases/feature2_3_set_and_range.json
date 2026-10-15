@@ -1,0 +1,38 @@
+{
+    "description": "Build convenience filters over a single attribute. A set-membership request lists candidate values for one attribute and produces a disjunction matching any of them: an OR group of equality conditions, one per value. A range request gives a lower and upper bound for one attribute and produces a conjunction of a greater-or-equal condition and a less-or-equal condition. Output reports the escaped wire filter and its unescaped readable form.",
+    "cases": [
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "in": {
+                            "field": "name",
+                            "values": [
+                                "john",
+                                "mary",
+                                "sue"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "expected_output": "query=(|(name=\\6a\\6f\\68\\6e)(name=\\6d\\61\\72\\79)(name=\\73\\75\\65))\nunescaped=(|(name=john)(name=mary)(name=sue))\n"
+        },
+        {
+            "input": {
+                "op": "filter",
+                "terms": [
+                    {
+                        "between": {
+                            "field": "whencreated",
+                            "from": "20161001000000.0Z",
+                            "to": "20170101000000.0Z"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "query=(&(whencreated>=\\32\\30\\31\\36\\31\\30\\30\\31\\30\\30\\30\\30\\30\\30\\2e\\30\\5a)(whencreated<=\\32\\30\\31\\37\\30\\31\\30\\31\\30\\30\\30\\30\\30\\30\\2e\\30\\5a))\nunescaped=(&(whencreated>=20161001000000.0Z)(whencreated<=20170101000000.0Z))\n"
+        }
+    ]
+}

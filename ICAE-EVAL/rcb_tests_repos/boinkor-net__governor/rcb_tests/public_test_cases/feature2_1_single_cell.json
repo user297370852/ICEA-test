@@ -1,0 +1,63 @@
+{
+    "description": "Drive a single global rate limiter against a virtual clock and submit single-unit admission requests interleaved with explicit clock advances. The limiter admits requests while burst budget remains, then rejects further requests until enough time passes to replenish budget. A fresh limiter admits the very first request. Once the burst budget is drained a request is rejected and reports the wait time (in nanoseconds) until the next admission is possible; after enough time elapses the burst is restored and requests are admitted again, then rejected once the restored budget is consumed. Each clock advance reports the new absolute virtual time in nanoseconds.",
+    "cases": [
+        {
+            "input": {
+                "action": "simulate",
+                "quota": {
+                    "per_second": 5
+                },
+                "ops": [
+                    {
+                        "check": {}
+                    }
+                ]
+            },
+            "expected_output": "check allow\n"
+        },
+        {
+            "input": {
+                "action": "simulate",
+                "quota": {
+                    "per_second": 2
+                },
+                "ops": [
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 1000
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check": {}
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check": {}
+                    }
+                ]
+            },
+            "expected_output": "check allow\nadvance now_ns=1000000\ncheck allow\nadvance now_ns=2000000\ncheck deny wait_ns=498000000\nadvance now_ns=1002000000\ncheck allow\nadvance now_ns=1003000000\ncheck allow\nadvance now_ns=1004000000\ncheck deny wait_ns=496000000\n"
+        }
+    ]
+}

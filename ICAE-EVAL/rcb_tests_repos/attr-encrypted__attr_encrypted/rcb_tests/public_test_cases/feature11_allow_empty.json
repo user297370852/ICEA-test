@@ -1,0 +1,44 @@
+{
+  "description": "By default an empty or absent value is left unencrypted, but an attribute can opt in to encrypting empty and absent values. With that option enabled, assigning an empty value and assigning an absent value both populate the backing storage with encrypted bytes, and reading the attribute back recovers the originally assigned empty or absent value. Each transcript line reports a storage-presence fact or a recovered value (empty rendered as a neutral placeholder, absent rendered as a neutral nil token).",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "with_allow_empty_value"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                },
+                "allow_empty_value": true,
+                "marshal": true
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "allow_empty",
+            "attr": "with_allow_empty_value",
+            "value": ""
+          },
+          {
+            "kind": "allow_empty",
+            "attr": "with_allow_empty_value",
+            "value": null
+          }
+        ]
+      },
+      "expected_output": "allow_empty_read[with_allow_empty_value]=<empty>\nallow_empty_read[with_allow_empty_value]=nil\nstored_present[with_allow_empty_value]=true\nstored_present[with_allow_empty_value]=true\n"
+    }
+  ]
+}

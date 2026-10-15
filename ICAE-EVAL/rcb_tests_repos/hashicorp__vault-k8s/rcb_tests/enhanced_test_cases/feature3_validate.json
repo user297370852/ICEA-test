@@ -1,0 +1,141 @@
+{
+  "description": "[ENHANCED] Enhanced agent-config validation: empty agent, server-backed agents missing each field, combined config-map+server agents, and partially-populated agents.",
+  "cases": [
+    {
+      "input": {
+        "op": "validate",
+        "agent": {}
+      },
+      "expected_output": "{\"reason\":\"missing_namespace\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate"
+      },
+      "expected_output": "{\"reason\":\"missing_namespace\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test",
+          "service_account_name": "foobar",
+          "service_account_path": "foobar",
+          "image_name": "test"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_auth_type\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test",
+          "service_account_name": "foobar",
+          "service_account_path": "foobar",
+          "image_name": "test",
+          "config_map_name": "cm",
+          "vault_role": "r",
+          "vault_address": "https://a:8200",
+          "vault_auth_path": "p",
+          "vault_auth_type": "kubernetes"
+        }
+      },
+      "expected_output": "{\"status\":\"ok\",\"valid\":true}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "",
+          "service_account_name": "foobar",
+          "service_account_path": "foobar",
+          "image_name": "test",
+          "vault_role": "r",
+          "vault_address": "https://a:8200",
+          "vault_auth_path": "p",
+          "vault_auth_type": "kubernetes"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_namespace\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test",
+          "service_account_name": "",
+          "service_account_path": "foobar",
+          "image_name": "test",
+          "vault_role": "r",
+          "vault_address": "https://a:8200",
+          "vault_auth_path": "p",
+          "vault_auth_type": "kubernetes"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_service_account\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test",
+          "service_account_name": "foobar",
+          "service_account_path": "",
+          "image_name": "test",
+          "vault_role": "r",
+          "vault_address": "https://a:8200",
+          "vault_auth_path": "p",
+          "vault_auth_type": "kubernetes"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_service_account\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test",
+          "service_account_name": "foobar",
+          "service_account_path": "foobar",
+          "image_name": "",
+          "vault_role": "r",
+          "vault_address": "https://a:8200",
+          "vault_auth_path": "p",
+          "vault_auth_type": "kubernetes"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_image\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_service_account\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test",
+          "service_account_name": "sa"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_service_account\",\"status\":\"invalid\",\"valid\":false}\n"
+    },
+    {
+      "input": {
+        "op": "validate",
+        "agent": {
+          "namespace": "test",
+          "service_account_name": "sa",
+          "service_account_path": "sp"
+        }
+      },
+      "expected_output": "{\"reason\":\"missing_image\",\"status\":\"invalid\",\"valid\":false}\n"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "description": "Enhanced authentication and logging cases covering PATCH auth retry with bearer-style token, curl rendering with query/body/multiple headers, bodyless request logging, and empty error response logging.",
+  "cases": [
+    {
+      "input": {
+        "op": "auth_retry",
+        "method": "PATCH",
+        "path": "/secure/patch",
+        "query": {
+          "page": 2
+        },
+        "body": {
+          "op": "replace"
+        },
+        "token": "Bearer token-123"
+      },
+      "expected_output": "first_response_status=401\nretried_authorization=Bearer token-123\nfinal_response_status=200\nfinal_response_body=ok\n"
+    },
+    {
+      "input": {
+        "op": "curl",
+        "method": "PUT",
+        "uri": "/path?q=1",
+        "baseUri": "https://api.example.com/",
+        "body": "hello world",
+        "headers": {
+          "z": "last",
+          "a": "first"
+        }
+      },
+      "expected_output": "curl -v -X PUT -H 'z: last' -H 'a: first' -H 'content-type: text/plain; charset=utf-8' -d 'hello world' \"https://api.example.com/path?q=1\"\n"
+    },
+    {
+      "input": {
+        "op": "log_request",
+        "method": "GET",
+        "uri": "/empty",
+        "baseUri": "https://api.example.com",
+        "headers": {
+          "accept": "text/plain"
+        }
+      },
+      "expected_output": "--> GET https://api.example.com/empty\naccept: text/plain\n--> END GET\n"
+    },
+    {
+      "input": {
+        "op": "log_response",
+        "method": "GET",
+        "uri": "/empty",
+        "baseUri": "https://api.example.com",
+        "response": {
+          "body": "",
+          "status": 404,
+          "headers": {
+            "x-error": "missing",
+            "content-type": "text/plain"
+          }
+        }
+      },
+      "expected_output": "<-- 404 https://api.example.com/empty\nx-error: missing\ncontent-type: text/plain\n--> END GET\n"
+    }
+  ]
+}

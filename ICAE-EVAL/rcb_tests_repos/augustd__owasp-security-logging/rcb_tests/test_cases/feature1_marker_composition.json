@@ -1,0 +1,21 @@
+{
+    "description": "Combine one or more security log markers into a single composite marker and probe its containment relationships. A composite is built from an ordered list of marker names; its reported name is the concatenation of the child marker names in order, and a containment query answers, for any given marker name, whether that marker is reachable inside the composite. A single-element composite contains its own marker and nothing else; a multi-element composite contains each of its members but not markers that were never added.",
+    "cases": [
+        {
+            "input": {"op": "markers", "markers": ["SECURITY AUDIT"], "probes": ["SECURITY AUDIT", "CONFIDENTIAL"]},
+            "expected_output": "name=SECURITY AUDIT\ncontains[SECURITY AUDIT]=true\ncontains[CONFIDENTIAL]=false\n"
+        },
+        {
+            "input": {"op": "markers", "markers": ["SECURITY AUDIT", "SECURITY FAILURE"], "probes": ["SECURITY AUDIT", "SECURITY FAILURE"]},
+            "expected_output": "name=SECURITY AUDITSECURITY FAILURE\ncontains[SECURITY AUDIT]=true\ncontains[SECURITY FAILURE]=true\n"
+        },
+        {
+            "input": {"op": "markers", "markers": ["SECURITY AUDIT", "CONFIDENTIAL"], "probes": ["SECURITY AUDIT", "CONFIDENTIAL", "SECURITY FAILURE"]},
+            "expected_output": "name=SECURITY AUDITCONFIDENTIAL\ncontains[SECURITY AUDIT]=true\ncontains[CONFIDENTIAL]=true\ncontains[SECURITY FAILURE]=false\n"
+        },
+        {
+            "input": {"op": "markers", "markers": ["SECURITY SUCCESS", "CONFIDENTIAL"], "probes": ["SECURITY SUCCESS", "CONFIDENTIAL", "EVENT FAILURE"]},
+            "expected_output": "name=SECURITY SUCCESSCONFIDENTIAL\ncontains[SECURITY SUCCESS]=true\ncontains[CONFIDENTIAL]=true\ncontains[EVENT FAILURE]=false\n"
+        }
+    ]
+}

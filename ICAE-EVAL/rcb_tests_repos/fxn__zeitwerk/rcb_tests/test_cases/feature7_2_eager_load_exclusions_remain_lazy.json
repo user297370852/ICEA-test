@@ -1,0 +1,28 @@
+{
+    "description": "Paths excluded from eager loading are not evaluated during eager loading but still remain available for later lazy loading.",
+    "cases": [
+        {
+            "input": {
+                "operation": "eager_loading_exclusions",
+                "roots": [
+                    "."
+                ],
+                "files": {
+                    "foo.rb": "Foo = true",
+                    "bar.rb": "Bar = true; $global_signals['bar'] = 'loaded'"
+                },
+                "exclude_from_eager_load": [
+                    "bar.rb"
+                ],
+                "check_globals": [
+                    "bar"
+                ],
+                "access": [
+                    "Foo",
+                    "Bar"
+                ]
+            },
+            "expected_output": "signal=bar\nvalue=unset\nconstant=Foo\nvalue=true\nconstant=Bar\nvalue=true\n"
+        }
+    ]
+}

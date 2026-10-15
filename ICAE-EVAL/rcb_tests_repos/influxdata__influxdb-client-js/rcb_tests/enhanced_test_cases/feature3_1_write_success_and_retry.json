@@ -1,0 +1,51 @@
+{
+  "description": "HTTP write success boundaries: two points batched into one request body and a custom org/bucket/precision route with token.",
+  "cases": [
+    {
+      "input": {
+        "domain": "write_request",
+        "destination": {
+          "org": "myorg",
+          "bucket": "mybkt",
+          "precision": "s"
+        },
+        "server": {
+          "url": "http://fake:8086",
+          "token": "tk",
+          "responses": [
+            204
+          ]
+        },
+        "write": {
+          "flush_interval_ms": 5,
+          "batch_size": 10,
+          "max_retries": 1
+        },
+        "points": [
+          {
+            "measurement": "cpu",
+            "fields": [
+              {
+                "key": "v",
+                "type": "float",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "measurement": "cpu",
+            "fields": [
+              {
+                "key": "v",
+                "type": "float",
+                "value": 2
+              }
+            ]
+          }
+        ],
+        "expected_observed_lines": 2
+      },
+      "expected_output": "route=/api/v2/write?org=myorg&bucket=mybkt&precision=s\nauthorization=Token tk\ncontent_encoding=identity\nrequest_count=1\nsuccess_lines=2\nfailed_lines=0\nbody_000=cpu v=1\ncpu v=2\n"
+    }
+  ]
+}

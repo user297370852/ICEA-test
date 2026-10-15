@@ -1,0 +1,82 @@
+{
+  "description": "Edge cases for hash-annotation parsing: empty annotation and empty/whitespace-only parentheses yield no match; per-option overrides of algorithm, inputEncoding and outputEncoding individually and combined; non-default source-field names (including names with separators); unknown query parameters ignored while defaults are retained.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": ""
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash() "
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(   ) "
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(foo)?algorithm=md5 "
+      },
+      "expected_output": "sourceField=foo\nalgorithm=md5\ninputEncoding=utf8\noutputEncoding=hex\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(foo)?inputEncoding=latin1 "
+      },
+      "expected_output": "sourceField=foo\nalgorithm=sha256\ninputEncoding=latin1\noutputEncoding=hex\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(foo)?outputEncoding=base64url "
+      },
+      "expected_output": "sourceField=foo\nalgorithm=sha256\ninputEncoding=utf8\noutputEncoding=base64url\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(email) "
+      },
+      "expected_output": "sourceField=email\nalgorithm=sha256\ninputEncoding=utf8\noutputEncoding=hex\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(foo)?unknown=x "
+      },
+      "expected_output": "sourceField=foo\nalgorithm=sha256\ninputEncoding=utf8\noutputEncoding=hex\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(foo_bar) "
+      },
+      "expected_output": "sourceField=foo_bar\nalgorithm=sha256\ninputEncoding=utf8\noutputEncoding=hex\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(foo)?algorithm=sha512&outputEncoding=base64 "
+      },
+      "expected_output": "sourceField=foo\nalgorithm=sha512\ninputEncoding=utf8\noutputEncoding=base64\n"
+    },
+    {
+      "input": {
+        "op": "parse_hash",
+        "annotation": " @encryption:hash(foo)?algorithm=sha1&inputEncoding=hex&outputEncoding=hex "
+      },
+      "expected_output": "sourceField=foo\nalgorithm=sha1\ninputEncoding=hex\noutputEncoding=hex\n"
+    }
+  ]
+}

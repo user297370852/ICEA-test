@@ -1,0 +1,179 @@
+{
+  "description": "Changing a record's scope key without supplying a position appends it to the end of the destination sub-list while the source sub-list closes its gap. Re-scoping the head of one list to another keeps both contiguous.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 1,
+              "position": 1
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 1,
+              "position": 2
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 1,
+              "position": 3
+            }
+          },
+          {
+            "op": "create",
+            "ref": "d",
+            "attrs": {
+              "parent_id": 1,
+              "position": 4
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b1",
+            "attrs": {
+              "parent_id": 2
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b2",
+            "attrs": {
+              "parent_id": 2
+            }
+          },
+          {
+            "op": "update",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 2
+            }
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 1
+            },
+            "order": "position"
+          },
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 2
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 1
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 2
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[2, 3, 4]\nids=[5, 6, 1]\npositions=[1, 2, 3]\npositions=[1, 2, 3]"
+    },
+    {
+      "input": {
+        "config": {
+          "column": "position",
+          "scope": "parent_id"
+        },
+        "operations": [
+          {
+            "op": "create",
+            "ref": "a",
+            "attrs": {
+              "parent_id": 1,
+              "position": 1
+            }
+          },
+          {
+            "op": "create",
+            "ref": "b",
+            "attrs": {
+              "parent_id": 1,
+              "position": 2
+            }
+          },
+          {
+            "op": "create",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 1,
+              "position": 3
+            }
+          },
+          {
+            "op": "create",
+            "ref": "d",
+            "attrs": {
+              "parent_id": 1,
+              "position": 4
+            }
+          },
+          {
+            "op": "update",
+            "ref": "c",
+            "attrs": {
+              "parent_id": 9
+            }
+          }
+        ],
+        "queries": [
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 1
+            },
+            "order": "position"
+          },
+          {
+            "q": "order_ids",
+            "where": {
+              "parent_id": 9
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 1
+            },
+            "order": "position"
+          },
+          {
+            "q": "position_values",
+            "where": {
+              "parent_id": 9
+            },
+            "order": "position"
+          }
+        ]
+      },
+      "expected_output": "ids=[1, 2, 4]\nids=[3]\npositions=[1, 2, 3]\npositions=[1]"
+    }
+  ]
+}

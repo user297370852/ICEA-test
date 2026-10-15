@@ -1,0 +1,21 @@
+{
+    "description": "Redact the domain part of an email-valued field while keeping the local part visible. A masking rule is configured for a field name that holds an email address; when found, the converter keeps the field name and separator (optionally quoted) and the local part up to (but not including) the '@', then replaces the '@' and the entire domain with a single mask token. Other matching fields configured for full redaction are still fully masked in the same message.",
+    "cases": [
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "email=foo@bar.com"},
+            "expected_output": "masked=email=foo*****\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "email:foo@bar.com.sg"},
+            "expected_output": "masked=email:foo*****\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "\"email\":\"foo.baz@bar.com\""},
+            "expected_output": "masked=\"email\":\"foo.baz*****\"\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "\"email\":\"foo@bar.com.sg\",signature=foo"},
+            "expected_output": "masked=\"email\":\"foo*****\",signature=*****\n"
+        }
+    ]
+}

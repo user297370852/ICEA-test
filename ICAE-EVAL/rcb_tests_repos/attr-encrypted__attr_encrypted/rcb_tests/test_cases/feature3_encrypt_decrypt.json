@@ -1,0 +1,200 @@
+{
+  "description": "The class exposes direct encryption and decryption helpers for any declared attribute. Encrypting an absent value yields the absent value unchanged, and encrypting an empty value yields the empty value unchanged; decryption mirrors this passthrough for absent and empty inputs. Encrypting a present value produces an encoded representation that differs from the plaintext, and decrypting that representation recovers the original plaintext exactly. Non-string inputs are coerced to their string form before encryption, so two inputs with the same string form produce identical ciphertext under a fixed initialization vector. Each transcript line reports an encrypt/decrypt outcome, a round-trip recovery, a ciphertext-differs flag, or a coercion-equality flag.",
+  "cases": [
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "class_encrypt",
+            "attr": "email",
+            "value": null
+          }
+        ]
+      },
+      "expected_output": "class_encrypt[email]=nil\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "class_roundtrip",
+            "attr": "email",
+            "value": "test@example.com",
+            "with_salt": true,
+            "report_differs": true
+          }
+        ]
+      },
+      "expected_output": "class_roundtrip[email]=test@example.com\nclass_roundtrip_differs[email]=true\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "class_encrypt",
+            "attr": "email",
+            "value": ""
+          }
+        ]
+      },
+      "expected_output": "class_encrypt[email]=plain:\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "class_decrypt",
+            "attr": "email",
+            "value": null
+          }
+        ]
+      },
+      "expected_output": "class_decrypt[email]=nil\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "class_decrypt",
+            "attr": "email",
+            "value": ""
+          }
+        ]
+      },
+      "expected_output": "class_decrypt[email]=<empty>\n"
+    },
+    {
+      "input": {
+        "model": {
+          "attributes": [
+            {
+              "names": [
+                "email"
+              ],
+              "options": {
+                "key": {
+                  "$key": true
+                }
+              }
+            }
+          ],
+          "global_options": {
+            "key": {
+              "$proc_key": true
+            },
+            "mode": "per_attribute_iv_and_salt"
+          }
+        },
+        "ops": [
+          {
+            "kind": "cast_consistency",
+            "attr": "email",
+            "value_a": 3,
+            "value_b": "3"
+          }
+        ]
+      },
+      "expected_output": "cast_consistency[email]=true\ncast_decrypt[email]=3\n"
+    }
+  ]
+}

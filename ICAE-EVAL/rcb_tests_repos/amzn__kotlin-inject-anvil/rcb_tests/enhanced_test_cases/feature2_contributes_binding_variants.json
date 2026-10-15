@@ -1,0 +1,27 @@
+{
+  "description": "Binding providers under additional shapes: an explicit boundType combined with multibinding=true is exposed as a set-multibinding element, and a single binding declared in a multi-segment package reports its provider direction correctly.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Base\ninterface Middle : Base\n\n@Inject\n@ContributesBinding(Unit::class, boundType = Base::class, multibinding = true)\nclass Impl : Middle\n"
+        ],
+        "inspect": [
+          "com.example.Impl"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.example.Impl\nprovides from=com.example.Impl to=com.example.Base kind=multi\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.foo.bar\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Service\n\n@Inject\n@ContributesBinding(Unit::class)\nclass RealService : Service\n"
+        ],
+        "inspect": [
+          "com.foo.bar.RealService"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.foo.bar.RealService\nprovides from=com.foo.bar.RealService to=com.foo.bar.Service kind=single\n"
+    }
+  ]
+}

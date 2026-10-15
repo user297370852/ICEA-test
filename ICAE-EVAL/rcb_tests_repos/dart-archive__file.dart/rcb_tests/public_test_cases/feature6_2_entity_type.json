@@ -1,0 +1,58 @@
+{
+  "description": "Report the entity kind at a path. The non-following type query reports file/directory/link/not-found at the tail of the path. The stat-based type follows links and reports the kind of the final target (e.g. a link to a file reports as a file), or not-found when nothing is there. The root directory and ancestors of root report as directories.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "stat_type",
+            "path": "/nope"
+          }
+        ]
+      },
+      "expected_output": "stat_type=not_found\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "create_file",
+            "path": "/foo"
+          },
+          {
+            "op": "create_link",
+            "path": "/bar",
+            "target": "/foo"
+          },
+          {
+            "op": "stat_type",
+            "path": "/bar"
+          }
+        ]
+      },
+      "expected_output": "created_file=/foo\ncreated_link=/bar\nlink_target=/foo\nstat_type=file\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "type",
+            "path": "/"
+          }
+        ]
+      },
+      "expected_output": "type=directory\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "type",
+            "path": "/nope"
+          }
+        ]
+      },
+      "expected_output": "type=not_found\n"
+    }
+  ]
+}

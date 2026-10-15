@@ -1,0 +1,7 @@
+{
+    "description": "Disks can be added to the manager dynamically after construction. Adding a disk under a fresh name makes it resolvable like any configured disk. Adding a disk under a name that already exists is rejected with a normalized configuration error (stable config code, status 500) and the new definition is not applied. The request seeds an initial configuration, then either adds a brand-new disk and resolves it, or attempts to add a disk under an already-used name.",
+    "cases": [
+        {"input": {"op": "manager", "config": {"default": "local", "disks": {"local": {"driver": "local", "config": {"root": ""}}}}, "steps": [{"action": "addDisk", "name": "home", "config": {"driver": "local", "config": {"root": "~"}}}, {"action": "disk", "name": "home"}]}, "expected_output": "added=home\ndisk=home driver=local\n"},
+        {"input": {"op": "manager", "config": {"default": "local", "disks": {"local": {"driver": "local", "config": {"root": ""}}}}, "steps": [{"action": "addDisk", "name": "local", "config": {"driver": "local", "config": {"root": ""}}}]}, "expected_output": "error=invalid_config\ncode=E_INVALID_CONFIG\nstatus=500\ndetail=A disk named local is already defined\n"}
+    ]
+}

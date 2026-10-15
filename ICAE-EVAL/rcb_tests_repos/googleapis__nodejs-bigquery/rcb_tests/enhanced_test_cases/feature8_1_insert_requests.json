@@ -1,0 +1,61 @@
+{
+  "description": "Insert-all requests: multiple plain rows wrapped in json objects, a single object row encoding a typed integer literal, and multiple raw rows passed through untouched.",
+  "cases": [
+    {
+      "input": {
+        "operation": "table_insert_request",
+        "rows": [
+          {
+            "name": "A"
+          },
+          {
+            "name": "B"
+          }
+        ],
+        "options": {
+          "createInsertId": false
+        }
+      },
+      "expected_output": "{\n  \"method\": \"POST\",\n  \"uri\": \"/insertAll\",\n  \"json\": {\n    \"rows\": [\n      {\n        \"json\": {\n          \"name\": \"A\"\n        }\n      },\n      {\n        \"json\": {\n          \"name\": \"B\"\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "input": {
+        "operation": "table_insert_request",
+        "rows": {
+          "id": {
+            "__custom": "integer",
+            "value": "9"
+          },
+          "name": "Z"
+        },
+        "options": {
+          "createInsertId": false
+        }
+      },
+      "expected_output": "{\n  \"method\": \"POST\",\n  \"uri\": \"/insertAll\",\n  \"json\": {\n    \"rows\": [\n      {\n        \"json\": {\n          \"id\": \"9\",\n          \"name\": \"Z\"\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "input": {
+        "operation": "table_insert_request",
+        "rows": [
+          {
+            "insertId": "raw-1",
+            "json": {
+              "x": 1
+            }
+          },
+          {
+            "insertId": "raw-2",
+            "json": {
+              "x": 2
+            }
+          }
+        ],
+        "options": {
+          "raw": true
+        }
+      },
+      "expected_output": "{\n  \"method\": \"POST\",\n  \"uri\": \"/insertAll\",\n  \"json\": {\n    \"rows\": [\n      {\n        \"insertId\": \"raw-1\",\n        \"json\": {\n          \"x\": 1\n        }\n      },\n      {\n        \"insertId\": \"raw-2\",\n        \"json\": {\n          \"x\": 2\n        }\n      }\n    ]\n  }\n}\n"
+    }
+  ]
+}

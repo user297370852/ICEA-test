@@ -1,0 +1,76 @@
+{
+  "description": "Build a read request for a single addressable resource or relationship action. Each operation routes a GET to its own fixed endpoint path and supplies a small, fixed set of query parameters: identifier parameters taken from the caller plus, where the operation has paired complementary forms, a constant discriminator value that distinguishes the two directions of the action. The server's JSON reply is parsed (preserving oversized integers) and returned. The output describes the HTTP method, endpoint path, the query parameters sent, and the parsed response.",
+  "cases": [
+    {
+      "input": {
+        "action": "request",
+        "operation": "get_user_profile",
+        "args": {
+          "user_id": "0"
+        },
+        "response": "{}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"user_id\":\"0\"},\"path\":\"aweme/v1/user/\",\"response\":{}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "get_user_profile",
+        "args": {
+          "user_id": "1"
+        },
+        "response": "{\"status_code\":0,\"user\":{\"uid\":1}}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"user_id\":\"1\"},\"path\":\"aweme/v1/user/\",\"response\":{\"status_code\":0,\"user\":{\"uid\":1}}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "get_user_profile",
+        "args": {
+          "user_id": "-9999999999999999999"
+        },
+        "response": "{\"status_code\":0,\"user\":{\"uid\":9999999999999999999}}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"user_id\":\"-9999999999999999999\"},\"path\":\"aweme/v1/user/\",\"response\":{\"status_code\":0,\"user\":{\"uid\":\"9999999999999999999\"}}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "follow_user",
+        "args": {
+          "user_id": "0"
+        },
+        "response": "{\"status_code\":0,\"follow_status\":1,\"watch_status\":1}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"type\":1,\"user_id\":\"0\"},\"path\":\"aweme/v1/commit/follow/user/\",\"response\":{\"follow_status\":1,\"status_code\":0,\"watch_status\":1}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "follow_user",
+        "args": {
+          "user_id": "12345"
+        },
+        "response": "{\"status_code\":1}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"type\":1,\"user_id\":\"12345\"},\"path\":\"aweme/v1/commit/follow/user/\",\"response\":{\"status_code\":1}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "can_start_live_stream",
+        "response": "{\"status_code\":0,\"can_be_live_podcast\":false}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{},\"path\":\"aweme/v1/live/podcast/\",\"response\":{\"can_be_live_podcast\":false,\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "can_start_live_stream",
+        "response": "{\"status_code\":2}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{},\"path\":\"aweme/v1/live/podcast/\",\"response\":{\"status_code\":2}}\n"
+    }
+  ]
+}

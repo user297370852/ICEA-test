@@ -1,0 +1,27 @@
+{
+  "description": "Buffers DDL statements while a schema-change batch is active, sends them together on completion, and reports invalid batch control operations as neutral errors.",
+  "cases": [
+    {
+      "input": {
+        "feature": "ddl_batch",
+        "mode": "block",
+        "statements": [
+          "CREATE TABLE users ( id STRING(36) NOT NULL ) PRIMARY KEY (id)",
+          "CREATE TABLE sessions ( id STRING(36) NOT NULL ) PRIMARY KEY (id)"
+        ]
+      },
+      "expected_output": "executed_count=1\nstatements=CREATE TABLE users ( id STRING(36) NOT NULL ) PRIMARY KEY (id)|CREATE TABLE sessions ( id STRING(36) NOT NULL ) PRIMARY KEY (id)\n"
+    },
+    {
+      "input": {
+        "feature": "ddl_batch",
+        "mode": "abort_then_run",
+        "statements": [
+          "CREATE TABLE users ( id STRING(36) NOT NULL ) PRIMARY KEY (id)",
+          "CREATE TABLE sessions ( id STRING(36) NOT NULL ) PRIMARY KEY (id)"
+        ]
+      },
+      "expected_output": "error=no_active_batch\nexecuted_count=0\n"
+    }
+  ]
+}

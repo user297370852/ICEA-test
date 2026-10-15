@@ -1,0 +1,255 @@
+{
+  "description": "Boundary coverage for tour navigation and lifecycle. Exercises a single-step tour finishing when advanced past its only step, backward navigation requested while already at the first step, navigation and lifecycle queries issued before the tour is started, runs of consecutive skipped steps surrounded by eligible ones, jumping to a later step before navigating backward, and advancing all the way through a longer ordered list. Show notifications, lifecycle notifications, active-state queries, and current-step queries are reported as they occur.",
+  "cases": [
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "Only"
+          }
+        ],
+        "actions": [
+          {
+            "do": "start"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "next"
+          },
+          {
+            "do": "isActive"
+          }
+        ]
+      },
+      "expected_output": "show a previous=none\ncurrent=a\ncomplete\ninactive\nactive=false\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          }
+        ],
+        "actions": [
+          {
+            "do": "start"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "back"
+          },
+          {
+            "do": "current"
+          }
+        ]
+      },
+      "expected_output": "show a previous=none\ncurrent=a\ncurrent=a\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          }
+        ],
+        "actions": [
+          {
+            "do": "next"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "isActive"
+          }
+        ]
+      },
+      "expected_output": "show a previous=none\ncurrent=a\nactive=true\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          }
+        ],
+        "actions": [
+          {
+            "do": "current"
+          },
+          {
+            "do": "isActive"
+          }
+        ]
+      },
+      "expected_output": "current=none\nactive=false\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "h1",
+            "title": "Hidden 1",
+            "text": "Skip",
+            "showOn": false
+          },
+          {
+            "id": "h2",
+            "title": "Hidden 2",
+            "text": "Skip",
+            "showOn": false
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          }
+        ],
+        "actions": [
+          {
+            "do": "start"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "next"
+          },
+          {
+            "do": "current"
+          }
+        ]
+      },
+      "expected_output": "show a previous=none\ncurrent=a\nshow b previous=a\ncurrent=b\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          },
+          {
+            "id": "c",
+            "title": "Step C",
+            "text": "Third"
+          }
+        ],
+        "actions": [
+          {
+            "do": "start"
+          },
+          {
+            "do": "show",
+            "key": "c"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "back"
+          },
+          {
+            "do": "current"
+          }
+        ]
+      },
+      "expected_output": "show a previous=none\nshow c previous=a\ncurrent=c\nshow b previous=c\ncurrent=b\n"
+    },
+    {
+      "input": {
+        "feature": "tour",
+        "steps": [
+          {
+            "id": "a",
+            "title": "Step A",
+            "text": "First"
+          },
+          {
+            "id": "b",
+            "title": "Step B",
+            "text": "Second"
+          },
+          {
+            "id": "c",
+            "title": "Step C",
+            "text": "Third"
+          },
+          {
+            "id": "d",
+            "title": "Step D",
+            "text": "Fourth"
+          }
+        ],
+        "actions": [
+          {
+            "do": "start"
+          },
+          {
+            "do": "next"
+          },
+          {
+            "do": "next"
+          },
+          {
+            "do": "next"
+          },
+          {
+            "do": "current"
+          },
+          {
+            "do": "next"
+          },
+          {
+            "do": "isActive"
+          }
+        ]
+      },
+      "expected_output": "show a previous=none\nshow b previous=a\nshow c previous=b\nshow d previous=c\ncurrent=d\ncomplete\ninactive\nactive=false\n"
+    }
+  ]
+}

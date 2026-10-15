@@ -1,0 +1,269 @@
+{
+  "description": "Feature 1.1 boundary coverage for initial render: empty elements with no children, attribute-only elements (className normalizing to class), several recognized attributes provided out of order to verify name-sorted/order-independent emission, deeply nested single chains, dynamic numeric substitution, conditional branches with a missing else, and interleaved text/element children.",
+  "cases": [
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "render": {
+            "el": "div"
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1></div>\ntext=\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "render": {
+            "el": "div",
+            "attrs": {
+              "id": "root",
+              "className": "main"
+            }
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1 class=\"main\" id=\"root\"></div>\ntext=\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "render": {
+            "el": "section",
+            "attrs": {
+              "title": "t",
+              "id": "i",
+              "className": "c",
+              "lang": "en",
+              "dir": "ltr"
+            },
+            "children": [
+              "x"
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<section#n1 class=\"c\" dir=\"ltr\" id=\"i\" lang=\"en\" title=\"t\">x</section>\ntext=x\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "render": {
+            "el": "div",
+            "children": [
+              {
+                "el": "section",
+                "children": [
+                  {
+                    "el": "article",
+                    "children": [
+                      {
+                        "el": "span",
+                        "children": [
+                          "deep"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1><section#n2><article#n3><span#n4>deep</span></article></section></div>\ntext=deep\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "n": 42
+          },
+          "render": {
+            "el": "p",
+            "children": [
+              "count=",
+              {
+                "var": "n"
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<p#n1>count=42</p>\ntext=count=42\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "show": false
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              "A",
+              {
+                "if": "show",
+                "then": {
+                  "el": "span",
+                  "children": [
+                    "B"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1>A</div>\ntext=A\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "state": {
+            "show": true
+          },
+          "render": {
+            "el": "div",
+            "children": [
+              "A",
+              {
+                "if": "show",
+                "then": {
+                  "el": "span",
+                  "children": [
+                    "B"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<div#n1>A<span#n2>B</span></div>\ntext=AB\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "render": {
+            "el": "p",
+            "children": [
+              "Hello, ",
+              {
+                "el": "b",
+                "children": [
+                  "brave"
+                ]
+              },
+              " new ",
+              {
+                "el": "i",
+                "children": [
+                  "world"
+                ]
+              },
+              "!"
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<p#n1>Hello, <b#n2>brave</b> new <i#n3>world</i>!</p>\ntext=Hello, brave new world!\n"
+    },
+    {
+      "input": {
+        "kind": "component",
+        "root": {
+          "render": {
+            "el": "ul",
+            "children": [
+              {
+                "el": "li",
+                "children": [
+                  "1"
+                ]
+              },
+              {
+                "el": "li",
+                "children": [
+                  "2"
+                ]
+              },
+              {
+                "el": "li",
+                "children": [
+                  "3"
+                ]
+              },
+              {
+                "el": "li",
+                "children": [
+                  "4"
+                ]
+              },
+              {
+                "el": "li",
+                "children": [
+                  "5"
+                ]
+              }
+            ]
+          }
+        },
+        "steps": [
+          {
+            "probe": "render"
+          }
+        ]
+      },
+      "expected_output": "== render ==\nelement=<ul#n1><li#n2>1</li><li#n3>2</li><li#n4>3</li><li#n5>4</li><li#n6>5</li></ul>\ntext=12345\n"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "description": "Reload refreshes both top-level and namespaced constants when only some files change; an unchanged file keeps its value while changed files reflect updated contents after reload.",
+  "cases": [
+    {
+      "input": {
+        "operation": "reload_updates_loaded_values",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "stable.rb": "Stable = 100",
+          "mutable.rb": "Mutable = 1"
+        },
+        "before_access": [
+          "Stable",
+          "Mutable"
+        ],
+        "updates": {
+          "mutable.rb": "Mutable = 999"
+        },
+        "after_access": [
+          "Stable",
+          "Mutable"
+        ]
+      },
+      "expected_output": "before=Stable\nvalue=100\nbefore=Mutable\nvalue=1\nafter=Stable\nvalue=100\nafter=Mutable\nvalue=999\n"
+    },
+    {
+      "input": {
+        "operation": "reload_updates_loaded_values",
+        "roots": [
+          "."
+        ],
+        "files": {
+          "shop.rb": "module Shop; end",
+          "shop/item.rb": "Shop::Item = 'v1'"
+        },
+        "before_access": [
+          "Shop::Item"
+        ],
+        "updates": {
+          "shop/item.rb": "Shop::Item = 'v2'"
+        },
+        "after_access": [
+          "Shop::Item"
+        ]
+      },
+      "expected_output": "before=Shop::Item\nvalue=v1\nafter=Shop::Item\nvalue=v2\n"
+    }
+  ]
+}

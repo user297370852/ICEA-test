@@ -1,0 +1,30 @@
+{
+    "description": "A grant code issued for a client that relies on its single registered redirect target (omitting the redirect parameter in the authorization step) can subsequently be redeemed at the token endpoint WITHOUT re-supplying a redirect target; the redemption returns a success status and a token payload. The second step references the code issued by the first step.",
+    "cases": [
+        {
+            "input": {
+                "steps": [
+                    {
+                        "action": "authorize",
+                        "is_authorized": true,
+                        "request": {
+                            "client_id": "Test Client ID with Redirect Uri",
+                            "response_type": "code",
+                            "state": "xyz"
+                        }
+                    },
+                    {
+                        "action": "token",
+                        "request": {
+                            "client_id": "Test Client ID with Redirect Uri",
+                            "client_secret": "TestSecret2",
+                            "grant_type": "authorization_code",
+                            "code": "@AUTH_CODE@"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "response=0\nstatus=302\ntype=redirect\nredirect.scheme=http\nredirect.user=\nredirect.host=brentertainment.com\nredirect.port=\nredirect.path=\nredirect.fragment=\nquery.code=CODE\nquery.state=xyz\nissued.identity_token=absent\n\nresponse=1\nstatus=200\ntype=response\nbody.access_token=ACCESS_TOKEN\nbody.expires_in=3600\nbody.refresh_token=REFRESH_TOKEN\nbody.scope=\nbody.token_type=Bearer\n"
+        }
+    ]
+}

@@ -1,0 +1,261 @@
+{
+    "description": "Resolve a target column name against a set of candidate names using a two-stage rule. Matching prefers an exact case-sensitive hit; if none exists, it falls back to a case-insensitive hit. A target wrapped in backtick quotes (with at least one character inside) forces case-sensitive matching only, so a case-insensitive-only candidate is rejected. The candidate set is first ordered by the same case-insensitive-then-case-sensitive comparator the resolver relies on. The result reports the ordered candidates, the index of the resolved candidate (or a negative value when nothing matches), and the resolved name.",
+    "cases": [
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "name"
+                ],
+                "target": "name"
+            },
+            "expected_output": "sorted=name\nindex=0\nmatch=name\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "name"
+                ],
+                "target": "Name"
+            },
+            "expected_output": "sorted=name\nindex=0\nmatch=name\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "name"
+                ],
+                "target": "nAMe"
+            },
+            "expected_output": "sorted=name\nindex=0\nmatch=name\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "name"
+                ],
+                "target": "`name`"
+            },
+            "expected_output": "sorted=name\nindex=0\nmatch=name\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "name"
+                ],
+                "target": "`Name`"
+            },
+            "expected_output": "sorted=name\nindex=-1\nmatch=(none)\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "name"
+                ],
+                "target": "`nAMe`"
+            },
+            "expected_output": "sorted=name\nindex=-1\nmatch=(none)\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "c",
+                    "dD",
+                    "cBc",
+                    "Dca",
+                    "ADC",
+                    "DcA",
+                    "abc",
+                    "b",
+                    "B",
+                    "dA",
+                    "AB",
+                    "a",
+                    "Abc",
+                    "ABC",
+                    "A",
+                    "ab",
+                    "cc",
+                    "Da",
+                    "CbC"
+                ],
+                "target": "a"
+            },
+            "expected_output": "sorted=A a AB ab ABC Abc abc ADC B b c CbC cBc cc Da dA DcA Dca dD\nindex=1\nmatch=a\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "c",
+                    "dD",
+                    "cBc",
+                    "Dca",
+                    "ADC",
+                    "DcA",
+                    "abc",
+                    "b",
+                    "B",
+                    "dA",
+                    "AB",
+                    "a",
+                    "Abc",
+                    "ABC",
+                    "A",
+                    "ab",
+                    "cc",
+                    "Da",
+                    "CbC"
+                ],
+                "target": "A"
+            },
+            "expected_output": "sorted=A a AB ab ABC Abc abc ADC B b c CbC cBc cc Da dA DcA Dca dD\nindex=0\nmatch=A\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "c",
+                    "dD",
+                    "cBc",
+                    "Dca",
+                    "ADC",
+                    "DcA",
+                    "abc",
+                    "b",
+                    "B",
+                    "dA",
+                    "AB",
+                    "a",
+                    "Abc",
+                    "ABC",
+                    "A",
+                    "ab",
+                    "cc",
+                    "Da",
+                    "CbC"
+                ],
+                "target": "abc"
+            },
+            "expected_output": "sorted=A a AB ab ABC Abc abc ADC B b c CbC cBc cc Da dA DcA Dca dD\nindex=6\nmatch=abc\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "c",
+                    "dD",
+                    "cBc",
+                    "Dca",
+                    "ADC",
+                    "DcA",
+                    "abc",
+                    "b",
+                    "B",
+                    "dA",
+                    "AB",
+                    "a",
+                    "Abc",
+                    "ABC",
+                    "A",
+                    "ab",
+                    "cc",
+                    "Da",
+                    "CbC"
+                ],
+                "target": "ABC"
+            },
+            "expected_output": "sorted=A a AB ab ABC Abc abc ADC B b c CbC cBc cc Da dA DcA Dca dD\nindex=4\nmatch=ABC\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "c",
+                    "dD",
+                    "cBc",
+                    "Dca",
+                    "ADC",
+                    "DcA",
+                    "abc",
+                    "b",
+                    "B",
+                    "dA",
+                    "AB",
+                    "a",
+                    "Abc",
+                    "ABC",
+                    "A",
+                    "ab",
+                    "cc",
+                    "Da",
+                    "CbC"
+                ],
+                "target": "Abc"
+            },
+            "expected_output": "sorted=A a AB ab ABC Abc abc ADC B b c CbC cBc cc Da dA DcA Dca dD\nindex=5\nmatch=Abc\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "c",
+                    "dD",
+                    "cBc",
+                    "Dca",
+                    "ADC",
+                    "DcA",
+                    "abc",
+                    "b",
+                    "B",
+                    "dA",
+                    "AB",
+                    "a",
+                    "Abc",
+                    "ABC",
+                    "A",
+                    "ab",
+                    "cc",
+                    "Da",
+                    "CbC"
+                ],
+                "target": "`abc`"
+            },
+            "expected_output": "sorted=A a AB ab ABC Abc abc ADC B b c CbC cBc cc Da dA DcA Dca dD\nindex=6\nmatch=abc\n"
+        },
+        {
+            "input": {
+                "action": "name_search",
+                "names": [
+                    "c",
+                    "dD",
+                    "cBc",
+                    "Dca",
+                    "ADC",
+                    "DcA",
+                    "abc",
+                    "b",
+                    "B",
+                    "dA",
+                    "AB",
+                    "a",
+                    "Abc",
+                    "ABC",
+                    "A",
+                    "ab",
+                    "cc",
+                    "Da",
+                    "CbC"
+                ],
+                "target": "`aBc`"
+            },
+            "expected_output": "sorted=A a AB ab ABC Abc abc ADC B b c CbC cBc cc Da dA DcA Dca dD\nindex=-1\nmatch=(none)\n"
+        }
+    ]
+}

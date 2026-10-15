@@ -1,0 +1,121 @@
+{
+  "description": "Compose precedence and URL assembly edge cases: default JSON content-type implied when a payload is present (no other content-type), no content-type implied for a payload-less GET when the base does not force it, base content-type inherited with no override, URL joining with a trailing-slash base and a non-slash path, a relative path joined onto a host, an absolute http(s) path that ignores the base URL, base query parameters appended to the assembled URI, and a copy-with override replacing the composed content-type via its dedicated field after a base content-type was present.",
+  "cases": [
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "baseUrl": "https://api.test.com"
+        },
+        "options": {},
+        "path": "/v1/users",
+        "data": {
+          "k": "v"
+        }
+      },
+      "expected_output": "contentType=application/json; charset=utf-8\nuri=https://api.test.com/v1/users\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "baseUrl": "https://api.test.com/"
+        },
+        "options": {},
+        "path": "sub/path"
+      },
+      "expected_output": "contentType=null\nuri=https://api.test.com/sub/path\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {},
+        "options": {},
+        "path": "https://full.url.com/x"
+      },
+      "expected_output": "contentType=null\nuri=https://full.url.com/x\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "baseUrl": "https://h.com",
+          "queryParameters": {
+            "a": "1"
+          }
+        },
+        "options": {},
+        "path": "/p"
+      },
+      "expected_output": "contentType=null\nuri=https://h.com/p\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "contentType": "text/html"
+        },
+        "options": {},
+        "path": "",
+        "data": {
+          "k": "v"
+        }
+      },
+      "expected_output": "contentType=text/html\nuri=\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "baseUrl": "https://x.io",
+          "contentType": "text/xml"
+        },
+        "options": {},
+        "path": "/r"
+      },
+      "expected_output": "contentType=text/xml\nuri=https://x.io/r\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "baseUrl": "https://x.io",
+          "contentType": "text/html"
+        },
+        "options": {},
+        "path": "/r",
+        "copyWith": {
+          "contentType": "application/octet-stream"
+        }
+      },
+      "expected_output": "contentType=application/octet-stream\nuri=https://x.io/r\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "baseUrl": "https://x.io",
+          "setRequestContentTypeWhenNoPayload": true
+        },
+        "options": {
+          "method": "POST"
+        },
+        "path": "/r"
+      },
+      "expected_output": "contentType=application/json; charset=utf-8\nuri=https://x.io/r\n"
+    },
+    {
+      "input": {
+        "op": "compose",
+        "base": {
+          "baseUrl": "https://x.io"
+        },
+        "options": {
+          "method": "DELETE"
+        },
+        "path": "/r/1"
+      },
+      "expected_output": "contentType=null\nuri=https://x.io/r/1\n"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "description": "Enhanced positional mapping: a single (non-list) positional consuming exactly one bare token while the trailing list collects the rest; tokens with no positional mapping reported as unmatched; and a positional list that retains comma characters verbatim alongside an interleaved option.",
+  "cases": [
+    {
+      "input": {
+        "program": "single",
+        "options": [
+          {
+            "opts": "first",
+            "type": "string"
+          },
+          {
+            "opts": "rest",
+            "type": "vec_string"
+          }
+        ],
+        "positional": [
+          "first",
+          "rest"
+        ],
+        "argv": [
+          "one",
+          "two",
+          "three"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "first",
+            "type": "string"
+          },
+          {
+            "q": "value",
+            "name": "rest",
+            "type": "vec_string"
+          },
+          {
+            "q": "unmatched"
+          }
+        ]
+      },
+      "expected_output": "value[first]=one\nvalue[rest]=[two,three]\nunmatched=0"
+    },
+    {
+      "input": {
+        "program": "nomap",
+        "options": [
+          {
+            "opts": "flag"
+          }
+        ],
+        "argv": [
+          "alpha",
+          "beta"
+        ],
+        "queries": [
+          {
+            "q": "unmatched"
+          }
+        ]
+      },
+      "expected_output": "unmatched=2\nunmatched[0]=alpha\nunmatched[1]=beta"
+    },
+    {
+      "input": {
+        "program": "commas",
+        "options": [
+          {
+            "opts": "files",
+            "type": "vec_string"
+          }
+        ],
+        "positional": [
+          "files"
+        ],
+        "argv": [
+          "a,b",
+          "c,d,e"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "files",
+            "type": "vec_string"
+          },
+          {
+            "q": "count",
+            "name": "files"
+          }
+        ]
+      },
+      "expected_output": "value[files]=[a,b,c,d,e]\ncount[files]=2"
+    },
+    {
+      "input": {
+        "program": "interleave",
+        "options": [
+          {
+            "opts": "opt",
+            "type": "string"
+          },
+          {
+            "opts": "pos",
+            "type": "vec_string"
+          }
+        ],
+        "positional": [
+          "pos"
+        ],
+        "argv": [
+          "p1",
+          "--opt",
+          "O",
+          "p2"
+        ],
+        "queries": [
+          {
+            "q": "value",
+            "name": "opt",
+            "type": "string"
+          },
+          {
+            "q": "value",
+            "name": "pos",
+            "type": "vec_string"
+          }
+        ]
+      },
+      "expected_output": "value[opt]=O\nvalue[pos]=[p1,p2]"
+    }
+  ]
+}

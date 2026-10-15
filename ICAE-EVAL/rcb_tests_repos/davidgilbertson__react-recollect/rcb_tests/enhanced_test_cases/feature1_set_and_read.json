@@ -1,0 +1,175 @@
+{
+  "description": "Boundary and type coverage for observable reads/writes: reading an absent top-level property yields null; an empty store with no operations emits an empty change list and empty snapshot; snapshot emission can be suppressed; and a variety of scalar value types (large integer, negative, float, boolean, null, string) round-trip through assignment and read while keys render in sorted order.",
+  "cases": [
+    {
+      "input": {
+        "init": {
+          "a": 1
+        },
+        "ops": [
+          {
+            "op": "get",
+            "path": [
+              "missing"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.missing = null\nchanges=[]\nsnapshot={\"a\":1}\n"
+    },
+    {
+      "input": {
+        "init": {},
+        "ops": []
+      },
+      "expected_output": "changes=[]\nsnapshot={}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "a": 1
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "a"
+            ],
+            "value": 2
+          }
+        ],
+        "snapshot": false
+      },
+      "expected_output": "changes=[\"store.a\"]\n"
+    },
+    {
+      "input": {
+        "init": {},
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "big"
+            ],
+            "value": 9007199254740991
+          },
+          {
+            "op": "set",
+            "path": [
+              "neg"
+            ],
+            "value": -42
+          },
+          {
+            "op": "set",
+            "path": [
+              "f"
+            ],
+            "value": 3.5
+          },
+          {
+            "op": "get",
+            "path": [
+              "big"
+            ]
+          },
+          {
+            "op": "get",
+            "path": [
+              "f"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.big = 9007199254740991\nget store.f = 3.5\nchanges=[\"store.big\",\"store.neg\",\"store.f\"]\nsnapshot={\"big\":9007199254740991,\"f\":3.5,\"neg\":-42}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "flag": true
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "flag"
+            ],
+            "value": false
+          },
+          {
+            "op": "set",
+            "path": [
+              "nullable"
+            ],
+            "value": null
+          },
+          {
+            "op": "get",
+            "path": [
+              "nullable"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.nullable = null\nchanges=[\"store.flag\",\"store.nullable\"]\nsnapshot={\"flag\":false,\"nullable\":null}\n"
+    },
+    {
+      "input": {
+        "init": {
+          "v": 1
+        },
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "v"
+            ],
+            "value": 2
+          },
+          {
+            "op": "set",
+            "path": [
+              "v"
+            ],
+            "value": 3
+          },
+          {
+            "op": "set",
+            "path": [
+              "v"
+            ],
+            "value": 4
+          },
+          {
+            "op": "get",
+            "path": [
+              "v"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.v = 4\nchanges=[\"store.v\",\"store.v\",\"store.v\"]\nsnapshot={\"v\":4}\n"
+    },
+    {
+      "input": {
+        "init": {},
+        "ops": [
+          {
+            "op": "set",
+            "path": [
+              "msg"
+            ],
+            "value": "héllo \"wörld\"\n\t"
+          },
+          {
+            "op": "get",
+            "path": [
+              "msg"
+            ]
+          }
+        ]
+      },
+      "expected_output": "get store.msg = \"héllo \\\"wörld\\\"\\n\\t\"\nchanges=[\"store.msg\"]\nsnapshot={\"msg\":\"héllo \\\"wörld\\\"\\n\\t\"}\n"
+    }
+  ]
+}

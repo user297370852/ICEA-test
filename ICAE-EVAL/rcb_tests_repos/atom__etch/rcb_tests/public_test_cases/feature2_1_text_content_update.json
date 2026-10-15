@@ -1,0 +1,41 @@
+{
+    "description": "Render a component whose text content is derived from a piece of mutable state, then change that state and apply a scheduled update. The update re-renders the component and diffs the new tree against the previous one, patching only what changed. Two observation points are reported: the serialized DOM before the change and after the update is flushed. The stable identity tokens reveal that the existing element is patched in place rather than rebuilt.",
+    "cases": [
+        {
+            "input": {
+                "kind": "component",
+                "root": {
+                    "state": {
+                        "greeting": "Hello"
+                    },
+                    "render": {
+                        "el": "div",
+                        "children": [
+                            {
+                                "var": "greeting"
+                            },
+                            " World"
+                        ]
+                    }
+                },
+                "steps": [
+                    {
+                        "probe": "before"
+                    },
+                    {
+                        "set": {
+                            "greeting": "Goodbye"
+                        }
+                    },
+                    {
+                        "updateAsync": true
+                    },
+                    {
+                        "probe": "after"
+                    }
+                ]
+            },
+            "expected_output": "== before ==\nelement=<div#n1>Hello World</div>\ntext=Hello World\n== after ==\nelement=<div#n1>Goodbye World</div>\ntext=Goodbye World\n"
+        }
+    ]
+}

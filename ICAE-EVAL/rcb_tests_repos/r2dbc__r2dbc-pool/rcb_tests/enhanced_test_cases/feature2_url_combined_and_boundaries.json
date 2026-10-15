@@ -1,0 +1,26 @@
+{
+  "description": "Additional URL resolution coverage: combine all supported query parameters in one URL, exercise zero sizing and retry boundaries, canonicalize sub-second duration text, and verify local validation depth plus explicit JMX false naming behavior.",
+  "cases": [
+    {
+      "input": {
+        "op": "url-config",
+        "url": "r2dbc:pool:mock://host?initialSize=0&maxSize=1&acquireRetry=0&maxIdleTime=PT0S&maxCreateConnectionTime=PT0.5S&maxAcquireTime=PT2S&maxLifeTime=PT1H&backgroundEvictionInterval=PT15S&validationDepth=REMOTE&poolName=AllOptions&registerJmx=true"
+      },
+      "expected_output": "initialSize=0\nmaxSize=1\nacquireRetry=0\nmaxIdleTime=PT0S\nmaxCreateConnectionTime=PT0.5S\nmaxAcquireTime=PT2S\nmaxLifeTime=PT1H\nbackgroundEvictionInterval=PT15S\nvalidationDepth=REMOTE\nvalidationQuery=<none>\nname=AllOptions\nregisterJmx=true\n"
+    },
+    {
+      "input": {
+        "op": "url-config",
+        "url": "r2dbc:pool:mock://host?initialSize=10&maxSize=10&acquireRetry=0"
+      },
+      "expected_output": "initialSize=10\nmaxSize=10\nacquireRetry=0\nmaxIdleTime=PT30M\nmaxCreateConnectionTime=PT-0.001S\nmaxAcquireTime=PT-0.001S\nmaxLifeTime=PT-0.001S\nbackgroundEvictionInterval=PT-0.001S\nvalidationDepth=LOCAL\nvalidationQuery=<none>\nname=<none>\nregisterJmx=false\n"
+    },
+    {
+      "input": {
+        "op": "url-config",
+        "url": "r2dbc:pool:mock://host?validationDepth=LOCAL&registerJmx=false&poolName=NamedNoJmx"
+      },
+      "expected_output": "initialSize=10\nmaxSize=10\nacquireRetry=1\nmaxIdleTime=PT30M\nmaxCreateConnectionTime=PT-0.001S\nmaxAcquireTime=PT-0.001S\nmaxLifeTime=PT-0.001S\nbackgroundEvictionInterval=PT-0.001S\nvalidationDepth=LOCAL\nvalidationQuery=<none>\nname=NamedNoJmx\nregisterJmx=false\n"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "description": "Enhanced boundary/edge coverage for removing a subscription recipient (unsubscribe). Covers: removing a middle recipient (reference implementation re-joins the remaining recipients with an empty separator, so 'a;b;c' minus 'b' becomes 'ac'), removing a recipient that is not present (entry unchanged), removing a recipient while an unrelated subscription key is preserved, removing the first of two recipients, and removing the sole recipient so the entry is deleted and no annotations remain (empty output). Expected outputs are the raw adapter stdout captured from the reference implementation, listing remaining entries as '<key>=<value>' lines sorted by key.",
+  "cases": [
+    {
+      "input": {
+        "action": "unsubscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.slack": "a;b;c"
+        },
+        "trigger": "t",
+        "service": "slack",
+        "recipient": "b"
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.t.slack=ac\n"
+    },
+    {
+      "input": {
+        "action": "unsubscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.slack": "a;b"
+        },
+        "trigger": "t",
+        "service": "slack",
+        "recipient": "z"
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.t.slack=a;b\n"
+    },
+    {
+      "input": {
+        "action": "unsubscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.slack": "x",
+          "notifications.argoproj.io/subscribe.t.email": "e"
+        },
+        "trigger": "t",
+        "service": "slack",
+        "recipient": "x"
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.t.email=e\n"
+    },
+    {
+      "input": {
+        "action": "unsubscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.slack": "aa;bb"
+        },
+        "trigger": "t",
+        "service": "slack",
+        "recipient": "aa"
+      },
+      "expected_output": "notifications.argoproj.io/subscribe.t.slack=bb\n"
+    },
+    {
+      "input": {
+        "action": "unsubscribe",
+        "annotations": {
+          "notifications.argoproj.io/subscribe.t.slack": "only"
+        },
+        "trigger": "t",
+        "service": "slack",
+        "recipient": "only"
+      },
+      "expected_output": ""
+    }
+  ]
+}

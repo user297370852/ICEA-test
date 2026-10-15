@@ -1,0 +1,76 @@
+{
+  "description": "Truncate coverage: truncating to zero empties the file, and truncating to a length larger than the current size zero-extends it.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "hello"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "append"
+          },
+          {
+            "op": "raf_truncate",
+            "handle": "h",
+            "length": 0
+          },
+          {
+            "op": "raf_close",
+            "handle": "h"
+          },
+          {
+            "op": "read",
+            "path": "/f"
+          },
+          {
+            "op": "length",
+            "path": "/f"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=5\nopened=/f\ntruncated=0\nclosed=h\ntext=\"\"\nlength=0\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "ab"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "append"
+          },
+          {
+            "op": "raf_truncate",
+            "handle": "h",
+            "length": 5
+          },
+          {
+            "op": "raf_close",
+            "handle": "h"
+          },
+          {
+            "op": "read",
+            "path": "/f",
+            "as": "bytes"
+          },
+          {
+            "op": "length",
+            "path": "/f"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=2\nopened=/f\ntruncated=5\nclosed=h\nbytes=97,98,0,0,0\nlength=5\n"
+    }
+  ]
+}

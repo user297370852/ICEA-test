@@ -1,0 +1,29 @@
+{
+  "description": "Formats transport flags and key/value options into the command-line argument string used for remote connections, while keeping default values from overriding explicit values.",
+  "cases": [
+    {
+      "input": {"flags": ["-A", "-F"], "options": {}},
+      "expected_output": "arguments=-A -F\n"
+    },
+    {
+      "input": {"flags": ["-A", "-F"], "options": {"Option": "Value"}},
+      "expected_output": "arguments=-A -F -o Option=Value\n"
+    },
+    {
+      "input": {"flags": {"0": "-A", "-b": "somevalue"}, "options": {"Option": "Value"}},
+      "expected_output": "arguments=-A -b somevalue -o Option=Value\n"
+    },
+    {
+      "input": {"defaults": {"flags": ["-F"], "options": {"Option": "Default"}}, "overrides": {"flags": ["-A"], "options": {"Option": "Value"}}},
+      "expected_output": "arguments=-F -A -o Option=Value\n"
+    },
+    {
+      "input": {"options": {"ControlPersist": "600"}, "inspect_options": ["ControlPersist"]},
+      "expected_output": "arguments=-o ControlPersist=600\noption.ControlPersist=600\n"
+    },
+    {
+      "input": {"flags": {"0": "-A", "-p": null, "-b": "value"}, "inspect_flags": ["-A", "-p", "-b"]},
+      "expected_output": "arguments=-A -p -b value\nflag.-A=true\nflag.-p=true\nflag.-b=value\n"
+    }
+  ]
+}

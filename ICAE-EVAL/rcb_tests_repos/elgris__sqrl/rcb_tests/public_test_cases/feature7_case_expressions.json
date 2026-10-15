@@ -1,0 +1,56 @@
+{
+    "description": "Build SQL CASE expressions, including simple case operands, searched cases, raw expressions, aliases, ELSE branches, and validation for missing WHEN clauses.",
+    "cases": [
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "simple_value_case",
+                "case": {
+                    "operand": "number",
+                    "when_then": [
+                        [
+                            "1",
+                            "one"
+                        ],
+                        [
+                            "2",
+                            "two"
+                        ]
+                    ],
+                    "else": {
+                        "expression": "?",
+                        "args": [
+                            "big number"
+                        ]
+                    },
+                    "source": "table"
+                }
+            },
+            "expected_output": "sql=SELECT CASE number WHEN 1 THEN one WHEN 2 THEN two ELSE ? END FROM table\nargs=[\"big number\"]\n"
+        },
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "complex_operand_alias",
+                "case": {
+                    "operand": {
+                        "expression": "? > ?",
+                        "args": [
+                            10,
+                            5
+                        ]
+                    },
+                    "when_then": [
+                        [
+                            "true",
+                            "'T'"
+                        ]
+                    ],
+                    "alias": "complexCase",
+                    "source": "table"
+                }
+            },
+            "expected_output": "sql=SELECT (CASE ? > ? WHEN true THEN 'T' END) AS complexCase FROM table\nargs=[10,5]\n"
+        }
+    ]
+}

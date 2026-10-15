@@ -1,0 +1,44 @@
+{
+    "description": "Generate the model-constructor registry map. The output declares a map from type name to a factory function taking a dependency descriptor. It always spreads the enum registry (each enum mapped to its first value), ends with four primitive fallbacks (string, double, int, bool with their zero values), and in between emits one factory per descriptor whose category marks it as a model. Each model factory constructs the model by passing, for every declared parameter, the value looked up from the descriptor's sub-dependencies by that parameter's name; named parameters are emitted with their `name:` label. Descriptors of any other category are skipped.",
+    "cases": [
+        {
+            "input": {
+                "target": "model_constructor_map",
+                "models": []
+            },
+            "expected_output": "final framyModelConstructorMap =\n    <String, dynamic Function(FramyDependencyModel)>{\n  ...framyEnumMap.map((type, values) => MapEntry(type, (FramyDependencyModel dep) => values.first)),\n  \n  'String': (dep) => '',\n  'double': (dep) => 0.0,\n  'int': (dep) => 0,\n  'bool': (dep) => false,\n};\n"
+        },
+        {
+            "input": {
+                "target": "model_constructor_map",
+                "models": [
+                    {
+                        "name": "User",
+                        "category": "model",
+                        "params": [
+                            {
+                                "name": "firstName",
+                                "type": "String",
+                                "named": false
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "final framyModelConstructorMap =\n    <String, dynamic Function(FramyDependencyModel)>{\n  ...framyEnumMap.map((type, values) => MapEntry(type, (FramyDependencyModel dep) => values.first)),\n  'User': (dep) => User(\n    dep.subDependencies.singleWhere((d) => d.name == 'firstName').value,\n),\n\n  'String': (dep) => '',\n  'double': (dep) => 0.0,\n  'int': (dep) => 0,\n  'bool': (dep) => false,\n};\n"
+        },
+        {
+            "input": {
+                "target": "model_constructor_map",
+                "models": [
+                    {
+                        "name": "FooModel",
+                        "category": "enum",
+                        "params": []
+                    }
+                ]
+            },
+            "expected_output": "final framyModelConstructorMap =\n    <String, dynamic Function(FramyDependencyModel)>{\n  ...framyEnumMap.map((type, values) => MapEntry(type, (FramyDependencyModel dep) => values.first)),\n  \n  'String': (dep) => '',\n  'double': (dep) => 0.0,\n  'int': (dep) => 0,\n  'bool': (dep) => false,\n};\n"
+        }
+    ]
+}

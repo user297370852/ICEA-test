@@ -1,0 +1,196 @@
+% \documentclass[conference]{IEEEtran}
+\documentclass[10pt,conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit}
+\newcommand{\rcb}{ICAE-Bench}
+\newcommand{\rcblite}{ICAE-Bench-Lite}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+
+
+\usepackage{adjustbox}
+\usepackage{amssymb}
+\usepackage{xcolor}    % 支持 \textcolor 染色功能
+\usepackage[most]{tcolorbox}
+\usepackage{cuted}
+\usepackage{multicol}
+
+\definecolor{promptboxblue}{RGB}{59, 130, 246}
+\definecolor{promptboxgray}{RGB}{107, 114, 128}
+\definecolor{promptboxlightgray}{RGB}{243, 244, 246}
+\definecolor{promptboxgreen}{RGB}{34, 197, 94}
+% \newtcolorbox{promptbox}[1][]{
+%   enhanced,
+%   breakable,           % 允许跨页
+%   break at=-20pt,      % 调整分页点
+%   colback=promptboxlightgray,
+%   colframe=promptboxblue!30,
+%   arc=8pt,
+%   boxrule=0.5pt,
+%   left=12pt,
+%   right=12pt,
+%   top=8pt,
+%   bottom=8pt,
+%   fonttitle=\bfseries,
+%   fontupper=\linespread{1.2}\selectfont,
+%   title=#1,
+%   before skip=10pt,    % 添加前间距控制
+%   after skip=10pt      % 添加后间距控制
+% }
+\newtcolorbox{promptbox}[1][]{
+  enhanced,
+  breakable,           % 此时 breakable 是完全有效的
+  colback=promptboxlightgray,
+  colframe=promptboxblue!30,
+  arc=8pt,
+  boxrule=0.5pt,
+  left=12pt,
+  right=12pt,
+  top=8pt,
+  bottom=8pt,
+  fonttitle=\bfseries,
+  fontupper=\linespread{1.2}\selectfont,
+  title=#1,
+  before skip=10pt,
+  after skip=10pt
+}
+
+\begin{document}
+
+
+\title{ICAE-Bench: Evaluating Coding Agents as Interactive Project Builders}
+% \title{ICAE-Bench: Evaluating Coding Agents as Interactive Project Builders }
+% Add author information here for the target venue.
+
+\author{
+\IEEEauthorblockN{
+\begin{tabular}{c}
+Zhongyuan Peng\textsuperscript{*,1,2},
+Dan Huang\textsuperscript{*,3},
+Chuyu Zhang\textsuperscript{2},
+Caijun Xu\textsuperscript{1,4},
+Changyi Xiao\textsuperscript{1}, 
+Shibo Hong\textsuperscript{1} \\
+David Lo\textsuperscript{3},
+Lin Qiu\textsuperscript{2},
+Xuezhi Cao\textsuperscript{2},
+Jiyuan He\textsuperscript{\textdagger,2},
+Yixin Cao\textsuperscript{\textdagger,1,4}
+\end{tabular}
+}
+\IEEEauthorblockA{
+\textsuperscript{1}Fudan University \quad
+\textsuperscript{2}Meituan Group \quad
+\textsuperscript{3}Singapore Management University \quad
+\textsuperscript{4}Shanghai Innovation Institute
+}
+}
+
+% \IEEEtitleheader{%
+%   \vbox{%
+%     \hbox to \textwidth{%
+%       \includegraphics[height=0.32in]{figures/TEAI_logo.png}%
+%       \hfil
+%       \includegraphics[height=0.24in,trim=2.5pt 0pt 0pt 15.25pt,clip]{figures/longcat-logo-full.pdf}%
+%     }%
+%     \kern 1pt
+%     \hrule height 0.8pt width \textwidth
+%   }%
+%   \vskip -0.05em
+% }
+
+
+\IEEEtitleheader{%
+  \vbox{%
+    \hbox to \textwidth{%
+      \includegraphics[height=0.4in]{figures/TEAI_logo.png}%
+      % \hfil
+      % \includegraphics[height=0.24in,trim=2.5pt 0pt 0pt 15.25pt,clip]{figures/longcat-logo-full.pdf}%
+    }%
+    \kern 1pt
+    \hrule height 0.8pt width \textwidth
+  }%
+  \vskip -0.05em
+}
+
+
+\maketitle
+\begingroup
+\renewcommand{\thefootnote}{}
+\footnotetext{\hspace*{-1.8em}\parbox[t]{0.95\columnwidth}{%
+\textsuperscript{*}Equal contribution.\\
+\textsuperscript{\textdagger}Corresponding authors: Jiyuan He (hejiyuan@meituan.com) and Yixin Cao (yxcao@fudan.edu.cn).}}
+\endgroup
+
+\begin{abstract}
+The recent emergence of vibe-coding workflows is changing what coding agents are expected to do. Instead of merely completing code under fully specified instructions, agents are increasingly expected to transform incomplete product intent into working software by combining various abilities including planning, requirement clarification, tool use, debugging, and repository-level construction. Yet existing benchmarks have not fully caught up with this shift, evaluating agents on static, fully specified tasks.
+
+In this paper, we introduce \rcb{}, an benchmark for evaluating coding agents under interactive project-building settings. The basic idea is to starts from a fuzzy product requirement, simulate the dynamic paradigm with an automated User Agent. To make this setting both realistic and evaluable, \rcb{} introduces three key designs. First, to avoid the ambiguity of unconstrained fuzzy requirements, each task derives ambiguity from precise real open-source repository with executable behavior. Second, to ensure high-quality and reproducible user simulation, \rcb{} grounds interaction through User Agent Data, allowing the User Agent to reveal hidden constraints without inventing new requirements or leaking implementation artifacts. Third, to evaluate open-ended repositories fairly, \rcb{} uses standardized black-box tests together with multi-dimensional diagnostics, including functional correctness, semantic and API similarity, structural fidelity, design quality, and interaction quality.
+
+\rcb{} contains 480 tasks across 12 programming languages. Extensive experiments with six coding models and two agent frameworks show that ambiguous project generation remains challenging. Agents usually reproduce visible behavior but struggle with hidden constraints, boundary cases, and long-horizon integration. Our benchmark, dataset, and evaluation code are available at: \url{https://github.com/ALEX-nlp/ICAE-EVAL}
+
+%Current repository-level benchmarks typically present coding agents with static, detailed specifications, fixed implementation hints, or pre-existing scaffolds. While such settings simplify evaluation, they underrepresent a common ``vibe coding'' workflow, where a user begins with an underspecified product intent and expects the agent to clarify missing requirements, select an implementation strategy, and deliver working software. We introduce \textbf{\rcb{}}, an interactive benchmark for evaluating from-scratch repository generation under ambiguous requirements. \rcb{} contains 480 real open-source-derived tasks across 12 programming languages, together with a 50-task \rcblite{} subset for rapid iteration.
+
+%\rcb{} differs from prior 0-to-1 generation benchmarks in three ways. First, it provides a fuzzy product requirement document while withholding implementation details and complete behavioral contracts; Public examples present in GroundPRD are omitted from Fuzzy L1/L2 and can be recovered through interaction. Second, it evaluates language-agnostic behavior through standardized black-box input-output cases, including Native cases transformed from original repository tests and synthesized Enhanced cases for additional robustness coverage. Third, it introduces a reproducible interactive protocol in which a tested coding agent may ask an automated User Agent for clarifications about hidden requirement constraints. Beyond functional correctness, \rcb{} evaluates artifact structure and quality together with interaction quality.
+
+%Empirically, even the strongest agent achieves an Overall pass rate of only 38.2\% on the full benchmark. More importantly, our controlled studies reveal a pronounced information--execution gap: recovering more constraints or allowing more interaction does not reliably improve the final repository. Providing executable feedback can be more beneficial than exposing additional requirement information, while presenting all recoverable records upfront still does not consistently match a coherent GroundPRD. Together, these results show that interactive project building is limited less by access to requirement information alone than by how agents organize, verify, and carry that information into executable repositories.
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+Coding Agents, Repository Generation, Interactive Evaluation, Benchmark Construction
+\end{IEEEkeywords}
+
+
+
+
+
+
+\input{sections/introduction}
+\input{sections/related_works}
+\input{sections/icae_bench}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+
+% \section*{Acknowledgment}
+
+% The preferred spelling of the word ``acknowledgment'' in America is without 
+% an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
+% G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
+% acknowledgments in the unnumbered footnote on the first page.
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{ref}
+
+\clearpage
+
+\appendices
+
+\onecolumn
+\input{appendix/task1_prd_reconstruction_prompt}
+\input{appendix/task4_enhanced_tests_prompt}
+\input{appendix/fuzzy_prd_generation_prompt}
+\input{appendix/fuzzy_prd_easy_prompts}
+\input{appendix/agent_task_prompt}
+\input{appendix/fuzzy_suffix_prompt}
+\input{appendix/user_agent_init}
+\input{appendix/critic_model_prompt}
+
+
+\end{document}

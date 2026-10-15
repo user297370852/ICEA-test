@@ -1,0 +1,72 @@
+{
+  "description": "Boundary coverage for broadcasting every change to all observers: the minimum multi-observer fan-out of two observers receiving one change, observers attached at different times so a later observer starts from the current value and then both receive subsequent changes in attachment order, and a wider fan-out of four observers all receiving the same single change. Each set delegates exactly one store write and then notifies all active observers in attachment order.",
+  "cases": [
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "v"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nemit[1] default value\nstore write key=key value=v\nput ok=true\nemit[0] v\nemit[1] v\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "a"
+          },
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "b"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nstore write key=key value=a\nput ok=true\nemit[0] a\nemit[1] a\nstore write key=key value=b\nput ok=true\nemit[0] b\nemit[1] b\n"
+    },
+    {
+      "input": {
+        "key": "key",
+        "default": "default value",
+        "ops": [
+          {
+            "op": "observe"
+          },
+          {
+            "op": "observe"
+          },
+          {
+            "op": "observe"
+          },
+          {
+            "op": "observe"
+          },
+          {
+            "op": "put",
+            "value": "v"
+          }
+        ]
+      },
+      "expected_output": "emit[0] default value\nemit[1] default value\nemit[2] default value\nemit[3] default value\nstore write key=key value=v\nput ok=true\nemit[0] v\nemit[1] v\nemit[2] v\nemit[3] v\n"
+    }
+  ]
+}

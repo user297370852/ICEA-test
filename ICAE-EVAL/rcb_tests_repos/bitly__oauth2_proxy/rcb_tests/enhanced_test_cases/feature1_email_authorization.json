@@ -1,0 +1,120 @@
+{
+  "description": "Boundary and logical-path coverage for email/domain authorization: wildcard '*' authorizes every non-empty address (and still denies the empty address) even when the allow-list is empty; sub-domains do NOT match a configured parent domain because matching is on the literal '@domain' suffix; empty queries are always denied; allow-list and domain matching are case-insensitive on both sides; an address whose host equals a configured domain but with extra leading characters before '@' still matches; both-empty configuration authorizes nothing.",
+  "cases": [
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [
+          "*"
+        ],
+        "allowlist": [],
+        "queries": [
+          "anyone@anywhere.org",
+          "x@y.z",
+          ""
+        ]
+      },
+      "expected_output": "anyone@anywhere.org=allowed\nx@y.z=allowed\n=denied\n"
+    },
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [
+          "example.com",
+          "*"
+        ],
+        "allowlist": [],
+        "queries": [
+          "a@b.com",
+          "c@example.com"
+        ]
+      },
+      "expected_output": "a@b.com=allowed\nc@example.com=allowed\n"
+    },
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [
+          "example.com"
+        ],
+        "allowlist": [],
+        "queries": [
+          "foo@sub.example.com",
+          "foo@example.com",
+          "foo@notexample.com"
+        ]
+      },
+      "expected_output": "foo@sub.example.com=denied\nfoo@example.com=allowed\nfoo@notexample.com=denied\n"
+    },
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [],
+        "allowlist": [
+          "someone@example.com"
+        ],
+        "queries": [
+          "",
+          "someone@example.com"
+        ]
+      },
+      "expected_output": "=denied\nsomeone@example.com=allowed\n"
+    },
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [],
+        "allowlist": [
+          "Admin@Corp.COM"
+        ],
+        "queries": [
+          "admin@corp.com",
+          "ADMIN@CORP.COM",
+          "Admin@Corp.COM"
+        ]
+      },
+      "expected_output": "admin@corp.com=allowed\nADMIN@CORP.COM=allowed\nAdmin@Corp.COM=allowed\n"
+    },
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [
+          "example.com"
+        ],
+        "allowlist": [],
+        "queries": [
+          "example.com@example.com",
+          "user@example.com"
+        ]
+      },
+      "expected_output": "example.com@example.com=allowed\nuser@example.com=allowed\n"
+    },
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [],
+        "allowlist": [],
+        "queries": [
+          "a@a.com",
+          "b@b.com",
+          ""
+        ]
+      },
+      "expected_output": "a@a.com=denied\nb@b.com=denied\n=denied\n"
+    },
+    {
+      "input": {
+        "action": "validate_email",
+        "domains": [
+          "example.com"
+        ],
+        "allowlist": [],
+        "queries": [
+          "userexample.com",
+          "user@example.com"
+        ]
+      },
+      "expected_output": "userexample.com=denied\nuser@example.com=allowed\n"
+    }
+  ]
+}

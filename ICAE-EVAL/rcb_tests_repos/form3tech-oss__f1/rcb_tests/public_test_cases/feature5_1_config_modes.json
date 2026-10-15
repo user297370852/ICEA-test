@@ -1,0 +1,41 @@
+{
+    "description": "Parse a YAML load-test config into a runnable schedule, exposing global limits (scenario, max-duration, concurrency, max-iterations, ignore-dropped), the resolved per-stage duration/iteration window/user concurrency/parameters, and the sampled per-interval rate series for each supported stage mode (constant, ramp, staged, gaussian, users), including default-value inheritance and skipping of already-elapsed scheduled stages.",
+    "cases": [
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "samples": 6,
+                "content": "\nscenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 5s\n  mode: constant\n  rate: 6/s\n  jitter: 0\n  distribution: none\n  parameters:\n    FOO: bar\n"
+            },
+            "expected_output": "scenario=template\nmax_duration=1m0s\nconcurrency=50\nmax_iterations=100\nignore_dropped=true\nstages=1\nstage=0 duration=5s iteration_duration=1s users_concurrency=0\nparams=FOO=bar\nrates=6 6 6 6 6 6\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "samples": 10,
+                "content": "\nscenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: ramp\n  start-rate: 0/s\n  end-rate: 10/s\n  jitter: 0\n  distribution: none\n  parameters:\n    FOO: bar\n"
+            },
+            "expected_output": "scenario=template\nmax_duration=1m0s\nconcurrency=50\nmax_iterations=100\nignore_dropped=true\nstages=1\nstage=0 duration=10s iteration_duration=1s users_concurrency=0\nparams=FOO=bar\nrates=0 1 2 3 4 5 6 7 8 9\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "samples": 60,
+                "content": "\nscenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: gaussian\n  volume: 100\n  repeat: 20s\n  iteration-frequency: 1s\n  peak: 10s\n  weights: \"1.0,1.0\"\n  standard-deviation: 3s\n  jitter: 0\n  distribution: none\n  parameters:\n    FOO: bar\n"
+            },
+            "expected_output": "scenario=template\nmax_duration=1m0s\nconcurrency=50\nmax_iterations=100\nignore_dropped=true\nstages=1\nstage=0 duration=10s iteration_duration=1s users_concurrency=0\nparams=FOO=bar\nrates=0 0 1 2 3 6 8 10 13 13 13 10 9 5 3 2 1 0 1 0 0 0 1 2 3 6 8 10 13 13 13 11 8 5 3 2 1 0 1 0 0 0 1 2 3 6 8 10 13 13 13 11 8 5 3 2 1 1 0 0\n"
+        },
+        {
+            "input": {
+                "op": "config_schedule",
+                "now": "2020-12-10T10:00:00+00:00",
+                "samples": 0,
+                "content": "\nscenario: template\nlimits:\n  max-duration: 1m\n  concurrency: 50\n  max-iterations: 100\n  ignore-dropped: true\nstages:\n- duration: 10s\n  mode: users\n  concurrency: 100\n  parameters:\n    FOO: bar\n"
+            },
+            "expected_output": "scenario=template\nmax_duration=1m0s\nconcurrency=50\nmax_iterations=100\nignore_dropped=true\nstages=1\nstage=0 duration=10s iteration_duration=0s users_concurrency=100\nparams=FOO=bar\n"
+        }
+    ]
+}

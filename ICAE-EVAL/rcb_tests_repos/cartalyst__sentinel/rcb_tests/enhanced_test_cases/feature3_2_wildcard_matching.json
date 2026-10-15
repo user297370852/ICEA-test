@@ -1,0 +1,114 @@
+{
+  "description": "Enhanced wildcard matching edge cases (disjoint from native): a bare prefix vs trailing-asterisk vs dotted-asterisk query against a single stored dotted key, a universal '*' grant covering arbitrary concrete keys, a query pattern that matches nothing, and exact-key priority where a stored concrete grant beats a stored false wildcard while the false wildcard key itself resolves false.",
+  "cases": [
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "admin.users": true
+        },
+        "queries": [
+          {
+            "all": [
+              "admin"
+            ]
+          },
+          {
+            "all": [
+              "admin*"
+            ]
+          },
+          {
+            "all": [
+              "admin.*"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[admin]=false\nall[admin*]=true\nall[admin.*]=true\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "*": true
+        },
+        "queries": [
+          {
+            "all": [
+              "anything"
+            ]
+          },
+          {
+            "all": [
+              "a.b.c"
+            ]
+          },
+          {
+            "any": [
+              "x"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[anything]=true\nall[a.b.c]=true\nany[x]=true\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "strict",
+        "permissions": {
+          "a.b": true
+        },
+        "queries": [
+          {
+            "all": [
+              "x*"
+            ]
+          },
+          {
+            "all": [
+              "a.b"
+            ]
+          },
+          {
+            "all": [
+              "a*"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=strict\nall[x*]=false\nall[a.b]=true\nall[a*]=true\n"
+    },
+    {
+      "input": {
+        "op": "permissions",
+        "mode": "lenient",
+        "permissions": {
+          "blog.*": false,
+          "blog.view": true
+        },
+        "queries": [
+          {
+            "all": [
+              "blog.edit"
+            ]
+          },
+          {
+            "all": [
+              "blog.view"
+            ]
+          },
+          {
+            "all": [
+              "blog.*"
+            ]
+          }
+        ]
+      },
+      "expected_output": "mode=lenient\nall[blog.edit]=false\nall[blog.view]=true\nall[blog.*]=false\n"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+    "description": "Evaluate a non-fungible-token event predicate against a sequence of blocks. The predicate names a token asset identifier and a set of accepted actions (mint, transfer, burn). A block is selected when it holds a transaction that emitted a non-fungible-token event whose action is among the accepted set AND whose asset identifier equals the one named by the predicate. The report states whether any block was selected, how many blocks were selected, and the identifiers of the matched transactions.",
+    "cases": [
+        {
+            "input": {
+                "predicate": {
+                    "scope": "nft_event",
+                    "asset_identifier": "asset-id",
+                    "actions": [
+                        "mint"
+                    ]
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "NFTMintEvent",
+                                        "data": {
+                                            "asset_identifier": "asset-id",
+                                            "raw_value": "asset-id",
+                                            "recipient": ""
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=true\napply_block_count=1\nmatched_transactions=0x01\n"
+        },
+        {
+            "input": {
+                "predicate": {
+                    "scope": "nft_event",
+                    "asset_identifier": "wrong-id",
+                    "actions": [
+                        "mint"
+                    ]
+                },
+                "blocks": [
+                    {
+                        "transactions": [
+                            {
+                                "txid": "0x01",
+                                "events": [
+                                    {
+                                        "type": "NFTMintEvent",
+                                        "data": {
+                                            "asset_identifier": "asset-id",
+                                            "raw_value": "asset-id",
+                                            "recipient": ""
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "triggered=false\napply_block_count=0\nmatched_transactions=\n"
+        }
+    ]
+}

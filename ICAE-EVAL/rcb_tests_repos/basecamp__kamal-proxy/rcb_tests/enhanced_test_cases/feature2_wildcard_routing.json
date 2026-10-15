@@ -1,0 +1,71 @@
+{
+  "description": "Enhanced wildcard and catch-all edge cases: a single-label wildcard matches only one label deep so a multi-label subdomain is not matched by the wildcard alone, and when both a wildcard and a catch-all are registered the bare base domain (not a subdomain) falls through to the catch-all while a single-label subdomain still resolves to the wildcard. Each registration reports success and each probe reports the response status with the backend body.",
+  "cases": [
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "w": {
+            "body": "wild"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "sw",
+            "hosts": [
+              "*.example.com"
+            ],
+            "target": "w"
+          },
+          {
+            "op": "request",
+            "url": "http://a.b.example.com/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy sw ok\nstatus=404 target=Not Found\n"
+    },
+    {
+      "input": {
+        "kind": "router_scenario",
+        "backends": {
+          "w": {
+            "body": "wild"
+          },
+          "c": {
+            "body": "catch"
+          }
+        },
+        "steps": [
+          {
+            "op": "deploy",
+            "name": "sw",
+            "hosts": [
+              "*.example.com"
+            ],
+            "target": "w"
+          },
+          {
+            "op": "deploy",
+            "name": "sc",
+            "hosts": [],
+            "target": "c"
+          },
+          {
+            "op": "request",
+            "url": "http://example.com/",
+            "method": "GET"
+          },
+          {
+            "op": "request",
+            "url": "http://x.example.com/",
+            "method": "GET"
+          }
+        ]
+      },
+      "expected_output": "deploy sw ok\ndeploy sc ok\nstatus=200 target=catch\nstatus=200 target=wild\n"
+    }
+  ]
+}

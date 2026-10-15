@@ -1,0 +1,77 @@
+{
+  "description": "Boundary coverage for config loading: a nested mapping value preserved structurally, a float value, an explicit null value, an empty list, a single copier.yaml (the alternate extension) variant, and a config mixing leading-underscore engine keys with plain answer keys.",
+  "cases": [
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "a_map:\n  inner: 1\n  other: two\n"
+          }
+        ]
+      },
+      "expected_output": "keys=1\na_map={\"inner\": 1, \"other\": \"two\"}\n"
+    },
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "a_float: 3.14\n"
+          }
+        ]
+      },
+      "expected_output": "keys=1\na_float=3.14\n"
+    },
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "a_null: null\n"
+          }
+        ]
+      },
+      "expected_output": "keys=1\na_null=null\n"
+    },
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "a_empty_list: []\n"
+          }
+        ]
+      },
+      "expected_output": "keys=1\na_empty_list=[]\n"
+    },
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yaml",
+            "content": "only_yaml: present\n"
+          }
+        ]
+      },
+      "expected_output": "keys=1\nonly_yaml=\"present\"\n"
+    },
+    {
+      "input": {
+        "op": "read_config",
+        "config_files": [
+          {
+            "name": "copier.yml",
+            "content": "_exclude:\n  - \"*.tmp\"\nproject_name: demo\nport: 8080\n"
+          }
+        ]
+      },
+      "expected_output": "keys=3\n_exclude=[\"*.tmp\"]\nport=8080\nproject_name=\"demo\"\n"
+    }
+  ]
+}

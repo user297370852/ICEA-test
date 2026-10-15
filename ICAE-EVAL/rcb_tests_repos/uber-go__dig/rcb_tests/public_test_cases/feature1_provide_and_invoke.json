@@ -1,0 +1,87 @@
+{
+    "description": "Register one or more providers with the container, then run a consumer that requests values by their declared types. A provider declares the type(s) it produces and the type(s) it depends on; the container constructs each requested value on demand, resolving a provider's dependencies first (transitively). Each produced instance carries an integer payload, and the consumer reports, for each requested type in request order, the payload of the instance it received. This shows direct resolution and multi-level dependency chains where a requested value's provider depends on values produced by other providers.",
+    "cases": [
+        {
+            "input": {
+                "steps": [
+                    {
+                        "op": "provide",
+                        "out": [
+                            {
+                                "type": "A",
+                                "value": 5
+                            }
+                        ]
+                    },
+                    {
+                        "op": "invoke",
+                        "in": [
+                            {
+                                "type": "A"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "provide ok keys=A\ninvoke ok A=5\n"
+        },
+        {
+            "input": {
+                "steps": [
+                    {
+                        "op": "provide",
+                        "out": [
+                            {
+                                "type": "A",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    {
+                        "op": "provide",
+                        "out": [
+                            {
+                                "type": "B",
+                                "value": 2
+                            }
+                        ],
+                        "in": [
+                            {
+                                "type": "A"
+                            }
+                        ]
+                    },
+                    {
+                        "op": "provide",
+                        "out": [
+                            {
+                                "type": "C",
+                                "value": 3
+                            }
+                        ],
+                        "in": [
+                            {
+                                "type": "B"
+                            }
+                        ]
+                    },
+                    {
+                        "op": "invoke",
+                        "in": [
+                            {
+                                "type": "A"
+                            },
+                            {
+                                "type": "B"
+                            },
+                            {
+                                "type": "C"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "provide ok keys=A\nprovide ok keys=B\nprovide ok keys=C\ninvoke ok A=1 B=2 C=3\n"
+        }
+    ]
+}

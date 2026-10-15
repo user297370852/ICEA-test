@@ -1,0 +1,105 @@
+{
+  "description": "Build convenience filters over a single attribute: a set-membership request produces a disjunction of equality conditions, and a range request produces a conjunction of greater-or-equal and less-or-equal conditions. Output reports the escaped wire filter and its readable unescaped form.",
+  "cases": [
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "in": {
+              "field": "name",
+              "values": [
+                "solo"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "query=(|(name=\\73\\6f\\6c\\6f))\nunescaped=(|(name=solo))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "in": {
+              "field": "name",
+              "values": [
+                "al",
+                "be"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "query=(|(name=\\61\\6c)(name=\\62\\65))\nunescaped=(|(name=al)(name=be))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "in": {
+              "field": "cn",
+              "values": [
+                "a*",
+                "b)"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "query=(|(cn=\\61\\2a)(cn=\\62\\29))\nunescaped=(|(cn=a*)(cn=b)))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "between": {
+              "field": "age",
+              "from": "5",
+              "to": "5"
+            }
+          }
+        ]
+      },
+      "expected_output": "query=(&(age>=\\35)(age<=\\35))\nunescaped=(&(age>=5)(age<=5))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "between": {
+              "field": "cn",
+              "from": "a(",
+              "to": "z)"
+            }
+          }
+        ]
+      },
+      "expected_output": "query=(&(cn>=\\61\\28)(cn<=\\7a\\29))\nunescaped=(&(cn>=a()(cn<=z)))\n"
+    },
+    {
+      "input": {
+        "op": "filter",
+        "terms": [
+          {
+            "in": {
+              "field": "id",
+              "values": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            }
+          }
+        ]
+      },
+      "expected_output": "query=(|(id=\\31)(id=\\32)(id=\\33)(id=\\34)(id=\\35))\nunescaped=(|(id=1)(id=2)(id=3)(id=4)(id=5))\n"
+    }
+  ]
+}

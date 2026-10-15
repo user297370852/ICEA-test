@@ -1,0 +1,89 @@
+{
+  "description": "Enhanced URL and request construction cases covering empty request paths, dropped base query with preserved path query, bracket query parameters, sorted headers, null skipping, and nested/list request parameters.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve_url",
+        "baseUrl": "https://api.example.com/v1/",
+        "url": "",
+        "parameters": {}
+      },
+      "expected_output": "url=https://api.example.com/v1/\n"
+    },
+    {
+      "input": {
+        "op": "resolve_url",
+        "baseUrl": "https://api.example.com/root?drop=1",
+        "url": "child?keep=yes",
+        "parameters": {
+          "space": "a b",
+          "nil": null
+        },
+        "includeNullQueryVars": true
+      },
+      "expected_output": "url=https://api.example.com/root/child?keep=yes&space=a%20b&nil=\n"
+    },
+    {
+      "input": {
+        "op": "resolve_url",
+        "baseUrl": "https://api.example.com",
+        "url": "/search",
+        "parameters": {
+          "tags": [
+            "red",
+            "blue"
+          ],
+          "filter": {
+            "active": true
+          }
+        },
+        "useBrackets": true
+      },
+      "expected_output": "url=https://api.example.com/search?tags%5B%5D=red&tags%5B%5D=blue&filter%5Bactive%5D=true\n"
+    },
+    {
+      "input": {
+        "op": "assemble_request",
+        "method": "PATCH",
+        "uri": "items?existing=1",
+        "baseUri": "https://api.example.com/v1",
+        "parameters": {
+          "ids": [
+            1,
+            2
+          ],
+          "empty": "",
+          "skip": null
+        },
+        "headers": {
+          "z-last": "Z",
+          "a-first": "A"
+        }
+      },
+      "expected_output": "method=PATCH\nurl=https://api.example.com/v1/items?existing=1&ids=1&ids=2&empty=\nheader.a-first=A\nheader.z-last=Z\n"
+    },
+    {
+      "input": {
+        "op": "assemble_request",
+        "method": "GET",
+        "uri": "/items",
+        "baseUri": "https://api.example.com",
+        "parameters": {
+          "filter": {
+            "name": "bob",
+            "roles": [
+              "admin",
+              "user"
+            ]
+          }
+        },
+        "useBrackets": true,
+        "headers": {
+          "x-beta": "2",
+          "x-alpha": "1"
+        }
+      },
+      "expected_output": "method=GET\nurl=https://api.example.com/items?filter%5Bname%5D=bob&filter%5Broles%5D%5B%5D=admin&filter%5Broles%5D%5B%5D=user\nheader.x-alpha=1\nheader.x-beta=2\n"
+    }
+  ]
+}

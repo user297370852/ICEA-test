@@ -1,0 +1,26 @@
+{
+    "description": "A logging facade broadcasts every log call to all registered sinks and returns the value that was logged. Each call carries a severity level (informational message, warning, fatal, or error) and a payload (a text message, or for the error level an exception value). When one or more sinks are registered, issuing a call delivers that call to each sink in registration order and yields back the original payload unchanged. The output reports, per call in the order issued, a line with the returned payload, followed by one line for each sink that received the call, naming the sink, the severity level, and the delivered payload.",
+    "cases": [
+        {
+            "input": {
+                "action": "log",
+                "clients": ["A"],
+                "calls": [
+                    {"level": "message", "message": "Message"},
+                    {"level": "warning", "message": "Warning"},
+                    {"level": "fatal", "message": "Fatal"},
+                    {"level": "error", "exception": "Error"}
+                ]
+            },
+            "expected_output": "return=Message\nclient=A level=message message=Message\nreturn=Warning\nclient=A level=warning message=Warning\nreturn=Fatal\nclient=A level=fatal message=Fatal\nreturn=Error\nclient=A level=error exception=Error\n"
+        },
+        {
+            "input": {
+                "action": "log",
+                "clients": ["A", "B"],
+                "calls": [{"level": "message", "message": "Message"}]
+            },
+            "expected_output": "return=Message\nclient=A level=message message=Message\nclient=B level=message message=Message\n"
+        }
+    ]
+}

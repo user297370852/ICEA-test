@@ -1,0 +1,36 @@
+{
+  "description": "Boundary coverage for HTTP middleware: thrown routes with custom messages, thrown routes without state middleware (no clear), and successful routes without an error reporter.",
+  "cases": [
+    {
+      "input": {
+        "route": "/boom",
+        "throwError": true,
+        "errorMessage": "Kaboom!",
+        "installRequestState": true,
+        "installErrorReporter": true
+      },
+      "expected_output": "route=/boom\nstatus=500\nbody=internal_error_response\nnotify_count=1\nnotified_message=Kaboom!\nnext_error_handler_count=1\nclear_count=1\n"
+    },
+    {
+      "input": {
+        "route": "/noclear",
+        "throwError": true,
+        "errorMessage": "NoState",
+        "installRequestState": false,
+        "installErrorReporter": true
+      },
+      "expected_output": "route=/noclear\nstatus=500\nbody=internal_error_response\nnotify_count=1\nnotified_message=NoState\nnext_error_handler_count=1\nclear_count=0\n"
+    },
+    {
+      "input": {
+        "route": "/health",
+        "okStatus": 200,
+        "okBody": "OK",
+        "throwError": false,
+        "installRequestState": true,
+        "installErrorReporter": false
+      },
+      "expected_output": "route=/health\nstatus=200\nbody=OK\nnotify_count=0\nnotified_message=none\nnext_error_handler_count=0\nclear_count=1\n"
+    }
+  ]
+}

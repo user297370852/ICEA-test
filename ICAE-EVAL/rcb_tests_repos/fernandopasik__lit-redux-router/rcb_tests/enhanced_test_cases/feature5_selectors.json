@@ -1,0 +1,154 @@
+{
+  "description": "Enhanced selector edge cases: get_route with multiple params (name-sorted), get_route with no path supplied yields not-found, get_route returning an inactive registered entry, no_route_active on an empty table, is_route_active with no path on an empty table, is_route_active by path when entry is active among several, get_route_params with an empty param map, get_route_params with multiple params name-sorted, and an unrecognized selector producing a neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "op": "select",
+        "select": "get_route",
+        "route": "/p/:id",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {
+              "/p/:id": {
+                "active": true,
+                "params": {
+                  "id": "9",
+                  "cat": "x"
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "found=true\nactive=true\nparam.cat=x\nparam.id=9"
+    },
+    {
+      "input": {
+        "op": "select",
+        "select": "get_route",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {
+              "/a": {
+                "active": true
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "found=false"
+    },
+    {
+      "input": {
+        "op": "select",
+        "select": "get_route",
+        "route": "/a",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {
+              "/a": {
+                "active": false,
+                "params": {
+                  "id": "7"
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "found=true\nactive=false\nparam.id=7"
+    },
+    {
+      "input": {
+        "op": "select",
+        "select": "is_route_active",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {}
+          }
+        }
+      },
+      "expected_output": "active=true"
+    },
+    {
+      "input": {
+        "op": "select",
+        "select": "is_route_active",
+        "route": "/a",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {
+              "/a": {
+                "active": true
+              },
+              "/b": {
+                "active": true
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "active=true"
+    },
+    {
+      "input": {
+        "op": "select",
+        "select": "get_route_params",
+        "route": "/a",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {
+              "/a": {
+                "active": true,
+                "params": {}
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "param_count=0"
+    },
+    {
+      "input": {
+        "op": "select",
+        "select": "get_route_params",
+        "route": "/a",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {
+              "/a": {
+                "active": true,
+                "params": {
+                  "z": "1",
+                  "a": "2",
+                  "m": "3"
+                }
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "param_count=3\nparam.a=2\nparam.m=3\nparam.z=1"
+    },
+    {
+      "input": {
+        "op": "select",
+        "select": "bogus",
+        "state": {
+          "router": {
+            "activeRoute": "/",
+            "routes": {}
+          }
+        }
+      },
+      "expected_output": "error=unknown_select\nselect=bogus"
+    }
+  ]
+}

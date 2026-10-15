@@ -1,0 +1,7 @@
+{
+    "description": "If the application handler throws while processing a request, the worker sends a generic 500 error response to the client, stops the underlying worker, and ends the request loop (it does not proceed to the next queued request). In non-debug mode the original exception message is hidden from the response body; in debug mode the message is included to aid debugging. Input queues two requests against a throwing handler, with a debug flag and the thrown message; output reports the response status, whether the thrown message leaked into the body, whether the worker was stopped, and the lifecycle events.",
+    "cases": [
+        {"input": {"handler": "worker", "op": "worker_error", "requests": 2, "responder": "throw", "message": "internal failure detail", "debug": false}, "expected_output": "response_status=500\nerror_message_in_body=false\nworker_stopped=true\nevent=worker_start\nevent=worker_stop\n"},
+        {"input": {"handler": "worker", "op": "worker_error", "requests": 2, "responder": "throw", "message": "internal failure detail", "debug": true}, "expected_output": "response_status=500\nerror_message_in_body=true\nworker_stopped=true\nevent=worker_start\nevent=worker_stop\n"}
+    ]
+}

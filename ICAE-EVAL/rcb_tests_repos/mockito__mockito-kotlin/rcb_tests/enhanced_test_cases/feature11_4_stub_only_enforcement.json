@@ -1,0 +1,89 @@
+{
+  "description": "Stub-only enforcement boundary cases: a consecutive-sequence stub still functions on a stub-only double, and verification attempts with different modes (never, at_least) are all rejected with the stub_only category echoing the member and mode.",
+  "cases": [
+    {
+      "input": {
+        "double": "mock",
+        "settings": {
+          "stub_only": true
+        },
+        "stubs": [
+          {
+            "member": "number",
+            "return_consecutively": [
+              1,
+              2
+            ]
+          }
+        ],
+        "script": [
+          {
+            "do": "invoke",
+            "member": "number"
+          },
+          {
+            "do": "invoke",
+            "member": "number"
+          },
+          {
+            "do": "invoke",
+            "member": "number"
+          }
+        ]
+      },
+      "expected_output": "value=1\nvalue=2\nvalue=2\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "settings": {
+          "stub_only": true
+        },
+        "script": [
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "never": true
+            }
+          }
+        ]
+      },
+      "expected_output": "error=stub_only member=acceptNumber never\n"
+    },
+    {
+      "input": {
+        "double": "mock",
+        "settings": {
+          "stub_only": true
+        },
+        "script": [
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 1
+          },
+          {
+            "do": "invoke",
+            "member": "acceptNumber",
+            "arg": 2
+          },
+          {
+            "do": "verify",
+            "member": "acceptNumber",
+            "matcher": {
+              "any": true
+            },
+            "mode": {
+              "at_least": 1
+            }
+          }
+        ]
+      },
+      "expected_output": "error=stub_only member=acceptNumber at_least=1\n"
+    }
+  ]
+}

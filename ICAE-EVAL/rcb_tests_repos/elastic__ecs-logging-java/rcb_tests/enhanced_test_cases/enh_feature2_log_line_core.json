@@ -1,0 +1,77 @@
+{
+  "description": "Log-line assembly boundaries: required-only record, log.level right-alignment for 1-char / 6-char / empty levels, message escaping (quote, backslash, newline, tab, control char, unicode), optional fields supplied individually, and missing/invalid required-field error contracts.",
+  "cases": [
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":0,\"level\":\"INFO\",\"message\":\"hi\"}",
+      "expected_output": "{\"@timestamp\":\"1970-01-01T00:00:00.000Z\", \"log.level\": \"INFO\", \"message\":\"hi\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"X\",\"message\":\"m\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":    \"X\", \"message\":\"m\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"SEVERE\",\"message\":\"m\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":\"SEVERE\", \"message\":\"m\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"\",\"message\":\"m\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":     \"\", \"message\":\"m\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"he said \\\"hi\\\"\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"he said \\\"hi\\\"\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"a\\\\b\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"a\\\\b\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"line1\\nline2\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"line1\\nline2\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"col1\\tcol2\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"col1\\tcol2\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"bell\\u0007end\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"bell\\u0007end\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"caf\\u00e9 \\u4e2d\\u6587\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"café 中文\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"INFO\",\"message\":\"\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\": \"INFO\", \"message\":\"\", }\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"DEBUG\",\"message\":\"m\",\"service_name\":\"svc\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":\"DEBUG\", \"message\":\"m\", \"service.name\":\"svc\"}\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"DEBUG\",\"message\":\"m\",\"thread_name\":\"worker-9\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":\"DEBUG\", \"message\":\"m\", \"process.thread.name\":\"worker-9\"}\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"DEBUG\",\"message\":\"m\",\"logger_name\":\"a.b.C\"}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":\"DEBUG\", \"message\":\"m\", \"log.logger\":\"a.b.C\"}\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"level\":\"INFO\",\"message\":\"m\"}",
+      "expected_output": "error=missing_field\nfield=timestamp_millis\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"message\":\"m\"}",
+      "expected_output": "error=missing_field\nfield=level\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":123,\"message\":\"m\"}",
+      "expected_output": "error=missing_field\nfield=level\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":\"oops\",\"level\":\"INFO\",\"message\":\"m\"}",
+      "expected_output": "error=missing_field\nfield=timestamp_millis\n"
+    }
+  ]
+}

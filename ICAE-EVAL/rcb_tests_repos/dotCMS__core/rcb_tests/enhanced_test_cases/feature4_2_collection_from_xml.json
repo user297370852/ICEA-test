@@ -1,0 +1,29 @@
+{
+  "description": "Parse a portlet-collection XML wire document back into a portlet collection, tolerating and ignoring descriptive elements that are not part of the record model, and report the reconstructed state as a deterministic dump giving the portlet count and, per portlet in document order, its identifier, class, parameter count, and each parameter as a sorted name/value line. These cases exercise boundary inputs: an empty collection, a record with no initialization parameters, and multiple records interspersed with several kinds of unmodeled descriptive elements.",
+  "cases": [
+    {
+      "input": {
+        "op": "from_xml",
+        "target": "portlet_list",
+        "payload": "<portlet-app></portlet-app>"
+      },
+      "expected_output": "portlets=0\n"
+    },
+    {
+      "input": {
+        "op": "from_xml",
+        "target": "portlet_list",
+        "payload": "<portlet-app><portlet><portlet-name>noparams</portlet-name><portlet-class>com.dotcms.NoParams</portlet-class></portlet></portlet-app>"
+      },
+      "expected_output": "portlets=1\n[0] id=noparams\n[0] class=com.dotcms.NoParams\n[0] init_count=0\n"
+    },
+    {
+      "input": {
+        "op": "from_xml",
+        "target": "portlet_list",
+        "payload": "<portlet-app><portlet><portlet-name>first</portlet-name><display-name>First One</display-name><portlet-class>com.dotcms.First</portlet-class><expiration-cache>300</expiration-cache><init-param><name>view-action</name><value>/ext/first</value></init-param><supports><mime-type>text/html</mime-type></supports></portlet><portlet><portlet-name>second</portlet-name><portlet-class>com.dotcms.Second</portlet-class><resource-bundle>com.dotcms.Bundle</resource-bundle><init-param><name>edit-action</name><value>/ext/second/edit</value></init-param><init-param><name>view-action</name><value>/ext/second/view</value></init-param></portlet></portlet-app>"
+      },
+      "expected_output": "portlets=2\n[0] id=first\n[0] class=com.dotcms.First\n[0] init_count=1\n[0] init.view-action=/ext/first\n[1] id=second\n[1] class=com.dotcms.Second\n[1] init_count=2\n[1] init.edit-action=/ext/second/edit\n[1] init.view-action=/ext/second/view\n"
+    }
+  ]
+}

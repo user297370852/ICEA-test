@@ -1,0 +1,112 @@
+{
+  "description": "[ENHANCED] Enhanced admission coverage: non-system namespaces, valid default-template (json/map), init-first + configmap, tls-secret + init-first, with_mounts without copy annotation, and system namespace with injection disabled.",
+  "cases": [
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "vault",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo"
+        }
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes/-\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/containers/-\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/vault.hashicorp.com~1agent-inject-status\"}],\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "test",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo",
+          "vault.hashicorp.com/agent-inject-default-template": "json"
+        }
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes/-\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/containers/-\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/vault.hashicorp.com~1agent-inject-status\"}],\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "test",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo",
+          "vault.hashicorp.com/agent-inject-default-template": "map"
+        }
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes/-\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/containers/-\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/vault.hashicorp.com~1agent-inject-status\"}],\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "test",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo",
+          "vault.hashicorp.com/agent-init-first": "true",
+          "vault.hashicorp.com/agent-configmap": "cm"
+        }
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes/-\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts/-\"},{\"op\":\"remove\",\"path\":\"/spec/initContainers\"},{\"op\":\"add\",\"path\":\"/spec/initContainers\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/1/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/containers/-\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/vault.hashicorp.com~1agent-inject-status\"}],\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "test",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo",
+          "vault.hashicorp.com/tls-secret": "demo",
+          "vault.hashicorp.com/agent-init-first": "true"
+        }
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes/-\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts/-\"},{\"op\":\"remove\",\"path\":\"/spec/initContainers\"},{\"op\":\"add\",\"path\":\"/spec/initContainers\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/1/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/containers/-\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/vault.hashicorp.com~1agent-inject-status\"}],\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "test",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo"
+        },
+        "with_mounts": true
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes/-\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/containers/-\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/vault.hashicorp.com~1agent-inject-status\"}],\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "kube-system",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "false",
+          "vault.hashicorp.com/role": "demo"
+        }
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[],\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "kube-public",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo"
+        }
+      },
+      "expected_output": "{\"allowed\":false,\"error\":\"system_namespace\",\"status\":\"denied\"}\n"
+    },
+    {
+      "input": {
+        "op": "mutate",
+        "namespace": "test",
+        "annotations": {
+          "vault.hashicorp.com/agent-inject": "true",
+          "vault.hashicorp.com/role": "demo",
+          "vault.hashicorp.com/agent-inject-secret-foo": "db/creds/foo"
+        }
+      },
+      "expected_output": "{\"allowed\":true,\"patches\":[{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/volumes/-\"},{\"op\":\"add\",\"path\":\"/spec/volumes\"},{\"op\":\"add\",\"path\":\"/spec/containers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/-\"},{\"op\":\"add\",\"path\":\"/spec/initContainers/0/volumeMounts/-\"},{\"op\":\"add\",\"path\":\"/spec/containers/-\"},{\"op\":\"add\",\"path\":\"/metadata/annotations/vault.hashicorp.com~1agent-inject-status\"}],\"status\":\"ok\"}\n"
+    }
+  ]
+}

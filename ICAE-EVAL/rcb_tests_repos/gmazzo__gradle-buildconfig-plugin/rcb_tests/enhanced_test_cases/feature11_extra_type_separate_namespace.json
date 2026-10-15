@@ -1,0 +1,38 @@
+{
+  "description": "A secondary Java constants type can be emitted into its own package namespace while the primary type remains in the configured package.",
+  "cases": [
+    {
+      "input": {
+        "language": "java",
+        "project_name": "multi-namespace-project",
+        "namespace": "aaa.main",
+        "fields": [
+          {
+            "type": "String",
+            "name": "PRIMARY_NAME",
+            "value": "\"primary\""
+          }
+        ],
+        "extra_types": [
+          {
+            "namespace": "zzz.extra",
+            "type_name": "FeatureFlags",
+            "fields": [
+              {
+                "type": "boolean",
+                "name": "ENABLED",
+                "value": "false"
+              },
+              {
+                "type": "int",
+                "name": "COUNT",
+                "value": "3"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "build_status=success\ntask=generateBuildConfig\nfile=build/generated/sources/buildConfig/main/aaa/main/BuildConfig.java\n--- source ---\npackage aaa.main;\n\nimport java.lang.String;\n\npublic final class BuildConfig {\n  public static final String PRIMARY_NAME = \"primary\";\n\n  private BuildConfig() {\n  }\n}\n--- end source ---\nfile=build/generated/sources/buildConfig/main/zzz/extra/FeatureFlags.java\n--- source ---\npackage zzz.extra;\n\npublic final class FeatureFlags {\n  public static final boolean ENABLED = false;\n\n  public static final int COUNT = 3;\n\n  private FeatureFlags() {\n  }\n}\n--- end source ---\n"
+    }
+  ]
+}

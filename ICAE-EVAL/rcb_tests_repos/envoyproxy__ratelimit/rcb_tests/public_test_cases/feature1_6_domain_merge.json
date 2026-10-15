@@ -1,0 +1,57 @@
+{
+    "description": "Multiple configuration files for the same domain can be merged into a single effective configuration. After merging, limits defined in any contributing file are all resolvable under that domain.",
+    "cases": [
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": true,
+                "configs": [
+                    {
+                        "name": "a.yaml",
+                        "content": "# Basic configuration which will be merged with `merge_domain2.yaml`\ndomain: test-domain\ndescriptors:\n  # Top level key/value which is not specified in `merge_domain2.yaml`\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: minute\n      requests_per_unit: 10\n"
+                    },
+                    {
+                        "name": "b.yaml",
+                        "content": "# Basic configuration which will be merged with `merge_domain.yaml`\ndomain: test-domain\ndescriptors:\n  # Top level key/value which is not specified in `merge_domain.yaml`\n  - key: key2\n    value: value2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "key1",
+                            "value": "value1"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.key1_value1\nrequests_per_unit=10\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+        },
+        {
+            "input": {
+                "action": "config_lookup",
+                "domain": "test-domain",
+                "merge": true,
+                "configs": [
+                    {
+                        "name": "a.yaml",
+                        "content": "# Basic configuration which will be merged with `merge_domain2.yaml`\ndomain: test-domain\ndescriptors:\n  # Top level key/value which is not specified in `merge_domain2.yaml`\n  - key: key1\n    value: value1\n    rate_limit:\n      unit: minute\n      requests_per_unit: 10\n"
+                    },
+                    {
+                        "name": "b.yaml",
+                        "content": "# Basic configuration which will be merged with `merge_domain.yaml`\ndomain: test-domain\ndescriptors:\n  # Top level key/value which is not specified in `merge_domain.yaml`\n  - key: key2\n    value: value2\n    rate_limit:\n      unit: minute\n      requests_per_unit: 20\n"
+                    }
+                ],
+                "descriptor": {
+                    "entries": [
+                        {
+                            "key": "key2",
+                            "value": "value2"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "matched=true\nfull_key=test-domain.key2_value2\nrequests_per_unit=20\nunit=MINUTE\nunlimited=false\nshadow_mode=false\n"
+        }
+    ]
+}

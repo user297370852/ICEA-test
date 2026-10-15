@@ -1,0 +1,117 @@
+{
+  "description": "Normalization of mixed-case schemes/hosts, backslash-to-slash for special schemes, dot-segment collapsing beyond root, tab/newline removal, and percent-encoding of spaces.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "HtTpS://ExAmPlE.CoM/A/B",
+        "steps": [
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhref=https://example.com/A/B\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com\\foo\\bar",
+        "steps": [
+          {
+            "op": "get",
+            "field": "pathname"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\npathname=/foo/bar\nhref=http://example.com/foo/bar\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/a/b/../../../../c",
+        "steps": [
+          {
+            "op": "get",
+            "field": "pathname"
+          }
+        ]
+      },
+      "expected_output": "url=valid\npathname=/c\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/a/./b/./c",
+        "steps": [
+          {
+            "op": "get",
+            "field": "pathname"
+          }
+        ]
+      },
+      "expected_output": "url=valid\npathname=/a/b/c\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/foo bar/baz",
+        "steps": [
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhref=http://example.com/foo%20bar/baz\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/%41%42",
+        "steps": [
+          {
+            "op": "get",
+            "field": "pathname"
+          }
+        ]
+      },
+      "expected_output": "url=valid\npathname=/%41%42\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "HTTP://example.com:080/",
+        "steps": [
+          {
+            "op": "get",
+            "field": "href"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhref=http://example.com/\nport=\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "http://example.com/?a=1#h",
+        "steps": [
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nhref=http://example.com/?a=1#h\n"
+    }
+  ]
+}

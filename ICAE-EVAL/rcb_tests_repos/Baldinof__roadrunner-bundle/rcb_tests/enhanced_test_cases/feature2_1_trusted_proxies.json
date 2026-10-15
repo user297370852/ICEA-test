@@ -1,0 +1,53 @@
+{
+  "description": "Trusted-proxy resolution boundaries: a list with no REMOTE_ADDR token, a list that is only the token, the token sandwiched between literals, and a larger trusted-header bitmask.",
+  "cases": [
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_trusted_proxies",
+        "requests": 1,
+        "responder": "ok",
+        "trusted_proxies": "10.0.0.1,10.0.0.2",
+        "trusted_headers": 1,
+        "remote_addr": "10.0.0.9"
+      },
+      "expected_output": "trusted_proxies=\ntrusted_header_set=-1\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_trusted_proxies",
+        "requests": 1,
+        "responder": "ok",
+        "trusted_proxies": "REMOTE_ADDR",
+        "trusted_headers": 0,
+        "remote_addr": "198.51.100.5"
+      },
+      "expected_output": "trusted_proxies=198.51.100.5\ntrusted_header_set=0\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_trusted_proxies",
+        "requests": 1,
+        "responder": "ok",
+        "trusted_proxies": "172.16.0.1,REMOTE_ADDR,172.16.0.2",
+        "trusted_headers": 8,
+        "remote_addr": "172.16.0.99"
+      },
+      "expected_output": "trusted_proxies=172.16.0.1,172.16.0.99,172.16.0.2\ntrusted_header_set=8\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_trusted_proxies",
+        "requests": 1,
+        "responder": "ok",
+        "trusted_proxies": "REMOTE_ADDR",
+        "trusted_headers": 30,
+        "remote_addr": "203.0.113.250"
+      },
+      "expected_output": "trusted_proxies=203.0.113.250\ntrusted_header_set=30\n"
+    }
+  ]
+}

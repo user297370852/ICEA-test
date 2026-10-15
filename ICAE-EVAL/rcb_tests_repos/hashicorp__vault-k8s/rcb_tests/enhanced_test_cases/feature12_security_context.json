@@ -1,0 +1,69 @@
+{
+  "description": "[ENHANCED] Enhanced security-context derivation: user-only override, group=0 only (non-root flip), same-id with small uid, explicit set-security-context true, and same-id false ignoring app uid.",
+  "cases": [
+    {
+      "input": {
+        "op": "security_context",
+        "annotations": {
+          "vault.hashicorp.com/agent-run-as-user": "2000"
+        }
+      },
+      "expected_output": "{\"security_context\":{\"run_as_user\":2000,\"run_as_group\":1000,\"run_as_non_root\":true,\"read_only_root_filesystem\":true,\"allow_privilege_escalation\":false,\"capabilities_drop\":[\"ALL\"]},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "security_context",
+        "annotations": {
+          "vault.hashicorp.com/agent-run-as-group": "0"
+        }
+      },
+      "expected_output": "{\"security_context\":{\"run_as_user\":100,\"run_as_group\":0,\"run_as_non_root\":false,\"read_only_root_filesystem\":true,\"allow_privilege_escalation\":false,\"capabilities_drop\":[\"ALL\"]},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "security_context",
+        "same_id": true,
+        "app_run_as_user": 1
+      },
+      "expected_output": "{\"security_context\":{\"run_as_user\":1,\"run_as_group\":1000,\"run_as_non_root\":true,\"read_only_root_filesystem\":true,\"allow_privilege_escalation\":false,\"capabilities_drop\":[\"ALL\"]},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "security_context",
+        "annotations": {
+          "vault.hashicorp.com/agent-run-as-user": "300",
+          "vault.hashicorp.com/agent-run-as-group": "400"
+        }
+      },
+      "expected_output": "{\"security_context\":{\"run_as_user\":300,\"run_as_group\":400,\"run_as_non_root\":true,\"read_only_root_filesystem\":true,\"allow_privilege_escalation\":false,\"capabilities_drop\":[\"ALL\"]},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "security_context",
+        "same_id": false,
+        "app_run_as_user": 555
+      },
+      "expected_output": "{\"security_context\":{\"run_as_user\":100,\"run_as_group\":1000,\"run_as_non_root\":true,\"read_only_root_filesystem\":true,\"allow_privilege_escalation\":false,\"capabilities_drop\":[\"ALL\"]},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "security_context",
+        "annotations": {
+          "vault.hashicorp.com/agent-run-as-user": "777"
+        },
+        "set_security_context": true
+      },
+      "expected_output": "{\"security_context\":{\"run_as_user\":777,\"run_as_group\":1000,\"run_as_non_root\":true,\"read_only_root_filesystem\":true,\"allow_privilege_escalation\":false,\"capabilities_drop\":[\"ALL\"]},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "security_context",
+        "annotations": {
+          "vault.hashicorp.com/agent-run-as-user": "0",
+          "vault.hashicorp.com/agent-run-as-group": "500"
+        }
+      },
+      "expected_output": "{\"security_context\":{\"run_as_user\":0,\"run_as_group\":500,\"run_as_non_root\":false,\"read_only_root_filesystem\":true,\"allow_privilege_escalation\":false,\"capabilities_drop\":[\"ALL\"]},\"status\":\"ok\"}\n"
+    }
+  ]
+}

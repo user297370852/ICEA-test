@@ -1,0 +1,136 @@
+{
+  "description": "Enhanced family coverage for multi-member collection, ignored out-of-range removal, removing all members, query label arity mismatch, and invalid constant label definitions.",
+  "cases": [
+    {
+      "input": {
+        "feature": "family",
+        "action": "collect_counter_family",
+        "name": "jobs_total",
+        "help": "Jobs processed",
+        "constant_labels": {
+          "service": "worker",
+          "region": "us"
+        },
+        "metrics": [
+          {
+            "labels": {
+              "queue": "fast"
+            },
+            "operations": [
+              {
+                "action": "increment",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "labels": {
+              "queue": "slow"
+            },
+            "operations": [
+              {
+                "action": "increment"
+              },
+              {
+                "action": "increment",
+                "value": 3
+              }
+            ]
+          }
+        ],
+        "remove_indexes": []
+      },
+      "expected_output": "family_count=1\nname=jobs_total\nhelp=Jobs processed\nmetric_count=2\nmetric=0\nregion=us\nservice=worker\nqueue=slow\ncounter_value=4\nmetric=1\nregion=us\nservice=worker\nqueue=fast\ncounter_value=2\n"
+    },
+    {
+      "input": {
+        "feature": "family",
+        "action": "collect_counter_family",
+        "name": "active_total",
+        "help": "Active counters",
+        "constant_labels": {},
+        "metrics": [
+          {
+            "labels": {
+              "id": "one"
+            },
+            "operations": []
+          },
+          {
+            "labels": {
+              "id": "two"
+            },
+            "operations": []
+          }
+        ],
+        "remove_indexes": [
+          5
+        ]
+      },
+      "expected_output": "family_count=1\nname=active_total\nhelp=Active counters\nmetric_count=2\nmetric=0\nid=two\ncounter_value=0\nmetric=1\nid=one\ncounter_value=0\n"
+    },
+    {
+      "input": {
+        "feature": "family",
+        "action": "collect_counter_family",
+        "name": "gone_total",
+        "help": "Removed counters",
+        "constant_labels": {},
+        "metrics": [
+          {
+            "labels": {
+              "id": "one"
+            },
+            "operations": []
+          },
+          {
+            "labels": {
+              "id": "two"
+            },
+            "operations": []
+          }
+        ],
+        "remove_indexes": [
+          0,
+          1
+        ]
+      },
+      "expected_output": "family_count=0\n"
+    },
+    {
+      "input": {
+        "feature": "family",
+        "action": "has_counter",
+        "name": "lookup_total",
+        "help": "Lookup counters",
+        "constant_labels": {},
+        "metrics": [
+          {
+            "labels": {
+              "name": "counter1",
+              "zone": "a"
+            }
+          }
+        ],
+        "query_labels": {
+          "name": "counter1"
+        }
+      },
+      "expected_output": "exists=no\n"
+    },
+    {
+      "input": {
+        "feature": "family",
+        "action": "collect_counter_family",
+        "name": "bad_labels_total",
+        "help": "Bad labels",
+        "constant_labels": {
+          "bad-label": "x"
+        },
+        "metrics": [],
+        "remove_indexes": []
+      },
+      "expected_output": "error=invalid_metric_family_definition\n"
+    }
+  ]
+}

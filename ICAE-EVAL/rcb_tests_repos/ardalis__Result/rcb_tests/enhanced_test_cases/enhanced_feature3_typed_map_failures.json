@@ -1,0 +1,64 @@
+{
+  "description": "Additional typed map cases covering null and structured successful values plus propagation of rich failure payloads.",
+  "cases": [
+    {
+      "input": {
+        "op": "typed_map",
+        "factory": "success",
+        "value": null
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "typed_map",
+        "factory": "success",
+        "value": {
+          "name": "Ada",
+          "roles": [
+            "admin",
+            "auditor"
+          ]
+        }
+      },
+      "expected_output": "status=Ok\nisSuccess=true\nvalue={\"name\":\"Ada\",\"roles\":[\"admin\",\"auditor\"]}\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "typed_map",
+        "factory": "invalid",
+        "validation_errors": [
+          {
+            "identifier": "quantity",
+            "error_message": "Must be at least 1",
+            "error_code": "Min",
+            "severity": "Warning"
+          }
+        ]
+      },
+      "expected_output": "status=Invalid\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=\nvalidationErrors=identifier=quantity;message=Must be at least 1;code=Min;severity=Warning\n"
+    },
+    {
+      "input": {
+        "op": "typed_map",
+        "factory": "not_found_message",
+        "errors": [
+          "Customer missing",
+          "Account missing"
+        ]
+      },
+      "expected_output": "status=NotFound\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=Customer missing|Account missing\nvalidationErrors=\n"
+    },
+    {
+      "input": {
+        "op": "typed_map",
+        "factory": "error",
+        "errors": [
+          "",
+          "terminal"
+        ]
+      },
+      "expected_output": "status=Error\nisSuccess=false\nvalue=null\nsuccessMessage=\ncorrelationId=\nerrors=|terminal\nvalidationErrors=\n"
+    }
+  ]
+}

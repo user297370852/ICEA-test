@@ -1,0 +1,58 @@
+{
+  "description": "ContributesTo across multiple source files and multiple inspect targets: each inspected stub is reported in inspect-array order (not sorted), a contributed sub-interface only directly extends its own source type, a successful compile with nothing to inspect prints just the status line, and an `internal` (non-public) interface is rejected.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.multi\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninterface Alpha\n",
+          "package com.multi\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninterface Beta\n"
+        ],
+        "inspect": [
+          "com.multi.Alpha",
+          "com.multi.Beta"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.multi.Alpha\nextends com.multi.Alpha\ncontribution origin=com.multi.Beta\nextends com.multi.Beta\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.multi\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninterface Alpha\n",
+          "package com.multi\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninterface Beta\n"
+        ],
+        "inspect": [
+          "com.multi.Beta",
+          "com.multi.Alpha"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.multi.Beta\nextends com.multi.Beta\ncontribution origin=com.multi.Alpha\nextends com.multi.Alpha\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.demo\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\ninterface Parent\n\n@ContributesTo(Unit::class)\ninterface Child : Parent\n"
+        ],
+        "inspect": [
+          "com.demo.Child"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.demo.Child\nextends com.demo.Child\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.demo\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninterface SilentComponent\n"
+        ]
+      },
+      "expected_output": "status=compiled\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.demo\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\n\n@ContributesTo(Unit::class)\ninternal interface ComponentInterface\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Contributed component interfaces must be public.\n"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "description": "Several clients are subscribed to the same channel. A payload broadcast on that channel reaches every subscriber, in addition to each client's earlier subscription acknowledgement.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "1.1"
+          },
+          {
+            "name": "b",
+            "socket_id": "2.2"
+          },
+          {
+            "name": "c",
+            "socket_id": "3.3"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "big-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "b",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "big-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "c",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "big-channel"
+              }
+            }
+          },
+          {
+            "type": "broadcast",
+            "channel": "big-channel",
+            "payload": {
+              "event": "broadcasted-event",
+              "channel": "big-channel"
+            }
+          }
+        ]
+      },
+      "expected_output": "[a] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"big-channel\"}\n{\"event\":\"broadcasted-event\",\"channel\":\"big-channel\"}\n[b] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"big-channel\"}\n{\"event\":\"broadcasted-event\",\"channel\":\"big-channel\"}\n[c] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"big-channel\"}\n{\"event\":\"broadcasted-event\",\"channel\":\"big-channel\"}\n"
+    }
+  ]
+}

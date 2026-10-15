@@ -1,0 +1,368 @@
+{
+    "description": "Validate policy construction rules and report either a valid policy or a normalized configuration error.",
+    "cases": [
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "error=missing_backoff\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    },
+                    {
+                        "backoff": "exponential"
+                    },
+                    {
+                        "backoff": "fibonacci"
+                    }
+                ]
+            },
+            "expected_output": "error=multiple_backoff_strategies\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "backoff": "exponential"
+                    }
+                ]
+            },
+            "expected_output": "error=missing_delay\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "backoff": "fixed"
+                    }
+                ]
+            },
+            "expected_output": "error=missing_delay\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "backoff": "random"
+                    }
+                ]
+            },
+            "expected_output": "error=missing_delay\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "backoff": "fibonacci"
+                    }
+                ]
+            },
+            "expected_output": "error=missing_delay\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "backoff": "no_wait"
+                    }
+                ]
+            },
+            "expected_output": "config_valid=true\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    },
+                    {
+                        "backoff": "exponential"
+                    }
+                ]
+            },
+            "expected_output": "error=missing_max_tries\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    },
+                    {
+                        "backoff": "exponential"
+                    },
+                    {
+                        "max_tries": 0
+                    }
+                ]
+            },
+            "expected_output": "error=max_tries_less_than_one\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    },
+                    {
+                        "backoff": "exponential"
+                    },
+                    {
+                        "retry_on": "fail_any_exception"
+                    },
+                    {
+                        "retry_on": "specific_exceptions",
+                        "exceptions": [
+                            "connect_error"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "error=multiple_exception_strategies\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 1
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "seconds"
+                        }
+                    },
+                    {
+                        "backoff": "exponential"
+                    },
+                    {
+                        "retry_on": "fail_any_exception"
+                    },
+                    {
+                        "retry_on": "any_exception_excluding",
+                        "exceptions": [
+                            "connect_error"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "error=multiple_exception_strategies\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 5
+                    },
+                    {
+                        "retry_indefinitely": true
+                    },
+                    {
+                        "backoff": "no_wait"
+                    },
+                    {
+                        "retry_on": "fail_any_exception"
+                    }
+                ]
+            },
+            "expected_output": "error=max_tries_already_specified\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "max_tries": 5
+                    },
+                    {
+                        "max_tries": 50
+                    },
+                    {
+                        "backoff": "no_wait"
+                    },
+                    {
+                        "retry_on": "fail_any_exception"
+                    }
+                ]
+            },
+            "expected_output": "error=max_tries_already_specified\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "retry_on": "any_exception"
+                    },
+                    {
+                        "custom_exception_rule": "message_contains_retry"
+                    },
+                    {
+                        "backoff": "fixed"
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "millis"
+                        }
+                    },
+                    {
+                        "max_tries": 3
+                    }
+                ]
+            },
+            "expected_output": "error=mixed_builtin_and_custom_exception_rules\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "retry_on": "specific_exceptions",
+                        "exceptions": [
+                            "test_error"
+                        ]
+                    },
+                    {
+                        "custom_exception_rule": "message_contains_retry"
+                    },
+                    {
+                        "backoff": "fixed"
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "millis"
+                        }
+                    },
+                    {
+                        "max_tries": 3
+                    }
+                ]
+            },
+            "expected_output": "error=mixed_builtin_and_custom_exception_rules\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "retry_on": "any_exception_excluding",
+                        "exceptions": [
+                            "test_error"
+                        ]
+                    },
+                    {
+                        "custom_exception_rule": "message_contains_retry"
+                    },
+                    {
+                        "backoff": "fixed"
+                    },
+                    {
+                        "delay": {
+                            "amount": 1,
+                            "unit": "millis"
+                        }
+                    },
+                    {
+                        "max_tries": 3
+                    }
+                ]
+            },
+            "expected_output": "error=mixed_builtin_and_custom_exception_rules\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "backoff": "fixed"
+                    },
+                    {
+                        "retry_indefinitely": true
+                    },
+                    {
+                        "delay": {
+                            "amount": -1,
+                            "unit": "seconds"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "error=negative_delay\n"
+        },
+        {
+            "input": {
+                "validation_enabled": true,
+                "settings": [
+                    {
+                        "backoff": "fixed"
+                    },
+                    {
+                        "max_tries": -1
+                    }
+                ]
+            },
+            "expected_output": "error=max_tries_less_than_one\n"
+        }
+    ]
+}

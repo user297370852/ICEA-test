@@ -1,0 +1,29 @@
+{
+  "description": "Parse additional import syntaxes into typed import nodes: a single aliased named member, a lone namespace import, and a default import combined with named members. Each node carries its source character span.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse",
+        "source": "import { Alpha as Beta } from 'one-lib';",
+        "scriptKind": "TS"
+      },
+      "expected_output": "{\n  \"kind\": \"file\",\n  \"imports\": [\n    {\n      \"kind\": \"namedImport\",\n      \"libraryName\": \"one-lib\",\n      \"specifiers\": [\n        {\n          \"specifier\": \"Alpha\",\n          \"alias\": \"Beta\"\n        }\n      ],\n      \"start\": 0,\n      \"end\": 40\n    }\n  ],\n  \"exports\": [],\n  \"declarations\": [],\n  \"resources\": [],\n  \"usages\": []\n}"
+    },
+    {
+      "input": {
+        "action": "parse",
+        "source": "import * as everything from 'whole-namespace';",
+        "scriptKind": "TS"
+      },
+      "expected_output": "{\n  \"kind\": \"file\",\n  \"imports\": [\n    {\n      \"kind\": \"namespaceImport\",\n      \"libraryName\": \"whole-namespace\",\n      \"alias\": \"everything\",\n      \"start\": 0,\n      \"end\": 46\n    }\n  ],\n  \"exports\": [],\n  \"declarations\": [],\n  \"resources\": [],\n  \"usages\": []\n}"
+    },
+    {
+      "input": {
+        "action": "parse",
+        "source": "import TheDefault, { Member1, Member2 as Aliased } from 'combo-lib';",
+        "scriptKind": "TS"
+      },
+      "expected_output": "{\n  \"kind\": \"file\",\n  \"imports\": [\n    {\n      \"kind\": \"namedImport\",\n      \"libraryName\": \"combo-lib\",\n      \"defaultAlias\": \"TheDefault\",\n      \"specifiers\": [\n        {\n          \"specifier\": \"Member1\"\n        },\n        {\n          \"specifier\": \"Member2\",\n          \"alias\": \"Aliased\"\n        }\n      ],\n      \"start\": 0,\n      \"end\": 68\n    }\n  ],\n  \"exports\": [],\n  \"declarations\": [],\n  \"resources\": [],\n  \"usages\": []\n}"
+    }
+  ]
+}

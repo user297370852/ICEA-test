@@ -1,0 +1,35 @@
+{
+    "description": "Build DELETE statements from deletion targets, source tables, joins, filters, ordering, limits, offsets, suffixes, and placeholder style.",
+    "cases": [
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "full_delete",
+                "clauses": {
+                    "source": "a",
+                    "filter": "b = ?",
+                    "order_by": [
+                        "c"
+                    ],
+                    "limit": 2,
+                    "offset": 3,
+                    "prefix": "WITH prefix AS ?",
+                    "suffix": "RETURNING ?"
+                }
+            },
+            "expected_output": "sql=WITH prefix AS ? DELETE FROM a WHERE b = ? ORDER BY c LIMIT 2 OFFSET 3 RETURNING ?\nargs=[0,1,4]\n"
+        },
+        {
+            "input": {
+                "operation": "delete",
+                "scenario": "explicit_source_over_target",
+                "clauses": {
+                    "target": "b",
+                    "source": "a",
+                    "filter": "b = ?"
+                }
+            },
+            "expected_output": "sql=DELETE FROM a WHERE b = ?\nargs=[1]\n"
+        }
+    ]
+}

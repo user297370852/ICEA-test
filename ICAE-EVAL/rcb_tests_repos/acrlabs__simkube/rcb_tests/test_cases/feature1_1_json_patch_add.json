@@ -1,0 +1,27 @@
+{
+    "description": "Apply an additive change to a JSON document at a path that uses the '*' wildcard token to fan out across every element of an array. The path is a slash-separated JSON pointer in which a single '*' segment means 'every element of the array at this position'. For each location the path resolves to (which must be a JSON object), a given key/value pair is inserted. An 'overwrite' flag controls collisions: when true, the value is written even if the key already exists; when false, an existing key is left untouched while missing keys are still added. The whole (mutated) document is emitted as compact JSON with object keys sorted lexicographically.",
+    "cases": [
+        {
+            "input": {
+                "action": "patch_add",
+                "path": "/foo/*/baz",
+                "key": "buzz",
+                "value": 42,
+                "overwrite": true,
+                "document": {"foo": [{"baz": {"buzz": 0}}, {"baz": {"quzz": 1}}, {"baz": {"fixx": 2}}]}
+            },
+            "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":42}},{\"baz\":{\"buzz\":42,\"quzz\":1}},{\"baz\":{\"buzz\":42,\"fixx\":2}}]}\n"
+        },
+        {
+            "input": {
+                "action": "patch_add",
+                "path": "/foo/*/baz",
+                "key": "buzz",
+                "value": 42,
+                "overwrite": false,
+                "document": {"foo": [{"baz": {"buzz": 0}}, {"baz": {"quzz": 1}}, {"baz": {"fixx": 2}}]}
+            },
+            "expected_output": "{\"foo\":[{\"baz\":{\"buzz\":0}},{\"baz\":{\"buzz\":42,\"quzz\":1}},{\"baz\":{\"buzz\":42,\"fixx\":2}}]}\n"
+        }
+    ]
+}

@@ -1,0 +1,60 @@
+{
+  "description": "Build a complete retry-state snapshot from a retry policy, an attempt count, and a reference time point (epoch milliseconds). The policy supplies a maximum retry count, a base back-off interval in seconds, and an execution-timeout in seconds. The resulting snapshot reports: the attempt count as given; the reference time point as given; the timeout deadline, computed as the reference time plus the execution-timeout converted to milliseconds; and the next-retry time point, computed by the exponential back-off rule (reference time plus base interval times two-to-the-power-of-attempts, in milliseconds).",
+  "cases": [
+    {
+      "input": {
+        "action": "next_retry_state",
+        "maxRetries": 1,
+        "minBackoff": 1,
+        "executionTimeout": 1,
+        "retries": 0,
+        "retryAt": 0
+      },
+      "expected_output": "retries=0\nretryAt=0\ntimoutAt=1000\nnextRetryAt=1000\n"
+    },
+    {
+      "input": {
+        "action": "next_retry_state",
+        "maxRetries": 10,
+        "minBackoff": 180,
+        "executionTimeout": 120,
+        "retries": 0,
+        "retryAt": 1700000000000
+      },
+      "expected_output": "retries=0\nretryAt=1700000000000\ntimoutAt=1700000120000\nnextRetryAt=1700000180000\n"
+    },
+    {
+      "input": {
+        "action": "next_retry_state",
+        "maxRetries": 10,
+        "minBackoff": 180,
+        "executionTimeout": 0,
+        "retries": 0,
+        "retryAt": 0
+      },
+      "expected_output": "retries=0\nretryAt=0\ntimoutAt=0\nnextRetryAt=180000\n"
+    },
+    {
+      "input": {
+        "action": "next_retry_state",
+        "maxRetries": 10,
+        "minBackoff": 180,
+        "executionTimeout": 120,
+        "retries": 5,
+        "retryAt": 0
+      },
+      "expected_output": "retries=5\nretryAt=0\ntimoutAt=120000\nnextRetryAt=5760000\n"
+    },
+    {
+      "input": {
+        "action": "next_retry_state",
+        "maxRetries": 5,
+        "minBackoff": 0,
+        "executionTimeout": 120,
+        "retries": 0,
+        "retryAt": 0
+      },
+      "expected_output": "retries=0\nretryAt=0\ntimoutAt=120000\nnextRetryAt=0\n"
+    }
+  ]
+}

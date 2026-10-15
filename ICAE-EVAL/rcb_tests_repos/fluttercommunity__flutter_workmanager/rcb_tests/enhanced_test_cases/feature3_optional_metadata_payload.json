@@ -1,0 +1,75 @@
+{
+  "description": "Enhanced optional-metadata payloads: periodic frequency, partial constraints alongside metadata, the out-of-quota policy path (work.quotaPolicy -> outOfQuotaPolicy), multi-typed inputData, and empty inputData encoding.",
+  "cases": [
+    {
+      "input": {
+        "debug": true,
+        "work": {
+          "uniqueName": "uniqueName",
+          "taskName": "taskName",
+          "tag": "sync",
+          "repeatEverySeconds": 1800,
+          "collisionPolicy": "keep",
+          "initialDelaySeconds": 5,
+          "constraints": {
+            "network": "unmetered",
+            "batteryNotLow": true,
+            "charging": false,
+            "deviceIdle": true,
+            "storageNotLow": false
+          },
+          "retryBackoffPolicy": "exponential",
+          "retryBackoffDelaySeconds": 2,
+          "inputData": {
+            "job": "sync"
+          }
+        }
+      },
+      "expected_output": "{\"isInDebugMode\":true,\"uniqueName\":\"uniqueName\",\"taskName\":\"taskName\",\"tag\":\"sync\",\"frequency\":1800,\"existingWorkPolicy\":\"keep\",\"initialDelaySeconds\":5,\"networkType\":\"unmetered\",\"requiresBatteryNotLow\":true,\"requiresCharging\":false,\"requiresDeviceIdle\":true,\"requiresStorageNotLow\":false,\"backoffPolicyType\":\"exponential\",\"backoffDelayInMilliseconds\":2000,\"outOfQuotaPolicy\":null,\"inputData\":\"{\\\"job\\\":\\\"sync\\\"}\"}\n"
+    },
+    {
+      "input": {
+        "debug": true,
+        "work": {
+          "uniqueName": "uniqueName",
+          "taskName": "taskName",
+          "initialDelaySeconds": 1,
+          "retryBackoffDelaySeconds": 1,
+          "quotaPolicy": "run_as_non_expedited_work_request"
+        }
+      },
+      "expected_output": "{\"isInDebugMode\":true,\"uniqueName\":\"uniqueName\",\"taskName\":\"taskName\",\"tag\":null,\"frequency\":null,\"existingWorkPolicy\":null,\"initialDelaySeconds\":1,\"networkType\":null,\"requiresBatteryNotLow\":null,\"requiresCharging\":null,\"requiresDeviceIdle\":null,\"requiresStorageNotLow\":null,\"backoffPolicyType\":null,\"backoffDelayInMilliseconds\":1000,\"outOfQuotaPolicy\":\"run_as_non_expedited_work_request\",\"inputData\":null}\n"
+    },
+    {
+      "input": {
+        "debug": true,
+        "work": {
+          "uniqueName": "uniqueName",
+          "taskName": "taskName",
+          "tag": "j",
+          "initialDelaySeconds": 1,
+          "retryBackoffDelaySeconds": 1,
+          "inputData": {
+            "n": 3,
+            "flag": true,
+            "name": "abc"
+          }
+        }
+      },
+      "expected_output": "{\"isInDebugMode\":true,\"uniqueName\":\"uniqueName\",\"taskName\":\"taskName\",\"tag\":\"j\",\"frequency\":null,\"existingWorkPolicy\":null,\"initialDelaySeconds\":1,\"networkType\":null,\"requiresBatteryNotLow\":null,\"requiresCharging\":null,\"requiresDeviceIdle\":null,\"requiresStorageNotLow\":null,\"backoffPolicyType\":null,\"backoffDelayInMilliseconds\":1000,\"outOfQuotaPolicy\":null,\"inputData\":\"{\\\"n\\\":3,\\\"flag\\\":true,\\\"name\\\":\\\"abc\\\"}\"}\n"
+    },
+    {
+      "input": {
+        "debug": true,
+        "work": {
+          "uniqueName": "uniqueName",
+          "taskName": "taskName",
+          "initialDelaySeconds": 1,
+          "retryBackoffDelaySeconds": 1,
+          "inputData": {}
+        }
+      },
+      "expected_output": "{\"isInDebugMode\":true,\"uniqueName\":\"uniqueName\",\"taskName\":\"taskName\",\"tag\":null,\"frequency\":null,\"existingWorkPolicy\":null,\"initialDelaySeconds\":1,\"networkType\":null,\"requiresBatteryNotLow\":null,\"requiresCharging\":null,\"requiresDeviceIdle\":null,\"requiresStorageNotLow\":null,\"backoffPolicyType\":null,\"backoffDelayInMilliseconds\":1000,\"outOfQuotaPolicy\":null,\"inputData\":\"{}\"}\n"
+    }
+  ]
+}

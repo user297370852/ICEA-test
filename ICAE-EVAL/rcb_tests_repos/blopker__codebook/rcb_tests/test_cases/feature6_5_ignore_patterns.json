@@ -1,0 +1,29 @@
+{
+  "description": "An end-to-end check can be given a list of regular expressions; any word matching one of the supplied patterns is skipped and never reported as a misspelling, in addition to the built-in technical-string patterns. Words that match no pattern and are unknown to the dictionaries are still reported. Each reported misspelling is its UTF-8 start byte offset, end byte offset, and text, one per line, ordered by position. The request is {\"op\":\"spellcheck\",\"text\":<text>,\"lang\":\"text\",\"ignore_patterns\":[regexes...]}.",
+  "cases": [
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "ignore_patterns": [
+          "^[A-Z]{2,}$",
+          "\\bcustom\\w*",
+          "testpattern"
+        ],
+        "text": "\n        This text has HTML and CSS frameworks.\n        Also customword and testpattern should be ignored.\n        But badword and anotherbadword should be flagged.\n    "
+      },
+      "expected_output": "119 126 badword\n131 145 anotherbadword\n"
+    },
+    {
+      "input": {
+        "op": "spellcheck",
+        "lang": "text",
+        "ignore_patterns": [
+          "badword"
+        ],
+        "text": "\n        But badword and anotherbadword should be flagged.\n    "
+      },
+      "expected_output": "25 39 anotherbadword\n"
+    }
+  ]
+}

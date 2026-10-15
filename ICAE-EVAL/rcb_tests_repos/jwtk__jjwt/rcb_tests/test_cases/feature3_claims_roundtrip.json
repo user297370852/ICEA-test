@@ -1,0 +1,61 @@
+{
+  "description": "Build a claims token using registered-claim convenience setters and arbitrary custom claims, then parse it back and recover the claim set. Setting a registered claim to null removes it. Date-valued claims (expiration / not-before / issued-at) are stored as integer seconds since the epoch.",
+  "cases": [
+    {
+      "input": {
+        "op": "build_parse_claims",
+        "claims": {
+          "iss": "Me"
+        }
+      },
+      "expected_output": "iss=Me"
+    },
+    {
+      "input": {
+        "op": "build_parse_claims",
+        "claims": {
+          "iss": "Me",
+          "sub": "Joe"
+        },
+        "unset": [
+          "iss"
+        ]
+      },
+      "expected_output": "sub=Joe"
+    },
+    {
+      "input": {
+        "op": "build_parse_claims",
+        "claims": {
+          "iss": "Iss",
+          "sub": "Sub",
+          "aud": "Aud",
+          "jti": "Id"
+        }
+      },
+      "expected_output": "iss=Iss\nsub=Sub\naud=Aud\njti=Id"
+    },
+    {
+      "input": {
+        "op": "build_parse_claims",
+        "claims": {
+          "exp": 9999999999000,
+          "nbf": 1000000000000,
+          "iat": 1000000000000
+        }
+      },
+      "expected_output": "exp=9999999999\nnbf=1000000000\niat=1000000000"
+    },
+    {
+      "input": {
+        "op": "build_parse_claims",
+        "claims": {
+          "sub": "Joe",
+          "role": "admin",
+          "count": 5
+        }
+      },
+      "expected_output": "sub=Joe\nclaim.count=5\nclaim.role=admin"
+    }
+  ]
+}

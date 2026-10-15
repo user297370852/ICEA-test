@@ -1,0 +1,83 @@
+{
+    "description": "Set or clear the query (search) component of a parsed URL. Assigning a query makes it readable back with its leading question mark; assigning an empty string clears the query, and on schemes whose body is opaque, clearing the query exposes the remaining encoded path and re-serializes the URL without the query while keeping any fragment.",
+    "cases": [
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "https://www.google.com",
+                "steps": [
+                    {
+                        "op": "set",
+                        "field": "search",
+                        "value": "target=self"
+                    },
+                    {
+                        "op": "get",
+                        "field": "search"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nset_search=ok\nsearch=?target=self\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "data:space    ?test",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "search"
+                    },
+                    {
+                        "op": "set",
+                        "field": "search",
+                        "value": ""
+                    },
+                    {
+                        "op": "get",
+                        "field": "search"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nsearch=?test\nset_search=ok\nsearch=\npathname=space   %20\nhref=data:space   %20\n"
+        },
+        {
+            "input": {
+                "action": "parse_url",
+                "url": "data:space    ?test#test",
+                "steps": [
+                    {
+                        "op": "get",
+                        "field": "search"
+                    },
+                    {
+                        "op": "set",
+                        "field": "search",
+                        "value": ""
+                    },
+                    {
+                        "op": "get",
+                        "field": "search"
+                    },
+                    {
+                        "op": "get",
+                        "field": "pathname"
+                    },
+                    {
+                        "op": "get",
+                        "field": "href"
+                    }
+                ]
+            },
+            "expected_output": "url=valid\nsearch=?test\nset_search=ok\nsearch=\npathname=space   %20\nhref=data:space   %20#test\n"
+        }
+    ]
+}

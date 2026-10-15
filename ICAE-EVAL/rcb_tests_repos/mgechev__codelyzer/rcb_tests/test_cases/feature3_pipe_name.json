@@ -1,0 +1,56 @@
+{
+    "description": "Validate literal pipe names against configured case style and optional prefixes while ignoring non-literal names.",
+    "cases": [
+        {
+            "input": {
+                "action": "lint",
+                "check": "pipe_name",
+                "config": {
+                    "case_style": "camelCase",
+                    "prefixes": "ng"
+                },
+                "source": "\n@Pipe({\n  name: 'foo-bar'\n})\nclass SamplePipe {}\n"
+            },
+            "expected_output": "check=pipe_name\nfailure_count=1\nfailure_index=0\nmessage=The name of the Pipe decorator of class SamplePipe should be named camelCase with prefix ng, however its value is \"foo-bar\"\nstart_line=2\nstart_character=2\nend_line=2\nend_character=17\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "pipe_name",
+                "config": {
+                    "case_style": "camelCase",
+                    "prefixes": [
+                        "fo",
+                        "mg",
+                        "sg"
+                    ]
+                },
+                "source": "\n@Pipe({\n  name: 'fooBar'\n})\nclass SamplePipe {}\n"
+            },
+            "expected_output": "check=pipe_name\nfailure_count=1\nfailure_index=0\nmessage=The name of the Pipe decorator of class SamplePipe should be named camelCase with prefix fo,mg,sg, however its value is \"fooBar\"\nstart_line=2\nstart_character=2\nend_line=2\nend_character=16\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "pipe_name",
+                "config": {
+                    "case_style": "camelCase",
+                    "prefixes": "ng"
+                },
+                "source": "\n@Pipe({\n  name: 'ngBarFoo'\n})\nclass SamplePipe {}\n"
+            },
+            "expected_output": "check=pipe_name\nfailure_count=0\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "pipe_name",
+                "config": {
+                    "case_style": "camelCase"
+                },
+                "source": "\nconst pipeName = 'foo-bar';\n@Pipe({\n  name: pipeName\n})\nclass SamplePipe {}\n"
+            },
+            "expected_output": "check=pipe_name\nfailure_count=0\n"
+        }
+    ]
+}

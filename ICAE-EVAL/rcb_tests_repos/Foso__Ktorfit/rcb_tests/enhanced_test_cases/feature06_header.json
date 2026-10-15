@@ -1,0 +1,93 @@
+{
+  "description": "Enhanced boundary coverage for request-header construction. A nullable single header whose argument is null is omitted entirely from the wire (the gold behaviour for optional headers); a string-keyed header map with Int values renders numeric header values; multiple static headers are emitted sorted by name; and two parameter-driven single headers are each emitted sorted by name. The adapter prints the issued request and every user-supplied header sorted by name.",
+  "cases": [
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "header",
+            "key": "X",
+            "name": "h",
+            "type": "String?"
+          }
+        ],
+        "args": [
+          null
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "headers": [
+          "c:3",
+          "a:1",
+          "b:2"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=a=1\nheader=b=2\nheader=c=3"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "headerMap",
+            "name": "h",
+            "type": "Map<String, Int>"
+          }
+        ],
+        "args": [
+          {
+            "N": 7
+          }
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=N=7"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "header",
+            "key": "X-A",
+            "name": "h1"
+          },
+          {
+            "kind": "header",
+            "key": "X-B",
+            "name": "h2"
+          }
+        ],
+        "args": [
+          "1",
+          "2"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts\nbody=none\nheader=X-A=1\nheader=X-B=2"
+    }
+  ]
+}

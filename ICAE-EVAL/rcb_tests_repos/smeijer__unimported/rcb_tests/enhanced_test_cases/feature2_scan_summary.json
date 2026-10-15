@@ -1,0 +1,243 @@
+{
+  "description": "Render the result of a dead-code scan as a human-readable report. The input carries the tool version, the entry file(s) the scan started from, and three result lists (unresolved imports, unused dependencies, unimported files) plus a clean flag. When the scan is clean a single confirmation line is produced. Otherwise a summary header with per-category counts is emitted, followed by one boxed table per non-empty category listing its entries, and a closing hint line.",
+  "cases": [
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "1.0.0",
+        "entryFiles": [
+          {
+            "file": "src/client/main.js"
+          }
+        ],
+        "unresolved": [],
+        "unused": [],
+        "unimported": [],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v1.0.0\n────────────────────────────────────────────────────────────────────────────────\n       entry file          : src/client/main.js\n\n       unresolved imports  : 0\n       unused dependencies : 0\n       unimported files    : 0\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "1.0.0",
+        "entryFiles": [
+          {
+            "file": "src/client/main.js"
+          },
+          {
+            "file": "src/server/index.js"
+          }
+        ],
+        "unresolved": [
+          "./missing-module"
+        ],
+        "unused": [],
+        "unimported": [],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v1.0.0\n────────────────────────────────────────────────────────────────────────────────\n       entry file 1        : src/client/main.js\n       entry file 2        : src/server/index.js\n\n       unresolved imports  : 1\n       unused dependencies : 0\n       unimported files    : 0\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 1 unresolved imports\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ ./missing-module\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "3.2.1",
+        "entryFiles": [
+          {
+            "file": "src/a.js"
+          }
+        ],
+        "unresolved": [
+          "x",
+          "y"
+        ],
+        "unused": [],
+        "unimported": [],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v3.2.1\n────────────────────────────────────────────────────────────────────────────────\n       entry file          : src/a.js\n\n       unresolved imports  : 2\n       unused dependencies : 0\n       unimported files    : 0\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 2 unresolved imports\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ x\n   2 │ y\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "3.2.1",
+        "entryFiles": [
+          {
+            "file": "src/a.js"
+          }
+        ],
+        "unresolved": [],
+        "unused": [
+          "lodash",
+          "moment"
+        ],
+        "unimported": [],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v3.2.1\n────────────────────────────────────────────────────────────────────────────────\n       entry file          : src/a.js\n\n       unresolved imports  : 0\n       unused dependencies : 2\n       unimported files    : 0\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 2 unused dependencies\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ lodash\n   2 │ moment\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "3.2.1",
+        "entryFiles": [
+          {
+            "file": "src/a.js"
+          }
+        ],
+        "unresolved": [],
+        "unused": [],
+        "unimported": [
+          "src/orphan.js"
+        ],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v3.2.1\n────────────────────────────────────────────────────────────────────────────────\n       entry file          : src/a.js\n\n       unresolved imports  : 0\n       unused dependencies : 0\n       unimported files    : 1\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 1 unimported files\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ src/orphan.js\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "0.0.1",
+        "entryFiles": [
+          {
+            "file": "src/a.js"
+          }
+        ],
+        "unresolved": [
+          "./gone"
+        ],
+        "unused": [],
+        "unimported": [
+          "src/dead.js"
+        ],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v0.0.1\n────────────────────────────────────────────────────────────────────────────────\n       entry file          : src/a.js\n\n       unresolved imports  : 1\n       unused dependencies : 0\n       unimported files    : 1\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 1 unresolved imports\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ ./gone\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 1 unimported files\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ src/dead.js\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "2.5.1-beta",
+        "entryFiles": [
+          {
+            "file": "src/entry.ts"
+          }
+        ],
+        "unresolved": [],
+        "unused": [],
+        "unimported": [
+          "src/f01.js",
+          "src/f02.js",
+          "src/f03.js",
+          "src/f04.js",
+          "src/f05.js",
+          "src/f06.js",
+          "src/f07.js",
+          "src/f08.js",
+          "src/f09.js",
+          "src/f10.js",
+          "src/f11.js",
+          "src/f12.js"
+        ],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v2.5.1-beta\n────────────────────────────────────────────────────────────────────────────────\n       entry file          : src/entry.ts\n\n       unresolved imports  : 0\n       unused dependencies : 0\n       unimported files    : 12\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 12 unimported files\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ src/f01.js\n   2 │ src/f02.js\n   3 │ src/f03.js\n   4 │ src/f04.js\n   5 │ src/f05.js\n   6 │ src/f06.js\n   7 │ src/f07.js\n   8 │ src/f08.js\n   9 │ src/f09.js\n  10 │ src/f10.js\n  11 │ src/f11.js\n  12 │ src/f12.js\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "10.0.0",
+        "entryFiles": [
+          {
+            "file": "src/a.js"
+          },
+          {
+            "file": "src/b.js"
+          },
+          {
+            "file": "src/c.js"
+          }
+        ],
+        "unresolved": [
+          "i1",
+          "i2",
+          "i3",
+          "i4",
+          "i5",
+          "i6",
+          "i7",
+          "i8",
+          "i9",
+          "i10",
+          "i11"
+        ],
+        "unused": [
+          "dep1",
+          "dep2",
+          "dep3",
+          "dep4",
+          "dep5",
+          "dep6",
+          "dep7",
+          "dep8",
+          "dep9",
+          "dep10"
+        ],
+        "unimported": [
+          "src/u1.js",
+          "src/u2.js",
+          "src/u3.js",
+          "src/u4.js",
+          "src/u5.js",
+          "src/u6.js",
+          "src/u7.js",
+          "src/u8.js",
+          "src/u9.js",
+          "src/u10.js",
+          "src/u11.js",
+          "src/u12.js",
+          "src/u13.js"
+        ],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v10.0.0\n────────────────────────────────────────────────────────────────────────────────\n       entry file 1        : src/a.js\n       entry file 2        : src/b.js\n       entry file 3        : src/c.js\n\n       unresolved imports  : 11\n       unused dependencies : 10\n       unimported files    : 13\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 11 unresolved imports\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ i1\n   2 │ i2\n   3 │ i3\n   4 │ i4\n   5 │ i5\n   6 │ i6\n   7 │ i7\n   8 │ i8\n   9 │ i9\n  10 │ i10\n  11 │ i11\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 10 unused dependencies\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ dep1\n   2 │ dep2\n   3 │ dep3\n   4 │ dep4\n   5 │ dep5\n   6 │ dep6\n   7 │ dep7\n   8 │ dep8\n   9 │ dep9\n  10 │ dep10\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 13 unimported files\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ src/u1.js\n   2 │ src/u2.js\n   3 │ src/u3.js\n   4 │ src/u4.js\n   5 │ src/u5.js\n   6 │ src/u6.js\n   7 │ src/u7.js\n   8 │ src/u8.js\n   9 │ src/u9.js\n  10 │ src/u10.js\n  11 │ src/u11.js\n  12 │ src/u12.js\n  13 │ src/u13.js\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "1.0.0",
+        "entryFiles": [
+          {
+            "file": "src/a.js"
+          },
+          {
+            "file": "src/b.js"
+          }
+        ],
+        "unresolved": [],
+        "unused": [],
+        "unimported": [],
+        "clean": true
+      },
+      "expected_output": "✓ There don't seem to be any unimported files."
+    },
+    {
+      "input": {
+        "action": "scan_summary",
+        "version": "1.2.3",
+        "entryFiles": [
+          {
+            "file": "src/源.js"
+          }
+        ],
+        "unresolved": [
+          "ünresolved-é"
+        ],
+        "unused": [],
+        "unimported": [],
+        "clean": false
+      },
+      "expected_output": "\n       summary               unimported v1.2.3\n────────────────────────────────────────────────────────────────────────────────\n       entry file          : src/源.js\n\n       unresolved imports  : 1\n       unused dependencies : 0\n       unimported files    : 0\n\n\n─────┬──────────────────────────────────────────────────────────────────────────\n     │ 1 unresolved imports\n─────┼──────────────────────────────────────────────────────────────────────────\n   1 │ ünresolved-é\n─────┴──────────────────────────────────────────────────────────────────────────\n\n\n       Inspect the results and run npx unimported -u to update ignore lists"
+    }
+  ]
+}

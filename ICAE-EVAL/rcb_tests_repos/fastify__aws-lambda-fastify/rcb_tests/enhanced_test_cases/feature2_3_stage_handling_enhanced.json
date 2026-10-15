@@ -1,0 +1,63 @@
+{
+  "description": "ENHANCED: stage-prefix handling edge cases — the prefix is retained when the resourcePath itself begins with the stage segment, and the path is untouched when there is no requestContext.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/dev/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/dev/test",
+          "headers": {
+            "X-My-Header": "h"
+          },
+          "requestContext": {
+            "resourcePath": "/dev/test",
+            "stage": "dev"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/dev/test\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/plain",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/plain",
+          "headers": {
+            "X-My-Header": "h"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/plain\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

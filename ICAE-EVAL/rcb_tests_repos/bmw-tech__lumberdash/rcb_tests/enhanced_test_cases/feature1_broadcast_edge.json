@@ -1,0 +1,134 @@
+{
+  "description": "Enhanced boundary coverage for Feature 1 (broadcast-and-return). Covers: zero registered sinks (call returns its payload but produces no per-sink line), three sinks fanning a single call out in registration order, duplicate sink kinds both receiving the call, empty-string payloads at message and error levels, a non-alphabetical registration order to confirm output follows registration order (not label order), and a single request issuing all four severity levels in sequence across three sinks.",
+  "cases": [
+    {
+      "input": {
+        "action": "log",
+        "clients": [],
+        "calls": [
+          {
+            "level": "message",
+            "message": "Solo"
+          }
+        ]
+      },
+      "expected_output": "return=Solo\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "B",
+          "C"
+        ],
+        "calls": [
+          {
+            "level": "warning",
+            "message": "Triple"
+          }
+        ]
+      },
+      "expected_output": "return=Triple\nclient=A level=warning message=Triple\nclient=B level=warning message=Triple\nclient=C level=warning message=Triple\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "A"
+        ],
+        "calls": [
+          {
+            "level": "message",
+            "message": "Dup"
+          }
+        ]
+      },
+      "expected_output": "return=Dup\nclient=A level=message message=Dup\nclient=A level=message message=Dup\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A"
+        ],
+        "calls": [
+          {
+            "level": "message",
+            "message": ""
+          }
+        ]
+      },
+      "expected_output": "return=\nclient=A level=message message=\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A"
+        ],
+        "calls": [
+          {
+            "level": "error",
+            "exception": ""
+          }
+        ]
+      },
+      "expected_output": "return=\nclient=A level=error exception=\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "C",
+          "A",
+          "B"
+        ],
+        "calls": [
+          {
+            "level": "fatal",
+            "message": "Order"
+          },
+          {
+            "level": "warning",
+            "message": "Two",
+            "exceptFor": [
+              "A"
+            ]
+          }
+        ]
+      },
+      "expected_output": "return=Order\nclient=C level=fatal message=Order\nclient=A level=fatal message=Order\nclient=B level=fatal message=Order\nreturn=Two\nclient=C level=warning message=Two\nclient=B level=warning message=Two\n"
+    },
+    {
+      "input": {
+        "action": "log",
+        "clients": [
+          "A",
+          "B",
+          "C"
+        ],
+        "calls": [
+          {
+            "level": "message",
+            "message": "m1"
+          },
+          {
+            "level": "warning",
+            "message": "w1"
+          },
+          {
+            "level": "fatal",
+            "message": "f1"
+          },
+          {
+            "level": "error",
+            "exception": "e1"
+          }
+        ]
+      },
+      "expected_output": "return=m1\nclient=A level=message message=m1\nclient=B level=message message=m1\nclient=C level=message message=m1\nreturn=w1\nclient=A level=warning message=w1\nclient=B level=warning message=w1\nclient=C level=warning message=w1\nreturn=f1\nclient=A level=fatal message=f1\nclient=B level=fatal message=f1\nclient=C level=fatal message=f1\nreturn=e1\nclient=A level=error exception=e1\nclient=B level=error exception=e1\nclient=C level=error exception=e1\n"
+    }
+  ]
+}

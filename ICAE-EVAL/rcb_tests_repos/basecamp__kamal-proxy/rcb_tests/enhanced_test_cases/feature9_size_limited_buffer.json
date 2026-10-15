@@ -1,0 +1,55 @@
+{
+  "description": "Enhanced size-limited buffer edge cases: writing content whose length exactly equals the maximum is preserved (the limit is inclusive), content one byte over the maximum yields the size-exceeded error, empty content is preserved as the empty string, unlimited mode (max of zero) with a tiny memory window preserves long content by spilling to disk, and reading content that exactly fills a spilled buffer replays it exactly. Each case reports the preserved content or the normalized size-exceeded error.",
+  "cases": [
+    {
+      "input": {
+        "kind": "buffer",
+        "mode": "write",
+        "max_bytes": 5,
+        "max_mem_bytes": 5,
+        "data": "hello"
+      },
+      "expected_output": "content=hello\n"
+    },
+    {
+      "input": {
+        "kind": "buffer",
+        "mode": "write",
+        "max_bytes": 6,
+        "max_mem_bytes": 3,
+        "data": "abcdefg"
+      },
+      "expected_output": "error=maximum_size_exceeded\n"
+    },
+    {
+      "input": {
+        "kind": "buffer",
+        "mode": "read",
+        "max_bytes": 10,
+        "max_mem_bytes": 2,
+        "data": ""
+      },
+      "expected_output": "content=\n"
+    },
+    {
+      "input": {
+        "kind": "buffer",
+        "mode": "write",
+        "max_bytes": 0,
+        "max_mem_bytes": 1,
+        "data": "abcdefghij"
+      },
+      "expected_output": "content=abcdefghij\n"
+    },
+    {
+      "input": {
+        "kind": "buffer",
+        "mode": "read",
+        "max_bytes": 11,
+        "max_mem_bytes": 3,
+        "data": "hello world"
+      },
+      "expected_output": "content=hello world\n"
+    }
+  ]
+}

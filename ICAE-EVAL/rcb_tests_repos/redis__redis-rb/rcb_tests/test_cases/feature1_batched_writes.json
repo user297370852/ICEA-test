@@ -1,0 +1,234 @@
+{
+    "description": "Queue several write commands inside a single batch, then read the resulting store state with ordinary follow-up commands. The batch may mix single-key writes and multi-key writes and may contain a nested batch; every queued command must be applied to the store, preserving the order in which it was queued. Each follow-up read prints its reply as a type-tagged scalar so both the value and its reply type are observable.",
+    "cases": [
+        {
+            "input": {
+                "action": "apply",
+                "batch": [
+                    [
+                        "lpush",
+                        "foo",
+                        "s1"
+                    ],
+                    [
+                        "lpush",
+                        "foo",
+                        "s2"
+                    ]
+                ],
+                "reads": [
+                    [
+                        "llen",
+                        "foo"
+                    ],
+                    [
+                        "lpop",
+                        "foo"
+                    ],
+                    [
+                        "lpop",
+                        "foo"
+                    ]
+                ]
+            },
+            "expected_output": "int:2\nstr:s2\nstr:s1\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "batch": [
+                    [
+                        "mset",
+                        "foo",
+                        "s1",
+                        "bar",
+                        "s2"
+                    ],
+                    [
+                        "mset",
+                        "baz",
+                        "s3",
+                        "qux",
+                        "s4"
+                    ]
+                ],
+                "reads": [
+                    [
+                        "get",
+                        "foo"
+                    ],
+                    [
+                        "get",
+                        "bar"
+                    ],
+                    [
+                        "get",
+                        "baz"
+                    ],
+                    [
+                        "get",
+                        "qux"
+                    ]
+                ]
+            },
+            "expected_output": "str:s1\nstr:s2\nstr:s3\nstr:s4\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "batch": [
+                    [
+                        "lpush",
+                        "foo",
+                        "s1"
+                    ],
+                    [
+                        "lpush",
+                        "foo",
+                        "s2"
+                    ],
+                    [
+                        "mset",
+                        "baz",
+                        "s3",
+                        "qux",
+                        "s4"
+                    ]
+                ],
+                "reads": [
+                    [
+                        "llen",
+                        "foo"
+                    ],
+                    [
+                        "lpop",
+                        "foo"
+                    ],
+                    [
+                        "lpop",
+                        "foo"
+                    ],
+                    [
+                        "get",
+                        "baz"
+                    ],
+                    [
+                        "get",
+                        "qux"
+                    ]
+                ]
+            },
+            "expected_output": "int:2\nstr:s2\nstr:s1\nstr:s3\nstr:s4\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "batch": [
+                    [
+                        "mset",
+                        "baz",
+                        "s3",
+                        "qux",
+                        "s4"
+                    ],
+                    [
+                        "lpush",
+                        "foo",
+                        "s1"
+                    ],
+                    [
+                        "lpush",
+                        "foo",
+                        "s2"
+                    ]
+                ],
+                "reads": [
+                    [
+                        "llen",
+                        "foo"
+                    ],
+                    [
+                        "lpop",
+                        "foo"
+                    ],
+                    [
+                        "lpop",
+                        "foo"
+                    ],
+                    [
+                        "get",
+                        "baz"
+                    ],
+                    [
+                        "get",
+                        "qux"
+                    ]
+                ]
+            },
+            "expected_output": "int:2\nstr:s2\nstr:s1\nstr:s3\nstr:s4\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "batch": [
+                    [
+                        "set",
+                        "foo",
+                        "s1"
+                    ],
+                    {
+                        "batch": [
+                            [
+                                "set",
+                                "bar",
+                                "s2"
+                            ]
+                        ]
+                    }
+                ],
+                "reads": [
+                    [
+                        "get",
+                        "foo"
+                    ],
+                    [
+                        "get",
+                        "bar"
+                    ]
+                ]
+            },
+            "expected_output": "str:s1\nstr:s2\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "batch": [
+                    [
+                        "set",
+                        "foo",
+                        "bar"
+                    ]
+                ],
+                "reads": [
+                    [
+                        "get",
+                        "foo"
+                    ]
+                ]
+            },
+            "expected_output": "str:bar\n"
+        },
+        {
+            "input": {
+                "action": "apply",
+                "batch": [],
+                "reads": [
+                    [
+                        "dbsize"
+                    ]
+                ]
+            },
+            "expected_output": "int:0\n"
+        }
+    ]
+}

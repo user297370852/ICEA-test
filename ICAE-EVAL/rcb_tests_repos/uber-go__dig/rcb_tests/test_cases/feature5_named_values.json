@@ -1,0 +1,27 @@
+{
+    "description": "Several instances of the same type can coexist in the container when each is given a distinct name; a request then selects an instance by both its type and name. A named key (type:name) and an unnamed key of the same type are independent and may both be present at once. Name matching is exact and case-sensitive, so requesting a name that differs only in letter case finds no matching instance and resolution fails with a missing-dependency error naming the requested type:name.",
+    "cases": [
+        {
+            "input": {"steps": [
+                {"op": "provide", "out": [{"type": "A", "name": "first", "value": 1}, {"type": "A", "name": "second", "value": 2}, {"type": "A", "name": "third", "value": 3}]},
+                {"op": "invoke", "in": [{"type": "A", "name": "first"}, {"type": "A", "name": "third"}]}
+            ]},
+            "expected_output": "provide ok keys=A:first,A:second,A:third\ninvoke ok A:first=1 A:third=3\n"
+        },
+        {
+            "input": {"steps": [
+                {"op": "provide", "out": [{"type": "A", "name": "foo", "value": 1}]},
+                {"op": "provide", "out": [{"type": "A", "value": 2}]},
+                {"op": "invoke", "in": [{"type": "A", "name": "foo"}, {"type": "A"}]}
+            ]},
+            "expected_output": "provide ok keys=A:foo\nprovide ok keys=A\ninvoke ok A:foo=1 A=2\n"
+        },
+        {
+            "input": {"steps": [
+                {"op": "provide", "out": [{"type": "A", "name": "CamelCase", "value": 1}]},
+                {"op": "invoke", "in": [{"type": "A", "name": "camelcase"}]}
+            ]},
+            "expected_output": "provide ok keys=A:CamelCase\ninvoke error=missing_dependency key=A:camelcase\n"
+        }
+    ]
+}

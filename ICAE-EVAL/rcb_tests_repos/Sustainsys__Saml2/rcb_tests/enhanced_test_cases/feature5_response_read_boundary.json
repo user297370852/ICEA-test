@@ -1,0 +1,19 @@
+{
+  "description": "Parse a SAML2 protocol response XML element, exercising the optional inResponseTo and destination attributes on a status-only response and a response carrying a single contained assertion. Surfaced fields include id, version, issueInstant, the optional inResponseTo/destination, the status code, and the assertion count.",
+  "cases": [
+    {
+      "input": {
+        "action": "read_response",
+        "xml": "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"x123\" Version=\"2.0\" IssueInstant=\"2023-10-14T13:46:32Z\" InResponseTo=\"_req001\" Destination=\"https://sp.example.com/acs\"><samlp:Status><samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\" /></samlp:Status></samlp:Response>"
+      },
+      "expected_output": "id=x123\nversion=2.0\nissueInstant=2023-10-14T13:46:32Z\ninResponseTo=_req001\ndestination=https://sp.example.com/acs\nstatus.statusCode=urn:oasis:names:tc:SAML:2.0:status:Success\nassertionCount=0\n"
+    },
+    {
+      "input": {
+        "action": "read_response",
+        "xml": "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"x124\" Version=\"2.0\" IssueInstant=\"2023-10-14T13:46:32Z\"><samlp:Status><samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\" /></samlp:Status><saml:Assertion Version=\"2.0\" ID=\"a777\" IssueInstant=\"2024-02-03T18:24:14Z\"><saml:Issuer>https://idp.example.com/Saml2</saml:Issuer><saml:Subject><saml:NameID>subj-777</saml:NameID><saml:SubjectConfirmation Method=\"urn:foo\" /></saml:Subject></saml:Assertion></samlp:Response>"
+      },
+      "expected_output": "id=x124\nversion=2.0\nissueInstant=2023-10-14T13:46:32Z\nstatus.statusCode=urn:oasis:names:tc:SAML:2.0:status:Success\nassertionCount=1\n"
+    }
+  ]
+}

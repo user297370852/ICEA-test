@@ -1,0 +1,21 @@
+{
+  "description": "Decode existing token strings under verified, unverified, whitespace-trimmed, and invalid-signature conditions and render observable status plus selected fields.",
+  "cases": [
+    {
+      "input": {"action":"decode","args":["decode","eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE4OTM0NTYwMDAsImlhdCI6MTU0MjQ5MjMxMywidGhpcyI6InRoYXQifQ.YTWit46_AEMMVv0P48NeJJIqXmMHarGjfRxtR7jLlxE","-S","1234567890","-A","HS256"],"report":["status","header.alg","header.typ","claim.exp","claim.iat","claim.this"]},
+      "expected_output": "status=valid\nheader.alg=HS256\nheader.typ=JWT\nclaim.exp=1893456000\nclaim.iat=1542492313\nclaim.this=that\n"
+    },
+    {
+      "input": {"action":"decode","args":["decode","eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aGlzIjoidGhhdCJ9.AdAECLE_4iRa0uomMEdsMV2hDXv1vhLpym567-AzhrM","-S","yolo","-A","HS256"],"report":["status","error","header.alg","claim.this"]},
+      "expected_output": "status=invalid\nerror=invalid_signature\nheader.alg=HS256\nclaim.this=that\n"
+    },
+    {
+      "input": {"action":"decode","args":["decode","eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aGlzIjoidGhhdCJ9.AdAECLE_4iRa0uomMEdsMV2hDXv1vhLpym567-AzhrM","-A","HS256"],"report":["status","header.alg","claim.this"]},
+      "expected_output": "status=valid\nheader.alg=HS256\nclaim.this=that\n"
+    },
+    {
+      "input": {"action":"decode","args":["decode","    eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.SEQijh6tEuOOAAKpHPuKxgFqEvlTNP1jj4FUNoBwXaM "],"report":["status","header.alg","claim.sub","claim.name","claim.admin"]},
+      "expected_output": "status=valid\nheader.alg=HS256\nclaim.sub=1234567890\nclaim.name=John Doe\nclaim.admin=true\n"
+    }
+  ]
+}

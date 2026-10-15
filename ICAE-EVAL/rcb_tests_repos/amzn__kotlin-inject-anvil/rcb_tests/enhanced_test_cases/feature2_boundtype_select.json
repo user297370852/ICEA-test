@@ -1,0 +1,27 @@
+{
+  "description": "Binding bound-type selection: an explicit boundType disambiguates an implementation that has two unrelated super types and is exposed as a single binding; the same disambiguation also works for a multibinding element declared in a deeply nested package.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.bind\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Repository\ninterface Cache\n\n@Inject\n@ContributesBinding(Unit::class, boundType = Repository::class)\nclass CombinedImpl : Repository, Cache\n"
+        ],
+        "inspect": [
+          "com.bind.CombinedImpl"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.bind.CombinedImpl\nprovides from=com.bind.CombinedImpl to=com.bind.Repository kind=single\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.plugins.audio\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Plugin\ninterface AudioPlugin : Plugin\n\n@Inject\n@ContributesBinding(Unit::class, boundType = Plugin::class, multibinding = true)\nclass Mp3Plugin : AudioPlugin\n"
+        ],
+        "inspect": [
+          "com.plugins.audio.Mp3Plugin"
+        ]
+      },
+      "expected_output": "status=compiled\ncontribution origin=com.plugins.audio.Mp3Plugin\nprovides from=com.plugins.audio.Mp3Plugin to=com.plugins.audio.Plugin kind=multi\n"
+    }
+  ]
+}

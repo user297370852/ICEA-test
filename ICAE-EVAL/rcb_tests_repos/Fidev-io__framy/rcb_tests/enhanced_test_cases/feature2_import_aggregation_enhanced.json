@@ -1,0 +1,136 @@
+{
+    "description": "Enhanced boundary coverage for import-directive aggregation. Exercises de-duplication of repeated object import paths, de-duplication of an object import that equals a fixed framework import, the provider import being inserted at first-seen position (mid-list when a provider widget precedes later objects), provider de-duplication across multiple provider widgets, a widget with only constructor (non-provider) dependencies, and a non-widget carrying a provider dependency (which must NOT trigger the provider import).",
+    "cases": [
+        {
+            "input": {
+                "target": "imports",
+                "objects": [
+                    {
+                        "import": "package:a/a.dart"
+                    },
+                    {
+                        "import": "package:a/a.dart"
+                    },
+                    {
+                        "import": "package:b/b.dart"
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "target": "imports",
+                "objects": [
+                    {
+                        "import": "package:flutter/material.dart"
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "target": "imports",
+                "objects": [
+                    {
+                        "import": "package:a/a.dart",
+                        "category": "widget",
+                        "dependencies": [
+                            {
+                                "name": "s",
+                                "type": "S",
+                                "kind": "provider"
+                            }
+                        ]
+                    },
+                    {
+                        "import": "package:b/b.dart",
+                        "category": "widget",
+                        "dependencies": [
+                            {
+                                "name": "t",
+                                "type": "T",
+                                "kind": "provider"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "target": "imports",
+                "objects": [
+                    {
+                        "import": "package:w/w.dart",
+                        "category": "widget",
+                        "dependencies": [
+                            {
+                                "name": "s",
+                                "type": "S",
+                                "kind": "provider"
+                            }
+                        ]
+                    },
+                    {
+                        "import": "package:z/z.dart"
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "target": "imports",
+                "objects": [
+                    {
+                        "import": "package:w/w.dart",
+                        "category": "widget",
+                        "dependencies": [
+                            {
+                                "name": "s",
+                                "type": "S",
+                                "kind": "constructor"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "target": "imports",
+                "objects": [
+                    {
+                        "import": "package:a/a.dart",
+                        "category": "model",
+                        "dependencies": [
+                            {
+                                "name": "s",
+                                "type": "S",
+                                "kind": "provider"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "target": "imports",
+                "objects": [
+                    {
+                        "import": "package:a/a.dart",
+                        "category": "widget",
+                        "dependencies": []
+                    }
+                ]
+            },
+            "expected_output": ""
+        }
+    ]
+}

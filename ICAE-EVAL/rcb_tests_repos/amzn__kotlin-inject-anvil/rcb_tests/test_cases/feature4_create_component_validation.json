@@ -1,0 +1,68 @@
+{
+    "description": "The common-multiplatform factory function that materializes a merged component has strict shape rules: it must be public and use the expect modifier, its return type must itself be a merge target (not hand-wired with @Component), and a receiver, if present, must be the KClass of the component with matching argument and arity.",
+    "cases": [
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\n\n@MergeComponent(AppScope::class)\ninterface ComponentInterface\n\n@MergeComponent.CreateComponent\ninternal expect fun createComponent(): ComponentInterface\n"
+                ],
+                "multiplatform": true
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=Factory functions for components annotated with `@CreateComponent` must be public.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport me.tatarka.inject.annotations.Component\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\n\n@MergeComponent(AppScope::class)\n@Component\ninterface ComponentInterface : ComponentInterfaceMerged\n\n@MergeComponent.CreateComponent\nexpect fun createComponent(): ComponentInterface\n"
+                ],
+                "multiplatform": true
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=The return type com.example.ComponentInterface should not be annotated with `@Component`. In this scenario use the built-in annotations from kotlin-inject itself.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent.CreateComponent\n\ninterface ComponentInterface\n\n@CreateComponent\nexpect fun createComponent(): ComponentInterface\n"
+                ],
+                "multiplatform": true
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=The return type com.example.ComponentInterface is not annotated with `@MergeComponent`.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent.CreateComponent\n\n@MergeComponent(AppScope::class)\ninterface ComponentInterface\n\n@CreateComponent\nexpect fun String.createComponent(): ComponentInterface\n"
+                ],
+                "multiplatform": true
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=Only a receiver type on KClass<YourComponent> is supported.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent.CreateComponent\nimport kotlin.reflect.KClass\n\n@MergeComponent(AppScope::class)\ninterface ComponentInterface\n\n@CreateComponent\nexpect fun KClass<String>.createComponent(): ComponentInterface\n"
+                ],
+                "multiplatform": true
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=Only a receiver type on KClass<YourComponent> is supported. The argument was different.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport me.tatarka.inject.annotations.Provides\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent.CreateComponent\nimport kotlin.reflect.KClass\n\n@MergeComponent(AppScope::class)\nabstract class ComponentInterface(\n    @get:Provides val string: String,\n)\n\n@CreateComponent\nexpect fun KClass<ComponentInterface>.createComponent(): ComponentInterface\n"
+                ],
+                "multiplatform": true
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=The number of arguments for the function doesn't match the number of arguments of the component.\n"
+        },
+        {
+            "input": {
+                "sources": [
+                    "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent.CreateComponent\nimport kotlin.reflect.KClass\n\n@MergeComponent(AppScope::class)\ninterface ComponentInterface\n\n@CreateComponent\nfun KClass<ComponentInterface>.createComponent(): ComponentInterface\n"
+                ],
+                "multiplatform": true
+            },
+            "expected_output": "status=rejected\nerror=invalid_usage\nreason=Only expect functions can be annotated with @MergeComponent.CreateComponent. In non-common Kotlin Multiplatform code use the generated `create` extension function on the class object: YourComponent.create(..).\n"
+        }
+    ]
+}

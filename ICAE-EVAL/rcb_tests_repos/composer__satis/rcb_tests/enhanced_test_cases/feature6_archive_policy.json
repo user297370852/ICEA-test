@@ -1,0 +1,147 @@
+{
+  "description": "Boundary coverage for archive policy: storage path resolution with absolute-directory precedence and relative directories, non-skippable defaults, dev versions with skip-dev disabled, whitelist/blacklist membership edges, metapackage skip precedence, and provided-virtual-package whitelisting.",
+  "cases": [
+    {
+      "input": {
+        "action": "archive_policy",
+        "query": "storage_path",
+        "output_dir": "/abs/out",
+        "config": {
+          "directory": "dist",
+          "absolute-directory": "/home/satis/build/dist"
+        }
+      },
+      "expected_output": "path=/home/satis/build/dist\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "query": "storage_path",
+        "output_dir": ".",
+        "config": {
+          "directory": "archives"
+        }
+      },
+      "expected_output": "path=./archives\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        },
+        "config": {}
+      },
+      "expected_output": "skip=false\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "vendor/name",
+          "version": "dev-master",
+          "normalized": "dev-master"
+        },
+        "config": {}
+      },
+      "expected_output": "skip=false\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        },
+        "config": {
+          "whitelist": [
+            "vendor/name"
+          ]
+        }
+      },
+      "expected_output": "skip=false\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        },
+        "config": {
+          "blacklist": [
+            "vendor/name"
+          ]
+        }
+      },
+      "expected_output": "skip=true\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0",
+          "type": "metapackage"
+        },
+        "config": {
+          "whitelist": [
+            "vendor/name"
+          ]
+        }
+      },
+      "expected_output": "skip=true\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "othervendor/othername",
+          "version": "1.0"
+        },
+        "provides": [
+          "vendor/name"
+        ],
+        "config": {
+          "whitelist": [
+            "othervendor/othername"
+          ]
+        }
+      },
+      "expected_output": "skip=false\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "vendor/name",
+          "version": "dev-master",
+          "normalized": "dev-master"
+        },
+        "config": {
+          "skip-dev": 0
+        }
+      },
+      "expected_output": "skip=false\n"
+    },
+    {
+      "input": {
+        "action": "archive_policy",
+        "package": {
+          "name": "vendor/name",
+          "version": "1.0"
+        },
+        "config": {
+          "whitelist": [
+            "other/x"
+          ],
+          "blacklist": [
+            "vendor/name"
+          ]
+        }
+      },
+      "expected_output": "skip=true\n"
+    }
+  ]
+}

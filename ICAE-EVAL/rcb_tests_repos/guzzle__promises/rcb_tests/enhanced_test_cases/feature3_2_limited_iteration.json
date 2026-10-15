@@ -1,0 +1,90 @@
+{
+  "description": "Limited iteration with concurrency=1, concurrency exceeding input size, out-of-order resolution, and failfast all-fulfilled.",
+  "cases": [
+    {
+      "input": {
+        "operation": "iterate_limited",
+        "concurrency": 1,
+        "values": [
+          {
+            "state": "fulfilled",
+            "value": "a"
+          },
+          {
+            "state": "fulfilled",
+            "value": "b"
+          },
+          {
+            "state": "fulfilled",
+            "value": "c"
+          }
+        ],
+        "resolution_order": [
+          0,
+          1,
+          2
+        ]
+      },
+      "expected_output": "aggregate_state=fulfilled\nevents=[\"fulfilled:0:a\",\"fulfilled:1:b\",\"fulfilled:2:c\"]\n"
+    },
+    {
+      "input": {
+        "operation": "iterate_limited",
+        "concurrency": 10,
+        "values": [
+          {
+            "state": "fulfilled",
+            "value": "a"
+          },
+          {
+            "state": "fulfilled",
+            "value": "b"
+          }
+        ],
+        "resolution_order": [
+          1,
+          0
+        ]
+      },
+      "expected_output": "aggregate_state=fulfilled\nevents=[\"fulfilled:1:b\",\"fulfilled:0:a\"]\n"
+    },
+    {
+      "input": {
+        "operation": "iterate_limited_failfast",
+        "concurrency": 2,
+        "items": [
+          {
+            "state": "fulfilled",
+            "value": "a"
+          },
+          {
+            "state": "fulfilled",
+            "value": "b"
+          },
+          {
+            "state": "fulfilled",
+            "value": "c"
+          }
+        ]
+      },
+      "expected_output": "result_state=fulfilled\nresult_value=null\nevents=[\"fulfilled:0:a\",\"fulfilled:1:b\",\"fulfilled:2:c\"]\n"
+    },
+    {
+      "input": {
+        "operation": "iterate_limited_failfast",
+        "concurrency": 1,
+        "items": [
+          {
+            "state": "fulfilled",
+            "value": "p"
+          },
+          {
+            "state": "fulfilled",
+            "value": "q"
+          }
+        ]
+      },
+      "expected_output": "result_state=fulfilled\nresult_value=null\nevents=[\"fulfilled:0:p\",\"fulfilled:1:q\"]\n"
+    }
+  ]
+}

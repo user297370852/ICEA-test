@@ -1,0 +1,37 @@
+{
+  "description": "Binding validation edge cases: a non-public implementation is rejected, an ambiguous bind with three super types lists them in source-declaration order, the listing is not alphabetically sorted, and binding the same type twice is rejected with the fully-qualified type name.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Base\n\n@Inject\n@ContributesBinding(Unit::class)\ninternal class Impl : Base\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=Contributed component interfaces must be public.\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Base\ninterface Extra\ninterface Other\n\n@Inject\n@ContributesBinding(Unit::class)\nclass Impl : Base, Extra, Other\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=The bound type could not be determined for Impl. There are multiple super types: Base, Extra, Other.\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Zebra\ninterface Apple\n\n@Inject\n@ContributesBinding(Unit::class)\nclass Impl : Zebra, Apple\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=The bound type could not be determined for Impl. There are multiple super types: Zebra, Apple.\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesBinding\nimport me.tatarka.inject.annotations.Inject\n\ninterface Base\n\n@Inject\n@ContributesBinding(Unit::class, boundType = Base::class)\n@ContributesBinding(Unit::class, boundType = Base::class, multibinding = true)\nclass Impl : Base\n"
+        ]
+      },
+      "expected_output": "status=rejected\nerror=invalid_usage\nreason=The same type should not be contributed twice: com.example.Base.\n"
+    }
+  ]
+}

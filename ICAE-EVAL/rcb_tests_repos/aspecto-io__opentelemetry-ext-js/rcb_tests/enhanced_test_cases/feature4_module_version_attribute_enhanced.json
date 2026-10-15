@@ -1,0 +1,68 @@
+{
+  "description": "Enhanced library-version attribute coverage on batch operations: every producer span of a multi-topic batch carries the configured version attribute, and every consumer span of a per-batch delivery (the receiving span and each processing span) carries it as well.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "moduleVersionAttribute": "module.version"
+        },
+        "steps": [
+          {
+            "action": "produce_batch",
+            "topicMessages": [
+              {
+                "topic": "topic-a",
+                "messages": [
+                  {
+                    "value": "a1"
+                  }
+                ]
+              },
+              {
+                "topic": "topic-b",
+                "messages": [
+                  {
+                    "value": "b1"
+                  }
+                ]
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          }
+        ]
+      },
+      "expected_output": "produce_batch topics=2 status=ok result_records=0\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\nspans=2\nspan 0 kind=producer name=topic-a trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-a\n  messaging.destination_kind=topic\n  module.version=<version>\nspan 1 kind=producer name=topic-b trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-b\n  messaging.destination_kind=topic\n  module.version=<version>\n"
+    },
+    {
+      "input": {
+        "config": {
+          "moduleVersionAttribute": "module.version"
+        },
+        "steps": [
+          {
+            "action": "consume_batch",
+            "topic": "topic-name-1",
+            "partition": 0,
+            "messages": [
+              {
+                "value": "m1",
+                "offset": "1"
+              },
+              {
+                "value": "m2",
+                "offset": "2"
+              }
+            ],
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_batch topic=topic-name-1 delivered=ok error=none\nspans=3\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\n  module.version=<version>\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n  module.version=<version>\nspan 2 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n  module.version=<version>\n"
+    }
+  ]
+}

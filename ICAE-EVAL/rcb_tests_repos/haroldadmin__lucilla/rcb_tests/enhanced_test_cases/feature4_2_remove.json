@@ -1,0 +1,107 @@
+{
+  "description": "Remove documents from an index under boundary conditions: removing an identifier from an empty index as a no-op before any document exists, an add-then-remove cycle that returns the count to zero, and removing one of several documents followed by a repeated removal of the same identifier that leaves the remaining count unchanged.",
+  "cases": [
+    {
+      "input": {
+        "op": "index",
+        "actions": [
+          {
+            "action": "remove",
+            "doc": {
+              "type": "sentence",
+              "line": 0,
+              "value": "nothing"
+            }
+          },
+          {
+            "action": "size"
+          },
+          {
+            "action": "add",
+            "doc": {
+              "type": "book",
+              "id": 1,
+              "title": "One",
+              "author": "A",
+              "publisher": "P"
+            }
+          },
+          {
+            "action": "size"
+          },
+          {
+            "action": "remove",
+            "doc": {
+              "type": "book",
+              "id": 1,
+              "title": "One",
+              "author": "A",
+              "publisher": "P"
+            }
+          },
+          {
+            "action": "size"
+          }
+        ]
+      },
+      "expected_output": "size=0\nsize=1\nsize=0\n"
+    },
+    {
+      "input": {
+        "op": "index",
+        "actions": [
+          {
+            "action": "add",
+            "doc": {
+              "type": "book",
+              "id": 1,
+              "title": "One",
+              "author": "A",
+              "publisher": "P"
+            }
+          },
+          {
+            "action": "add",
+            "doc": {
+              "type": "book",
+              "id": 2,
+              "title": "Two",
+              "author": "B",
+              "publisher": "P"
+            }
+          },
+          {
+            "action": "remove",
+            "doc": {
+              "type": "book",
+              "id": 1,
+              "title": "One",
+              "author": "A",
+              "publisher": "P"
+            }
+          },
+          {
+            "action": "docs"
+          },
+          {
+            "action": "size"
+          },
+          {
+            "action": "remove",
+            "doc": {
+              "type": "book",
+              "id": 1,
+              "title": "One",
+              "author": "A",
+              "publisher": "P"
+            }
+          },
+          {
+            "action": "size"
+          }
+        ]
+      },
+      "expected_output": "docs=2\nsize=1\nsize=1\n"
+    }
+  ]
+}

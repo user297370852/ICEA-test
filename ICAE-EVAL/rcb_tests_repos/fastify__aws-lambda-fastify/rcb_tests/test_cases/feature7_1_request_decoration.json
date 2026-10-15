@@ -1,0 +1,36 @@
+{
+  "description": "Decorate the request so the handler can read the original invocation event and the original invocation context.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "awsLambdaEvent.httpMethod",
+          "awsLambdaContext"
+        ],
+        "context": {
+          "functionName": "fn"
+        },
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "wuuusaaa"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.awsLambdaEvent.httpMethod=GET\nrequest.awsLambdaContext={\"functionName\":\"fn\"}\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

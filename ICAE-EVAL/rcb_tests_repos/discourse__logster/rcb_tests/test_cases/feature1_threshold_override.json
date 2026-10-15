@@ -1,0 +1,27 @@
+{
+    "description": "A per-thread severity threshold filters log entries: an entry whose numeric level is below the active threshold for the thread that emits it is dropped, while an entry at or above the threshold is recorded. A threshold override applies only to the thread that set it; entries emitted on other threads are unaffected, and clearing the override on a thread restores its default acceptance of all levels. Each recorded entry is rendered with its level, source tag, message, attached metadata, and an encoding-validity flag, followed by a count of how many entries were recorded.",
+    "cases": [
+        {
+            "input": {
+                "actions": [
+                    {"thread_threshold": 2},
+                    {"log": {"level": 0, "message": "test", "source": "prog", "metadata": {"backtrace": "backtrace", "env": {"a": "x"}}, "thread": "main"}},
+                    {"log": {"level": 0, "message": "test", "source": "prog", "metadata": {"backtrace": "backtrace", "env": {"a": "x"}}, "thread": "other"}},
+                    {"thread_threshold": null},
+                    {"log": {"level": 0, "message": "test", "source": "prog", "metadata": {"backtrace": "backtrace", "env": {"a": "x"}}, "thread": "main"}}
+                ]
+            },
+            "expected_output": "primary level=0 source=prog message=test backtrace=backtrace env={\"a\":\"x\"} valid_encoding=true\nprimary level=0 source=prog message=test backtrace=backtrace env={\"a\":\"x\"} valid_encoding=true\nprimary total=2\n"
+        },
+        {
+            "input": {
+                "actions": [
+                    {"thread_threshold": 3},
+                    {"log": {"level": 1, "message": "low", "source": "svc"}},
+                    {"log": {"level": 3, "message": "high", "source": "svc"}}
+                ]
+            },
+            "expected_output": "primary level=3 source=svc message=high backtrace= env= valid_encoding=true\nprimary total=1\n"
+        }
+    ]
+}

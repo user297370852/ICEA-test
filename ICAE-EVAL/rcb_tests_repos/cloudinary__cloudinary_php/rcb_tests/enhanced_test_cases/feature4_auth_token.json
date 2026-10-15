@@ -1,0 +1,53 @@
+{
+  "description": "Enhanced coverage for signed auth tokens: an explicit expiration (instead of duration), an acl token with a different key/start_time, a no-acl token where a non-trivial url path is folded into the signed payload, and an acl token that additionally pins an ip (which prepends the ip segment to the signed token).",
+  "cases": [
+    {
+      "input": {
+        "op": "auth_token",
+        "config": {
+          "key": "00112233FF99",
+          "start_time": 1111111111,
+          "expiration": 1111111411
+        }
+      },
+      "expected_output": "token=__cld_token__=st=1111111111~exp=1111111411~hmac=1eb7df22e964405ed741ae636ccb3384f8a936a844e7b40a5df02fa57b535a57\n"
+    },
+    {
+      "input": {
+        "op": "auth_token",
+        "config": {
+          "key": "00112233FF99",
+          "start_time": 1234567890,
+          "duration": 600,
+          "acl": "/video/*"
+        }
+      },
+      "expected_output": "token=__cld_token__=st=1234567890~exp=1234568490~acl=%2fvideo%2f*~hmac=12044ab2a300511709ed8a203340d3a35df8214c266f45ef36610741adede676\n"
+    },
+    {
+      "input": {
+        "op": "auth_token",
+        "config": {
+          "key": "ABCDEF0011",
+          "start_time": 1111111111,
+          "duration": 300
+        },
+        "path": "image/sample.jpg"
+      },
+      "expected_output": "token=__cld_token__=st=1111111111~exp=1111111411~hmac=0d27405def7898a617d77e24648670cbe81180c03d86ddf2437b53d9ab770da8\n"
+    },
+    {
+      "input": {
+        "op": "auth_token",
+        "config": {
+          "key": "00112233FF99",
+          "start_time": 1111111111,
+          "duration": 300,
+          "acl": "/image/*",
+          "ip": "1.2.3.4"
+        }
+      },
+      "expected_output": "token=__cld_token__=ip=1.2.3.4~st=1111111111~exp=1111111411~acl=%2fimage%2f*~hmac=a8834dfb20def4744261f1b611933d33dbc0da9dde031c7b5bdfb83b0a126755\n"
+    }
+  ]
+}

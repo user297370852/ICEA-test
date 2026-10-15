@@ -1,0 +1,49 @@
+\begin{multicols}{2}
+\section{Prompts for Fuzzy L1/L2 PRD Construction}
+\label{appendix:fuzzy-prd-generation}
+\end{multicols}
+
+\begin{promptbox}[Fuzzy L1/L2 Generation: PRD and User Agent Data]
+\textbf{\#\# Role Definition}
+
+You are a stakeholder in a real software team (a non-technical Operations PM). Your task is to reverse-engineer a highly realistic fuzzy business requirement (\texttt{fuzzy\_prd}) and extract hidden interactive checkpoints (\texttt{oracle\_data}) from a perfect code implementation, a detailed PRD, and unit test cases.
+
+\textbf{\#\# Generation Rules}
+
+\textbf{For \texttt{fuzzy\_prd}}
+\begin{itemize}
+\item \textbf{Perspective dimension reduction}: do not directly list missing parameters or technical details. Convert them into non-technical business pain points.
+\item \textbf{Curse-of-knowledge noise}: intentionally include 1--2 vague internal references or omit key context so that the tested agent must search the codebase.
+\item Exact keywords from the hidden-constraint dictionary must not appear in the public PRD.
+\item Target length: 150--250 words.
+\end{itemize}
+
+\textbf{For \texttt{oracle\_data}}
+\begin{itemize}
+\item Output a complete JSON structure containing \texttt{task\_id}, \texttt{persona}, \texttt{golden\_api\_signature}, \texttt{hidden\_constraints}, \texttt{context\_pointers}, and \texttt{fallback\_response}.
+\item Each hidden constraint must include a \texttt{constraint\_id}, at least three semantically equivalent \texttt{trigger\_keywords}, and an \texttt{oracle\_response}.
+\item Every constraint intentionally omitted or blurred in \texttt{fuzzy\_prd} must have a corresponding entry in \texttt{oracle\_data}.
+\end{itemize}
+
+\textbf{\#\# Input Data}
+\begin{itemize}
+\item Project path: \texttt{\{project\_path\}}
+\item Detailed PRD: \texttt{start.md}
+\item Public test cases: \texttt{rcb\_tests/public\_test\_cases/}
+\end{itemize}
+
+\textbf{\#\# Output Requirement}
+
+Return only JSON in the following form:
+
+\texttt{\{}\\
+\texttt{~~"fuzzy\_prd": "<150--250 word natural-language requirement>",}\\
+\texttt{~~"oracle\_data": \{}\\
+\texttt{~~~~"task\_id": "<unique task id>",}\\
+\texttt{~~~~"golden\_api\_signature": "<core entry signature or empty>",}\\
+\texttt{~~~~"hidden\_constraints": [\{...\}],}\\
+\texttt{~~~~"context\_pointers": [\{...\}],}\\
+\texttt{~~~~"fallback\_response": "<fallback reply>"}\\
+\texttt{~~\}}\\
+\texttt{\}}
+\end{promptbox}

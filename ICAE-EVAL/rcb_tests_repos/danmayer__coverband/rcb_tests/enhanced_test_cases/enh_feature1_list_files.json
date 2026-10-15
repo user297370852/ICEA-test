@@ -1,0 +1,53 @@
+{
+  "description": "Boundary coverage for listing the tracked files: a multi-file snapshot whose keys must come back sorted by path, an empty store (no files tracked), and a single nested-path file. The contract is identical across the file-backed and networked key-value backends.",
+  "cases": [
+    {
+      "input": {
+        "op": "list_files",
+        "backend": "redis",
+        "snapshot": {
+          "src/b.rb": [
+            1
+          ],
+          "src/a.rb": [
+            2
+          ],
+          "lib/c.rb": [
+            3
+          ]
+        }
+      },
+      "expected_output": "count=3\nfile=lib/c.rb\nfile=src/a.rb\nfile=src/b.rb"
+    },
+    {
+      "input": {
+        "op": "list_files",
+        "backend": "file",
+        "snapshot": {}
+      },
+      "expected_output": "count=0"
+    },
+    {
+      "input": {
+        "op": "list_files",
+        "backend": "redis",
+        "snapshot": {}
+      },
+      "expected_output": "count=0"
+    },
+    {
+      "input": {
+        "op": "list_files",
+        "backend": "redis",
+        "snapshot": {
+          "app/models/user.rb": [
+            0,
+            1,
+            null
+          ]
+        }
+      },
+      "expected_output": "count=1\nfile=app/models/user.rb"
+    }
+  ]
+}

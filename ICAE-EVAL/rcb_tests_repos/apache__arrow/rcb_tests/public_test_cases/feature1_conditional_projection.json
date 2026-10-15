@@ -1,0 +1,63 @@
+{
+    "description": "Project a record batch through a compiled conditional expression. The schema has two equally-typed signed-integer columns. The expression compares the two columns element-wise and, for each row, selects the value from the first column when it is strictly greater than the second, otherwise the value from the second column (an if/then/else over a greater-than comparison). The adapter reports the operation, the declared result type, the number of output rows, and the resulting projected column as an ordered value list.",
+    "cases": [
+        {
+            "input": {
+                "operation": "project",
+                "schema": [
+                    {
+                        "name": "a",
+                        "type": "int32"
+                    },
+                    {
+                        "name": "b",
+                        "type": "int32"
+                    }
+                ],
+                "columns": {
+                    "a": [
+                        10,
+                        12,
+                        -20,
+                        5
+                    ],
+                    "b": [
+                        5,
+                        15,
+                        15,
+                        17
+                    ]
+                },
+                "expression": {
+                    "node": "if",
+                    "cond": {
+                        "node": "function",
+                        "name": "greater_than",
+                        "args": [
+                            {
+                                "node": "field",
+                                "name": "a"
+                            },
+                            {
+                                "node": "field",
+                                "name": "b"
+                            }
+                        ],
+                        "return": "bool"
+                    },
+                    "then": {
+                        "node": "field",
+                        "name": "a"
+                    },
+                    "else": {
+                        "node": "field",
+                        "name": "b"
+                    },
+                    "type": "int32"
+                },
+                "result_type": "int32"
+            },
+            "expected_output": "op=project\nresult_type=int32\nlength=4\nvalues=[10, 15, 15, 17]\n"
+        }
+    ]
+}

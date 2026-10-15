@@ -1,0 +1,71 @@
+{
+  "description": "ENHANCED: named-path-parameter routing edge cases — fall back to the request path when the configured parameter is absent, and apply the parameter for a v1 (httpMethod) event shape.",
+  "cases": [
+    {
+      "input": {
+        "options": {
+          "pathParameterUsedAsPath": "proxy"
+        },
+        "route": {
+          "method": "GET",
+          "path": "/fallback",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/fallback",
+          "headers": {
+            "X-My-Header": "h"
+          },
+          "pathParameters": {
+            "other": "x"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/fallback\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "options": {
+          "pathParameterUsedAsPath": "proxy"
+        },
+        "route": {
+          "method": "GET",
+          "path": "/widgets",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "url"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/area/widgets",
+          "headers": {
+            "X-My-Header": "h"
+          },
+          "pathParameters": {
+            "proxy": "widgets"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.url=/widgets\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "description": "ENHANCED: request-body decoding edge cases — gateway-supplied Content-Length is preserved (not recomputed), multibyte UTF-8 byte-length, echo of a parsed body, and a present-but-empty body.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "ok": true
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.content-length",
+          "body"
+        ],
+        "event": {
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "Content-Type": "application/json",
+            "content-length": "999"
+          },
+          "body": "{\"a\":1}"
+        }
+      },
+      "expected_output": "[response]\nstatus=400\nisBase64Encoded=false\nbody={\"statusCode\":400,\"code\":\"FST_ERR_CTP_INVALID_CONTENT_LENGTH\",\"error\":\"Bad Request\",\"message\":\"Request body size did not match Content-Length\"}\nheader.connection=close\nheader.content-length=143\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoBody"
+            }
+          }
+        },
+        "probe": [
+          "headers.content-length",
+          "body"
+        ],
+        "event": {
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "Content-Type": "text/plain"
+          },
+          "body": "café €"
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.content-length=9\nrequest.body=café €\n[response]\nstatus=200\nisBase64Encoded=false\nbody=café €\nheader.connection=keep-alive\nheader.content-length=9\nheader.content-type=text/plain; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "POST",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoBody"
+            }
+          }
+        },
+        "probe": [
+          "headers.content-type",
+          "headers.content-length"
+        ],
+        "event": {
+          "httpMethod": "POST",
+          "path": "/test",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": "eyJuIjoibmHDr3ZlIn0=",
+          "isBase64Encoded": true
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.content-type=application/json\nrequest.headers.content-length=14\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"n\":\"naïve\"}\nheader.connection=keep-alive\nheader.content-length=14\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

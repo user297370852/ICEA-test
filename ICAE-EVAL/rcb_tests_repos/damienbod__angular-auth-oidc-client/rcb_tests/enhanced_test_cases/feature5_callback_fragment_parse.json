@@ -1,0 +1,48 @@
+{
+  "op": "callback_fragment_parse",
+  "description": "Enhanced edge coverage for callback-fragment parsing, disjoint from the native suite: a pair with no '=' (key maps to an empty value), a duplicate key where the last occurrence wins, a trailing '&' producing a spurious empty-key entry, an explicitly empty value, a realistic provider error fragment whose values keep their raw percent-encoding (no decoding), a leading '=' producing an empty-key/non-empty-value entry, and a full success fragment mixing a base64 token ending in '==', a dotted id_token, and a state value containing multiple '=' characters.",
+  "cases": [
+    {
+      "input": {
+        "fragment": "access_token=AT&error"
+      },
+      "expected_output": "access_token=AT\nerror=\n"
+    },
+    {
+      "input": {
+        "fragment": "a=1&a=2&a=3"
+      },
+      "expected_output": "a=3\n"
+    },
+    {
+      "input": {
+        "fragment": "access_token=AT&"
+      },
+      "expected_output": "access_token=AT\n=\n"
+    },
+    {
+      "input": {
+        "fragment": "state=&code=xyz"
+      },
+      "expected_output": "state=\ncode=xyz\n"
+    },
+    {
+      "input": {
+        "fragment": "error=login_required&error_description=User%20not%20authenticated&state=abc"
+      },
+      "expected_output": "error=login_required\nerror_description=User%20not%20authenticated\nstate=abc\n"
+    },
+    {
+      "input": {
+        "fragment": "=novalue&x=1"
+      },
+      "expected_output": "=novalue\nx=1\n"
+    },
+    {
+      "input": {
+        "fragment": "access_token=AbC==&id_token=h.p.s&token_type=Bearer&expires_in=3600&state=a=b=c"
+      },
+      "expected_output": "access_token=AbC==\nid_token=h.p.s\ntoken_type=Bearer\nexpires_in=3600\nstate=a=b=c\n"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+    "description": "Serialize a recurrence-rule schedule into the portable JSON form. The result is tagged with an rrule type marker and records the frequency code, interval, and every recurrence constraint (count, until, by-weekday, by-month, etc.), defaulting unused constraints to null. Datetime anchors (the start moment and optional end moment) are stored as epoch seconds together with a companion field giving their UTC offset in minutes, so the original wall-clock offset is preserved even when two anchors denote the same instant in different zones. A by-weekday constraint is stored as a list of weekday selector objects.",
+    "cases": [
+        {
+            "input": {
+                "op": "serialize",
+                "value": {
+                    "kind": "rrule",
+                    "freq": "MINUTELY",
+                    "dtstart": {
+                        "year": 2015,
+                        "month": 12,
+                        "day": 30,
+                        "hour": 12,
+                        "minute": 59,
+                        "second": 22,
+                        "tz": "UTC"
+                    },
+                    "until": {
+                        "year": 2015,
+                        "month": 12,
+                        "day": 31,
+                        "hour": 12,
+                        "minute": 59,
+                        "second": 22,
+                        "tz": "UTC"
+                    },
+                    "count": 1
+                }
+            },
+            "expected_output": "{\"__type__\": \"rrule\", \"freq\": 5, \"interval\": 1, \"wkst\": null, \"count\": 1, \"bysetpos\": null, \"bymonth\": null, \"bymonthday\": null, \"byyearday\": null, \"byeaster\": null, \"byweekno\": null, \"byweekday\": null, \"byhour\": null, \"byminute\": null, \"bysecond\": null, \"dtstart\": 1451480362, \"dtstart_tz\": 0, \"until\": 1451566762, \"until_tz\": 0}\n"
+        },
+        {
+            "input": {
+                "op": "serialize",
+                "value": {
+                    "kind": "rrule",
+                    "freq": "WEEKLY",
+                    "dtstart": {
+                        "year": 2015,
+                        "month": 12,
+                        "day": 30,
+                        "hour": 12,
+                        "minute": 59,
+                        "second": 22,
+                        "tz": "UTC"
+                    },
+                    "until": {
+                        "year": 2015,
+                        "month": 12,
+                        "day": 31,
+                        "hour": 12,
+                        "minute": 59,
+                        "second": 22,
+                        "tz": "UTC"
+                    },
+                    "byweekday": [
+                        0,
+                        2,
+                        4
+                    ]
+                }
+            },
+            "expected_output": "{\"__type__\": \"rrule\", \"freq\": 2, \"interval\": 1, \"wkst\": null, \"count\": null, \"bysetpos\": null, \"bymonth\": null, \"bymonthday\": null, \"byyearday\": null, \"byeaster\": null, \"byweekno\": null, \"byweekday\": [{\"__type__\": \"weekday\", \"wkday\": 0}, {\"__type__\": \"weekday\", \"wkday\": 2}, {\"__type__\": \"weekday\", \"wkday\": 4}], \"byhour\": null, \"byminute\": null, \"bysecond\": null, \"dtstart\": 1451480362, \"dtstart_tz\": 0, \"until\": 1451566762, \"until_tz\": 0}\n"
+        }
+    ]
+}

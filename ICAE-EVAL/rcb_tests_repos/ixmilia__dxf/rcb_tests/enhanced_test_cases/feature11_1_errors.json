@@ -1,0 +1,44 @@
+{
+  "description": "Enhanced coverage for the neutral error contract (native-disjoint). Adds an unknown operation name, an unsupported target version routed through write_entity, an unknown entity type, a distinct unparseable-input payload, and an unknown header field name (the unknown_field category, which the native suite never triggers). Every error renders as a category line optionally followed by a single field line naming the offending value.",
+  "cases": [
+    {
+      "input": {
+        "op": "read_everything"
+      },
+      "expected_output": "error=unknown_operation\nop=read_everything\n"
+    },
+    {
+      "input": {
+        "op": "write_entity",
+        "version": "R5",
+        "entity": {
+          "type": "line"
+        }
+      },
+      "expected_output": "error=unknown_version\nversion=R5\n"
+    },
+    {
+      "input": {
+        "op": "write_entity",
+        "entity": {
+          "type": "sphere"
+        }
+      },
+      "expected_output": "error=unknown_entity_type\ntype=sphere\n"
+    },
+    {
+      "input": "not valid { json",
+      "expected_output": "error=invalid_input\n"
+    },
+    {
+      "input": {
+        "op": "read_header",
+        "dxf": "  9\n$ACADVER\n  1\nAC1012\n",
+        "fields": [
+          "bogus_field"
+        ]
+      },
+      "expected_output": "error=unknown_field\nfield=bogus_field\n"
+    }
+  ]
+}

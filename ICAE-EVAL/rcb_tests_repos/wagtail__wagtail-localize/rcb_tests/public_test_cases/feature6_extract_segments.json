@@ -1,0 +1,19 @@
+{
+    "description": "Extract the ordered list of translatable segments from a rich-text document. Each contiguous run of visible text together with the inline tags wrapping it becomes one segment; block-level structure is not part of a segment. Leading/trailing line-break tags inside a segment are excluded, an inline tag containing block content is split, and empty inline tags contribute nothing. Each extracted segment is itself a normalized inline string (attributes stripped to a per-segment map). The output reports how many segments were found and, for each, the normalized segment markup and its attribute map in order.",
+    "cases": [
+        {
+            "input": {
+                "op": "extract_segments",
+                "html": "<h1>Foo bar baz</h1><p>This is a paragraph. <b>This is some bold <i>and now italic</i></b> text</p><p>&lt;script&gt; this should be interpreted as text.</p><ul><li>List item one</li><li><b>List item two</b></li></ul><img src=\"foo\" alt=\"This bit isn't translatable\">"
+            },
+            "expected_output": "count=5\nsegment[0]=Foo bar baz\nattrs[0]={}\nsegment[1]=This is a paragraph. <b>This is some bold <i>and now italic</i></b> text\nattrs[1]={}\nsegment[2]=&lt;script&gt; this should be interpreted as text.\nattrs[2]={}\nsegment[3]=List item one\nattrs[3]={}\nsegment[4]=List item two\nattrs[4]={}\n"
+        },
+        {
+            "input": {
+                "op": "extract_segments",
+                "html": "<p><b>Foo <i>Bar<br/>Baz</i></b></p>"
+            },
+            "expected_output": "count=1\nsegment[0]=Foo <i>Bar<br/>Baz</i>\nattrs[0]={}\n"
+        }
+    ]
+}

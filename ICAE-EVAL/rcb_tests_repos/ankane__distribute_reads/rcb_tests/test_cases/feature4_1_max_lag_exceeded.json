@@ -1,0 +1,44 @@
+{
+    "description": "When a maximum replica-lag threshold is set and the measured lag exceeds it, opening the scope raises a lag-exceeded error before any read runs. The threshold may be supplied per scope or via global defaults.",
+    "cases": [
+        {
+            "input": {
+                "lag": 2,
+                "program": [
+                    {
+                        "op": "scope",
+                        "options": {
+                            "max_lag": 1
+                        },
+                        "body": [
+                            {
+                                "op": "read"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "error=too_much_lag\nmessage=Replica lag over 1 seconds\n"
+        },
+        {
+            "input": {
+                "default_options": {
+                    "max_lag": 1
+                },
+                "lag": 2,
+                "program": [
+                    {
+                        "op": "scope",
+                        "options": {},
+                        "body": [
+                            {
+                                "op": "read"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "error=too_much_lag\nmessage=Replica lag over 1 seconds\n"
+        }
+    ]
+}

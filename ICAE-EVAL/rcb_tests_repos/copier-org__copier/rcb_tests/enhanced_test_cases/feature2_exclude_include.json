@@ -1,0 +1,93 @@
+{
+  "description": "Boundary coverage for entry selection: excluding every entry, excluding a nested-directory glob, re-admitting a compiled-artifact via glob include, default exclusion of .git/__pycache__/.DS_Store, an explicit exclude arg overriding a config _exclude list, and a no-op exclude pattern that matches nothing.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "A\n",
+          "b.txt": "B\n"
+        },
+        "exclude": [
+          "*"
+        ],
+        "data": {}
+      },
+      "expected_output": "produced=0\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "keep.txt": "k\n",
+          "logs/app.log": "L\n",
+          "logs/web.log": "L\n"
+        },
+        "exclude": [
+          "*.log"
+        ],
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: keep.txt\nfile: keep.txt -> \"k\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "keep.txt": "k\n",
+          "mod.pyc": "x\n"
+        },
+        "include": [
+          "*.pyc"
+        ],
+        "data": {}
+      },
+      "expected_output": "produced=2\npath: keep.txt\npath: mod.pyc\nfile: keep.txt -> \"k\\n\"\nfile: mod.pyc -> \"x\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "keep.txt": "k\n",
+          ".git/config": "g\n",
+          "__pycache__/x.bin": "p\n",
+          ".DS_Store": "d\n"
+        },
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: keep.txt\nfile: keep.txt -> \"k\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "A\n",
+          "b.md": "B\n"
+        },
+        "exclude": [
+          "*.md"
+        ],
+        "config_file": {
+          "name": "copier.yml",
+          "content": "_exclude:\n  - \"*.txt\"\n"
+        },
+        "data": {}
+      },
+      "expected_output": "produced=2\npath: a.txt\npath: copier.yml\nfile: a.txt -> \"A\\n\"\nfile: copier.yml -> \"_exclude:\\n  - \\\"*.txt\\\"\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "a.txt": "A\n",
+          "b.txt": "B\n"
+        },
+        "exclude": [
+          "*.nomatch"
+        ],
+        "data": {}
+      },
+      "expected_output": "produced=2\npath: a.txt\npath: b.txt\nfile: a.txt -> \"A\\n\"\nfile: b.txt -> \"B\\n\"\n"
+    }
+  ]
+}

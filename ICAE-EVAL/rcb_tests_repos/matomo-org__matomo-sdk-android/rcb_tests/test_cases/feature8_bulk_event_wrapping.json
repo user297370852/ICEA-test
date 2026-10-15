@@ -1,0 +1,72 @@
+{
+  "description": "Groups event query strings into bulk request pages, preserves the base API URL, includes an optional authentication token in JSON payloads, and returns a direct event URL for single-event dispatch.",
+  "cases": [
+    {
+      "input": {
+        "feature": "bulk_wrapper",
+        "api_url": "http://example.com/",
+        "token": "test_token",
+        "events": [],
+        "action": "summary"
+      },
+      "expected_output": "has_next=false\nnext_after_end=null\n"
+    },
+    {
+      "input": {
+        "feature": "bulk_wrapper",
+        "api_url": "http://example.com/",
+        "token": "test_token",
+        "events": [
+          "?one=1",
+          "?two=2"
+        ],
+        "action": "summary"
+      },
+      "expected_output": "page=0\nelements=2\npayload={\"token_auth\":\"test_token\",\"requests\":[\"?one=1\",\"?two=2\"]}\nevent_url=http://example.com/?one=1\nhas_next=false\nnext_after_end=null\n"
+    },
+    {
+      "input": {
+        "feature": "bulk_wrapper",
+        "api_url": "http://www.com/java.htm",
+        "token": "test_token",
+        "events": [
+          ""
+        ],
+        "action": "api_url"
+      },
+      "expected_output": "api_url=http://www.com/java.htm\n"
+    },
+    {
+      "input": {
+        "feature": "bulk_wrapper",
+        "api_url": "http://example.com/",
+        "token": null,
+        "events": [
+          "?eve0",
+          "?eve1",
+          "?eve2",
+          "?eve3",
+          "?eve4",
+          "?eve5",
+          "?eve6",
+          "?eve7",
+          "?eve8",
+          "?eve9",
+          "?eve10",
+          "?eve11",
+          "?eve12",
+          "?eve13",
+          "?eve14",
+          "?eve15",
+          "?eve16",
+          "?eve17",
+          "?eve18",
+          "?eve19",
+          "?eve20"
+        ],
+        "action": "summary"
+      },
+      "expected_output": "page=0\nelements=20\npayload={\"requests\":[\"?eve0\",\"?eve1\",\"?eve2\",\"?eve3\",\"?eve4\",\"?eve5\",\"?eve6\",\"?eve7\",\"?eve8\",\"?eve9\",\"?eve10\",\"?eve11\",\"?eve12\",\"?eve13\",\"?eve14\",\"?eve15\",\"?eve16\",\"?eve17\",\"?eve18\",\"?eve19\"]}\nevent_url=http://example.com/?eve0\npage=1\nelements=1\npayload={\"requests\":[\"?eve20\"]}\nevent_url=http://example.com/?eve20\nhas_next=false\nnext_after_end=null\n"
+    }
+  ]
+}

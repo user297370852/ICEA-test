@@ -1,0 +1,69 @@
+{
+  "description": "ENHANCED: header normalization edge cases — three multi-values are combined, and a request id from the request context is exposed as x-request-id.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.x-trip"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          },
+          "multiValueHeaders": {
+            "x-trip": [
+              "1",
+              "2",
+              "3"
+            ]
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.x-trip=1,2,3\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "json",
+              "value": {
+                "hello": "world"
+              }
+            }
+          }
+        },
+        "probe": [
+          "headers.x-request-id"
+        ],
+        "event": {
+          "httpMethod": "GET",
+          "path": "/test",
+          "headers": {
+            "X-My-Header": "h"
+          },
+          "requestContext": {
+            "requestId": "req-abc-123"
+          }
+        }
+      },
+      "expected_output": "[request]\nrequest.headers.x-request-id=req-abc-123\n[response]\nstatus=200\nisBase64Encoded=false\nbody={\"hello\":\"world\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

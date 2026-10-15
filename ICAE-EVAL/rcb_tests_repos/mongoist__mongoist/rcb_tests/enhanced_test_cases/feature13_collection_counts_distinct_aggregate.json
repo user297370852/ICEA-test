@@ -1,0 +1,51 @@
+{
+  "description": "Analytical operations must work for a fire-type count, distinct over the type field with no filter, and an aggregation grouping by name.",
+  "cases": [
+    {
+      "input": {
+        "collection": "a",
+        "seed": [
+          {
+            "name": "Squirtle",
+            "type": "water",
+            "level": 10
+          },
+          {
+            "name": "Starmie",
+            "type": "water",
+            "level": 8
+          },
+          {
+            "name": "Charmander",
+            "type": "fire",
+            "level": 8
+          },
+          {
+            "name": "Lapras",
+            "type": "water",
+            "level": 12
+          }
+        ],
+        "countQuery": {
+          "type": "fire"
+        },
+        "distinctField": "type",
+        "distinctQuery": {},
+        "pipeline": [
+          {
+            "$group": {
+              "_id": "$name"
+            }
+          },
+          {
+            "$project": {
+              "_id": 0,
+              "foo": "$_id"
+            }
+          }
+        ]
+      },
+      "expected_output": "water_count=1\ndistinct_names=water,fire\naggregate_types=Charmander,Lapras,Squirtle,Starmie\n"
+    }
+  ]
+}

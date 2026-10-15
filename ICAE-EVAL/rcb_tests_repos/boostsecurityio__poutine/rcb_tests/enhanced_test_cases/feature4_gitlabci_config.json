@@ -1,0 +1,61 @@
+{
+  "description": "Additional GitLab pipeline parsing coverage: minimal image-only document, non-mapping documents rejected as a neutral error, include directive variety (remote/local/project/template/component), spec inputs with defaults and options, expandable variables with descriptions, stages and hidden jobs with after-scripts, and reference-style values preserved verbatim.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": "image: alpine:3.19\n"
+      },
+      "expected_output": "image=alpine:3.19\n"
+    },
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": "[]\n"
+      },
+      "expected_output": "error=invalid_config\n"
+    },
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": "just a scalar\n"
+      },
+      "expected_output": "error=invalid_config\n"
+    },
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": "stages:\n  - build\n  - test\n  - deploy\n"
+      },
+      "expected_output": "stage=build\nstage=test\nstage=deploy\n"
+    },
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": "variables:\n  FOO: bar\n  BAZ:\n    value: qux\n    expand: false\n"
+      },
+      "expected_output": "variable FOO value=bar expand=false\nvariable BAZ value=qux expand=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": "include:\n  - remote: https://example.com/x.yml\n  - local: /a/b.yml\n  - template: Auto-DevOps.gitlab-ci.yml\n"
+      },
+      "expected_output": "include remote=https://example.com/x.yml\ninclude local=/a/b.yml\ninclude \n"
+    },
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": "test:\n  stage: test\n  script:\n    - make test\n  after_script:\n    - echo done\n"
+      },
+      "expected_output": "job test hidden=false line=1\n  script=make test\n  after_script=echo done\n"
+    },
+    {
+      "input": {
+        "op": "parse_gitlabci",
+        "yaml": ".hidden:\n  script:\n    - echo secret\n"
+      },
+      "expected_output": "job .hidden hidden=true line=1\n  script=echo secret\n"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+    "description": "CloudEvents content-type detection: a JSON payload missing required envelope fields stays application/json, and a full envelope with the cloudevent flag off is still treated as plain JSON.",
+    "cases": [
+        {
+            "input": {
+                "action": "publish",
+                "app_id": "app1",
+                "pubsub": "ps",
+                "topic": "t",
+                "payload": "{\"id\":\"1\",\"data\":{}}",
+                "list_app_id": "app1",
+                "cloudevent": true
+            },
+            "expected_output": "http://localhost:24739/v1.0/publish/ps/t\nerror=instance_not_found\n"
+        },
+        {
+            "input": {
+                "action": "publish",
+                "app_id": "app1",
+                "pubsub": "ps",
+                "topic": "t",
+                "payload": "{\"id\":\"1\",\"source\":\"s\",\"specversion\":\"1.0\",\"type\":\"x\",\"data\":{}}",
+                "list_app_id": "app1",
+                "cloudevent": false
+            },
+            "expected_output": "path=/v1.0/publish/ps/t\ncontent_type=application/json\n"
+        }
+    ]
+}

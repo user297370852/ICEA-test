@@ -1,0 +1,81 @@
+{
+  "description": "Boundary coverage for the maximum-wait bound on a debounced value: a maximum wait shorter than the quiet window so the bound forces a settle while the source keeps changing, with the value advancing to the most recent source value at the bound.",
+  "cases": [
+    {
+      "input": {
+        "hook": "value",
+        "delay": 1000,
+        "options": {
+          "maxWait": 300
+        },
+        "initial": {
+          "value": "old"
+        },
+        "steps": [
+          {
+            "do": "setProps",
+            "props": {
+              "value": "new"
+            }
+          },
+          {
+            "do": "advance",
+            "ms": 300
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "value=new\n"
+    },
+    {
+      "input": {
+        "hook": "value",
+        "delay": 500,
+        "options": {
+          "maxWait": 600
+        },
+        "initial": {
+          "value": "s0"
+        },
+        "steps": [
+          {
+            "do": "setProps",
+            "props": {
+              "value": "s1"
+            }
+          },
+          {
+            "do": "advance",
+            "ms": 200
+          },
+          {
+            "do": "setProps",
+            "props": {
+              "value": "s2"
+            }
+          },
+          {
+            "do": "advance",
+            "ms": 200
+          },
+          {
+            "do": "setProps",
+            "props": {
+              "value": "s3"
+            }
+          },
+          {
+            "do": "advance",
+            "ms": 200
+          },
+          {
+            "do": "observe"
+          }
+        ]
+      },
+      "expected_output": "value=s3\n"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "description": "Enhanced boundary coverage for confidential argument redaction. Confirms that redaction is gated strictly on the CONFIDENTIAL marker: a different classification marker (SECRET), a non-classification event marker (EVENT SUCCESS), and the no-marker case all leave arguments untouched. Also covers logical edge cases of slf4j MessageFormatter array formatting under redaction: surplus placeholders with too few args (the unfilled '{}' is left literal), surplus args with too few placeholders, and a template with no placeholders at all.",
+  "cases": [
+    {
+      "input": {
+        "op": "mask_args",
+        "marker": "SECRET",
+        "template": "userid={}, password={}",
+        "args": [
+          "myId",
+          "secret"
+        ]
+      },
+      "expected_output": "message=userid=myId, password=secret\n"
+    },
+    {
+      "input": {
+        "op": "mask_args",
+        "template": "userid={}, password={}",
+        "args": [
+          "myId",
+          "secret"
+        ]
+      },
+      "expected_output": "message=userid=myId, password=secret\n"
+    },
+    {
+      "input": {
+        "op": "mask_args",
+        "marker": "EVENT SUCCESS",
+        "template": "x={}",
+        "args": [
+          "plain"
+        ]
+      },
+      "expected_output": "message=x=plain\n"
+    },
+    {
+      "input": {
+        "op": "mask_args",
+        "marker": "CONFIDENTIAL",
+        "template": "no placeholders here",
+        "args": [
+          "a",
+          "b"
+        ]
+      },
+      "expected_output": "message=no placeholders here\n"
+    },
+    {
+      "input": {
+        "op": "mask_args",
+        "marker": "CONFIDENTIAL",
+        "template": "a={} b={} c={}",
+        "args": [
+          "x",
+          "y"
+        ]
+      },
+      "expected_output": "message=a=******** b=******** c={}\n"
+    },
+    {
+      "input": {
+        "op": "mask_args",
+        "marker": "CONFIDENTIAL",
+        "template": "single={}",
+        "args": []
+      },
+      "expected_output": "message=single={}\n"
+    }
+  ]
+}

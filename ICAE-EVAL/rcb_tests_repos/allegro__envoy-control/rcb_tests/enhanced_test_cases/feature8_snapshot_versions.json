@@ -1,0 +1,221 @@
+{
+  "description": "Enhanced snapshot versioning: reverting endpoints to a previously-seen value reuses the earlier endpoint label; reverting clusters reuses the earlier cluster label; the same group versioned three times with no changes keeps both labels stable.",
+  "cases": [
+    {
+      "input": {
+        "op": "snapshot_versions",
+        "steps": [
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 2
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c0 endpoints=e1\nstep=2 clusters=c0 endpoints=e2\n"
+    },
+    {
+      "input": {
+        "op": "snapshot_versions",
+        "steps": [
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1",
+              "service2"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c1 endpoints=e1\nstep=2 clusters=c2 endpoints=e2\n"
+    },
+    {
+      "input": {
+        "op": "snapshot_versions",
+        "steps": [
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "all"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c0 endpoints=e0\nstep=2 clusters=c0 endpoints=e0\n"
+    },
+    {
+      "input": {
+        "op": "snapshot_versions",
+        "steps": [
+          {
+            "action": "version",
+            "group": {
+              "kind": "path",
+              "path": "/a"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "path",
+              "path": "/b"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          },
+          {
+            "action": "version",
+            "group": {
+              "kind": "path",
+              "path": "/a"
+            },
+            "clusters": [
+              "service1"
+            ],
+            "endpoints": [
+              {
+                "cluster": "service1",
+                "instances": 1
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "step=0 clusters=c0 endpoints=e0\nstep=1 clusters=c1 endpoints=e1\nstep=2 clusters=c0 endpoints=e0\n"
+    }
+  ]
+}

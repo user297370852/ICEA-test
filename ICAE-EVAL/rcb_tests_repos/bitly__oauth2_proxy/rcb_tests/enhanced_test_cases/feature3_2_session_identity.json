@@ -1,0 +1,37 @@
+{
+  "description": "Boundary coverage for identity-only (no-cipher) session encoding: when the address is an email it is persisted and its local part is exposed as the derived user; when no address is present the bare user is persisted (and if that bare user itself contains an '@' it is re-interpreted as an address on decode); when neither address nor user is present the identity is empty; an address without an '@' persists as-is and exposes no derived user.",
+  "cases": [
+    {
+      "input": {
+        "action": "session_identity",
+        "email": "",
+        "user": ""
+      },
+      "expected_output": "identity=\nemail=\nuser=\n"
+    },
+    {
+      "input": {
+        "action": "session_identity",
+        "email": "first.last@mail.corp.example.com",
+        "user": "ignored"
+      },
+      "expected_output": "identity=first.last@mail.corp.example.com\nemail=first.last@mail.corp.example.com\nuser=first.last\n"
+    },
+    {
+      "input": {
+        "action": "session_identity",
+        "email": "",
+        "user": "weird@user"
+      },
+      "expected_output": "identity=weird@user\nemail=weird@user\nuser=weird\n"
+    },
+    {
+      "input": {
+        "action": "session_identity",
+        "email": "plainidentity",
+        "user": "ignored"
+      },
+      "expected_output": "identity=plainidentity\nemail=\nuser=plainidentity\n"
+    }
+  ]
+}

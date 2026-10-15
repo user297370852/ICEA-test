@@ -1,0 +1,144 @@
+{
+    "description": "Build SQL CASE expressions, including simple case operands, searched cases, raw expressions, aliases, ELSE branches, and validation for missing WHEN clauses.",
+    "cases": [
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "simple_value_case",
+                "case": {
+                    "operand": "number",
+                    "when_then": [
+                        [
+                            "1",
+                            "one"
+                        ],
+                        [
+                            "2",
+                            "two"
+                        ]
+                    ],
+                    "else": {
+                        "expression": "?",
+                        "args": [
+                            "big number"
+                        ]
+                    },
+                    "source": "table"
+                }
+            },
+            "expected_output": "sql=SELECT CASE number WHEN 1 THEN one WHEN 2 THEN two ELSE ? END FROM table\nargs=[\"big number\"]\n"
+        },
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "complex_operand_alias",
+                "case": {
+                    "operand": {
+                        "expression": "? > ?",
+                        "args": [
+                            10,
+                            5
+                        ]
+                    },
+                    "when_then": [
+                        [
+                            "true",
+                            "'T'"
+                        ]
+                    ],
+                    "alias": "complexCase",
+                    "source": "table"
+                }
+            },
+            "expected_output": "sql=SELECT (CASE ? > ? WHEN true THEN 'T' END) AS complexCase FROM table\nargs=[10,5]\n"
+        },
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "searched_case",
+                "case": {
+                    "when_then": [
+                        [
+                            {
+                                "comparison": "equals",
+                                "field": "x",
+                                "value": 0
+                            },
+                            "x is zero"
+                        ],
+                        [
+                            {
+                                "expression": "x > ?",
+                                "args": [
+                                    1
+                                ]
+                            },
+                            {
+                                "expression": "CONCAT('x is greater than ', ?)",
+                                "args": [
+                                    2
+                                ]
+                            }
+                        ]
+                    ],
+                    "source": "table"
+                }
+            },
+            "expected_output": "sql=SELECT CASE WHEN x = ? THEN x is zero WHEN x > ? THEN CONCAT('x is greater than ', ?) END FROM table\nargs=[0,1,2]\n"
+        },
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "expression_operand_with_else",
+                "case": {
+                    "operand": {
+                        "expression": "x = ?",
+                        "args": [
+                            true
+                        ]
+                    },
+                    "when_then": [
+                        [
+                            "true",
+                            {
+                                "expression": "?",
+                                "args": [
+                                    "it's true!"
+                                ]
+                            }
+                        ]
+                    ],
+                    "else": "42",
+                    "source": "table"
+                }
+            },
+            "expected_output": "sql=SELECT CASE x = ? WHEN true THEN ? ELSE 42 END FROM table\nargs=[true,\"it's true!\"]\n"
+        },
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "multiple_aliased_cases",
+                "case": {
+                    "source": "table",
+                    "columns": [
+                        "case_noval",
+                        "case_expr"
+                    ]
+                }
+            },
+            "expected_output": "sql=SELECT (CASE x = ? WHEN true THEN ? ELSE 42 END) AS case_noval, (CASE WHEN x = ? THEN 'x is zero' WHEN x > ? THEN CONCAT('x is greater than ', ?) END) AS case_expr FROM table\nargs=[true,\"it's true!\",0,1,2]\n"
+        },
+        {
+            "input": {
+                "operation": "case_expression",
+                "scenario": "missing_when",
+                "case": {
+                    "operand": "something",
+                    "else": "42",
+                    "source": "table"
+                }
+            },
+            "expected_output": "error=missing_case_when\n"
+        }
+    ]
+}

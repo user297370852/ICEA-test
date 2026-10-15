@@ -1,0 +1,90 @@
+{
+  "description": "Inherited-exit boundaries: observers on a grandchild and on intermediate scopes all receive exactly one exit when a distant ancestor is torn down.",
+  "cases": [
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "build_child",
+            "id": "a",
+            "parent": "r",
+            "name": "a"
+          },
+          {
+            "op": "build_child",
+            "id": "b",
+            "parent": "a",
+            "name": "b"
+          },
+          {
+            "op": "register",
+            "scope": "a",
+            "tracker": "ta"
+          },
+          {
+            "op": "register",
+            "scope": "b",
+            "tracker": "tb"
+          },
+          {
+            "op": "destroy",
+            "scope": "r"
+          },
+          {
+            "op": "tracker",
+            "tracker": "ta"
+          },
+          {
+            "op": "tracker",
+            "tracker": "tb"
+          }
+        ]
+      },
+      "expected_output": "tracker[ta] enter=1 exit=1\ntracker[tb] enter=1 exit=1\n"
+    },
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "build_child",
+            "id": "a",
+            "parent": "r",
+            "name": "a"
+          },
+          {
+            "op": "build_child",
+            "id": "b",
+            "parent": "r",
+            "name": "b"
+          },
+          {
+            "op": "register",
+            "scope": "a",
+            "tracker": "ta"
+          },
+          {
+            "op": "destroy",
+            "scope": "b"
+          },
+          {
+            "op": "tracker",
+            "tracker": "ta"
+          }
+        ]
+      },
+      "expected_output": "tracker[ta] enter=1 exit=0\n"
+    }
+  ]
+}

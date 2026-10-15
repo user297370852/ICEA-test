@@ -1,0 +1,121 @@
+{
+  "description": "Apply an ordered sequence of operations to a snapshot, each operation establishing the working version before it is applied so the document accumulates every change in order. A single sequence may create, then edit, then further edit a document. Errors short-circuit the sequence and surface as normalized categories: an unregistered snapshot type or create type yields type-not-recognized, and a payload the type refuses to apply yields a normalized not-applied category.",
+  "cases": [
+    {
+      "input": {
+        "action": "applyOps",
+        "snapshot": {},
+        "ops": [
+          {
+            "v": 1,
+            "create": {
+              "type": "json0",
+              "data": {}
+            }
+          },
+          {
+            "v": 2,
+            "op": [
+              {
+                "p": [
+                  "a"
+                ],
+                "oi": 1
+              }
+            ]
+          },
+          {
+            "v": 3,
+            "op": [
+              {
+                "p": [
+                  "b"
+                ],
+                "oi": 2
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "v=4\ntype=http://sharejs.org/types/JSONv0\ndata={\"a\":1,\"b\":2}\n"
+    },
+    {
+      "input": {
+        "action": "applyOps",
+        "snapshot": {
+          "type": "json0",
+          "data": "Hi"
+        },
+        "ops": [
+          {
+            "v": 1,
+            "op": [
+              {
+                "p": [
+                  2
+                ],
+                "si": "!"
+              }
+            ]
+          },
+          {
+            "v": 2
+          },
+          {
+            "v": 3,
+            "op": [
+              {
+                "p": [
+                  3
+                ],
+                "si": "?"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "v=4\ntype=json0\ndata=\"Hi!?\"\n"
+    },
+    {
+      "input": {
+        "action": "applyOps",
+        "snapshot": {
+          "type": "json0",
+          "data": "x"
+        },
+        "ops": []
+      },
+      "expected_output": "v=null\ntype=json0\ndata=\"x\"\n"
+    },
+    {
+      "input": {
+        "action": "applyOps",
+        "snapshot": {
+          "type": "json0",
+          "data": {
+            "t": "x"
+          }
+        },
+        "ops": [
+          {
+            "v": 1,
+            "op": [
+              {
+                "p": [
+                  "t",
+                  0
+                ],
+                "si": "y"
+              }
+            ]
+          },
+          {
+            "v": 2,
+            "del": true
+          }
+        ]
+      },
+      "expected_output": "v=3\ntype=null\ndata=absent\n"
+    }
+  ]
+}

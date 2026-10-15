@@ -1,0 +1,392 @@
+{
+    "description": "A document matcher evaluates a query specification against a stream of documents and returns, in their original order, only the documents that satisfy it. This scenario covers range and equality comparison conditions on a single field: a value strictly or inclusively greater-than or less-than a bound, an explicit equality condition, an inequality (not-equal) condition, ranges combining two bounds, and comparisons against temporal values. When the stored field holds an array, the condition matches if any element satisfies it. A field that is absent or holds the empty/null value does not satisfy a positive comparison.",
+    "cases": [
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$gte": 4
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "n": "neil",
+                        "a": 1
+                    },
+                    {
+                        "n": "fred",
+                        "a": 2
+                    },
+                    {
+                        "n": "ted",
+                        "a": 3
+                    },
+                    {
+                        "n": "stu",
+                        "a": 4
+                    },
+                    {
+                        "n": "tim",
+                        "a": 5
+                    },
+                    {
+                        "a": [
+                            3,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"n\" : \"stu\" , \"a\" : 4}\n{ \"n\" : \"tim\" , \"a\" : 5}\n{ \"a\" : [ 3 , 4]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$lte": 3
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "n": "neil",
+                        "a": 1
+                    },
+                    {
+                        "n": "fred",
+                        "a": 2
+                    },
+                    {
+                        "n": "ted",
+                        "a": 3
+                    },
+                    {
+                        "n": "stu",
+                        "a": 4
+                    },
+                    {
+                        "n": "tim",
+                        "a": 5
+                    },
+                    {
+                        "a": [
+                            3,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"n\" : \"neil\" , \"a\" : 1}\n{ \"n\" : \"fred\" , \"a\" : 2}\n{ \"n\" : \"ted\" , \"a\" : 3}\n{ \"a\" : [ 3 , 4]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$gt": 4
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "n": "neil",
+                        "a": 1
+                    },
+                    {
+                        "n": "fred",
+                        "a": 2
+                    },
+                    {
+                        "n": "ted",
+                        "a": 3
+                    },
+                    {
+                        "n": "stu",
+                        "a": 4
+                    },
+                    {
+                        "n": "tim",
+                        "a": 5
+                    },
+                    {
+                        "a": [
+                            3,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"n\" : \"tim\" , \"a\" : 5}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$lt": 3
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "n": "neil",
+                        "a": 1
+                    },
+                    {
+                        "n": "fred",
+                        "a": 2
+                    },
+                    {
+                        "n": "ted",
+                        "a": 3
+                    },
+                    {
+                        "n": "stu",
+                        "a": 4
+                    },
+                    {
+                        "n": "tim",
+                        "a": 5
+                    },
+                    {
+                        "a": [
+                            3,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"n\" : \"neil\" , \"a\" : 1}\n{ \"n\" : \"fred\" , \"a\" : 2}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$gt": 3,
+                        "$lt": 5
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "n": "neil",
+                        "a": 1
+                    },
+                    {
+                        "n": "fred",
+                        "a": 2
+                    },
+                    {
+                        "n": "ted",
+                        "a": 3
+                    },
+                    {
+                        "n": "stu",
+                        "a": 4
+                    },
+                    {
+                        "n": "tim",
+                        "a": 5
+                    },
+                    {
+                        "a": [
+                            3,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"n\" : \"stu\" , \"a\" : 4}\n{ \"a\" : [ 3 , 4]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$eq": 1
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "n": "neil",
+                        "a": 1
+                    },
+                    {
+                        "n": "fred",
+                        "a": 2
+                    },
+                    {
+                        "n": "ted",
+                        "a": 3
+                    },
+                    {
+                        "n": "stu",
+                        "a": 4
+                    },
+                    {
+                        "n": "tim",
+                        "a": 5
+                    },
+                    {
+                        "a": [
+                            3,
+                            4
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"n\" : \"neil\" , \"a\" : 1}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$lte": {
+                            "$date": 2
+                        }
+                    }
+                },
+                "documents": [
+                    {
+                        "a": null
+                    },
+                    {
+                        "a": {
+                            "$date": 2
+                        }
+                    },
+                    {
+                        "a": {
+                            "$date": 1
+                        }
+                    },
+                    {
+                        "a": {
+                            "$date": 3
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : { \"$date\" : \"1970-01-01T00:00:00.002Z\"}}\n{ \"a\" : { \"$date\" : \"1970-01-01T00:00:00.001Z\"}}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$ne": 3
+                    }
+                },
+                "documents": [
+                    {
+                        "a": [
+                            1,
+                            3
+                        ]
+                    },
+                    {
+                        "a": 1
+                    },
+                    {
+                        "a": 3
+                    },
+                    {
+                        "b": 3
+                    },
+                    {
+                        "a": [
+                            1,
+                            2
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : 1}\n{ \"b\" : 3}\n{ \"a\" : [ 1 , 2]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a": {
+                        "$ne": null
+                    }
+                },
+                "documents": [
+                    {
+                        "a": [
+                            null,
+                            3
+                        ]
+                    },
+                    {
+                        "a": null
+                    },
+                    {
+                        "a": 1
+                    },
+                    {
+                        "b": 3
+                    },
+                    {
+                        "a": [
+                            1,
+                            2
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : 1}\n{ \"a\" : [ 1 , 2]}\n"
+        },
+        {
+            "input": {
+                "op": "find",
+                "query": {
+                    "a.b": {
+                        "$ne": 2
+                    }
+                },
+                "documents": [
+                    {
+                        "a": [
+                            {
+                                "b": 1
+                            },
+                            {
+                                "b": 2
+                            }
+                        ]
+                    },
+                    {
+                        "a": [
+                            {
+                                "b": 3
+                            },
+                            {
+                                "b": 4
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{ \"a\" : [ { \"b\" : 3} , { \"b\" : 4}]}\n"
+        }
+    ]
+}

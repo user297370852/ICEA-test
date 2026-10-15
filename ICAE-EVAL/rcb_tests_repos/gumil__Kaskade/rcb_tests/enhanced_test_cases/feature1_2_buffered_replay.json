@@ -1,0 +1,133 @@
+{
+  "description": "States produced before any listener is attached are buffered in order, and the buffer is replayed to the first listener the moment it attaches. The buffer always begins with the initial state, followed by one state per action processed while no listener was present. After the buffered states are replayed, subsequent processing continues to be delivered live.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "kaskade",
+        "initial": "running",
+        "reducers": {
+          "start": {
+            "to": "running"
+          },
+          "work": {
+            "to": "working"
+          },
+          "finish": {
+            "to": "done"
+          }
+        },
+        "ops": [
+          {
+            "op": "process",
+            "action": "finish"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "running\ndone\n"
+    },
+    {
+      "input": {
+        "scenario": "kaskade",
+        "initial": "running",
+        "reducers": {
+          "start": {
+            "to": "running"
+          },
+          "work": {
+            "to": "working"
+          },
+          "finish": {
+            "to": "done"
+          }
+        },
+        "ops": [
+          {
+            "op": "process",
+            "action": "work"
+          },
+          {
+            "op": "process",
+            "action": "finish"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "running\nworking\ndone\n"
+    },
+    {
+      "input": {
+        "scenario": "kaskade",
+        "initial": "running",
+        "reducers": {
+          "start": {
+            "to": "running"
+          },
+          "work": {
+            "to": "working"
+          },
+          "finish": {
+            "to": "done"
+          }
+        },
+        "ops": [
+          {
+            "op": "process",
+            "action": "work"
+          },
+          {
+            "op": "subscribe"
+          },
+          {
+            "op": "process",
+            "action": "finish"
+          }
+        ]
+      },
+      "expected_output": "running\nworking\ndone\n"
+    },
+    {
+      "input": {
+        "scenario": "kaskade",
+        "initial": "running",
+        "reducers": {
+          "start": {
+            "to": "running"
+          },
+          "work": {
+            "to": "working"
+          },
+          "finish": {
+            "to": "done"
+          }
+        },
+        "ops": [
+          {
+            "op": "process",
+            "action": "start"
+          },
+          {
+            "op": "process",
+            "action": "work"
+          },
+          {
+            "op": "process",
+            "action": "finish"
+          },
+          {
+            "op": "process",
+            "action": "work"
+          },
+          {
+            "op": "subscribe"
+          }
+        ]
+      },
+      "expected_output": "running\nrunning\nworking\ndone\nworking\n"
+    }
+  ]
+}

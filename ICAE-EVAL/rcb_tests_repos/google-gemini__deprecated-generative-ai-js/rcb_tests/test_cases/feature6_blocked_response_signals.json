@@ -1,0 +1,46 @@
+{
+    "description": "A response blocked by safety feedback or unsafe finish reasons reports the block scope and reason instead of returning normal generated content.",
+    "cases": [
+        {
+            "input": {
+                "mode": "text",
+                "response": {
+                    "promptFeedback": {
+                        "blockReason": "SAFETY",
+                        "safetyRatings": []
+                    }
+                }
+            },
+            "expected_output": "error=blocked_response\nreason=SAFETY\n"
+        },
+        {
+            "input": {
+                "mode": "message",
+                "response": {
+                    "promptFeedback": {
+                        "blockReason": "SAFETY",
+                        "blockReasonMessage": "safety reasons",
+                        "safetyRatings": []
+                    }
+                }
+            },
+            "expected_output": "blocked=true\nreason=SAFETY\nscope=response\nmessage=safety reasons\n"
+        },
+        {
+            "input": {
+                "mode": "message",
+                "response": {
+                    "candidates": [
+                        {
+                            "index": 0,
+                            "finishReason": "SAFETY",
+                            "finishMessage": "unsafe candidate",
+                            "content": {}
+                        }
+                    ]
+                }
+            },
+            "expected_output": "blocked=true\nreason=SAFETY\nscope=candidate\nmessage=unsafe candidate\n"
+        }
+    ]
+}

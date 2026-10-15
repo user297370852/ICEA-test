@@ -1,0 +1,63 @@
+{
+  "description": "Drive write actions while requesting a non-default representation, and request an unsupported representation. When a script representation is requested and supported, a successful create or update renders the action's script view with a success status (instead of redirecting) while still setting the success flash notice. When a representation that the controller does not support is requested, the request fails and the error is reported as a neutral category rather than leaking any runtime detail.",
+  "cases": [
+    {
+      "input": {
+        "action": "create",
+        "attributes": {
+          "title": "Hello"
+        },
+        "format": "js",
+        "config": {
+          "formats": [
+            "html",
+            "js"
+          ]
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=build attrs={title=Hello}\nstore=save ok=true\nassign=article\nstatus=200\nbody=Create JS\nflash.notice=Article was successfully created.\n"
+    },
+    {
+      "input": {
+        "action": "update",
+        "id": "42",
+        "attributes": {
+          "title": "New"
+        },
+        "format": "js",
+        "config": {
+          "formats": [
+            "html",
+            "js"
+          ]
+        },
+        "data": {
+          "record": {
+            "id": "42"
+          },
+          "persist": true
+        }
+      },
+      "expected_output": "store=find id=42\nstore=update attrs={title=New} ok=true\nassign=article\nstatus=200\nbody=Update JS\nflash.notice=Article was successfully updated.\n"
+    },
+    {
+      "input": {
+        "action": "show",
+        "id": "42",
+        "format": "js",
+        "data": {
+          "record": {
+            "id": "42"
+          }
+        }
+      },
+      "expected_output": "error=unsupported_format\n"
+    }
+  ]
+}

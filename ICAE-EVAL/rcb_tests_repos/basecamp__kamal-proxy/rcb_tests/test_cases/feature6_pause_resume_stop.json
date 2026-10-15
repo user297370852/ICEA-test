@@ -1,0 +1,81 @@
+{
+    "description": "A service can be paused, resumed, or stopped. While paused, matching requests are held until a bounded pause window elapses and then answered with a gateway-timeout response; resuming restores normal routing. While stopped, the service answers its health endpoint with a success response but answers all other matching requests with a service-unavailable response. Each lifecycle command reports success, and each probe reports the response status and body.",
+    "cases": [
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "a": {
+                        "body": "live-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "a"
+                    },
+                    {
+                        "op": "pause",
+                        "name": "s1",
+                        "pause_timeout_ms": 50
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/",
+                        "method": "GET"
+                    },
+                    {
+                        "op": "resume",
+                        "name": "s1"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\npause s1 ok\nstatus=504 target=Gateway Timeout\nresume s1 ok\nstatus=200 target=live-app\n"
+        },
+        {
+            "input": {
+                "kind": "router_scenario",
+                "backends": {
+                    "a": {
+                        "body": "live-app"
+                    }
+                },
+                "steps": [
+                    {
+                        "op": "deploy",
+                        "name": "s1",
+                        "hosts": [
+                            "h.example.com"
+                        ],
+                        "target": "a"
+                    },
+                    {
+                        "op": "stop",
+                        "name": "s1",
+                        "message": "down for maintenance"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/up",
+                        "method": "GET"
+                    },
+                    {
+                        "op": "request",
+                        "url": "http://h.example.com/other",
+                        "method": "GET"
+                    }
+                ]
+            },
+            "expected_output": "deploy s1 ok\nstop s1 ok\nstatus=200 target=\nstatus=503 target=Service Unavailable\n"
+        }
+    ]
+}

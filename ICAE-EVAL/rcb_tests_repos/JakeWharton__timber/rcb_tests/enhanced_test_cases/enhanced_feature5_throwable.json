@@ -1,0 +1,73 @@
+{
+  "description": "Boundary coverage for error logging: message+error at non-error severities, error-only via the generic priority entry point, message+error dispatched on a spawned worker, and explicit-null-message+error at multiple severities (behaves like error-only, head is the error label).",
+  "cases": [
+    {
+      "input": {
+        "action": "throwable",
+        "steps": [
+          {
+            "level": "verbose",
+            "message": "boom-v",
+            "label": "ErrV"
+          },
+          {
+            "level": "assert",
+            "message": "boom-a",
+            "label": "ErrA"
+          }
+        ]
+      },
+      "expected_output": "priority=2 tag= head=boom-v serialized=true\npriority=7 tag= head=boom-a serialized=true\n"
+    },
+    {
+      "input": {
+        "action": "throwable",
+        "steps": [
+          {
+            "level": "log",
+            "priority": "warn",
+            "label": "gen-warn"
+          }
+        ]
+      },
+      "expected_output": "priority=5 tag= head=gen-warn serialized=true\n"
+    },
+    {
+      "input": {
+        "action": "throwable",
+        "steps": [
+          {
+            "level": "info",
+            "message": "threaded",
+            "label": "ErrT",
+            "thread": true
+          }
+        ]
+      },
+      "expected_output": "priority=4 tag= head=threaded serialized=true\n"
+    },
+    {
+      "input": {
+        "action": "throwable",
+        "steps": [
+          {
+            "level": "verbose",
+            "message": null,
+            "label": "nm-v"
+          },
+          {
+            "level": "warn",
+            "message": null,
+            "label": "nm-w"
+          },
+          {
+            "level": "assert",
+            "message": null,
+            "label": "nm-a"
+          }
+        ]
+      },
+      "expected_output": "priority=2 tag= head=nm-v serialized=true\npriority=5 tag= head=nm-w serialized=true\npriority=7 tag= head=nm-a serialized=true\n"
+    }
+  ]
+}

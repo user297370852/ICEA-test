@@ -1,0 +1,25 @@
+{
+    "description": "Race a list of asynchronous operations and fulfill with the value of the first one to succeed, ignoring later results and any failures that occurred before the first success. If every operation fails, the result is rejected with a combined multiple-failures outcome listing every failure reason in order. An empty input is reported as a no-operations error, and a non-operation operand is reported as an invalid-operand error.",
+    "cases": [
+        {
+            "input": {"op": "first", "promises": [{"resolve": 1}, {"resolve": 2}, {"resolve": 3}]},
+            "expected_output": "status=fulfilled\nvalue=1\n"
+        },
+        {
+            "input": {"op": "first", "promises": [{"fail": "a"}, {"fail": "b"}, {"resolve": 3}]},
+            "expected_output": "status=fulfilled\nvalue=3\n"
+        },
+        {
+            "input": {"op": "first", "promises": [{"fail": "a"}, {"fail": "b"}, {"fail": "c"}]},
+            "expected_output": "status=rejected\nreason=multiple_failures\nreasons=[\"a\",\"b\",\"c\"]\n"
+        },
+        {
+            "input": {"op": "first", "promises": []},
+            "expected_output": "status=error\nerror=no_promises\n"
+        },
+        {
+            "input": {"op": "first", "promises": [{"value": 1}]},
+            "expected_output": "status=error\nerror=invalid_operand\n"
+        }
+    ]
+}

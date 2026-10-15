@@ -1,0 +1,123 @@
+{
+  "description": "Additional in-memory metrics coverage for multi-tag exact matching, alternate query names, repeated counter/timer accumulation, gauge replacement including negative values, and string tag queries.",
+  "cases": [
+    {
+      "input": {
+        "op": "metrics",
+        "kind": "counter",
+        "name": "requests",
+        "tags": {
+          "endpoint": "/api",
+          "status": "200"
+        },
+        "steps": [
+          {
+            "action": "get",
+            "tags": {
+              "status": "200",
+              "endpoint": "/api"
+            }
+          },
+          {
+            "action": "inc",
+            "amount": 5
+          },
+          {
+            "action": "inc",
+            "amount": 7
+          },
+          {
+            "action": "get",
+            "tags": {
+              "endpoint": "/api",
+              "status": "200"
+            }
+          },
+          {
+            "action": "get",
+            "tags": {
+              "endpoint": "/api"
+            }
+          },
+          {
+            "action": "get",
+            "name": "other",
+            "tags": {
+              "endpoint": "/api",
+              "status": "200"
+            }
+          }
+        ]
+      },
+      "expected_output": "value=0\nvalue=12\nvalue=-1\nvalue=-1\n"
+    },
+    {
+      "input": {
+        "op": "metrics",
+        "kind": "timer",
+        "name": "latency",
+        "tags": {},
+        "steps": [
+          {
+            "action": "get",
+            "tags": ""
+          },
+          {
+            "action": "duration",
+            "amount": 100
+          },
+          {
+            "action": "duration",
+            "amount": 250
+          },
+          {
+            "action": "get",
+            "tags": {}
+          },
+          {
+            "action": "get",
+            "tags": "foo=bar"
+          }
+        ]
+      },
+      "expected_output": "value=0\nvalue=350\nvalue=-1\n"
+    },
+    {
+      "input": {
+        "op": "metrics",
+        "kind": "gauge",
+        "name": "queue",
+        "tags": {
+          "host": "a"
+        },
+        "steps": [
+          {
+            "action": "update",
+            "amount": 10
+          },
+          {
+            "action": "update",
+            "amount": -3
+          },
+          {
+            "action": "get",
+            "tags": {
+              "host": "a"
+            }
+          },
+          {
+            "action": "get",
+            "tags": "host=a"
+          },
+          {
+            "action": "get",
+            "tags": {
+              "host": "b"
+            }
+          }
+        ]
+      },
+      "expected_output": "value=-3\nvalue=-3\nvalue=-1\n"
+    }
+  ]
+}

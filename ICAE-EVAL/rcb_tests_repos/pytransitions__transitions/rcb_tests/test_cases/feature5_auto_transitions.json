@@ -1,0 +1,28 @@
+{
+    "description": "When automatic transitions are enabled, the machine provides a convenience trigger named `to_<state>` for every registered state that moves to that state from any source. When automatic transitions are disabled, no such convenience trigger exists and attempting to fire one is reported as a missing-trigger error. The active state is reported after each successful automatic transition.",
+    "cases": [
+        {
+            "input": {
+                "machine": {"states": ["A", "B", "C"], "initial": "A", "auto_transitions": true},
+                "commands": [
+                    {"op": "trigger", "name": "to_B"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "to_C"},
+                    {"op": "state"},
+                    {"op": "trigger", "name": "to_A"},
+                    {"op": "state"}
+                ]
+            },
+            "expected_output": "trigger=to_B result=true state=B\nstate=B\ntrigger=to_C result=true state=C\nstate=C\ntrigger=to_A result=true state=A\nstate=A\n"
+        },
+        {
+            "input": {
+                "machine": {"states": ["A", "B", "C"], "initial": "A", "auto_transitions": false},
+                "commands": [
+                    {"op": "trigger", "name": "to_C"}
+                ]
+            },
+            "expected_output": "error=no_trigger trigger=to_C\n"
+        }
+    ]
+}

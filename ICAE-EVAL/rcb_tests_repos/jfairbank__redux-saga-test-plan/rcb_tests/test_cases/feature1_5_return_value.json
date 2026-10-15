@@ -1,0 +1,29 @@
+{
+  "description": "Assert the workflow's final return value once it has completed. The return assertion is met only when the generator has finished AND the returned value deep-equals the expected value; asserting a return value before completion, or with a mismatching value, reports unmet.",
+  "cases": [
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "args": [1], "body": [ { "put": { "type": "OTHER", "payload": "hi" } }, { "return": { "$var": "arg0" } } ] },
+        "steps": [ { "next": true }, { "assert": { "put": { "type": "OTHER", "payload": "hi" } } }, { "next": true }, { "assert": { "returns": 1 } } ]
+      },
+      "expected_output": "assertion 1 met\nassertion 2 met\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "args": [1], "body": [ { "put": { "type": "OTHER", "payload": "hi" } }, { "return": { "$var": "arg0" } } ] },
+        "steps": [ { "next": true }, { "next": true }, { "assert": { "returns": "foobar" } } ]
+      },
+      "expected_output": "assertion 1 unmet\n"
+    },
+    {
+      "input": {
+        "mode": "unit",
+        "saga": { "args": [1], "body": [ { "put": { "type": "OTHER", "payload": "hi" } }, { "return": { "$var": "arg0" } } ] },
+        "steps": [ { "next": true }, { "assert": { "returns": 1 } } ]
+      },
+      "expected_output": "assertion 1 unmet\n"
+    }
+  ]
+}

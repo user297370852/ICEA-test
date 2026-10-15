@@ -1,0 +1,23 @@
+{
+    "description": "Run a two-stage filter-then-project pipeline over a single record batch. The schema has three signed-integer columns. A filter condition first selects the rows where the first column exceeds the second column, producing a selection vector. A separate projection expression is then evaluated only over those selected rows: for each surviving row it selects the second column when that column is below the third column, otherwise the third column (an if/then/else over a less-than comparison). The third column may contain a missing value, which propagates through the comparison and projection as a missing output. The adapter reports the operation, the declared result type, the number of projected rows, and the projected values as an ordered list with missing entries rendered as a null marker.",
+    "cases": [
+        {
+            "input": {
+                "operation": "filter_project",
+                "schema": [{"name": "a", "type": "int32"}, {"name": "b", "type": "int32"}, {"name": "c", "type": "int32"}],
+                "columns": {"a": [10, 12, -20, 5, 21, 29], "b": [5, 15, 15, 17, 12, 3], "c": [1, 25, 11, 30, -21, null]},
+                "condition": {"node": "function", "name": "greater_than", "args": [{"node": "field", "name": "a"}, {"node": "field", "name": "b"}], "return": "bool"},
+                "expression": {
+                    "node": "if",
+                    "cond": {"node": "function", "name": "less_than", "args": [{"node": "field", "name": "b"}, {"node": "field", "name": "c"}], "return": "bool"},
+                    "then": {"node": "field", "name": "b"},
+                    "else": {"node": "field", "name": "c"},
+                    "type": "int32"
+                },
+                "result_type": "int32",
+                "selection_mode": "UINT32"
+            },
+            "expected_output": "op=filter_project\nresult_type=int32\nlength=3\nvalues=[1, -21, null]\n"
+        }
+    ]
+}

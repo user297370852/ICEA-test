@@ -1,0 +1,84 @@
+{
+  "description": "Use-after-destroy boundaries: each forbidden op on a destroyed scope yields the neutral category; repeated destroy stays a no-op; try-destroy on a live scope succeeds.",
+  "cases": [
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "destroy",
+            "scope": "r"
+          },
+          {
+            "op": "try",
+            "kind": "build_child",
+            "scope": "r",
+            "name": "x"
+          },
+          {
+            "op": "try",
+            "kind": "register",
+            "scope": "r",
+            "tracker": "t"
+          },
+          {
+            "op": "try",
+            "kind": "get_service",
+            "scope": "r",
+            "key": "nope"
+          },
+          {
+            "op": "try",
+            "kind": "destroy",
+            "scope": "r"
+          },
+          {
+            "op": "is_destroyed",
+            "scope": "r"
+          }
+        ]
+      },
+      "expected_output": "try[build_child]=error=scope_destroyed\ntry[register]=error=scope_destroyed\ntry[get_service]=error=scope_destroyed\ntry[destroy]=ok\ndestroyed[r]=true\n"
+    },
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "build_child",
+            "id": "c",
+            "parent": "r",
+            "name": "c"
+          },
+          {
+            "op": "destroy",
+            "scope": "r"
+          },
+          {
+            "op": "try",
+            "kind": "build_child",
+            "scope": "c",
+            "name": "y"
+          },
+          {
+            "op": "try",
+            "kind": "get_service",
+            "scope": "c",
+            "key": "k"
+          }
+        ]
+      },
+      "expected_output": "try[build_child]=error=scope_destroyed\ntry[get_service]=error=scope_destroyed\n"
+    }
+  ]
+}

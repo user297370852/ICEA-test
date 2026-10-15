@@ -1,0 +1,16 @@
+{
+  "description": "Stage ordering must be globally consistent across all packages. If one package orders stage X before Y while another orders Y before X, no total order exists; the generator reports a configuration error naming the conflicting stages instead of emitting output.",
+  "cases": [
+    {
+      "input": {
+        "files": {
+          "pkg_a/mono_pkg.yaml": "dart:\n - dev\n\nstages:\n  - format:\n    - dartfmt\n  - analyze:\n    - dartanalyzer\n",
+          "pkg_a/pubspec.yaml": "name: pkg_a\n",
+          "pkg_b/mono_pkg.yaml": "dart:\n - dev\n\nstages:\n  - analyze:\n    - dartanalyzer\n  - format:\n    - dartfmt: sdk\n",
+          "pkg_b/pubspec.yaml": "name: pkg_b\n"
+        }
+      },
+      "expected_output": "error=user_exception\nmessage=Not all packages agree on `stages` ordering, found a cycle between the following stages: [analyze, format]\ndetails=\n"
+    }
+  ]
+}

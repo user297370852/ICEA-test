@@ -1,0 +1,42 @@
+{
+    "description": "Acknowledged inbound traffic refreshes the keepalive window so no spurious ping is emitted. Receiving and acknowledging a QoS 1 PUBLISH updates the activity timers; if the next service occurs within a keepalive interval of that activity, no PINGREQ is transmitted. The case delivers a QoS 1 message before the interval elapses, then services the connection again shortly after and observes that no ping is sent.",
+    "cases": [
+        {
+            "input": {
+                "server": {
+                    "ip": "172.16.0.2"
+                },
+                "steps": [
+                    {
+                        "op": "inbound",
+                        "bytes": "20 02 00 00"
+                    },
+                    {
+                        "op": "connect",
+                        "id": "client_test1",
+                        "quiet": true
+                    },
+                    {
+                        "op": "advance",
+                        "ms": 10000
+                    },
+                    {
+                        "op": "inbound",
+                        "bytes": "32 10 00 05 74 6f 70 69 63 12 34 70 61 79 6c 6f 61 64"
+                    },
+                    {
+                        "op": "loop"
+                    },
+                    {
+                        "op": "advance",
+                        "ms": 10000
+                    },
+                    {
+                        "op": "loop"
+                    }
+                ]
+            },
+            "expected_output": "loop=1\nmessage topic=topic payload=70 61 79 6c 6f 61 64 length=7\nsent=40 02 12 34\nloop=1\nmessage=none\nsent=\n"
+        }
+    ]
+}

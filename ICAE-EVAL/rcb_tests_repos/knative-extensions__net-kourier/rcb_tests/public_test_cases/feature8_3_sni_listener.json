@@ -1,0 +1,9 @@
+{
+    "description": "Builds an HTTPS listener that selects a TLS filter chain by the requested server name (SNI). For each SNI match a dedicated filter chain is created carrying that match's host names, certificate chain, and private key. A TLS-inspector listener filter is attached so the requested server name can be detected. SNI lines are emitted in ascending server-name order, and each match's certificate/key round-trips back to its input bytes.",
+    "cases": [
+        {
+            "input": {"op": "sni_listener", "port": 8443, "sni_matches": [{"hosts": ["some_host.com"], "certificate_chain": "cert1", "private_key": "key1"}, {"hosts": ["another_host.com"], "certificate_chain": "cert2", "private_key": "key2"}]},
+            "expected_output": "listener=listener_8443\nprotocol=TCP\naddress=0.0.0.0\nport=8443\ntls_inspector=true\nsni server_names=another_host.com certificate_chain=cert2 private_key=key2\nsni server_names=some_host.com certificate_chain=cert1 private_key=key1\n"
+        }
+    ]
+}

@@ -1,0 +1,265 @@
+{
+    "description": "Execute a rule that dynamically generates labels/vars from templates over the matched features. After a rule matches, its labelsTemplate and varsTemplate are expanded; the expansion must yield newline-separated '<key>=<value>' entries (blank lines ignored). Template output is merged with the rule's static labels/vars, with the static entries taking precedence on key collisions. Iterating a name set exposes each element's Name; a key-value set exposes Name and Value; an instance set exposes its attributes by name. A template that fails to parse, or whose expansion produces a line lacking a value, reports a neutral error.",
+    "cases": [
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "labels": {
+                        "label-1": "label-val-1"
+                    },
+                    "labelsTemplate": "\nlabel-1=will-be-overridden\nlabel-2=\n{{range .domain_1.kf_1}}kf-{{.Name}}=present\n{{end}}\n{{range .domain_1.vf_1}}vf-{{.Name}}=vf-{{.Value}}\n{{end}}\n{{range .domain_1.if_1}}if-{{index . \"attr-1\"}}_{{index . \"attr-2\"}}=present\n{{end}}",
+                    "vars": {
+                        "var-1": "var-val-1"
+                    },
+                    "varsTemplate": "\nvar-1=value-will-be-overridden-by-vars\nvar-2=\n{{range .domain_1.kf_1}}kf-{{.Name}}=true\n{{end}}",
+                    "matchFeatures": [
+                        {
+                            "feature": "domain_1.kf_1",
+                            "matchExpressions": {
+                                "key-a": {
+                                    "op": "Exists"
+                                },
+                                "key-c": {
+                                    "op": "Exists"
+                                },
+                                "foo": {
+                                    "op": "DoesNotExist"
+                                }
+                            }
+                        },
+                        {
+                            "feature": "domain_1.vf_1",
+                            "matchExpressions": {
+                                "key-1": {
+                                    "op": "In",
+                                    "value": [
+                                        "val-1",
+                                        "val-2"
+                                    ]
+                                },
+                                "bar": {
+                                    "op": "DoesNotExist"
+                                }
+                            }
+                        },
+                        {
+                            "feature": "domain_1.if_1",
+                            "matchExpressions": {
+                                "attr-1": {
+                                    "op": "Lt",
+                                    "value": [
+                                        "100"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "features": {
+                    "domain_1": {
+                        "keys": {
+                            "kf_1": [
+                                "key-a",
+                                "key-b",
+                                "key-c"
+                            ]
+                        },
+                        "values": {
+                            "vf_1": {
+                                "key-1": "val-1",
+                                "keu-2": "val-2",
+                                "key-3": "val-3"
+                            }
+                        },
+                        "instances": {
+                            "if_1": [
+                                {
+                                    "attr-1": "1",
+                                    "attr-2": "val-2"
+                                },
+                                {
+                                    "attr-1": "10",
+                                    "attr-2": "val-20"
+                                },
+                                {
+                                    "attr-1": "100",
+                                    "attr-2": "val-200"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nif-10_val-20=present\nif-1_val-2=present\nkf-foo=present\nkf-key-a=present\nkf-key-c=present\nlabel-1=label-val-1\nlabel-2=\nvf-bar=vf-\nvf-key-1=vf-val-1\nvars:\nkf-foo=true\nkf-key-a=true\nkf-key-c=true\nvar-1=var-val-1\nvar-2=\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "matchFeatures": [
+                        {
+                            "feature": "domain_1.kf_1",
+                            "matchExpressions": {
+                                "key-a": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ],
+                    "labelsTemplate": "foo=bar"
+                },
+                "features": {
+                    "domain_1": {
+                        "keys": {
+                            "kf_1": [
+                                "key-a"
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nfoo=bar\nvars:\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "matchFeatures": [
+                        {
+                            "feature": "domain_1.kf_1",
+                            "matchExpressions": {
+                                "key-a": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ],
+                    "labelsTemplate": "foo"
+                },
+                "features": {
+                    "domain_1": {
+                        "keys": {
+                            "kf_1": [
+                                "key-a"
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "error=template_error\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "matchFeatures": [
+                        {
+                            "feature": "domain_1.kf_1",
+                            "matchExpressions": {
+                                "key-a": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ],
+                    "labelsTemplate": "{{"
+                },
+                "features": {
+                    "domain_1": {
+                        "keys": {
+                            "kf_1": [
+                                "key-a"
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "error=template_error\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "matchFeatures": [
+                        {
+                            "feature": "domain_1.kf_1",
+                            "matchExpressions": {
+                                "key-a": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ],
+                    "varsTemplate": "bar=baz"
+                },
+                "features": {
+                    "domain_1": {
+                        "keys": {
+                            "kf_1": [
+                                "key-a"
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "labels:\nvars:\nbar=baz\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "matchFeatures": [
+                        {
+                            "feature": "domain_1.kf_1",
+                            "matchExpressions": {
+                                "key-a": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ],
+                    "varsTemplate": "bar"
+                },
+                "features": {
+                    "domain_1": {
+                        "keys": {
+                            "kf_1": [
+                                "key-a"
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "error=template_error\n"
+        },
+        {
+            "input": {
+                "action": "execute_rule",
+                "rule": {
+                    "matchFeatures": [
+                        {
+                            "feature": "domain_1.kf_1",
+                            "matchExpressions": {
+                                "key-a": {
+                                    "op": "Exists"
+                                }
+                            }
+                        }
+                    ],
+                    "varsTemplate": "{{"
+                },
+                "features": {
+                    "domain_1": {
+                        "keys": {
+                            "kf_1": [
+                                "key-a"
+                            ]
+                        }
+                    }
+                }
+            },
+            "expected_output": "error=template_error\n"
+        }
+    ]
+}

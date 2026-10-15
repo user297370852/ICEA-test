@@ -1,0 +1,122 @@
+{
+  "description": "Schema-guided row decoding: multiple rows with an INTEGER field surface the integer-cast error category, float and boolean cells convert to native types, a null string cell stays null, and an empty repeated field decodes to an empty array.",
+  "cases": [
+    {
+      "input": {
+        "operation": "merge_rows",
+        "schema": {
+          "fields": [
+            {
+              "name": "id",
+              "type": "INTEGER"
+            },
+            {
+              "name": "label",
+              "type": "STRING"
+            }
+          ]
+        },
+        "rows": [
+          {
+            "f": [
+              {
+                "v": "123"
+              },
+              {
+                "v": "kitten"
+              }
+            ]
+          },
+          {
+            "f": [
+              {
+                "v": "456"
+              },
+              {
+                "v": "puppy"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=invalid_integer_cast\n"
+    },
+    {
+      "input": {
+        "operation": "merge_rows",
+        "schema": {
+          "fields": [
+            {
+              "name": "score",
+              "type": "FLOAT"
+            },
+            {
+              "name": "ok",
+              "type": "BOOLEAN"
+            }
+          ]
+        },
+        "rows": [
+          {
+            "f": [
+              {
+                "v": "3.14"
+              },
+              {
+                "v": "false"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "[\n  {\n    \"score\": 3.14,\n    \"ok\": false\n  }\n]\n"
+    },
+    {
+      "input": {
+        "operation": "merge_rows",
+        "schema": {
+          "fields": [
+            {
+              "name": "name",
+              "type": "STRING"
+            }
+          ]
+        },
+        "rows": [
+          {
+            "f": [
+              {
+                "v": null
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "[\n  {\n    \"name\": null\n  }\n]\n"
+    },
+    {
+      "input": {
+        "operation": "merge_rows",
+        "schema": {
+          "fields": [
+            {
+              "name": "tags",
+              "type": "STRING",
+              "mode": "REPEATED"
+            }
+          ]
+        },
+        "rows": [
+          {
+            "f": [
+              {
+                "v": []
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "[\n  {\n    \"tags\": []\n  }\n]\n"
+    }
+  ]
+}

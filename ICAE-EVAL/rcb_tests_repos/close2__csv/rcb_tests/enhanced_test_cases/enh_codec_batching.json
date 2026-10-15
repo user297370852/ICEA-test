@@ -1,0 +1,109 @@
+{
+  "description": "ENHANCED: Batch-oriented codec adapter edge cases — an empty chunk list yielding zero batches, multiple chunks each forming their own batch, a maxRowsPerBatch cap that exactly divides the row count, a cap of one combined with a split CRLF across chunks, auto-detection that buffers a prefix before emitting its first batch, and a chunk that decodes to zero rows (blank lines skipped) emitting no batch.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "chunks": []
+      },
+      "expected_output": "batches=0\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "chunks": [
+          "a,b\r\n",
+          "c,d\r\n",
+          "e,f\r\n"
+        ]
+      },
+      "expected_output": "batches=3\nbatch[0] rows=1: [ str=\"a\" | str=\"b\" ]\nbatch[1] rows=1: [ str=\"c\" | str=\"d\" ]\nbatch[2] rows=1: [ str=\"e\" | str=\"f\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "maxRowsPerBatch": 2,
+        "chunks": [
+          "1,a\r\n2,b\r\n3,c\r\n4,d\r\n"
+        ]
+      },
+      "expected_output": "batches=2\nbatch[0] rows=2: [ str=\"1\" | str=\"a\" ] [ str=\"2\" | str=\"b\" ]\nbatch[1] rows=2: [ str=\"3\" | str=\"c\" ] [ str=\"4\" | str=\"d\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "maxRowsPerBatch": 1,
+        "chunks": [
+          "a,b\r",
+          "\nc,d\r\n"
+        ]
+      },
+      "expected_output": "batches=2\nbatch[0] rows=1: [ str=\"a\" | str=\"b\" ]\nbatch[1] rows=1: [ str=\"c\" | str=\"d\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": true
+        },
+        "chunks": [
+          "a;b\r\n",
+          "c;d\r\n"
+        ]
+      },
+      "expected_output": "batches=1\nbatch[0] rows=2: [ str=\"a\" | str=\"b\" ] [ str=\"c\" | str=\"d\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "chunks": [
+          "\r\n",
+          "x,y\r\n"
+        ]
+      },
+      "expected_output": "batches=1\nbatch[0] rows=1: [ str=\"x\" | str=\"y\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "maxRowsPerBatch": 5,
+        "chunks": [
+          "a,b\r\nc,d\r\n"
+        ]
+      },
+      "expected_output": "batches=1\nbatch[0] rows=2: [ str=\"a\" | str=\"b\" ] [ str=\"c\" | str=\"d\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "maxRowsPerBatch": 2,
+        "chunks": [
+          "a,1\r\nb,2\r\nc,3\r\n",
+          "d,4\r\ne,5\r\n"
+        ]
+      },
+      "expected_output": "batches=3\nbatch[0] rows=2: [ str=\"a\" | str=\"1\" ] [ str=\"b\" | str=\"2\" ]\nbatch[1] rows=1: [ str=\"c\" | str=\"3\" ]\nbatch[2] rows=2: [ str=\"d\" | str=\"4\" ] [ str=\"e\" | str=\"5\" ]\n"
+    }
+  ]
+}

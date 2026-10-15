@@ -1,0 +1,77 @@
+{
+  "description": "Derive the MIME type and character encoding of a message from its content-type header, and observe how supplying an explicit body encoding rewrites that header. The MIME type is the bare media type without parameters. The encoding comes from the charset parameter and is absent when there is no charset or the charset is unknown. When an explicit encoding is given, the charset of the content-type is set accordingly, defaulting the media type to application/octet-stream when no content-type was present.",
+  "cases": [
+    {
+      "input": {
+        "action": "msg_content_type"
+      },
+      "expected_output": "mimeType=null\nencoding=null\nheaders[content-length]=0\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "text/plain"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=null\nheaders[content-length]=0\nheaders[content-type]=text/plain\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "text/plain; foo=bar; bar=baz"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=null\nheaders[content-length]=0\nheaders[content-type]=text/plain; foo=bar; bar=baz\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "text/plain; charset=iso-8859-1"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=iso-8859-1\nheaders[content-length]=0\nheaders[content-type]=text/plain; charset=iso-8859-1\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "headers": {
+          "content-type": "text/plain; charset=fblthp"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=null\nheaders[content-length]=0\nheaders[content-type]=text/plain; charset=fblthp\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "body": "è",
+        "encoding": "latin1"
+      },
+      "expected_output": "mimeType=application/octet-stream\nencoding=iso-8859-1\nheaders[content-length]=1\nheaders[content-type]=application/octet-stream; charset=iso-8859-1\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "body": "è",
+        "encoding": "latin1",
+        "headers": {
+          "content-type": "text/plain"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=iso-8859-1\nheaders[content-length]=1\nheaders[content-type]=text/plain; charset=iso-8859-1\n"
+    },
+    {
+      "input": {
+        "action": "msg_content_type",
+        "body": "è",
+        "encoding": "latin1",
+        "headers": {
+          "content-type": "text/plain; charset=whatever"
+        }
+      },
+      "expected_output": "mimeType=text/plain\nencoding=iso-8859-1\nheaders[content-length]=1\nheaders[content-type]=text/plain; charset=iso-8859-1\n"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+    "description": "An automatic tag can be derived from a stack frame's class name for destinations that infer their tag from the caller. The derivation strips the package portion (keeping only the simple class name), removes trailing anonymous-class markers (a run of dollar-sign-plus-digits at the end), and, on platform levels below a fixed threshold, truncates the result to a maximum tag length; at or above that threshold no truncation occurs. The derivation can also be overridden, for example to append the frame's line number to the derived tag. The input supplies a class name, a line number, the platform level, and whether the line-appending override is in effect; the output is the derived tag.",
+    "cases": [
+        {
+            "input": {"action": "tag_derive", "class_name": "timber.log.TimberTest", "line": 1, "sdk": 27},
+            "expected_output": "tag=TimberTest\n"
+        },
+        {
+            "input": {"action": "tag_derive", "class_name": "timber.log.TimberTest$1", "line": 1, "sdk": 27},
+            "expected_output": "tag=TimberTest\n"
+        },
+        {
+            "input": {"action": "tag_derive", "class_name": "timber.log.TimberTest$ThisIsAReallyLongClassName", "line": 1, "sdk": 23},
+            "expected_output": "tag=TimberTest$ThisIsAReall\n"
+        },
+        {
+            "input": {"action": "tag_derive", "class_name": "timber.log.TimberTest$ThisIsAReallyLongClassName", "line": 1, "sdk": 24},
+            "expected_output": "tag=TimberTest$ThisIsAReallyLongClassName\n"
+        },
+        {
+            "input": {"action": "tag_derive", "class_name": "timber.log.TimberTest", "line": 41, "sdk": 27, "mode": "with_line"},
+            "expected_output": "tag=TimberTest:41\n"
+        }
+    ]
+}

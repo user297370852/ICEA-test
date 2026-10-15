@@ -1,0 +1,160 @@
+{
+  "description": "Serialization of an application record into the per-attribute action map consumed by an item-mutation request. Each non-key attribute becomes an entry carrying an action verb and, where relevant, a serialized value. A plain value produces a write action with the type-serialized value. A null value produces a remove action with no value. An attribute wrapped as an additive operation produces an add action; an attribute wrapped as a subtractive operation produces a remove-from-set action; in both cases the operand is type-serialized (numbers stay numbers, set operands render as set-tagged collections). The primary key attribute (and the sort attribute when declared) is never emitted, since keys are addressed separately.",
+  "cases": [
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "name": "string"
+          }
+        },
+        "item": {
+          "name": "Tim Tester"
+        }
+      },
+      "expected_output": "{\"name\":{\"Action\":\"PUT\",\"Value\":\"Tim Tester\"}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "age": "number"
+          }
+        },
+        "item": {
+          "age": 25
+        }
+      },
+      "expected_output": "{\"age\":{\"Action\":\"PUT\",\"Value\":25}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "foo",
+          "schema": {
+            "foo": "string",
+            "name": "string",
+            "age": "number"
+          }
+        },
+        "item": {
+          "age": null,
+          "name": "Foo Bar"
+        }
+      },
+      "expected_output": "{\"age\":{\"Action\":\"DELETE\"},\"name\":{\"Action\":\"PUT\",\"Value\":\"Foo Bar\"}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": "string",
+            "name": "string"
+          }
+        },
+        "item": {
+          "email": "test@test.com",
+          "name": "Tim Tester"
+        }
+      },
+      "expected_output": "{\"name\":{\"Action\":\"PUT\",\"Value\":\"Tim Tester\"}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "email",
+          "rangeKey": "range",
+          "schema": {
+            "email": "string",
+            "range": "string",
+            "name": "string"
+          }
+        },
+        "item": {
+          "email": "test@test.com",
+          "range": "FOO",
+          "name": "Tim Tester"
+        }
+      },
+      "expected_output": "{\"name\":{\"Action\":\"PUT\",\"Value\":\"Tim Tester\"}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": "string",
+            "age": "number",
+            "names": {
+              "set": "string"
+            }
+          }
+        },
+        "item": {
+          "email": "test@test.com",
+          "age": {
+            "$add": 1
+          },
+          "names": {
+            "$add": [
+              "foo",
+              "bar"
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"age\":{\"Action\":\"ADD\",\"Value\":1},\"names\":{\"Action\":\"ADD\",\"Value\":{\"SS\":[\"foo\",\"bar\"]}}}\n"
+    },
+    {
+      "input": {
+        "op": "serialize_update_item",
+        "action": "PUT",
+        "config": {
+          "hashKey": "email",
+          "schema": {
+            "email": "string",
+            "names": {
+              "set": "string"
+            },
+            "ages": {
+              "set": "number"
+            }
+          }
+        },
+        "item": {
+          "email": "test@test.com",
+          "ages": {
+            "$del": [
+              2,
+              3
+            ]
+          },
+          "names": {
+            "$del": [
+              "foo",
+              "bar"
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"ages\":{\"Action\":\"DELETE\",\"Value\":{\"NS\":[2,3]}},\"names\":{\"Action\":\"DELETE\",\"Value\":{\"SS\":[\"foo\",\"bar\"]}}}\n"
+    }
+  ]
+}

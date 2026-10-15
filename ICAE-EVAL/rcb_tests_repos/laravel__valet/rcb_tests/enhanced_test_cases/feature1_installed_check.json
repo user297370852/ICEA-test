@@ -1,0 +1,37 @@
+{
+  "description": "Determine whether a named package is currently installed by the system package manager. The adapter issues the manager's metadata query for the given package and inspects the result: a successful query returns a JSON document describing the package, and the package counts as installed only when its document reports a non-empty set of installed versions. A query whose document reports an empty installed set, or whose output begins with the manager's 'no such formula' error text, means the package is not installed. The emitted output echoes the exact query command that was issued, then a flag reporting the installed status.",
+  "cases": [
+    {
+      "input": {
+        "action": "check_installed",
+        "formula": "php@8.0",
+        "info_response": "[{\"name\":\"php@8.0\",\"full_name\":\"php@8.0\",\"aliases\":[],\"versioned_formulae\":[],\"versions\":{\"stable\":\"8.0.0\"},\"installed\":[]}]"
+      },
+      "expected_output": "cmd=brew info php@8.0 --json\ninstalled=false\n"
+    },
+    {
+      "input": {
+        "action": "check_installed",
+        "formula": "nginx",
+        "info_response": "[{\"name\":\"nginx\",\"full_name\":\"nginx\",\"aliases\":[],\"versioned_formulae\":[],\"versions\":{\"stable\":\"1.21.0\"},\"installed\":[{\"version\":\"1.21.0\"}]}]"
+      },
+      "expected_output": "cmd=brew info nginx --json\ninstalled=true\n"
+    },
+    {
+      "input": {
+        "action": "check_installed",
+        "formula": "php@8.1",
+        "info_response": "[{\"name\":\"php@8.1\",\"full_name\":\"php@8.1\",\"aliases\":[],\"versioned_formulae\":[],\"versions\":{\"stable\":\"8.1.1\"},\"installed\":[{\"version\":\"8.1.0\"},{\"version\":\"8.1.1\"}]}]"
+      },
+      "expected_output": "cmd=brew info php@8.1 --json\ninstalled=true\n"
+    },
+    {
+      "input": {
+        "action": "check_installed",
+        "formula": "dnsmasq",
+        "info_response": "Error: No available formula with the name \"dnsmasq\"."
+      },
+      "expected_output": "cmd=brew info dnsmasq --json\ninstalled=false\n"
+    }
+  ]
+}

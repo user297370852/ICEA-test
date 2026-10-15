@@ -1,0 +1,45 @@
+{
+  "description": "Round trips over plaintext that stresses UTF-8 encoding and the textual envelope format: multibyte accents, emoji (surrogate pairs / 4-byte code points), embedded newlines, and a plaintext that itself contains colons. The colon-containing plaintext confirms the envelope is still exactly two segments because the base64 segments never contain a colon, and the multibyte content confirms the ciphertext length is driven by the UTF-8 byte count, not the character count.",
+  "cases": [
+    {
+      "input": {
+        "action": "roundtrip",
+        "key": "tWG4dk8ARsETnFL3jCf1xtMVe05imlx9vimER7iky2s=",
+        "derivation": true,
+        "plaintext": "héllo🔐",
+        "context": "sa"
+      },
+      "expected_output": "envelope_segments=2\niv_byte_length=16\nciphertext_byte_length=16\ndecrypted=héllo🔐\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "key": "tWG4dk8ARsETnFL3jCf1xtMVe05imlx9vimER7iky2s=",
+        "derivation": false,
+        "plaintext": "line1\nline2",
+        "context": "sa"
+      },
+      "expected_output": "envelope_segments=2\niv_byte_length=16\nciphertext_byte_length=16\ndecrypted=line1\nline2\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "key": "tWG4dk8ARsETnFL3jCf1xtMVe05imlx9vimER7iky2s=",
+        "derivation": false,
+        "plaintext": "a:b:c",
+        "context": "sa"
+      },
+      "expected_output": "envelope_segments=2\niv_byte_length=16\nciphertext_byte_length=16\ndecrypted=a:b:c\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "key": "tWG4dk8ARsETnFL3jCf1xtMVe05imlx9vimER7iky2s=",
+        "derivation": true,
+        "plaintext": "租户-甲 secret",
+        "context": "sa"
+      },
+      "expected_output": "envelope_segments=2\niv_byte_length=16\nciphertext_byte_length=32\ndecrypted=租户-甲 secret\n"
+    }
+  ]
+}

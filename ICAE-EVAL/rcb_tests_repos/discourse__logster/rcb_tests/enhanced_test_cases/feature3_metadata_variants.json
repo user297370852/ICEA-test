@@ -1,0 +1,81 @@
+{
+  "description": "Structured metadata passthrough across partial and special-character shapes: metadata carrying only an environment map renders an empty backtrace segment; metadata carrying only a backtrace renders an empty environment segment; an explicitly empty environment map round-trips as an empty JSON object; a multi-key environment map with values requiring JSON escaping is serialized verbatim and preserves insertion order.",
+  "cases": [
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 1,
+              "message": "envonly",
+              "source": "api",
+              "metadata": {
+                "env": {
+                  "only": "v"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=api message=envonly backtrace= env={\"only\":\"v\"} valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 1,
+              "message": "btonly",
+              "source": "api",
+              "metadata": {
+                "backtrace": "at app.rb:42"
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=api message=btonly backtrace=at app.rb:42 env= valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 1,
+              "message": "emptyenv",
+              "source": "api",
+              "metadata": {
+                "env": {}
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=api message=emptyenv backtrace= env={} valid_encoding=true\nprimary total=1\n"
+    },
+    {
+      "input": {
+        "actions": [
+          {
+            "log": {
+              "level": 1,
+              "message": "special",
+              "source": "api",
+              "metadata": {
+                "backtrace": "line1\nline2",
+                "env": {
+                  "k1": "v1",
+                  "quote": "a\"b",
+                  "slash": "x/y",
+                  "path": "/tmp/z"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected_output": "primary level=1 source=api message=special backtrace=line1\nline2 env={\"k1\":\"v1\",\"quote\":\"a\\\"b\",\"slash\":\"x/y\",\"path\":\"/tmp/z\"} valid_encoding=true\nprimary total=1\n"
+    }
+  ]
+}

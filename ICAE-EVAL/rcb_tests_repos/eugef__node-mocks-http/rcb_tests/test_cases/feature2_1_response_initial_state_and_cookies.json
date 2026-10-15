@@ -1,0 +1,68 @@
+{
+    "description": "A response object starts with success status, empty cookies, and supplied local variables; cookie operations store values with options and clearing a cookie writes an expired empty cookie.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "response_initial_state",
+                "options": {
+                    "locals": {
+                        "a": "b"
+                    }
+                }
+            },
+            "expected_output": "status=200\ncookies={}\nlocals={\"a\":\"b\"}\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "store_cookie",
+                        "name": "name",
+                        "value": "value"
+                    }
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={\"name\":{\"options\":absent,\"value\":\"value\"}}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "store_cookie",
+                        "name": "name",
+                        "value": "value",
+                        "options": {
+                            "domain": "foo.bar.com",
+                            "path": "/cookie/path"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={\"name\":{\"options\":{\"domain\":\"foo.bar.com\",\"path\":\"/cookie/path\"},\"value\":\"value\"}}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\n"
+        },
+        {
+            "input": {
+                "scenario": "response_state_after_operations",
+                "actions": [
+                    {
+                        "type": "store_cookie",
+                        "name": "name",
+                        "value": "value"
+                    },
+                    {
+                        "type": "expire_cookie",
+                        "name": "name",
+                        "options": {
+                            "domain": "domain",
+                            "httpOnly": true,
+                            "path": "/ignored"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={\"name\":{\"options\":{\"domain\":\"domain\",\"expires\":1,\"httpOnly\":true,\"path\":\"/\"},\"value\":\"\"}}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\n"
+        }
+    ]
+}

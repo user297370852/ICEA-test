@@ -1,0 +1,60 @@
+{
+  "description": "Enhanced parent supervision: stop-all-children at a small fault threshold, reset-all-children giving both children fresh starts, and reset-only-the-faulted-child leaving the peer's accumulated state intact - across varied thresholds and message counts.",
+  "cases": [
+    {
+      "input": {
+        "action": "supervision-parent-policy",
+        "system": "par-stop-2",
+        "parent_name": "parent",
+        "parent_policy": "stop_all_children",
+        "faulting_child_name": "faulty",
+        "other_child_name": "peer",
+        "fail_on_count": 2,
+        "pre_messages": [
+          "m0",
+          "m1"
+        ],
+        "recovery_message": "r"
+      },
+      "expected_output": "parent_stopped=false\nfaulty_stopped=true\npeer_stopped=true\n"
+    },
+    {
+      "input": {
+        "action": "supervision-parent-policy",
+        "system": "par-reset-all-4",
+        "parent_name": "parent",
+        "parent_policy": "reset_all_children",
+        "faulting_child_name": "faulty",
+        "other_child_name": "peer",
+        "fail_on_count": 4,
+        "pre_messages": [
+          "m0",
+          "m1",
+          "m2",
+          "m3"
+        ],
+        "recovery_message": "r",
+        "query_after": "r"
+      },
+      "expected_output": "parent_stopped=false\nfaulty_stopped=false\npeer_stopped=false\nfaulty_result=1\npeer_result=1\n"
+    },
+    {
+      "input": {
+        "action": "supervision-parent-policy",
+        "system": "par-reset-child-2",
+        "parent_name": "parent",
+        "parent_policy": "reset_child",
+        "faulting_child_name": "faulty",
+        "other_child_name": "peer",
+        "fail_on_count": 2,
+        "pre_messages": [
+          "m0",
+          "m1"
+        ],
+        "recovery_message": "r",
+        "query_after": "r"
+      },
+      "expected_output": "parent_stopped=false\nfaulty_stopped=false\npeer_stopped=false\nfaulty_result=1\npeer_result=3\n"
+    }
+  ]
+}

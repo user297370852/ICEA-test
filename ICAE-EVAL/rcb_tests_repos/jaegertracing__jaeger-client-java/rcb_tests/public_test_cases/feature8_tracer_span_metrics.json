@@ -1,0 +1,51 @@
+{
+    "description": "Starting a span through the tracer pipeline emits counters into the metrics backend. Counters are addressed by metric name and a comma-separated tag string. Starting one sampled span increments started_spans(sampled=y) and traces(sampled=y,state=started) to 1 while their not-sampled counterparts stay 0. Querying a counter whose tag string does not exactly match a created series returns -1.",
+    "cases": [
+        {
+            "input": {
+                "op": "tracer_metrics",
+                "service": "metricsFactoryTest",
+                "operation": "theoperation",
+                "sampled": true,
+                "queries": [
+                    {
+                        "name": "jaeger:started_spans",
+                        "tags": "sampled=y"
+                    },
+                    {
+                        "name": "jaeger:started_spans",
+                        "tags": "sampled=n"
+                    },
+                    {
+                        "name": "jaeger:traces",
+                        "tags": "sampled=y,state=started"
+                    },
+                    {
+                        "name": "jaeger:traces",
+                        "tags": "sampled=n,state=started"
+                    }
+                ]
+            },
+            "expected_output": "jaeger:started_spans|sampled=y=1\njaeger:started_spans|sampled=n=0\njaeger:traces|sampled=y,state=started=1\njaeger:traces|sampled=n,state=started=0\n"
+        },
+        {
+            "input": {
+                "op": "tracer_metrics",
+                "service": "metricsFactoryTest",
+                "operation": "theoperation",
+                "sampled": true,
+                "queries": [
+                    {
+                        "name": "jaeger:started_spans",
+                        "tags": "sampled"
+                    },
+                    {
+                        "name": "jaeger:started_spans",
+                        "tags": ""
+                    }
+                ]
+            },
+            "expected_output": "jaeger:started_spans|sampled=-1\njaeger:started_spans|=-1\n"
+        }
+    ]
+}

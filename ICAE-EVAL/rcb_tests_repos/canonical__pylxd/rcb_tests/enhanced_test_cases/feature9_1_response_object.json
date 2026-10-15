@@ -1,0 +1,55 @@
+{
+  "cases": [
+    {
+      "input": {
+        "params": {
+          "status": 200,
+          "body": "[]"
+        },
+        "op": "conn.object"
+      },
+      "expected_output": "error=daemon_error\n"
+    },
+    {
+      "input": {
+        "params": {
+          "status": 200,
+          "body": "null"
+        },
+        "op": "conn.object"
+      },
+      "expected_output": "error=daemon_error\n"
+    },
+    {
+      "input": {
+        "params": {
+          "status": 200,
+          "body": "0"
+        },
+        "op": "conn.object"
+      },
+      "expected_output": "error=daemon_error\n"
+    },
+    {
+      "input": {
+        "params": {
+          "status": 202,
+          "body": "{\"status_code\": 100, \"metadata\": {\"k\": \"v\"}}"
+        },
+        "op": "conn.object"
+      },
+      "expected_output": "result=[202, {\"metadata\": {\"k\": \"v\"}, \"status_code\": 100}]\n"
+    },
+    {
+      "input": {
+        "params": {
+          "status": 404,
+          "body": "{\"error\": \"nope\", \"error_code\": 404}"
+        },
+        "op": "conn.object"
+      },
+      "expected_output": "error=api_error\nstatus_code=404\n"
+    }
+  ],
+  "description": "Parse a document response: falsy decoded payloads at the empty-object, empty-array, null and zero boundaries are rejected as a daemon error; an accepted-with-completion status returns the state/document pair; a failure status surfaces the API error category with its code."
+}

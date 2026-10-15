@@ -1,0 +1,51 @@
+{
+    "description": "Resolve each feature's value at most once per scope and keep it cached, so a resolver's side effects (counted here as the number of times it runs) are not repeated on later reads of the same feature and scope. Explicitly loading a feature pre-resolves and caches it; load-missing only resolves features that are not already cached. Flushing the cache forces the next read to resolve the feature again.",
+    "cases": [
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "counter", "value": true}},
+                {"op": "calls", "feature": "foo"},
+                {"op": "active", "feature": "foo"},
+                {"op": "calls", "feature": "foo"},
+                {"op": "active", "feature": "foo"},
+                {"op": "calls", "feature": "foo"}
+            ]},
+            "expected_output": "calls foo = 0\nactive foo = true\ncalls foo = 1\nactive foo = true\ncalls foo = 1\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "counter", "value": true}},
+                {"op": "active", "feature": "foo"},
+                {"op": "flushCache"},
+                {"op": "active", "feature": "foo"},
+                {"op": "calls", "feature": "foo"}
+            ]},
+            "expected_output": "active foo = true\nactive foo = true\ncalls foo = 2\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "counter", "value": true}},
+                {"op": "calls", "feature": "foo"},
+                {"op": "loadMissing", "features": ["foo"]},
+                {"op": "calls", "feature": "foo"},
+                {"op": "loadMissing", "features": ["foo"]},
+                {"op": "calls", "feature": "foo"},
+                {"op": "active", "feature": "foo"},
+                {"op": "calls", "feature": "foo"}
+            ]},
+            "expected_output": "calls foo = 0\ncalls foo = 1\ncalls foo = 1\nactive foo = true\ncalls foo = 1\n"
+        },
+        {
+            "input": {"operations": [
+                {"op": "define", "feature": "foo", "resolver": {"type": "counter", "value": true}},
+                {"op": "load", "features": ["foo"]},
+                {"op": "calls", "feature": "foo"},
+                {"op": "active", "feature": "foo"},
+                {"op": "calls", "feature": "foo"},
+                {"op": "load", "features": ["foo"]},
+                {"op": "calls", "feature": "foo"}
+            ]},
+            "expected_output": "calls foo = 1\nactive foo = true\ncalls foo = 1\ncalls foo = 1\n"
+        }
+    ]
+}

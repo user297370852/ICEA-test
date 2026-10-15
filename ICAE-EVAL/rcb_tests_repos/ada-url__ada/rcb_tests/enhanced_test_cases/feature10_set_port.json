@@ -1,0 +1,121 @@
+{
+  "description": "Port assignment edge cases: max port, out-of-range rejection, clearing via empty string, setting the scheme default (which drops the port), and zero.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "port",
+            "value": "65535"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_port=true\nport=65535\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "port",
+            "value": "65536"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_port=false\nport=\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:8080/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "port",
+            "value": ""
+          },
+          {
+            "op": "get",
+            "field": "port"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_port=true\nport=\nhref=https://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com:8080/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "port",
+            "value": "443"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          },
+          {
+            "op": "get",
+            "field": "href"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_port=true\nport=\nhref=https://example.com/\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "port",
+            "value": "0"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_port=true\nport=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_url",
+        "url": "https://example.com/",
+        "steps": [
+          {
+            "op": "set",
+            "field": "port",
+            "value": "007"
+          },
+          {
+            "op": "get",
+            "field": "port"
+          }
+        ]
+      },
+      "expected_output": "url=valid\nset_port=true\nport=7\n"
+    }
+  ]
+}

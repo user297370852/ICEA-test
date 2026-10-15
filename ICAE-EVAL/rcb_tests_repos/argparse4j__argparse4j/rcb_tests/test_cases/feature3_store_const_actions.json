@@ -1,0 +1,137 @@
+{
+    "description": "Bind values by action rather than by consuming operands: flag actions that store a true or false boolean, an action that stores a fixed constant when the flag appears, a counting action that yields how many times a (possibly repeated/concatenated) flag occurred, an append action that accumulates each occurrence's value into a list, and an append-constant action that appends a fixed constant per occurrence.",
+    "cases": [
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "action": "store_true"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "action": "store_false"
+                    },
+                    {
+                        "flags": [
+                            "--baz"
+                        ],
+                        "action": "store_false"
+                    },
+                    {
+                        "flags": [
+                            "--sid"
+                        ],
+                        "action": "store_true"
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "--bar"
+                ]
+            },
+            "expected_output": "bar=false\nbaz=true\nfoo=true\nsid=false\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "action": "store_const",
+                        "const": "const"
+                    },
+                    {
+                        "name": "bar"
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "bar"
+                ]
+            },
+            "expected_output": "bar=bar\nfoo=const\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "-v",
+                            "--verbose"
+                        ],
+                        "action": "count"
+                    },
+                    {
+                        "flags": [
+                            "--foo"
+                        ]
+                    }
+                ],
+                "argv": [
+                    "-v",
+                    "-vv",
+                    "-vvvv"
+                ]
+            },
+            "expected_output": "foo=null\nverbose=7\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "action": "append",
+                        "nargs": "*"
+                    },
+                    {
+                        "flags": [
+                            "--bar"
+                        ],
+                        "action": "append"
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "a",
+                    "--foo",
+                    "b",
+                    "--bar",
+                    "c",
+                    "--bar",
+                    "d"
+                ]
+            },
+            "expected_output": "bar=[c, d]\nfoo=[[a], [b]]\n"
+        },
+        {
+            "input": {
+                "arguments": [
+                    {
+                        "flags": [
+                            "--foo"
+                        ],
+                        "action": "append_const",
+                        "const": "X"
+                    },
+                    {
+                        "name": "bar"
+                    }
+                ],
+                "argv": [
+                    "--foo",
+                    "--foo",
+                    "bar"
+                ]
+            },
+            "expected_output": "bar=bar\nfoo=[X, X]\n"
+        }
+    ]
+}

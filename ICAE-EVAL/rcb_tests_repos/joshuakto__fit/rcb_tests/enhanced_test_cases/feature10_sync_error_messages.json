@@ -1,0 +1,60 @@
+{
+  "description": "Additional user-facing synchronization error cases for missing remote resources, network failures, and filesystem writes.",
+  "cases": [
+    {
+      "description": "A missing remote resource failure is rendered with repository setup guidance.",
+      "input": {
+        "command": "sync.run",
+        "steps": [
+          {
+            "remoteFailure": {
+              "type": "remote_not_found",
+              "message": "Repository missing"
+            },
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"]]\nsuccess=false\nerror_message=Repository missing. Check your repo and branch settings.\nlocal_files={}\nremote_files={}\nstore={\"lastFetchedCommitSha\":\"commit-initial\",\"lastFetchedRemoteSha\":{},\"localSha\":{}}\n"
+    },
+    {
+      "description": "A network failure is rendered with connectivity guidance.",
+      "input": {
+        "command": "sync.run",
+        "steps": [
+          {
+            "remoteFailure": {
+              "type": "network",
+              "message": "Gateway timeout"
+            },
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"]]\nsuccess=false\nerror_message=Gateway timeout. Please check your internet connection.\nlocal_files={}\nremote_files={}\nstore={\"lastFetchedCommitSha\":\"commit-initial\",\"lastFetchedRemoteSha\":{},\"localSha\":{}}\n"
+    },
+    {
+      "description": "A local filesystem write failure during remote pull is rendered as a filesystem error and leaves state unchanged.",
+      "input": {
+        "command": "sync.run",
+        "remote_initial": [
+          {
+            "path": "remote.md",
+            "content": "data"
+          }
+        ],
+        "steps": [
+          {
+            "localFailure": {
+              "operation": "write",
+              "type": "filesystem",
+              "message": "permission denied"
+            },
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"]]\nsuccess=false\nerror_message=File system error: permission denied\nlocal_files={}\nremote_files={\"remote.md\":{\"content\":\"data\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"commit-initial\",\"lastFetchedRemoteSha\":{},\"localSha\":{}}\n"
+    }
+  ]
+}

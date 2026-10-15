@@ -1,0 +1,78 @@
+{
+  "description": "Error-policy edge cases: an error delivered after initialization but before any listen (the user has not ended the session) is still forwarded and recorded; a transient error with cancel-on-error enabled does NOT stop the session (only permanent errors trigger the implicit cancel); and an error delivered after an explicit stop is suppressed.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize",
+            "onError": true
+          },
+          {
+            "do": "deliver",
+            "method": "error",
+            "payload": "{\"errorMsg\":\"network\",\"permanent\":false}"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nerror msg=network permanent=false\nlistening=false recognized=false available=true has_error=true last_recognized= last_status= last_level=0.0\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize",
+            "onError": true
+          },
+          {
+            "do": "listen",
+            "cancelOnError": true
+          },
+          {
+            "do": "deliver",
+            "method": "error",
+            "payload": "{\"errorMsg\":\"network\",\"permanent\":false}"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nerror msg=network permanent=false\nlistening=true recognized=false available=true has_error=true last_recognized= last_status=listening last_level=0.0\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize",
+            "onError": true
+          },
+          {
+            "do": "listen"
+          },
+          {
+            "do": "stop"
+          },
+          {
+            "do": "deliver",
+            "method": "error",
+            "payload": "{\"errorMsg\":\"network\",\"permanent\":true}"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nstop invoked=true\nlistening=false recognized=false available=true has_error=false last_recognized= last_status=listening last_level=0.0\n"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "description": "Additional chat history validation cases for empty history, missing parts, role/part incompatibility, and valid function-response turn ordering.",
+  "cases": [
+    {
+      "input": {
+        "history": []
+      },
+      "expected_output": "history_valid=true\nturns=0\n"
+    },
+    {
+      "input": {
+        "history": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "text": "hi"
+              }
+            ]
+          },
+          {
+            "role": "model"
+          }
+        ]
+      },
+      "expected_output": "error=missing_content_parts\n"
+    },
+    {
+      "input": {
+        "history": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "functionCall": {
+                  "name": "bad",
+                  "args": {}
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "error=invalid_part_for_role\npart=functionCall\nrole=user\n"
+    },
+    {
+      "input": {
+        "history": [
+          {
+            "role": "user",
+            "parts": [
+              {
+                "text": "hi"
+              }
+            ]
+          },
+          {
+            "role": "function",
+            "parts": [
+              {
+                "functionResponse": {
+                  "name": "f",
+                  "response": {
+                    "ok": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "history_valid=true\nturns=2\n"
+    }
+  ]
+}

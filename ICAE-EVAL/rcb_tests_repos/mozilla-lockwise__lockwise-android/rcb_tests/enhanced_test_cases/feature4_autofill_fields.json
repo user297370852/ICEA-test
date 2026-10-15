@@ -1,0 +1,116 @@
+{
+  "description": "Boundary coverage for autofill parsing: hint-only username with no password, HTML inputs whose web domain sits on an intermediate ancestor while the package sits on the root, password-only forms, consecutive label-then-field detection, and keyword-free trees that fall back to the activity package.",
+  "cases": [
+    {
+      "input": {
+        "feature": "autofill_fields",
+        "activity_package": "com.my.activity",
+        "roots": [
+          {
+            "children": [
+              {
+                "id": "email_field",
+                "hint": "Email",
+                "kind": "text_input"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "username_id=email_field\npassword_id=\nweb_domain=\npackage_name=com.my.activity\n"
+    },
+    {
+      "input": {
+        "feature": "autofill_fields",
+        "activity_package": "com.my.activity",
+        "roots": [
+          {
+            "package_name": "root.pkg",
+            "children": [
+              {
+                "web_domain": "site.example.com",
+                "children": [
+                  {
+                    "id": "u",
+                    "html_tag": "input",
+                    "html_attributes": [
+                      "username"
+                    ]
+                  },
+                  {
+                    "id": "p",
+                    "html_tag": "input",
+                    "html_attributes": [
+                      "password"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "username_id=u\npassword_id=p\nweb_domain=site.example.com\npackage_name=root.pkg\n"
+    },
+    {
+      "input": {
+        "feature": "autofill_fields",
+        "activity_package": "com.my.activity",
+        "roots": [
+          {
+            "children": [
+              {
+                "id": "pwd",
+                "autofill_hints": [
+                  "password"
+                ],
+                "kind": "text_input"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "username_id=\npassword_id=pwd\nweb_domain=\npackage_name=com.my.activity\n"
+    },
+    {
+      "input": {
+        "feature": "autofill_fields",
+        "activity_package": "com.my.activity",
+        "roots": [
+          {
+            "web_domain": "w.example.org",
+            "children": [
+              {
+                "id": "label",
+                "text": "User Name",
+                "kind": "display_text"
+              },
+              {
+                "id": "field",
+                "kind": "text_input"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "username_id=field\npassword_id=\nweb_domain=w.example.org\npackage_name=com.my.activity\n"
+    },
+    {
+      "input": {
+        "feature": "autofill_fields",
+        "activity_package": "com.my.activity",
+        "roots": [
+          {
+            "children": [
+              {
+                "id": "lonely",
+                "kind": "text_input"
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "username_id=\npassword_id=\nweb_domain=\npackage_name=com.my.activity\n"
+    }
+  ]
+}

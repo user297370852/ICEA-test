@@ -1,0 +1,47 @@
+{
+  "description": "Repository deployment boundary coverage driven from an API/inline config selection: the PYTHON_3 runtime, a caller-supplied source-connection ARN reflected in the authentication section, and repository-URL normalization (trailing slash dropped, surrounding whitespace trimmed) applied during request assembly. Also exercises the deployment-mode toggle: with automatic redeployment the request carries an inline (API) code-configuration block, while selecting manual redeployment resolves the request to repository-supplied configuration with no inline block.",
+  "cases": [
+    {
+      "input": {
+        "action": "build_request",
+        "deployment": "repository",
+        "repo_config": "api",
+        "repository_url": "svc",
+        "runtime": "NODEJS_12",
+        "auto_deploy": false
+      },
+      "expected_output": "auto_deployments=false\ncode_configuration_values_present=false\nconfiguration_source=REPOSITORY\nconnection_arn=arn::source-connection\ncpu=1 vCPU\nmemory=2 GB\nrepository_url=svc\nservice_name=\nsource_code_version_type=BRANCH"
+    },
+    {
+      "input": {
+        "action": "build_request",
+        "deployment": "repository",
+        "repo_config": "api",
+        "repository_url": "svc",
+        "runtime": "PYTHON_3",
+        "connection_arn": "arn::custom-conn"
+      },
+      "expected_output": "auto_deployments=true\ncode_configuration_values_present=true\ncode_port=80\ncode_runtime=PYTHON_3\nconfiguration_source=API\nconnection_arn=arn::custom-conn\ncpu=1 vCPU\nmemory=2 GB\nrepository_url=svc\nservice_name=\nsource_code_version_type=BRANCH"
+    },
+    {
+      "input": {
+        "action": "build_request",
+        "deployment": "repository",
+        "repo_config": "api",
+        "repository_url": "trailing/",
+        "runtime": "PYTHON_3"
+      },
+      "expected_output": "auto_deployments=true\ncode_configuration_values_present=true\ncode_port=80\ncode_runtime=PYTHON_3\nconfiguration_source=API\nconnection_arn=arn::source-connection\ncpu=1 vCPU\nmemory=2 GB\nrepository_url=trailing\nservice_name=\nsource_code_version_type=BRANCH"
+    },
+    {
+      "input": {
+        "action": "build_request",
+        "deployment": "repository",
+        "repo_config": "api",
+        "repository_url": "  spaced  ",
+        "runtime": "NODEJS_12"
+      },
+      "expected_output": "auto_deployments=true\ncode_configuration_values_present=true\ncode_port=80\ncode_runtime=NODEJS_12\nconfiguration_source=API\nconnection_arn=arn::source-connection\ncpu=1 vCPU\nmemory=2 GB\nrepository_url=spaced\nservice_name=\nsource_code_version_type=BRANCH"
+    }
+  ]
+}

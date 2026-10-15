@@ -1,0 +1,45 @@
+{
+    "description": "When lag failover is enabled, exceeding the lag threshold (or being unable to measure lag) does not raise; instead a message is logged and reads fall back to the primary.",
+    "cases": [
+        {
+            "input": {
+                "lag": 2,
+                "program": [
+                    {
+                        "op": "scope",
+                        "options": {
+                            "max_lag": 1,
+                            "lag_failover": true
+                        },
+                        "body": [
+                            {
+                                "op": "read"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "log=Replica lag over 1 seconds. Falling back to master pool.\nread=primary\n"
+        },
+        {
+            "input": {
+                "lag": null,
+                "program": [
+                    {
+                        "op": "scope",
+                        "options": {
+                            "max_lag": 1,
+                            "lag_failover": true
+                        },
+                        "body": [
+                            {
+                                "op": "read"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "log=Replica lag is nil on default. Falling back to master pool.\nread=primary\n"
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+{
+  "description": "Additional B3 propagation coverage for omitted parent headers, debug flag injection, negative id hex rendering, case-insensitive extraction, true sampled values, custom baggage prefixes, and sorted baggage output.",
+  "cases": [
+    {
+      "input": {
+        "op": "b3_inject",
+        "trace_id": -1,
+        "span_id": -9223372036854775808,
+        "parent_id": 0,
+        "flags": 3,
+        "baggage": {
+          "zeta": "last",
+          "alpha": "first"
+        }
+      },
+      "expected_output": "X-B3-Flags=1\nX-B3-Sampled=1\nX-B3-SpanId=8000000000000000\nX-B3-TraceId=ffffffffffffffff\nbaggage-alpha=first\nbaggage-zeta=last\n"
+    },
+    {
+      "input": {
+        "op": "b3_extract",
+        "headers": {
+          "x-b3-traceid": "00000000000000ff",
+          "x-b3-spanid": "00000000000000aa",
+          "x-b3-parentspanid": "000000000000000b",
+          "x-b3-sampled": "true",
+          "baggage-z": "last",
+          "baggage-a": "first"
+        }
+      },
+      "expected_output": "trace_id=255\nspan_id=170\nparent_id=11\nflags=1\nbaggage.a=first\nbaggage.z=last\n"
+    },
+    {
+      "input": {
+        "op": "b3_extract",
+        "headers": {
+          "X-B3-TraceId": "00000000000000010000000000000002",
+          "X-B3-SpanId": "0000000000000003",
+          "custom-tenant": "acme",
+          "baggage-tenant": "ignored"
+        },
+        "baggage_prefix": "custom-"
+      },
+      "expected_output": "trace_id=2\nspan_id=3\nparent_id=0\nflags=0\nbaggage.tenant=acme\n"
+    }
+  ]
+}

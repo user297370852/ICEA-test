@@ -1,0 +1,126 @@
+{
+  "description": "Mask sensitive substrings as they stream through an output writer. The writer is configured with a list of secret byte sequences and a replacement string; any occurrence of a secret in the streamed bytes (even spanning multiple writes, even when one secret encloses another) is replaced by the replacement string, and consecutive masked bytes collapse into a single replacement. Bytes that only partially match a secret at the end of the stream are emitted unmasked. Input is supplied as an ordered list of write chunks; the fully processed output is emitted verbatim.",
+  "cases": [
+    {
+      "input": {
+        "action": "mask",
+        "masks": [],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": [
+          "nothing to mask"
+        ]
+      },
+      "expected_output": "nothing to mask"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "foo"
+        ],
+        "mask_string": "***",
+        "writes": [
+          "a foo b"
+        ]
+      },
+      "expected_output": "a *** b"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "foo",
+          "foo"
+        ],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": [
+          "foo foo"
+        ]
+      },
+      "expected_output": "<redacted by SecretHub> <redacted by SecretHub>"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "secret"
+        ],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": [
+          "secret"
+        ]
+      },
+      "expected_output": "<redacted by SecretHub>"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "a"
+        ],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": [
+          "banana"
+        ]
+      },
+      "expected_output": "b<redacted by SecretHub>n<redacted by SecretHub>n<redacted by SecretHub>"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "foo",
+          "bar"
+        ],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": [
+          "f",
+          "o",
+          "o",
+          "b",
+          "a",
+          "r"
+        ]
+      },
+      "expected_output": "<redacted by SecretHub>"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "foobar"
+        ],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": [
+          "foo",
+          "bar"
+        ]
+      },
+      "expected_output": "<redacted by SecretHub>"
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "foo"
+        ],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": []
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "mask",
+        "masks": [
+          "foo"
+        ],
+        "mask_string": "<redacted by SecretHub>",
+        "writes": [
+          "foofoofoo"
+        ]
+      },
+      "expected_output": "<redacted by SecretHub>"
+    }
+  ]
+}

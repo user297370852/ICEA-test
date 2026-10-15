@@ -1,0 +1,150 @@
+{
+  "description": "Enhanced boundary coverage for platform-overridable option resolution. Exercises presence-vs-truthiness semantics of the override section (false/null/0 overrides win), key-absent-from-override fallback to base, key present only in the override section, key absent everywhere (undefined), map results rendered with sorted keys, an override empty map fully replacing a non-empty base map, base map when no override section exists, numeric/array scalar rendering, and the no-web-section case.",
+  "cases": [
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "missing",
+        "options": {
+          "appId": "x",
+          "web": {
+            "appId": "y"
+          }
+        }
+      },
+      "expected_output": "value=undefined\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "appId",
+        "options": {
+          "appId": "baseApp"
+        }
+      },
+      "expected_output": "value=baseApp\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "appId",
+        "options": {
+          "appId": "baseApp",
+          "web": {
+            "scope": "s"
+          }
+        }
+      },
+      "expected_output": "value=baseApp\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "flag",
+        "options": {
+          "flag": true,
+          "web": {
+            "flag": false
+          }
+        }
+      },
+      "expected_output": "value=false\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "k",
+        "options": {
+          "k": "base",
+          "web": {
+            "k": null
+          }
+        }
+      },
+      "expected_output": "value=null\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "k",
+        "options": {
+          "k": 5,
+          "web": {
+            "k": 0
+          }
+        }
+      },
+      "expected_output": "value=0\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "only",
+        "options": {
+          "web": {
+            "only": "weby"
+          }
+        }
+      },
+      "expected_output": "value=weby\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "additionalParameters",
+        "options": {
+          "additionalParameters": {
+            "b": "2",
+            "a": "1"
+          }
+        }
+      },
+      "expected_output": "value={\"a\":\"1\",\"b\":\"2\"}\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "additionalParameters",
+        "options": {
+          "additionalParameters": {
+            "a": "1"
+          },
+          "web": {
+            "additionalParameters": {}
+          }
+        }
+      },
+      "expected_output": "value={}\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "n",
+        "options": {
+          "n": 42
+        }
+      },
+      "expected_output": "value=42\n"
+    },
+    {
+      "input": {
+        "action": "resolve_option",
+        "key": "arr",
+        "options": {
+          "arr": [
+            3,
+            1,
+            2
+          ],
+          "web": {
+            "arr": [
+              "z",
+              "a"
+            ]
+          }
+        }
+      },
+      "expected_output": "value=[\"z\",\"a\"]\n"
+    }
+  ]
+}

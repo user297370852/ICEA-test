@@ -1,0 +1,97 @@
+{
+  "description": "Boundary coverage for persisting and reading back a coverage snapshot through a pluggable store: empty snapshots, multi-file snapshots that must be returned sorted by path, arrays containing only no-data (null) positions, an empty per-line array, and very large hit counts. The round-trip identity holds for both the file-backed and the networked key-value backends.",
+  "cases": [
+    {
+      "input": {
+        "op": "store_and_read",
+        "backend": "redis",
+        "snapshot": {}
+      },
+      "expected_output": "count=0"
+    },
+    {
+      "input": {
+        "op": "store_and_read",
+        "backend": "file",
+        "snapshot": {}
+      },
+      "expected_output": "count=0"
+    },
+    {
+      "input": {
+        "op": "store_and_read",
+        "backend": "file",
+        "snapshot": {
+          "z.rb": [
+            1
+          ],
+          "a.rb": [
+            0,
+            null,
+            3
+          ]
+        }
+      },
+      "expected_output": "count=2\nfile=a.rb\nlines=0,null,3\nfile=z.rb\nlines=1"
+    },
+    {
+      "input": {
+        "op": "store_and_read",
+        "backend": "redis",
+        "snapshot": {
+          "src/widgets/zeta.rb": [
+            4
+          ],
+          "src/alpha.rb": [
+            0,
+            0
+          ],
+          "lib/core.rb": [
+            9,
+            null,
+            9
+          ]
+        }
+      },
+      "expected_output": "count=3\nfile=lib/core.rb\nlines=9,null,9\nfile=src/alpha.rb\nlines=0,0\nfile=src/widgets/zeta.rb\nlines=4"
+    },
+    {
+      "input": {
+        "op": "store_and_read",
+        "backend": "redis",
+        "snapshot": {
+          "x.rb": [
+            null,
+            null,
+            null
+          ]
+        }
+      },
+      "expected_output": "count=1\nfile=x.rb\nlines=null,null,null"
+    },
+    {
+      "input": {
+        "op": "store_and_read",
+        "backend": "file",
+        "snapshot": {
+          "empty.rb": []
+        }
+      },
+      "expected_output": "count=1\nfile=empty.rb\nlines="
+    },
+    {
+      "input": {
+        "op": "store_and_read",
+        "backend": "redis",
+        "snapshot": {
+          "big.rb": [
+            1000000,
+            2000000,
+            0
+          ]
+        }
+      },
+      "expected_output": "count=1\nfile=big.rb\nlines=1000000,2000000,0"
+    }
+  ]
+}

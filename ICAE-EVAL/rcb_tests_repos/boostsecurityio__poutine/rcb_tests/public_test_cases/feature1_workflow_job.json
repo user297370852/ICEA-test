@@ -1,0 +1,26 @@
+{
+    "description": "Parse a single CI workflow job definition supplied as a YAML mapping of one job id to its body. The job body may declare the runner target (a plain label, a list of labels, or a structured object carrying a runner group and/or labels that are flattened into prefixed entries), permission scopes, environment entries, and a container image (a bare string or an object). The adapter emits the parsed job id, its resolved runner targets, permission scope and value pairs, environment entries, container image, and the one-based source line numbers tracked for the job start and the runner declaration. Structurally invalid job bodies are rejected with a neutral error category.",
+    "cases": [
+        {
+            "input": {
+                "op": "parse_workflow_job",
+                "yaml": "build: {runs-on: { group: runner-group, labels: [runner-label] }}"
+            },
+            "expected_output": "id=build\nruns_on=group:runner-group\nruns_on=label:runner-label\nline.runs_on=1\nline.start=1\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_job",
+                "yaml": "build: {permissions: {contents: read}}"
+            },
+            "expected_output": "id=build\npermission contents=read\nline.start=1\n"
+        },
+        {
+            "input": {
+                "op": "parse_workflow_job",
+                "yaml": "build: []"
+            },
+            "expected_output": "error=invalid_job\n"
+        }
+    ]
+}

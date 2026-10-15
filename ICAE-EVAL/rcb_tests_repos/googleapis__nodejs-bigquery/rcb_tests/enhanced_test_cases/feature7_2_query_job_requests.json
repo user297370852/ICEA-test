@@ -1,0 +1,58 @@
+{
+  "description": "Query job requests covering a bare query with no parameters, multiple named parameters, multiple positional parameters, and a job-level jobId separated from the query configuration.",
+  "cases": [
+    {
+      "input": {
+        "operation": "query_job_request",
+        "options": {
+          "query": "SELECT 1"
+        }
+      },
+      "expected_output": "{\n  \"configuration\": {\n    \"query\": {\n      \"useLegacySql\": false,\n      \"query\": \"SELECT 1\"\n    }\n  }\n}\n"
+    },
+    {
+      "input": {
+        "operation": "query_job_request",
+        "options": {
+          "query": "SELECT @a, @b",
+          "params": {
+            "a": 1,
+            "b": "two"
+          },
+          "types": {
+            "a": "INT64",
+            "b": "STRING"
+          }
+        }
+      },
+      "expected_output": "{\n  \"configuration\": {\n    \"query\": {\n      \"useLegacySql\": false,\n      \"query\": \"SELECT @a, @b\",\n      \"types\": {\n        \"a\": \"INT64\",\n        \"b\": \"STRING\"\n      },\n      \"parameterMode\": \"named\",\n      \"queryParameters\": [\n        {\n          \"parameterType\": {\n            \"type\": \"INT64\"\n          },\n          \"parameterValue\": {\n            \"value\": 1\n          },\n          \"name\": \"a\"\n        },\n        {\n          \"parameterType\": {\n            \"type\": \"STRING\"\n          },\n          \"parameterValue\": {\n            \"value\": \"two\"\n          },\n          \"name\": \"b\"\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    {
+      "input": {
+        "operation": "query_job_request",
+        "options": {
+          "query": "SELECT ?, ?",
+          "params": [
+            10,
+            20
+          ],
+          "types": [
+            "INT64",
+            "INT64"
+          ]
+        }
+      },
+      "expected_output": "{\n  \"configuration\": {\n    \"query\": {\n      \"useLegacySql\": false,\n      \"query\": \"SELECT ?, ?\",\n      \"types\": [\n        \"INT64\",\n        \"INT64\"\n      ],\n      \"parameterMode\": \"positional\",\n      \"queryParameters\": [\n        {\n          \"parameterType\": {\n            \"type\": \"INT64\"\n          },\n          \"parameterValue\": {\n            \"value\": 10\n          }\n        },\n        {\n          \"parameterType\": {\n            \"type\": \"INT64\"\n          },\n          \"parameterValue\": {\n            \"value\": 20\n          }\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    {
+      "input": {
+        "operation": "query_job_request",
+        "options": {
+          "query": "SELECT 1",
+          "jobId": "my-job-id"
+        }
+      },
+      "expected_output": "{\n  \"configuration\": {\n    \"query\": {\n      \"useLegacySql\": false,\n      \"query\": \"SELECT 1\"\n    }\n  },\n  \"jobId\": \"my-job-id\"\n}\n"
+    }
+  ]
+}

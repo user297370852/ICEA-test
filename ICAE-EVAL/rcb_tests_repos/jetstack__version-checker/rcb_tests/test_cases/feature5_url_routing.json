@@ -1,0 +1,49 @@
+{
+    "description": "Route a full image URL to the registry that should handle it, also reporting the host and the remaining path. The first slash-delimited segment is treated as a candidate host: if it matches the Docker, GCR, or Quay host rules the URL is routed there with that host and the remainder as path. A URL with no slash, or whose leading segment matches no known registry host, falls back to the Docker registry with an empty host and the entire original string as the path.",
+    "cases": [
+        {
+            "input": {"action": "route_url", "url": ""},
+            "expected_output": "url=\nregistry=docker\nhost=\npath="
+        },
+        {
+            "input": {"action": "route_url", "url": "nginx"},
+            "expected_output": "url=nginx\nregistry=docker\nhost=\npath=nginx"
+        },
+        {
+            "input": {"action": "route_url", "url": "joshvanl/version-checker"},
+            "expected_output": "url=joshvanl/version-checker\nregistry=docker\nhost=\npath=joshvanl/version-checker"
+        },
+        {
+            "input": {"action": "route_url", "url": "docker.com/joshvanl/version-checker"},
+            "expected_output": "url=docker.com/joshvanl/version-checker\nregistry=docker\nhost=docker.com\npath=joshvanl/version-checker"
+        },
+        {
+            "input": {"action": "route_url", "url": "docker.io/joshvanl/version-checker"},
+            "expected_output": "url=docker.io/joshvanl/version-checker\nregistry=docker\nhost=docker.io\npath=joshvanl/version-checker"
+        },
+        {
+            "input": {"action": "route_url", "url": "foo.docker.com/joshvanl/version-checker"},
+            "expected_output": "url=foo.docker.com/joshvanl/version-checker\nregistry=docker\nhost=foo.docker.com\npath=joshvanl/version-checker"
+        },
+        {
+            "input": {"action": "route_url", "url": "bar.docker.io/registry/joshvanl/version-checker"},
+            "expected_output": "url=bar.docker.io/registry/joshvanl/version-checker\nregistry=docker\nhost=bar.docker.io\npath=registry/joshvanl/version-checker"
+        },
+        {
+            "input": {"action": "route_url", "url": "gcr.io/jetstack-cre/version-checker"},
+            "expected_output": "url=gcr.io/jetstack-cre/version-checker\nregistry=gcr\nhost=gcr.io\npath=jetstack-cre/version-checker"
+        },
+        {
+            "input": {"action": "route_url", "url": "us.gcr.io/k8s-artifacts-prod/ingress-nginx/nginx"},
+            "expected_output": "url=us.gcr.io/k8s-artifacts-prod/ingress-nginx/nginx\nregistry=gcr\nhost=us.gcr.io\npath=k8s-artifacts-prod/ingress-nginx/nginx"
+        },
+        {
+            "input": {"action": "route_url", "url": "quay.io/jetstack/version-checker"},
+            "expected_output": "url=quay.io/jetstack/version-checker\nregistry=quay\nhost=quay.io\npath=jetstack/version-checker"
+        },
+        {
+            "input": {"action": "route_url", "url": "us.quay.io/k8s-artifacts-prod/ingress-nginx/nginx"},
+            "expected_output": "url=us.quay.io/k8s-artifacts-prod/ingress-nginx/nginx\nregistry=quay\nhost=us.quay.io\npath=k8s-artifacts-prod/ingress-nginx/nginx"
+        }
+    ]
+}

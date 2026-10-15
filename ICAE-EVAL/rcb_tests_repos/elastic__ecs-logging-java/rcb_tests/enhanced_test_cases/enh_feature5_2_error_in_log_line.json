@@ -1,0 +1,17 @@
+{
+  "description": "Error-attached-to-log-line boundaries: an ERROR record carrying both labels and an attached error (verifying error fields come after labels), a minimal error with escaping, and the stack-trace-as-array form embedded in a full log line.",
+  "cases": [
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"ERROR\",\"message\":\"failed\",\"service_name\":\"svc\",\"thread_name\":\"main\",\"logger_name\":\"L\",\"labels\":{\"trace.id\":\"t\",\"k\":\"v\"},\"error\":{\"type\":\"OrderError\",\"message\":\"declined\",\"stack_trace\":\"OrderError: declined\\n\\tat checkout(c.mod:42)\"}}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":\"ERROR\", \"message\":\"failed\", \"service.name\":\"svc\",\"process.thread.name\":\"main\",\"log.logger\":\"L\",\"trace.id\":\"t\",\"labels.k\":\"v\",\"error.code\":\"OrderError\",\"error.message\":\"declined\",\"error.stack_trace\":\"OrderError: declined\\n\\tat checkout(c.mod:42)\"}\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":0,\"level\":\"ERROR\",\"message\":\"m\",\"error\":{\"type\":\"E\",\"message\":\"a\\\"b\",\"stack_trace\":\"E: a\\\"b\\n\\tat z(z.mod:1)\"}}",
+      "expected_output": "{\"@timestamp\":\"1970-01-01T00:00:00.000Z\", \"log.level\":\"ERROR\", \"message\":\"m\", \"error.code\":\"E\",\"error.message\":\"a\\\"b\",\"error.stack_trace\":\"E: a\\\"b\\n\\tat z(z.mod:1)\"}\n"
+    },
+    {
+      "input": "{\"op\":\"build_log_line\",\"timestamp_millis\":1565093352375,\"level\":\"ERROR\",\"message\":\"failed\",\"service_name\":\"svc\",\"thread_name\":\"main\",\"logger_name\":\"L\",\"error\":{\"type\":\"RuntimeException\",\"message\":\"boom\",\"stack_trace\":\"RuntimeException: boom\\n\\tat A.b(A.java:1)\\n\\tat C.d(C.java:2)\",\"as_array\":true}}",
+      "expected_output": "{\"@timestamp\":\"2019-08-06T12:09:12.375Z\", \"log.level\":\"ERROR\", \"message\":\"failed\", \"service.name\":\"svc\",\"process.thread.name\":\"main\",\"log.logger\":\"L\",\"error.code\":\"RuntimeException\",\"error.message\":\"boom\",\"error.stack_trace\":[\n\"RuntimeException: boom\"\"\\tat A.b(A.java:1)\"\"\\tat C.d(C.java:2)\"]}\n"
+    }
+  ]
+}

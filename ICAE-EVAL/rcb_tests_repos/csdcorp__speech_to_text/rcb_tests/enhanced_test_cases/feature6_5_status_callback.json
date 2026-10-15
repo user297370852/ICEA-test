@@ -1,0 +1,52 @@
+{
+  "description": "Status-notification edge cases: delivering a notListening status updates the listening flag to false and is forwarded, and multiple status deliveries are each forwarded in order with the last one reflected in the snapshot.",
+  "cases": [
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize",
+            "onStatus": true
+          },
+          {
+            "do": "deliver",
+            "method": "status",
+            "payload": "notListening"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nstatus notListening\nlistening=false recognized=false available=true has_error=false last_recognized= last_status=notListening last_level=0.0\n"
+    },
+    {
+      "input": {
+        "op": "session",
+        "config": {},
+        "steps": [
+          {
+            "do": "initialize",
+            "onStatus": true
+          },
+          {
+            "do": "deliver",
+            "method": "status",
+            "payload": "listening"
+          },
+          {
+            "do": "deliver",
+            "method": "status",
+            "payload": "notListening"
+          },
+          {
+            "do": "state"
+          }
+        ]
+      },
+      "expected_output": "init result=true invoked=true\nstatus listening\nstatus notListening\nlistening=false recognized=false available=true has_error=false last_recognized= last_status=notListening last_level=0.0\n"
+    }
+  ]
+}

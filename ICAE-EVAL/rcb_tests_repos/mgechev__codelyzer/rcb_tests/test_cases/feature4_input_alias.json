@@ -1,0 +1,37 @@
+{
+    "description": "Reject aliased input bindings on components and directives except when a directive selector explicitly exposes that alias.",
+    "cases": [
+        {
+            "input": {
+                "action": "lint",
+                "check": "input_alias",
+                "source": "\n@Component({\n  selector: 'foo'\n})\nclass SampleComponent {\n  @Input('bar') label: string;\n}\n"
+            },
+            "expected_output": "check=input_alias\nfailure_count=1\nfailure_index=0\nmessage=In the class \"SampleComponent\", the directive input property \"label\" should not be renamed. However, you should use an alias when the directive name is also an input property, and the directive name doesn't describe the property. In this last case, you can disable this rule with `tslint:disable-next-line:no-input-rename`.\nstart_line=5\nstart_character=2\nend_line=5\nend_character=30\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "input_alias",
+                "source": "\n@Component({\n  selector: 'foo'\n})\nclass SampleComponent {\n  @Input() label: string;\n}\n"
+            },
+            "expected_output": "check=input_alias\nfailure_count=0\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "input_alias",
+                "source": "\n@Directive({\n  selector: '[foo]'\n})\nclass SampleDirective {\n  @Input('labelText') label: string;\n}\n"
+            },
+            "expected_output": "check=input_alias\nfailure_count=1\nfailure_index=0\nmessage=In the class \"SampleDirective\", the directive input property \"label\" should not be renamed. However, you should use an alias when the directive name is also an input property, and the directive name doesn't describe the property. In this last case, you can disable this rule with `tslint:disable-next-line:no-input-rename`.\nstart_line=5\nstart_character=2\nend_line=5\nend_character=36\n"
+        },
+        {
+            "input": {
+                "action": "lint",
+                "check": "input_alias",
+                "source": "\n@Directive({\n  selector: '[foo], myselector'\n})\nclass SampleDirective {\n  @Input('myselector') bar: string;\n}\n"
+            },
+            "expected_output": "check=input_alias\nfailure_count=0\n"
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "description": "Given a project manifest plus its installed module tree, the planner selects which native modules to (re)build. It walks production and optional dependencies, descends into their transitive native children (including scoped packages nested under a parent), and excludes development-only dependencies. The output reports the resolved target ABI for the requested runtime version and the sorted set of module short-names chosen for rebuild.",
+    "cases": [
+        {
+            "input": {
+                "command": "plan_rebuild",
+                "runtimeVersion": "10.4.7",
+                "dependencies": {"ref-napi": "1", "farmhash": "1", "level": "1", "@newrelic/native-metrics": "1"},
+                "optionalDependencies": {"bcrypt": "1"},
+                "devDependencies": {"ffi-napi": "1"},
+                "modules": [
+                    {"name": "ref-napi", "native": true},
+                    {"name": "farmhash", "native": true},
+                    {"name": "bcrypt", "native": true},
+                    {"name": "ffi-napi", "native": true},
+                    {"name": "@newrelic/native-metrics", "native": true},
+                    {"name": "level", "dependencies": {"leveldown": "1"}, "children": [{"name": "leveldown", "native": true}]}
+                ]
+            },
+            "expected_output": "runtime_abi=82\nselected=bcrypt,farmhash,leveldown,native-metrics,ref-napi\nskipped=0\n"
+        },
+        {
+            "input": {
+                "command": "plan_rebuild",
+                "runtimeVersion": "10.4.7",
+                "buildSubdir": "child-workspace",
+                "dependencies": {"snappy": "1"},
+                "devDependencies": {"sleep": "1"},
+                "modules": [
+                    {"name": "snappy", "native": true},
+                    {"name": "sleep", "native": true}
+                ]
+            },
+            "expected_output": "runtime_abi=82\nselected=snappy\nskipped=0\n"
+        }
+    ]
+}

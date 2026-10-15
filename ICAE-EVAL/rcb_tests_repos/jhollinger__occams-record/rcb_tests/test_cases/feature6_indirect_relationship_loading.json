@@ -1,0 +1,25 @@
+{
+    "description": "Records can include relationships reached through intermediate records, with optional optimized intermediate projections and filters.",
+    "cases": [
+        {
+            "input": {
+                "request": "load_indirect_groups",
+                "traversal_plan": "none"
+            },
+            "expected_output": "{\"records\":[{\"customer\":\"Jane\",\"categories\":[\"Bar\",\"Foo\"]},{\"customer\":\"Jon\",\"categories\":[\"Foo\"]}],\"sql\":[\"root: SELECT customers.* FROM customers ORDER BY customers.name ASC\",\"root.through(orders): SELECT orders.* FROM orders WHERE orders.customer_id IN (846114006, 980204181)\",\"root.through(orders).through(line_items): SELECT line_items.* FROM line_items WHERE line_items.order_id IN (683130438, 834596858)\",\"root.through(orders).through(line_items).categories: SELECT categories.* FROM categories WHERE categories.id IN (208889123, 922717355)\"]}\n"
+        },
+        {
+            "input": {
+                "request": "load_indirect_groups",
+                "traversal_plan": "select"
+            },
+            "expected_output": "{\"records\":[{\"customer\":\"Jane\",\"categories\":[\"Bar\",\"Foo\"]},{\"customer\":\"Jon\",\"categories\":[\"Foo\"]}],\"sql\":[\"root: SELECT customers.* FROM customers ORDER BY customers.name ASC\",\"root.through(orders): SELECT id, customer_id FROM orders WHERE orders.customer_id IN (846114006, 980204181)\",\"root.through(orders).through(line_items): SELECT id, order_id, category_id FROM line_items WHERE line_items.order_id IN (683130438, 834596858)\",\"root.through(orders).through(line_items).categories: SELECT categories.* FROM categories WHERE categories.id IN (208889123, 922717355)\"]}\n"
+        },
+        {
+            "input": {
+                "request": "load_filtered_indirect_groups"
+            },
+            "expected_output": "{\"records\":[{\"customer\":\"Jane\",\"categories\":[\"Foo\"]},{\"customer\":\"Jon\",\"categories\":[\"Foo\"]}]}\n"
+        }
+    ]
+}

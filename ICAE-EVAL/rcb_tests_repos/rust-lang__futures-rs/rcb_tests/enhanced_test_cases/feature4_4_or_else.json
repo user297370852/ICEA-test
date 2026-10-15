@@ -1,0 +1,100 @@
+{
+  "description": "A recovery transform applied only to error outcomes turns each error into a successful item carrying the error's code, while existing successful items pass through unchanged. The gathered stream therefore completes with items in place of the former errors.",
+  "cases": [
+    {
+      "input": {
+        "source": [
+          {
+            "err": 1
+          },
+          {
+            "err": 2
+          },
+          3
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "or_else"
+          }
+        ]
+      },
+      "expected_output": "item=1\nitem=2\nitem=3\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          {
+            "err": 5
+          },
+          {
+            "err": 6
+          }
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "or_else"
+          }
+        ]
+      },
+      "expected_output": "item=5\nitem=6\nend\n"
+    },
+    {
+      "input": {
+        "source": [],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "or_else"
+          }
+        ]
+      },
+      "expected_output": "end\n"
+    },
+    {
+      "input": {
+        "source": [
+          -1,
+          {
+            "err": 2
+          },
+          -3
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "or_else"
+          }
+        ]
+      },
+      "expected_output": "item=-1\nitem=2\nitem=-3\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          {
+            "err": 99
+          }
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "or_else"
+          }
+        ]
+      },
+      "expected_output": "item=99\nend\n"
+    }
+  ]
+}

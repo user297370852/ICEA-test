@@ -1,0 +1,160 @@
+{
+  "description": "Additional native-disjoint boundary and logical-path coverage for Kubernetes service manifest summaries.",
+  "cases": [
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_core",
+        "set": {
+          "containerCommand[0]": "/bin/sh",
+          "containerCommand[1]": "-c",
+          "containerArgs[0]": "echo boundary",
+          "containerArgs[1]": "sleep 1",
+          "hostAliases[0].ip": "10.0.0.10",
+          "hostAliases[0].hostnames[0]": "alpha.local",
+          "hostAliases[1].ip": "10.0.0.11",
+          "hostAliases[1].hostnames[0]": "beta.local"
+        }
+      },
+      "expected_output": "kind=Deployment\nname=release-linter\nreplicas=1\ncontainer_name=linter\nimage=nginx:stable\ncommand=/bin/sh,-c\nargs=echo boundary,sleep 1\nhost_aliases=2\nport_0_name=http\nport_0_number=80\nport_0_protocol=TCP\n"
+    },
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_env_vars",
+        "set": {
+          "envVars.ALPHA": "first",
+          "envVars.BETA": "second",
+          "envVars.NUMERIC": "12345"
+        }
+      },
+      "expected_output": "env_count=3\nenv.ALPHA=first\nenv.BETA=second\nenv.NUMERIC=12345\n"
+    },
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_config_volume",
+        "set": {
+          "configMaps.appconf.as": "volume",
+          "configMaps.appconf.mountPath": "/etc/app",
+          "configMaps.appconf.subPath": "app.yaml",
+          "configMaps.appconf.items.primary.filePath": "app.yaml",
+          "configMaps.appconf.items.primary.fileMode": "400",
+          "configMaps.appconf.items.secondary.filePath": "extra.txt",
+          "configMaps.appconf.items.secondary.fileMode": "644"
+        }
+      },
+      "expected_output": "volume_count=1\nmount_count=1\nvolume.appconf-volume.type=configMap\nvolume.appconf-volume.source=appconf\nvolume.appconf-volume.item.primary.path=app.yaml\nvolume.appconf-volume.item.primary.mode=256\nvolume.appconf-volume.item.secondary.path=extra.txt\nvolume.appconf-volume.item.secondary.mode=420\nmount.appconf-volume.path=/etc/app\nmount.appconf-volume.sub_path=app.yaml\n"
+    },
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_secret_volume",
+        "set": {
+          "secrets.apikeys.as": "volume",
+          "secrets.apikeys.mountPath": "/var/run/keys",
+          "secrets.apikeys.subPath": "token",
+          "secrets.apikeys.items.token.filePath": "token.txt",
+          "secrets.apikeys.items.token.fileMode": "600"
+        }
+      },
+      "expected_output": "volume_count=1\nmount_count=1\nvolume.apikeys-volume.type=secret\nvolume.apikeys-volume.source=apikeys\nvolume.apikeys-volume.item.token.path=token.txt\nvolume.apikeys-volume.item.token.mode=384\nmount.apikeys-volume.path=/var/run/keys\nmount.apikeys-volume.sub_path=token\n"
+    },
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_csi_secret",
+        "set": {
+          "secrets.vaultsecret.as": "csi",
+          "secrets.vaultsecret.mountPath": "/mnt/vault",
+          "secrets.vaultsecret.readOnly": "false",
+          "secrets.vaultsecret.csi.driver": "vault.csi.example.com",
+          "secrets.vaultsecret.csi.secretProviderClass": "vault-app"
+        }
+      },
+      "expected_output": "volume_count=1\nvolume.vaultsecret-volume.type=csi\nvolume.vaultsecret-volume.driver=vault.csi.example.com\nvolume.vaultsecret-volume.read_only=false\nvolume.vaultsecret-volume.secret_provider_class=vault-app\n"
+    },
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_lifecycle",
+        "set": {
+          "lifecycleHooks.enabled": "true",
+          "lifecycleHooks.postStart.exec.command[0]": "/bin/sh",
+          "lifecycleHooks.postStart.exec.command[1]": "-c",
+          "lifecycleHooks.postStart.exec.command[2]": "echo ready"
+        }
+      },
+      "expected_output": "lifecycle_present=true\npost_start_command=/bin/sh,-c,echo ready\npre_stop_command=\n"
+    },
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_volumes",
+        "set": {
+          "scratchPaths.tmp": "/tmp/work"
+        }
+      },
+      "expected_output": "mount_count=1\nvolume_count=1\ntermination_grace_period=null\nmount.tmp.path=/tmp/work\nvolume.tmp.type=emptyDir\nvolume.tmp.detail=Memory\n"
+    },
+    {
+      "input": {
+        "template": "deployment",
+        "output": "deployment_strategy",
+        "set": {
+          "deploymentStrategy.enabled": "true",
+          "deploymentStrategy.type": "RollingUpdate",
+          "deploymentStrategy.rollingUpdate.maxSurge": "2",
+          "deploymentStrategy.rollingUpdate.maxUnavailable": "0"
+        }
+      },
+      "expected_output": "strategy_type=RollingUpdate\nmax_surge=2\nmax_unavailable=0\n"
+    },
+    {
+      "input": {
+        "template": "service",
+        "output": "service",
+        "set": {
+          "service.sessionAffinity": "None",
+          "service.clusterIP": "None"
+        }
+      },
+      "expected_output": "kind=Service\nname=release-linter\ntype=ClusterIP\ncluster_ip=None\nsession_affinity=None\nexternal_traffic_policy=null\ninternal_traffic_policy=null\nport_count=1\nport_0_name=app\nport_0_port=80\nport_0_target=http\n"
+    },
+    {
+      "input": {
+        "template": "gmc",
+        "output": "managed_certificate",
+        "set": {
+          "google.managedCertificate.enabled": "true",
+          "google.managedCertificate.name": "edge-cert",
+          "google.managedCertificate.domainName": "edge.example.com"
+        }
+      },
+      "expected_output": "kind=ManagedCertificate\nname=edge-cert\ndomains=edge.example.com\n"
+    },
+    {
+      "input": {
+        "template": "horizontalpodautoscaler",
+        "output": "hpa",
+        "set": {
+          "horizontalPodAutoscaler.enabled": "true",
+          "horizontalPodAutoscaler.minReplicas": "1",
+          "horizontalPodAutoscaler.maxReplicas": "10",
+          "horizontalPodAutoscaler.avgMemoryUtilization": "70"
+        }
+      },
+      "expected_output": "kind=HorizontalPodAutoscaler\napi_version=autoscaling/v2\nmin_replicas=1\nmax_replicas=10\nmetric_count=1\nmetric_0_resource=memory\nmetric_0_average_utilization=70\n"
+    },
+    {
+      "input": {
+        "template": "pdb",
+        "output": "pdb",
+        "set": {
+          "minPodsAvailable": "2"
+        }
+      },
+      "expected_output": "kind=PodDisruptionBudget\nname=release-linter\nmin_available=2\n"
+    }
+  ]
+}

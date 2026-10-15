@@ -1,0 +1,25 @@
+{
+    "description": "Fully redact the value of named sensitive fields found inside a free-form log message. A masking rule is configured for a set of field names (given as a regular-expression alternation). For any field whose name matches, the converter keeps the field name and its separator (an '=' or ':' assignment, optionally inside surrounding quotes) and replaces the entire value with a fixed mask token. Fields that do not match are left untouched, multiple matching fields in one message are each masked, and an empty message is returned unchanged.",
+    "cases": [
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": ""},
+            "expected_output": "masked=\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "password=abc123"},
+            "expected_output": "masked=password=*****\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "password:abc123"},
+            "expected_output": "masked=password:*****\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "\"password\":\"abc123\""},
+            "expected_output": "masked=\"password\":\"*****\"\n"
+        },
+        {
+            "input": {"op": "regex_mask", "complete": "password|signature", "mask_tail": "username", "mask_head": "orderNumber|giftCardNum", "email": "email|customerEmail", "message": "\"password\":\"abc123\",signature=foo"},
+            "expected_output": "masked=\"password\":\"*****\",signature=*****\n"
+        }
+    ]
+}

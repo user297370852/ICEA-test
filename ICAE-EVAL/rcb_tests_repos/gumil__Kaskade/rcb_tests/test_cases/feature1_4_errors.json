@@ -1,0 +1,23 @@
+{
+    "description": "The container rejects two illegal situations with normalized error signals. Processing an action that has no registered reducer is reported as an unhandled-action error together with the offending action label. Processing any action after the container has been torn down (its bindings cleared) is reported as an unsubscribed error. Any states delivered before the error still appear, then the normalized error terminates the run.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "kaskade",
+                "initial": "idle",
+                "reducers": {"refresh": {"to": "idle"}},
+                "ops": [{"op": "subscribe"}, {"op": "process", "action": "unknown"}]
+            },
+            "expected_output": "idle\nerror=unhandled_action\naction=unknown\n"
+        },
+        {
+            "input": {
+                "scenario": "kaskade",
+                "initial": "idle",
+                "reducers": {"refresh": {"to": "idle"}},
+                "ops": [{"op": "subscribe"}, {"op": "teardown"}, {"op": "process", "action": "refresh"}]
+            },
+            "expected_output": "idle\nerror=unsubscribed\n"
+        }
+    ]
+}

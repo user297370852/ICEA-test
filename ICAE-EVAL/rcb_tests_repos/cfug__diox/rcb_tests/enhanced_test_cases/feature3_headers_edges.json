@@ -1,0 +1,313 @@
+{
+  "description": "Boundary and logical-path coverage for the case-insensitive multi-valued header collection: operations on an empty collection (isEmpty/get/len/value/foreachCount on missing names yield null markers and zero counts), case-insensitive add/read/remove across differing casings, removing a non-existent value (no-op), set replacing multi-values with a single value and with a list, the multi-value read error path, rendering the wire-format block in insertion order with multiple values per name, removeAll then re-query, clearing a populated collection, and reading a freshly-added single value under a different case.",
+  "cases": [
+    {
+      "input": {
+        "op": "headers",
+        "actions": [
+          {
+            "action": "isEmpty"
+          },
+          {
+            "action": "get",
+            "name": "x"
+          },
+          {
+            "action": "len",
+            "name": "x"
+          },
+          {
+            "action": "value",
+            "name": "x"
+          },
+          {
+            "action": "foreachCount"
+          }
+        ]
+      },
+      "expected_output": "isEmpty=true\nget[x]=null\nlen[x]=null\nvalue[x]=null\nforeach_count=0\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "X-Test": [
+            "a",
+            "b",
+            "c"
+          ]
+        },
+        "actions": [
+          {
+            "action": "remove",
+            "name": "x-test",
+            "value": "zzz"
+          },
+          {
+            "action": "len",
+            "name": "X-TEST"
+          },
+          {
+            "action": "get",
+            "name": "x-test"
+          }
+        ]
+      },
+      "expected_output": "len[X-TEST]=3\nget[x-test]=a,b,c\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "a": [
+            "1"
+          ]
+        },
+        "actions": [
+          {
+            "action": "add",
+            "name": "A",
+            "value": "2"
+          },
+          {
+            "action": "add",
+            "name": "a",
+            "value": "3"
+          },
+          {
+            "action": "toString"
+          },
+          {
+            "action": "foreachCount"
+          }
+        ]
+      },
+      "expected_output": "a: 1\na: 2\na: 3\nforeach_count=3\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {},
+        "actions": [
+          {
+            "action": "add",
+            "name": "new",
+            "value": "v1"
+          },
+          {
+            "action": "value",
+            "name": "NEW"
+          },
+          {
+            "action": "isEmpty"
+          }
+        ]
+      },
+      "expected_output": "value[NEW]=v1\nisEmpty=false\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "foo": [
+            "x",
+            "y"
+          ]
+        },
+        "actions": [
+          {
+            "action": "set",
+            "name": "foo",
+            "value": [
+              "a",
+              "b",
+              "c"
+            ]
+          },
+          {
+            "action": "get",
+            "name": "foo"
+          },
+          {
+            "action": "len",
+            "name": "foo"
+          }
+        ]
+      },
+      "expected_output": "get[foo]=a,b,c\nlen[foo]=3\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "foo": [
+            "x",
+            "y",
+            "z"
+          ]
+        },
+        "actions": [
+          {
+            "action": "set",
+            "name": "FOO",
+            "value": "single"
+          },
+          {
+            "action": "value",
+            "name": "foo"
+          },
+          {
+            "action": "len",
+            "name": "foo"
+          }
+        ]
+      },
+      "expected_output": "value[foo]=single\nlen[foo]=1\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "dup": [
+            "1",
+            "2"
+          ]
+        },
+        "actions": [
+          {
+            "action": "value",
+            "name": "dup"
+          },
+          {
+            "action": "remove",
+            "name": "dup",
+            "value": "1"
+          },
+          {
+            "action": "value",
+            "name": "dup"
+          }
+        ]
+      },
+      "expected_output": "error=multiple_header_values\nname=dup\nvalue[dup]=2\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "a": [
+            "1"
+          ],
+          "b": [
+            "2"
+          ],
+          "c": [
+            "3"
+          ]
+        },
+        "actions": [
+          {
+            "action": "removeAll",
+            "name": "B"
+          },
+          {
+            "action": "get",
+            "name": "b"
+          },
+          {
+            "action": "foreachCount"
+          },
+          {
+            "action": "toString"
+          }
+        ]
+      },
+      "expected_output": "get[b]=null\nforeach_count=2\na: 1\nc: 3\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "h1": [
+            "v1",
+            "v2"
+          ],
+          "h2": [
+            "v3"
+          ]
+        },
+        "actions": [
+          {
+            "action": "clear"
+          },
+          {
+            "action": "isEmpty"
+          },
+          {
+            "action": "foreachCount"
+          },
+          {
+            "action": "get",
+            "name": "h1"
+          }
+        ]
+      },
+      "expected_output": "isEmpty=true\nforeach_count=0\nget[h1]=null\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "Set-Cookie": [
+            "a=1"
+          ]
+        },
+        "actions": [
+          {
+            "action": "add",
+            "name": "set-cookie",
+            "value": "b=2"
+          },
+          {
+            "action": "add",
+            "name": "SET-COOKIE",
+            "value": "c=3"
+          },
+          {
+            "action": "len",
+            "name": "set-cookie"
+          },
+          {
+            "action": "toString"
+          }
+        ]
+      },
+      "expected_output": "len[set-cookie]=3\nset-cookie: a=1\nset-cookie: b=2\nset-cookie: c=3\n"
+    },
+    {
+      "input": {
+        "op": "headers",
+        "init": {
+          "only": [
+            "solo"
+          ]
+        },
+        "actions": [
+          {
+            "action": "value",
+            "name": "ONLY"
+          },
+          {
+            "action": "len",
+            "name": "Only"
+          },
+          {
+            "action": "get",
+            "name": "oNlY"
+          }
+        ]
+      },
+      "expected_output": "value[ONLY]=solo\nlen[Only]=1\nget[oNlY]=solo\n"
+    }
+  ]
+}

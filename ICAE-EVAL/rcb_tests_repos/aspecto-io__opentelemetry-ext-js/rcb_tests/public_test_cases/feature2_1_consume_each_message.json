@@ -1,0 +1,45 @@
+{
+    "description": "Delivering a single message to a per-message consumer handler creates one CONSUMER span named after the topic, with the messaging attributes and a process operation; the span is created whether or not the handler returns a promise.",
+    "cases": [
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "partition": 0,
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "resolve"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=ok error=none\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        },
+        {
+            "input": {
+                "config": {},
+                "steps": [
+                    {
+                        "action": "consume_message",
+                        "topic": "topic-name-1",
+                        "partition": 0,
+                        "message": {
+                            "value": "message content",
+                            "offset": "123"
+                        },
+                        "handler": {
+                            "behavior": "return_non_promise"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "consume_message topic=topic-name-1 delivered=ok error=none\nspans=1\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+        }
+    ]
+}

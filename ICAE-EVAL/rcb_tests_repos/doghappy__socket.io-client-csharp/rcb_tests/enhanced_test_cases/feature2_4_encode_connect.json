@@ -1,0 +1,70 @@
+{
+  "description": "Namespace-connection frame edge cases across protocol versions: v3 named namespace with multiple query keys, v4 query ignored when auth present, v4 default namespace with multi-key auth, and v3 default namespace suppression.",
+  "cases": [
+    {
+      "input": {
+        "op": "encode_connect",
+        "eio": 3,
+        "namespace": "/n",
+        "auth": null,
+        "query": {
+          "a": "1",
+          "b": "2"
+        }
+      },
+      "expected_output": "frame=40/n?a=1&b=2,\n"
+    },
+    {
+      "input": {
+        "op": "encode_connect",
+        "eio": 4,
+        "namespace": "/test",
+        "auth": {
+          "userId": 1
+        },
+        "query": {
+          "k": "v"
+        }
+      },
+      "expected_output": "frame=40/test,{\"userId\":1}\n"
+    },
+    {
+      "input": {
+        "op": "encode_connect",
+        "eio": 4,
+        "namespace": null,
+        "auth": {
+          "token": "abc",
+          "userId": 2
+        },
+        "query": null
+      },
+      "expected_output": "frame=40{\"token\":\"abc\",\"userId\":2}\n"
+    },
+    {
+      "input": {
+        "op": "encode_connect",
+        "eio": 3,
+        "namespace": "/test",
+        "auth": {
+          "userId": 1
+        },
+        "query": null
+      },
+      "expected_output": "frame=40/test,\n"
+    },
+    {
+      "input": {
+        "op": "encode_connect",
+        "eio": 4,
+        "namespace": "/admin",
+        "auth": {
+          "sid": "x",
+          "level": 5
+        },
+        "query": null
+      },
+      "expected_output": "frame=40/admin,{\"sid\":\"x\",\"level\":5}\n"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "description": "Resource-type detection edge cases: plain file (not a collection), collection resolved under a server URL prefix, resourcetype element missing, path not found, and malformed XML.",
+  "cases": [
+    {
+      "input": {
+        "server": "localhost",
+        "path": "/data.json",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/data.json</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "is_directory=false\n"
+    },
+    {
+      "input": {
+        "server": "http://host.tld/dav",
+        "path": "/photos/",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/dav/photos/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype><d:collection/></d:resourcetype>\n                <d:getlastmodified>Tue, 02 Feb 2021 12:30:00 GMT</d:getlastmodified>\n                <d:displayname>photos</d:displayname>\n                <d:creationdate>2021-02-02T12:30:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "is_directory=true\n"
+    },
+    {
+      "input": {
+        "server": "localhost",
+        "path": "/notype.txt",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/notype.txt</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:getetag>e</d:getetag>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "error=method_not_supported\noperation=is_dir\nserver=localhost\n"
+    },
+    {
+      "input": {
+        "server": "localhost",
+        "path": "/missing",
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/present/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype><d:collection/></d:resourcetype>\n                <d:getlastmodified>Tue, 02 Feb 2021 12:30:00 GMT</d:getlastmodified>\n                <d:displayname>photos</d:displayname>\n                <d:creationdate>2021-02-02T12:30:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "error=remote_resource_not_found\npath=/missing\n"
+    },
+    {
+      "input": {
+        "server": "srv2",
+        "path": "/y",
+        "multistatus_xml": "<<bad"
+      },
+      "expected_output": "error=method_not_supported\noperation=is_dir\nserver=srv2\n"
+    }
+  ]
+}

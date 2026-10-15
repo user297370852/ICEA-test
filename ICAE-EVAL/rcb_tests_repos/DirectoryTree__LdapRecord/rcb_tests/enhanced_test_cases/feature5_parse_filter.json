@@ -1,0 +1,75 @@
+{
+  "description": "Parse an LDAP search filter string into a node tree and reassemble it into canonical form. The output reports the node tree and the reassembled filter, or a single neutral error line for a structurally invalid filter.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(!(foo=bar))"
+      },
+      "expected_output": "nodes=[{\"group\":\"!\",\"nodes\":[{\"attribute\":\"foo\",\"operator\":\"=\",\"value\":\"bar\"}]}]\nassembled=(!(foo=bar))\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(age>=18)"
+      },
+      "expected_output": "nodes=[{\"attribute\":\"age\",\"operator\":\">=\",\"value\":\"18\"}]\nassembled=(age>=18)\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(age<=65)"
+      },
+      "expected_output": "nodes=[{\"attribute\":\"age\",\"operator\":\"<=\",\"value\":\"65\"}]\nassembled=(age<=65)\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(sn~=smith)"
+      },
+      "expected_output": "nodes=[{\"attribute\":\"sn\",\"operator\":\"~=\",\"value\":\"smith\"}]\nassembled=(sn~=smith)\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(cn=*)"
+      },
+      "expected_output": "nodes=[{\"attribute\":\"cn\",\"operator\":\"=\",\"value\":\"*\"}]\nassembled=(cn=*)\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(cn=*smith*)"
+      },
+      "expected_output": "nodes=[{\"attribute\":\"cn\",\"operator\":\"=\",\"value\":\"*smith*\"}]\nassembled=(cn=*smith*)\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(&(a=b)(|(c=d)(e=f)))"
+      },
+      "expected_output": "nodes=[{\"group\":\"&\",\"nodes\":[{\"attribute\":\"a\",\"operator\":\"=\",\"value\":\"b\"},{\"group\":\"|\",\"nodes\":[{\"attribute\":\"c\",\"operator\":\"=\",\"value\":\"d\"},{\"attribute\":\"e\",\"operator\":\"=\",\"value\":\"f\"}]}]}]\nassembled=(&(a=b)(|(c=d)(e=f)))\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": ""
+      },
+      "expected_output": "nodes=[]\nassembled=\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(foo)"
+      },
+      "expected_output": "error=parser_exception\n"
+    },
+    {
+      "input": {
+        "op": "parse_filter",
+        "value": "(&(a=b)"
+      },
+      "expected_output": "error=parser_exception\n"
+    }
+  ]
+}

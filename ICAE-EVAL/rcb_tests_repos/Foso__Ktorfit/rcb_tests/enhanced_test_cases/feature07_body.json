@@ -1,0 +1,65 @@
+{
+  "description": "Enhanced boundary coverage for request-body attachment. A body parameter on a PUT verb (a body-permitting verb other than POST) sends a text payload; a body on the generic @HTTP verb form declaring hasBody=true sends a text payload; and a non-nullable requirement: a body parameter typed nullable on a body-permitting verb is rejected with body_must_not_be_nullable. The adapter prints the issued request or a neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "PUT",
+            "path": "u"
+          }
+        ],
+        "params": [
+          {
+            "kind": "body",
+            "name": "b"
+          }
+        ],
+        "args": [
+          "payload"
+        ]
+      },
+      "expected_output": "method=PUT\nurl=http://localhost/u\nbody=text\ntext=payload"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "HTTP",
+            "value": "PURGE",
+            "path": "u",
+            "hasBody": true
+          }
+        ],
+        "params": [
+          {
+            "kind": "body",
+            "name": "b"
+          }
+        ],
+        "args": [
+          "x"
+        ]
+      },
+      "expected_output": "method=PURGE\nurl=http://localhost/u\nbody=text\ntext=x"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "POST",
+            "path": "u"
+          }
+        ],
+        "params": [
+          {
+            "kind": "body",
+            "name": "b",
+            "type": "String?"
+          }
+        ]
+      },
+      "expected_output": "error=body_must_not_be_nullable"
+    }
+  ]
+}

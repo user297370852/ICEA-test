@@ -1,0 +1,127 @@
+{
+  "description": "Enhanced edge cases for result classification: multi-step scenarios exercising worst-status precedence and step-skipping after a terminal step, And/But step keywords, a feature with no scenarios, and multiple features in one run.",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          },
+          {
+            "pattern": "^this step fails$",
+            "outcome": "fail",
+            "message": "boom"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Multi\n  Scenario: Skip after fail\n    Given this step passes\n    When this step fails\n    Then this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=1 undefined=0 pending=0 skipped=0\nsteps total=3 passed=1 failed=1 undefined=0 pending=0 skipped=1\nscenario keyword=Scenario name=Skip after fail line=2 status=failed\nresult=failed\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          },
+          {
+            "pattern": "^this step is pending$",
+            "outcome": "pending"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Precedence\n  Scenario: Undefined before pending\n    Given this step is undefined\n    And this step is pending\n    But this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=0 undefined=1 pending=0 skipped=0\nsteps total=3 passed=0 failed=0 undefined=1 pending=0 skipped=2\nscenario keyword=Scenario name=Undefined before pending line=2 status=undefined\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: AndBut\n  Scenario: Mixed keywords\n    Given this step passes\n    And this step passes\n    When this step passes\n    Then this step passes\n    But this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nsteps total=5 passed=5 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Mixed keywords line=2 status=passed\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/empty.feature",
+            "content": "Feature: No scenarios here\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=0 passed=0 failed=0 undefined=0 pending=0 skipped=0\nsteps total=0 passed=0 failed=0 undefined=0 pending=0 skipped=0\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          },
+          {
+            "pattern": "^this step fails$",
+            "outcome": "fail"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/a.feature",
+            "content": "Feature: Alpha\n  Scenario: A1\n    Given this step passes\n"
+          },
+          {
+            "path": "features/b.feature",
+            "content": "Feature: Beta\n  Scenario: B1\n    Given this step fails\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=1 failed=1 undefined=0 pending=0 skipped=0\nsteps total=2 passed=1 failed=1 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=A1 line=2 status=passed\nscenario keyword=Scenario name=B1 line=2 status=failed\nresult=failed\n"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "description": "Validate string option maps against required, optional, conditional, defaulting, dependency, preclusion, and pattern rules, returning populated fields or normalized validation errors.",
+  "cases": [
+    {"input": {"rule_set": "required", "values": {}}, "expected_output": "valid=false\nerror=missing_required_value\n"},
+    {"input": {"rule_set": "required", "values": {"a": "A"}}, "expected_output": "valid=true\na=A\n"},
+    {"input": {"rule_set": "optional", "values": {}}, "expected_output": "valid=true\na=\n"},
+    {"input": {"rule_set": "required_when_a_is_FOO", "values": {}}, "expected_output": "valid=true\na=\nb=\n"},
+    {"input": {"rule_set": "required_when_a_is_FOO", "values": {"a": "xxx"}}, "expected_output": "valid=true\na=xxx\nb=\n"},
+    {"input": {"rule_set": "required_when_a_is_FOO", "values": {"a": "FOO"}}, "expected_output": "valid=false\nerror=missing_required_value\n"},
+    {"input": {"rule_set": "required_when_a_is_FOO", "values": {"a": "FOO", "b": "BAR"}}, "expected_output": "valid=true\na=FOO\nb=BAR\n"},
+    {"input": {"rule_set": "optional_when_a_is_FOO", "values": {}}, "expected_output": "valid=false\nerror=missing_required_value\n"},
+    {"input": {"rule_set": "optional_when_a_is_FOO", "values": {"a": "xxx"}}, "expected_output": "valid=false\nerror=missing_required_value\n"},
+    {"input": {"rule_set": "optional_when_a_is_FOO", "values": {"a": "FOO"}}, "expected_output": "valid=true\na=FOO\nb=\n"},
+    {"input": {"rule_set": "default_FOO", "values": {}}, "expected_output": "valid=true\na=FOO\n"},
+    {"input": {"rule_set": "default_FOO", "values": {"a": "xxx"}}, "expected_output": "valid=true\na=xxx\n"},
+    {"input": {"rule_set": "depends_on_exactly_one_of_a_or_b_and_c", "values": {}}, "expected_output": "valid=true\na=\nb=\nc=\nd=\n"},
+    {"input": {"rule_set": "depends_on_exactly_one_of_a_or_b_and_c", "values": {"d": "ddd"}}, "expected_output": "valid=false\nerror=dependency_not_satisfied\n"},
+    {"input": {"rule_set": "depends_on_exactly_one_of_a_or_b_and_c", "values": {"d": "ddd", "c": "ccc"}}, "expected_output": "valid=false\nerror=dependency_not_satisfied\n"},
+    {"input": {"rule_set": "depends_on_exactly_one_of_a_or_b_and_c", "values": {"d": "ddd", "c": "ccc", "b": "bbb", "a": "aaa"}}, "expected_output": "valid=false\nerror=dependency_not_satisfied\n"},
+    {"input": {"rule_set": "depends_on_exactly_one_of_a_or_b_and_c", "values": {"d": "ddd", "c": "ccc", "a": "aaa"}}, "expected_output": "valid=true\na=aaa\nb=\nc=ccc\nd=ddd\n"},
+    {"input": {"rule_set": "depends_on_exactly_one_of_a_or_b_and_c", "values": {"d": "ddd", "c": "ccc", "b": "bbb"}}, "expected_output": "valid=true\na=\nb=bbb\nc=ccc\nd=ddd\n"},
+    {"input": {"rule_set": "precludes_a_or_b_when_c_present", "values": {"c": "ccc", "a": "aaa"}}, "expected_output": "valid=false\nerror=precluded_value_present\n"},
+    {"input": {"rule_set": "precludes_a_or_b_when_c_present", "values": {"c": "ccc", "b": "bbb"}}, "expected_output": "valid=false\nerror=precluded_value_present\n"},
+    {"input": {"rule_set": "precludes_a_or_b_when_c_present", "values": {"c": "ccc", "a": "aaa", "b": "bbb"}}, "expected_output": "valid=false\nerror=precluded_value_present\n"},
+    {"input": {"rule_set": "precludes_a_or_b_when_c_present", "values": {"c": "ccc"}}, "expected_output": "valid=true\na=\nb=\nc=ccc\n"},
+    {"input": {"rule_set": "boolean_text_pattern", "values": {"a": "xxx"}}, "expected_output": "valid=false\nerror=pattern_mismatch\n"},
+    {"input": {"rule_set": "boolean_text_pattern", "values": {"a": "false"}}, "expected_output": "valid=true\na=false\n"}
+  ]
+}

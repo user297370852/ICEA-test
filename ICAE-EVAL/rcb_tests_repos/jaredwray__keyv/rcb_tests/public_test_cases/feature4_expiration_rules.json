@@ -1,0 +1,149 @@
+{
+    "description": "Stored values can expire after a default lifetime, per-entry lifetimes override the default, and an explicit zero lifetime keeps a value from expiring.",
+    "cases": [
+        {
+            "input": {
+                "namespace": "keyv",
+                "default_lifetime_ms": 100,
+                "steps": [
+                    {
+                        "action": "save",
+                        "key": "foo",
+                        "value": "bar"
+                    },
+                    {
+                        "action": "read",
+                        "key": "foo",
+                        "label": "before"
+                    },
+                    {
+                        "action": "advance_time",
+                        "milliseconds": 150
+                    },
+                    {
+                        "action": "read",
+                        "key": "foo",
+                        "label": "after"
+                    },
+                    {
+                        "action": "store_entries",
+                        "label": "remaining_keys"
+                    }
+                ]
+            },
+            "expected_output": "saved=true\nbefore=bar\nafter=undefined\nremaining_keys=0\n"
+        },
+        {
+            "input": {
+                "namespace": "keyv",
+                "default_lifetime_ms": 200,
+                "steps": [
+                    {
+                        "action": "save",
+                        "key": "foo",
+                        "value": "bar"
+                    },
+                    {
+                        "action": "save",
+                        "key": "fizz",
+                        "value": "buzz",
+                        "lifetime_ms": 100
+                    },
+                    {
+                        "action": "save",
+                        "key": "ping",
+                        "value": "pong",
+                        "lifetime_ms": 300
+                    },
+                    {
+                        "action": "read",
+                        "key": "foo",
+                        "label": "t0_foo"
+                    },
+                    {
+                        "action": "read",
+                        "key": "fizz",
+                        "label": "t0_fizz"
+                    },
+                    {
+                        "action": "read",
+                        "key": "ping",
+                        "label": "t0_ping"
+                    },
+                    {
+                        "action": "advance_time",
+                        "milliseconds": 150
+                    },
+                    {
+                        "action": "read",
+                        "key": "foo",
+                        "label": "t150_foo"
+                    },
+                    {
+                        "action": "read",
+                        "key": "fizz",
+                        "label": "t150_fizz"
+                    },
+                    {
+                        "action": "read",
+                        "key": "ping",
+                        "label": "t150_ping"
+                    },
+                    {
+                        "action": "advance_time",
+                        "milliseconds": 100
+                    },
+                    {
+                        "action": "read",
+                        "key": "foo",
+                        "label": "t250_foo"
+                    },
+                    {
+                        "action": "read",
+                        "key": "ping",
+                        "label": "t250_ping"
+                    },
+                    {
+                        "action": "advance_time",
+                        "milliseconds": 100
+                    },
+                    {
+                        "action": "read",
+                        "key": "ping",
+                        "label": "t350_ping"
+                    }
+                ]
+            },
+            "expected_output": "saved=true\nsaved=true\nsaved=true\nt0_foo=bar\nt0_fizz=buzz\nt0_ping=pong\nt150_foo=bar\nt150_fizz=undefined\nt150_ping=pong\nt250_foo=undefined\nt250_ping=pong\nt350_ping=undefined\n"
+        },
+        {
+            "input": {
+                "namespace": "keyv",
+                "default_lifetime_ms": 200,
+                "steps": [
+                    {
+                        "action": "save",
+                        "key": "foo",
+                        "value": "bar",
+                        "lifetime_ms": 0
+                    },
+                    {
+                        "action": "read",
+                        "key": "foo",
+                        "label": "before"
+                    },
+                    {
+                        "action": "advance_time",
+                        "milliseconds": 250
+                    },
+                    {
+                        "action": "read",
+                        "key": "foo",
+                        "label": "after"
+                    }
+                ]
+            },
+            "expected_output": "saved=true\nbefore=bar\nafter=bar\n"
+        }
+    ]
+}

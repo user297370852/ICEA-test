@@ -1,0 +1,15 @@
+{
+    "description": "The composite selector used to choose update targets, assembled from several layers: an explicit name allow-list, an optional requirement that the opt-in enable marker be present, an optional scope restriction, and an always-applied exclusion of containers whose enable marker explicitly opts out. The opt-out exclusion is evaluated first, so a container that explicitly opts out is rejected before any other layer is consulted. Each candidate exposes a name and an enable state (value plus presence flag). This case configures the selector with a name allow-list only. Output lists each candidate as its name and whether it survived the full chain.",
+    "cases": [
+        {
+            "input": {"action": "filter", "mode": "build", "names": ["test"], "enable_label": false, "scope": "", "containers": [
+                {"name": "Invalid", "enabled": {"value": false, "present": false}},
+                {"name": "test", "enabled": {"value": false, "present": false}},
+                {"name": "Invalid", "enabled": {"value": true, "present": true}},
+                {"name": "test", "enabled": {"value": true, "present": true}},
+                {"name": "x", "enabled": {"value": false, "present": true}}
+            ]},
+            "expected_output": "container=Invalid included=false\ncontainer=test included=true\ncontainer=Invalid included=false\ncontainer=test included=true\ncontainer=x included=false\n"
+        }
+    ]
+}

@@ -1,0 +1,135 @@
+{
+  "description": "Extract the vulnerable software identifiers from a vulnerability configuration document. The document embeds one or more standardized component URIs (the CPE 2.3 colon-delimited format) at arbitrary nesting depths under a fixed key. From each URI the vendor and product tokens (the 4th and 5th colon-separated fields) are read, duplicate vendor/product pairs are collapsed, and the result is a mapping from each vendor to the list of its distinct products. An empty document yields an empty mapping.",
+  "cases": [
+    {
+      "input": {
+        "action": "convert_cpes",
+        "conf": {
+          "configurations": {
+            "nodes": [
+              {
+                "operator": "OR",
+                "cpe_match": [
+                  {
+                    "vulnerable": true,
+                    "cpe23Uri": "cpe:2.3:a:acme:widget:1.0:-:*:*:*:*:*:*"
+                  },
+                  {
+                    "vulnerable": true,
+                    "cpe23Uri": "cpe:2.3:a:acme:widget:1.0:-:*:*:*:*:*:*"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"acme\": [\"widget\"]}\n"
+    },
+    {
+      "input": {
+        "action": "convert_cpes",
+        "conf": {
+          "cpe23Uri": "cpe:2.3:a:zeta:one:3.1:-:*:*:*:*:*:*"
+        }
+      },
+      "expected_output": "{\"zeta\": [\"one\"]}\n"
+    },
+    {
+      "input": {
+        "action": "convert_cpes",
+        "conf": {
+          "configurations": {
+            "nodes": [
+              {
+                "operator": "OR",
+                "cpe_match": [
+                  {
+                    "vulnerable": true,
+                    "cpe23Uri": "cpe:2.3:a:mike:zoo:1:-:*:*:*:*:*:*"
+                  },
+                  {
+                    "vulnerable": true,
+                    "cpe23Uri": "cpe:2.3:a:mike:apple:1:-:*:*:*:*:*:*"
+                  },
+                  {
+                    "vulnerable": true,
+                    "cpe23Uri": "cpe:2.3:a:alpha:nine:1:-:*:*:*:*:*:*"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"alpha\": [\"nine\"], \"mike\": [\"apple\", \"zoo\"]}\n"
+    },
+    {
+      "input": {
+        "action": "convert_cpes",
+        "conf": {
+          "configurations": {
+            "nodes": [
+              {
+                "operator": "OR",
+                "cpe_match": [
+                  {
+                    "vulnerable": true,
+                    "cpe23Uri": "cpe:2.3:a::::-:*:*:*:*:*:*:*"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"\": [\"\"]}\n"
+    },
+    {
+      "input": {
+        "action": "convert_cpes",
+        "conf": {
+          "a": {
+            "b": [
+              {
+                "cpe23Uri": "cpe:2.3:a:foo:bar:1:-:*:*:*:*:*:*"
+              }
+            ]
+          },
+          "c": {
+            "cpe23Uri": "cpe:2.3:a:foo:bar:9:-:*:*:*:*:*:*"
+          },
+          "d": {
+            "e": {
+              "f": {
+                "cpe23Uri": "cpe:2.3:o:foo:qux:2:-:*:*:*:*:*:*"
+              }
+            }
+          }
+        }
+      },
+      "expected_output": "{\"foo\": [\"bar\", \"qux\"]}\n"
+    },
+    {
+      "input": {
+        "action": "convert_cpes",
+        "conf": {
+          "configurations": {
+            "nodes": [
+              {
+                "operator": "OR",
+                "cpe_match": [
+                  {
+                    "vulnerable": true,
+                    "cpe23Uri": "cpe:2.3:a:naïve:café:1:-:*:*:*:*:*:*"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "expected_output": "{\"naïve\": [\"café\"]}\n"
+    }
+  ]
+}

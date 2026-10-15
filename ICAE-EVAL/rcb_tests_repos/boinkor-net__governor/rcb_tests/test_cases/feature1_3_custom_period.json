@@ -1,0 +1,36 @@
+{
+    "description": "Construct a quota directly from a replenishment period (the time to restore one unit) instead of a named time base, optionally raising the maximum burst. A strictly positive period yields a valid quota whose reported properties follow the same rules as time-based quotas. A zero period cannot describe a meaningful rate and is rejected; the equivalent rejection occurs when supplying a burst together with a zero total replenishment time. A rejected construction reports a single neutral error category line rather than a quota.",
+    "cases": [
+        {
+            "input": {
+                "action": "quota_build",
+                "spec": {
+                    "with_period_ms": 86400000,
+                    "allow_burst": 10
+                }
+            },
+            "expected_output": "replenish_interval_ns=86400000000000\nburst_size=10\nburst_replenish_all_ns=864000000000000\n"
+        },
+        {
+            "input": {
+                "action": "quota_build",
+                "spec": {
+                    "with_period_ms": 0
+                }
+            },
+            "expected_output": "error=invalid_period\n"
+        },
+        {
+            "input": {
+                "action": "quota_build",
+                "spec": {
+                    "new": {
+                        "burst": 1,
+                        "all_per_ms": 0
+                    }
+                }
+            },
+            "expected_output": "error=invalid_period\n"
+        }
+    ]
+}

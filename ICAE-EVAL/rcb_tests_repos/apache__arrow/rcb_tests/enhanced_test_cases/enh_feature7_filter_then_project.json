@@ -1,0 +1,257 @@
+{
+  "description": "Enhanced filter-then-project pipelines over three signed-int columns: exercises multiple missing (null) values in the third column propagating to null outputs, the case where no row survives the filter (empty projection), and the case where every row survives.",
+  "cases": [
+    {
+      "input": {
+        "operation": "filter_project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "int32"
+          },
+          {
+            "name": "b",
+            "type": "int32"
+          },
+          {
+            "name": "c",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "a": [
+            10,
+            12,
+            30,
+            5,
+            21,
+            29
+          ],
+          "b": [
+            5,
+            15,
+            15,
+            17,
+            12,
+            3
+          ],
+          "c": [
+            null,
+            25,
+            null,
+            30,
+            -21,
+            null
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "greater_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "bool"
+        },
+        "expression": {
+          "node": "if",
+          "cond": {
+            "node": "function",
+            "name": "less_than",
+            "args": [
+              {
+                "node": "field",
+                "name": "b"
+              },
+              {
+                "node": "field",
+                "name": "c"
+              }
+            ],
+            "return": "bool"
+          },
+          "then": {
+            "node": "field",
+            "name": "b"
+          },
+          "else": {
+            "node": "field",
+            "name": "c"
+          },
+          "type": "int32"
+        },
+        "result_type": "int32",
+        "selection_mode": "UINT32"
+      },
+      "expected_output": "op=filter_project\nresult_type=int32\nlength=4\nvalues=[null, null, -21, null]\n"
+    },
+    {
+      "input": {
+        "operation": "filter_project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "int32"
+          },
+          {
+            "name": "b",
+            "type": "int32"
+          },
+          {
+            "name": "c",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "a": [
+            1,
+            2,
+            3
+          ],
+          "b": [
+            5,
+            6,
+            7
+          ],
+          "c": [
+            0,
+            0,
+            0
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "greater_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "bool"
+        },
+        "expression": {
+          "node": "if",
+          "cond": {
+            "node": "function",
+            "name": "less_than",
+            "args": [
+              {
+                "node": "field",
+                "name": "b"
+              },
+              {
+                "node": "field",
+                "name": "c"
+              }
+            ],
+            "return": "bool"
+          },
+          "then": {
+            "node": "field",
+            "name": "b"
+          },
+          "else": {
+            "node": "field",
+            "name": "c"
+          },
+          "type": "int32"
+        },
+        "result_type": "int32",
+        "selection_mode": "UINT32"
+      },
+      "expected_output": "op=filter_project\nresult_type=int32\nlength=0\nvalues=[]\n"
+    },
+    {
+      "input": {
+        "operation": "filter_project",
+        "schema": [
+          {
+            "name": "a",
+            "type": "int32"
+          },
+          {
+            "name": "b",
+            "type": "int32"
+          },
+          {
+            "name": "c",
+            "type": "int32"
+          }
+        ],
+        "columns": {
+          "a": [
+            10,
+            20,
+            30
+          ],
+          "b": [
+            1,
+            2,
+            3
+          ],
+          "c": [
+            5,
+            1,
+            100
+          ]
+        },
+        "condition": {
+          "node": "function",
+          "name": "greater_than",
+          "args": [
+            {
+              "node": "field",
+              "name": "a"
+            },
+            {
+              "node": "field",
+              "name": "b"
+            }
+          ],
+          "return": "bool"
+        },
+        "expression": {
+          "node": "if",
+          "cond": {
+            "node": "function",
+            "name": "less_than",
+            "args": [
+              {
+                "node": "field",
+                "name": "b"
+              },
+              {
+                "node": "field",
+                "name": "c"
+              }
+            ],
+            "return": "bool"
+          },
+          "then": {
+            "node": "field",
+            "name": "b"
+          },
+          "else": {
+            "node": "field",
+            "name": "c"
+          },
+          "type": "int32"
+        },
+        "result_type": "int32",
+        "selection_mode": "UINT32"
+      },
+      "expected_output": "op=filter_project\nresult_type=int32\nlength=3\nvalues=[1, 1, 3]\n"
+    }
+  ]
+}

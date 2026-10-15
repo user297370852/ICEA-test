@@ -1,0 +1,35 @@
+{
+    "description": "States can carry lifecycle callbacks that fire as a side effect of transitions: an enter callback runs when a state is entered, an exit callback runs when a state is left. Callbacks are referenced by name and mutate observable model data. `greet` records the text 'Hello World!' and `farewell` records the text 'So long, suckers!'. Enter/exit callbacks can be registered after the machine is built, or declared inline on a state at construction time. The recorded message can be read back to confirm a callback fired.",
+    "cases": [
+        {
+            "input": {
+                "machine": {"states": ["A", "B", "C", "D", "E"], "initial": "A"},
+                "commands": [
+                    {"op": "add_transition", "trigger": "advance", "source": "A", "dest": "B"},
+                    {"op": "add_transition", "trigger": "reverse", "source": "B", "dest": "A"},
+                    {"op": "on_enter", "state": "B", "callback": "greet"},
+                    {"op": "on_exit", "state": "B", "callback": "farewell"},
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "get_message"},
+                    {"op": "trigger", "name": "reverse"},
+                    {"op": "get_message"}
+                ]
+            },
+            "expected_output": "trigger=advance result=true state=B\nmessage=Hello World!\ntrigger=reverse result=true state=A\nmessage=So long, suckers!\n"
+        },
+        {
+            "input": {
+                "machine": {
+                    "states": ["State1", "State2", {"name": "State3", "on_enter": "greet"}],
+                    "initial": "State2",
+                    "transitions": [{"trigger": "advance", "source": "State2", "dest": "State3"}]
+                },
+                "commands": [
+                    {"op": "trigger", "name": "advance"},
+                    {"op": "get_message"}
+                ]
+            },
+            "expected_output": "trigger=advance result=true state=State3\nmessage=Hello World!\n"
+        }
+    ]
+}

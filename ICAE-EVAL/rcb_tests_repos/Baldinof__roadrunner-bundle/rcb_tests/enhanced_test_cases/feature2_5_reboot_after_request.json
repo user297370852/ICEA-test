@@ -1,0 +1,72 @@
+{
+  "description": "Recycling-decision boundaries across multiple requests: no reboots, reboot on every request, reboot only on the first/middle request, and the ordered interleaving of kernel_rebooted events.",
+  "cases": [
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_reboot",
+        "requests": 2,
+        "responder": "ok",
+        "reboot_per_call": [
+          false,
+          false
+        ]
+      },
+      "expected_output": "reboots=0\nevent=worker_start\nevent=worker_stop\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_reboot",
+        "requests": 2,
+        "responder": "ok",
+        "reboot_per_call": [
+          true,
+          true
+        ]
+      },
+      "expected_output": "reboots=2\nevent=worker_start\nevent=kernel_rebooted\nevent=kernel_rebooted\nevent=worker_stop\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_reboot",
+        "requests": 2,
+        "responder": "ok",
+        "reboot_per_call": [
+          true,
+          false
+        ]
+      },
+      "expected_output": "reboots=1\nevent=worker_start\nevent=kernel_rebooted\nevent=worker_stop\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_reboot",
+        "requests": 3,
+        "responder": "ok",
+        "reboot_per_call": [
+          true,
+          true,
+          true
+        ]
+      },
+      "expected_output": "reboots=3\nevent=worker_start\nevent=kernel_rebooted\nevent=kernel_rebooted\nevent=kernel_rebooted\nevent=worker_stop\n"
+    },
+    {
+      "input": {
+        "handler": "worker",
+        "op": "worker_reboot",
+        "requests": 3,
+        "responder": "ok",
+        "reboot_per_call": [
+          false,
+          true,
+          false
+        ]
+      },
+      "expected_output": "reboots=1\nevent=worker_start\nevent=kernel_rebooted\nevent=worker_stop\n"
+    }
+  ]
+}

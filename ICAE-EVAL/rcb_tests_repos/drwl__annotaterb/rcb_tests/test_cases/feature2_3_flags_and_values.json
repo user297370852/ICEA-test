@@ -1,0 +1,86 @@
+{
+  "description": "Parsing of boolean switches and value-bearing options into normalized settings. Switches turn a named setting on (delete-mode flips the action to removal; index display, foreign-key display, and check-constraint display each enable their section). One composite switch enables two related settings at once. A comma list option for excluded artifact groups expands into one enabled setting per named group. Value options capture their argument verbatim (a column-ignore pattern, a hide-limit type list). A repeatable path option appends to any previously supplied value rather than replacing it.",
+  "cases": [
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "-d"
+        ]
+      },
+      "expected_output": "command=help\ntarget_action=remove_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "-i",
+          "-k"
+        ]
+      },
+      "expected_output": "command=help\nshow_foreign_keys=true\nshow_indexes=true\ntarget_action=do_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "--ck"
+        ]
+      },
+      "expected_output": "command=help\nshow_complete_foreign_keys=true\nshow_foreign_keys=true\ntarget_action=do_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "-e",
+          "tests,fixtures"
+        ]
+      },
+      "expected_output": "command=help\nexclude_fixtures=true\nexclude_tests=true\ntarget_action=do_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "--hide-limit-column-types",
+          "integer,boolean,text"
+        ]
+      },
+      "expected_output": "command=help\nhide_limit_column_types=integer,boolean,text\ntarget_action=do_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "-I",
+          "^(id|created_at)$"
+        ]
+      },
+      "expected_output": "command=help\nignore_columns=^(id|created_at)$\ntarget_action=do_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "-R",
+          "another_dir"
+        ],
+        "existing_options": {
+          "require": "some_dir/"
+        }
+      },
+      "expected_output": "command=help\nrequire=some_dir/,another_dir\ntarget_action=do_annotations\n"
+    },
+    {
+      "input": {
+        "op": "cli",
+        "args": [
+          "-f",
+          "markdown"
+        ]
+      },
+      "expected_output": "command=help\nformat_markdown=true\ntarget_action=do_annotations\n"
+    }
+  ]
+}

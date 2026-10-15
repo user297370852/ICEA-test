@@ -1,0 +1,118 @@
+{
+  "description": "Enhanced boundary coverage for path-segment substitution. Multiple distinct placeholders in one path are each substituted; an encoded path value containing a slash is inserted verbatim (the slash is not re-encoded); a non-encoded value containing a space is percent-encoded; a non-String typed placeholder is converted to text; and a placeholder appearing mid-path resolves correctly. The adapter prints the issued request's method, resolved URL and body kind.",
+  "cases": [
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "a/{x}/b/{y}"
+          }
+        ],
+        "params": [
+          {
+            "kind": "path",
+            "key": "x",
+            "name": "x"
+          },
+          {
+            "kind": "path",
+            "key": "y",
+            "name": "y"
+          }
+        ],
+        "args": [
+          "1",
+          "2"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/a/1/b/2\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "u/{id}"
+          }
+        ],
+        "params": [
+          {
+            "kind": "path",
+            "key": "id",
+            "encoded": true,
+            "name": "id"
+          }
+        ],
+        "args": [
+          "a/b"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/u/a/b\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "u/{id}"
+          }
+        ],
+        "params": [
+          {
+            "kind": "path",
+            "key": "id",
+            "name": "id"
+          }
+        ],
+        "args": [
+          "a b"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/u/a%20b\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "DELETE",
+            "path": "items/{id}"
+          }
+        ],
+        "params": [
+          {
+            "kind": "path",
+            "key": "id",
+            "name": "id",
+            "type": "Int"
+          }
+        ],
+        "args": [
+          99
+        ]
+      },
+      "expected_output": "method=DELETE\nurl=http://localhost/items/99\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "orgs/{org}/repos"
+          }
+        ],
+        "params": [
+          {
+            "kind": "path",
+            "key": "org",
+            "name": "org"
+          }
+        ],
+        "args": [
+          "acme"
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/orgs/acme/repos\nbody=none"
+    }
+  ]
+}

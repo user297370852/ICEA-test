@@ -1,0 +1,72 @@
+{
+  "description": "Additional synchronization sequence cases for remote pull, local deletion propagation, and retry after remote write failure.",
+  "cases": [
+    {
+      "description": "A remote-only file is pulled locally and persisted into store state on the first successful sync.",
+      "input": {
+        "command": "sync.run",
+        "remote_initial": [
+          {
+            "path": "remote.md",
+            "content": "from remote"
+          }
+        ],
+        "steps": [
+          {
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"],[\"Sync successful\"]]\nsuccess=true\nlocal_ops=[{\"path\":\"remote.md\",\"type\":\"ADDED\"}]\nremote_ops=[]\nclashes=[]\nlocal_files={\"remote.md\":{\"content\":\"ZnJvbSByZW1vdGU=\",\"encoding\":\"base64\"}}\nremote_files={\"remote.md\":{\"content\":\"from remote\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"initial-commit\",\"lastFetchedRemoteSha\":{\"remote.md\":\"b67f50cf7544b010e44a07d7741cc1f03e22196a\"},\"localSha\":{\"remote.md\":\"044df7de34d35bbadf362d6ef77d1afcf96f1201\"}}\n"
+    },
+    {
+      "description": "After an initial successful sync, a local deletion is propagated to the remote on the next sync.",
+      "input": {
+        "command": "sync.run",
+        "local_initial": [
+          {
+            "path": "gone.md",
+            "content": "delete me"
+          }
+        ],
+        "steps": [
+          {
+            "sync": true
+          },
+          {
+            "localDelete": [
+              "gone.md"
+            ],
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"],[\"Sync successful\"]]\nsuccess=true\nlocal_ops=[]\nremote_ops=[{\"path\":\"gone.md\",\"type\":\"ADDED\"}]\nclashes=[]\nstep=1\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"],[\"Sync successful\"]]\nsuccess=true\nlocal_ops=[]\nremote_ops=[{\"path\":\"gone.md\",\"type\":\"REMOVED\"}]\nclashes=[]\nlocal_files={}\nremote_files={}\nstore={\"lastFetchedCommitSha\":\"da39a3ee5e6b4b0d3255bfef95601890afd80709\",\"lastFetchedRemoteSha\":{},\"localSha\":{}}\n"
+    },
+    {
+      "description": "A remote failure during upload leaves local state intact so the following retry can upload the accumulated file.",
+      "input": {
+        "command": "sync.run",
+        "steps": [
+          {
+            "localSet": [
+              {
+                "path": "retry.md",
+                "content": "first"
+              }
+            ],
+            "remoteFailure": {
+              "type": "network",
+              "message": "temporary outage"
+            },
+            "sync": true
+          },
+          {
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"]]\nsuccess=false\nerror_message=temporary outage. Please check your internet connection.\nstep=1\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"],[\"Sync successful\"]]\nsuccess=true\nlocal_ops=[]\nremote_ops=[{\"path\":\"retry.md\",\"type\":\"ADDED\"}]\nclashes=[]\nlocal_files={\"retry.md\":{\"content\":\"first\",\"encoding\":\"plaintext\"}}\nremote_files={\"retry.md\":{\"content\":\"first\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"44208224dae5a13b994d1a791aae4fc7a0b5da26\",\"lastFetchedRemoteSha\":{\"retry.md\":\"8aa194506db78ae87c7d01d98e5f5ea6e05b3f36\"},\"localSha\":{\"retry.md\":\"bba3c0fe8b8e6225e8dd42b9209dd38abcc44bc9\"}}\n"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+    "description": "Aggregate a list of asynchronous operations into a partitioned result, succeeding as long as at least a required number of operations succeed. The fulfilled result carries two collections that preserve the original positions: the failures (mapped to their failure messages) and the successes (mapped to their values). The required count defaults to one. If fewer than the required number succeed, the result is rejected with a combined multiple-failures outcome listing every failure reason in order. Supplying a negative required count, requiring more successes than there are operations, or passing a non-operation operand are each reported as a distinct invalid-input error.",
+    "cases": [
+        {
+            "input": {
+                "op": "some",
+                "promises": [
+                    {
+                        "fail": "boom"
+                    },
+                    {
+                        "fail": "boom"
+                    },
+                    {
+                        "resolve": 3
+                    }
+                ]
+            },
+            "expected_output": "status=fulfilled\nerrors=[\"boom\",\"boom\"]\nvalues={\"2\":3}\n"
+        },
+        {
+            "input": {
+                "op": "some",
+                "promises": [
+                    {
+                        "fail": "a"
+                    },
+                    {
+                        "fail": "b"
+                    },
+                    {
+                        "fail": "c"
+                    }
+                ]
+            },
+            "expected_output": "status=rejected\nreason=multiple_failures\nreasons=[\"a\",\"b\",\"c\"]\n"
+        },
+        {
+            "input": {
+                "op": "some",
+                "promises": [],
+                "required": -1
+            },
+            "expected_output": "status=error\nerror=negative_required\n"
+        }
+    ]
+}

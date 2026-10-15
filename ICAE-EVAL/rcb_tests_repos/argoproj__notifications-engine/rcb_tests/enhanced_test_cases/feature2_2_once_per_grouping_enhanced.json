@@ -1,0 +1,129 @@
+{
+  "description": "Enhanced boundary/edge coverage for the oncePer de-duplication grouping value (run_trigger with oncePer). Covers: a numeric oncePer result stringified, an oncePer expression referencing an absent variable (evaluates to the reference implementation's '<nil>' string), indexing a nested map by a bare string key, a boolean oncePer result, oncePer evaluated even when the when-condition does NOT fire (this reference implementation evaluates oncePer regardless of firing), and a multi-condition trigger mixing fired/not-fired with and without oncePer. Expected outputs are the raw adapter stdout captured from the reference implementation.",
+  "cases": [
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "true",
+            "send": [
+              "a"
+            ],
+            "oncePer": "n"
+          }
+        ],
+        "vars": {
+          "n": 99
+        }
+      },
+      "expected_output": "triggered=true templates=a oncePer=99\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "true",
+            "send": [
+              "a"
+            ],
+            "oncePer": "missing"
+          }
+        ],
+        "vars": {}
+      },
+      "expected_output": "triggered=true templates=a oncePer=<nil>\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "true",
+            "send": [
+              "a"
+            ],
+            "oncePer": "m[\"k\"]"
+          }
+        ],
+        "vars": {
+          "m": {
+            "k": "V"
+          }
+        }
+      },
+      "expected_output": "triggered=true templates=a oncePer=V\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "true",
+            "send": [
+              "a"
+            ],
+            "oncePer": "flag"
+          }
+        ],
+        "vars": {
+          "flag": true
+        }
+      },
+      "expected_output": "triggered=true templates=a oncePer=true\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "x == 1",
+            "send": [
+              "a"
+            ],
+            "oncePer": "rev"
+          }
+        ],
+        "vars": {
+          "x": 2,
+          "rev": "r1"
+        }
+      },
+      "expected_output": "triggered=false templates=a oncePer=r1\n"
+    },
+    {
+      "input": {
+        "action": "run_trigger",
+        "conditions": [
+          {
+            "when": "a == 1",
+            "send": [
+              "t1"
+            ],
+            "oncePer": "r"
+          },
+          {
+            "when": "a == 2",
+            "send": [
+              "t2"
+            ]
+          },
+          {
+            "when": "b == 'yes'",
+            "send": [
+              "t3",
+              "t4"
+            ]
+          }
+        ],
+        "vars": {
+          "a": 1,
+          "b": "yes",
+          "r": "rev1"
+        }
+      },
+      "expected_output": "triggered=true templates=t1 oncePer=rev1\ntriggered=false templates=t2 oncePer=\ntriggered=true templates=t3,t4 oncePer=\n"
+    }
+  ]
+}

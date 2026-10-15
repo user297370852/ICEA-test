@@ -1,0 +1,10 @@
+{
+    "description": "The local filesystem backend can enumerate every file under the root as a flat list of root-relative paths, optionally filtered by a path prefix. With an empty prefix it returns all files anywhere beneath the root, recursing into nested directories. A prefix restricts the listing to paths that begin with that prefix; the prefix may match a partial path segment, not just whole directory names. A prefix that matches nothing (including one pointing outside any existing content) yields an empty list. An empty root yields an empty list. Each case drives a fresh, empty root, optionally writes some files, then lists them; the resulting paths are reported as a sorted, comma-separated list.",
+    "cases": [
+        {"input": {"op": "local_fs", "steps": [{"action": "flatList", "prefix": ""}]}, "expected_output": "files=\n"},
+        {"input": {"op": "local_fs", "steps": [{"action": "flatList", "prefix": "/dummy/path"}]}, "expected_output": "files=\n"},
+        {"input": {"op": "local_fs", "steps": [{"action": "put", "location": "foo.txt", "content": "x"}, {"action": "put", "location": "foo/bar", "content": "x"}, {"action": "put", "location": "other/dir/file.txt", "content": "x"}, {"action": "flatList", "prefix": ""}]}, "expected_output": "put=foo.txt\nput=foo/bar\nput=other/dir/file.txt\nfiles=foo.txt,foo/bar,other/dir/file.txt\n"},
+        {"input": {"op": "local_fs", "steps": [{"action": "put", "location": "foo.txt", "content": "x"}, {"action": "put", "location": "foo/bar", "content": "x"}, {"action": "put", "location": "other/dir/file.txt", "content": "x"}, {"action": "flatList", "prefix": "other"}]}, "expected_output": "put=foo.txt\nput=foo/bar\nput=other/dir/file.txt\nfiles=other/dir/file.txt\n"},
+        {"input": {"op": "local_fs", "steps": [{"action": "put", "location": "foo.txt", "content": "x"}, {"action": "put", "location": "foo/bar", "content": "x"}, {"action": "put", "location": "other/dir/file.txt", "content": "x"}, {"action": "flatList", "prefix": "other/dir/fil"}]}, "expected_output": "put=foo.txt\nput=foo/bar\nput=other/dir/file.txt\nfiles=other/dir/file.txt\n"}
+    ]
+}

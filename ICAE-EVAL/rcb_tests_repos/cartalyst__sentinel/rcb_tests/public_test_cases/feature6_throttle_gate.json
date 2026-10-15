@@ -1,0 +1,21 @@
+{
+    "description": "Brute-force login gate consulting three independent delay sources, each reporting a remaining lock duration in seconds: global, an optional IP source, and per-user. A login attempt checks global then ip then user; a session check checks only ip; recording a failed attempt re-runs the login checks then logs. The first positive source in order global > ip > user trips a throttling error reporting the source, the remaining delay, and seconds until unlock; if none are positive the action is permitted.",
+    "cases": [
+        {
+            "input": {"op": "throttle_gate", "action": "login", "delays": {"global": 0, "user": 0}},
+            "expected_output": "outcome=allowed\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "login", "delays": {"global": 10}},
+            "expected_output": "error=throttling\nthrottle_type=global\ndelay_seconds=10\nunlock_in_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "fail", "ip": "127.0.0.1", "delays": {"global": 0, "ip": 0, "user": 10}},
+            "expected_output": "error=throttling\nthrottle_type=user\ndelay_seconds=10\nunlock_in_seconds=10\n"
+        },
+        {
+            "input": {"op": "throttle_gate", "action": "fail", "ip": "127.0.0.1", "delays": {"global": 0, "ip": 0, "user": 0}},
+            "expected_output": "outcome=attempt_logged\n"
+        }
+    ]
+}

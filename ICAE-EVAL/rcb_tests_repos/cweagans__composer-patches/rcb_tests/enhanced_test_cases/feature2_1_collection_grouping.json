@@ -1,0 +1,98 @@
+{
+  "description": "Collection grouping/lifecycle boundary coverage: clearing a middle package out of three (insertion order of survivors preserved), clearing multiple packages in one request, clearing a package that was never added (count 0, others untouched), and an add-only request with no clear list at all. The output reports per-package counts and the list of patched packages before and after any removal.",
+  "cases": [
+    {
+      "input": {
+        "op": "collection_lifecycle",
+        "add": [
+          {
+            "package": "a/a",
+            "description": "p1",
+            "url": "1"
+          },
+          {
+            "package": "b/b",
+            "description": "p2",
+            "url": "2"
+          },
+          {
+            "package": "c/c",
+            "description": "p3",
+            "url": "3"
+          }
+        ],
+        "clear": [
+          "b/b"
+        ]
+      },
+      "expected_output": "a/a patches=1\nb/b patches=1\nc/c patches=1\npatched_packages=a/a,b/b,c/c\ncleared=b/b\nb/b patches=0\npatched_packages=a/a,c/c\n"
+    },
+    {
+      "input": {
+        "op": "collection_lifecycle",
+        "add": [
+          {
+            "package": "a/a",
+            "description": "p1",
+            "url": "1"
+          },
+          {
+            "package": "b/b",
+            "description": "p2",
+            "url": "2"
+          },
+          {
+            "package": "c/c",
+            "description": "p3",
+            "url": "3"
+          }
+        ],
+        "clear": [
+          "a/a",
+          "c/c"
+        ]
+      },
+      "expected_output": "a/a patches=1\nb/b patches=1\nc/c patches=1\npatched_packages=a/a,b/b,c/c\ncleared=a/a,c/c\na/a patches=0\nc/c patches=0\npatched_packages=b/b\n"
+    },
+    {
+      "input": {
+        "op": "collection_lifecycle",
+        "add": [
+          {
+            "package": "a/a",
+            "description": "p1",
+            "url": "1"
+          },
+          {
+            "package": "b/b",
+            "description": "p2",
+            "url": "2"
+          }
+        ],
+        "clear": [
+          "zzz/none"
+        ]
+      },
+      "expected_output": "a/a patches=1\nb/b patches=1\npatched_packages=a/a,b/b\ncleared=zzz/none\nzzz/none patches=0\npatched_packages=a/a,b/b\n"
+    },
+    {
+      "input": {
+        "op": "collection_lifecycle",
+        "add": [
+          {
+            "package": "a/a",
+            "description": "p1",
+            "url": "1"
+          },
+          {
+            "package": "a/a",
+            "description": "dup",
+            "url": "1"
+          }
+        ],
+        "clear": []
+      },
+      "expected_output": "a/a patches=1\npatched_packages=a/a\n"
+    }
+  ]
+}

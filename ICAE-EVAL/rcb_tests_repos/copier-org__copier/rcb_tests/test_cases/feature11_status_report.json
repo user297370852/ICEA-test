@@ -1,0 +1,51 @@
+{
+  "description": "The per-entry action report produced while rendering. A fresh destination yields create actions for every produced folder and file. Re-rendering over an existing destination yields an identical action for unchanged files and a conflict action for changed files, followed by a force action when overwriting is forced or a skip action when preserving is requested. Output lists the actions and their targets.",
+  "cases": [
+    {
+      "input": {
+        "op": "status",
+        "src": {
+          "a.txt": "A\n",
+          "sub/b.txt": "B\n"
+        },
+        "quiet": false,
+        "data": {}
+      },
+      "expected_output": "lines=3\ncreate a.txt\ncreate sub/\ncreate sub/b.txt\n"
+    },
+    {
+      "input": {
+        "op": "status",
+        "src": {
+          "keep.txt": "SAME\n",
+          "change.txt": "NEW\n"
+        },
+        "dst_prefill": {
+          "keep.txt": "SAME\n",
+          "change.txt": "OLD\n"
+        },
+        "force": true,
+        "quiet": false,
+        "data": {}
+      },
+      "expected_output": "lines=3\nconflict change.txt\nforce change.txt\nidentical keep.txt\n"
+    },
+    {
+      "input": {
+        "op": "status",
+        "src": {
+          "keep.txt": "SAME\n",
+          "change.txt": "NEW\n"
+        },
+        "dst_prefill": {
+          "keep.txt": "SAME\n",
+          "change.txt": "OLD\n"
+        },
+        "skip": true,
+        "quiet": false,
+        "data": {}
+      },
+      "expected_output": "lines=3\nconflict change.txt\nskip change.txt\nidentical keep.txt\n"
+    }
+  ]
+}

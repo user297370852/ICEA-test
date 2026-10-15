@@ -1,0 +1,100 @@
+{
+  "description": "A database switch issued inside a batch applies within the batch and persists afterward, covering different database numbers and a probe of a database never written, which reads as absent.",
+  "cases": [
+    {
+      "input": {
+        "action": "select_persist",
+        "before": [
+          [
+            "select",
+            3
+          ],
+          [
+            "set",
+            "db",
+            "3"
+          ]
+        ],
+        "batch": [
+          [
+            "select",
+            5
+          ],
+          [
+            "set",
+            "db",
+            "5"
+          ]
+        ],
+        "probes": [
+          {
+            "db": 3,
+            "read": [
+              "get",
+              "db"
+            ]
+          },
+          {
+            "db": 5,
+            "read": [
+              "get",
+              "db"
+            ]
+          }
+        ]
+      },
+      "expected_output": "db@3:str:3\ndb@5:str:5\n"
+    },
+    {
+      "input": {
+        "action": "select_persist",
+        "before": [
+          [
+            "select",
+            4
+          ],
+          [
+            "set",
+            "x",
+            "y"
+          ]
+        ],
+        "batch": [
+          [
+            "select",
+            6
+          ],
+          [
+            "set",
+            "x",
+            "z"
+          ]
+        ],
+        "probes": [
+          {
+            "db": 4,
+            "read": [
+              "get",
+              "x"
+            ]
+          },
+          {
+            "db": 6,
+            "read": [
+              "get",
+              "x"
+            ]
+          },
+          {
+            "db": 7,
+            "read": [
+              "get",
+              "x"
+            ]
+          }
+        ]
+      },
+      "expected_output": "db@4:str:y\ndb@6:str:z\ndb@7:nil\n"
+    }
+  ]
+}

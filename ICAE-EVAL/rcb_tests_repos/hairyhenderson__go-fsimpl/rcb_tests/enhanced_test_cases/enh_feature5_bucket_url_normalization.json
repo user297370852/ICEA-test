@@ -1,0 +1,47 @@
+{
+  "description": "Boundary object-storage URL normalization: all four s3 params plus junk, s3 with no query, s3 with only junk, gs access_id only, azblob domain kept, azblob junk stripped.",
+  "cases": [
+    {
+      "input": {
+        "op": "normalize_url",
+        "url": "s3://foo/bar/baz?type=text/csv&region=us-west-2&endpoint=localhost:9000&disableSSL=true&s3ForcePathStyle=true"
+      },
+      "expected_output": "url=s3://foo/bar/baz?disableSSL=true&endpoint=localhost%3A9000&region=us-west-2&s3ForcePathStyle=true\n"
+    },
+    {
+      "input": {
+        "op": "normalize_url",
+        "url": "s3://foo/bar/baz"
+      },
+      "expected_output": "url=s3://foo/bar/baz\n"
+    },
+    {
+      "input": {
+        "op": "normalize_url",
+        "url": "s3://foo/bar/baz?foo=1&bar=2"
+      },
+      "expected_output": "url=s3://foo/bar/baz\n"
+    },
+    {
+      "input": {
+        "op": "normalize_url",
+        "url": "gs://foo/bar/baz?access_id=abcd"
+      },
+      "expected_output": "url=gs://foo/bar/baz?access_id=abcd\n"
+    },
+    {
+      "input": {
+        "op": "normalize_url",
+        "url": "azblob://foo/bar?domain=core.windows.net&type=text/csv"
+      },
+      "expected_output": "url=azblob://foo/bar?domain=core.windows.net\n"
+    },
+    {
+      "input": {
+        "op": "normalize_url",
+        "url": "azblob://foo/bar?type=junk&other=x"
+      },
+      "expected_output": "url=azblob://foo/bar\n"
+    }
+  ]
+}

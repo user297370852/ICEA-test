@@ -1,0 +1,257 @@
+{
+  "description": "Boundary coverage for label-selector matching. Exercises conjunctions of multiple set-based expressions, multi-key equality maps, a combination of set-based and equality requirements, membership against a multi-element values list, the absent-key behaviour of the negative set operator, evaluation against an empty label map for the presence operators, and the values-presence validity rule violated by supplying a values list to a presence operator or an empty values list to a membership operator.",
+  "cases": [
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "app": "web",
+          "tier": "frontend"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "app",
+              "operator": "In",
+              "values": [
+                "web",
+                "db"
+              ]
+            },
+            {
+              "key": "tier",
+              "operator": "Exists"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "app": "web",
+          "tier": "frontend"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "app",
+              "operator": "In",
+              "values": [
+                "web",
+                "db"
+              ]
+            },
+            {
+              "key": "tier",
+              "operator": "DoesNotExist"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "app": "web",
+          "tier": "frontend"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "web",
+            "tier": "frontend"
+          }
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "app": "web",
+          "tier": "frontend"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "web",
+            "tier": "backend"
+          }
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "app": "web",
+          "tier": "frontend"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "tier",
+              "operator": "Exists"
+            }
+          ],
+          "matchLabels": {
+            "app": "web"
+          }
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "env": "prod"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "env",
+              "operator": "In",
+              "values": [
+                "dev",
+                "prod"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "env": "prod"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "env",
+              "operator": "NotIn",
+              "values": [
+                "prod"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "env": "prod"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "region",
+              "operator": "NotIn",
+              "values": [
+                "us"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {},
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "x",
+              "operator": "Exists"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=false\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {},
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "x",
+              "operator": "DoesNotExist"
+            }
+          ]
+        }
+      },
+      "expected_output": "matched=true\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "a": "b"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "a",
+              "operator": "DoesNotExist",
+              "values": [
+                "b"
+              ]
+            }
+          ]
+        }
+      },
+      "expected_output": "error=malformed_label_selector\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "a": "b"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "a",
+              "operator": "NotIn",
+              "values": []
+            }
+          ]
+        }
+      },
+      "expected_output": "error=malformed_label_selector\n"
+    },
+    {
+      "input": {
+        "action": "label_match",
+        "labels": {
+          "a": "b"
+        },
+        "selector": {
+          "matchExpressions": [
+            {
+              "key": "a",
+              "operator": "In",
+              "values": []
+            }
+          ]
+        }
+      },
+      "expected_output": "error=malformed_label_selector\n"
+    }
+  ]
+}

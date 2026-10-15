@@ -1,0 +1,16 @@
+{
+    "description": "An explicit one-time tag is consumed by the very next logging call even if that call is skipped by severity gating, so the pending tag never leaks onto a later call. With a destination that gates out low-severity calls, setting an explicit tag and then making a low-severity call (which is skipped) must clear that tag; a subsequent higher-severity call with no explicit tag is then delivered WITHOUT the earlier tag. The input sets a tag, makes a gated-out call, then makes an accepted call with no tag; the output is the accepted record carrying an empty tag.",
+    "cases": [
+        {
+            "input": {
+                "action": "dispatch",
+                "tree": {"min_priority": "warn"},
+                "steps": [
+                    {"tag": "NotLogged", "level": "info", "message": "Message not logged"},
+                    {"level": "warn", "message": "Message logged"}
+                ]
+            },
+            "expected_output": "priority=5 tag= message=Message logged\n"
+        }
+    ]
+}

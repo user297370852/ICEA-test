@@ -1,0 +1,46 @@
+{
+  "description": "Manages a database connection, reports availability, executes query text against a configured client, and sends DDL text unchanged.",
+  "cases": [
+    {
+      "input": {
+        "feature": "connection_lifecycle",
+        "operation": "create_database"
+      },
+      "expected_output": "database=test-instance/test-database\n"
+    },
+    {
+      "input": {
+        "feature": "connection_lifecycle",
+        "operation": "active_check"
+      },
+      "expected_output": "active=true\n"
+    },
+    {
+      "input": {
+        "feature": "connection_lifecycle",
+        "operation": "active_check",
+        "simulate_error": true
+      },
+      "expected_output": "active=false\n"
+    },
+    {
+      "input": {
+        "feature": "connection_lifecycle",
+        "operation": "execute_query",
+        "sql": "SELECT * FROM users",
+        "rows": [
+          "test-user"
+        ]
+      },
+      "expected_output": "sql=SELECT * FROM users\nrows=test-user\n"
+    },
+    {
+      "input": {
+        "feature": "connection_lifecycle",
+        "operation": "execute_ddl",
+        "sql": "CREATE TABLE users ( id STRING(36) NOT NULL ) PRIMARY KEY (id)"
+      },
+      "expected_output": "ddl_result=true\nsql=[\"CREATE TABLE users ( id STRING(36) NOT NULL ) PRIMARY KEY (id)\"]\n"
+    }
+  ]
+}

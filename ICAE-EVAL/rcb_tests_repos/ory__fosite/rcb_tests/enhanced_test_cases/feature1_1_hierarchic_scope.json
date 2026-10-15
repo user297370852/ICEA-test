@@ -1,0 +1,74 @@
+{
+  "description": "Hierarchic scope matching over additional boundary inputs: single-segment grants, an empty-string grant/request, deep descendants, near-miss prefixes that do not align on a dot boundary, and non-ASCII scope segments. For each requested scope the output reports whether it is allowed.",
+  "cases": [
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [
+          "a",
+          "a.b.c",
+          "x.y"
+        ],
+        "requests": [
+          "a",
+          "a.b",
+          "a.b.c",
+          "a.b.c.d",
+          "a.bc",
+          "x",
+          "x.y.z",
+          "ab"
+        ]
+      },
+      "expected_output": "request=a allowed=true\nrequest=a.b allowed=true\nrequest=a.b.c allowed=true\nrequest=a.b.c.d allowed=true\nrequest=a.bc allowed=true\nrequest=x allowed=false\nrequest=x.y.z allowed=true\nrequest=ab allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [
+          ""
+        ],
+        "requests": [
+          "",
+          "a",
+          "a.b"
+        ]
+      },
+      "expected_output": "request= allowed=true\nrequest=a allowed=false\nrequest=a.b allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [
+          "read.write.delete.admin"
+        ],
+        "requests": [
+          "read",
+          "read.write",
+          "read.write.delete",
+          "read.write.delete.admin",
+          "read.write.delete.admin.super"
+        ]
+      },
+      "expected_output": "request=read allowed=false\nrequest=read.write allowed=false\nrequest=read.write.delete allowed=false\nrequest=read.write.delete.admin allowed=true\nrequest=read.write.delete.admin.super allowed=true\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "hierarchic",
+        "granted": [
+          "café.au"
+        ],
+        "requests": [
+          "café",
+          "café.au",
+          "café.au.lait"
+        ]
+      },
+      "expected_output": "request=café allowed=false\nrequest=café.au allowed=true\nrequest=café.au.lait allowed=true\n"
+    }
+  ]
+}

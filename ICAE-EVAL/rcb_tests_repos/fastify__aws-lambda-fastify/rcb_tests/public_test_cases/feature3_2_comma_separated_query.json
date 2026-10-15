@@ -1,0 +1,52 @@
+{
+  "description": "For protocol version 2.0, optionally split comma-separated query values into arrays; a toggle controls whether the split happens.",
+  "cases": [
+    {
+      "input": {
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "foo": "qux,bar"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"foo\":[\"qux\",\"bar\"]}\nheader.connection=keep-alive\nheader.content-length=21\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    },
+    {
+      "input": {
+        "options": {
+          "parseCommaSeparatedQueryParams": false
+        },
+        "route": {
+          "method": "GET",
+          "path": "/test",
+          "reply": {
+            "body": {
+              "type": "echoQuery"
+            }
+          }
+        },
+        "event": {
+          "version": "2.0",
+          "httpMethod": "GET",
+          "path": "/test",
+          "queryStringParameters": {
+            "foo": "qux,bar"
+          }
+        }
+      },
+      "expected_output": "[response]\nstatus=200\nisBase64Encoded=false\nbody={\"foo\":\"qux,bar\"}\nheader.connection=keep-alive\nheader.content-length=17\nheader.content-type=application/json; charset=utf-8\nheader.date=<present>\n"
+    }
+  ]
+}

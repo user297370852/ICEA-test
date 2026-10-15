@@ -1,0 +1,167 @@
+{
+  "description": "Provision the metrics-collection component across additional boundary configurations. When collection is enabled, provisioning gathers metrics from every registered provider in two ordered stages: each provider is first initialized and self-validated, then each valid provider is asked for its metrics. Provisioning fails at the provider-validation stage if any provider reports itself invalid, regardless of that provider's position in the list. When collection is disabled, provisioning succeeds immediately without consulting any provider. The result reports whether provisioning succeeded, and on success the collection mode, and on failure a neutral category naming the stage that failed.",
+  "cases": [
+    {
+      "input": {
+        "operation": "provision",
+        "namespace": "app",
+        "providers": []
+      },
+      "expected_output": "provisioned=true\ncollect=enabled\n"
+    },
+    {
+      "input": {
+        "operation": "provision",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": []
+          }
+        ]
+      },
+      "expected_output": "provisioned=true\ncollect=enabled\n"
+    },
+    {
+      "input": {
+        "operation": "provision",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              },
+              {
+                "name": "queue",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "beta",
+            "metrics": [
+              {
+                "name": "latency",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provisioned=true\ncollect=enabled\n"
+    },
+    {
+      "input": {
+        "operation": "provision",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "beta",
+            "validate_error": "boom",
+            "metrics": []
+          }
+        ]
+      },
+      "expected_output": "provisioned=false\nerror=provider_validation\n"
+    },
+    {
+      "input": {
+        "operation": "provision",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "validate_error": "",
+            "metrics": []
+          }
+        ]
+      },
+      "expected_output": "provisioned=false\nerror=provider_validation\n"
+    },
+    {
+      "input": {
+        "operation": "provision",
+        "disable_collect": true,
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provisioned=true\ncollect=disabled\n"
+    },
+    {
+      "input": {
+        "operation": "provision",
+        "namespace": "app",
+        "providers": [
+          {
+            "id": "p1",
+            "metrics": [
+              {
+                "name": "m1",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "p2",
+            "metrics": [
+              {
+                "name": "m2",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "p3",
+            "metrics": [
+              {
+                "name": "m3",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "p4",
+            "metrics": [
+              {
+                "name": "m4",
+                "has_read": true
+              }
+            ]
+          },
+          {
+            "id": "p5",
+            "metrics": [
+              {
+                "name": "m5",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "provisioned=true\ncollect=enabled\n"
+    }
+  ]
+}

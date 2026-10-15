@@ -1,0 +1,82 @@
+{
+  "description": "Boundary coverage for printf-style formatting: multiple positional arguments, an escaped literal percent with arguments present, positional index reuse, an explicitly empty argument array (treated as no args, so verbatim), and a null argument list with a literal percent (verbatim, untouched).",
+  "cases": [
+    {
+      "input": {
+        "action": "dispatch",
+        "steps": [
+          {
+            "tag": "T",
+            "level": "info",
+            "message": "%s and %d",
+            "args": [
+              "x",
+              7
+            ]
+          }
+        ]
+      },
+      "expected_output": "priority=4 tag=T message=x and 7\n"
+    },
+    {
+      "input": {
+        "action": "dispatch",
+        "steps": [
+          {
+            "tag": "T",
+            "level": "info",
+            "message": "100%% done %d",
+            "args": [
+              50
+            ]
+          }
+        ]
+      },
+      "expected_output": "priority=4 tag=T message=100% done 50\n"
+    },
+    {
+      "input": {
+        "action": "dispatch",
+        "steps": [
+          {
+            "tag": "T",
+            "level": "debug",
+            "message": "%1$s-%1$s",
+            "args": [
+              "z"
+            ]
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T message=z-z\n"
+    },
+    {
+      "input": {
+        "action": "dispatch",
+        "steps": [
+          {
+            "tag": "T",
+            "level": "debug",
+            "message": "te%st",
+            "args": []
+          }
+        ]
+      },
+      "expected_output": "priority=3 tag=T message=te%st\n"
+    },
+    {
+      "input": {
+        "action": "dispatch",
+        "steps": [
+          {
+            "tag": "T",
+            "level": "warn",
+            "message": "50%% off",
+            "null_args": true
+          }
+        ]
+      },
+      "expected_output": "priority=5 tag=T message=50%% off\n"
+    }
+  ]
+}

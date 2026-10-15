@@ -1,0 +1,399 @@
+{
+  "description": "Enhanced item sorting: modified_at and interacted_at sorts across kinds, DESC by size, interacted_at fallback to modified_at, no-kind treated as file, the already-sorted no-op short-circuit path, empty entries list, single entry, and the three error categories (unsupported field, unknown item type, malformed collection).",
+  "cases": [
+    {
+      "input": {
+        "items": {
+          "fo1": {
+            "name": "alpha",
+            "modified_at": "2020-01-01",
+            "interacted_at": "2020-03-01",
+            "size": 10,
+            "type": "folder"
+          },
+          "fo2": {
+            "name": "beta",
+            "modified_at": "2020-02-01",
+            "interacted_at": "2020-01-01",
+            "size": 30,
+            "type": "folder"
+          },
+          "f1": {
+            "name": "gamma",
+            "modified_at": "2020-05-01",
+            "interacted_at": "2020-04-01",
+            "size": 5,
+            "type": "file"
+          },
+          "f2": {
+            "name": "delta",
+            "modified_at": "2020-03-01",
+            "interacted_at": "2020-06-01",
+            "size": 50,
+            "type": "file"
+          },
+          "w1": {
+            "name": "epsilon",
+            "modified_at": "2020-07-01",
+            "interacted_at": "2020-02-01",
+            "size": 70,
+            "type": "web_link"
+          }
+        },
+        "entries": [
+          "fo1",
+          "fo2",
+          "f2",
+          "f1",
+          "w1"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "modified_at",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "count=5\nentry=fo1\nentry=fo2\nentry=f2\nentry=f1\nentry=w1"
+    },
+    {
+      "input": {
+        "items": {
+          "fo1": {
+            "name": "alpha",
+            "modified_at": "2020-01-01",
+            "interacted_at": "2020-03-01",
+            "size": 10,
+            "type": "folder"
+          },
+          "fo2": {
+            "name": "beta",
+            "modified_at": "2020-02-01",
+            "interacted_at": "2020-01-01",
+            "size": 30,
+            "type": "folder"
+          },
+          "f1": {
+            "name": "gamma",
+            "modified_at": "2020-05-01",
+            "interacted_at": "2020-04-01",
+            "size": 5,
+            "type": "file"
+          },
+          "f2": {
+            "name": "delta",
+            "modified_at": "2020-03-01",
+            "interacted_at": "2020-06-01",
+            "size": 50,
+            "type": "file"
+          },
+          "w1": {
+            "name": "epsilon",
+            "modified_at": "2020-07-01",
+            "interacted_at": "2020-02-01",
+            "size": 70,
+            "type": "web_link"
+          }
+        },
+        "entries": [
+          "fo2",
+          "fo1",
+          "f1",
+          "f2",
+          "w1"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "interacted_at",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "count=5\nentry=fo2\nentry=fo1\nentry=f1\nentry=f2\nentry=w1"
+    },
+    {
+      "input": {
+        "items": {
+          "fo1": {
+            "name": "alpha",
+            "modified_at": "2020-01-01",
+            "interacted_at": "2020-03-01",
+            "size": 10,
+            "type": "folder"
+          },
+          "fo2": {
+            "name": "beta",
+            "modified_at": "2020-02-01",
+            "interacted_at": "2020-01-01",
+            "size": 30,
+            "type": "folder"
+          },
+          "f1": {
+            "name": "gamma",
+            "modified_at": "2020-05-01",
+            "interacted_at": "2020-04-01",
+            "size": 5,
+            "type": "file"
+          },
+          "f2": {
+            "name": "delta",
+            "modified_at": "2020-03-01",
+            "interacted_at": "2020-06-01",
+            "size": 50,
+            "type": "file"
+          },
+          "w1": {
+            "name": "epsilon",
+            "modified_at": "2020-07-01",
+            "interacted_at": "2020-02-01",
+            "size": 70,
+            "type": "web_link"
+          }
+        },
+        "entries": [
+          "fo2",
+          "fo1",
+          "f2",
+          "f1",
+          "w1"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "size",
+        "sortDirection": "DESC"
+      },
+      "expected_output": "count=5\nentry=fo2\nentry=fo1\nentry=f2\nentry=f1\nentry=w1"
+    },
+    {
+      "input": {
+        "items": {
+          "f1": {
+            "name": "noInteract",
+            "modified_at": "2020-09-01",
+            "size": 5,
+            "type": "file"
+          },
+          "f2": {
+            "name": "withInteract",
+            "modified_at": "2020-01-01",
+            "interacted_at": "2020-12-01",
+            "size": 5,
+            "type": "file"
+          }
+        },
+        "entries": [
+          "f1",
+          "f2"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "interacted_at",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "count=2\nentry=f1\nentry=f2"
+    },
+    {
+      "input": {
+        "items": {
+          "fo1": {
+            "name": "folderItem",
+            "modified_at": "2020-01-01",
+            "size": 10,
+            "type": "folder"
+          },
+          "x1": {
+            "name": "noKind",
+            "modified_at": "2020-02-01",
+            "size": 20
+          }
+        },
+        "entries": [
+          "x1",
+          "fo1"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "name",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "count=2\nentry=x1\nentry=fo1"
+    },
+    {
+      "input": {
+        "items": {
+          "fo1": {
+            "name": "a",
+            "modified_at": "2020-01-01",
+            "size": 10,
+            "type": "folder"
+          },
+          "f1": {
+            "name": "b",
+            "modified_at": "2020-02-01",
+            "size": 20,
+            "type": "file"
+          }
+        },
+        "entries": [
+          "f1",
+          "fo1"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "name",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "count=2\nentry=f1\nentry=fo1"
+    },
+    {
+      "input": {
+        "items": {
+          "f1": {
+            "name": "only",
+            "modified_at": "2020-01-01",
+            "size": 10,
+            "type": "file"
+          }
+        },
+        "entries": [],
+        "order": [
+          {
+            "by": "name",
+            "direction": "DESC"
+          }
+        ],
+        "sortBy": "name",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "count=0"
+    },
+    {
+      "input": {
+        "items": {
+          "f1": {
+            "name": "only",
+            "modified_at": "2020-01-01",
+            "size": 10,
+            "type": "file"
+          }
+        },
+        "entries": [
+          "f1"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "DESC"
+          }
+        ],
+        "sortBy": "size",
+        "sortDirection": "DESC"
+      },
+      "expected_output": "count=1\nentry=f1"
+    },
+    {
+      "input": {
+        "items": {
+          "fo1": {
+            "name": "a",
+            "modified_at": "2020-01-01",
+            "size": 10,
+            "type": "folder"
+          },
+          "f1": {
+            "name": "b",
+            "modified_at": "2020-02-01",
+            "size": 20,
+            "type": "file"
+          }
+        },
+        "entries": [
+          "fo1",
+          "f1"
+        ],
+        "order": [
+          {
+            "by": "created_at",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "created_at",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "count=2\nentry=fo1\nentry=f1"
+    },
+    {
+      "input": {
+        "items": {
+          "w1": {
+            "name": "link",
+            "modified_at": "2020-01-01",
+            "size": 10,
+            "type": "web_link"
+          },
+          "bad": {
+            "name": "weird",
+            "modified_at": "2020-02-01",
+            "size": 20,
+            "type": "shortcut"
+          }
+        },
+        "entries": [
+          "w1",
+          "bad"
+        ],
+        "order": [
+          {
+            "by": "name",
+            "direction": "DESC"
+          }
+        ],
+        "sortBy": "name",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "error=unsupported_item_type"
+    },
+    {
+      "input": {
+        "items": {
+          "f1": {
+            "name": "a",
+            "modified_at": "2020-01-01",
+            "size": 10,
+            "type": "file"
+          }
+        },
+        "entries": "notalist",
+        "order": [
+          {
+            "by": "name",
+            "direction": "ASC"
+          }
+        ],
+        "sortBy": "name",
+        "sortDirection": "ASC"
+      },
+      "expected_output": "error=invalid_item"
+    }
+  ]
+}

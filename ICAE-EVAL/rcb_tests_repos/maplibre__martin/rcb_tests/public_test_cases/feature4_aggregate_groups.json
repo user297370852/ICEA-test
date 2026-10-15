@@ -1,0 +1,54 @@
+{
+    "description": "Aggregate per-endpoint duration sums and request counts into named logical groups. Each group lists one or more endpoint patterns; the group total sum and total count are the arithmetic totals over its member endpoints (absent endpoints contribute zero). The average request duration is reported in milliseconds as (total sum / total count) * 1000, or 0 when the group has no requests. Groups are reported in the order given.",
+    "cases": [
+        {
+            "input": {
+                "action": "aggregate_groups",
+                "sum": {
+                    "/font/{fontstack}/{start}-{end}": 5,
+                    "/sprite/{source_ids}.json": 10,
+                    "/sprite/{source_ids}.png": 20,
+                    "/style/{style_id}": 8
+                },
+                "count": {
+                    "/font/{fontstack}/{start}-{end}": 1,
+                    "/sprite/{source_ids}.json": 2,
+                    "/sprite/{source_ids}.png": 4,
+                    "/style/{style_id}": 8
+                },
+                "groups": {
+                    "fonts": [
+                        "/font/{fontstack}/{start}-{end}"
+                    ],
+                    "missing": [
+                        "/not_present"
+                    ],
+                    "sprites": [
+                        "/sprite/{source_ids}.json",
+                        "/sprite/{source_ids}.png"
+                    ],
+                    "styles": [
+                        "/style/{style_id}"
+                    ]
+                }
+            },
+            "expected_output": "fonts avg=5000 count=1\nmissing avg=0 count=0\nsprites avg=5000 count=6\nstyles avg=1000 count=8\n"
+        },
+        {
+            "input": {
+                "action": "aggregate_groups",
+                "sum": {},
+                "count": {},
+                "groups": {
+                    "group1": [
+                        "/foo"
+                    ],
+                    "group2": [
+                        "/bar"
+                    ]
+                }
+            },
+            "expected_output": "group1 avg=0 count=0\ngroup2 avg=0 count=0\n"
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "description": "Choose an authentication method for a version-control source. URL userinfo provides basic credentials; environment variables can supply a password, a bearer token, or a private key; schemes without credentials select no authentication. The chosen method is reported as a neutral kind plus any user/secret fields.",
+    "cases": [
+        {
+            "input": {
+                "op": "select_auth",
+                "url": "file:///bare.git"
+            },
+            "expected_output": "kind=none\n"
+        },
+        {
+            "input": {
+                "op": "select_auth",
+                "url": "https://user:swordfish@example.com/foo"
+            },
+            "expected_output": "kind=basic\nuser=user\nsecret=swordfish\n"
+        },
+        {
+            "input": {
+                "op": "select_auth",
+                "url": "https://user@example.com/foo",
+                "env": {
+                    "GIT_HTTP_TOKEN": "mytoken"
+                }
+            },
+            "expected_output": "kind=token\nsecret=mytoken\n"
+        },
+        {
+            "input": {
+                "op": "select_auth",
+                "url": "ssh://git@example.com/foo",
+                "env": {
+                    "GIT_SSH_KEY": "LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUFNd0FBQUF0emMyZ3RaVwpReU5UVXhPUUFBQUNBKzNmN2hTN2c1VVd3WE9HVlRyTWZobXh5cmpxejdTeHhieDdJMWo4RHZ2d0FBQUpoQUZma09RQlg1CkRnQUFBQXR6YzJndFpXUXlOVFV4T1FBQUFDQSszZjdoUzdnNVVXd1hPR1ZUck1maG14eXJqcXo3U3h4Yng3STFqOER2dncKQUFBRUFhWW1YbHRmVzZuaFJvM2lXR2dsUkI0OGxZcTB6MFEzSTNLeXJkdXRFcjZqN2QvdUZMdURsUmJCYzRaVk9zeCtHYgpIS3VPclB0TEhGdkhzaldQd08rL0FBQUFFMmRoY25SdmJtMUFaMkZ5ZEc5dWJTMTRjSE1CQWc9PQotLS0tLUVORCBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0K"
+                }
+            },
+            "expected_output": "kind=ssh_key\nuser=git\n"
+        }
+    ]
+}

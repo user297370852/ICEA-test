@@ -1,0 +1,36 @@
+{
+    "description": "Publish an event to a topic on a named pub/sub component through a running application's sidecar. Required inputs are the publishing application id, the pub/sub component name, and the topic; each missing required input is reported as a neutral missing-field error naming the offending field (checked in the order app id, pub/sub name, topic). When listing running applications fails, a neutral list-failure error is returned. When the publishing application is not among the running applications, a neutral instance-not-found error is returned. On success the event is routed to '/v<api>/publish/<pubsub>/<topic>' with content type 'application/json'.",
+    "cases": [
+        {
+            "input": {
+                "action": "publish",
+                "app_id": "",
+                "pubsub": "test",
+                "payload": "test"
+            },
+            "expected_output": "error=missing_field\nfield=app_id\n"
+        },
+        {
+            "input": {
+                "action": "publish",
+                "app_id": "myAppID",
+                "pubsub": "testPubsubName",
+                "topic": "testTopic",
+                "payload": "test payload",
+                "list_app_id": "not my myAppID"
+            },
+            "expected_output": "error=instance_not_found\n"
+        },
+        {
+            "input": {
+                "action": "publish",
+                "app_id": "myAppID",
+                "pubsub": "testPubsubName",
+                "topic": "testTopic",
+                "payload": "test payload",
+                "list_app_id": "myAppID"
+            },
+            "expected_output": "path=/v1.0/publish/testPubsubName/testTopic\ncontent_type=application/json\n"
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+{
+  "description": "Copying a download task without overrides must reproduce every field. These cases exercise the boundary retry count (10), the maximum base-directory index (applicationLibrary=3), the allowPause+GET combination, the minimal default-populated task, and a POST task whose request method is derived from the presence of a body. The output is the canonical serialized copy.",
+  "cases": [
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "DownloadTask",
+        "copyWith": true,
+        "taskId": "cp1",
+        "url": "https://h/x",
+        "filename": "out.bin",
+        "httpRequestMethod": "GET",
+        "directory": "sub",
+        "baseDirectory": 3,
+        "group": "g",
+        "updates": 0,
+        "requiresWiFi": false,
+        "retries": 10,
+        "allowPause": true,
+        "metaData": "m",
+        "creationTime": 2000
+      },
+      "expected_output": "{\"url\":\"https://h/x\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":10,\"retriesRemaining\":10,\"creationTime\":2000,\"taskId\":\"cp1\",\"filename\":\"out.bin\",\"directory\":\"sub\",\"baseDirectory\":3,\"group\":\"g\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":true,\"metaData\":\"m\",\"taskType\":\"DownloadTask\"}\n"
+    },
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "DownloadTask",
+        "copyWith": true,
+        "taskId": "cp2",
+        "url": "u",
+        "filename": "f",
+        "creationTime": 100
+      },
+      "expected_output": "{\"url\":\"u\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":100,\"taskId\":\"cp2\",\"filename\":\"f\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":1,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\"}\n"
+    },
+    {
+      "input": {
+        "action": "build_task",
+        "taskType": "DownloadTask",
+        "copyWith": true,
+        "taskId": "cp3",
+        "url": "u3",
+        "filename": "f3",
+        "post": "body",
+        "retries": 1,
+        "creationTime": 300
+      },
+      "expected_output": "{\"url\":\"u3\",\"headers\":{},\"httpRequestMethod\":\"POST\",\"post\":\"body\",\"retries\":1,\"retriesRemaining\":1,\"creationTime\":300,\"taskId\":\"cp3\",\"filename\":\"f3\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":1,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\"}\n"
+    }
+  ]
+}

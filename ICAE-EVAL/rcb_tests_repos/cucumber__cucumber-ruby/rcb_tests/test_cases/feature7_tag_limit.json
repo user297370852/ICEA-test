@@ -1,0 +1,51 @@
+{
+  "description": "When a maximum occurrence count is set for a tag (tag:N), the run is aborted before any scenario executes if that tag appears on more than N scenarios. The neutral error reports the offending tag, the configured limit, the actual count, and the source locations of every scenario carrying the tag. Inherited feature-level tags count toward the limit for each scenario that inherits them.",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--tags",
+          "@one:1"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "error=tag_limit_exceeded\ntag=@one\nlimit=1\ncount=2\nlocation=features/test.feature:4\nlocation=features/test.feature:7\nresult=error\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--tags",
+          "@feature:1"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "error=tag_limit_exceeded\ntag=@feature\nlimit=1\ncount=4\nlocation=features/test.feature:4\nlocation=features/test.feature:7\nlocation=features/test.feature:10\nlocation=features/test.feature:13\nresult=error\n"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "description": "Enhanced namespace list refresh coverage for multiple glob patterns, empty batches, sorted output, and deletion of unseen or previously selected namespaces.",
+  "cases": [
+    {
+      "input": {
+        "action": "refresh_namespaces",
+        "patterns": [
+          "prod-*",
+          "kube-system",
+          "team?"
+        ],
+        "steps": [
+          {
+            "source": "bodies",
+            "items": [
+              {
+                "metadata": {
+                  "name": "prod-b"
+                }
+              },
+              {
+                "metadata": {
+                  "name": "team1"
+                }
+              },
+              {
+                "metadata": {
+                  "name": "prod-a"
+                }
+              },
+              {
+                "metadata": {
+                  "name": "team10"
+                }
+              },
+              {
+                "metadata": {
+                  "name": "kube-system"
+                }
+              }
+            ]
+          },
+          {
+            "source": "bodies",
+            "items": [
+              {
+                "metadata": {
+                  "name": "prod-a",
+                  "deletionTimestamp": "2026-01-01T00:00:00Z"
+                }
+              },
+              {
+                "metadata": {
+                  "name": "prod-c"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "namespaces=kube-system,prod-b,prod-c,team1\n"
+    },
+    {
+      "input": {
+        "action": "refresh_namespaces",
+        "patterns": [
+          "qa-*"
+        ],
+        "steps": [
+          {
+            "source": "bodies",
+            "items": []
+          },
+          {
+            "source": "bodies",
+            "items": [
+              {
+                "metadata": {
+                  "name": "qa-old",
+                  "deletionTimestamp": "..."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "namespaces=\n"
+    }
+  ]
+}

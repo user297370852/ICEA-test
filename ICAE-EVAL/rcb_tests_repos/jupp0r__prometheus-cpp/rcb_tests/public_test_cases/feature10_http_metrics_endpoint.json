@@ -1,0 +1,175 @@
+{
+    "description": "An HTTP endpoint exposes registered metric registries at configured paths with status, content-type, optional compression, authentication, removal, and expired-registry behavior observable through requests.",
+    "cases": [
+        {
+            "input": {
+                "feature": "http",
+                "registries": [],
+                "requests": [
+                    {
+                        "path": "/metrics",
+                        "contains": []
+                    }
+                ]
+            },
+            "expected_output": "request_path=/metrics\nstatus=404\ncontent_type=text/plain; charset=utf-8\n"
+        },
+        {
+            "input": {
+                "feature": "http",
+                "registries": [
+                    {
+                        "path": "/metrics",
+                        "counter_name": "example_total"
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/metrics",
+                        "contains": [
+                            "example_total"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "request_path=/metrics\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_example_total=yes\n"
+        },
+        {
+            "input": {
+                "feature": "http",
+                "registries": [
+                    {
+                        "path": "/first",
+                        "counter_name": "first_total"
+                    },
+                    {
+                        "path": "/second",
+                        "counter_name": "second_total"
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/first",
+                        "contains": [
+                            "first_total",
+                            "second_total"
+                        ]
+                    },
+                    {
+                        "path": "/second",
+                        "contains": [
+                            "second_total",
+                            "first_total"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "request_path=/first\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_first_total=yes\ncontains_second_total=no\nrequest_path=/second\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_second_total=yes\ncontains_first_total=no\n"
+        },
+        {
+            "input": {
+                "feature": "http",
+                "registries": [
+                    {
+                        "path": "/metrics",
+                        "counter_name": "some_counter_total"
+                    }
+                ],
+                "remove_registry_indexes": [
+                    {
+                        "index": 0,
+                        "path": "/metrics"
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/metrics",
+                        "contains": [
+                            "some_counter_total"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "request_path=/metrics\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_some_counter_total=no\n"
+        },
+        {
+            "input": {
+                "feature": "http",
+                "registries": [
+                    {
+                        "path": "/metrics",
+                        "counter_name": "example_total"
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/metrics",
+                        "accept_compression": true,
+                        "contains": [
+                            "example_total"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "request_path=/metrics\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_example_total=yes\n"
+        },
+        {
+            "input": {
+                "feature": "http",
+                "registries": [
+                    {
+                        "path": "/metrics",
+                        "counter_name": "example_total"
+                    }
+                ],
+                "auth": [
+                    {
+                        "path": "/metrics",
+                        "username": "test_user",
+                        "password": "test_password",
+                        "realm": "Some Auth Realm"
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/metrics",
+                        "username": "test_user",
+                        "password": "test_password",
+                        "contains": [
+                            "example_total"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "request_path=/metrics\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_example_total=yes\n"
+        },
+        {
+            "input": {
+                "feature": "http",
+                "registries": [
+                    {
+                        "path": "/metrics",
+                        "counter_name": "first_total"
+                    },
+                    {
+                        "path": "/metrics",
+                        "counter_name": "second_total"
+                    }
+                ],
+                "drop_registry_indexes": [
+                    1
+                ],
+                "requests": [
+                    {
+                        "path": "/metrics",
+                        "contains": [
+                            "first_total",
+                            "second_total"
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "request_path=/metrics\nstatus=200\ncontent_type=text/plain; charset=utf-8\ncontains_first_total=yes\ncontains_second_total=no\n"
+        }
+    ]
+}

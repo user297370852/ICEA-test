@@ -1,0 +1,46 @@
+{
+    "description": "Stopping observation with the plain cancel operation halts further collection but retains any events already received. If those retained events are never consumed before the observation block ends, it fails with the same neutral 'unconsumed events' violation listing the leftovers. Here one item is read first, then observation is cancelled, leaving exactly one more event of each kind unconsumed across the cases.",
+    "cases": [
+        {
+            "input": {
+                "emissions": [
+                    "one",
+                    "two"
+                ],
+                "terminal": "never",
+                "ops": [
+                    "take_item",
+                    "stop"
+                ]
+            },
+            "expected_output": "item=one\nerror=unconsumed_events\nunconsumed=item:two\n"
+        },
+        {
+            "input": {
+                "emissions": [
+                    "one"
+                ],
+                "terminal": "complete",
+                "ops": [
+                    "take_item",
+                    "stop"
+                ]
+            },
+            "expected_output": "item=one\nerror=unconsumed_events\nunconsumed=complete\n"
+        },
+        {
+            "input": {
+                "emissions": [
+                    "one"
+                ],
+                "terminal": "error",
+                "errorLabel": "boom",
+                "ops": [
+                    "take_item",
+                    "stop"
+                ]
+            },
+            "expected_output": "item=one\nerror=unconsumed_events\nunconsumed=error:boom\n"
+        }
+    ]
+}

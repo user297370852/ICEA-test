@@ -1,0 +1,54 @@
+{
+    "description": "Adds per-event marker label fields to the rendered stream so records with different marker labels are grouped separately.",
+    "cases": [
+        {
+            "input": {
+                "operation": "marker_labels",
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1",
+                        "marker_labels": {
+                            "stcmrk": "stat-val"
+                        }
+                    },
+                    {
+                        "timestamp_ms": 103,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 2",
+                        "marker_labels": {
+                            "mrk": "mrk-val"
+                        }
+                    },
+                    {
+                        "timestamp_ms": 105,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 3",
+                        "marker_labels": {
+                            "stcmrk": "stat-val"
+                        }
+                    },
+                    {
+                        "timestamp_ms": 104,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 4",
+                        "marker_labels": {
+                            "mrk1": "v1",
+                            "mrk2": "v2"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "stream=[l, INFO, mrk, mrk-val]\nrecord=ts=103 INFO | Test message 2\nstream=[l, INFO, stcmrk, stat-val]\nrecord=ts=100 INFO | Test message 1\nrecord=ts=105 INFO | Test message 3\nstream=[l, INFO, mrk1, v1, mrk2, v2]\nrecord=ts=104 INFO | Test message 4\n"
+        }
+    ]
+}

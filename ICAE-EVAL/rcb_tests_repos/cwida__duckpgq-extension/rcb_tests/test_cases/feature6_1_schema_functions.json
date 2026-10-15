@@ -1,0 +1,57 @@
+{
+    "description": "Table-valued functions expose a defined graph's schema: the set of vertex table names, the set of edge table names, and the property column names for a named vertex or edge table. Each returns one row per name.",
+    "cases": [
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, id BIGINT)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17),(2,4,18)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (id) LABEL Knows)"
+                ],
+                "query": "SELECT * from get_pg_vtablenames('pg')"
+            },
+            "expected_output": "Student\n"
+        },
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, id BIGINT)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17),(2,4,18)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (id) LABEL Knows)"
+                ],
+                "query": "SELECT * from get_pg_etablenames('pg')"
+            },
+            "expected_output": "know\n"
+        },
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, id BIGINT)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17),(2,4,18)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (id) LABEL Knows)"
+                ],
+                "query": "SELECT * from get_pg_vcolnames('pg', 'Student')"
+            },
+            "expected_output": "id\nname\n"
+        },
+        {
+            "input": {
+                "setup": [
+                    "CREATE TABLE Student(id BIGINT, name VARCHAR)",
+                    "CREATE TABLE know(src BIGINT, dst BIGINT, id BIGINT)",
+                    "INSERT INTO Student VALUES (0,'Daniel'),(1,'Tavneet'),(2,'Gabor'),(3,'Peter'),(4,'David')",
+                    "INSERT INTO know VALUES (0,1,10),(0,2,11),(0,3,12),(3,0,13),(1,2,14),(1,3,15),(2,3,16),(4,3,17),(2,4,18)",
+                    "CREATE PROPERTY GRAPH pg VERTEX TABLES (Student PROPERTIES (id,name) LABEL Person) EDGE TABLES (know SOURCE KEY (src) REFERENCES Student (id) DESTINATION KEY (dst) REFERENCES Student (id) PROPERTIES (id) LABEL Knows)"
+                ],
+                "query": "SELECT * from get_pg_ecolnames('pg', 'know')"
+            },
+            "expected_output": "id\n"
+        }
+    ]
+}

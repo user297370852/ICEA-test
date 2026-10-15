@@ -1,0 +1,56 @@
+{
+  "description": "Run a set of plain-language scenarios where each step declares its own outcome, and report the per-scenario classification plus aggregate tallies. A scenario's classification is the worst of its step outcomes, with precedence failed > undefined > pending > skipped > passed. A step whose phrase matches no definition is 'undefined'; a step that signals it is not yet implemented is 'pending'; a step that raises is 'failed'. The final 'result' line is the run-level category: 'ok' when nothing failed, 'failed' when at least one scenario failed or (in plain mode) every step still ran, 'error' for configuration errors.",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          },
+          {
+            "pattern": "^this step fails$",
+            "outcome": "fail",
+            "message": "boom"
+          },
+          {
+            "pattern": "^this step is pending$",
+            "outcome": "pending"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@a\nFeature: Sample\n  @b\n  Scenario: P\n    Given this step passes\n  @c\n  Scenario: F\n    Given this step fails\n  Scenario: U\n    Given this step is undefined\n  Scenario: D\n    Given this step is pending\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=4 passed=1 failed=1 undefined=1 pending=1 skipped=0\nsteps total=4 passed=1 failed=1 undefined=1 pending=1 skipped=0\nscenario keyword=Scenario name=P line=4 status=passed\nscenario keyword=Scenario name=F line=7 status=failed\nscenario keyword=Scenario name=U line=9 status=undefined\nscenario keyword=Scenario name=D line=11 status=pending\nresult=failed\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Sample\n  Scenario: Passing\n    Given this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nsteps total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Passing line=2 status=passed\nresult=ok\n"
+    }
+  ]
+}

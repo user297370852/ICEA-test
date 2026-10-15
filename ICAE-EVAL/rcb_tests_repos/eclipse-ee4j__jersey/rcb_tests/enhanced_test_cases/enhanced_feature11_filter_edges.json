@@ -1,0 +1,58 @@
+{
+  "description": "Edge cases for the once-per-response filter: the filter count is reported as 1 on different endpoints (reverse, singleton echo) and across two requests in one sequence.",
+  "cases": [
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "reverse",
+            "query": {
+              "s": "abc"
+            },
+            "report_filter": true
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/reverse?s=abc\nbody=cba\nfilter_invoked_count=1"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/singleton/alpha",
+            "query": {
+              "x": "beta"
+            },
+            "report_filter": true
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/singleton/alpha?x=beta\nbody=http://localhost:9998/main/jcdibean/singleton/alpha?x=beta: p=alpha, queryParam=beta\nfilter_invoked_count=1"
+    },
+    {
+      "input": {
+        "requests": [
+          {
+            "app": "main",
+            "path": "jcdibean/per-request",
+            "query": {
+              "x": "p1"
+            },
+            "report_filter": true
+          },
+          {
+            "app": "main",
+            "path": "jcdibean/per-request",
+            "query": {
+              "x": "p2"
+            },
+            "report_filter": true
+          }
+        ]
+      },
+      "expected_output": "status=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=p1\nbody=http://localhost:9998/main/jcdibean/per-request?x=p1: queryParam=p1 0\nfilter_invoked_count=1\n\nstatus=200\nurl=http://localhost:9998/main/jcdibean/per-request?x=p2\nbody=http://localhost:9998/main/jcdibean/per-request?x=p2: queryParam=p2 0\nfilter_invoked_count=1"
+    }
+  ]
+}

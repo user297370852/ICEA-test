@@ -1,0 +1,21 @@
+{
+  "description": "Numeric value parsing. Integer-typed options accept decimal (including negative and leading-zero forms) and hexadecimal (0x-prefixed) notations, normalizing them to their numeric value. Signed and unsigned widths are bounds-checked: values at the boundary parse, while values outside the representable range, negative values for unsigned types, and non-numeric tokens are rejected as incorrect_argument_type. Floating-point options accept decimal and scientific notation including negatives.",
+  "cases": [
+    {
+      "input": {"program": "ints", "options": [{"opts": "positional", "type": "vec_int"}], "positional": ["positional"], "argv": ["--", "5", "6", "-6", "0", "0xab", "0xAf", "0x0"], "queries": [{"q": "value", "name": "positional", "type": "vec_int"}]},
+      "expected_output": "value[positional]=[5,6,-6,0,171,175,0]"
+    },
+    {
+      "input": {"program": "ints", "options": [{"opts": "positional", "type": "vec_int8"}], "positional": ["positional"], "argv": ["--", "128"], "queries": []},
+      "expected_output": "error=incorrect_argument_type\nparam=128"
+    },
+    {
+      "input": {"program": "ints", "options": [{"opts": "positional", "type": "vec_uint"}], "positional": ["positional"], "argv": ["--", "-2"], "queries": []},
+      "expected_output": "error=incorrect_argument_type\nparam=-2"
+    },
+    {
+      "input": {"program": "floats", "options": [{"opts": "double", "type": "double"}, {"opts": "positional", "type": "vec_float"}], "positional": ["positional"], "argv": ["--double", "0.5", "--", "4", "-4", "1.5e6", "-1.5e6"], "queries": [{"q": "value", "name": "double", "type": "double"}, {"q": "value", "name": "positional", "type": "vec_float"}]},
+      "expected_output": "value[double]=0.5\nvalue[positional]=[4,-4,1.5e+06,-1.5e+06]"
+    }
+  ]
+}

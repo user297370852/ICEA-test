@@ -1,0 +1,29 @@
+{
+    "description": "Wrapping a base data-access driver in a logging decorator and issuing one or more write statements. Each forwarded write emits a log entry naming the write operation followed by the SQL text; when bound parameter values are supplied for that statement, an additional log entry lists those bound values in binding order. A write whose parameter-binding step binds nothing emits only the operation/SQL entry and no value entry. Every emitted log line is written to standard output in the order produced.",
+    "cases": [
+        {
+            "input": {
+                "commands": [
+                    {
+                        "op": "execute",
+                        "identifier": 2,
+                        "sql": "INSERT INTO test VALUES (?, ?);",
+                        "parameters": 2,
+                        "binders": [
+                            {"bind": "long", "index": 1, "value": 1},
+                            {"bind": "string", "index": 2, "value": "Alec"}
+                        ]
+                    },
+                    {
+                        "op": "execute",
+                        "identifier": 2,
+                        "sql": "INSERT INTO test VALUES (?, ?);",
+                        "parameters": 2,
+                        "binders": []
+                    }
+                ]
+            },
+            "expected_output": "EXECUTE\n INSERT INTO test VALUES (?, ?);\n [1, Alec]\nEXECUTE\n INSERT INTO test VALUES (?, ?);\n"
+        }
+    ]
+}

@@ -1,0 +1,76 @@
+{
+  "description": "The local filesystem backend can enumerate every file under the root as a flat list of root-relative paths, optionally filtered by a path prefix. With an empty prefix it returns all files anywhere beneath the root. A prefix restricts the listing to paths that begin with that prefix. A prefix that matches nothing yields an empty list. Each case drives a fresh, empty root, optionally writes some files, then lists them as a sorted comma-separated list.",
+  "cases": [
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "z.txt",
+            "content": "x"
+          },
+          {
+            "action": "put",
+            "location": "a.txt",
+            "content": "x"
+          },
+          {
+            "action": "put",
+            "location": "m.txt",
+            "content": "x"
+          },
+          {
+            "action": "flatList",
+            "prefix": ""
+          }
+        ]
+      },
+      "expected_output": "put=z.txt\nput=a.txt\nput=m.txt\nfiles=a.txt,m.txt,z.txt\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "docs/a",
+            "content": "x"
+          },
+          {
+            "action": "put",
+            "location": "docs/b",
+            "content": "x"
+          },
+          {
+            "action": "put",
+            "location": "img/c",
+            "content": "x"
+          },
+          {
+            "action": "flatList",
+            "prefix": "docs"
+          }
+        ]
+      },
+      "expected_output": "put=docs/a\nput=docs/b\nput=img/c\nfiles=docs/a,docs/b\n"
+    },
+    {
+      "input": {
+        "op": "local_fs",
+        "steps": [
+          {
+            "action": "put",
+            "location": "data/file1",
+            "content": "x"
+          },
+          {
+            "action": "flatList",
+            "prefix": "nomatch"
+          }
+        ]
+      },
+      "expected_output": "put=data/file1\nfiles=\n"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "description": "An incoming cookie whose path or domain does not match the request is not presented to the handler; the handler starts from an empty session and the re-emitted cookie carries only the newly added data, still scoped to the configured path and domain.",
+  "cases": [
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "simple",
+          "max_age": 10,
+          "path": "/anotherpath",
+          "domain": "127.0.0.1"
+        },
+        "scenario": "change",
+        "path": "/anotherpath",
+        "incoming": {
+          "data": {
+            "a": 1,
+            "b": 2
+          },
+          "path": "/NotTheSame",
+          "domain": "127.0.0.1"
+        }
+      },
+      "expected_output": "status=200\nloaded.new=true\nloaded.empty=true\nloaded.contents={}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=true\ncookie.path=/anotherpath\ncookie.domain=127.0.0.1\ncookie.max_age=10\ncookie.expires=Sun, 09-Sep-2001 01:46:50 GMT\npayload.created=1000000000\npayload.session={\"c\": 3}\n"
+    },
+    {
+      "input": {
+        "op": "http",
+        "storage": {
+          "type": "simple",
+          "max_age": 10,
+          "path": "/anotherpath",
+          "domain": "127.0.0.1"
+        },
+        "scenario": "change",
+        "path": "/anotherpath",
+        "incoming": {
+          "data": {
+            "a": 1,
+            "b": 2
+          },
+          "path": "/anotherpath",
+          "domain": "localhost"
+        }
+      },
+      "expected_output": "status=200\nloaded.new=true\nloaded.empty=true\nloaded.contents={}\nset_cookie=present\ncookie.cleared=false\ncookie.httponly=true\ncookie.path=/anotherpath\ncookie.domain=127.0.0.1\ncookie.max_age=10\ncookie.expires=Sun, 09-Sep-2001 01:46:50 GMT\npayload.created=1000000000\npayload.session={\"c\": 3}\n"
+    }
+  ]
+}

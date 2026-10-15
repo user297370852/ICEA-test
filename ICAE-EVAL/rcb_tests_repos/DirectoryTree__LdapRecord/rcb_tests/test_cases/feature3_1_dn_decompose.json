@@ -1,0 +1,54 @@
+{
+    "description": "Decompose a distinguished name into its parts. The output reports, as JSON arrays: the components (each \"attribute=value\" pair, with values still escaped), the relative distinguished names, the bare values in order, a list of [attribute, value] pairs, and an associative grouping mapping each lowercased attribute to the list of its values (case-insensitive merge). It also reports four scalar views: the value of the first (leftmost) pair, the attribute name of the first pair, the leftmost component as a string, and the parent (everything except the leftmost component). A malformed or non-distinguished-name input yields empty collections and empty scalar views.",
+    "cases": [
+        {
+            "input": {
+                "op": "dn_parts",
+                "value": "cn=John Doe,ou=foo,dc=bar,dc=baz"
+            },
+            "expected_output": "components=[\"cn=John Doe\",\"ou=foo\",\"dc=bar\",\"dc=baz\"]\nrdns=[\"cn=John Doe\",\"ou=foo\",\"dc=bar\",\"dc=baz\"]\nvalues=[\"John Doe\",\"foo\",\"bar\",\"baz\"]\nmulti=[[\"cn\",\"John Doe\"],[\"ou\",\"foo\"],[\"dc\",\"bar\"],[\"dc\",\"baz\"]]\nassoc={\"cn\":[\"John Doe\"],\"ou\":[\"foo\"],\"dc\":[\"bar\",\"baz\"]}\nname=John Doe\nhead=cn\nrelative=cn=John Doe\nparent=ou=foo,dc=bar,dc=baz\n"
+        },
+        {
+            "input": {
+                "op": "dn_parts",
+                "value": "cn=foo,dc=bar,DC=baz"
+            },
+            "expected_output": "components=[\"cn=foo\",\"dc=bar\",\"DC=baz\"]\nrdns=[\"cn=foo\",\"dc=bar\",\"DC=baz\"]\nvalues=[\"foo\",\"bar\",\"baz\"]\nmulti=[[\"cn\",\"foo\"],[\"dc\",\"bar\"],[\"DC\",\"baz\"]]\nassoc={\"cn\":[\"foo\"],\"dc\":[\"bar\",\"baz\"]}\nname=foo\nhead=cn\nrelative=cn=foo\nparent=dc=bar,DC=baz\n"
+        },
+        {
+            "input": {
+                "op": "dn_parts",
+                "value": "foo=bar,foo=bar,foo=bar"
+            },
+            "expected_output": "components=[\"foo=bar\",\"foo=bar\",\"foo=bar\"]\nrdns=[\"foo=bar\",\"foo=bar\",\"foo=bar\"]\nvalues=[\"bar\",\"bar\",\"bar\"]\nmulti=[[\"foo\",\"bar\"],[\"foo\",\"bar\"],[\"foo\",\"bar\"]]\nassoc={\"foo\":[\"bar\",\"bar\",\"bar\"]}\nname=bar\nhead=foo\nrelative=foo=bar\nparent=foo=bar,foo=bar\n"
+        },
+        {
+            "input": {
+                "op": "dn_parts",
+                "value": "cn=John"
+            },
+            "expected_output": "components=[\"cn=John\"]\nrdns=[\"cn=John\"]\nvalues=[\"John\"]\nmulti=[[\"cn\",\"John\"]]\nassoc={\"cn\":[\"John\"]}\nname=John\nhead=cn\nrelative=cn=John\nparent=\n"
+        },
+        {
+            "input": {
+                "op": "dn_parts",
+                "value": "cn=foo\\,bar"
+            },
+            "expected_output": "components=[\"cn=foo\\\\2cbar\"]\nrdns=[\"cn=foo\\\\2Cbar\"]\nvalues=[\"foo,bar\"]\nmulti=[[\"cn\",\"foo\\\\2Cbar\"]]\nassoc={\"cn\":[\"foo\\\\2Cbar\"]}\nname=foo,bar\nhead=cn\nrelative=cn=foo\\2cbar\nparent=\n"
+        },
+        {
+            "input": {
+                "op": "dn_parts",
+                "value": "invalid"
+            },
+            "expected_output": "components=[]\nrdns=[]\nvalues=[]\nmulti=[]\nassoc=[]\nname=\nhead=\nrelative=\nparent=\n"
+        },
+        {
+            "input": {
+                "op": "dn_parts",
+                "value": null
+            },
+            "expected_output": "components=[]\nrdns=[]\nvalues=[]\nmulti=[]\nassoc=[]\nname=\nhead=\nrelative=\nparent=\n"
+        }
+    ]
+}

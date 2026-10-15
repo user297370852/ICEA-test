@@ -1,0 +1,107 @@
+{
+    "description": "Encode the namespace-connection frame. Under protocol v3 the default namespace produces no frame (none is sent), while a named namespace yields a connect frame that carries the namespace and, optionally, the connection query string. Under protocol v4 the default namespace always produces a connect frame, an auth object is serialized inline as JSON, and connection queries are not embedded in this frame.",
+    "cases": [
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 3,
+                "namespace": null,
+                "auth": null,
+                "query": null
+            },
+            "expected_output": "frame=null\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 3,
+                "namespace": null,
+                "auth": {
+                    "userId": 1
+                },
+                "query": {
+                    "hello": "world"
+                }
+            },
+            "expected_output": "frame=null\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 3,
+                "namespace": "/test",
+                "auth": null,
+                "query": null
+            },
+            "expected_output": "frame=40/test,\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 3,
+                "namespace": "/test",
+                "auth": null,
+                "query": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "frame=40/test?key=value,\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 4,
+                "namespace": null,
+                "auth": null,
+                "query": null
+            },
+            "expected_output": "frame=40\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 4,
+                "namespace": "/test",
+                "auth": null,
+                "query": null
+            },
+            "expected_output": "frame=40/test,\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 4,
+                "namespace": null,
+                "auth": {
+                    "userId": 1
+                },
+                "query": null
+            },
+            "expected_output": "frame=40{\"userId\":1}\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 4,
+                "namespace": "/test",
+                "auth": {
+                    "userId": 1
+                },
+                "query": null
+            },
+            "expected_output": "frame=40/test,{\"userId\":1}\n"
+        },
+        {
+            "input": {
+                "op": "encode_connect",
+                "eio": 4,
+                "namespace": null,
+                "auth": null,
+                "query": {
+                    "key": "value"
+                }
+            },
+            "expected_output": "frame=40\n"
+        }
+    ]
+}

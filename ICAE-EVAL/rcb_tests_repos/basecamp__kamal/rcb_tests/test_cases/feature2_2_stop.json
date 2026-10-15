@@ -1,0 +1,26 @@
+{
+    "description": "Generate the docker command that stops a running container. By default it finds the latest running container by service/role labels and pipes its id to docker stop. An optional graceful stop-wait-time appends a timeout flag. Supplying an explicit version instead targets the exact container name rather than the latest running one.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "stop"
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker stop"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}, "stop_wait_time": 30},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "stop"
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker stop -t 30"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "stop", "args": {"version": "123"}
+            },
+            "expected_output": "docker container ls --all --filter name=^app-web-123$ --quiet | xargs docker stop"
+        }
+    ]
+}

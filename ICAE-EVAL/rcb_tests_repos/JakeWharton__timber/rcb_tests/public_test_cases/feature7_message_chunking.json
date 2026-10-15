@@ -1,0 +1,17 @@
+{
+    "description": "A destination that writes to a sink with a per-write length limit splits long messages so that no single write exceeds the limit. The text is first split on newline boundaries, and each resulting line that is longer than the maximum write length is further broken into successive pieces of at most the maximum length. A message short enough to fit in one write is emitted unsplit; a message that exceeds the threshold (overall) is chunked. The input describes a message built from runs of repeated characters separated by newlines; the output reports each emitted chunk's severity, tag, length, and leading character (identifying which run it came from).",
+    "cases": [
+        {
+            "input": {
+                "action": "chunk",
+                "tag": "T",
+                "parts": [
+                    {"char": "a", "count": 3000},
+                    {"char": "b", "count": 6000},
+                    {"char": "c", "count": 3000}
+                ]
+            },
+            "expected_output": "priority=3 tag=T len=3000 char=a\npriority=3 tag=T len=4000 char=b\npriority=3 tag=T len=2000 char=b\npriority=3 tag=T len=3000 char=c\n"
+        }
+    ]
+}

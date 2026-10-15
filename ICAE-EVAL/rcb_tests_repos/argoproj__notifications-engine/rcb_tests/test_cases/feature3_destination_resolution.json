@@ -1,0 +1,38 @@
+{
+    "description": "Resolve notification destinations from subscription annotations. Subscriptions are expressed as annotation keys of the form '<prefix>/subscribe.<trigger>.<service>' whose value is the recipient. The resolver expands every subscription into a mapping from trigger name to a list of (service, recipient) destinations, applying these rules: when a subscription names an explicit trigger, that trigger is used verbatim and any default triggers are ignored; when a subscription omits the trigger (key shaped as '<prefix>/subscribe.<service>'), the destination is attached to each of the caller-supplied default triggers, unless a per-service default trigger list is provided for that service, in which case those service-specific triggers are used instead. Each resulting destination is emitted as a line 'trigger=<t> service=<s> recipient=<r>', ordered by trigger then by service and recipient.",
+    "cases": [
+        {
+            "input": {
+                "action": "get_destinations",
+                "annotations": {"notifications.argoproj.io/subscribe.my-trigger.slack": "my-channel"},
+                "defaultTriggers": []
+            },
+            "expected_output": "trigger=my-trigger service=slack recipient=my-channel\n"
+        },
+        {
+            "input": {
+                "action": "get_destinations",
+                "annotations": {"notifications.argoproj.io/subscribe.my-trigger.slack": "my-channel"},
+                "defaultTriggers": ["trigger-a", "trigger-b", "trigger-c"]
+            },
+            "expected_output": "trigger=my-trigger service=slack recipient=my-channel\n"
+        },
+        {
+            "input": {
+                "action": "get_destinations",
+                "annotations": {"notifications.argoproj.io/subscribe.slack": "my-channel"},
+                "defaultTriggers": ["trigger-a", "trigger-b", "trigger-c"]
+            },
+            "expected_output": "trigger=trigger-a service=slack recipient=my-channel\ntrigger=trigger-b service=slack recipient=my-channel\ntrigger=trigger-c service=slack recipient=my-channel\n"
+        },
+        {
+            "input": {
+                "action": "get_destinations",
+                "annotations": {"notifications.argoproj.io/subscribe.slack": "my-channel"},
+                "defaultTriggers": ["trigger-a", "trigger-b", "trigger-c"],
+                "serviceDefaultTriggers": {"slack": ["trigger-d", "trigger-e"]}
+            },
+            "expected_output": "trigger=trigger-d service=slack recipient=my-channel\ntrigger=trigger-e service=slack recipient=my-channel\n"
+        }
+    ]
+}

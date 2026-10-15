@@ -1,0 +1,33 @@
+{
+    "description": "Parse a SAML2 protocol response XML element. The minimal shape requires ID, Version and IssueInstant attributes and a Status element containing a StatusCode with a Value; these are surfaced as id/version/issueInstant/status.statusCode together with a count of contained assertions. When a mandatory attribute is absent the result is a missing-attribute error; when the Status element, its StatusCode child, or the StatusCode Value is absent the result is a missing-element or missing-attribute error.",
+    "cases": [
+        {
+            "input": {
+                "action": "read_response",
+                "xml": "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"x123\" Version=\"2.0\" IssueInstant=\"2023-10-14T13:46:32Z\"><samlp:Status><samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Requester\" /></samlp:Status></samlp:Response>"
+            },
+            "expected_output": "id=x123\nversion=2.0\nissueInstant=2023-10-14T13:46:32Z\nstatus.statusCode=urn:oasis:names:tc:SAML:2.0:status:Requester\nassertionCount=0\n"
+        },
+        {
+            "input": {
+                "action": "read_response",
+                "xml": "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" Version=\"2.0\" IssueInstant=\"2023-10-14T13:46:32Z\"><samlp:Status><samlp:StatusCode Value=\"urn:oasis:names:tc:SAML:2.0:status:Requester\" /></samlp:Status></samlp:Response>"
+            },
+            "expected_output": "error=missing_attribute\n"
+        },
+        {
+            "input": {
+                "action": "read_response",
+                "xml": "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"x123\" Version=\"2.0\" IssueInstant=\"2023-10-14T13:46:32Z\"></samlp:Response>"
+            },
+            "expected_output": "error=missing_element\n"
+        },
+        {
+            "input": {
+                "action": "read_response",
+                "xml": "<samlp:Response xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"x123\" Version=\"2.0\" IssueInstant=\"2023-10-14T13:46:32Z\"><samlp:Status></samlp:Status></samlp:Response>"
+            },
+            "expected_output": "error=missing_element\n"
+        }
+    ]
+}

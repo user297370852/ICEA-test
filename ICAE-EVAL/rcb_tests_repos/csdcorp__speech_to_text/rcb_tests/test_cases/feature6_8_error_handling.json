@@ -1,0 +1,135 @@
+{
+    "description": "An error delivered by the platform during an active session is forwarded to the registered error callback. A transient error does not stop the session. A permanent error stops the session ONLY when the session was started with cancel-on-error enabled; otherwise the session keeps listening. Once the session has been explicitly cancelled by the user, a subsequently delivered error is suppressed (not forwarded). When cancel-on-error triggers an implicit cancel, a further delivered error is still forwarded. The output reports each forwarded error (identifier and permanence) interleaved with state snapshots as specified by the steps.",
+    "cases": [
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize",
+                        "onError": true
+                    },
+                    {
+                        "do": "listen"
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "error",
+                        "payload": "{\"errorMsg\":\"network\",\"permanent\":false}"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nerror msg=network permanent=false\nlistening=true recognized=false available=true has_error=true last_recognized= last_status=listening last_level=0.0\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize",
+                        "onError": true
+                    },
+                    {
+                        "do": "listen"
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "error",
+                        "payload": "{\"errorMsg\":\"network\",\"permanent\":true}"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nerror msg=network permanent=true\nlistening=true recognized=false available=true has_error=true last_recognized= last_status=listening last_level=0.0\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize",
+                        "onError": true
+                    },
+                    {
+                        "do": "listen",
+                        "cancelOnError": true
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "error",
+                        "payload": "{\"errorMsg\":\"network\",\"permanent\":true}"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nerror msg=network permanent=true\nlistening=false recognized=false available=true has_error=true last_recognized= last_status=listening last_level=0.0\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize",
+                        "onError": true
+                    },
+                    {
+                        "do": "listen"
+                    },
+                    {
+                        "do": "cancel"
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "error",
+                        "payload": "{\"errorMsg\":\"network\",\"permanent\":true}"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\ncancel invoked=true\nlistening=false recognized=false available=true has_error=false last_recognized= last_status=listening last_level=0.0\n"
+        },
+        {
+            "input": {
+                "op": "session",
+                "config": {},
+                "steps": [
+                    {
+                        "do": "initialize",
+                        "onError": true
+                    },
+                    {
+                        "do": "listen",
+                        "cancelOnError": true
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "error",
+                        "payload": "{\"errorMsg\":\"network\",\"permanent\":true}"
+                    },
+                    {
+                        "do": "deliver",
+                        "method": "error",
+                        "payload": "{\"errorMsg\":\"network\",\"permanent\":true}"
+                    },
+                    {
+                        "do": "state"
+                    }
+                ]
+            },
+            "expected_output": "init result=true invoked=true\nlisten invoked=true locale=none\nerror msg=network permanent=true\nerror msg=network permanent=true\nlistening=false recognized=false available=true has_error=true last_recognized= last_status=listening last_level=0.0\n"
+        }
+    ]
+}

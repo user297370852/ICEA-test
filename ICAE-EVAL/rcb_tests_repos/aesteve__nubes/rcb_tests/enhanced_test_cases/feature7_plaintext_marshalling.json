@@ -1,0 +1,71 @@
+{
+  "description": "Enhanced boundary coverage for plain-text payload marshalling: an empty text body, text containing a colon (which must not be confused with the status separator), explicit status outcomes for additional codes including an empty status message, and non-text payloads of several JSON kinds (boolean, object, array) which cannot be represented as plain text and are rejected with the neutral unmarshallable_text category.",
+  "cases": [
+    {
+      "input": {
+        "op": "marshal_text",
+        "value": ""
+      },
+      "expected_output": "media_type=text/plain\nbody=\n"
+    },
+    {
+      "input": {
+        "op": "marshal_text",
+        "value": "key: value : pair"
+      },
+      "expected_output": "media_type=text/plain\nbody=key: value : pair\n"
+    },
+    {
+      "input": {
+        "op": "marshal_text",
+        "mode": "status",
+        "code": 200,
+        "message": "OK"
+      },
+      "expected_output": "media_type=text/plain\nstatus=200\nbody=200 : OK\n"
+    },
+    {
+      "input": {
+        "op": "marshal_text",
+        "mode": "status",
+        "code": 404,
+        "message": "Not Found"
+      },
+      "expected_output": "media_type=text/plain\nstatus=404\nbody=404 : Not Found\n"
+    },
+    {
+      "input": {
+        "op": "marshal_text",
+        "mode": "status",
+        "code": 500
+      },
+      "expected_output": "media_type=text/plain\nstatus=500\nbody=500 : \n"
+    },
+    {
+      "input": {
+        "op": "marshal_text",
+        "value": true
+      },
+      "expected_output": "error=unmarshallable_text\n"
+    },
+    {
+      "input": {
+        "op": "marshal_text",
+        "value": {
+          "a": 1
+        }
+      },
+      "expected_output": "error=unmarshallable_text\n"
+    },
+    {
+      "input": {
+        "op": "marshal_text",
+        "value": [
+          1,
+          2
+        ]
+      },
+      "expected_output": "error=unmarshallable_text\n"
+    }
+  ]
+}

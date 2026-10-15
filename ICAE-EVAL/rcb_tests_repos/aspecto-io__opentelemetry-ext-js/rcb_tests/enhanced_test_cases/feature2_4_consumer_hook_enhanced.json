@@ -1,0 +1,63 @@
+{
+  "description": "Enhanced consumer-enrichment coverage on batch delivery: a copy-to-attribute consumer hook decorates the consumer spans created for a batch, and a throwing consumer hook never prevents the batch spans from being created or the delivery from succeeding.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "consumerHook": {
+            "action": "copy_value_to_attribute",
+            "attribute": "hooked"
+          }
+        },
+        "steps": [
+          {
+            "action": "consume_batch",
+            "topic": "topic-name-1",
+            "partition": 0,
+            "messages": [
+              {
+                "value": "v1",
+                "offset": "1"
+              },
+              {
+                "value": "v2",
+                "offset": "2"
+              }
+            ],
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_batch topic=topic-name-1 delivered=ok error=none\nspans=3\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n  hooked=v1\nspan 2 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n  hooked=v2\n"
+    },
+    {
+      "input": {
+        "config": {
+          "consumerHook": {
+            "action": "throw",
+            "message": "error thrown from consumer hook"
+          }
+        },
+        "steps": [
+          {
+            "action": "consume_batch",
+            "topic": "topic-name-1",
+            "partition": 0,
+            "messages": [
+              {
+                "value": "v1",
+                "offset": "1"
+              }
+            ],
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "consume_batch topic=topic-name-1 delivered=ok error=none\nspans=2\nspan 0 kind=consumer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=receive\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    }
+  ]
+}

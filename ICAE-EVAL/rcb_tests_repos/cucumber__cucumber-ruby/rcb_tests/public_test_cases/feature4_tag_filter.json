@@ -1,0 +1,74 @@
+{
+  "description": "Scenarios can be selected by boolean logic over their tags. A tag expression supports 'and', 'or', and 'not' over tag names; tags placed on a feature are inherited by all its scenarios. Only the scenarios whose tags satisfy the expression are run and reported. AND keeps scenarios carrying every named tag; OR keeps scenarios carrying any; NOT excludes scenarios carrying the named tag.",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "-t",
+          "@one and @three"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nsteps total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Example line=4 status=passed\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "-t",
+          "@one or @three"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=3 passed=3 failed=0 undefined=0 pending=0 skipped=0\nsteps total=3 passed=3 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Example line=4 status=passed\nscenario keyword=Scenario name=Another line=7 status=passed\nscenario keyword=Scenario name=Yet line=10 status=passed\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "-t",
+          "not @three"
+        ],
+        "steps": [
+          {
+            "pattern": "^passing$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "@feature\nFeature: Sample\n  @one @three\n  Scenario: Example\n    Given passing\n  @one\n  Scenario: Another\n    Given passing\n  @three\n  Scenario: Yet\n    Given passing\n  @ignore\n  Scenario: And\n    Given passing\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nsteps total=2 passed=2 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Another line=7 status=passed\nscenario keyword=Scenario name=And line=13 status=passed\nresult=ok\n"
+    }
+  ]
+}

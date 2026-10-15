@@ -1,0 +1,65 @@
+{
+  "description": "Start the metrics-collection component after provisioning over additional boundary configurations. When collection is disabled, starting is a no-op that succeeds immediately and the configured interval is irrelevant. When collection is enabled, the component begins periodically sampling each gathered metric using the configured collection interval and starting succeeds, including when there are no metrics to sample. The result reports whether the start succeeded and the active collection mode.",
+  "cases": [
+    {
+      "input": {
+        "operation": "start",
+        "namespace": "app",
+        "collect_interval": "100ms",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "started=true\ncollect=enabled\n"
+    },
+    {
+      "input": {
+        "operation": "start",
+        "namespace": "app",
+        "collect_interval": "2m",
+        "providers": [
+          {
+            "id": "alpha",
+            "metrics": [
+              {
+                "name": "jobs",
+                "has_read": true
+              },
+              {
+                "name": "queue",
+                "has_read": true
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "started=true\ncollect=enabled\n"
+    },
+    {
+      "input": {
+        "operation": "start",
+        "disable_collect": true,
+        "namespace": "app",
+        "collect_interval": "5s"
+      },
+      "expected_output": "started=true\ncollect=disabled\n"
+    },
+    {
+      "input": {
+        "operation": "start",
+        "namespace": "app",
+        "collect_interval": "250ms",
+        "providers": []
+      },
+      "expected_output": "started=true\ncollect=enabled\n"
+    }
+  ]
+}

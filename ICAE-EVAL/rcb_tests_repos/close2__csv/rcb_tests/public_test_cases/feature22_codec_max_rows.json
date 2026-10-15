@@ -1,0 +1,31 @@
+{
+  "description": "Decode chunked CSV text through the batch-oriented codec adapter with a cap on the number of rows per emitted batch. A single chunk that decodes to more rows than the cap is split into multiple batches of at most that size, the cap composes with chunk boundaries and with split line terminators, and a cap larger than the available rows yields one batch.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "maxRowsPerBatch": 1,
+        "chunks": [
+          "a,b\r\nc,d\r\ne,f\r\n"
+        ]
+      },
+      "expected_output": "batches=3\nbatch[0] rows=1: [ str=\"a\" | str=\"b\" ]\nbatch[1] rows=1: [ str=\"c\" | str=\"d\" ]\nbatch[2] rows=1: [ str=\"e\" | str=\"f\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "maxRowsPerBatch": 3,
+        "chunks": [
+          "0,row0\r\n1,row1\r\n2,row2\r\n3,row3\r\n4,row4\r\n5,row5\r\n6,row6\r\n7,row7\r\n8,row8\r\n9,row9\r\n"
+        ]
+      },
+      "expected_output": "batches=4\nbatch[0] rows=3: [ str=\"0\" | str=\"row0\" ] [ str=\"1\" | str=\"row1\" ] [ str=\"2\" | str=\"row2\" ]\nbatch[1] rows=3: [ str=\"3\" | str=\"row3\" ] [ str=\"4\" | str=\"row4\" ] [ str=\"5\" | str=\"row5\" ]\nbatch[2] rows=3: [ str=\"6\" | str=\"row6\" ] [ str=\"7\" | str=\"row7\" ] [ str=\"8\" | str=\"row8\" ]\nbatch[3] rows=1: [ str=\"9\" | str=\"row9\" ]\n"
+    }
+  ]
+}

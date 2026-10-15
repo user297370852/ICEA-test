@@ -1,0 +1,103 @@
+{
+    "description": "Create a new configuration object from an existing one by copying it while overriding a selected subset of fields. Fields named in the override take the new value; fields not named are inherited unchanged. This applies across three configuration tiers: a global/base configuration (which also carries a base URL, common query parameters and a connect timeout), a per-call override configuration, and a fully-resolved request configuration (which also carries a request body and path). Header and extra maps supplied in the override fully replace the inherited maps. Header lookup is case-insensitive, so a value stored under one casing is readable and writable under another. The adapter reports the resolved fields after the copy; the request tier additionally demonstrates the case-insensitive header access by reading a key in a different case and then writing through that case.",
+    "cases": [
+        {
+            "input": {
+                "op": "copy_with",
+                "kind": "base",
+                "init": {
+                    "connectTimeout": 2,
+                    "receiveTimeout": 2,
+                    "sendTimeout": 2,
+                    "baseUrl": "http://localhost",
+                    "queryParameters": {
+                        "a": "5"
+                    },
+                    "extra": {
+                        "a": "5"
+                    },
+                    "headers": {
+                        "a": "5"
+                    },
+                    "contentType": "application/json",
+                    "followRedirects": false,
+                    "persistentConnection": false
+                },
+                "with": {
+                    "method": "post",
+                    "receiveTimeout": 3,
+                    "sendTimeout": 3,
+                    "baseUrl": "https://pub.dev",
+                    "extra": {
+                        "b": "6"
+                    },
+                    "headers": {
+                        "b": "6"
+                    },
+                    "contentType": "text/html"
+                }
+            },
+            "expected_output": "method=post\nconnectTimeout=2s\nreceiveTimeout=3s\nfollowRedirects=false\npersistentConnection=false\nbaseUrl=https://pub.dev\nheader_b=6\nextra_b=6\nquery_b=null\ncontentType=text/html\n"
+        },
+        {
+            "input": {
+                "op": "copy_with",
+                "kind": "options",
+                "init": {
+                    "method": "get",
+                    "receiveTimeout": 2,
+                    "sendTimeout": 2,
+                    "extra": {
+                        "a": "5"
+                    },
+                    "headers": {
+                        "a": "5"
+                    },
+                    "contentType": "application/json",
+                    "followRedirects": false,
+                    "persistentConnection": false
+                },
+                "with": {
+                    "method": "post",
+                    "receiveTimeout": 3,
+                    "sendTimeout": 3,
+                    "extra": {
+                        "b": "6"
+                    },
+                    "headers": {
+                        "b": "6"
+                    },
+                    "contentType": "text/html"
+                }
+            },
+            "expected_output": "method=post\nreceiveTimeout=3s\nfollowRedirects=false\npersistentConnection=false\nheader_b=6\nextra_b=6\ncontentType=text/html\n"
+        },
+        {
+            "input": {
+                "op": "copy_with",
+                "kind": "request",
+                "init": {
+                    "path": "/xxx",
+                    "sendTimeout": 2,
+                    "followRedirects": false,
+                    "persistentConnection": false
+                },
+                "with": {
+                    "method": "post",
+                    "receiveTimeout": 3,
+                    "sendTimeout": 3,
+                    "extra": {
+                        "b": "6"
+                    },
+                    "headers": {
+                        "b": "6"
+                    },
+                    "data": "xx=5",
+                    "path": "/",
+                    "contentType": "text/html"
+                }
+            },
+            "expected_output": "method=post\nreceiveTimeout=3s\nfollowRedirects=false\npersistentConnection=false\ncontentType=text/html\nheader_b=6\nextra_b=6\ndata=xx=5\npath=/\nheader_B_case_insensitive=6\nheader_b_after_set_B=9\n"
+        }
+    ]
+}

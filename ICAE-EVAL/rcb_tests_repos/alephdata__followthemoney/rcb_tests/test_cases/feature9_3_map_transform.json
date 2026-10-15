@@ -1,0 +1,69 @@
+{
+    "description": "Mapping property generators can join several columns into one value with a separator, or split a single column into multiple values.",
+    "cases": [
+        {
+            "input": {
+                "command": "map_record",
+                "entities": {
+                    "d": {
+                        "schema": "Person",
+                        "key": "id",
+                        "key_literal": "person",
+                        "properties": {
+                            "address": {
+                                "join": ", ",
+                                "columns": [
+                                    "house_number",
+                                    "town",
+                                    "zip"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "record": {
+                    "id": "1",
+                    "house_number": "64",
+                    "town": "The Desert",
+                    "zip": "01234"
+                },
+                "capture": [
+                    {
+                        "ref": "d",
+                        "property": "address"
+                    }
+                ]
+            },
+            "expected_output": "entities=1\nd.id=64abaade7c05afb815c615d3c43509fbd6ebd2ab\nd.address=64, The Desert, 01234"
+        },
+        {
+            "input": {
+                "command": "map_record",
+                "entities": {
+                    "d": {
+                        "schema": "Person",
+                        "key": "id",
+                        "key_literal": "person",
+                        "properties": {
+                            "notes": {
+                                "split": "; ",
+                                "column": "fave_colours"
+                            }
+                        }
+                    }
+                },
+                "record": {
+                    "id": "1",
+                    "fave_colours": "brown; black; blue"
+                },
+                "capture": [
+                    {
+                        "ref": "d",
+                        "property": "notes"
+                    }
+                ]
+            },
+            "expected_output": "entities=1\nd.id=64abaade7c05afb815c615d3c43509fbd6ebd2ab\nd.notes=black;blue;brown"
+        }
+    ]
+}

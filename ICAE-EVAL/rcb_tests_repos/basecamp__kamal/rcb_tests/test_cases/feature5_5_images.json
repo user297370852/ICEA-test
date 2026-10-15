@@ -1,0 +1,33 @@
+{
+    "description": "Generate docker commands that manage images. list_images lists images for the configured repository (registry server plus image name, or just the image when no server). remove_images prunes all images matching the service/role label filters; a destination inserts an extra destination filter. tag_current_as_latest tags the current versioned image reference as :latest for the same repository.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "list_images"
+            },
+            "expected_output": "docker image ls dhh/app"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "remove_images"
+            },
+            "expected_output": "docker image prune --all --force --filter label=service=app --filter label=role=web"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "destination": "staging", "role": "web", "action": "remove_images"
+            },
+            "expected_output": "docker image prune --all --force --filter label=service=app --filter label=destination=staging --filter label=role=web"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "tag_current_as_latest"
+            },
+            "expected_output": "docker tag dhh/app:999 dhh/app:latest"
+        }
+    ]
+}

@@ -1,0 +1,261 @@
+{
+  "description": "Boundary and special-value coverage for primitive binary encoding. The native suite only encodes a handful of small positive values. These cases exercise: zig-zag encoding of zero, +1, -1 and negative numbers; the single-byte/two-byte zig-zag continuation boundary (63 -> 64); the full 32-bit and 64-bit signed integer extremes (min/max int and long); byte and short width extremes; signed special floats/doubles (0.0, 1.0, -1.5) in fixed little-endian layout; empty, single-character, multi-byte (Latin-1 accented) and multi-codepoint (CJK) UTF-8 text length-prefixed encoding; and several character code points (digit, space, tilde).",
+  "cases": [
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": 0
+      },
+      "expected_output": "00\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": -1
+      },
+      "expected_output": "01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": 1
+      },
+      "expected_output": "02\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": -44
+      },
+      "expected_output": "57\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": 63
+      },
+      "expected_output": "7e\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": 64
+      },
+      "expected_output": "8001\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": 2147483647
+      },
+      "expected_output": "feffffff0f\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "int",
+        "value": -2147483648
+      },
+      "expected_output": "ffffffff0f\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "long",
+        "value": 0
+      },
+      "expected_output": "00\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "long",
+        "value": -1
+      },
+      "expected_output": "01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "long",
+        "value": 9223372036854775807
+      },
+      "expected_output": "feffffffffffffffff01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "long",
+        "value": -9223372036854775808
+      },
+      "expected_output": "ffffffffffffffffff01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "byte",
+        "value": 0
+      },
+      "expected_output": "00\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "byte",
+        "value": 127
+      },
+      "expected_output": "fe01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "byte",
+        "value": -128
+      },
+      "expected_output": "ff01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "byte",
+        "value": -1
+      },
+      "expected_output": "01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "short",
+        "value": 32767
+      },
+      "expected_output": "feff03\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "short",
+        "value": -32768
+      },
+      "expected_output": "ffff03\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "short",
+        "value": -1
+      },
+      "expected_output": "01\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "float",
+        "value": 0.0
+      },
+      "expected_output": "00000000\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "float",
+        "value": 1.0
+      },
+      "expected_output": "0000803f\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "float",
+        "value": -1.5
+      },
+      "expected_output": "0000c0bf\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "double",
+        "value": 0.0
+      },
+      "expected_output": "0000000000000000\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "double",
+        "value": 1.0
+      },
+      "expected_output": "000000000000f03f\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "double",
+        "value": -1.5
+      },
+      "expected_output": "000000000000f8bf\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "string",
+        "value": ""
+      },
+      "expected_output": "00\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "string",
+        "value": "a"
+      },
+      "expected_output": "0261\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "string",
+        "value": "héllo"
+      },
+      "expected_output": "0c68c3a96c6c6f\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "string",
+        "value": "日本語"
+      },
+      "expected_output": "12e697a5e69cace8aa9e\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "char",
+        "value": "0"
+      },
+      "expected_output": "60\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "char",
+        "value": " "
+      },
+      "expected_output": "40\n"
+    },
+    {
+      "input": {
+        "op": "encode",
+        "kind": "char",
+        "value": "~"
+      },
+      "expected_output": "fc01\n"
+    }
+  ]
+}

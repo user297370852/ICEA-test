@@ -1,0 +1,105 @@
+{
+  "description": "Construct a complete 16-byte identifier from a single fully-determining value, covering all-zero and all-ones boundary buffers, the minimum and maximum 128-bit integers, an all-zero Base32 text and an all-zero UUID, plus values whose width is rejected with a neutral length error. The output reports the resulting identifier's bytes (lowercase hexadecimal), its 26-character Base32 text and its big-endian integer value.",
+  "cases": [
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "bytes",
+          "hex": "00000000000000000000000000000000"
+        }
+      },
+      "expected_output": "bytes=00000000000000000000000000000000\nstr=00000000000000000000000000\nint=0\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "bytes",
+          "hex": "ffffffffffffffffffffffffffffffff"
+        }
+      },
+      "expected_output": "bytes=ffffffffffffffffffffffffffffffff\nstr=7ZZZZZZZZZZZZZZZZZZZZZZZZZ\nint=340282366920938463463374607431768211455\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "int",
+          "value": "0"
+        }
+      },
+      "expected_output": "error=invalid_length\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "int",
+          "value": "340282366920938463463374607431768211455"
+        }
+      },
+      "expected_output": "bytes=ffffffffffffffffffffffffffffffff\nstr=7ZZZZZZZZZZZZZZZZZZZZZZZZZ\nint=340282366920938463463374607431768211455\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "int",
+          "value": "340282366920938463463374607431768211456"
+        }
+      },
+      "expected_output": "error=invalid_length\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "text",
+          "value": "00000000000000000000000000"
+        }
+      },
+      "expected_output": "bytes=00000000000000000000000000000000\nstr=00000000000000000000000000\nint=0\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "uuid",
+          "value": "00000000-0000-0000-0000-000000000000"
+        }
+      },
+      "expected_output": "bytes=00000000000000000000000000000000\nstr=00000000000000000000000000\nint=0\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "uuid",
+          "value": "ffffffff-ffff-ffff-ffff-ffffffffffff"
+        }
+      },
+      "expected_output": "bytes=ffffffffffffffffffffffffffffffff\nstr=7ZZZZZZZZZZZZZZZZZZZZZZZZZ\nint=340282366920938463463374607431768211455\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "bytes",
+          "hex": "00"
+        }
+      },
+      "expected_output": "error=invalid_length\n"
+    },
+    {
+      "input": {
+        "op": "build_from_value",
+        "source": {
+          "type": "text",
+          "value": "0000000000"
+        }
+      },
+      "expected_output": "error=invalid_length\n"
+    }
+  ]
+}

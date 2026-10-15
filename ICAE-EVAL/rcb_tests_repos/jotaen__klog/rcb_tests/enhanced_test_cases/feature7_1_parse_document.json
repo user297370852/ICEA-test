@@ -1,0 +1,40 @@
+{
+  "description": "Boundary document parsing: tab indentation with an entry summary, three-space indentation, a should-total-only headline, and a record whose summary spans multiple lines plus mixed entry kinds.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_document",
+        "text": "2020-01-01\n\t1h Work\n\t\tmore notes"
+      },
+      "expected_output": "records=1\nrecord[0].date=2020-01-01\nrecord[0].should_total=0\nrecord[0].summary=\nrecord[0].entries=1\nrecord[0].entry[0].type=duration\nrecord[0].entry[0].value=1h\nrecord[0].entry[0].minutes=60\nrecord[0].entry[0].summary=Work|more notes\n"
+    },
+    {
+      "input": {
+        "action": "parse_document",
+        "text": "2020-01-01\n   2h\n   3h"
+      },
+      "expected_output": "records=1\nrecord[0].date=2020-01-01\nrecord[0].should_total=0\nrecord[0].summary=\nrecord[0].entries=2\nrecord[0].entry[0].type=duration\nrecord[0].entry[0].value=2h\nrecord[0].entry[0].minutes=120\nrecord[0].entry[0].summary=\nrecord[0].entry[1].type=duration\nrecord[0].entry[1].value=3h\nrecord[0].entry[1].minutes=180\nrecord[0].entry[1].summary=\n"
+    },
+    {
+      "input": {
+        "action": "parse_document",
+        "text": "2020-01-01 (7h30m!)"
+      },
+      "expected_output": "records=1\nrecord[0].date=2020-01-01\nrecord[0].should_total=450\nrecord[0].summary=\nrecord[0].entries=0\n"
+    },
+    {
+      "input": {
+        "action": "parse_document",
+        "text": "2020-01-01\nLine one\nLine two\n    8:00 - 9:00\n    30m"
+      },
+      "expected_output": "records=1\nrecord[0].date=2020-01-01\nrecord[0].should_total=0\nrecord[0].summary=Line one|Line two\nrecord[0].entries=2\nrecord[0].entry[0].type=range\nrecord[0].entry[0].value=8:00 - 9:00\nrecord[0].entry[0].minutes=60\nrecord[0].entry[0].summary=\nrecord[0].entry[1].type=duration\nrecord[0].entry[1].value=30m\nrecord[0].entry[1].minutes=30\nrecord[0].entry[1].summary=\n"
+    },
+    {
+      "input": {
+        "action": "parse_document",
+        "text": "2020/01/01\n    1h"
+      },
+      "expected_output": "records=1\nrecord[0].date=2020/01/01\nrecord[0].should_total=0\nrecord[0].summary=\nrecord[0].entries=1\nrecord[0].entry[0].type=duration\nrecord[0].entry[0].value=1h\nrecord[0].entry[0].minutes=60\nrecord[0].entry[0].summary=\n"
+    }
+  ]
+}

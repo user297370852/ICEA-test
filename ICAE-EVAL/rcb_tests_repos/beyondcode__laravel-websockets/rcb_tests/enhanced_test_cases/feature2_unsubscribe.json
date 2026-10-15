@@ -1,0 +1,93 @@
+{
+  "description": "After a client unsubscribes from a channel it no longer counts toward that channel. When other clients remain subscribed the channel stays occupied with the reduced subscriber count; unsubscribing from a channel that was never joined leaves that channel untracked.",
+  "cases": [
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "1.1"
+          },
+          {
+            "name": "b",
+            "socket_id": "2.2"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "shared-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "b",
+            "payload": {
+              "event": "pusher:subscribe",
+              "data": {
+                "channel": "shared-channel"
+              }
+            }
+          },
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:unsubscribe",
+              "data": {
+                "channel": "shared-channel"
+              }
+            }
+          }
+        ],
+        "report": {
+          "connections": [
+            "a"
+          ],
+          "channels": [
+            "shared-channel"
+          ]
+        }
+      },
+      "expected_output": "[a] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"shared-channel\"}\n[channel:shared-channel] occupied=true subscription_count=1\n"
+    },
+    {
+      "input": {
+        "action": "session",
+        "connections": [
+          {
+            "name": "a",
+            "socket_id": "1.1"
+          }
+        ],
+        "events": [
+          {
+            "type": "message",
+            "conn": "a",
+            "payload": {
+              "event": "pusher:unsubscribe",
+              "data": {
+                "channel": "never-channel"
+              }
+            }
+          }
+        ],
+        "report": {
+          "connections": [
+            "a"
+          ],
+          "channels": [
+            "never-channel"
+          ]
+        }
+      },
+      "expected_output": "[a] received 0\n[channel:never-channel] occupied=false subscription_count=0\n"
+    }
+  ]
+}

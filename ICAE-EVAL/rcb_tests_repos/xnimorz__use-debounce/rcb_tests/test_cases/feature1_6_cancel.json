@@ -1,0 +1,57 @@
+{
+    "description": "Cancelling a debounced function discards any invocation that is currently pending so that it never runs, even after the quiet period (and, when configured, the maximum-wait bound) would otherwise have elapsed. After a cancel, advancing time produces no invocation at all.",
+    "cases": [
+        {
+            "input": {
+                "hook": "callback",
+                "delay": 1000,
+                "steps": [
+                    {
+                        "do": "call",
+                        "args": []
+                    },
+                    {
+                        "do": "cancel"
+                    },
+                    {
+                        "do": "runAll"
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "calls=0\n"
+        },
+        {
+            "input": {
+                "hook": "callback",
+                "delay": 500,
+                "options": {
+                    "maxWait": 600
+                },
+                "steps": [
+                    {
+                        "do": "call",
+                        "args": []
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 400
+                    },
+                    {
+                        "do": "cancel"
+                    },
+                    {
+                        "do": "advance",
+                        "ms": 400
+                    },
+                    {
+                        "do": "observe"
+                    }
+                ]
+            },
+            "expected_output": "calls=0\n"
+        }
+    ]
+}

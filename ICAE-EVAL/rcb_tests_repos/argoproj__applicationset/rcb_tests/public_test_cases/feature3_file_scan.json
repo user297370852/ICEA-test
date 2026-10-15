@@ -1,0 +1,29 @@
+{
+    "description": "Scan a set of matching configuration file paths, deduplicate and sort them, then read each file's JSON content and flatten its nested object into a single-level parameter map whose keys are the dot-joined paths to each leaf string value. Files are processed in sorted path order, producing one parameter map per file in that order. If the path listing or any file's content cannot be obtained, the whole operation fails with a neutral error and no maps are produced.",
+    "cases": [
+        {
+            "input": {
+                "action": "git_files",
+                "files": ["**/config.json"],
+                "paths": ["cluster-config/production/config.json", "cluster-config/staging/config.json"],
+                "file_contents": {
+                    "cluster-config/production/config.json": "{\"cluster\":{\"owner\":\"john.doe@example.com\",\"name\":\"production\",\"address\":\"https://kubernetes.default.svc\"},\"key1\":\"val1\",\"key2\":{\"key2_1\":\"val2_1\",\"key2_2\":{\"key2_2_1\":\"val2_2_1\"}}}",
+                    "cluster-config/staging/config.json": "{\"cluster\":{\"owner\":\"foo.bar@example.com\",\"name\":\"staging\",\"address\":\"https://kubernetes.default.svc\"}}"
+                }
+            },
+            "expected_output": "params=2\n#0\ncluster.address=https://kubernetes.default.svc\ncluster.name=production\ncluster.owner=john.doe@example.com\nkey1=val1\nkey2.key2_1=val2_1\nkey2.key2_2.key2_2_1=val2_2_1\n#1\ncluster.address=https://kubernetes.default.svc\ncluster.name=staging\ncluster.owner=foo.bar@example.com\n"
+        },
+        {
+            "input": {
+                "action": "git_files",
+                "files": ["**/config.json"],
+                "paths": ["cluster-config/production/config.json", "cluster-config/staging/config.json"],
+                "file_contents": {
+                    "cluster-config/production/config.json": "{\"cluster\":{\"owner\":\"john.doe@example.com\",\"name\":\"production\",\"address\":\"https://kubernetes.default.svc\"}}"
+                },
+                "file_errors": ["cluster-config/staging/config.json"]
+            },
+            "expected_output": "error=source_unavailable\n"
+        }
+    ]
+}

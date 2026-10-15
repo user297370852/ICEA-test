@@ -1,0 +1,86 @@
+{
+    "description": "Render the inline label for an attribute whose type is a nested object collection. The label opens with 'Attributes' plus a collection word (none for single, List/Set/Map otherwise). For single nesting the behavior word (Required/Optional/Read-only) is appended; for List/Set/Map nesting the minimum item count is appended as 'Min: N' when greater than zero. A maximum item count is appended as 'Max: N' when greater than zero, followed by the trimmed description.",
+    "cases": [
+        {
+            "input": {
+                "op": "nested_attribute_description",
+                "attribute": {
+                    "description": "This is an attribute.",
+                    "optional": true,
+                    "nested_type": {
+                        "nesting_mode": "single",
+                        "attributes": {
+                            "foo": {
+                                "type": "string",
+                                "required": true,
+                                "description": "This is a nested attribute."
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "(Attributes, Optional) This is an attribute."
+        },
+        {
+            "input": {
+                "op": "nested_attribute_description",
+                "attribute": {
+                    "description": "This is an attribute.",
+                    "required": true,
+                    "nested_type": {
+                        "nesting_mode": "list",
+                        "min_items": 2,
+                        "max_items": 3,
+                        "attributes": {
+                            "foo": {
+                                "type": "string",
+                                "required": true,
+                                "description": "This is a nested attribute."
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "(Attributes List, Min: 2, Max: 3) This is an attribute."
+        },
+        {
+            "input": {
+                "op": "nested_attribute_description",
+                "attribute": {
+                    "description": "This is an attribute.",
+                    "nested_type": {
+                        "nesting_mode": "map",
+                        "attributes": {
+                            "foo": {
+                                "type": "string",
+                                "required": true,
+                                "description": "This is a nested attribute."
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "(Attributes Map) This is an attribute."
+        },
+        {
+            "input": {
+                "op": "nested_attribute_description",
+                "attribute": {
+                    "description": "This is an attribute.",
+                    "nested_type": {
+                        "nesting_mode": "set",
+                        "min_items": 5,
+                        "attributes": {
+                            "foo": {
+                                "type": "string",
+                                "required": true,
+                                "description": "This is a nested attribute."
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "(Attributes Set, Min: 5) This is an attribute."
+        }
+    ]
+}

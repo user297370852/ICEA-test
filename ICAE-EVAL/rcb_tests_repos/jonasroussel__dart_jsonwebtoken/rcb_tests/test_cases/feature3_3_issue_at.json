@@ -1,0 +1,52 @@
+{
+  "description": "Enforce an issued-at lower bound during verification: with a minimum issued-at threshold the token passes when its iat is at or after the threshold and is rejected when its iat predates it; with no threshold a future iat is accepted.",
+  "cases": [
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE2MDAwMDAwMDB9.xI02uz2AqzPMpDdLTwzXo7raBheKETETCHCYHEyl1ZQ",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "issue_at": 1600000000
+      },
+      "expected_output": "alg=HS256\npayload={\"foo\":\"bar\",\"iat\":1600000000}\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE2MDAwMDAwMDB9.xI02uz2AqzPMpDdLTwzXo7raBheKETETCHCYHEyl1ZQ",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "issue_at": 1600000001
+      },
+      "expected_output": "error=invalid_token\nreason=expired_issue_at\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE2MDAwMDAwMDB9.xI02uz2AqzPMpDdLTwzXo7raBheKETETCHCYHEyl1ZQ",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        },
+        "issue_at": 1599999999
+      },
+      "expected_output": "alg=HS256\npayload={\"foo\":\"bar\",\"iat\":1600000000}\n"
+    },
+    {
+      "input": {
+        "op": "verify",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjQxMDI0NDQ4MDB9.tE3_DpKlyEaAr226sqTkMerhXsH6a8JM4wvAXmo9ZXY",
+        "key": {
+          "kind": "secret",
+          "secret": "secret passphrase"
+        }
+      },
+      "expected_output": "alg=HS256\npayload={\"foo\":\"bar\",\"iat\":4102444800}\n"
+    }
+  ]
+}

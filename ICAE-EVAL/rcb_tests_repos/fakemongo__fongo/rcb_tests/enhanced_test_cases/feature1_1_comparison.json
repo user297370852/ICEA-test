@@ -1,0 +1,162 @@
+{
+  "description": "A document matcher evaluates comparison conditions on a single field, covering boundary inputs: values exactly on a strict or inclusive bound, comparisons spanning zero and negative numbers, comparisons across distinct numeric kinds, comparisons against temporal values on their exact bound, and an inequality condition where the stored field is an array. A field that is absent does not satisfy a positive comparison; documents are returned in their original order.",
+  "cases": [
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$gte": 0
+          }
+        },
+        "documents": [
+          {
+            "a": -1
+          },
+          {
+            "a": 0
+          },
+          {
+            "a": 1
+          },
+          {
+            "a": -5
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 0}\n{ \"a\" : 1}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$gt": -3
+          }
+        },
+        "documents": [
+          {
+            "a": -3
+          },
+          {
+            "a": -2
+          },
+          {
+            "a": -4
+          },
+          {
+            "a": 0
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : -2}\n{ \"a\" : 0}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$gte": {
+              "$numberLong": "5"
+            }
+          }
+        },
+        "documents": [
+          {
+            "a": 4
+          },
+          {
+            "a": 5
+          },
+          {
+            "a": 6
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 5}\n{ \"a\" : 6}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$gt": 2.5
+          }
+        },
+        "documents": [
+          {
+            "a": 2
+          },
+          {
+            "a": 3
+          },
+          {
+            "a": 2.5
+          },
+          {
+            "a": 2.6
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 3}\n{ \"a\" : 2.6}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$ne": 2
+          }
+        },
+        "documents": [
+          {
+            "a": [
+              2,
+              2
+            ]
+          },
+          {
+            "a": [
+              2,
+              5
+            ]
+          },
+          {
+            "a": 5
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : 5}\n"
+    },
+    {
+      "input": {
+        "op": "find",
+        "query": {
+          "a": {
+            "$gt": {
+              "$date": 1000
+            }
+          }
+        },
+        "documents": [
+          {
+            "a": {
+              "$date": 1000
+            }
+          },
+          {
+            "a": {
+              "$date": 1001
+            }
+          },
+          {
+            "a": {
+              "$date": 999
+            }
+          }
+        ]
+      },
+      "expected_output": "{ \"a\" : { \"$date\" : \"1970-01-01T00:00:01.001Z\"}}\n"
+    }
+  ]
+}

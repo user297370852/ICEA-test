@@ -1,0 +1,89 @@
+{
+  "description": "Cursor coverage: reading a byte at end-of-file returns the sentinel, a positioned read after an absolute seek returns the tail, and position is reported after sequential single-byte reads.",
+  "cases": [
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "A"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "read"
+          },
+          {
+            "op": "raf_read_byte",
+            "handle": "h"
+          },
+          {
+            "op": "raf_read_byte",
+            "handle": "h"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=1\nopened=/f\nread_byte=65\nread_byte=-1\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "abcdef"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "read"
+          },
+          {
+            "op": "raf_set_position",
+            "handle": "h",
+            "position": 3
+          },
+          {
+            "op": "raf_read",
+            "handle": "h",
+            "count": 10
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=6\nopened=/f\nposition=3\nread_length=3\nread_text=\"def\"\n"
+    },
+    {
+      "input": {
+        "ops": [
+          {
+            "op": "write",
+            "path": "/f",
+            "text": "xyz"
+          },
+          {
+            "op": "open",
+            "path": "/f",
+            "handle": "h",
+            "mode": "read"
+          },
+          {
+            "op": "raf_read_byte",
+            "handle": "h"
+          },
+          {
+            "op": "raf_read_byte",
+            "handle": "h"
+          },
+          {
+            "op": "raf_position",
+            "handle": "h"
+          }
+        ]
+      },
+      "expected_output": "wrote_bytes=3\nopened=/f\nread_byte=120\nread_byte=121\nposition=2\n"
+    }
+  ]
+}

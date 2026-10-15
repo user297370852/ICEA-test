@@ -1,0 +1,352 @@
+{
+  "description": "Running units of work as transactions through the logging decorator. Beginning a transaction emits a begin entry. A transaction that completes normally emits a commit entry after its body; a transaction whose body requests a rollback emits a rollback entry instead. Statements issued inside a transaction body are logged in place, between the begin entry and the eventual commit/rollback entry, using the same operation/SQL and bound-value logging as outside a transaction. Multiple transactions run in sequence produce their entries in execution order. All emitted log lines are written to standard output.",
+  "cases": [
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": []
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nTRANSACTION COMMIT\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": true,
+            "body": []
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nTRANSACTION ROLLBACK\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO t VALUES (?);",
+                "parameters": 1,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n INSERT INTO t VALUES (?);\n [1]\nTRANSACTION COMMIT\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": true,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO t VALUES (?);",
+                "parameters": 1,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n INSERT INTO t VALUES (?);\n [1]\nTRANSACTION ROLLBACK\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO t VALUES (?, ?);",
+                "parameters": 2,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 1
+                  },
+                  {
+                    "bind": "string",
+                    "index": 2,
+                    "value": "Alec"
+                  }
+                ]
+              },
+              {
+                "op": "query",
+                "identifier": 3,
+                "sql": "SELECT * FROM t WHERE id = ?",
+                "parameters": 1,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "UPDATE t SET name = ? WHERE id = ?;",
+                "parameters": 2,
+                "binders": [
+                  {
+                    "bind": "string",
+                    "index": 1,
+                    "value": "Bob"
+                  },
+                  {
+                    "bind": "long",
+                    "index": 2,
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n INSERT INTO t VALUES (?, ?);\n [1, Alec]\nQUERY\n SELECT * FROM t WHERE id = ?\n [1]\nEXECUTE\n UPDATE t SET name = ? WHERE id = ?;\n [Bob, 1]\nTRANSACTION COMMIT\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": [
+              {
+                "op": "query",
+                "identifier": 3,
+                "sql": "SELECT count(*) FROM t",
+                "parameters": 0
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nQUERY\n SELECT count(*) FROM t\nTRANSACTION COMMIT\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": []
+          },
+          {
+            "op": "transaction",
+            "rollback": true,
+            "body": []
+          },
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": []
+          },
+          {
+            "op": "transaction",
+            "rollback": true,
+            "body": []
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nTRANSACTION COMMIT\nTRANSACTION BEGIN\nTRANSACTION ROLLBACK\nTRANSACTION BEGIN\nTRANSACTION COMMIT\nTRANSACTION BEGIN\nTRANSACTION ROLLBACK\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO t VALUES (?);",
+                "parameters": 1,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "op": "execute",
+            "identifier": 2,
+            "sql": "ANALYZE;",
+            "parameters": 0
+          },
+          {
+            "op": "transaction",
+            "rollback": true,
+            "body": [
+              {
+                "op": "query",
+                "identifier": 3,
+                "sql": "SELECT * FROM t",
+                "parameters": 0
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n INSERT INTO t VALUES (?);\n [1]\nTRANSACTION COMMIT\nEXECUTE\n ANALYZE;\nTRANSACTION BEGIN\nQUERY\n SELECT * FROM t\nTRANSACTION ROLLBACK\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "DELETE FROM t;",
+                "parameters": 0,
+                "binders": []
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n DELETE FROM t;\nTRANSACTION COMMIT\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": true,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO t VALUES (?);",
+                "parameters": 1,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO t VALUES (?);",
+                "parameters": 1,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 2
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n INSERT INTO t VALUES (?);\n [1]\nEXECUTE\n INSERT INTO t VALUES (?);\n [2]\nTRANSACTION ROLLBACK\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO élève VALUES ('你好');",
+                "parameters": 0
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n INSERT INTO élève VALUES ('你好');\nTRANSACTION COMMIT\n"
+    },
+    {
+      "input": {
+        "commands": [
+          {
+            "op": "transaction",
+            "rollback": false,
+            "body": [
+              {
+                "op": "execute",
+                "identifier": 2,
+                "sql": "INSERT INTO t VALUES (?, ?, ?, ?);",
+                "parameters": 4,
+                "binders": [
+                  {
+                    "bind": "long",
+                    "index": 1,
+                    "value": 7
+                  },
+                  {
+                    "bind": "string",
+                    "index": 2,
+                    "value": "Alec"
+                  },
+                  {
+                    "bind": "double",
+                    "index": 3,
+                    "value": 1.5
+                  },
+                  {
+                    "bind": "boolean",
+                    "index": 4,
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "TRANSACTION BEGIN\nEXECUTE\n INSERT INTO t VALUES (?, ?, ?, ?);\n [7, Alec, 1.5, true]\nTRANSACTION COMMIT\n"
+    }
+  ]
+}

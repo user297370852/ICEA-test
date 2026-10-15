@@ -1,0 +1,21 @@
+{
+  "feature": "database_call",
+  "description": "Database call instrumentation: acquiring a connection and executing a statement is traced; the span correlates with the active caller span when present.",
+  "cases": [
+    {
+      "name": "raw_connection_statement_is_traced",
+      "input": {"feature": "database_call", "executor": "connection", "statement": "select 1"},
+      "expected_output": "spans=1\ndistinct_traces=1\nop=Execute component=java-jdbc span.kind=client http.status=- attrs=[db.statement=select 1;db.type=h2;db.user=SA] error=false error_log=- parent=root\n"
+    },
+    {
+      "name": "template_statement_is_traced",
+      "input": {"feature": "database_call", "executor": "jdbc_template", "statement": "select 1"},
+      "expected_output": "spans=1\ndistinct_traces=1\nop=Execute component=java-jdbc span.kind=client http.status=- attrs=[db.statement=select 1;db.type=h2;db.user=SA] error=false error_log=- parent=root\n"
+    },
+    {
+      "name": "statement_span_is_child_of_active_caller",
+      "input": {"feature": "database_call", "executor": "connection", "statement": "select 1", "parent": "caller"},
+      "expected_output": "spans=2\ndistinct_traces=1\nop=Execute component=java-jdbc span.kind=client http.status=- attrs=[db.statement=select 1;db.type=h2;db.user=SA] error=false error_log=- parent=caller\nop=caller component=- span.kind=- http.status=- attrs=[] error=false error_log=- parent=root\n"
+    }
+  ]
+}

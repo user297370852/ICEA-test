@@ -1,0 +1,133 @@
+{
+  "description": "Boundary and logical-path coverage for wildcard routing-key matching. Probes '#' short-circuit semantics (a '#' anywhere in the pattern accepts the remainder, but only when the comparison index actually reaches it), single-level '*' arity, pattern/routing length disagreements, literal treatment of '*'/'#' appearing in the routing key, empty-string tokens, and case sensitivity.",
+  "cases": [
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a.#.c",
+        "routing_key": "a.b.c"
+      },
+      "expected_output": "binding_key=a.#.c\nrouting_key=a.b.c\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "#.a",
+        "routing_key": "x.y"
+      },
+      "expected_output": "binding_key=#.a\nrouting_key=x.y\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "*",
+        "routing_key": "a.b"
+      },
+      "expected_output": "binding_key=*\nrouting_key=a.b\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "*.#",
+        "routing_key": "a"
+      },
+      "expected_output": "binding_key=*.#\nrouting_key=a\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "*.#",
+        "routing_key": "a.b"
+      },
+      "expected_output": "binding_key=*.#\nrouting_key=a.b\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a.b",
+        "routing_key": "a.b.c"
+      },
+      "expected_output": "binding_key=a.b\nrouting_key=a.b.c\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a.#",
+        "routing_key": "a"
+      },
+      "expected_output": "binding_key=a.#\nrouting_key=a\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a.#",
+        "routing_key": "a.b"
+      },
+      "expected_output": "binding_key=a.#\nrouting_key=a.b\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "",
+        "routing_key": ""
+      },
+      "expected_output": "binding_key=\nrouting_key=\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a..b",
+        "routing_key": "a..b"
+      },
+      "expected_output": "binding_key=a..b\nrouting_key=a..b\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a..b",
+        "routing_key": "a.x.b"
+      },
+      "expected_output": "binding_key=a..b\nrouting_key=a.x.b\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a",
+        "routing_key": "*"
+      },
+      "expected_output": "binding_key=a\nrouting_key=*\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "a",
+        "routing_key": "#"
+      },
+      "expected_output": "binding_key=a\nrouting_key=#\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "A.b",
+        "routing_key": "a.b"
+      },
+      "expected_output": "binding_key=A.b\nrouting_key=a.b\nmatch=false\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*",
+        "routing_key": "0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19"
+      },
+      "expected_output": "binding_key=*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*\nrouting_key=0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19\nmatch=true\n"
+    },
+    {
+      "input": {
+        "action": "match",
+        "binding_key": "*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*",
+        "routing_key": "0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20"
+      },
+      "expected_output": "binding_key=*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*\nrouting_key=0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20\nmatch=false\n"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "description": "Successive successful items are batched into fixed-size groups; each full group is emitted as soon as it fills, and any trailing partial group is emitted when the stream ends. Each emitted group lists its items in order. If the stream yields an error outcome, any already-buffered partial group is emitted first and then the error is reported.",
+  "cases": [
+    {
+      "input": {
+        "source": [
+          1,
+          2
+        ],
+        "pipeline": [],
+        "sink": {
+          "kind": "chunks",
+          "size": 5
+        }
+      },
+      "expected_output": "chunk=1,2\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          4,
+          5
+        ],
+        "pipeline": [],
+        "sink": {
+          "kind": "chunks",
+          "size": 1
+        }
+      },
+      "expected_output": "chunk=4\nchunk=5\nend\n"
+    },
+    {
+      "input": {
+        "source": [],
+        "pipeline": [],
+        "sink": {
+          "kind": "chunks",
+          "size": 3
+        }
+      },
+      "expected_output": "end\n"
+    },
+    {
+      "input": {
+        "source": [
+          -1,
+          -2,
+          -3,
+          -4
+        ],
+        "pipeline": [],
+        "sink": {
+          "kind": "chunks",
+          "size": 2
+        }
+      },
+      "expected_output": "chunk=-1,-2\nchunk=-3,-4\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          1,
+          2,
+          3,
+          4,
+          {
+            "err": 9
+          }
+        ],
+        "pipeline": [],
+        "sink": {
+          "kind": "chunks",
+          "size": 2
+        }
+      },
+      "expected_output": "chunk=1,2\nchunk=3,4\nerror=9\n"
+    },
+    {
+      "input": {
+        "source": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "pipeline": [],
+        "sink": {
+          "kind": "chunks",
+          "size": 2
+        }
+      },
+      "expected_output": "chunk=1,2\nchunk=3,4\nend\n"
+    }
+  ]
+}

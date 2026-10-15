@@ -1,0 +1,55 @@
+{
+  "description": "Query-string construction. Parameters can contribute a single named query value, a per-element repeated value when the parameter is a list, a bare query name without a value, or a set of named values supplied as a map. Each role has an encoded variant that appends the value to the already-encoded query section. Map-valued query parameters must be maps keyed by string; other key or container types are rejected at generation time. The adapter prints the issued request's method, resolved URL and body kind, or a neutral error category.",
+  "cases": [
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "query",
+            "key": "name",
+            "name": "q1"
+          },
+          {
+            "kind": "query",
+            "key": "user",
+            "encoded": true,
+            "name": "q2",
+            "type": "Int"
+          }
+        ],
+        "args": [
+          "bob",
+          5
+        ]
+      },
+      "expected_output": "method=GET\nurl=http://localhost/posts?name=bob&user=5\nbody=none"
+    },
+    {
+      "input": {
+        "http": [
+          {
+            "verb": "GET",
+            "path": "posts"
+          }
+        ],
+        "params": [
+          {
+            "kind": "queryMap",
+            "name": "m",
+            "type": "String"
+          }
+        ],
+        "args": [
+          "x"
+        ]
+      },
+      "expected_output": "error=query_map_must_be_map"
+    }
+  ]
+}

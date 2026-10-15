@@ -1,0 +1,41 @@
+{
+  "description": "Synchronizes user identity, tags, extra data, and contextual data to the native bridge using string-safe payloads.",
+  "cases": [
+    {
+      "input": {"scenario":"sync_user_identity","user":{"email":"hello@sentry.io","id":"3.1234587","unique":"123"}},
+      "expected_output": "bridge_call=set_user\npayload={\"defaultUserKeys\":{\"email\":\"hello@sentry.io\",\"id\":\"3.1234587\"},\"otherUserKeys\":{\"unique\":\"123\"}}\n"
+    },
+    {
+      "input": {"scenario":"sync_user_identity","user":{"id":"Hello"}},
+      "expected_output": "bridge_call=set_user\npayload={\"defaultUserKeys\":{\"id\":\"Hello\"},\"otherUserKeys\":{}}\n"
+    },
+    {
+      "input": {"scenario":"sync_tag","key":"key","value":"value"},
+      "expected_output": "bridge_call=set_tag\npayload={\"key\":\"key\",\"value\":\"value\"}\n"
+    },
+    {
+      "input": {"scenario":"sync_tag","key":"key","value":0},
+      "expected_output": "bridge_call=set_tag\npayload={\"key\":\"key\",\"value\":\"0\"}\n"
+    },
+    {
+      "input": {"scenario":"sync_tag","key":"key","value":{}},
+      "expected_output": "bridge_call=set_tag\npayload={\"key\":\"key\",\"value\":\"{}\"}\n"
+    },
+    {
+      "input": {"scenario":"sync_extra","key":"key","value":{"hello":"world"}},
+      "expected_output": "bridge_call=set_extra\npayload={\"key\":\"key\",\"value\":\"{\\\"hello\\\":\\\"world\\\"}\"}\n"
+    },
+    {
+      "input": {"scenario":"sync_context","platform":"ios","key":"key","value":{"hello":"world"}},
+      "expected_output": "bridge_call=set_context\npayload={\"key\":\"key\",\"value\":{\"hello\":\"world\"}}\n"
+    },
+    {
+      "input": {"scenario":"sync_context","platform":"ios","key":"key","value":null},
+      "expected_output": "bridge_call=set_context\npayload={\"key\":\"key\",\"value\":null}\n"
+    },
+    {
+      "input": {"scenario":"sync_context","platform":"android","key":"key","value":{"hello":"world"}},
+      "expected_output": "bridge_call=set_extra\npayload={\"key\":\"key\",\"value\":\"{\\\"hello\\\":\\\"world\\\"}\"}\n"
+    }
+  ]
+}

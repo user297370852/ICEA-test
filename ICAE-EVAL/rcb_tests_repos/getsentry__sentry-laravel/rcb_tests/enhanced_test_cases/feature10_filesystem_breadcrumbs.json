@@ -1,0 +1,43 @@
+{
+  "description": "Filesystem breadcrumb edge cases: write+read sequence emits two breadcrumbs with content returned, and enabling both spans and breadcrumbs produces parallel span and breadcrumb streams.",
+  "cases": [
+    {
+      "input": {
+        "feature": "filesystem_observability",
+        "record_spans": false,
+        "record_breadcrumbs": true,
+        "operations": [
+          {
+            "action": "put",
+            "path": "x",
+            "content": "abcd"
+          },
+          {
+            "action": "get",
+            "path": "x"
+          }
+        ]
+      },
+      "expected_output": "file_content=abcd\nspan_count=1\nbreadcrumb_count=2\nbreadcrumb1_exists=true\nbreadcrumb1_category=file.put\nbreadcrumb1_level=info\nbreadcrumb1_message=x (4 B)\nbreadcrumb1_metadata={\"path\":\"x\",\"options\":[],\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb2_exists=true\nbreadcrumb2_category=file.get\nbreadcrumb2_level=info\nbreadcrumb2_message=x\nbreadcrumb2_metadata={\"path\":\"x\",\"disk\":\"local\",\"driver\":\"local\"}\n"
+    },
+    {
+      "input": {
+        "feature": "filesystem_observability",
+        "record_spans": true,
+        "record_breadcrumbs": true,
+        "operations": [
+          {
+            "action": "put",
+            "path": "p",
+            "content": "yo"
+          },
+          {
+            "action": "delete",
+            "path": "p"
+          }
+        ]
+      },
+      "expected_output": "span_count=3\nspan1_op=file.put\nspan1_description=p (2 B)\nspan1_data={\"path\":\"p\",\"options\":[],\"disk\":\"local\",\"driver\":\"local\"}\nspan2_op=file.delete\nspan2_description=p\nspan2_data={\"path\":\"p\",\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb_count=2\nbreadcrumb1_exists=true\nbreadcrumb1_category=file.put\nbreadcrumb1_level=info\nbreadcrumb1_message=p (2 B)\nbreadcrumb1_metadata={\"path\":\"p\",\"options\":[],\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb2_exists=true\nbreadcrumb2_category=file.delete\nbreadcrumb2_level=info\nbreadcrumb2_message=p\nbreadcrumb2_metadata={\"path\":\"p\",\"disk\":\"local\",\"driver\":\"local\"}\n"
+    }
+  ]
+}

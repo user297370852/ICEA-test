@@ -1,0 +1,48 @@
+{
+    "description": "Translate JSON request bodies into typed request messages, optionally placing body content under a configured field and merging URL-derived bindings.",
+    "cases": [
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "shelf",
+                "json": "{ \"name\" : \"1\", \"theme\" : \"Russian\" }"
+            },
+            "expected_output": "message[0]=\nname: \"1\"\ntheme: \"Russian\"\n--end--\nfinished=true\n"
+        },
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "create_book_request",
+                "body_target": "book",
+                "bindings": [
+                    {
+                        "field_path": [
+                            "book",
+                            "authorInfo",
+                            "firstName"
+                        ],
+                        "value": "Leo"
+                    },
+                    {
+                        "field_path": [
+                            "book",
+                            "authorInfo",
+                            "lastName"
+                        ],
+                        "value": "Tolstoy"
+                    }
+                ],
+                "json": "{ \"name\" : \"11\", \"author\" : \"Leo Tolstoy\", \"title\" : \"Anna Karenina\" }"
+            },
+            "expected_output": "message[0]=\nbook {\n  author: \"Leo Tolstoy\"\n  name: \"11\"\n  title: \"Anna Karenina\"\n  author_info {\n    first_name: \"Leo\"\n    last_name: \"Tolstoy\"\n  }\n}\n--end--\nfinished=true\n"
+        },
+        {
+            "input": {
+                "operation": "json_to_proto",
+                "schema": "shelf",
+                "json": "Invalid"
+            },
+            "expected_output": "error=invalid_json\n"
+        }
+    ]
+}

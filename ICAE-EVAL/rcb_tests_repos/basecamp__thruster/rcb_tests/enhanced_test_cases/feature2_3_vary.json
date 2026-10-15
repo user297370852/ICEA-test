@@ -1,0 +1,95 @@
+{
+  "description": "Variant negotiation edge cases: varying header absent on a request yields an empty-value variant distinct from a present value, single Vary field with unnamed headers ignored, and three varying fields where a stored variant replays only when all three match.",
+  "cases": [
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=600",
+          "vary": "Accept",
+          "bodyMode": "echoAccept"
+        },
+        "requests": [
+          {
+            "url": "http://e.com",
+            "headers": {}
+          },
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Other": "z"
+            }
+          },
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Accept": "text/plain"
+            }
+          },
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Accept": "text/plain",
+              "Other": "q"
+            }
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=\nrequest=2\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=text/plain\nrequest=3\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=text/plain\n"
+    },
+    {
+      "input": {
+        "action": "cache",
+        "upstream": {
+          "cacheControl": "public, max-age=600",
+          "vary": "Accept, Accept-Encoding, Accept-Language",
+          "bodyMode": "constant",
+          "body": "V"
+        },
+        "requests": [
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Accept": "text/html",
+              "Accept-Encoding": "gzip",
+              "Accept-Language": "en"
+            }
+          },
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Accept": "text/html",
+              "Accept-Encoding": "gzip",
+              "Accept-Language": "en"
+            }
+          },
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Accept": "text/html",
+              "Accept-Encoding": "gzip",
+              "Accept-Language": "fr"
+            }
+          },
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Accept": "text/html",
+              "Accept-Encoding": "br",
+              "Accept-Language": "en"
+            }
+          },
+          {
+            "url": "http://e.com",
+            "headers": {
+              "Accept": "text/html",
+              "Accept-Encoding": "gzip",
+              "Accept-Language": "en"
+            }
+          }
+        ]
+      },
+      "expected_output": "request=0\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=V\nrequest=1\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=V\nrequest=2\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=V\nrequest=3\nstatus=200\nx_cache=miss\nset_cookie=-\nextra=-\nbody=V\nrequest=4\nstatus=200\nx_cache=hit\nset_cookie=-\nextra=-\nbody=V\n"
+    }
+  ]
+}

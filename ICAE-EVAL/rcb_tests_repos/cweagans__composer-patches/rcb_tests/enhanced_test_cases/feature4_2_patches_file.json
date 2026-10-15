@@ -1,0 +1,47 @@
+{
+  "description": "Patches-file source coverage: a single package with a single patch; a package declared in compact (description->url) form inside the file; a file whose top-level JSON is an empty object (no patches key -> no_patches_found); a file whose JSON is a bare array (still missing the patches key -> no_patches_found); a completely non-JSON body (-> invalid_json); and a valid file where two patches for one package share a url and collapse to one via de-duplication. The output reports either the normalized error category or the per-package counts and patched-package list.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve_file",
+        "patches_file_content": "{\"patches\":{\"only/one\":[{\"url\":\"https://x/1\",\"description\":\"d1\"}]}}"
+      },
+      "expected_output": "only/one patches=1\npatched_packages=only/one\n"
+    },
+    {
+      "input": {
+        "op": "resolve_file",
+        "patches_file_content": "{\"patches\":{\"comp/pkg\":{\"A patch\":\"https://x/1\",\"B patch\":\"https://x/2\"}}}"
+      },
+      "expected_output": "comp/pkg patches=2\npatched_packages=comp/pkg\n"
+    },
+    {
+      "input": {
+        "op": "resolve_file",
+        "patches_file_content": "{\"patches\":{}}"
+      },
+      "expected_output": "patched_packages=\n"
+    },
+    {
+      "input": {
+        "op": "resolve_file",
+        "patches_file_content": "[]"
+      },
+      "expected_output": "error=no_patches_found\n"
+    },
+    {
+      "input": {
+        "op": "resolve_file",
+        "patches_file_content": "not json at all"
+      },
+      "expected_output": "error=invalid_json\n"
+    },
+    {
+      "input": {
+        "op": "resolve_file",
+        "patches_file_content": "{\"patches\":{\"p/a\":[{\"url\":\"u1\",\"description\":\"d1\"},{\"url\":\"u1\",\"description\":\"dup\"}]}}"
+      },
+      "expected_output": "p/a patches=1\npatched_packages=p/a\n"
+    }
+  ]
+}

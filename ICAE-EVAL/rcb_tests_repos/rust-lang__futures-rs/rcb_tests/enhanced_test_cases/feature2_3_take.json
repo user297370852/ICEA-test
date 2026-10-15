@@ -1,0 +1,98 @@
+{
+  "description": "A prefix limiter forwards at most a fixed number of SUCCESSFUL items from the source and then ends the stream. Error outcomes encountered before the limit is reached are forwarded but do not count toward the limit; reaching the count of successful items terminates the stream.",
+  "cases": [
+    {
+      "input": {
+        "source": [
+          1,
+          2,
+          3
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "take",
+            "n": 0
+          }
+        ]
+      },
+      "expected_output": "end\n"
+    },
+    {
+      "input": {
+        "source": [
+          1,
+          2
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "take",
+            "n": 5
+          }
+        ]
+      },
+      "expected_output": "item=1\nitem=2\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          1,
+          2,
+          3
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "take",
+            "n": 3
+          }
+        ]
+      },
+      "expected_output": "item=1\nitem=2\nitem=3\nend\n"
+    },
+    {
+      "input": {
+        "source": [
+          1,
+          {
+            "err": 7
+          },
+          2,
+          3
+        ],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "take",
+            "n": 2
+          }
+        ]
+      },
+      "expected_output": "error=7\n"
+    },
+    {
+      "input": {
+        "source": [],
+        "sink": {
+          "kind": "collect"
+        },
+        "pipeline": [
+          {
+            "stage": "take",
+            "n": 3
+          }
+        ]
+      },
+      "expected_output": "end\n"
+    }
+  ]
+}

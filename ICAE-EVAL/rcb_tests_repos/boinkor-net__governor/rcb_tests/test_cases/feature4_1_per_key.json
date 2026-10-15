@@ -1,0 +1,83 @@
+{
+    "description": "Drive a keyed rate limiter against a virtual clock, where each distinct key carries its own independent budget under one shared quota. Admission decisions for one key never consume another key's budget. A fresh limiter admits the first request for every key. Draining one key's burst causes that key's subsequent requests to be rejected (with a reported wait time in nanoseconds) and later re-admitted as time replenishes its budget, while a different key, seen for the first time, still receives its full burst regardless of how much the clock has advanced. Each clock advance reports the new absolute virtual time in nanoseconds.",
+    "cases": [
+        {
+            "input": {
+                "action": "simulate",
+                "limiter": "keyed",
+                "quota": {
+                    "per_second": 5
+                },
+                "ops": [
+                    {
+                        "check_key": "alpha"
+                    },
+                    {
+                        "check_key": "beta"
+                    }
+                ]
+            },
+            "expected_output": "check_key key=alpha allow\ncheck_key key=beta allow\n"
+        },
+        {
+            "input": {
+                "action": "simulate",
+                "limiter": "keyed",
+                "quota": {
+                    "per_second": 2
+                },
+                "ops": [
+                    {
+                        "check_key": "alpha"
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_key": "alpha"
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_key": "alpha"
+                    },
+                    {
+                        "advance_ms": 1000
+                    },
+                    {
+                        "check_key": "alpha"
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_key": "alpha"
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_key": "alpha"
+                    },
+                    {
+                        "check_key": "beta"
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_key": "beta"
+                    },
+                    {
+                        "advance_ms": 1
+                    },
+                    {
+                        "check_key": "beta"
+                    }
+                ]
+            },
+            "expected_output": "check_key key=alpha allow\nadvance now_ns=1000000\ncheck_key key=alpha allow\nadvance now_ns=2000000\ncheck_key key=alpha deny wait_ns=498000000\nadvance now_ns=1002000000\ncheck_key key=alpha allow\nadvance now_ns=1003000000\ncheck_key key=alpha allow\nadvance now_ns=1004000000\ncheck_key key=alpha deny wait_ns=496000000\ncheck_key key=beta allow\nadvance now_ns=1005000000\ncheck_key key=beta allow\nadvance now_ns=1006000000\ncheck_key key=beta deny wait_ns=498000000\n"
+        }
+    ]
+}

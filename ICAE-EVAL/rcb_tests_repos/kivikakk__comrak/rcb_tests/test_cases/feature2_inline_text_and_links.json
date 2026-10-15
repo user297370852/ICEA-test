@@ -1,0 +1,59 @@
+{
+    "description": "Render inline Markdown syntax and character references to HTML while preserving escaped literals and encoding link targets.",
+    "cases": [
+        {
+            "input": {
+                "markdown": "Some `code\\` yep.\n"
+            },
+            "expected_output": "<p>Some <code>code\\</code> yep.</p>\n"
+        },
+        {
+            "input": {
+                "markdown": "Some \\`fake code\\`.\n\nSome fake linebreaks:\\\nYes.\\\nSee?\n\nGa\\rbage.\n"
+            },
+            "expected_output": "<p>Some `fake code`.</p>\n<p>Some fake linebreaks:<br />\nYes.<br />\nSee?</p>\n<p>Ga\\rbage.</p>\n"
+        },
+        {
+            "input": {
+                "markdown": "This is &amp;, &copy;, &trade;, \\&trade;, &xyz;, &NotEqualTilde;.\n\n&#8734; &#x221e;\n"
+            },
+            "expected_output": "<p>This is &amp;, ©, ™, &amp;trade;, &amp;xyz;, ≂̸.</p>\n<p>∞ ∞</p>\n"
+        },
+        {
+            "input": {
+                "markdown": "Where are you [going](https://microsoft.com (today))?\n\n[Where am I?](/here)\n"
+            },
+            "expected_output": "<p>Where are you <a href=\"https://microsoft.com\" title=\"today\">going</a>?</p>\n<p><a href=\"/here\">Where am I?</a></p>\n"
+        },
+        {
+            "input": {
+                "markdown": "I am ![eating [things](/url)](http://i.imgur.com/QqK1vq7.png).\n"
+            },
+            "expected_output": "<p>I am <img src=\"http://i.imgur.com/QqK1vq7.png\" alt=\"eating things\" />.</p>\n"
+        },
+        {
+            "input": {
+                "markdown": "[data:image/png](data:image/png/x)\n\n[data:malicious](data:malicious/x)\n\n[javascript:malicious](javascript:malicious)\n\n[file:malicious](file:malicious)\n\n"
+            },
+            "expected_output": "<p><a href=\"data:image/png/x\">data:image/png</a></p>\n<p><a href=\"\">data:malicious</a></p>\n<p><a href=\"\">javascript:malicious</a></p>\n<p><a href=\"\">file:malicious</a></p>\n"
+        },
+        {
+            "input": {
+                "markdown": "This [is] [legit], [very][honestly] legit.\n\n[legit]: ok\n[honestly]: sure \"hm\"\n"
+            },
+            "expected_output": "<p>This [is] <a href=\"ok\">legit</a>, <a href=\"sure\" title=\"hm\">very</a> legit.</p>\n"
+        },
+        {
+            "input": {
+                "markdown": "**bold*****bold+italic***"
+            },
+            "expected_output": "<p><strong>bold</strong><em><strong>bold+italic</strong></em></p>\n"
+        },
+        {
+            "input": {
+                "markdown": "a\u0000b"
+            },
+            "expected_output": "<p>a�b</p>\n"
+        }
+    ]
+}

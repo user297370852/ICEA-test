@@ -1,0 +1,67 @@
+{
+    "description": "Join a base URL and a request path into one absolute URL, then append query parameters. Exactly one slash separates the base and path regardless of trailing/leading slashes on either side. If the path is itself an absolute http/https URL, the base is ignored. Query parameters already present on the base are dropped; query parameters present on the path are kept and merged with the explicit parameter map (path-first, then map).",
+    "cases": [
+        {
+            "input": {
+                "op": "resolve_url",
+                "baseUrl": "foo",
+                "url": "bar",
+                "parameters": {}
+            },
+            "expected_output": "url=foo/bar\n"
+        },
+        {
+            "input": {
+                "op": "resolve_url",
+                "baseUrl": "foo/",
+                "url": "/bar",
+                "parameters": {}
+            },
+            "expected_output": "url=foo/bar\n"
+        },
+        {
+            "input": {
+                "op": "resolve_url",
+                "baseUrl": "https://foo/",
+                "url": "/bar",
+                "parameters": {
+                    "abc": "xyz"
+                }
+            },
+            "expected_output": "url=https://foo/bar?abc=xyz\n"
+        },
+        {
+            "input": {
+                "op": "resolve_url",
+                "baseUrl": "https://foo/",
+                "url": "/bar?first=123&second=456",
+                "parameters": {
+                    "third": "789",
+                    "fourth": "012"
+                }
+            },
+            "expected_output": "url=https://foo/bar?first=123&second=456&third=789&fourth=012\n"
+        },
+        {
+            "input": {
+                "op": "resolve_url",
+                "baseUrl": "https://foo?first=123&second=456",
+                "url": "/bar",
+                "parameters": {
+                    "third": "789",
+                    "fourth": "012"
+                }
+            },
+            "expected_output": "url=https://foo/bar?third=789&fourth=012\n"
+        },
+        {
+            "input": {
+                "op": "resolve_url",
+                "baseUrl": "https://foo/bar?first=123&second=456",
+                "url": "https://bar/foo?fourth=789&fifth=012",
+                "parameters": {}
+            },
+            "expected_output": "url=https://bar/foo?fourth=789&fifth=012\n"
+        }
+    ]
+}

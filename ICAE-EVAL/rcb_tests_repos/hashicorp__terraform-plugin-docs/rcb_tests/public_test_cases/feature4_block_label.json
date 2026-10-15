@@ -1,0 +1,115 @@
+{
+    "description": "Render the inline label for a nested block. The label opens with 'Block' plus a collection word (none for single, List/Set/Map otherwise). For single nesting the behavior word (Required/Optional/Read-only) is appended based on the block's minimum items and child characteristics; for List/Set/Map nesting the minimum item count is appended as 'Min: N' when greater than zero. A maximum item count is appended as 'Max: N' when greater than zero, then a Deprecated marker when the block is deprecated, and finally the trimmed block description.",
+    "cases": [
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "single",
+                    "block": {
+                        "description": "This is a block.",
+                        "attributes": {
+                            "foo": {
+                                "required": true
+                            }
+                        }
+                    }
+                }
+            },
+            "expected_output": "(Block, Optional) This is a block."
+        },
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "single",
+                    "min_items": 1,
+                    "block": {
+                        "description": "This is a block."
+                    }
+                }
+            },
+            "expected_output": "(Block, Required) This is a block."
+        },
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "single",
+                    "min_items": 1,
+                    "block": {
+                        "description": "This is a block.",
+                        "deprecated": true
+                    }
+                }
+            },
+            "expected_output": "(Block, Required, Deprecated) This is a block."
+        },
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "list",
+                    "block": {
+                        "description": "This is a block."
+                    }
+                }
+            },
+            "expected_output": "(Block List) This is a block."
+        },
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "list",
+                    "min_items": 1,
+                    "block": {
+                        "description": "This is a block."
+                    }
+                }
+            },
+            "expected_output": "(Block List, Min: 1) This is a block."
+        },
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "list",
+                    "min_items": 1,
+                    "max_items": 4,
+                    "block": {
+                        "description": "This is a block."
+                    }
+                }
+            },
+            "expected_output": "(Block List, Min: 1, Max: 4) This is a block."
+        },
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "list",
+                    "min_items": 1,
+                    "max_items": 4,
+                    "block": {
+                        "description": "This is a block.",
+                        "deprecated": true
+                    }
+                }
+            },
+            "expected_output": "(Block List, Min: 1, Max: 4, Deprecated) This is a block."
+        },
+        {
+            "input": {
+                "op": "block_description",
+                "block": {
+                    "nesting_mode": "map",
+                    "block": {
+                        "description": "This is a block."
+                    }
+                }
+            },
+            "expected_output": "(Block Map) This is a block."
+        }
+    ]
+}

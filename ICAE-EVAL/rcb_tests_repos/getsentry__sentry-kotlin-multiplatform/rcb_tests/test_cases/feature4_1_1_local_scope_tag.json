@@ -1,0 +1,13 @@
+{
+    "description": "A tag set on a per-capture local scope is attached only to that event. A second capture that sets the same key on its own local scope carries its own value, demonstrating that local scope data does not leak between captures.",
+    "cases": [
+        {
+            "input": {"operations": [{"op": "capture_exception", "message": "test", "scope": {"set_tag": {"key": "testABC", "value": "valueABC"}}}]},
+            "expected_output": "captured_events=1\nevent[0].exception[0].type=RuntimeException\nevent[0].exception[0].value=test\nevent[0].tag.testABC=valueABC\n"
+        },
+        {
+            "input": {"operations": [{"op": "capture_exception", "message": "test", "scope": {"set_tag": {"key": "testABC", "value": "valueABC"}}}, {"op": "capture_exception", "message": "test2", "scope": {"set_tag": {"key": "testABC", "value": "valueABC"}}}]},
+            "expected_output": "captured_events=2\nevent[0].exception[0].type=RuntimeException\nevent[0].exception[0].value=test\nevent[0].tag.testABC=valueABC\nevent[1].exception[0].type=RuntimeException\nevent[1].exception[0].value=test2\nevent[1].tag.testABC=valueABC\n"
+        }
+    ]
+}

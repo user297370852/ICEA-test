@@ -1,0 +1,47 @@
+{
+    "description": "Locked-account unlock requests and token consumption expose mail delivery, HTTP status, JSON errors, and lock state.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "unlock",
+                "mode": "request",
+                "locked": true
+            },
+            "expected_output": "status=200\npath=/users/sign_in\nmessage=You will receive an email with instructions for how to unlock your account in a few minutes\nmail_count=1\njson_has_errors=false\n"
+        },
+        {
+            "input": {
+                "scenario": "unlock",
+                "mode": "request",
+                "locked": false
+            },
+            "expected_output": "status=200\npath=/users/unlock\nmessage=not locked\nmail_count=0\njson_has_errors=false\n"
+        },
+        {
+            "input": {
+                "scenario": "unlock",
+                "mode": "request",
+                "locked": true,
+                "format": "json"
+            },
+            "expected_output": "status=201\npath=null\nmessage=none\nmail_count=1\njson_has_errors=false\n"
+        },
+        {
+            "input": {
+                "scenario": "unlock",
+                "mode": "consume",
+                "token": "valid"
+            },
+            "expected_output": "status=302\npath=null\nmessage=none\nlocked=false\njson_has_user=false\njson_has_token_error=false\n"
+        },
+        {
+            "input": {
+                "scenario": "unlock",
+                "mode": "consume",
+                "token": "invalid",
+                "format": "json"
+            },
+            "expected_output": "status=422\npath=null\nmessage=none\nlocked=false\njson_has_user=false\njson_has_token_error=true\n"
+        }
+    ]
+}

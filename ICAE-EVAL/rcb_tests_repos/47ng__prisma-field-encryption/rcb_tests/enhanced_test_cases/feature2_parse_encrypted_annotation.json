@@ -1,0 +1,110 @@
+{
+  "description": "Edge cases for encrypted-annotation parsing: empty annotation and uppercase marker yield no match; bare marker with no surrounding text; explicit mode=default; empty/unknown/uppercase mode values fall back to default; precedence interactions between the mode parameter and the legacy strict/readonly flags (a present mode dominates the bare flags, while between bare flags readonly wins); a flag written as strict=true is still honoured; unknown query parameters are ignored; trailing empty query string.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": ""
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": "@encrypted"
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?mode=default "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?mode= "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?mode=STRICT "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?MODE=strict "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?readonly&strict "
+      },
+      "expected_output": "encrypt=false\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?mode=strict&readonly "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=true\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?mode=readonly&strict "
+      },
+      "expected_output": "encrypt=false\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?strict&mode=readonly "
+      },
+      "expected_output": "encrypt=false\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?strict=true "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=true\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": "@ENCRYPTED"
+      },
+      "expected_output": "match=none\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " text @encrypted?foo=bar&mode=strict text "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=true\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted? "
+      },
+      "expected_output": "encrypt=true\nstrictDecryption=false\n"
+    },
+    {
+      "input": {
+        "op": "parse_encrypted",
+        "annotation": " @encrypted?mode=readonly&mode=strict "
+      },
+      "expected_output": "encrypt=false\nstrictDecryption=false\n"
+    }
+  ]
+}

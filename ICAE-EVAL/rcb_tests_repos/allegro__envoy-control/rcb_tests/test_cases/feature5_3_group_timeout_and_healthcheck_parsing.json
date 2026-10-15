@@ -1,0 +1,13 @@
+{
+    "description": "Parsing of incoming timeout policy and custom health check inside group resolution. When incoming permissions are enabled and a node supplies incoming settings, the resolved group carries the parsed incoming timeout policy (response and idle timeouts given as duration strings such as '777s' or '13.33s') and the parsed health-check definition (path and cluster name). Output reports the group summary including the parsed response/idle timeouts and the health-check path and cluster.",
+    "cases": [
+        {
+            "input": {"op": "node_group", "outgoingPermissions": true, "serviceDependencies": ["*"], "ads": true, "incomingSettings": true, "responseTimeout": "777s", "idleTimeout": "13.33s"},
+            "expected_output": "type=AllServicesGroup\nmode=ADS\nserviceName=\ndeps=[*]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=777s\nincoming.timeout.idle=13.330s\n"
+        },
+        {
+            "input": {"op": "node_group", "incomingPermissions": true, "serviceDependencies": ["*"], "ads": true, "incomingSettings": true, "healthCheckPath": "/status/ping", "healthCheckClusterName": "local_service_health_check"},
+            "expected_output": "type=AllServicesGroup\nmode=ADS\nserviceName=\ndeps=[*]\nincoming.permissionsEnabled=true\nincoming.endpoints=[/endpoint|PATH|methods=[]|clients=[client1]]\nincoming.healthCheck.path=/status/ping\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        }
+    ]
+}

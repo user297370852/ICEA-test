@@ -1,0 +1,137 @@
+{
+    "description": "Metric families serialize to the text exposition format with HELP/TYPE headers, escaped label values, special floating-point values, timestamps, and compound sample lines.",
+    "cases": [
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "gauge",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "special_value": "nan",
+                "labels": {}
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric gauge\nmy_metric Nan\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "gauge",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "special_value": "-inf",
+                "labels": {}
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric gauge\nmy_metric -Inf\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "gauge",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "special_value": "+inf",
+                "labels": {}
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric gauge\nmy_metric +Inf\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "gauge",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "value": 0,
+                "labels": {
+                    "k": "v\\v"
+                }
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric gauge\nmy_metric{k=\"v\\\\v\"} 0\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "gauge",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "value": 0,
+                "labels": {
+                    "k": "v\nv"
+                }
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric gauge\nmy_metric{k=\"v\\nv\"} 0\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "gauge",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "value": 0,
+                "labels": {
+                    "k": "v\"v"
+                }
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric gauge\nmy_metric{k=\"v\\\"v\"} 0\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "untyped",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "value": 64,
+                "labels": {}
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric untyped\nmy_metric 64\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "counter",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "value": 64,
+                "timestamp_ms": 1234,
+                "labels": {}
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric counter\nmy_metric 64 1234\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "histogram",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "buckets": [
+                    1
+                ],
+                "observations": [
+                    0,
+                    200
+                ],
+                "labels": {}
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric histogram\nmy_metric_count 2\nmy_metric_sum 200\nmy_metric_bucket{le=\"1\"} 1\nmy_metric_bucket{le=\"+Inf\"} 2\n"
+        },
+        {
+            "input": {
+                "feature": "serialize",
+                "metric_type": "summary",
+                "name": "my_metric",
+                "help": "my metric help text",
+                "quantiles": [
+                    {
+                        "quantile": 0.5,
+                        "error": 0.05
+                    }
+                ],
+                "observations": [
+                    0,
+                    200
+                ],
+                "labels": {}
+            },
+            "expected_output": "# HELP my_metric my metric help text\n# TYPE my_metric summary\nmy_metric_count 2\nmy_metric_sum 200\nmy_metric{quantile=\"0.5\"} 0\n"
+        }
+    ]
+}

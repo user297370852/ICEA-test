@@ -1,0 +1,35 @@
+{
+  "description": "Edge coverage for detailed metadata rows: empty multistatus, malformed XML, a directory entry, an entry with missing optional metadata fields, and percent-encoded paths.",
+  "cases": [
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n\n</d:multistatus>"
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "garbage-not-xml"
+      },
+      "expected_output": "count=0\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/photos/</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype><d:collection/></d:resourcetype>\n                <d:getlastmodified>Tue, 02 Feb 2021 12:30:00 GMT</d:getlastmodified>\n                <d:displayname>photos</d:displayname>\n                <d:creationdate>2021-02-02T12:30:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].created=2021-02-02T12:30:00Z\nitem[0].name=photos\nitem[0].modified=Tue, 02 Feb 2021 12:30:00 GMT\nitem[0].size=None\nitem[0].etag=None\nitem[0].isdir=true\nitem[0].path=/photos/\nitem[0].content_type=None\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/sparse.dat</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].created=None\nitem[0].name=None\nitem[0].modified=None\nitem[0].size=None\nitem[0].etag=None\nitem[0].isdir=false\nitem[0].path=/sparse.dat\nitem[0].content_type=None\n"
+    },
+    {
+      "input": {
+        "multistatus_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<d:multistatus xmlns:d=\"DAV:\">\n    <d:response>\n        <d:href>/%D0%93%D0%BE%D1%80%D1%8B.jpg</d:href>\n        <d:propstat>\n            <d:status>HTTP/1.1 200 OK</d:status>\n            <d:prop>\n                <d:resourcetype/>\n                <d:getlastmodified>Mon, 01 Jan 2024 00:00:00 GMT</d:getlastmodified>\n                <d:getetag>etag-abc-123</d:getetag>\n                <d:getcontenttype>application/json</d:getcontenttype>\n                <d:getcontentlength>1024</d:getcontentlength>\n                <d:displayname>data.json</d:displayname>\n                <d:creationdate>2024-01-01T00:00:00Z</d:creationdate>\n            </d:prop>\n        </d:propstat>\n    </d:response>\n</d:multistatus>"
+      },
+      "expected_output": "count=1\nitem[0].created=2024-01-01T00:00:00Z\nitem[0].name=data.json\nitem[0].modified=Mon, 01 Jan 2024 00:00:00 GMT\nitem[0].size=1024\nitem[0].etag=etag-abc-123\nitem[0].isdir=false\nitem[0].path=/Горы.jpg\nitem[0].content_type=None\n"
+    }
+  ]
+}

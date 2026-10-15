@@ -1,0 +1,95 @@
+{
+  "description": "Root-configuration source coverage: multiple packages each with multiple expanded-form patches; a single package in compact (description->url) form with two entries; a mix of expanded form for one package and compact form for another in the same declaration; two expanded patches for one package sharing the same url collapse to one via de-duplication; and an expanded patch carrying all optional fields still resolves to a single grouped patch. The output reports per-package patch counts and the list of patched packages.",
+  "cases": [
+    {
+      "input": {
+        "op": "resolve_root",
+        "patches": {
+          "test/a": [
+            {
+              "url": "https://x/1",
+              "description": "d1"
+            },
+            {
+              "url": "https://x/2",
+              "description": "d2"
+            }
+          ],
+          "test/b": [
+            {
+              "url": "https://x/3",
+              "description": "d3"
+            }
+          ]
+        }
+      },
+      "expected_output": "test/a patches=2\ntest/b patches=1\npatched_packages=test/a,test/b\n"
+    },
+    {
+      "input": {
+        "op": "resolve_root",
+        "patches": {
+          "test/pkg": {
+            "First patch": "https://x/1",
+            "Second patch": "https://x/2"
+          }
+        }
+      },
+      "expected_output": "test/pkg patches=2\npatched_packages=test/pkg\n"
+    },
+    {
+      "input": {
+        "op": "resolve_root",
+        "patches": {
+          "test/a": [
+            {
+              "url": "https://x/1",
+              "description": "d1"
+            }
+          ],
+          "test/b": {
+            "compact": "https://x/2"
+          }
+        }
+      },
+      "expected_output": "test/a patches=1\ntest/b patches=1\npatched_packages=test/a,test/b\n"
+    },
+    {
+      "input": {
+        "op": "resolve_root",
+        "patches": {
+          "test/a": [
+            {
+              "url": "https://same",
+              "description": "d1"
+            },
+            {
+              "url": "https://same",
+              "description": "dup"
+            }
+          ]
+        }
+      },
+      "expected_output": "test/a patches=1\npatched_packages=test/a\n"
+    },
+    {
+      "input": {
+        "op": "resolve_root",
+        "patches": {
+          "test/a": [
+            {
+              "url": "https://x/1",
+              "description": "d1",
+              "sha256": "h",
+              "depth": 2,
+              "extra": {
+                "k": "v"
+              }
+            }
+          ]
+        }
+      },
+      "expected_output": "test/a patches=1\npatched_packages=test/a\n"
+    }
+  ]
+}

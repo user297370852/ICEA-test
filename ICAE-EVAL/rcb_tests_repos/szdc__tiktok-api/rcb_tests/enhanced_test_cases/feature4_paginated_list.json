@@ -1,0 +1,65 @@
+{
+  "description": "Build a paginated listing/search request. Each operation routes a GET to its own fixed endpoint and merges a set of default listing parameters into the caller's parameters before sending: a default page size and a fixed no-retry marker are applied, and any value the caller supplies for those keys overrides the default. Some operations additionally inject their own constant parameters that select a sub-mode or content type; one feed-style family overrides the default page size with a smaller one and adds cold-start, cursor and feed-selector constants. The reply is parsed (preserving oversized integers) and returned. The output describes the HTTP method, endpoint path, the merged query parameters, and the parsed response.",
+  "cases": [
+    {
+      "input": {
+        "action": "request",
+        "operation": "list_posts",
+        "args": {
+          "user_id": "0"
+        },
+        "response": "{\"status_code\":0,\"aweme_list\":[]}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"count\":20,\"retry_type\":\"no_retry\",\"user_id\":\"0\"},\"path\":\"aweme/v1/aweme/post/\",\"response\":{\"aweme_list\":[],\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "list_posts",
+        "args": {
+          "user_id": "1"
+        },
+        "response": "{\"status_code\":0,\"aweme_list\":[],\"has_more\":false,\"max_cursor\":0}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"count\":20,\"retry_type\":\"no_retry\",\"user_id\":\"1\"},\"path\":\"aweme/v1/aweme/post/\",\"response\":{\"aweme_list\":[],\"has_more\":false,\"max_cursor\":0,\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "list_comments",
+        "args": {
+          "aweme_id": "0"
+        },
+        "response": "{\"status_code\":0,\"comments\":[],\"total\":0}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"aweme_id\":\"0\",\"comment_style\":2,\"count\":20,\"digged_cid\":\"\",\"insert_cids\":\"\",\"retry_type\":\"no_retry\"},\"path\":\"aweme/v1/comment/list/\",\"response\":{\"comments\":[],\"status_code\":0,\"total\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "list_comments",
+        "args": {
+          "aweme_id": "1"
+        },
+        "response": "{\"status_code\":0,\"comments\":[],\"cid\":9999999999999999999}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"aweme_id\":\"1\",\"comment_style\":2,\"count\":20,\"digged_cid\":\"\",\"insert_cids\":\"\",\"retry_type\":\"no_retry\"},\"path\":\"aweme/v1/comment/list/\",\"response\":{\"cid\":\"9999999999999999999\",\"comments\":[],\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "list_categories",
+        "response": "{\"status_code\":0,\"category_list\":[{\"id\":1}]}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"count\":10,\"cursor\":0,\"retry_type\":\"no_retry\"},\"path\":\"aweme/v1/category/list/\",\"response\":{\"category_list\":[{\"id\":1}],\"status_code\":0}}\n"
+    },
+    {
+      "input": {
+        "action": "request",
+        "operation": "list_for_you_feed",
+        "response": "{\"status_code\":0,\"aweme_list\":[],\"has_more\":false}"
+      },
+      "expected_output": "{\"method\":\"GET\",\"params\":{\"count\":6,\"is_cold_start\":1,\"max_cursor\":0,\"pull_type\":2,\"retry_type\":\"no_retry\",\"type\":0},\"path\":\"aweme/v1/feed/\",\"response\":{\"aweme_list\":[],\"has_more\":false,\"status_code\":0}}\n"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "description": "With an external payload sink configured, an inbound PUBLISH delivers the topic and payload length to the handler while the payload is streamed to the sink (the rendered message omits the payload bytes). These cases exercise an empty payload and a QoS 1 message in stream mode.",
+  "cases": [
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "stream": true,
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "inbound",
+            "bytes": "30 07 00 05 74 6f 70 69 63"
+          },
+          {
+            "op": "loop"
+          }
+        ]
+      },
+      "expected_output": "loop=1\nmessage topic=topic length=0\nsent=\n"
+    },
+    {
+      "input": {
+        "server": {
+          "ip": "172.16.0.2"
+        },
+        "stream": true,
+        "steps": [
+          {
+            "op": "inbound",
+            "bytes": "20 02 00 00"
+          },
+          {
+            "op": "connect",
+            "id": "client_test1",
+            "quiet": true
+          },
+          {
+            "op": "inbound",
+            "bytes": "32 10 00 05 74 6f 70 69 63 ab cd 70 61 79 6c 6f 61 64"
+          },
+          {
+            "op": "loop"
+          }
+        ]
+      },
+      "expected_output": "loop=1\nmessage topic=topic length=7\nsent=40 02 ab cd\n"
+    }
+  ]
+}

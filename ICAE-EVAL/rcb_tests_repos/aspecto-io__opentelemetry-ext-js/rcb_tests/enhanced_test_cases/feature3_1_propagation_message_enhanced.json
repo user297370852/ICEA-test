@@ -1,0 +1,78 @@
+{
+  "description": "Enhanced cross-boundary propagation coverage: publishing two messages and then consuming the second one shows the consumer span joining the second producer's trace as its child; and multiple baggage keys set around a publish are all recovered and reported in sorted order inside the consumer handler.",
+  "cases": [
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce",
+            "topic": "topic-name-1",
+            "messages": [
+              {
+                "value": "first"
+              },
+              {
+                "value": "second"
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            }
+          },
+          {
+            "action": "consume_message",
+            "topic": "topic-name-1",
+            "message": {
+              "value": ""
+            },
+            "headersFromMessage": 1,
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "produce topic=topic-name-1 status=ok result_records=0\nconsume_message topic=topic-name-1 delivered=ok error=none\ninject msg=0 carries=span#0\ninject msg=1 carries=span#1\nspans=3\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 1 kind=producer name=topic-name-1 trace=t1 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 2 kind=consumer name=topic-name-1 trace=t1 parent=span#1 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    },
+    {
+      "input": {
+        "config": {},
+        "steps": [
+          {
+            "action": "produce",
+            "topic": "topic-name-1",
+            "messages": [
+              {
+                "value": "ctx carrier"
+              }
+            ],
+            "clientResponse": {
+              "status": "success",
+              "records": []
+            },
+            "baggage": {
+              "zeta": "26",
+              "alpha": "1",
+              "mid": "13"
+            }
+          },
+          {
+            "action": "consume_message",
+            "topic": "topic-name-1",
+            "message": {
+              "value": ""
+            },
+            "headersFromMessage": 0,
+            "observeBaggage": true,
+            "handler": {
+              "behavior": "resolve"
+            }
+          }
+        ]
+      },
+      "expected_output": "produce topic=topic-name-1 status=ok result_records=0\nconsume_message topic=topic-name-1 delivered=ok error=none\ninject msg=0 carries=span#0\nbaggage alpha=1 mid=13 zeta=26\nspans=2\nspan 0 kind=producer name=topic-name-1 trace=t0 parent=root status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\nspan 1 kind=consumer name=topic-name-1 trace=t0 parent=span#0 status=unset\n  messaging.system=kafka\n  messaging.destination=topic-name-1\n  messaging.destination_kind=topic\n  messaging.operation=process\n"
+    }
+  ]
+}

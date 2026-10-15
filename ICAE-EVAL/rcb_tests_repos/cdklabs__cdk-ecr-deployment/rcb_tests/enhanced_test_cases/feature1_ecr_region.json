@@ -1,0 +1,68 @@
+{
+  "description": "Enhanced boundary/edge coverage for ECR region extraction from a registry URI. Hostname shape <account>.dkr.ecr.<region>.amazonaws.com; region is the segment between the dkr.ecr. label and the .amazonaws.com suffix; substring match anywhere; fixed default us-east-1 when absent. Covers diverse real regions, GovCloud/China partitions, the empty URI, the case-sensitivity of the match (uppercase does not match), the non-greedy capture stopping at the first .amazonaws.com, and a no-host URI.",
+  "cases": [
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "docker://1234567890.dkr.ecr.ap-southeast-1.amazonaws.com/test:ubuntu"
+      },
+      "expected_output": "region=ap-southeast-1\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "docker://1234567890.dkr.ecr.eu-west-3.amazonaws.com/repo:tag"
+      },
+      "expected_output": "region=eu-west-3\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "docker://000000000000.dkr.ecr.cn-northwest-1.amazonaws.com.cn/img"
+      },
+      "expected_output": "region=cn-northwest-1\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "1234567890.dkr.ecr.us-gov-west-1.amazonaws.com/x:y"
+      },
+      "expected_output": "region=us-gov-west-1\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "docker://registry.hub.docker.com/library/ubuntu:latest"
+      },
+      "expected_output": "region=us-east-1\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": ""
+      },
+      "expected_output": "region=us-east-1\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "dkr.ecr.amazonaws.com"
+      },
+      "expected_output": "region=us-east-1\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "a.dkr.ecr.r1.amazonaws.com/b.dkr.ecr.r2.amazonaws.com"
+      },
+      "expected_output": "region=r1\n"
+    },
+    {
+      "input": {
+        "op": "ecr_region",
+        "uri": "prefix.DKR.ECR.us-west-2.amazonaws.com"
+      },
+      "expected_output": "region=us-east-1\n"
+    }
+  ]
+}

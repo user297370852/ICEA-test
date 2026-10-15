@@ -1,0 +1,57 @@
+{
+    "description": "Instrumented filesystem operations create breadcrumbs with operation names, descriptions, and disk metadata.",
+    "cases": [
+        {
+            "input": {
+                "feature": "filesystem_observability",
+                "record_spans": false,
+                "record_breadcrumbs": true,
+                "operations": [
+                    {
+                        "action": "put",
+                        "path": "foo",
+                        "content": "bar"
+                    },
+                    {
+                        "action": "get",
+                        "path": "foo"
+                    },
+                    {
+                        "action": "assert_exists",
+                        "path": "foo",
+                        "content": "bar"
+                    },
+                    {
+                        "action": "delete",
+                        "path": "foo"
+                    },
+                    {
+                        "action": "delete",
+                        "path": [
+                            "foo",
+                            "bar"
+                        ]
+                    },
+                    {
+                        "action": "files"
+                    }
+                ]
+            },
+            "expected_output": "file_content=bar\nspan_count=1\nbreadcrumb_count=6\nbreadcrumb1_exists=true\nbreadcrumb1_category=file.put\nbreadcrumb1_level=info\nbreadcrumb1_message=foo (3 B)\nbreadcrumb1_metadata={\"path\":\"foo\",\"options\":[],\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb2_exists=true\nbreadcrumb2_category=file.get\nbreadcrumb2_level=info\nbreadcrumb2_message=foo\nbreadcrumb2_metadata={\"path\":\"foo\",\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb3_exists=true\nbreadcrumb3_category=file.assertExists\nbreadcrumb3_level=info\nbreadcrumb3_message=foo\nbreadcrumb3_metadata={\"path\":\"foo\",\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb4_exists=true\nbreadcrumb4_category=file.delete\nbreadcrumb4_level=info\nbreadcrumb4_message=foo\nbreadcrumb4_metadata={\"path\":\"foo\",\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb5_exists=true\nbreadcrumb5_category=file.delete\nbreadcrumb5_level=info\nbreadcrumb5_message=2 paths\nbreadcrumb5_metadata={\"paths\":[\"foo\",\"bar\"],\"disk\":\"local\",\"driver\":\"local\"}\nbreadcrumb6_exists=true\nbreadcrumb6_category=file.files\nbreadcrumb6_level=info\nbreadcrumb6_message=null\nbreadcrumb6_metadata={\"directory\":null,\"recursive\":false,\"disk\":\"local\",\"driver\":\"local\"}\n"
+        },
+        {
+            "input": {
+                "feature": "filesystem_observability",
+                "record_spans": false,
+                "record_breadcrumbs": false,
+                "operations": [
+                    {
+                        "action": "exists",
+                        "path": "foo"
+                    }
+                ]
+            },
+            "expected_output": "file_exists=false\nspan_count=1\nbreadcrumb_count=0\n"
+        }
+    ]
+}

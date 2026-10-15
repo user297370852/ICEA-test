@@ -1,0 +1,88 @@
+{
+  "description": "Deferred-entry-during-assembly boundary coverage: several observers registered while assembling all read zero entries mid-assembly yet exactly one after the container exists; deferred entry also applies when assembling a child; an observer registered during assembly is later notified of exit when the container is torn down.",
+  "cases": [
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "builder_register": [
+              "t1",
+              "t2"
+            ],
+            "builder_emit_enter": [
+              "t1",
+              "t2"
+            ]
+          },
+          {
+            "op": "tracker",
+            "tracker": "t1"
+          },
+          {
+            "op": "tracker",
+            "tracker": "t2"
+          }
+        ]
+      },
+      "expected_output": "builder_enter[t1]=0\nbuilder_enter[t2]=0\ntracker[t1] enter=1 exit=0\ntracker[t2] enter=1 exit=0\n"
+    },
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "name": "root"
+          },
+          {
+            "op": "build_child",
+            "id": "c",
+            "parent": "r",
+            "name": "child",
+            "builder_register": [
+              "t"
+            ],
+            "builder_emit_enter": [
+              "t"
+            ]
+          },
+          {
+            "op": "tracker",
+            "tracker": "t"
+          }
+        ]
+      },
+      "expected_output": "builder_enter[t]=0\ntracker[t] enter=1 exit=0\n"
+    },
+    {
+      "input": {
+        "action": "scope",
+        "ops": [
+          {
+            "op": "create_root",
+            "id": "r",
+            "builder_register": [
+              "t"
+            ],
+            "builder_emit_enter": [
+              "t"
+            ]
+          },
+          {
+            "op": "destroy",
+            "scope": "r"
+          },
+          {
+            "op": "tracker",
+            "tracker": "t"
+          }
+        ]
+      },
+      "expected_output": "builder_enter[t]=0\ntracker[t] enter=1 exit=1\n"
+    }
+  ]
+}

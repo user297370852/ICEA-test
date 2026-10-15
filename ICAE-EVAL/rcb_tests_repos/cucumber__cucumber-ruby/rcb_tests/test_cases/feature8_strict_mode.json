@@ -1,0 +1,86 @@
+{
+  "description": "Strict mode escalates the run-level result: with strict enabled, the presence of any undefined or pending step makes the overall result a failure, even though the per-scenario classification is unchanged. Without strict, the same undefined/pending scenarios leave the overall result non-failing. Defined passing scenarios succeed in both modes.",
+  "cases": [
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--strict"
+        ],
+        "steps": [
+
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Missing\n  Scenario: Missing\n    Given this step is undefined\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=0 undefined=1 pending=0 skipped=0\nsteps total=1 passed=0 failed=0 undefined=1 pending=0 skipped=0\nscenario keyword=Scenario name=Missing line=2 status=undefined\nresult=failed\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q"
+        ],
+        "steps": [
+
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Missing\n  Scenario: Missing\n    Given this step is undefined\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=0 undefined=1 pending=0 skipped=0\nsteps total=1 passed=0 failed=0 undefined=1 pending=0 skipped=0\nscenario keyword=Scenario name=Missing line=2 status=undefined\nresult=ok\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--strict"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step is pending$",
+            "outcome": "pending"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Pending\n  Scenario: Pending\n    Given this step is pending\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=0 failed=0 undefined=0 pending=1 skipped=0\nsteps total=1 passed=0 failed=0 undefined=0 pending=1 skipped=0\nscenario keyword=Scenario name=Pending line=2 status=pending\nresult=failed\n"
+    },
+    {
+      "input": {
+        "command": "run",
+        "args": [
+          "-q",
+          "--strict"
+        ],
+        "steps": [
+          {
+            "pattern": "^this step passes$",
+            "outcome": "pass"
+          }
+        ],
+        "files": [
+          {
+            "path": "features/test.feature",
+            "content": "Feature: Missing\n  Scenario: Missing\n    Given this step passes\n"
+          }
+        ]
+      },
+      "expected_output": "scenarios total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nsteps total=1 passed=1 failed=0 undefined=0 pending=0 skipped=0\nscenario keyword=Scenario name=Missing line=2 status=passed\nresult=ok\n"
+    }
+  ]
+}

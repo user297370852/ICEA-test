@@ -1,0 +1,73 @@
+{
+  "description": "Progress-update round-trip edge cases. A nested task carries a fractional progress, a positive expected size and concrete speed/time values; a flattened-form task with a half progress carries zero speed and zero time which survive as their exact numeric forms; and a flattened task that omits speed and time falls back to the not-available sentinels (-1.0 speed, -1 time) while an integer progress is normalized to a double.",
+  "cases": [
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "TaskProgressUpdate",
+        "json": {
+          "task": {
+            "url": "u2",
+            "taskType": "DownloadTask",
+            "taskId": "t1",
+            "filename": "f1",
+            "creationTime": 5
+          },
+          "progress": 0.25,
+          "expectedFileSize": 1000,
+          "networkSpeed": 2.5,
+          "timeRemaining": 42
+        }
+      },
+      "expected_output": "{\"task\":{\"url\":\"u2\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":5,\"taskId\":\"t1\",\"filename\":\"f1\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\"},\"progress\":0.25,\"expectedFileSize\":1000,\"networkSpeed\":2.5,\"timeRemaining\":42}\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "TaskProgressUpdate",
+        "json": {
+          "url": "url?a=b",
+          "headers": {
+            "c": "d"
+          },
+          "httpRequestMethod": "GET",
+          "post": null,
+          "retries": 5,
+          "retriesRemaining": 5,
+          "creationTime": 1000,
+          "taskId": "taskId",
+          "filename": "filename",
+          "directory": "dir",
+          "baseDirectory": 1,
+          "group": "group",
+          "updates": 3,
+          "requiresWiFi": true,
+          "allowPause": true,
+          "metaData": "metaData",
+          "taskType": "DownloadTask",
+          "progress": 0.5,
+          "expectedFileSize": 0,
+          "networkSpeed": 0.0,
+          "timeRemaining": 0
+        }
+      },
+      "expected_output": "{\"task\":{\"url\":\"url?a=b\",\"headers\":{\"c\":\"d\"},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":5,\"retriesRemaining\":5,\"creationTime\":1000,\"taskId\":\"taskId\",\"filename\":\"filename\",\"directory\":\"dir\",\"baseDirectory\":1,\"group\":\"group\",\"updates\":3,\"requiresWiFi\":true,\"allowPause\":true,\"metaData\":\"metaData\",\"taskType\":\"DownloadTask\"},\"progress\":0.5,\"expectedFileSize\":0,\"networkSpeed\":0.0,\"timeRemaining\":0}\n"
+    },
+    {
+      "input": {
+        "action": "roundtrip",
+        "kind": "TaskProgressUpdate",
+        "json": {
+          "url": "u3",
+          "taskType": "DownloadTask",
+          "taskId": "t3",
+          "filename": "f3",
+          "creationTime": 9,
+          "progress": 1,
+          "expectedFileSize": 2048.0
+        }
+      },
+      "expected_output": "{\"task\":{\"url\":\"u3\",\"headers\":{},\"httpRequestMethod\":\"GET\",\"post\":null,\"retries\":0,\"retriesRemaining\":0,\"creationTime\":9,\"taskId\":\"t3\",\"filename\":\"f3\",\"directory\":\"\",\"baseDirectory\":0,\"group\":\"default\",\"updates\":0,\"requiresWiFi\":false,\"allowPause\":false,\"metaData\":\"\",\"taskType\":\"DownloadTask\"},\"progress\":1.0,\"expectedFileSize\":2048,\"networkSpeed\":-1.0,\"timeRemaining\":-1}\n"
+    }
+  ]
+}

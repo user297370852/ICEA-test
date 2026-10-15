@@ -1,0 +1,163 @@
+{
+  "description": "Enforce the rate-limit policy once its quota is exhausted. While allowance remains, replayed requests simply decrement the remaining count. The request that pushes consumption past the configured limit is rejected: the remaining allowance reported to the client is clamped at zero, the request is flagged as having exceeded its quota, and it is answered with the Too Many Requests HTTP status (429). The output reports the limit and remaining allowance for each replay, and on the rejected replays additionally reports the exceeded flag and the assigned status code.",
+  "cases": [
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 1,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 2
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=1 remaining=0\nrun=2 limit=1 remaining=0 exceeded=true status=429\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 1,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 3
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=1 remaining=0\nrun=2 limit=1 remaining=0 exceeded=true status=429\nrun=3 limit=1 remaining=0 exceeded=true status=429\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 3,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 5
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=3 remaining=2\nrun=2 limit=3 remaining=1\nrun=3 limit=3 remaining=0\nrun=4 limit=3 remaining=0 exceeded=true status=429\nrun=5 limit=3 remaining=0 exceeded=true status=429\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 2,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100"
+        },
+        "runs": 4
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=2 remaining=1\nrun=2 limit=2 remaining=0\nrun=3 limit=2 remaining=0 exceeded=true status=429\nrun=4 limit=2 remaining=0 exceeded=true status=429\n"
+    },
+    {
+      "input": {
+        "config": {
+          "enabled": true,
+          "behindProxy": true,
+          "policies": {
+            "serviceA": {
+              "limit": 2,
+              "refreshInterval": 60,
+              "types": [
+                "ORIGIN",
+                "URL",
+                "USER"
+              ]
+            }
+          },
+          "routes": [
+            {
+              "id": "serviceA",
+              "path": "/serviceA"
+            }
+          ]
+        },
+        "request": {
+          "uri": "/serviceA",
+          "remoteAddr": "10.0.0.100",
+          "headers": {
+            "X-FORWARDED-FOR": "10.0.0.1"
+          }
+        },
+        "runs": 5
+      },
+      "expected_output": "route_matched=true\nshould_limit=true\nrun=1 limit=2 remaining=1\nrun=2 limit=2 remaining=0\nrun=3 limit=2 remaining=0 exceeded=true status=429\nrun=4 limit=2 remaining=0 exceeded=true status=429\nrun=5 limit=2 remaining=0 exceeded=true status=429\n"
+    }
+  ]
+}

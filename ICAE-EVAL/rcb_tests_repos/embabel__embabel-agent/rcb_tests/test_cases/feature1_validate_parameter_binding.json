@@ -1,0 +1,25 @@
+{
+    "description": "Validate that a method-style parameter list is unambiguous for value binding. A parameter list is ambiguous when two or more parameters share the same declared type but only SOME (not all, and not none) of those same-typed parameters are flagged to be bound by name. A list is accepted when every group of same-typed parameters is either fully name-flagged or fully unflagged, or when all parameter types are distinct. Each input is an ordered list of parameters; each parameter has a positional name, a type label (parameters sharing a label share a type), and a boolean name_match flag. Accepted lists report conflict_count=0. Rejected lists report the normalized error category and one conflict line per offending type, listing that type's label, the zero-based positions of the conflicting parameters, and their names.",
+    "cases": [
+        {
+            "input": {"op": "validate_parameter_binding", "parameters": [{"name": "a", "type": "String", "name_match": false}, {"name": "b", "type": "Int", "name_match": false}]},
+            "expected_output": "result=accepted\nconflict_count=0\n"
+        },
+        {
+            "input": {"op": "validate_parameter_binding", "parameters": [{"name": "a", "type": "String", "name_match": true}, {"name": "b", "type": "String", "name_match": true}]},
+            "expected_output": "result=accepted\nconflict_count=0\n"
+        },
+        {
+            "input": {"op": "validate_parameter_binding", "parameters": [{"name": "a", "type": "String", "name_match": true}, {"name": "b", "type": "String", "name_match": false}]},
+            "expected_output": "result=rejected\nerror=duplicate_parameter_type\nconflict_count=1\nconflict=type:String positions:0,1 names:a,b\n"
+        },
+        {
+            "input": {"op": "validate_parameter_binding", "parameters": [{"name": "a", "type": "String", "name_match": true}, {"name": "b", "type": "String", "name_match": false}, {"name": "c", "type": "String", "name_match": false}]},
+            "expected_output": "result=rejected\nerror=duplicate_parameter_type\nconflict_count=1\nconflict=type:String positions:0,1,2 names:a,b,c\n"
+        },
+        {
+            "input": {"op": "validate_parameter_binding", "parameters": [{"name": "a", "type": "String", "name_match": true}, {"name": "b", "type": "String", "name_match": true}, {"name": "c", "type": "String", "name_match": true}]},
+            "expected_output": "result=accepted\nconflict_count=0\n"
+        }
+    ]
+}

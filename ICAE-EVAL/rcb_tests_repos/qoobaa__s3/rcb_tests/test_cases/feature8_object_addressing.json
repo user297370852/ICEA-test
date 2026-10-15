@@ -1,0 +1,14 @@
+{
+    "description": "Build object identifiers and links from a bucket name and an object key. The full key joins bucket and key with a slash. The standard URL uses the bucket addressing rules and percent-encodes the key (spaces, non-ASCII, and reserved characters). The CNAME URL omits the service host and is only available when the bucket is virtual-host eligible, otherwise it is empty. An empty key is rejected with a neutral invalid-key category. The address_kind field selects which form to produce.",
+    "cases": [
+        {"input": {"feature": "object_addressing", "bucket_name": "images", "key": "Lena.png", "address_kind": "full_key"}, "expected_output": "full_key=images/Lena.png\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images", "key": "Lena.png", "address_kind": "url"}, "expected_output": "url=http://images.s3.amazonaws.com/Lena.png\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images", "key": "Lena Söderberg.png", "address_kind": "url"}, "expected_output": "url=http://images.s3.amazonaws.com/Lena%20S%C3%B6derberg.png\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images", "key": "Lena Söderberg [1].png", "address_kind": "url"}, "expected_output": "url=http://images.s3.amazonaws.com/Lena%20S%C3%B6derberg%20%5B1%5D.png\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images_new", "key": "Lena.png", "address_kind": "url"}, "expected_output": "url=http://s3.amazonaws.com/images_new/Lena.png\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images.example.com", "key": "Lena.png", "address_kind": "cname_url"}, "expected_output": "cname_url=http://images.example.com/Lena.png\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images.example.com", "key": "Lena Söderberg.png", "address_kind": "cname_url"}, "expected_output": "cname_url=http://images.example.com/Lena%20S%C3%B6derberg.png\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images_new", "key": "Lena.png", "address_kind": "cname_url"}, "expected_output": "cname_url=\n"},
+        {"input": {"feature": "object_addressing", "bucket_name": "images", "key": "", "address_kind": "url"}, "expected_output": "error=invalid_object_key\nkey=\n"}
+    ]
+}

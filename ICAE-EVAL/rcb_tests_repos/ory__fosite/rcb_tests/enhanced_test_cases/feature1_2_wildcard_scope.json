@@ -1,0 +1,70 @@
+{
+  "description": "Wildcard scope matching over additional boundary inputs: wildcard-only patterns of multiple segments, empty segments produced by adjacent dots, patterns with more segments than the request, and a request equal to a single dot. For each requested scope the output reports whether it is allowed.",
+  "cases": [
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "*.*"
+        ],
+        "requests": [
+          "a.b",
+          "a",
+          "a.b.c",
+          ".",
+          "a."
+        ]
+      },
+      "expected_output": "request=a.b allowed=true\nrequest=a allowed=false\nrequest=a.b.c allowed=true\nrequest=. allowed=false\nrequest=a. allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "a.*.c"
+        ],
+        "requests": [
+          "a..c",
+          "a.b.c",
+          "a.x.c",
+          "a.c",
+          "a.b.c.d"
+        ]
+      },
+      "expected_output": "request=a..c allowed=false\nrequest=a.b.c allowed=true\nrequest=a.x.c allowed=true\nrequest=a.c allowed=false\nrequest=a.b.c.d allowed=false\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "a.b.c.d"
+        ],
+        "requests": [
+          "a.b",
+          "a.b.c",
+          "a.b.c.d"
+        ]
+      },
+      "expected_output": "request=a.b allowed=false\nrequest=a.b.c allowed=false\nrequest=a.b.c.d allowed=true\n"
+    },
+    {
+      "input": {
+        "op": "scope_match",
+        "strategy": "wildcard",
+        "granted": [
+          "read.*"
+        ],
+        "requests": [
+          "read.a",
+          "read.",
+          "read",
+          "read.a.b"
+        ]
+      },
+      "expected_output": "request=read.a allowed=true\nrequest=read. allowed=false\nrequest=read allowed=false\nrequest=read.a.b allowed=true\n"
+    }
+  ]
+}

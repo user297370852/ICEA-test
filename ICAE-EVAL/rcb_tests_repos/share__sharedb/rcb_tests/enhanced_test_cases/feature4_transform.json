@@ -1,0 +1,127 @@
+{
+  "description": "Transform a pending operation so it can be applied after another operation that was already applied at the same base version, mutating the pending operation in place and advancing its version when it carries one. The outcome depends on the pair of intents on each side. A no-op pending operation is always left unchanged. Two edits are transformed against each other by the document type. Illegal combinations are rejected with normalized categories: a version disagreement between the two operations (version-mismatch); a pending create or edit against an applied delete (was-deleted); and a pending operation against an applied create or applied edit that implies the document already exists (already-created). A pending delete survives against an applied delete, edit, or no-op, and a pending operation that omits its version is transformed without a version being assigned.",
+  "cases": [
+    {
+      "input": {
+        "action": "transform",
+        "type": "json0",
+        "op": {
+          "v": 2,
+          "op": [
+            {
+              "p": [
+                0
+              ],
+              "si": "x"
+            }
+          ]
+        },
+        "appliedOp": {
+          "v": 2,
+          "op": [
+            {
+              "p": [
+                10
+              ],
+              "si": "abc"
+            }
+          ]
+        }
+      },
+      "expected_output": "result={\"op\":[{\"p\":[0],\"si\":\"x\"}],\"v\":3}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "type": "json0",
+        "op": {
+          "v": 5,
+          "create": {
+            "type": "json0"
+          }
+        },
+        "appliedOp": {
+          "v": 5,
+          "op": [
+            15,
+            "hi"
+          ]
+        }
+      },
+      "expected_output": "error=ERR_DOC_ALREADY_CREATED\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "type": "json0",
+        "op": {
+          "v": 6,
+          "op": [
+            {
+              "p": [
+                0
+              ],
+              "si": "x"
+            }
+          ]
+        },
+        "appliedOp": {
+          "v": 6,
+          "del": true
+        }
+      },
+      "expected_output": "error=ERR_DOC_WAS_DELETED\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "type": "json0",
+        "op": {
+          "del": true,
+          "v": 7
+        },
+        "appliedOp": {
+          "v": 7,
+          "op": [
+            {
+              "p": [
+                0
+              ],
+              "si": "q"
+            }
+          ]
+        }
+      },
+      "expected_output": "result={\"del\":true,\"v\":8}\n"
+    },
+    {
+      "input": {
+        "action": "transform",
+        "type": "json0",
+        "op": {
+          "v": 1,
+          "op": [
+            {
+              "p": [
+                "b"
+              ],
+              "oi": 1
+            }
+          ]
+        },
+        "appliedOp": {
+          "v": 1,
+          "op": [
+            {
+              "p": [
+                "a"
+              ],
+              "oi": 2
+            }
+          ]
+        }
+      },
+      "expected_output": "result={\"op\":[{\"oi\":1,\"p\":[\"b\"]}],\"v\":2}\n"
+    }
+  ]
+}

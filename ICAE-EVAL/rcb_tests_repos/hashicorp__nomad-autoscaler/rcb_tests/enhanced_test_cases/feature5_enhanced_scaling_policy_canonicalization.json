@@ -1,0 +1,43 @@
+{
+  "description": "Enhanced canonicalization cases cover nil target/strategy config maps and metric query expansion when only plugin-facing target keys are present.",
+  "cases": [
+    {
+      "input": {
+        "agent_default_evaluation_interval_ns": 2000000000,
+        "policy": {
+          "id": "nil-configs",
+          "min": 2,
+          "max": 8,
+          "enabled": true,
+          "source": "",
+          "query": "memory",
+          "target": {
+            "name": "",
+            "config": null
+          },
+          "strategy": {
+            "name": "target-value",
+            "config": null
+          }
+        }
+      },
+      "expected_output": "id=nil-configs\nmin=2\nmax=8\nenabled=true\nsource=nomad-apm\nquery=memory\nevaluation_interval_ns=2000000000\ntarget_name=nomad-target\ntarget_config={}\nstrategy_name=target-value\nstrategy_config={}\n"
+    },
+    {
+      "input": {
+        "policy": {
+          "source": "nomad-apm",
+          "query": "alloc_cpu",
+          "target": {
+            "name": "custom-target",
+            "config": {
+              "job_id": "payments",
+              "group": "gateway"
+            }
+          }
+        }
+      },
+      "expected_output": "id=\nmin=0\nmax=0\nenabled=false\nsource=nomad-apm\nquery=alloc_cpu/gateway/payments\nevaluation_interval_ns=10000000000\ntarget_name=custom-target\ntarget_config={group=gateway,job_id=payments}\nstrategy_name=\nstrategy_config={}\n"
+    }
+  ]
+}

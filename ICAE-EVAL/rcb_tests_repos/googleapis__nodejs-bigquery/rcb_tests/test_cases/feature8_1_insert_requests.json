@@ -1,0 +1,47 @@
+{
+    "description": "Inserting rows produces an insert-all API request that encodes row JSON, adds insert identifiers by default, supports raw rows, and reports empty input as a neutral error.",
+    "cases": [
+        {
+            "input": {
+                "operation": "table_insert_request",
+                "rows": {
+                    "name": "Ada",
+                    "day": {
+                        "__custom": "date",
+                        "value": "2020-01-02"
+                    }
+                },
+                "options": {
+                    "createInsertId": false
+                }
+            },
+            "expected_output": "{\n  \"method\": \"POST\",\n  \"uri\": \"/insertAll\",\n  \"json\": {\n    \"rows\": [\n      {\n        \"json\": {\n          \"name\": \"Ada\",\n          \"day\": \"2020-01-02\"\n        }\n      }\n    ]\n  }\n}\n"
+        },
+        {
+            "input": {
+                "operation": "table_insert_request",
+                "rows": [
+                    {
+                        "insertId": "1",
+                        "json": {
+                            "name": "Ada"
+                        }
+                    }
+                ],
+                "options": {
+                    "raw": true,
+                    "skipInvalidRows": true
+                }
+            },
+            "expected_output": "{\n  \"method\": \"POST\",\n  \"uri\": \"/insertAll\",\n  \"json\": {\n    \"skipInvalidRows\": true,\n    \"rows\": [\n      {\n        \"insertId\": \"1\",\n        \"json\": {\n          \"name\": \"Ada\"\n        }\n      }\n    ]\n  }\n}\n"
+        },
+        {
+            "input": {
+                "operation": "table_insert_request",
+                "rows": [],
+                "options": {}
+            },
+            "expected_output": "error=empty_insert_rows\n"
+        }
+    ]
+}

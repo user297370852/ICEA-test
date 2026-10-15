@@ -1,0 +1,21 @@
+{
+  "description": "The Content-Security-Policy family: a plain enabled policy emits the block/upgrade directives; a sandbox prepends a sandbox directive; legacy-compatibility mode mirrors the policy into the X-Content-Security-Policy header; report-only mode emits a separate report-only header carrying a report-uri; and no header is emitted when the policy is not enabled.",
+  "cases": [
+    {
+      "input": { "headers": { "content_security_policy": { "sandbox": ["allow-forms", "allow-scripts", "allow-same-origin"] } } },
+      "expected_output": "Content-Security-Policy: sandbox allow-forms allow-scripts allow-same-origin;block-all-mixed-content;upgrade-insecure-requests;\n"
+    },
+    {
+      "input": { "headers": { "content_security_policy": { "legacy_compat": true } } },
+      "expected_output": "Content-Security-Policy: block-all-mixed-content;upgrade-insecure-requests;\nX-Content-Security-Policy: block-all-mixed-content;upgrade-insecure-requests;\n"
+    },
+    {
+      "input": { "headers": { "content_security_policy": { "report_only": true, "report_uri": "https://localhost:5001/report-uri" } } },
+      "expected_output": "Content-Security-Policy-Report-Only: block-all-mixed-content;upgrade-insecure-requests;report-uri https://localhost:5001/report-uri;\n"
+    },
+    {
+      "input": { "headers": {} },
+      "expected_output": "<no-headers>\n"
+    }
+  ]
+}

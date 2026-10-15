@@ -1,0 +1,12 @@
+{
+    "description": "Serialize a single scalar value into its PostgreSQL binary wire representation. The request names the wire data type and the value; the output reports the number of bytes produced and those bytes as space-separated uppercase two-digit hexadecimal. Signed integers are encoded in big-endian (network) byte order using a fixed width determined by the type (1, 2, 4, or 8 bytes). A 32-bit floating point value is encoded as its IEEE-754 big-endian bit pattern. Text is stored verbatim as its raw UTF-8 bytes with no length prefix and no terminator. A null value produces no bytes at all.",
+    "cases": [
+        {"input": {"op": "serialize", "type": "int1", "value": 42}, "expected_output": "size=1\nbytes=2A\n"},
+        {"input": {"op": "serialize", "type": "int2", "value": 42}, "expected_output": "size=2\nbytes=00 2A\n"},
+        {"input": {"op": "serialize", "type": "int4", "value": 42}, "expected_output": "size=4\nbytes=00 00 00 2A\n"},
+        {"input": {"op": "serialize", "type": "int8", "value": 42}, "expected_output": "size=8\nbytes=00 00 00 00 00 00 00 2A\n"},
+        {"input": {"op": "serialize", "type": "float4", "value": 42.13}, "expected_output": "size=4\nbytes=42 28 85 1F\n"},
+        {"input": {"op": "serialize", "type": "text", "value": "text"}, "expected_output": "size=4\nbytes=74 65 78 74\n"},
+        {"input": {"op": "serialize", "type": "null"}, "expected_output": "size=0\nbytes=\n"}
+    ]
+}

@@ -1,0 +1,17 @@
+{
+  "description": "Request body attachment. A method may mark a single parameter as the request body, which is sent as the request payload. A body parameter may not be nullable, may only appear on a verb that permits a request body, and may not be combined with a form or multipart encoding declaration. The adapter prints the issued request's method, resolved URL, body kind and, for a textual payload, the body text, or a neutral error category for each violation.",
+  "cases": [
+    {
+      "input": {"http": [{"verb": "POST", "path": "user"}], "params": [{"kind": "body", "name": "id"}], "args": ["theBody"]},
+      "expected_output": "method=POST\nurl=http://localhost/user\nbody=text\ntext=theBody"
+    },
+    {
+      "input": {"http": [{"verb": "GET", "path": "user"}], "params": [{"kind": "body", "name": "id"}], "return": "String?"},
+      "expected_output": "error=body_not_allowed_on_non_body_method"
+    },
+    {
+      "input": {"http": [{"verb": "POST", "path": "user"}], "encoding": ["form"], "params": [{"kind": "body", "name": "id"}]},
+      "expected_output": "error=body_not_allowed_with_form_encoding\nerror=form_requires_field"
+    }
+  ]
+}

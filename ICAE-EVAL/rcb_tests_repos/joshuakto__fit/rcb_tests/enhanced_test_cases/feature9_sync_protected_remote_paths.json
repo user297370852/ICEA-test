@@ -1,0 +1,56 @@
+{
+  "description": "Additional protected and unsafe remote path synchronization cases for hidden directories and untracked modifications.",
+  "cases": [
+    {
+      "description": "A remote file in an arbitrary hidden directory is written under the conflict area and not directly into the workspace.",
+      "input": {
+        "command": "sync.run",
+        "remote_initial": [
+          {
+            "path": ".hidden/note.md",
+            "content": "hidden remote"
+          }
+        ],
+        "steps": [
+          {
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"],[\"Sync successful\"]]\nsuccess=true\nlocal_ops=[{\"path\":\".hidden/note.md\",\"type\":\"ADDED\"}]\nremote_ops=[]\nclashes=[]\nlocal_files={\".hidden/note.md\":{\"content\":\"aGlkZGVuIHJlbW90ZQ==\",\"encoding\":\"base64\"}}\nremote_files={\".hidden/note.md\":{\"content\":\"hidden remote\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"initial-commit\",\"lastFetchedRemoteSha\":{\".hidden/note.md\":\"831a2513367ed299cdc0f0b1e8be20ad4d4fc049\"},\"localSha\":{\".hidden/note.md\":\"f8478dc2b8670198e458a741627940c4f59ba173\"}}\n"
+    },
+    {
+      "description": "A remote modification to a locally added untracked file is preserved as a conflict copy while local content remains unchanged.",
+      "input": {
+        "command": "sync.run",
+        "local_initial": [
+          {
+            "path": "draft.md",
+            "content": "local draft"
+          }
+        ],
+        "remote_initial": [
+          {
+            "path": "draft.md",
+            "content": "remote draft v1"
+          }
+        ],
+        "steps": [
+          {
+            "sync": true
+          },
+          {
+            "remoteSet": [
+              {
+                "path": "draft.md",
+                "content": "remote draft v2"
+              }
+            ],
+            "sync": true
+          }
+        ]
+      },
+      "expected_output": "step=0\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Change conflicts detected\"],[\"Synced with remote, unresolved conflicts written to _fit\"]]\nsuccess=true\nlocal_ops=[{\"path\":\"_fit/draft.md\",\"type\":\"ADDED\"}]\nremote_ops=[]\nclashes=[{\"localState\":\"ADDED\",\"path\":\"draft.md\",\"remoteOp\":\"ADDED\"}]\nstep=1\nnotice=[[\"Checking for changes...\"],[\"Uploading local changes\"],[\"Writing remote changes to local\"],[\"Sync successful\"]]\nsuccess=true\nlocal_ops=[{\"path\":\"draft.md\",\"type\":\"MODIFIED\"}]\nremote_ops=[]\nclashes=[]\nlocal_files={\"_fit/draft.md\":{\"content\":\"cmVtb3RlIGRyYWZ0IHYx\",\"encoding\":\"base64\"},\"draft.md\":{\"content\":\"cmVtb3RlIGRyYWZ0IHYy\",\"encoding\":\"base64\"}}\nremote_files={\"draft.md\":{\"content\":\"remote draft v2\",\"encoding\":\"plaintext\"}}\nstore={\"lastFetchedCommitSha\":\"initial-commit\",\"lastFetchedRemoteSha\":{\"draft.md\":\"5971d899f7d3ffe649dc1538adb39b972d91e838\"},\"localSha\":{\"draft.md\":\"d0c1e4db5187835398dc6566bf30fe1c9d1d17e1\"}}\n"
+    }
+  ]
+}

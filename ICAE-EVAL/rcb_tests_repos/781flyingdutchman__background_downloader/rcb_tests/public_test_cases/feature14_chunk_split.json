@@ -1,0 +1,41 @@
+{
+    "description": "Given a ranged download split across one or more urls and a number of chunks per url, the file is divided into contiguous byte ranges. The total number of pieces is the number of urls times the chunks per url. Each piece records its source url, its inclusive start and end byte offsets (the last piece ending at the final byte of the content), the chunk group it belongs to, and metadata linking it to its parent transfer with its byte range. If the content length is missing or non-positive, or the server does not advertise range support, the split is rejected with a neutral error category. The output lists the piece count followed by one line per piece.",
+    "cases": [
+        {
+            "input": {
+                "action": "chunk_split",
+                "taskId": "P",
+                "url": "https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP",
+                "chunks": 1,
+                "headers": {
+                    "content-length": "100",
+                    "accept-ranges": "bytes"
+                }
+            },
+            "expected_output": "count=1\nurl=https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP fromByte=0 toByte=99 group=chunk metaData={\"parentTaskId\":\"P\",\"from\":0,\"to\":99}\n"
+        },
+        {
+            "input": {
+                "action": "chunk_split",
+                "taskId": "P",
+                "url": "https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP",
+                "chunks": 3,
+                "headers": {
+                    "content-length": "100",
+                    "accept-ranges": "bytes"
+                }
+            },
+            "expected_output": "count=3\nurl=https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP fromByte=0 toByte=33 group=chunk metaData={\"parentTaskId\":\"P\",\"from\":0,\"to\":33}\nurl=https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP fromByte=34 toByte=67 group=chunk metaData={\"parentTaskId\":\"P\",\"from\":34,\"to\":67}\nurl=https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP fromByte=68 toByte=99 group=chunk metaData={\"parentTaskId\":\"P\",\"from\":68,\"to\":99}\n"
+        },
+        {
+            "input": {
+                "action": "chunk_split",
+                "taskId": "P",
+                "url": "https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP",
+                "chunks": 1,
+                "headers": {}
+            },
+            "expected_output": "error=cannot_chunk\n"
+        }
+    ]
+}

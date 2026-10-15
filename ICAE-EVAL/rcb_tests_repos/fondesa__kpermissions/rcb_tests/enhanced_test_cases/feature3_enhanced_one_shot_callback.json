@@ -1,0 +1,72 @@
+{
+  "description": "Enhanced one-shot callback cases covering no deliveries, empty first delivery rendering, and multiple post-detach deliveries.",
+  "cases": [
+    {
+      "input": {
+        "op": "one_shot_result",
+        "deliveries": []
+      },
+      "expected_output": "listeners_after_register=1\ncallbacks_fired=0\nlisteners_remaining=1\n"
+    },
+    {
+      "input": {
+        "op": "one_shot_result",
+        "deliveries": [
+          []
+        ]
+      },
+      "expected_output": "listeners_after_register=1\ndelivery[0]_listeners_before=1\ncallbacks_fired=1\ncallback[0]=<empty>\nlisteners_remaining=0\n"
+    },
+    {
+      "input": {
+        "op": "one_shot_result",
+        "deliveries": [
+          [],
+          [
+            {
+              "type": "granted",
+              "permission": "late"
+            }
+          ],
+          [
+            {
+              "type": "request_required",
+              "permission": "later"
+            }
+          ]
+        ]
+      },
+      "expected_output": "listeners_after_register=1\ndelivery[0]_listeners_before=1\ndelivery[1]_listeners_before=0\ndelivery[2]_listeners_before=0\ncallbacks_fired=1\ncallback[0]=<empty>\nlisteners_remaining=0\n"
+    },
+    {
+      "input": {
+        "op": "one_shot_result",
+        "deliveries": [
+          [
+            {
+              "type": "request_required",
+              "permission": "p"
+            },
+            {
+              "type": "should_show_rationale",
+              "permission": "q"
+            }
+          ],
+          [
+            {
+              "type": "permanently_denied",
+              "permission": "r"
+            }
+          ],
+          [
+            {
+              "type": "granted",
+              "permission": "s"
+            }
+          ]
+        ]
+      },
+      "expected_output": "listeners_after_register=1\ndelivery[0]_listeners_before=1\ndelivery[1]_listeners_before=0\ndelivery[2]_listeners_before=0\ncallbacks_fired=1\ncallback[0]=request_required:p,should_show_rationale:q\nlisteners_remaining=0\n"
+    }
+  ]
+}

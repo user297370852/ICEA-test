@@ -1,0 +1,140 @@
+{
+  "description": "Enhanced streaming edge cases: three same-source fixes with no time/displacement gate are all delivered; a fix exactly at the fastest-interval boundary; a displacement just under vs just over the threshold; alternating providers where each newer same-or-better fix replaces; a network-first then gps-more-accurate ordering; and empty fix list yields zero reported.",
+  "cases": [
+    {
+      "input": {
+        "command": "stream_updates",
+        "request": {
+          "priority": "high",
+          "fastest_interval": 0,
+          "smallest_displacement": 0.0
+        },
+        "fixes": [
+          {
+            "provider": "gps",
+            "lat": 0.0,
+            "lng": 0.0,
+            "time": 1000
+          },
+          {
+            "provider": "gps",
+            "lat": 1.0,
+            "lng": 1.0,
+            "time": 2000
+          },
+          {
+            "provider": "gps",
+            "lat": 2.0,
+            "lng": 2.0,
+            "time": 3000
+          }
+        ]
+      },
+      "expected_output": "reported=3\n1 provider=gps lat=0.0 lng=0.0\n2 provider=gps lat=1.0 lng=1.0\n3 provider=gps lat=2.0 lng=2.0\n"
+    },
+    {
+      "input": {
+        "command": "stream_updates",
+        "request": {
+          "priority": "high",
+          "fastest_interval": 1000
+        },
+        "fixes": [
+          {
+            "provider": "gps",
+            "lat": 0.0,
+            "lng": 0.0,
+            "time": 1000
+          },
+          {
+            "provider": "gps",
+            "lat": 5.0,
+            "lng": 5.0,
+            "time": 2000
+          }
+        ]
+      },
+      "expected_output": "reported=1\n1 provider=gps lat=0.0 lng=0.0\n"
+    },
+    {
+      "input": {
+        "command": "stream_updates",
+        "request": {
+          "priority": "high",
+          "fastest_interval": 0,
+          "smallest_displacement": 100.0
+        },
+        "fixes": [
+          {
+            "provider": "gps",
+            "lat": 0.0,
+            "lng": 0.0,
+            "time": 1000
+          },
+          {
+            "provider": "gps",
+            "lat": 0.0,
+            "lng": 0.0005,
+            "time": 2000
+          }
+        ]
+      },
+      "expected_output": "reported=1\n1 provider=gps lat=0.0 lng=0.0\n"
+    },
+    {
+      "input": {
+        "command": "stream_updates",
+        "request": {
+          "priority": "high",
+          "fastest_interval": 0,
+          "smallest_displacement": 0.0
+        },
+        "fixes": [
+          {
+            "provider": "network",
+            "lat": 10.0,
+            "lng": 10.0,
+            "time": 1000,
+            "accuracy": 50.0
+          },
+          {
+            "provider": "gps",
+            "lat": 20.0,
+            "lng": 20.0,
+            "time": 1001,
+            "accuracy": 5.0
+          }
+        ]
+      },
+      "expected_output": "reported=2\n1 provider=network lat=10.0 lng=10.0\n2 provider=gps lat=20.0 lng=20.0\n"
+    },
+    {
+      "input": {
+        "command": "stream_updates",
+        "request": {
+          "priority": "high",
+          "fastest_interval": 0,
+          "smallest_displacement": 0.0
+        },
+        "fixes": []
+      },
+      "expected_output": "reported=0\n"
+    },
+    {
+      "input": {
+        "command": "stream_updates",
+        "request": {
+          "priority": "balanced"
+        },
+        "fixes": [
+          {
+            "provider": "network",
+            "lat": 5.0,
+            "lng": 6.0
+          }
+        ]
+      },
+      "expected_output": "reported=1\n1 provider=network lat=5.0 lng=6.0\n"
+    }
+  ]
+}

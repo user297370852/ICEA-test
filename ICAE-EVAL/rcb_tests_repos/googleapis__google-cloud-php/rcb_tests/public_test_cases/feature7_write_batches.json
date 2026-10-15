@@ -1,0 +1,100 @@
+{
+    "description": "Write batches enqueue creates, sets, updates, deletes, transforms, preconditions, commits, and rollback requests as structured database mutations.",
+    "cases": [
+        {
+            "input": {
+                "feature": "writes",
+                "database": "projects/example_project/databases/(default)",
+                "operations": [
+                    {
+                        "type": "create",
+                        "document": "projects/example_project/databases/(default)/documents/a/b",
+                        "fields": {
+                            "hello": "world"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"currentDocument\": {\n                            \"exists\": false\n                        },\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fields\": {\n                                \"hello\": {\n                                    \"stringValue\": \"world\"\n                                }\n                            }\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "writes",
+                "database": "projects/example_project/databases/(default)",
+                "operations": [
+                    {
+                        "type": "set",
+                        "document": "projects/example_project/databases/(default)/documents/a/b",
+                        "fields": {
+                            "hello": "world"
+                        },
+                        "options": {
+                            "merge": true
+                        }
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"updateMask\": {\n                            \"fieldPaths\": [\n                                \"hello\"\n                            ]\n                        },\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fields\": {\n                                \"hello\": {\n                                    \"stringValue\": \"world\"\n                                }\n                            }\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "writes",
+                "database": "projects/example_project/databases/(default)",
+                "operations": [
+                    {
+                        "type": "update",
+                        "document": "projects/example_project/databases/(default)/documents/a/b",
+                        "data": [
+                            {
+                                "path": "hello",
+                                "value": "world"
+                            },
+                            {
+                                "path": "foo.bar",
+                                "value": "val"
+                            },
+                            {
+                                "path": {
+                                    "kind": "field_path",
+                                    "segments": [
+                                        "foo",
+                                        "baz"
+                                    ]
+                                },
+                                "value": "val"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"updateMask\": {\n                            \"fieldPaths\": [\n                                \"foo.bar\",\n                                \"foo.baz\",\n                                \"hello\"\n                            ]\n                        },\n                        \"currentDocument\": {\n                            \"exists\": true\n                        },\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fields\": {\n                                \"hello\": {\n                                    \"stringValue\": \"world\"\n                                },\n                                \"foo\": {\n                                    \"mapValue\": {\n                                        \"fields\": {\n                                            \"bar\": {\n                                                \"stringValue\": \"val\"\n                                            },\n                                            \"baz\": {\n                                                \"stringValue\": \"val\"\n                                            }\n                                        }\n                                    }\n                                }\n                            }\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+        },
+        {
+            "input": {
+                "feature": "writes",
+                "database": "projects/example_project/databases/(default)",
+                "operations": [
+                    {
+                        "type": "update",
+                        "document": "projects/example_project/databases/(default)/documents/a/b",
+                        "data": [
+                            {
+                                "path": "country",
+                                "value": {
+                                    "kind": "delete_field"
+                                }
+                            },
+                            {
+                                "path": "lastLogin",
+                                "value": {
+                                    "kind": "server_timestamp"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "expected_output": "{\n    \"commit_result\": [\n        []\n    ],\n    \"calls\": [\n        {\n            \"operation\": \"commit\",\n            \"request\": {\n                \"database\": \"projects/example_project/databases/(default)\",\n                \"writes\": [\n                    {\n                        \"updateMask\": {\n                            \"fieldPaths\": [\n                                \"country\"\n                            ]\n                        },\n                        \"currentDocument\": {\n                            \"exists\": true\n                        },\n                        \"update\": {\n                            \"name\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fields\": []\n                        }\n                    },\n                    {\n                        \"transform\": {\n                            \"document\": \"projects/example_project/databases/(default)/documents/a/b\",\n                            \"fieldTransforms\": [\n                                {\n                                    \"fieldPath\": \"lastLogin\",\n                                    \"setToServerValue\": 1\n                                }\n                            ]\n                        }\n                    }\n                ]\n            }\n        }\n    ]\n}\n"
+        }
+    ]
+}

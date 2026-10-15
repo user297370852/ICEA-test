@@ -1,0 +1,36 @@
+{
+    "description": "Perform an authenticated login. The supplied credentials (an email or a username, plus the password) are first passed through the credential-obfuscation cipher; the resulting ciphertexts are placed onto the login request parameters together with a fixed set of empty-string placeholders for the credential fields that were not used and a constant login-mode marker. The request is a POST to the login endpoint. If the response carries an authentication token header, that token is captured for use on subsequent requests. The reply body is parsed and returned. The output describes the HTTP method, endpoint path, the login parameters (with encrypted credentials), the parsed response, and the captured token (null when none was returned).",
+    "cases": [
+        {
+            "input": {
+                "action": "login",
+                "mode": "email",
+                "email": "user@example.com",
+                "password": "password",
+                "token": "token",
+                "response": "{\"data\":{\"user_id\":9999999999999999999,\"email\":\"u**r@example.com\",\"name\":\"user\"},\"message\":\"success\"}"
+            },
+            "expected_output": "{\"method\":\"POST\",\"params\":{\"account\":\"\",\"captcha\":\"\",\"email\":\"7076607745607d64687569602b666a68\",\"mix_mode\":1,\"mobile\":\"\",\"password\":\"75647676726a7761\",\"username\":\"\"},\"path\":\"passport/user/login/\",\"response\":{\"data\":{\"email\":\"u**r@example.com\",\"name\":\"user\",\"user_id\":\"9999999999999999999\"},\"message\":\"success\"},\"token\":\"token\"}\n"
+        },
+        {
+            "input": {
+                "action": "login",
+                "mode": "email",
+                "email": "user@example.com",
+                "password": "incorrect_password",
+                "response": "{\"data\":{\"error_code\":1009,\"description\":\"Wrong password\",\"captcha\":\"\"},\"message\":\"error\"}"
+            },
+            "expected_output": "{\"method\":\"POST\",\"params\":{\"account\":\"\",\"captcha\":\"\",\"email\":\"7076607745607d64687569602b666a68\",\"mix_mode\":1,\"mobile\":\"\",\"password\":\"6c6b666a77776066715a75647676726a7761\",\"username\":\"\"},\"path\":\"passport/user/login/\",\"response\":{\"data\":{\"captcha\":\"\",\"description\":\"Wrong password\",\"error_code\":1009},\"message\":\"error\"},\"token\":null}\n"
+        },
+        {
+            "input": {
+                "action": "login",
+                "mode": "username",
+                "username": "username",
+                "password": "password",
+                "response": "{\"data\":{\"user_id\":9999999999999999999},\"message\":\"success\"}"
+            },
+            "expected_output": "{\"method\":\"POST\",\"params\":{\"account\":\"\",\"captcha\":\"\",\"email\":\"\",\"mix_mode\":1,\"mobile\":\"\",\"password\":\"75647676726a7761\",\"username\":\"707660776b646860\"},\"path\":\"passport/user/login/\",\"response\":{\"data\":{\"user_id\":\"9999999999999999999\"},\"message\":\"success\"},\"token\":null}\n"
+        }
+    ]
+}

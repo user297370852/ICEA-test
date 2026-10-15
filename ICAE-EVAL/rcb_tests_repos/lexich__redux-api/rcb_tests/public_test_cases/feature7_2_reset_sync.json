@@ -1,0 +1,25 @@
+{
+  "description": "After a successful fetch leaves the slice synced with stored data, a soft `sync` reset clears only the synced flag while preserving the stored data, whereas a plain reset would restore the initial empty slice. This case fetches, then issues a soft sync reset, and reports the resulting slice.",
+  "cases": [
+    {
+      "input": {
+        "op": "call_endpoint",
+        "endpoints": {
+          "test": "/api/url"
+        },
+        "fetch": "echo_url",
+        "calls": [
+          {
+            "endpoint": "test"
+          },
+          {
+            "endpoint": "test",
+            "mode": "reset",
+            "mutation": "sync"
+          }
+        ]
+      },
+      "expected_output": "action type=@@redux-api@test syncing=false request={\"params\":null,\"pathvars\":null}\naction type=@@redux-api@test_success syncing=false request={\"params\":null,\"pathvars\":null} data={\"data\":\"/api/url\"}\naction type=@@redux-api@test_delete\nstate test={\"data\":{\"data\":\"/api/url\"},\"error\":null,\"loading\":false,\"sync\":false,\"syncing\":false}\n"
+    }
+  ]
+}

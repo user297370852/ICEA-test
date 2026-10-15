@@ -1,0 +1,53 @@
+{
+  "description": "Additional deterministic token-bucket coverage for exact-refill thresholds, combined millisecond and microsecond clock advances, zero-cost charges, and cap-at-maximum behavior.",
+  "cases": [
+    {
+      "input": {
+        "op": "rate_limiter",
+        "credits_per_second": 1.0,
+        "max_balance": 1.0,
+        "steps": [
+          {
+            "cost": 1.0
+          },
+          {
+            "advance_millis": 999,
+            "cost": 1.0
+          },
+          {
+            "advance_micros": 1000,
+            "cost": 1.0
+          },
+          {
+            "cost": 0.0
+          },
+          {
+            "cost": 0.1
+          }
+        ]
+      },
+      "expected_output": "allow=true\nallow=false\nallow=true\nallow=true\nallow=false\n"
+    },
+    {
+      "input": {
+        "op": "rate_limiter",
+        "credits_per_second": 10.0,
+        "max_balance": 3.0,
+        "steps": [
+          {
+            "cost": 2.5
+          },
+          {
+            "advance_millis": 1000,
+            "advance_micros": 500000,
+            "cost": 3.0
+          },
+          {
+            "cost": 0.1
+          }
+        ]
+      },
+      "expected_output": "allow=true\nallow=true\nallow=false\n"
+    }
+  ]
+}

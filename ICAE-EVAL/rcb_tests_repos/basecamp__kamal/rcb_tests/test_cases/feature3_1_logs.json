@@ -1,0 +1,47 @@
+{
+    "description": "Generate the docker logs command for the latest running container, piping its id into docker logs with stderr merged into stdout. Optional modifiers append a since time window, a tail line limit, and a grep filter on the output. Each modifier is added in a fixed order: since, tail, then grep.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "logs"
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs 2>&1"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "logs", "args": {"since": "5m"}
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --since 5m 2>&1"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "logs", "args": {"lines": "100"}
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --tail 100 2>&1"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "logs", "args": {"since": "5m", "lines": "100"}
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --since 5m --tail 100 2>&1"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "logs", "args": {"grep": "my-id"}
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs 2>&1 | grep 'my-id'"
+        },
+        {
+            "input": {
+                "deploy": {"service": "app", "image": "dhh/app", "registry": {"username": "dhh", "password": "secret"}, "servers": ["1.1.1.1"], "env": {"secret": ["RAILS_MASTER_KEY"]}},
+                "env": {"RAILS_MASTER_KEY": "456"}, "version": "999", "role": "web", "action": "logs", "args": {"since": "5m", "grep": "my-id"}
+            },
+            "expected_output": "docker ps --quiet --filter label=service=app --filter label=role=web --filter status=running --latest | xargs docker logs --since 5m 2>&1 | grep 'my-id'"
+        }
+    ]
+}

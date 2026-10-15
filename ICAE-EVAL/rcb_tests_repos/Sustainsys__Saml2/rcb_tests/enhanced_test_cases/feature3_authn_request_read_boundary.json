@@ -1,0 +1,26 @@
+{
+  "description": "Parse a SAML2 authentication-request XML element, exercising a missing ID attribute, a missing IssueInstant attribute, and a request carrying the optional destination attribute and issuer element. Missing mandatory attributes are rejected with a neutral missing-attribute category; present optional fields are surfaced.",
+  "cases": [
+    {
+      "input": {
+        "action": "read_authn_request",
+        "xml": "<saml:AuthnRequest xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:protocol\" Version=\"2.0\" IssueInstant=\"2023-11-24T22:44:14Z\" />"
+      },
+      "expected_output": "error=missing_attribute\n"
+    },
+    {
+      "input": {
+        "action": "read_authn_request",
+        "xml": "<saml:AuthnRequest xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:protocol\" ID=\"x123\" Version=\"2.0\" />"
+      },
+      "expected_output": "error=missing_attribute\n"
+    },
+    {
+      "input": {
+        "action": "read_authn_request",
+        "xml": "<samlp:AuthnRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"x123\" Version=\"2.0\" IssueInstant=\"2023-11-24T22:44:14Z\" Destination=\"https://idp.example.com/sso\"><saml:Issuer>https://sp.example.com</saml:Issuer></samlp:AuthnRequest>"
+      },
+      "expected_output": "id=x123\nversion=2.0\nissueInstant=2023-11-24T22:44:14Z\ndestination=https://idp.example.com/sso\nissuer.value=https://sp.example.com\n"
+    }
+  ]
+}

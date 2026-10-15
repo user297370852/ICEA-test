@@ -1,0 +1,80 @@
+{
+    "description": "Auxiliary editor resources are rendered as JavaScript snippets that register plugins, style sets, template sets, and teardown behavior.",
+    "cases": [
+        {
+            "input": {
+                "action": "destroy_script",
+                "element_id": "body"
+            },
+            "expected_output": "if (CKEDITOR.instances[\"body\"]) { CKEDITOR.instances[\"body\"].destroy(true); delete CKEDITOR.instances[\"body\"]; }\n"
+        },
+        {
+            "input": {
+                "action": "plugin_script",
+                "assets": {
+                    "plugins/wordcount/": "/static/wordcount/?v=2"
+                },
+                "name": "wordcount",
+                "plugin": {
+                    "path": "plugins/wordcount/",
+                    "filename": "plugin.js"
+                }
+            },
+            "expected_output": "CKEDITOR.plugins.addExternal(\"wordcount\", \"/static/wordcount/\", \"plugin.js\");\n"
+        },
+        {
+            "input": {
+                "action": "styles_script",
+                "name": "default",
+                "styles": [
+                    {
+                        "name": "Blue Title",
+                        "element": "h2",
+                        "styles": {
+                            "color": "Blue"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "if (CKEDITOR.stylesSet.get(\"default\") === null) { CKEDITOR.stylesSet.add(\"default\", [{\"name\":\"Blue Title\",\"element\":\"h2\",\"styles\":{\"color\":\"Blue\"}}]); }\n"
+        },
+        {
+            "input": {
+                "action": "template_script",
+                "assets": {
+                    "templates/": "/static/templates/?v=2"
+                },
+                "name": "default",
+                "template_set": {
+                    "imagesPath": "templates/",
+                    "templates": [
+                        {
+                            "title": "Template title",
+                            "html": "<p>Template content</p>"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "CKEDITOR.addTemplates(\"default\", {\"imagesPath\":\"\\/static\\/templates\\/\",\"templates\":[{\"title\":\"Template title\",\"html\":\"<p>Template content<\\/p>\"}]});\n"
+        },
+        {
+            "input": {
+                "action": "template_script",
+                "template_engine": "php",
+                "template_responses": {
+                    "card.html": "<article>Card</article>"
+                },
+                "name": "cards",
+                "template_set": {
+                    "templates": [
+                        {
+                            "title": "Card",
+                            "template": "card.html"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "CKEDITOR.addTemplates(\"cards\", {\"templates\":[{\"title\":\"Card\",\"html\":\"<article>Card<\\/article>\"}]});\n"
+        }
+    ]
+}

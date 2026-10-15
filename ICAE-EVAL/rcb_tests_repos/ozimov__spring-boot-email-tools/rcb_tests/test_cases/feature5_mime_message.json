@@ -1,0 +1,52 @@
+{
+    "description": "Assemble a logical email into a transport MIME message and report the framework-observable headers it produced. Sender, reply-to, every recipient class (primary, carbon-copy, blind-copy), subject and body are mapped onto the message; read-receipt and disposition-notification headers are emitted when requested; arbitrary custom headers are passed through. The message is marked multipart exactly when one or more attachments are present.",
+    "cases": [
+        {
+            "input": {
+                "op": "mime.assemble",
+                "from": "cicero@mala.currunt",
+                "replyTo": "tullius@urbs.aeterna",
+                "to": [
+                    "roberto@gmail.com"
+                ],
+                "cc": [
+                    "tito@de.natura"
+                ],
+                "bcc": [
+                    "caius@urbs.aeterna"
+                ],
+                "subject": "Laelius de amicitia",
+                "body": "Firmamentum autem stabilitatis.",
+                "receiptTo": "caligola@urbs.aeterna",
+                "depositionNotificationTo": "caligola@urbs.aeterna",
+                "customHeaders": {
+                    "key1": "value1",
+                    "key2": "value2"
+                }
+            },
+            "expected_output": "from=cicero@mala.currunt\nreply_to=tullius@urbs.aeterna\nto=roberto@gmail.com\ncc=tito@de.natura\nbcc=caius@urbs.aeterna\nsubject=Laelius de amicitia\nmultipart=false\nbody=Firmamentum autem stabilitatis.\nheader_return_receipt=caligola@urbs.aeterna\nheader_disposition_notification_to=caligola@urbs.aeterna\ncustom_header.key1=value1\ncustom_header.key2=value2\n"
+        },
+        {
+            "input": {
+                "op": "mime.assemble",
+                "from": "cicero@mala.currunt",
+                "to": [
+                    "roberto@gmail.com"
+                ],
+                "subject": "With files",
+                "body": "see attached",
+                "attachments": [
+                    {
+                        "name": "test1.csv",
+                        "text": "col1,col2\n1,2"
+                    },
+                    {
+                        "name": "test2.csv",
+                        "text": "a,b"
+                    }
+                ]
+            },
+            "expected_output": "from=cicero@mala.currunt\nreply_to=cicero@mala.currunt\nto=roberto@gmail.com\ncc=\nbcc=\nsubject=With files\nmultipart=true\nheader_return_receipt=\nheader_disposition_notification_to=\n"
+        }
+    ]
+}

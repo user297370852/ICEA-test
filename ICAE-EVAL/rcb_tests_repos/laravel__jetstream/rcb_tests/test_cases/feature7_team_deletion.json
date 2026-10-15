@@ -1,0 +1,64 @@
+{
+    "description": "Team deletion removes the team record; deletion validation permits an owner to delete a non-personal team and rejects personal teams or non-owner actors.",
+    "cases": [
+        {
+            "input": {
+                "scenario": "delete_team",
+                "owner": {
+                    "name": "Primary Owner",
+                    "email": "owner@example.com",
+                    "password": "secret"
+                },
+                "team_name": "Product Team"
+            },
+            "expected_output": "team_deleted=yes\nremaining_team_count=0\n"
+        },
+        {
+            "input": {
+                "scenario": "validate_team_deletion",
+                "owner": {
+                    "name": "Primary Owner",
+                    "email": "owner@example.com",
+                    "password": "secret"
+                },
+                "team_name": "Product Team",
+                "personal_team": false,
+                "actor": "owner"
+            },
+            "expected_output": "deletion_allowed=yes\nteam_name=Product Team\n"
+        },
+        {
+            "input": {
+                "scenario": "validate_team_deletion",
+                "owner": {
+                    "name": "Primary Owner",
+                    "email": "owner@example.com",
+                    "password": "secret"
+                },
+                "team_name": "Product Team",
+                "personal_team": true,
+                "actor": "owner"
+            },
+            "expected_output": "error=validation_failed\nfield=team\nmessage=You may not delete your personal team.\n"
+        },
+        {
+            "input": {
+                "scenario": "validate_team_deletion",
+                "owner": {
+                    "name": "Primary Owner",
+                    "email": "owner@example.com",
+                    "password": "secret"
+                },
+                "team_name": "Product Team",
+                "personal_team": false,
+                "actor": "non_owner",
+                "non_owner": {
+                    "name": "Outside User",
+                    "email": "outsider@example.com",
+                    "password": "secret"
+                }
+            },
+            "expected_output": "error=authorization_denied\n"
+        }
+    ]
+}

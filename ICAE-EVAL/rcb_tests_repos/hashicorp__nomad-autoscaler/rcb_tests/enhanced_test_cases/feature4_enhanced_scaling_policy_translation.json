@@ -1,0 +1,76 @@
+{
+  "description": "Enhanced policy translation cases cover duration variations, multiple config maps, nil enabled state, and malformed optional blocks omitted by best-effort translation.",
+  "cases": [
+    {
+      "input": {
+        "id": "dur-combo",
+        "min": 0,
+        "max": 10,
+        "policy": {
+          "source": "prometheus",
+          "query": "sum(rate(requests[1m]))",
+          "evaluation_interval": "1m30s",
+          "target": [
+            {
+              "name": "target-one",
+              "config": [
+                {
+                  "alpha": "one"
+                },
+                {
+                  "beta": 2,
+                  "gamma": false
+                }
+              ]
+            }
+          ],
+          "strategy": [
+            {
+              "name": "threshold",
+              "config": [
+                {
+                  "step": 3
+                },
+                {
+                  "cooldown": "30s"
+                }
+              ]
+            }
+          ]
+        },
+        "target": {
+          "Namespace": "ns-a",
+          "Job": "api",
+          "Group": "web",
+          "Task": "server"
+        },
+        "namespace": "default"
+      },
+      "expected_output": "id=dur-combo\nmin=0\nmax=10\nenabled=true\nsource=prometheus\nquery=sum(rate(requests[1m]))\nevaluation_interval_ns=90000000000\ntarget_name=target-one\ntarget_config={Group=web,Job=api,Namespace=ns-a,Task=server,alpha=one,beta=2,gamma=false}\nstrategy_name=threshold\nstrategy_config={cooldown=30s,step=3}\n"
+    },
+    {
+      "input": {
+        "id": "bad-optionals",
+        "min": 2,
+        "max": 4,
+        "policy": {
+          "source": "nomad-apm",
+          "query": "avg_cpu",
+          "evaluation_interval": "250ms",
+          "target": [
+            "not-a-map"
+          ],
+          "strategy": [
+            "not-a-map"
+          ]
+        },
+        "target": {
+          "Job": "batch",
+          "Group": "workers"
+        },
+        "enabled": false
+      },
+      "expected_output": "id=bad-optionals\nmin=2\nmax=4\nenabled=false\nsource=nomad-apm\nquery=avg_cpu\nevaluation_interval_ns=250000000\ntarget=<nil>\nstrategy=<nil>\n"
+    }
+  ]
+}

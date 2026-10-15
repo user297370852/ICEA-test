@@ -1,0 +1,92 @@
+{
+  "description": "Enhanced namespace event refresh coverage for mixed event types, multiple patterns, sorted output, deletion event removals, and deletion timestamps within add events.",
+  "cases": [
+    {
+      "input": {
+        "action": "refresh_namespaces",
+        "patterns": [
+          "ns-*",
+          "ops"
+        ],
+        "steps": [
+          {
+            "source": "events",
+            "items": [
+              {
+                "type": "ADDED",
+                "metadata": {
+                  "name": "ns-b"
+                }
+              },
+              {
+                "type": "MODIFIED",
+                "metadata": {
+                  "name": "ns-a"
+                }
+              },
+              {
+                "type": "ADDED",
+                "metadata": {
+                  "name": "skip"
+                }
+              }
+            ]
+          },
+          {
+            "source": "events",
+            "items": [
+              {
+                "type": "DELETED",
+                "metadata": {
+                  "name": "ns-b"
+                }
+              },
+              {
+                "type": null,
+                "metadata": {
+                  "name": "ops"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "namespaces=ns-a,ops\n"
+    },
+    {
+      "input": {
+        "action": "refresh_namespaces",
+        "patterns": [
+          "*"
+        ],
+        "steps": [
+          {
+            "source": "events",
+            "items": [
+              {
+                "type": "ADDED",
+                "metadata": {
+                  "name": "aa"
+                }
+              },
+              {
+                "type": "ADDED",
+                "metadata": {
+                  "name": "bb",
+                  "deletionTimestamp": "..."
+                }
+              },
+              {
+                "type": "DELETED",
+                "metadata": {
+                  "name": "cc"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expected_output": "namespaces=aa\n"
+    }
+  ]
+}

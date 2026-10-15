@@ -1,0 +1,81 @@
+{
+  "description": "Boundary coverage for shared-context caching across repeated waves. Loads threaded through a shared loading context are satisfied by one batched round-trip on the first wave; subsequent waves repeating the exact same loads are served entirely from the context cache and trigger no further round-trips. The reported signals are the total number of round-trips across all waves and the linked-record id set returned to each owner in each wave, including owners with no links and waves repeated more than twice.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "simple_model",
+        "context": true,
+        "rounds": 3,
+        "ops": [
+          {
+            "project": 1,
+            "as": "members"
+          },
+          {
+            "project": 2,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2\nr0.op0=members=101,102,103,104\nr0.op1=members=104,105,106,107\nr1.op0=members=101,102,103,104\nr1.op1=members=104,105,106,107\nr2.op0=members=101,102,103,104\nr2.op1=members=104,105,106,107\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "context": true,
+        "rounds": 2,
+        "ops": [
+          {
+            "project": 2,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=2\nr0.op0=members=104,105,106,107\nr1.op0=members=104,105,106,107\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "context": true,
+        "rounds": 2,
+        "ops": [
+          {
+            "project": 4,
+            "as": "members"
+          },
+          {
+            "project": 1,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,4\nr0.op0=members=\nr0.op1=members=101,102,103,104\nr1.op0=members=\nr1.op1=members=101,102,103,104\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "context": true,
+        "rounds": 2,
+        "ops": [
+          {
+            "project": 1,
+            "as": "members"
+          },
+          {
+            "project": 2,
+            "as": "members"
+          },
+          {
+            "project": 3,
+            "as": "members"
+          },
+          {
+            "project": 4,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2,3,4\nr0.op0=members=101,102,103,104\nr0.op1=members=104,105,106,107\nr0.op2=members=107,108,109\nr0.op3=members=\nr1.op0=members=101,102,103,104\nr1.op1=members=104,105,106,107\nr1.op2=members=107,108,109\nr1.op3=members=\n"
+    }
+  ]
+}

@@ -1,0 +1,339 @@
+{
+  "description": "Assembly of the request parameters for a full-table read, accumulated through a fluent builder and rendered with the target table designation. Filter conditions on any attribute contribute a filter expression with associated name and value placeholder bindings: equality and inequality, ordered comparisons, prefix match, range, set membership, substring containment and its negation, and attribute presence/absence. Successive conditions are conjoined and placeholder value names are de-duplicated across clauses. Date-valued operands are rendered as ISO-8601 instants. Nested document paths expand into segmented name placeholders. Builder options including a projected attribute list and a parallel-scan segment assignment are reflected in the parameters.",
+  "cases": [
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "equals",
+            "foo@example.com"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\"},\"FilterExpression\":\"(#email = :email)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "ne",
+            "foo@example.com"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\"},\"FilterExpression\":\"(#email <> :email)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "contains",
+            "foo@example.com"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\"},\"FilterExpression\":\"(contains(#email, :email))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "notContains",
+            "foo@example.com"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\"},\"FilterExpression\":\"(NOT contains(#email, :email))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "in",
+            [
+              "foo@example.com",
+              "test@example.com"
+            ]
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"foo@example.com\",\":email_2\":\"test@example.com\"},\"FilterExpression\":\"(#email IN (:email,:email_2))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "between",
+            "bob@bob.com",
+            "foo@foo.com"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"ExpressionAttributeValues\":{\":email\":\"bob@bob.com\",\":email_2\":\"foo@foo.com\"},\"FilterExpression\":\"(#email BETWEEN :email AND :email_2)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "null"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"FilterExpression\":\"(attribute_not_exists(#email))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "email"
+          ],
+          [
+            "notNull"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\"},\"FilterExpression\":\"(attribute_exists(#email))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "name"
+          ],
+          [
+            "equals",
+            "Tim"
+          ],
+          [
+            "where",
+            "email"
+          ],
+          [
+            "beginsWith",
+            "foo"
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#email\":\"email\",\"#name\":\"name\"},\"ExpressionAttributeValues\":{\":email\":\"foo\",\":name\":\"Tim\"},\"FilterExpression\":\"(#name = :name) AND (begins_with(#email, :email))\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "data": "object"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "data.attr"
+          ],
+          [
+            "equals",
+            15
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#attr\":\"attr\",\"#data\":\"data\"},\"ExpressionAttributeValues\":{\":data_attr\":15},\"FilterExpression\":\"(#data.#attr = :data_attr)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "created": "date"
+          }
+        },
+        "ops": [
+          [
+            "where",
+            "created"
+          ],
+          [
+            "equals",
+            {
+              "__date__": "2021-03-04T05:06:07.000Z"
+            }
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#created\":\"created\"},\"ExpressionAttributeValues\":{\":created\":\"2021-03-04T05:06:07.000Z\"},\"FilterExpression\":\"(#created = :created)\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "rangeKey": "email",
+          "schema": {
+            "name": "string",
+            "email": "string",
+            "created": "date"
+          }
+        },
+        "ops": [
+          [
+            "attributes",
+            [
+              "created",
+              "email"
+            ]
+          ]
+        ]
+      },
+      "expected_output": "{\"ExpressionAttributeNames\":{\"#created\":\"created\",\"#email\":\"email\"},\"ProjectionExpression\":\"#created,#email\",\"TableName\":\"accounts\"}\n"
+    },
+    {
+      "input": {
+        "op": "scan_build",
+        "tableName": "accounts",
+        "config": {
+          "hashKey": "name",
+          "schema": {
+            "name": "string"
+          }
+        },
+        "ops": [
+          [
+            "segments",
+            0,
+            4
+          ]
+        ]
+      },
+      "expected_output": "{\"Segment\":0,\"TableName\":\"accounts\",\"TotalSegments\":4}\n"
+    }
+  ]
+}

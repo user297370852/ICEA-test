@@ -1,0 +1,58 @@
+{
+  "description": "Additional response initial state and cookie coverage for nested locals, object cookie values, and clearCookie without prior storage.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "response_initial_state",
+        "options": {
+          "locals": {
+            "user": {
+              "id": 7
+            },
+            "items": [
+              "a",
+              "b"
+            ]
+          }
+        }
+      },
+      "expected_output": "status=200\ncookies={}\nlocals={\"items\":[\"a\",\"b\"],\"user\":{\"id\":7}}\n"
+    },
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "store_cookie",
+            "name": "prefs",
+            "value": {
+              "mode": "dark",
+              "count": 2
+            },
+            "options": {
+              "httpOnly": true,
+              "maxAge": 3600,
+              "sameSite": "strict"
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={\"prefs\":{\"options\":{\"httpOnly\":true,\"maxAge\":3600,\"sameSite\":\"strict\"},\"value\":{\"count\":2,\"mode\":\"dark\"}}}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\n"
+    },
+    {
+      "input": {
+        "scenario": "response_state_after_operations",
+        "actions": [
+          {
+            "type": "expire_cookie",
+            "name": "missing",
+            "options": {
+              "secure": true
+            }
+          }
+        ]
+      },
+      "expected_output": "status=200\nstatus_message=OK\nheaders={}\ncookies={\"missing\":{\"options\":{\"expires\":1,\"path\":\"/\",\"secure\":true},\"value\":\"\"}}\ndata=\nbuffer=\nencoding=absent\nended=false\nheaders_sent=false\nwritable_finished=false\ndata_length_valid=true\n"
+    }
+  ]
+}

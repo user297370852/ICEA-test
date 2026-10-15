@@ -1,0 +1,69 @@
+{
+    "description": "Sends a flushed payload to the configured HTTP push endpoint and preserves the request path, success status, optional tenant header, and payload body.",
+    "cases": [
+        {
+            "input": {
+                "operation": "http_send",
+                "client": "java",
+                "direct_buffer": true,
+                "tenant": "tenant1",
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    },
+                    {
+                        "timestamp_ms": 104,
+                        "level": "WARN",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 2"
+                    },
+                    {
+                        "timestamp_ms": 107,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 3"
+                    }
+                ]
+            },
+            "expected_output": "http_status=204\nrequest_path=/loki/api/v1/push\ntenant_header=tenant1\nstream=[level, INFO, app, my-app]\nrecord=ts=100 l=INFO c=test.TestApp t=thread-1 | Test message 1 \nrecord=ts=107 l=INFO c=test.TestApp t=thread-1 | Test message 3 \nstream=[level, WARN, app, my-app]\nrecord=ts=104 l=WARN c=test.TestApp t=thread-2 | Test message 2 \n"
+        },
+        {
+            "input": {
+                "operation": "http_send",
+                "client": "apache",
+                "direct_buffer": false,
+                "tenant": "tenant1",
+                "events": [
+                    {
+                        "timestamp_ms": 100,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 1"
+                    },
+                    {
+                        "timestamp_ms": 104,
+                        "level": "WARN",
+                        "logger": "test.TestApp",
+                        "thread": "thread-2",
+                        "message": "Test message 2"
+                    },
+                    {
+                        "timestamp_ms": 107,
+                        "level": "INFO",
+                        "logger": "test.TestApp",
+                        "thread": "thread-1",
+                        "message": "Test message 3"
+                    }
+                ]
+            },
+            "expected_output": "http_status=204\nrequest_path=/loki/api/v1/push\ntenant_header=tenant1\nstream=[level, INFO, app, my-app]\nrecord=ts=100 l=INFO c=test.TestApp t=thread-1 | Test message 1 \nrecord=ts=107 l=INFO c=test.TestApp t=thread-1 | Test message 3 \nstream=[level, WARN, app, my-app]\nrecord=ts=104 l=WARN c=test.TestApp t=thread-2 | Test message 2 \n"
+        }
+    ]
+}

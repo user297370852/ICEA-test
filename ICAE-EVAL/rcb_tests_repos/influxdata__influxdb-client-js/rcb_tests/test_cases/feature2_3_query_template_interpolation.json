@@ -1,0 +1,21 @@
+{
+  "description": "Builds full query strings by preserving literal query text while safely interpolating numbers, strings, nested query fragments, empty fragments, and wrapped string positions.",
+  "cases": [
+    {
+      "input": {"domain":"query_template","segments":["from(bucket:\"my-bucket\") |> range(start: 0) |> filter(fn: (r) => r._measurement == \"temperature\")"],"interpolations":[]},
+      "expected_output": "query=from(bucket:\"my-bucket\") |> range(start: 0) |> filter(fn: (r) => r._measurement == \"temperature\")\n"
+    },
+    {
+      "input": {"domain":"query_template","segments":["from(bucket:\"my-bucket\") |> range(start: ",") |> filter(fn: (r) => r._measurement == ",")"],"interpolations":[0,"temperature"]},
+      "expected_output": "query=from(bucket:\"my-bucket\") |> range(start: 0) |> filter(fn: (r) => r._measurement == \"temperature\")\n"
+    },
+    {
+      "input": {"domain":"query_template","segments":["from(bucket:\"","\")"],"interpolations":["my-bucket"]},
+      "expected_output": "query=from(bucket:\"my-bucket\")\n"
+    },
+    {
+      "input": {"domain":"query_template","segments":["", " |> range(start: ", ")\""],"interpolations":[{"encoded":"expression","value":"from(bucket:\"my-bucket\")"},0]},
+      "expected_output": "query=from(bucket:\"my-bucket\") |> range(start: 0)\"\n"
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "description": "Manage a project's data room of versioned files. Uploading creates a versioned file with content, content hash, denormalized metadata (access level, description, categories, tags, encryption metadata) and links it into the room; re-uploading by reference appends a new version. Entries can be listed, fetched by path, moved, removed, and have their metadata updated; missing targets are reported as failures. Every change appears in the project and global activity feeds newest-first.",
+  "cases": [
+    {
+      "input": {
+        "operations": [
+          {
+            "query": "\nmutation ($ipnftSymbol: String!, $ipnftUid: String!, $ipnftAddress: String!, $ipnftTokenId: Int!) {\n  molecule {\n    v2 {\n      createProject(ipnftSymbol: $ipnftSymbol, ipnftUid: $ipnftUid, ipnftAddress: $ipnftAddress, ipnftTokenId: $ipnftTokenId) {\n        isSuccess\n        message\n        __typename\n        ... on CreateProjectSuccess {\n          project {\n            account { id accountName }\n            ipnftUid\n            dataRoom { id alias }\n            announcements { id alias }\n          }\n        }\n      }\n    }\n  }\n}\n",
+            "variables": {
+              "ipnftSymbol": "vitafast",
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ipnftAddress": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1",
+              "ipnftTokenId": "9"
+            },
+            "emit": false
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          project { account { accountName } }\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/foo.txt",
+              "content": "aGVsbG8",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "public",
+              "description": "Plain text file",
+              "categories": [
+                "test-category"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2"
+              ],
+              "contentText": "hello",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            },
+            "capture": {
+              "ref": [
+                "molecule",
+                "v2",
+                "project",
+                "dataRoom",
+                "uploadFile",
+                "entry",
+                "ref"
+              ]
+            }
+          },
+          {
+            "query": "\n{\n  molecule { v2 { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } }\n}\n"
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags contentText\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n            content\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/bar.txt",
+              "content": "aGVsbG8",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "public",
+              "description": "Plain text file",
+              "categories": [
+                "test-category"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2"
+              ],
+              "contentText": "hello",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            }
+          },
+          {
+            "query": "\n{\n  molecule { v2 { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } }\n}\n"
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(path: $path, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags contentText\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n            content\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/baz.txt",
+              "content": "aGVsbG8",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC",
+              "accessLevel": "public"
+            }
+          },
+          {
+            "query": "\n{\n  molecule { v2 { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } }\n}\n"
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest { entries {\n    totalCount\n    nodes {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest { contentType categories tags accessLevel version description } }\n    }\n  } } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $ref: DatasetID!, $content: Base64Usnp!, $contentType: String!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    uploadFile(ref: $ref, content: $content, contentType: $contentType, changeBy: $changeBy, accessLevel: $accessLevel, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) {\n      isSuccess\n      message\n      ... on MoleculeDataRoomFinishUploadFileResultSuccess {\n        entry {\n          path\n          ref\n          asVersionedFile { latest {\n            version contentHash contentType changeBy accessLevel description categories tags contentText\n            encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n            content\n          } }\n        }\n      }\n    }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ref": "$ref",
+              "content": "Ynll",
+              "contentType": "text/plain",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD",
+              "accessLevel": "public",
+              "description": "Plain text file that was updated",
+              "categories": [
+                "test-category"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2"
+              ],
+              "contentText": "bye",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1",
+                "accessControlConditions": "EM2",
+                "encryptedBy": "EM3",
+                "encryptedAt": "EM4",
+                "chain": "EM5",
+                "litSdkVersion": "EM6",
+                "litNetwork": "EM7",
+                "templateName": "EM8",
+                "contractVersion": "EM9"
+              }
+            }
+          },
+          {
+            "query": "\n{\n  molecule { v2 { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } }\n}\n"
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!, $path: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest {\n    entry(path: $path) {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest {\n        version contentHash contentType changeBy accessLevel description categories tags contentText\n        encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n        content\n      } }\n    }\n  } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/foo.txt"
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!, $path: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest {\n    entry(path: $path) {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest {\n        version contentHash contentType changeBy accessLevel description categories tags contentText\n        encryptionMetadata { dataToEncryptHash accessControlConditions encryptedBy encryptedAt chain litSdkVersion litNetwork templateName contractVersion }\n        content\n      } }\n    }\n  } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/baz.txt"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $fromPath: CollectionPath!, $toPath: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    moveEntry(fromPath: $fromPath, toPath: $toPath) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "fromPath": "/non-existent-path.txt",
+              "toPath": "/2025/foo.txt"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $fromPath: CollectionPath!, $toPath: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    moveEntry(fromPath: $fromPath, toPath: $toPath) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "fromPath": "/foo.txt",
+              "toPath": "/2025/foo.txt"
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest { entries {\n    totalCount\n    nodes {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest { contentType categories tags accessLevel version description } }\n    }\n  } } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\n{\n  molecule { v2 { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } }\n}\n"
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    removeEntry(path: $path) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/non-existent-path.txt"
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $path: CollectionPath!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    removeEntry(path: $path) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "path": "/baz.txt"
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest { entries {\n    totalCount\n    nodes {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest { contentType categories tags accessLevel version description } }\n    }\n  } } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\n{\n  molecule { v2 { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } }\n}\n"
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $ref: DatasetID!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    updateFileMetadata(ref: $ref, accessLevel: $accessLevel, changeBy: $changeBy, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ref": "did:odf:fed011ba79f25e520298ba6945dd6197083a366364bef178d5899b100c434748d88e5",
+              "accessLevel": "holder",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BE",
+              "description": "Plain text file that was updated... again",
+              "categories": [
+                "test-category-1",
+                "test-category-2"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2",
+                "test-tag3"
+              ],
+              "contentText": "bye bye bye",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1-updated",
+                "accessControlConditions": "EM2-updated",
+                "encryptedBy": "EM3-updated",
+                "encryptedAt": "EM4-updated",
+                "chain": "EM5-updated",
+                "litSdkVersion": "EM6-updated",
+                "litNetwork": "EM7-updated",
+                "templateName": "EM8-updated",
+                "contractVersion": "EM9-updated"
+              }
+            }
+          },
+          {
+            "query": "\nmutation ($ipnftUid: String!, $ref: DatasetID!, $changeBy: String!, $accessLevel: String!, $description: String, $categories: [String!], $tags: [String!], $contentText: String, $encryptionMetadata: MoleculeEncryptionMetadataInput) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom {\n    updateFileMetadata(ref: $ref, accessLevel: $accessLevel, changeBy: $changeBy, description: $description, categories: $categories, tags: $tags, contentText: $contentText, encryptionMetadata: $encryptionMetadata) { isSuccess message }\n  } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9",
+              "ref": "$ref",
+              "accessLevel": "holder",
+              "changeBy": "did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BE",
+              "description": "Plain text file that was updated... again",
+              "categories": [
+                "test-category-1",
+                "test-category-2"
+              ],
+              "tags": [
+                "test-tag1",
+                "test-tag2",
+                "test-tag3"
+              ],
+              "contentText": "bye bye bye",
+              "encryptionMetadata": {
+                "dataToEncryptHash": "EM1-updated",
+                "accessControlConditions": "EM2-updated",
+                "encryptedBy": "EM3-updated",
+                "encryptedAt": "EM4-updated",
+                "chain": "EM5-updated",
+                "litSdkVersion": "EM6-updated",
+                "litNetwork": "EM7-updated",
+                "templateName": "EM8-updated",
+                "contractVersion": "EM9-updated"
+              }
+            }
+          },
+          {
+            "query": "\nquery ($ipnftUid: String!) {\n  molecule { v2 { project(ipnftUid: $ipnftUid) { dataRoom { latest { entries {\n    totalCount\n    nodes {\n      path\n      ref\n      changeBy\n      asVersionedFile { latest { contentType categories tags accessLevel version description } }\n    }\n  } } } } } }\n}\n",
+            "variables": {
+              "ipnftUid": "0xcaD88677CA87a7815728C72D74B4ff4982d54Fc1_9"
+            }
+          },
+          {
+            "query": "\nquery ($ref: DatasetID!) {\n  datasets { byId(datasetId: $ref) { asVersionedFile { latest { extraData } } } }\n}\n",
+            "variables": {
+              "ref": "$ref"
+            }
+          },
+          {
+            "query": "\n{\n  molecule { v2 { activity { nodes {\n    ... on MoleculeActivityFileAddedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileUpdatedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityFileRemovedV2 { __typename entry { path ref changeBy } }\n    ... on MoleculeActivityAnnouncementV2 { __typename announcement { id headline body attachments accessLevel changeBy categories tags } }\n  } } } }\n}\n"
+          }
+        ]
+      },
+      "expected_output": "--- operation 1 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"uploadFile\": {\n            \"entry\": {\n              \"asVersionedFile\": {\n                \"latest\": {\n                  \"accessLevel\": \"public\",\n                  \"categories\": [\n                    \"test-category\"\n                  ],\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"contentHash\": \"f16203338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392\",\n                  \"contentType\": \"text/plain\",\n                  \"description\": \"Plain text file\",\n                  \"encryptionMetadata\": {\n                    \"accessControlConditions\": \"EM2\",\n                    \"chain\": \"EM5\",\n                    \"contractVersion\": \"EM9\",\n                    \"dataToEncryptHash\": \"EM1\",\n                    \"encryptedAt\": \"EM4\",\n                    \"encryptedBy\": \"EM3\",\n                    \"litNetwork\": \"EM7\",\n                    \"litSdkVersion\": \"EM6\",\n                    \"templateName\": \"EM8\"\n                  },\n                  \"tags\": [\n                    \"test-tag1\",\n                    \"test-tag2\"\n                  ],\n                  \"version\": 1\n                }\n              },\n              \"path\": \"/foo.txt\",\n              \"project\": {\n                \"account\": {\n                  \"accountName\": \"molecule.vitafast\"\n                }\n              },\n              \"ref\": \"<did-3>\"\n            },\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 2 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"activity\": {\n        \"nodes\": [\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        ]\n      }\n    }\n  }\n}\n--- operation 3 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"activity\": {\n          \"nodes\": [\n            {\n              \"__typename\": \"MoleculeActivityFileAddedV2\",\n              \"entry\": {\n                \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                \"path\": \"/foo.txt\",\n                \"ref\": \"<did-3>\"\n              }\n            }\n          ]\n        }\n      }\n    }\n  }\n}\n--- operation 4 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"uploadFile\": {\n            \"entry\": {\n              \"asVersionedFile\": {\n                \"latest\": {\n                  \"accessLevel\": \"public\",\n                  \"categories\": [\n                    \"test-category\"\n                  ],\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"content\": \"aGVsbG8\",\n                  \"contentHash\": \"f16203338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392\",\n                  \"contentText\": \"hello\",\n                  \"contentType\": \"text/plain\",\n                  \"description\": \"Plain text file\",\n                  \"encryptionMetadata\": {\n                    \"accessControlConditions\": \"EM2\",\n                    \"chain\": \"EM5\",\n                    \"contractVersion\": \"EM9\",\n                    \"dataToEncryptHash\": \"EM1\",\n                    \"encryptedAt\": \"EM4\",\n                    \"encryptedBy\": \"EM3\",\n                    \"litNetwork\": \"EM7\",\n                    \"litSdkVersion\": \"EM6\",\n                    \"templateName\": \"EM8\"\n                  },\n                  \"tags\": [\n                    \"test-tag1\",\n                    \"test-tag2\"\n                  ],\n                  \"version\": 1\n                }\n              },\n              \"path\": \"/bar.txt\",\n              \"ref\": \"<did-4>\"\n            },\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 5 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"activity\": {\n        \"nodes\": [\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/bar.txt\",\n              \"ref\": \"<did-4>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        ]\n      }\n    }\n  }\n}\n--- operation 6 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"uploadFile\": {\n            \"entry\": {\n              \"asVersionedFile\": {\n                \"latest\": {\n                  \"accessLevel\": \"public\",\n                  \"categories\": [],\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"content\": \"aGVsbG8\",\n                  \"contentHash\": \"f16203338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392\",\n                  \"contentText\": null,\n                  \"contentType\": \"text/plain\",\n                  \"description\": null,\n                  \"encryptionMetadata\": null,\n                  \"tags\": [],\n                  \"version\": 1\n                }\n              },\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            },\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 7 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"activity\": {\n        \"nodes\": [\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/bar.txt\",\n              \"ref\": \"<did-4>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        ]\n      }\n    }\n  }\n}\n--- operation 8 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"latest\": {\n            \"entries\": {\n              \"nodes\": [\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/bar.txt\",\n                  \"ref\": \"<did-4>\"\n                },\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [],\n                      \"contentType\": \"text/plain\",\n                      \"description\": null,\n                      \"tags\": [],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/baz.txt\",\n                  \"ref\": \"<did-5>\"\n                },\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/foo.txt\",\n                  \"ref\": \"<did-3>\"\n                }\n              ],\n              \"totalCount\": 3\n            }\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 9 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"uploadFile\": {\n            \"entry\": {\n              \"asVersionedFile\": {\n                \"latest\": {\n                  \"accessLevel\": \"public\",\n                  \"categories\": [\n                    \"test-category\"\n                  ],\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n                  \"content\": \"Ynll\",\n                  \"contentHash\": \"f162040d234965143cf2113060344aec5c3ad74b34a5f713b16df21c6fc9349fb047b\",\n                  \"contentText\": \"bye\",\n                  \"contentType\": \"text/plain\",\n                  \"description\": \"Plain text file that was updated\",\n                  \"encryptionMetadata\": {\n                    \"accessControlConditions\": \"EM2\",\n                    \"chain\": \"EM5\",\n                    \"contractVersion\": \"EM9\",\n                    \"dataToEncryptHash\": \"EM1\",\n                    \"encryptedAt\": \"EM4\",\n                    \"encryptedBy\": \"EM3\",\n                    \"litNetwork\": \"EM7\",\n                    \"litSdkVersion\": \"EM6\",\n                    \"templateName\": \"EM8\"\n                  },\n                  \"tags\": [\n                    \"test-tag1\",\n                    \"test-tag2\"\n                  ],\n                  \"version\": 2\n                }\n              },\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            },\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 10 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"activity\": {\n        \"nodes\": [\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/bar.txt\",\n              \"ref\": \"<did-4>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        ]\n      }\n    }\n  }\n}\n--- operation 11 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"latest\": {\n            \"entry\": {\n              \"asVersionedFile\": {\n                \"latest\": {\n                  \"accessLevel\": \"public\",\n                  \"categories\": [\n                    \"test-category\"\n                  ],\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n                  \"content\": \"Ynll\",\n                  \"contentHash\": \"f162040d234965143cf2113060344aec5c3ad74b34a5f713b16df21c6fc9349fb047b\",\n                  \"contentText\": \"bye\",\n                  \"contentType\": \"text/plain\",\n                  \"description\": \"Plain text file that was updated\",\n                  \"encryptionMetadata\": {\n                    \"accessControlConditions\": \"EM2\",\n                    \"chain\": \"EM5\",\n                    \"contractVersion\": \"EM9\",\n                    \"dataToEncryptHash\": \"EM1\",\n                    \"encryptedAt\": \"EM4\",\n                    \"encryptedBy\": \"EM3\",\n                    \"litNetwork\": \"EM7\",\n                    \"litSdkVersion\": \"EM6\",\n                    \"templateName\": \"EM8\"\n                  },\n                  \"tags\": [\n                    \"test-tag1\",\n                    \"test-tag2\"\n                  ],\n                  \"version\": 2\n                }\n              },\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 12 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"latest\": {\n            \"entry\": {\n              \"asVersionedFile\": {\n                \"latest\": {\n                  \"accessLevel\": \"public\",\n                  \"categories\": [],\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"content\": \"aGVsbG8\",\n                  \"contentHash\": \"f16203338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392\",\n                  \"contentText\": null,\n                  \"contentType\": \"text/plain\",\n                  \"description\": null,\n                  \"encryptionMetadata\": null,\n                  \"tags\": [],\n                  \"version\": 1\n                }\n              },\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 13 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"moveEntry\": {\n            \"isSuccess\": false,\n            \"message\": \"Data room entry not found\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 14 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"moveEntry\": {\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 15 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"latest\": {\n            \"entries\": {\n              \"nodes\": [\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file that was updated\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 2\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n                  \"path\": \"/2025/foo.txt\",\n                  \"ref\": \"<did-3>\"\n                },\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/bar.txt\",\n                  \"ref\": \"<did-4>\"\n                },\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [],\n                      \"contentType\": \"text/plain\",\n                      \"description\": null,\n                      \"tags\": [],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/baz.txt\",\n                  \"ref\": \"<did-5>\"\n                }\n              ],\n              \"totalCount\": 3\n            }\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 16 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"activity\": {\n        \"nodes\": [\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/2025/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/bar.txt\",\n              \"ref\": \"<did-4>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        ]\n      }\n    }\n  }\n}\n--- operation 17 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"removeEntry\": {\n            \"isSuccess\": false,\n            \"message\": \"Data room entry not found\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 18 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"removeEntry\": {\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 19 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"latest\": {\n            \"entries\": {\n              \"nodes\": [\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file that was updated\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 2\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n                  \"path\": \"/2025/foo.txt\",\n                  \"ref\": \"<did-3>\"\n                },\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/bar.txt\",\n                  \"ref\": \"<did-4>\"\n                }\n              ],\n              \"totalCount\": 2\n            }\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 20 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"activity\": {\n        \"nodes\": [\n          {\n            \"__typename\": \"MoleculeActivityFileRemovedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/2025/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/bar.txt\",\n              \"ref\": \"<did-4>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        ]\n      }\n    }\n  }\n}\n--- operation 21 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"updateFileMetadata\": {\n            \"isSuccess\": false,\n            \"message\": \"Data room entry not found\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 22 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"updateFileMetadata\": {\n            \"isSuccess\": true,\n            \"message\": \"\"\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 23 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"project\": {\n        \"dataRoom\": {\n          \"latest\": {\n            \"entries\": {\n              \"nodes\": [\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"holder\",\n                      \"categories\": [\n                        \"test-category-1\",\n                        \"test-category-2\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file that was updated... again\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\",\n                        \"test-tag3\"\n                      ],\n                      \"version\": 3\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BE\",\n                  \"path\": \"/2025/foo.txt\",\n                  \"ref\": \"<did-3>\"\n                },\n                {\n                  \"asVersionedFile\": {\n                    \"latest\": {\n                      \"accessLevel\": \"public\",\n                      \"categories\": [\n                        \"test-category\"\n                      ],\n                      \"contentType\": \"text/plain\",\n                      \"description\": \"Plain text file\",\n                      \"tags\": [\n                        \"test-tag1\",\n                        \"test-tag2\"\n                      ],\n                      \"version\": 1\n                    }\n                  },\n                  \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n                  \"path\": \"/bar.txt\",\n                  \"ref\": \"<did-4>\"\n                }\n              ],\n              \"totalCount\": 2\n            }\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 24 ---\ndata:\n{\n  \"datasets\": {\n    \"byId\": {\n      \"asVersionedFile\": {\n        \"latest\": {\n          \"extraData\": {\n            \"categories\": [\n              \"test-category-1\",\n              \"test-category-2\"\n            ],\n            \"content_text\": \"bye bye bye\",\n            \"description\": \"Plain text file that was updated... again\",\n            \"encryption_metadata\": \"{\\\"version\\\":0,\\\"dataToEncryptHash\\\":\\\"EM1-updated\\\",\\\"accessControlConditions\\\":\\\"EM2-updated\\\",\\\"encryptedBy\\\":\\\"EM3-updated\\\",\\\"encryptedAt\\\":\\\"EM4-updated\\\",\\\"chain\\\":\\\"EM5-updated\\\",\\\"litSdkVersion\\\":\\\"EM6-updated\\\",\\\"litNetwork\\\":\\\"EM7-updated\\\",\\\"templateName\\\":\\\"EM8-updated\\\",\\\"contractVersion\\\":\\\"EM9-updated\\\"}\",\n            \"molecule_access_level\": \"holder\",\n            \"molecule_change_by\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BE\",\n            \"tags\": [\n              \"test-tag1\",\n              \"test-tag2\",\n              \"test-tag3\"\n            ]\n          }\n        }\n      }\n    }\n  }\n}\n--- operation 25 ---\ndata:\n{\n  \"molecule\": {\n    \"v2\": {\n      \"activity\": {\n        \"nodes\": [\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BE\",\n              \"path\": \"/2025/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileRemovedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/2025/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileUpdatedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BD\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/baz.txt\",\n              \"ref\": \"<did-5>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/bar.txt\",\n              \"ref\": \"<did-4>\"\n            }\n          },\n          {\n            \"__typename\": \"MoleculeActivityFileAddedV2\",\n            \"entry\": {\n              \"changeBy\": \"did:ethr:0x43f3F090af7fF638ad0EfD64c5354B6945fE75BC\",\n              \"path\": \"/foo.txt\",\n              \"ref\": \"<did-3>\"\n            }\n          }\n        ]\n      }\n    }\n  }\n}\n"
+    }
+  ]
+}

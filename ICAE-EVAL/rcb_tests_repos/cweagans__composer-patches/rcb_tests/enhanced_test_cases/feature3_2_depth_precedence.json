@@ -1,0 +1,75 @@
+{
+  "description": "Depth precedence chain edge cases: an explicit depth on the patch wins even over a known built-in default (drupal/core); a per-package override wins over a known built-in default; an explicit depth of 0 is treated as set and wins (not skipped as falsy); a configured non-default global default-patch-depth applies to an unknown package; a per-package override keyed to a DIFFERENT package does not apply, so the global default (1) is used; and a negative explicit depth is preserved.",
+  "cases": [
+    {
+      "input": {
+        "op": "guess_depth",
+        "patch": {
+          "package": "drupal/core",
+          "depth": 7
+        }
+      },
+      "expected_output": "package=drupal/core\ndepth=7\n"
+    },
+    {
+      "input": {
+        "op": "guess_depth",
+        "patch": {
+          "package": "drupal/core"
+        },
+        "project_config": {
+          "package-depths": {
+            "drupal/core": 9
+          }
+        }
+      },
+      "expected_output": "package=drupal/core\ndepth=9\n"
+    },
+    {
+      "input": {
+        "op": "guess_depth",
+        "patch": {
+          "package": "some/package",
+          "depth": 0
+        }
+      },
+      "expected_output": "package=some/package\ndepth=0\n"
+    },
+    {
+      "input": {
+        "op": "guess_depth",
+        "patch": {
+          "package": "some/package"
+        },
+        "project_config": {
+          "default-patch-depth": 5
+        }
+      },
+      "expected_output": "package=some/package\ndepth=5\n"
+    },
+    {
+      "input": {
+        "op": "guess_depth",
+        "patch": {
+          "package": "other/package"
+        },
+        "project_config": {
+          "package-depths": {
+            "some/package": 234
+          }
+        }
+      },
+      "expected_output": "package=other/package\ndepth=1\n"
+    },
+    {
+      "input": {
+        "op": "guess_depth",
+        "patch": {
+          "package": "some/package",
+          "depth": -2
+        }
+      },
+      "expected_output": "package=some/package\ndepth=-2\n"
+    }
+  ]
+}

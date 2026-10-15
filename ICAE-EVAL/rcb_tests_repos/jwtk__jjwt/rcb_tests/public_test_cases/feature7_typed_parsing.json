@@ -1,0 +1,55 @@
+{
+  "description": "Parse a token while asserting its exact shape (unsecured-plaintext, unsecured-claims, signed-plaintext, signed-claims). A token whose actual shape does not match the requested shape is rejected with a neutral 'unsupported' category and a reason; a signed token verified with the wrong key is rejected as an invalid signature.",
+  "cases": [
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJub25lIn0.SGVsbG8gd29ybGQh.",
+        "method": "plaintext_jwt"
+      },
+      "expected_output": "kind=plaintext_jwt\nbody=Hello world!"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJub25lIn0.eyJzdWIiOiJKb2UifQ.",
+        "method": "claims_jwt"
+      },
+      "expected_output": "kind=claims_jwt\nsub=Joe"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJIUzI1NiJ9.SGVsbG8gd29ybGQh.4Luu4D1QDg0vorxFuBy4sFq090uoZMwkkGfVFsOeqTw",
+        "method": "plaintext_jws",
+        "key": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA"
+      },
+      "expected_output": "kind=plaintext_jws\nalg=HS256\nbody=Hello world!"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJub25lIn0.SGVsbG8gd29ybGQh.",
+        "method": "claims_jwt"
+      },
+      "expected_output": "error=unsupported\nreason=unsigned_plaintext_jwt"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJub25lIn0.eyJzdWIiOiJKb2UifQ.",
+        "method": "plaintext_jwt"
+      },
+      "expected_output": "error=unsupported\nreason=unsigned_claims_jwt"
+    },
+    {
+      "input": {
+        "op": "parse_typed",
+        "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJKb2UifQ.qs8rO_cGp7ctWsq-yGbVzJ-cjAhzdLh1jP0296AC9Ac",
+        "method": "claims_jws",
+        "key": "Zm9vYmFyYmF6cXV4MTIzNDU2Nzg5MGFiY2RlZmdoaWprbA"
+      },
+      "expected_output": "error=signature_invalid"
+    }
+  ]
+}

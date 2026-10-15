@@ -1,0 +1,50 @@
+{
+  "description": "[ENHANCED] Enhanced token-sink coverage: token injection with init_container false, custom secret-volume-path with token disabled, and default (no token annotation).",
+  "cases": [
+    {
+      "input": {
+        "op": "render_config",
+        "init_container": false,
+        "annotations": {
+          "vault.hashicorp.com/role": "foobar",
+          "vault.hashicorp.com/agent-inject-token": "true"
+        }
+      },
+      "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"},{\"type\":\"file\",\"path\":\"/vault/secrets/token\"}]},\"templates\":[],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "render_config",
+        "init_container": true,
+        "annotations": {
+          "vault.hashicorp.com/role": "foobar",
+          "vault.hashicorp.com/agent-inject-token": "false",
+          "vault.hashicorp.com/secret-volume-path": "/new/secrets"
+        }
+      },
+      "expected_output": "{\"config\":{\"exit_after_auth\":true,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "render_config",
+        "init_container": true,
+        "annotations": {
+          "vault.hashicorp.com/role": "foobar"
+        }
+      },
+      "expected_output": "{\"config\":{\"exit_after_auth\":true,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"}]},\"templates\":[],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+    },
+    {
+      "input": {
+        "op": "render_config",
+        "init_container": false,
+        "annotations": {
+          "vault.hashicorp.com/role": "foobar",
+          "vault.hashicorp.com/agent-inject-token": "true",
+          "vault.hashicorp.com/secret-volume-path": "/data/vault"
+        }
+      },
+      "expected_output": "{\"config\":{\"exit_after_auth\":false,\"vault\":{\"address\":\"http://foobar:8200\",\"ca_cert\":\"\",\"ca_path\":\"\",\"client_cert\":\"\",\"client_key\":\"\",\"tls_skip_verify\":false,\"tls_server_name\":\"\"},\"auto_auth\":{\"type\":\"kubernetes\",\"mount_path\":\"test\",\"namespace\":\"\",\"role\":\"foobar\",\"sinks\":[{\"type\":\"file\",\"path\":\"/home/vault/.vault-token\"},{\"type\":\"file\",\"path\":\"/data/vault/token\"}]},\"templates\":[],\"listeners\":[],\"cache\":null},\"status\":\"ok\"}\n"
+    }
+  ]
+}

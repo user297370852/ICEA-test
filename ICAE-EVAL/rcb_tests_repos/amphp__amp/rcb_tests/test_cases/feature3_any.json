@@ -1,0 +1,25 @@
+{
+    "description": "Aggregate a list of asynchronous operations into a partitioned result that never rejects, regardless of how many operations fail. The fulfilled result always carries two collections preserving the original positions: the failures (mapped to their failure messages) and the successes (mapped to their values). When all operations succeed the failure collection is empty; when all fail the success collection is empty; a mix yields both, each keyed by original position. Passing a non-operation operand is reported as an invalid-operand error.",
+    "cases": [
+        {
+            "input": {"op": "any", "promises": []},
+            "expected_output": "status=fulfilled\nerrors=[]\nvalues=[]\n"
+        },
+        {
+            "input": {"op": "any", "promises": [{"resolve": 1}, {"resolve": 2}, {"resolve": 3}]},
+            "expected_output": "status=fulfilled\nerrors=[]\nvalues=[1,2,3]\n"
+        },
+        {
+            "input": {"op": "any", "promises": [{"fail": "a"}, {"fail": "b"}, {"fail": "c"}]},
+            "expected_output": "status=fulfilled\nerrors=[\"a\",\"b\",\"c\"]\nvalues=[]\n"
+        },
+        {
+            "input": {"op": "any", "promises": [{"resolve": 1}, {"fail": "b"}, {"resolve": 3}]},
+            "expected_output": "status=fulfilled\nerrors={\"1\":\"b\"}\nvalues={\"0\":1,\"2\":3}\n"
+        },
+        {
+            "input": {"op": "any", "promises": [{"value": 1}]},
+            "expected_output": "status=error\nerror=invalid_operand\n"
+        }
+    ]
+}

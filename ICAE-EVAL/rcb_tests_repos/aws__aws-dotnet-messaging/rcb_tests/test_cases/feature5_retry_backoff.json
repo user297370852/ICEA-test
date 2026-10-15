@@ -1,0 +1,44 @@
+{
+    "description": "For queue polling errors, decide whether retry backoff should occur and report the computed delay in seconds for the selected retry policy.",
+    "cases": [
+        {
+            "input": {
+                "operation": "retry_backoff",
+                "policy": "none",
+                "errorCategory": "generic_queue_error",
+                "retryCount": 5
+            },
+            "expected_output": "should_backoff=false\nmax_backoff_seconds=0\nobserved_within_max=true\n"
+        },
+        {
+            "input": {
+                "operation": "retry_backoff",
+                "policy": "interval",
+                "fixedInterval": 2,
+                "errorCategory": "generic_queue_error",
+                "retryCount": 3
+            },
+            "expected_output": "should_backoff=true\nmax_backoff_seconds=2\nobserved_within_max=true\n"
+        },
+        {
+            "input": {
+                "operation": "retry_backoff",
+                "policy": "interval",
+                "fixedInterval": 2,
+                "errorCategory": "queue_missing",
+                "retryCount": 3
+            },
+            "expected_output": "should_backoff=false\nmax_backoff_seconds=2\nobserved_within_max=true\n"
+        },
+        {
+            "input": {
+                "operation": "retry_backoff",
+                "policy": "capped_exponential",
+                "capBackoffTime": 60,
+                "errorCategory": "generic_queue_error",
+                "retryCount": 4
+            },
+            "expected_output": "should_backoff=true\nmax_backoff_seconds=16\nobserved_within_max=true\n"
+        }
+    ]
+}

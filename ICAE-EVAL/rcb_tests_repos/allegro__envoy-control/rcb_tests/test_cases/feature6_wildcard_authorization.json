@@ -1,0 +1,17 @@
+{
+    "description": "Wildcard dependency authorization. When outgoing permissions are enabled, only services on an allow-list may request the wildcard 'all dependencies' value. A request from a service not on the allow-list that asks for the wildcard is rejected with a wildcard-not-allowed decision that names the offending service. A request from an allow-listed service is accepted. When outgoing permissions are disabled the check is skipped and every request is accepted. Decisions are emitted as neutral lines: 'result=accepted' on success, or 'error=wildcard_not_allowed' with the service name on rejection.",
+    "cases": [
+        {
+            "input": {"op": "wildcard_auth", "outgoingPermissions": true, "servicesAllowedToUseWildcard": ["vis-1", "vis-2"], "serviceDependencies": ["*", "a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "error=wildcard_not_allowed\nservice=regular-1\n"
+        },
+        {
+            "input": {"op": "wildcard_auth", "outgoingPermissions": true, "servicesAllowedToUseWildcard": ["vis-1", "vis-2"], "serviceDependencies": ["*", "a", "b", "c"], "serviceName": "vis-1"},
+            "expected_output": "result=accepted\n"
+        },
+        {
+            "input": {"op": "wildcard_auth", "outgoingPermissions": false, "servicesAllowedToUseWildcard": ["vis-1", "vis-2"], "serviceDependencies": ["*", "a", "b", "c"], "serviceName": "regular-1"},
+            "expected_output": "result=accepted\n"
+        }
+    ]
+}

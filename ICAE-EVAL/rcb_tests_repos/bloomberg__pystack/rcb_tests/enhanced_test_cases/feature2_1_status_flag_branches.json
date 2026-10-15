@@ -1,0 +1,150 @@
+{
+  "description": "Without native frames the status bracket derives from the thread flags: the collection marker appears only when the collection flag is set AND the thread holds the lock, an unknown collection flag never produces a marker, any positive lock-holding value yields the lock marker, and a terminated thread identifier prepends its own marker ahead of the others.",
+  "cases": [
+    {
+      "input": {
+        "native": false,
+        "thread": {
+          "tid": 1,
+          "name": null,
+          "holds_the_gil": false,
+          "is_gc_collecting": true,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [
+            {
+              "filename": "f.py",
+              "function": "fn",
+              "lineno": 1,
+              "end_lineno": 1,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            }
+          ],
+          "native_frames": []
+        }
+      },
+      "expected_output": "Traceback for thread 1 [] (most recent call last):\n    (Python) File \"f.py\", line 1, in fn\n\n"
+    },
+    {
+      "input": {
+        "native": false,
+        "thread": {
+          "tid": 1,
+          "name": null,
+          "holds_the_gil": true,
+          "is_gc_collecting": -1,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [
+            {
+              "filename": "f.py",
+              "function": "fn",
+              "lineno": 1,
+              "end_lineno": 1,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            }
+          ],
+          "native_frames": []
+        }
+      },
+      "expected_output": "Traceback for thread 1 [Has the GIL] (most recent call last):\n    (Python) File \"f.py\", line 1, in fn\n\n"
+    },
+    {
+      "input": {
+        "native": false,
+        "thread": {
+          "tid": 1,
+          "name": null,
+          "holds_the_gil": 2,
+          "is_gc_collecting": false,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [
+            {
+              "filename": "f.py",
+              "function": "fn",
+              "lineno": 1,
+              "end_lineno": 1,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            }
+          ],
+          "native_frames": []
+        }
+      },
+      "expected_output": "Traceback for thread 1 [Has the GIL] (most recent call last):\n    (Python) File \"f.py\", line 1, in fn\n\n"
+    },
+    {
+      "input": {
+        "native": false,
+        "thread": {
+          "tid": 0,
+          "name": null,
+          "holds_the_gil": true,
+          "is_gc_collecting": false,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [
+            {
+              "filename": "f.py",
+              "function": "fn",
+              "lineno": 1,
+              "end_lineno": 1,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            }
+          ],
+          "native_frames": []
+        }
+      },
+      "expected_output": "Traceback for thread 0 [Thread terminated,Has the GIL] (most recent call last):\n    (Python) File \"f.py\", line 1, in fn\n\n"
+    },
+    {
+      "input": {
+        "native": false,
+        "thread": {
+          "tid": 0,
+          "name": null,
+          "holds_the_gil": true,
+          "is_gc_collecting": true,
+          "python_version": [
+            3,
+            8
+          ],
+          "python_frames": [
+            {
+              "filename": "f.py",
+              "function": "fn",
+              "lineno": 1,
+              "end_lineno": 1,
+              "column": 0,
+              "end_column": 0,
+              "is_entry": true,
+              "is_shim": false
+            }
+          ],
+          "native_frames": []
+        }
+      },
+      "expected_output": "Traceback for thread 0 [Thread terminated,Has the GIL,Garbage collecting] (most recent call last):\n    (Python) File \"f.py\", line 1, in fn\n\n"
+    }
+  ]
+}

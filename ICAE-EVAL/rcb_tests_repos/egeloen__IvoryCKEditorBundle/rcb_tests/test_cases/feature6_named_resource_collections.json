@@ -1,0 +1,113 @@
+{
+    "description": "Named collections preserve supplied entries, replace entries with the same name, merge selected editor configuration data, and expose neutral missing-entry errors.",
+    "cases": [
+        {
+            "input": {
+                "action": "named_configs",
+                "initial": {},
+                "operations": []
+            },
+            "expected_output": "has_entries=no\ndefault=null\nentries=[]\n"
+        },
+        {
+            "input": {
+                "action": "named_configs",
+                "initial": {
+                    "default": {
+                        "toolbar": "basic",
+                        "uiColor": "#ffffff"
+                    }
+                },
+                "default": "default",
+                "operations": [
+                    {
+                        "type": "merge",
+                        "name": "default",
+                        "value": {
+                            "uiColor": "#000000"
+                        }
+                    }
+                ]
+            },
+            "expected_output": "has_entries=yes\ndefault=default\nentries={\"default\":{\"toolbar\":\"basic\",\"uiColor\":\"#000000\"}}\n"
+        },
+        {
+            "input": {
+                "action": "read_config",
+                "initial": {},
+                "name": "missing"
+            },
+            "expected_output": "error=missing_config\nname=missing\n"
+        },
+        {
+            "input": {
+                "action": "named_plugins",
+                "replace_with": {
+                    "wordcount": {
+                        "path": "/my/path",
+                        "filename": "plugin.js"
+                    }
+                }
+            },
+            "expected_output": "has_entries=yes\nentries={\"wordcount\":{\"path\":\"/my/path\",\"filename\":\"plugin.js\"}}\n"
+        },
+        {
+            "input": {
+                "action": "read_plugin",
+                "initial": {},
+                "name": "missing"
+            },
+            "expected_output": "error=missing_plugin\nname=missing\n"
+        },
+        {
+            "input": {
+                "action": "named_styles",
+                "replace_with": {
+                    "default": [
+                        {
+                            "name": "CSS Style",
+                            "element": "span",
+                            "attributes": {
+                                "class": "my_style"
+                            }
+                        }
+                    ]
+                }
+            },
+            "expected_output": "has_entries=yes\nentries={\"default\":[{\"name\":\"CSS Style\",\"element\":\"span\",\"attributes\":{\"class\":\"my_style\"}}]}\n"
+        },
+        {
+            "input": {
+                "action": "read_styles",
+                "initial": {},
+                "name": "missing"
+            },
+            "expected_output": "error=missing_style_set\nname=missing\n"
+        },
+        {
+            "input": {
+                "action": "named_templates",
+                "replace_with": {
+                    "default": {
+                        "imagesPath": "/my/path",
+                        "templates": [
+                            {
+                                "title": "My Template",
+                                "html": "<h1>Template</h1><p>Type your text here.</p>"
+                            }
+                        ]
+                    }
+                }
+            },
+            "expected_output": "has_entries=yes\nentries={\"default\":{\"imagesPath\":\"/my/path\",\"templates\":[{\"title\":\"My Template\",\"html\":\"<h1>Template</h1><p>Type your text here.</p>\"}]}}\n"
+        },
+        {
+            "input": {
+                "action": "read_template",
+                "initial": {},
+                "name": "missing"
+            },
+            "expected_output": "error=missing_template_set\nname=missing\n"
+        }
+    ]
+}

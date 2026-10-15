@@ -1,0 +1,83 @@
+{
+    "description": "Use a custom exception predicate to decide which failures are retryable.",
+    "cases": [
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 1,
+                    "custom_exception_rule": "message_contains_retry"
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "runtime_error",
+                            "message": "should retry!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=runtime_error\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 1,
+                    "custom_exception_rule": "message_contains_retry"
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "runtime_error",
+                            "message": "should NOT retry!"
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=unexpected_exception\nexception=runtime_error\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 1,
+                    "custom_exception_rule": "custom_value_positive"
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "custom_error",
+                            "message": "should retry!",
+                            "value": 100
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=retries_exhausted\nsuccessful=false\ntotal_tries=3\nlast_exception=custom_error\n"
+        },
+        {
+            "input": {
+                "policy": {
+                    "max_tries": 3,
+                    "backoff": "fixed",
+                    "delay_ms": 1,
+                    "custom_exception_rule": "custom_value_positive"
+                },
+                "operation": {
+                    "outcomes": [
+                        {
+                            "throw": "custom_error",
+                            "message": "test message",
+                            "value": -100
+                        }
+                    ]
+                }
+            },
+            "expected_output": "error=unexpected_exception\nexception=custom_error\n"
+        }
+    ]
+}

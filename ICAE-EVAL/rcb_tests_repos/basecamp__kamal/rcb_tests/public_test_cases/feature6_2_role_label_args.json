@@ -1,0 +1,62 @@
+{
+    "description": "Compute the docker --label arguments for a role. A non-web role without traffic-routing enabled gets only the service and role labels. The web role (and any role explicitly opted into routing) additionally gets a fixed set of reverse-proxy routing labels whose keys embed the service-role identifier: a loadbalancer scheme, a path-prefix router rule, a retry middleware with attempts and initial interval, and a router-to-middleware binding. The routing labels are derived purely from the service and role names.",
+    "cases": [
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": {
+                        "web": [
+                            "1.1.1.1",
+                            "1.1.1.2"
+                        ],
+                        "workers": {
+                            "hosts": [
+                                "1.1.1.3",
+                                "1.1.1.4"
+                            ],
+                            "cmd": "bin/jobs",
+                            "env": {
+                                "REDIS_URL": "redis://a/b",
+                                "WEB_CONCURRENCY": 4
+                            }
+                        }
+                    },
+                    "env": {
+                        "REDIS_URL": "redis://x/y"
+                    }
+                },
+                "role": "workers",
+                "action": "role.label_args"
+            },
+            "expected_output": "--label service=\"app\" --label role=\"workers\""
+        },
+        {
+            "input": {
+                "deploy": {
+                    "service": "app",
+                    "image": "dhh/app",
+                    "registry": {
+                        "username": "dhh",
+                        "password": "secret"
+                    },
+                    "servers": [
+                        "1.1.1.1",
+                        "1.1.1.2"
+                    ],
+                    "env": {
+                        "REDIS_URL": "redis://x/y"
+                    }
+                },
+                "role": "web",
+                "action": "role.label_args"
+            },
+            "expected_output": "--label service=\"app\" --label role=\"web\" --label traefik.http.services.app-web.loadbalancer.server.scheme=\"http\" --label traefik.http.routers.app-web.rule=\"PathPrefix(\\`/\\`)\" --label traefik.http.middlewares.app-web-retry.retry.attempts=\"5\" --label traefik.http.middlewares.app-web-retry.retry.initialinterval=\"500ms\" --label traefik.http.routers.app-web.middlewares=\"app-web-retry@docker\""
+        }
+    ]
+}

@@ -1,0 +1,38 @@
+{
+    "description": "Compact the keyed limiter's internal storage after stale keys are evicted, keeping only the genuinely active keys. A long-lived key consumes a large batch (keeping its state fresh well into the future) while a short-lived key is admitted once. After the clock advances far enough that the short-lived key's state lapses, a reclamation pass followed by a storage-compaction request leaves only the long-lived key, and the reported live key count is one.",
+    "cases": [
+        {
+            "input": {
+                "action": "simulate",
+                "limiter": "keyed",
+                "quota": {
+                    "per_second": 20
+                },
+                "ops": [
+                    {
+                        "check_key_n": {
+                            "key": "long-lived",
+                            "n": 10
+                        }
+                    },
+                    {
+                        "check_key": "short-lived"
+                    },
+                    {
+                        "advance_ms": 300
+                    },
+                    {
+                        "retain_recent": {}
+                    },
+                    {
+                        "shrink_to_fit": {}
+                    },
+                    {
+                        "len": {}
+                    }
+                ]
+            },
+            "expected_output": "check_key_n key=long-lived n=10 allow\ncheck_key key=short-lived allow\nadvance now_ns=300000000\nretain_recent ok\nshrink_to_fit ok\nlen count=1 empty=false\n"
+        }
+    ]
+}

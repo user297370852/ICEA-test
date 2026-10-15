@@ -1,0 +1,50 @@
+{
+  "description": "Enhanced: HTTP response handling - 2xx success boundaries (201, 204) pass through, 403 and a 3xx redirect carry protocol error codes from the body, and a 404 with an empty body maps to the generic response_error category. Disjoint from native cases.",
+  "cases": [
+    {
+      "input": {
+        "feature": "http_response_handling",
+        "status": 201,
+        "reason": "Created",
+        "body": ""
+      },
+      "expected_output": "status=201\nreason=Created\n"
+    },
+    {
+      "input": {
+        "feature": "http_response_handling",
+        "status": 204,
+        "reason": "No Content",
+        "body": null
+      },
+      "expected_output": "status=204\nreason=No Content\n"
+    },
+    {
+      "input": {
+        "feature": "http_response_handling",
+        "status": 403,
+        "reason": "Forbidden",
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Error><Code>AccessDenied</Code><Message>Access Denied</Message></Error>"
+      },
+      "expected_output": "error=remote_error\ncategory=AccessDenied\nstatus=403\n"
+    },
+    {
+      "input": {
+        "feature": "http_response_handling",
+        "status": 301,
+        "reason": "Moved Permanently",
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Error><Code>PermanentRedirect</Code><Message>moved</Message></Error>"
+      },
+      "expected_output": "error=remote_error\ncategory=PermanentRedirect\nstatus=301\n"
+    },
+    {
+      "input": {
+        "feature": "http_response_handling",
+        "status": 404,
+        "reason": "Not Found",
+        "body": ""
+      },
+      "expected_output": "error=remote_error\ncategory=response_error\nstatus=404\n"
+    }
+  ]
+}

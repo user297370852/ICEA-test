@@ -1,0 +1,33 @@
+{
+  "description": "Boundary coverage for latency histogram bucket parsing: an empty input text, bucket lines presented out of upper-bound order that must be returned sorted ascending, an endpoint that has only the synthetic infinity bucket so it appears with no retained buckets, and two bucket lines for the same endpoint sharing the same upper-bound that are both retained. The synthetic infinity bucket is dropped and buckets are sorted ascending by upper-bound.",
+  "cases": [
+    {
+      "input": {
+        "action": "parse_histogram",
+        "text": ""
+      },
+      "expected_output": ""
+    },
+    {
+      "input": {
+        "action": "parse_histogram",
+        "text": "martin_http_requests_duration_seconds_bucket{endpoint=\"/ep\",method=\"GET\",status=\"200\",le=\"0.1\"} 30\nmartin_http_requests_duration_seconds_bucket{endpoint=\"/ep\",method=\"GET\",status=\"200\",le=\"0.01\"} 10\nmartin_http_requests_duration_seconds_bucket{endpoint=\"/ep\",method=\"GET\",status=\"200\",le=\"0.05\"} 20"
+      },
+      "expected_output": "/ep\n0.01 10\n0.05 20\n0.1 30\n"
+    },
+    {
+      "input": {
+        "action": "parse_histogram",
+        "text": "martin_http_requests_duration_seconds_bucket{endpoint=\"/only\",method=\"GET\",status=\"200\",le=\"+Inf\"} 99"
+      },
+      "expected_output": "/only\n"
+    },
+    {
+      "input": {
+        "action": "parse_histogram",
+        "text": "martin_http_requests_duration_seconds_bucket{endpoint=\"/d\",method=\"GET\",status=\"200\",le=\"0.1\"} 5\nmartin_http_requests_duration_seconds_bucket{endpoint=\"/d\",method=\"GET\",status=\"500\",le=\"0.1\"} 7"
+      },
+      "expected_output": "/d\n0.1 5\n0.1 7\n"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "description": "Boundary coverage for deep configuration merge: empty override and empty base identities, three-level recursive nesting, replacing a scalar with a mapping (and vice versa), wholesale list replacement, and a null override value overwriting a scalar. Output is the merged mapping as sorted JSON.",
+  "cases": [
+    {
+      "input": {
+        "op": "merge",
+        "base": {
+          "name": "app",
+          "labels": {
+            "team": "core"
+          },
+          "ports": [
+            80,
+            443
+          ]
+        },
+        "override": {}
+      },
+      "expected_output": "{\n  \"labels\": {\n    \"team\": \"core\"\n  },\n  \"name\": \"app\",\n  \"ports\": [\n    80,\n    443\n  ]\n}"
+    },
+    {
+      "input": {
+        "op": "merge",
+        "base": {},
+        "override": {
+          "name": "web",
+          "replicas": 3
+        }
+      },
+      "expected_output": "{\n  \"name\": \"web\",\n  \"replicas\": 3\n}"
+    },
+    {
+      "input": {
+        "op": "merge",
+        "base": {
+          "a": {
+            "b": {
+              "c": 1,
+              "d": 2
+            }
+          }
+        },
+        "override": {
+          "a": {
+            "b": {
+              "d": 3,
+              "e": 4
+            }
+          }
+        }
+      },
+      "expected_output": "{\n  \"a\": {\n    \"b\": {\n      \"c\": 1,\n      \"d\": 3,\n      \"e\": 4\n    }\n  }\n}"
+    },
+    {
+      "input": {
+        "op": "merge",
+        "base": {
+          "replicas": 1
+        },
+        "override": {
+          "replicas": {
+            "min": 2,
+            "max": 5
+          }
+        }
+      },
+      "expected_output": "{\n  \"replicas\": {\n    \"max\": 5,\n    \"min\": 2\n  }\n}"
+    },
+    {
+      "input": {
+        "op": "merge",
+        "base": {
+          "labels": {
+            "team": "core",
+            "tier": "api"
+          }
+        },
+        "override": {
+          "labels": "none"
+        }
+      },
+      "expected_output": "{\n  \"labels\": \"none\"\n}"
+    },
+    {
+      "input": {
+        "op": "merge",
+        "base": {
+          "v": 5
+        },
+        "override": {
+          "v": null
+        }
+      },
+      "expected_output": "{\n  \"v\": null\n}"
+    }
+  ]
+}

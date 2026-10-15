@@ -1,0 +1,55 @@
+{
+  "description": "Merging of configuration sources to build the effective settings. The order of precedence is explicit call arguments over configuration-file answers over built-in defaults. Output reports the resolved selection lists and the destination folder name.",
+  "cases": [
+    {
+      "input": {
+        "op": "build_config",
+        "config_file": {
+          "name": "copier.yml",
+          "content": "_exclude:\n  - \"exclude1\"\n  - \"exclude2\"\n_include:\n  - \"include1\"\n  - \"include2\"\n_skip_if_exists:\n  - \"skip1\"\n  - \"skip2\"\n_tasks:\n  - \"touch 1\"\n  - \"touch 2\"\n"
+        },
+        "args": {},
+        "report": [
+          "exclude",
+          "include",
+          "skip_if_exists",
+          "tasks",
+          "folder_name"
+        ]
+      },
+      "expected_output": "exclude=[\"exclude1\", \"exclude2\"]\ninclude=[\"include1\", \"include2\"]\nskip_if_exists=[\"skip1\", \"skip2\"]\ntasks=[\"touch 1\", \"touch 2\"]\nfolder_name=\"out_project\"\n"
+    },
+    {
+      "input": {
+        "op": "build_config",
+        "config_file": {
+          "name": "copier.yml",
+          "content": "_include:\n  - \"include1\"\n  - \"include2\"\n"
+        },
+        "args": {
+          "include": [
+            "aaa"
+          ]
+        },
+        "report": [
+          "include"
+        ]
+      },
+      "expected_output": "include=[\"aaa\"]\n"
+    },
+    {
+      "input": {
+        "op": "build_config",
+        "config_file": {
+          "name": "copier.yml",
+          "content": "_include:\n  - \"include1\"\n  - \"include2\"\n"
+        },
+        "args": {},
+        "report": [
+          "include"
+        ]
+      },
+      "expected_output": "include=[\"include1\", \"include2\"]\n"
+    }
+  ]
+}

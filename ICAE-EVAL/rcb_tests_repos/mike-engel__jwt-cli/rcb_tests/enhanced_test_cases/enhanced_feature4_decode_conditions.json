@@ -1,0 +1,129 @@
+{
+  "description": "Decode fixed pre-signed token strings under unverified, correctly-verified, wrong-secret, algorithm-mismatch, expired-with-secret, and expired-without-secret conditions, plus tab/whitespace trimming, rendering observable status, normalized error category, and selected header/claim fields.",
+  "cases": [
+    {
+      "input": {
+        "action": "decode",
+        "args": [
+          "decode",
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UiLCJ0aGlzIjoidGhhdCJ9.3jWhQNaPx8TSbN4lvh3sd6y3rkCpOQRvgTwCI4n-gKY"
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "header.typ",
+          "claim.this",
+          "claim.name"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=HS256\nheader.typ=JWT\nclaim.this=that\nclaim.name=John Doe\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "args": [
+          "decode",
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UiLCJ0aGlzIjoidGhhdCJ9.3jWhQNaPx8TSbN4lvh3sd6y3rkCpOQRvgTwCI4n-gKY",
+          "-S",
+          "secret1",
+          "-A",
+          "HS256"
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "claim.name"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=HS256\nclaim.name=John Doe\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "args": [
+          "decode",
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UiLCJ0aGlzIjoidGhhdCJ9.3jWhQNaPx8TSbN4lvh3sd6y3rkCpOQRvgTwCI4n-gKY",
+          "-S",
+          "wrongsecret",
+          "-A",
+          "HS256"
+        ],
+        "report": [
+          "status",
+          "error",
+          "header.alg",
+          "claim.this"
+        ]
+      },
+      "expected_output": "status=invalid\nerror=invalid_signature\nheader.alg=HS256\nclaim.this=that\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "args": [
+          "decode",
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiYWRtaW4ifQ.6ItZtinNxwYr-TtTFf6psU7VVXjxv6VuiKIL7ywbFAPgC6LywmGW1KWx6FIvEN_D5c9MgrWE86OlOnsROG45Tw",
+          "-A",
+          "HS256",
+          "-S",
+          "topsecret"
+        ],
+        "report": [
+          "status",
+          "error",
+          "header.alg",
+          "claim.role"
+        ]
+      },
+      "expected_output": "status=invalid\nerror=invalid_algorithm\nheader.alg=HS512\nclaim.role=admin\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "args": [
+          "decode",
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjEwMDAwMDAwMDAsInRoaXMiOiJ0aGF0In0.z5A-TRinltxE-baC7i2-4sqm6nv5KcENGa0K-Nn720o",
+          "-S",
+          "sec"
+        ],
+        "report": [
+          "status",
+          "error",
+          "claim.this",
+          "claim.exp"
+        ]
+      },
+      "expected_output": "status=invalid\nerror=expired_signature\nclaim.this=that\nclaim.exp=1000000000\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "args": [
+          "decode",
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjEwMDAwMDAwMDAsInRoaXMiOiJ0aGF0In0.z5A-TRinltxE-baC7i2-4sqm6nv5KcENGa0K-Nn720o"
+        ],
+        "report": [
+          "status",
+          "claim.this",
+          "claim.exp"
+        ]
+      },
+      "expected_output": "status=valid\nclaim.this=that\nclaim.exp=1000000000\n"
+    },
+    {
+      "input": {
+        "action": "decode",
+        "args": [
+          "decode",
+          "\t  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiSm9obiBEb2UiLCJ0aGlzIjoidGhhdCJ9.3jWhQNaPx8TSbN4lvh3sd6y3rkCpOQRvgTwCI4n-gKY \t "
+        ],
+        "report": [
+          "status",
+          "header.alg",
+          "claim.name"
+        ]
+      },
+      "expected_output": "status=valid\nheader.alg=HS256\nclaim.name=John Doe\n"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "description": "Boundary coverage for external template resolution: a child that extends a parent containing its own placeholder rendered with answers, a child that includes (rather than extends) a shared snippet, and a missing reference whose name differs from the public example.",
+  "cases": [
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "child.txt.tmpl": "[% extends \"base.txt\" %]\n"
+        },
+        "extra": {
+          "base.txt": "Hello [[ who ]]\n"
+        },
+        "data": {
+          "who": "world"
+        }
+      },
+      "expected_output": "produced=1\npath: child.txt\nfile: child.txt -> \"Hello world\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "page.txt.tmpl": "TOP\n[% include \"snippet.txt\" %]\n"
+        },
+        "extra": {
+          "snippet.txt": "SNIPPET\n"
+        },
+        "data": {}
+      },
+      "expected_output": "produced=1\npath: page.txt\nfile: page.txt -> \"TOP\\nSNIPPET\\n\\n\"\n"
+    },
+    {
+      "input": {
+        "op": "render",
+        "src": {
+          "child.txt.tmpl": "[% extends \"grandparent.html\" %]\n"
+        },
+        "data": {}
+      },
+      "expected_output": "error=template_reference_not_found\nname=grandparent.html\n"
+    }
+  ]
+}

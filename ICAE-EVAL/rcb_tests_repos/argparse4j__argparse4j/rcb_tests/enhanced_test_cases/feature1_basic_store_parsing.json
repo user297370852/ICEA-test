@@ -1,0 +1,120 @@
+{
+  "description": "Enhanced boundary coverage for optional/positional binding: long-option embedded =value with a positional, dest override key, greedy '*' yielding to a later fixed positional, parser-wide default overriding per-arg default, an optional appearing between two positionals, and a suppress sentinel removing one binding while another stays null.",
+  "cases": [
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--name"
+            ]
+          },
+          {
+            "name": "target"
+          }
+        ],
+        "argv": [
+          "--name=alice",
+          "build"
+        ]
+      },
+      "expected_output": "name=alice\ntarget=build\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--x"
+            ],
+            "dest": "xray"
+          }
+        ],
+        "argv": [
+          "--x",
+          "7"
+        ]
+      },
+      "expected_output": "xray=7\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "name": "a",
+            "nargs": "*"
+          },
+          {
+            "name": "b"
+          }
+        ],
+        "argv": [
+          "one",
+          "two",
+          "three"
+        ]
+      },
+      "expected_output": "a=[one, two]\nb=three\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--mode"
+            ],
+            "default": "local"
+          }
+        ],
+        "parser_defaults": {
+          "mode": "GLOBAL"
+        },
+        "argv": []
+      },
+      "expected_output": "mode=GLOBAL\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--v"
+            ]
+          },
+          {
+            "name": "p1"
+          },
+          {
+            "name": "p2"
+          }
+        ],
+        "argv": [
+          "aa",
+          "--v",
+          "val",
+          "bb"
+        ]
+      },
+      "expected_output": "p1=aa\np2=bb\nv=val\n"
+    },
+    {
+      "input": {
+        "arguments": [
+          {
+            "flags": [
+              "--keep"
+            ]
+          },
+          {
+            "flags": [
+              "--drop"
+            ],
+            "default": "::suppress::"
+          }
+        ],
+        "argv": []
+      },
+      "expected_output": "keep=null\n"
+    }
+  ]
+}

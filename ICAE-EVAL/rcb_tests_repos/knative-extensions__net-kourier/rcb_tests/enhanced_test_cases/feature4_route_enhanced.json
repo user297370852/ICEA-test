@@ -1,0 +1,40 @@
+{
+  "description": "Enhanced route coverage for root-prefix routing, multiple exact header matches, long timeout values, simultaneous host rewrite and injected headers, and deterministic injected-header ordering.",
+  "cases": [
+    {
+      "input": {
+        "op": "route",
+        "name": "fullRoute",
+        "path": "/",
+        "header_match": [
+          {
+            "name": "x-user",
+            "exact": "alice"
+          },
+          {
+            "name": "x-env",
+            "exact": "prod"
+          }
+        ],
+        "timeout_seconds": 3600,
+        "host_rewrite": "backend.internal",
+        "headers": {
+          "x-zeta": "z",
+          "x-alpha": "a"
+        }
+      },
+      "expected_output": "route=fullRoute\npath_prefix=/\nheader_match name=x-user exact=alice\nheader_match name=x-env exact=prod\nupgrade type=websocket enabled=true\ntimeout_seconds=3600\nhost_rewrite=backend.internal\nheader key=x-alpha value=a append=false\nheader key=x-zeta value=z append=false\n"
+    },
+    {
+      "input": {
+        "op": "route",
+        "name": "noHeaders",
+        "path": "/empty",
+        "header_match": [],
+        "timeout_seconds": 15,
+        "headers": {}
+      },
+      "expected_output": "route=noHeaders\npath_prefix=/empty\nupgrade type=websocket enabled=true\ntimeout_seconds=15\n"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+    "description": "Include incoming settings (service name, endpoints) only when incoming permissions are enabled; otherwise strip them to defaults.",
+    "cases": [
+        {
+            "input": {
+                "op": "node_group",
+                "outgoingPermissions": true,
+                "serviceDependencies": [
+                    "a",
+                    "b",
+                    "c"
+                ],
+                "ads": false,
+                "serviceName": "app1",
+                "incomingSettings": true
+            },
+            "expected_output": "type=ServicesGroup\nmode=XDS\nserviceName=\ndeps=[a,b,c]\nincoming.permissionsEnabled=false\nincoming.endpoints=[]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        },
+        {
+            "input": {
+                "op": "node_group",
+                "outgoingPermissions": true,
+                "incomingPermissions": true,
+                "serviceDependencies": [
+                    "a",
+                    "b"
+                ],
+                "ads": true,
+                "serviceName": "app1",
+                "incomingSettings": true
+            },
+            "expected_output": "type=ServicesGroup\nmode=ADS\nserviceName=app1\ndeps=[a,b]\nincoming.permissionsEnabled=true\nincoming.endpoints=[/endpoint|PATH|methods=[]|clients=[client1]]\nincoming.healthCheck.path=\nincoming.healthCheck.cluster=local_service_health_check\nincoming.timeout.response=none\nincoming.timeout.idle=none\n"
+        }
+    ]
+}

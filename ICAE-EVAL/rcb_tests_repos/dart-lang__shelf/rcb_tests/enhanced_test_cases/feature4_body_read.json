@@ -1,0 +1,82 @@
+{
+  "description": "Read bodies across modes: multi-chunk stream as bytes, empty byte body as text, raw bytes spanning the full byte range, an astral character round-trip, and a string body whose message encoding makes the default text decode fail.",
+  "cases": [
+    {
+      "input": {
+        "action": "msg_read",
+        "mode": "bytes",
+        "body": {
+          "type": "stream",
+          "chunks": [
+            [
+              104,
+              105
+            ],
+            [
+              106
+            ]
+          ]
+        }
+      },
+      "expected_output": "bytes=[[104,105],[106]]\n"
+    },
+    {
+      "input": {
+        "action": "msg_read",
+        "mode": "string",
+        "body": {
+          "type": "bytes",
+          "value": []
+        }
+      },
+      "expected_output": "body=\n"
+    },
+    {
+      "input": {
+        "action": "msg_read",
+        "mode": "bytes",
+        "body": {
+          "type": "bytes",
+          "value": [
+            0,
+            255
+          ]
+        }
+      },
+      "expected_output": "bytes=[[0,255]]\n"
+    },
+    {
+      "input": {
+        "action": "msg_read",
+        "mode": "string",
+        "body": {
+          "type": "bytes",
+          "value": [
+            240,
+            159,
+            152,
+            128
+          ]
+        }
+      },
+      "expected_output": "body=😀\n"
+    },
+    {
+      "input": {
+        "action": "msg_read",
+        "mode": "string",
+        "body": "è",
+        "encoding": "latin1"
+      },
+      "expected_output": "body=è\n"
+    },
+    {
+      "input": {
+        "action": "msg_read",
+        "mode": "bytes",
+        "body": ""
+      },
+      "expected_output": "bytes=[[]]\n"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "description": "Enhanced native-disjoint boundary coverage for SPIR-V cross-compilation: minimal valid Vulkan/WebGPU modules and invalid-module normalization across targets and source environments.",
+  "cases": [
+    {
+      "input": {
+        "target": "glsl",
+        "assembly": "          OpCapability Shader\n          OpMemoryModel Logical GLSL450\n          OpEntryPoint Vertex %main \"main\"\n%void   = OpTypeVoid\n%void_f = OpTypeFunction %void\n%main   = OpFunction %void None %void_f\n%label  = OpLabel\n          OpReturn\n          OpFunctionEnd\n"
+      },
+      "expected_output": "status=success\ntarget=glsl\n---\n#version 450\n\nvoid main()\n{\n}\n\n"
+    },
+    {
+      "input": {
+        "target": "vulkan",
+        "assembly": "          OpCapability Shader\n          OpMemoryModel Logical GLSL450\n          OpEntryPoint Vertex %main \"main\"\n%void   = OpTypeVoid\n%void_f = OpTypeFunction %void\n%main   = OpFunction %void None %void_f\n%label  = OpLabel\n          OpReturn\n          OpFunctionEnd\n"
+      },
+      "expected_output": "status=success\ntarget=vulkan\nmagic=0x07230203\nword_count=29\n"
+    },
+    {
+      "input": {
+        "target": "vulkan",
+        "assembly": "          OpCapability Shader\n          OpCapability VulkanMemoryModelKHR\n          OpExtension \"SPV_KHR_vulkan_memory_model\"\n          OpMemoryModel Logical VulkanKHR\n          OpEntryPoint Vertex %func \"wg_main\"\n%void   = OpTypeVoid\n%void_f = OpTypeFunction %void\n%func   = OpFunction %void None %void_f\n%label  = OpLabel\n          OpReturn\n          OpFunctionEnd\n",
+        "source_env": "webgpu"
+      },
+      "expected_output": "status=success\ntarget=vulkan\nmagic=0x07230203\nword_count=39\n"
+    },
+    {
+      "input": {
+        "target": "hlsl",
+        "assembly": "   \n\t  \n"
+      },
+      "expected_output": "error=invalid_module\nstage=cross_compile\ntarget=hlsl\n"
+    },
+    {
+      "input": {
+        "target": "msl",
+        "assembly": "OpCapability Shader\nOpMemoryModel Logical GLSL450\n"
+      },
+      "expected_output": "error=invalid_module\nstage=cross_compile\ntarget=msl\n"
+    },
+    {
+      "input": {
+        "target": "msl",
+        "assembly": "not even close to spir-v",
+        "source_env": "webgpu"
+      },
+      "expected_output": "error=invalid_module\nstage=cross_compile\ntarget=msl\n"
+    },
+    {
+      "input": {
+        "target": "vulkan",
+        "assembly": "",
+        "source_env": "webgpu"
+      },
+      "expected_output": "error=invalid_module\nstage=cross_compile\ntarget=vulkan\n"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "description": "Allow-list and error-category boundary coverage for the per-request reboot voter: empty allow-list (nothing tolerated), tolerating a parent category covers its sub-types, tolerating only a sub-type does NOT cover the parent, and multiple errors in one request where any non-tolerated error forces recycle.",
+  "cases": [
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "runtime"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "app"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "runtime"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "app"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=false\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "runtime"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "app_child"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=false\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app_child"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "app"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app_child"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "app_child"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=false\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "app"
+          },
+          {
+            "type": "exception",
+            "category": "runtime"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=true\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "app"
+          },
+          {
+            "type": "exception",
+            "category": "app_child"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=false\n"
+    },
+    {
+      "input": {
+        "handler": "reboot",
+        "op": "on_exception",
+        "allowed": [
+          "app",
+          "runtime"
+        ],
+        "actions": [
+          {
+            "type": "exception",
+            "category": "runtime"
+          }
+        ]
+      },
+      "expected_output": "should_reboot=false\n"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "description": "Additional expiration cases cover the exact lifetime boundary, deleting expired records, overwriting a TTL-bound entry with a non-expiring entry, and mixed store cleanup counts.",
+  "cases": [
+    {
+      "input": {
+        "namespace": "keyv",
+        "default_lifetime_ms": 100,
+        "steps": [
+          {
+            "action": "save",
+            "key": "edge",
+            "value": "alive"
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 99
+          },
+          {
+            "action": "read",
+            "key": "edge",
+            "label": "t99"
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 1
+          },
+          {
+            "action": "read",
+            "key": "edge",
+            "label": "t100"
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 1
+          },
+          {
+            "action": "read",
+            "key": "edge",
+            "label": "t101"
+          },
+          {
+            "action": "store_entries",
+            "label": "remaining"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nt99=alive\nt100=alive\nt101=undefined\nremaining=0\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "default_lifetime_ms": 50,
+        "steps": [
+          {
+            "action": "save",
+            "key": "session",
+            "value": "short"
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 25
+          },
+          {
+            "action": "save",
+            "key": "session",
+            "value": "permanent",
+            "lifetime_ms": 0
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 1000
+          },
+          {
+            "action": "read",
+            "key": "session",
+            "label": "after_original_ttl"
+          },
+          {
+            "action": "store_entries",
+            "label": "remaining"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nafter_original_ttl=permanent\nremaining=1\n"
+    },
+    {
+      "input": {
+        "namespace": "keyv",
+        "steps": [
+          {
+            "action": "save",
+            "key": "fast",
+            "value": "gone-soon",
+            "lifetime_ms": 10
+          },
+          {
+            "action": "save",
+            "key": "stable",
+            "value": "still-here",
+            "lifetime_ms": 0
+          },
+          {
+            "action": "advance_time",
+            "milliseconds": 20
+          },
+          {
+            "action": "read",
+            "key": "fast",
+            "label": "fast_after"
+          },
+          {
+            "action": "read",
+            "key": "stable",
+            "label": "stable_after"
+          },
+          {
+            "action": "store_entries",
+            "label": "remaining"
+          }
+        ]
+      },
+      "expected_output": "saved=true\nsaved=true\nfast_after=undefined\nstable_after=still-here\nremaining=1\n"
+    }
+  ]
+}

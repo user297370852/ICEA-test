@@ -1,0 +1,17 @@
+{
+    "description": "Parse a bucket object-listing document into per-object attributes. Input is the raw XML body; output reports the number of objects and their keys and byte sizes in document order. An empty listing yields a count of zero; a prefixed listing yields only the matching subset.",
+    "cases": [
+        {
+            "input": {"feature": "parse_object_listing", "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>bucket</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated></ListBucketResult>"},
+            "expected_output": "object_count=0\nkeys=\nsizes=\n"
+        },
+        {
+            "input": {"feature": "parse_object_listing", "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>bucket</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>obj1</Key><LastModified>2009-07-03T10:17:33.000Z</LastModified><ETag>&quot;99519cdf14c255e580e1b7bca85a458c&quot;</ETag><Size>1729</Size><Owner><ID>id</ID><DisplayName>owner</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>obj2</Key><LastModified>2009-07-03T11:17:33.000Z</LastModified><ETag>&quot;99519cdf14c255e586e1b12bca85a458c&quot;</ETag><Size>179</Size><Owner><ID>id2</ID><DisplayName>owner</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>prefix/</Key><LastModified>2009-07-03T10:17:33.000Z</LastModified><ETag>&quot;99519cdf14c255e580e1b7bca85a458c&quot;</ETag><Size>1729</Size><Owner><ID>id</ID><DisplayName>owner</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>prefix/obj3</Key><LastModified>2009-07-03T10:17:33.000Z</LastModified><ETag>&quot;99519cdf14c255e580e1b7bca85a458c&quot;</ETag><Size>1729</Size><Owner><ID>id</ID><DisplayName>owner</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>"},
+            "expected_output": "object_count=4\nkeys=obj1,obj2,prefix/,prefix/obj3\nsizes=1729,179,1729,1729\n"
+        },
+        {
+            "input": {"feature": "parse_object_listing", "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>bucket</Name><Prefix>prefix</Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>prefix/</Key><LastModified>2009-07-03T10:17:33.000Z</LastModified><ETag>&quot;99519cdf14c255e580e1b7bca85a458c&quot;</ETag><Size>1729</Size><Owner><ID>id</ID><DisplayName>owner</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents><Contents><Key>prefix/obj3</Key><LastModified>2009-07-03T10:17:33.000Z</LastModified><ETag>&quot;99519cdf14c255e580e1b7bca85a458c&quot;</ETag><Size>1729</Size><Owner><ID>id</ID><DisplayName>owner</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Contents></ListBucketResult>"},
+            "expected_output": "object_count=2\nkeys=prefix/,prefix/obj3\nsizes=1729,1729\n"
+        }
+    ]
+}

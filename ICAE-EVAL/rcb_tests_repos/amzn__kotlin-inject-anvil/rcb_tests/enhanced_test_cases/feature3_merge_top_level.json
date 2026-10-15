@@ -1,0 +1,27 @@
+{
+  "description": "Merging only top-level ContributesTo interfaces: a single contribution folds exactly one super-interface into the merged component, and two contributions to the same scope are folded in and reported in sorted order.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.merge\n\nimport me.tatarka.inject.annotations.Component\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.SingleIn\n\n@ContributesTo(AppScope::class)\ninterface OnlyComponent\n\n@Component\n@MergeComponent(AppScope::class)\n@SingleIn(AppScope::class)\nabstract class AppComponent : AppComponentMerged\n"
+        ],
+        "merged": [
+          "com.merge.AppComponent"
+        ]
+      },
+      "expected_output": "status=compiled\nmerges com.merge.OnlyComponent\n"
+    },
+    {
+      "input": {
+        "sources": [
+          "package com.merge\n\nimport me.tatarka.inject.annotations.Component\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.SingleIn\n\n@ContributesTo(AppScope::class)\ninterface NetworkComponent\n\n@ContributesTo(AppScope::class)\ninterface LoggingComponent\n\n@Component\n@MergeComponent(AppScope::class)\n@SingleIn(AppScope::class)\nabstract class AppComponent : AppComponentMerged\n"
+        ],
+        "merged": [
+          "com.merge.AppComponent"
+        ]
+      },
+      "expected_output": "status=compiled\nmerges com.merge.LoggingComponent\nmerges com.merge.NetworkComponent\n"
+    }
+  ]
+}

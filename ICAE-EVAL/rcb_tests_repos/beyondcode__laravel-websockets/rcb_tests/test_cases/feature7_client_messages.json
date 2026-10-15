@@ -1,0 +1,116 @@
+{
+    "description": "Client-originated events (events whose name begins with the client- prefix) are only relayed to other subscribers of the channel when the application has client messaging enabled; otherwise they are silently dropped. In both cases the sender never receives its own client event back. The report shows a peer subscriber's received frames: with messaging disabled it only has its subscription acknowledgement; with messaging enabled it additionally receives the relayed client event carrying the original payload.",
+    "cases": [
+        {
+            "input": {
+                "action": "session",
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "1.1"
+                    },
+                    {
+                        "name": "b",
+                        "socket_id": "2.2"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    },
+                    {
+                        "type": "message",
+                        "conn": "b",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    },
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "client-test",
+                            "channel": "test-channel",
+                            "data": {
+                                "client-event": "test"
+                            }
+                        }
+                    }
+                ],
+                "report": {
+                    "connections": [
+                        "b"
+                    ]
+                }
+            },
+            "expected_output": "[b] received 1\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"test-channel\"}\n"
+        },
+        {
+            "input": {
+                "action": "session",
+                "app": {
+                    "client_messages_enabled": true
+                },
+                "connections": [
+                    {
+                        "name": "a",
+                        "socket_id": "1.1"
+                    },
+                    {
+                        "name": "b",
+                        "socket_id": "2.2"
+                    }
+                ],
+                "events": [
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    },
+                    {
+                        "type": "message",
+                        "conn": "b",
+                        "payload": {
+                            "event": "pusher:subscribe",
+                            "data": {
+                                "channel": "test-channel"
+                            }
+                        }
+                    },
+                    {
+                        "type": "message",
+                        "conn": "a",
+                        "payload": {
+                            "event": "client-test",
+                            "channel": "test-channel",
+                            "data": {
+                                "client-event": "test"
+                            }
+                        }
+                    }
+                ],
+                "report": {
+                    "connections": [
+                        "b"
+                    ]
+                }
+            },
+            "expected_output": "[b] received 2\n{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"test-channel\"}\n{\"event\":\"client-test\",\"channel\":\"test-channel\",\"data\":{\"client-event\":\"test\"}}\n"
+        }
+    ]
+}

@@ -1,0 +1,53 @@
+{
+  "description": "Combined multi-variable overrides and error precedence: several configuration keys are supplied together, and an unsupported exporter aborts before any other setting is applied.",
+  "cases": [
+    {
+      "input": {
+        "environment": {
+          "OTEL_TRACES_EXPORTER": "zipkin",
+          "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+          "OTEL_DOTNET_AUTO_HTTP2UNENCRYPTEDSUPPORT_ENABLED": "true"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=zipkin\notlp_protocol=sdk_default\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=true\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_TRACES_EXPORTER": "none",
+          "OTEL_EXPORTER_OTLP_PROTOCOL": ""
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=none\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_TRACES_EXPORTER": "jaeger",
+          "OTEL_DOTNET_AUTO_HTTP2UNENCRYPTEDSUPPORT_ENABLED": "false"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=jaeger\notlp_protocol=http/protobuf\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=false\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_TRACES_EXPORTER": "invalid-x",
+          "OTEL_DOTNET_AUTO_HTTP2UNENCRYPTEDSUPPORT_ENABLED": "true",
+          "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc"
+        }
+      },
+      "expected_output": "error=unsupported_traces_exporter\nvalue=invalid-x\n"
+    },
+    {
+      "input": {
+        "environment": {
+          "OTEL_TRACES_EXPORTER": "otlp",
+          "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+          "OTEL_DOTNET_AUTO_HTTP2UNENCRYPTEDSUPPORT_ENABLED": "true"
+        }
+      },
+      "expected_output": "trace_enabled=true\nload_at_startup=true\ntraces_exporter=otlp\notlp_protocol=sdk_default\nconsole_exporter_enabled=true\nenabled_instrumentations=\ntracer_plugins=\nactivity_sources=default_activity_source\nlegacy_sources=\nintegrations_available=true\nhttp2_unencrypted_support=true\n"
+    }
+  ]
+}

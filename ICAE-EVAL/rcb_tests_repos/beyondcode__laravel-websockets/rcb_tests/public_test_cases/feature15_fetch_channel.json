@@ -1,0 +1,49 @@
+{
+    "description": "The single-channel API returns occupancy information for one named channel of an application. The request must be signed; an invalid signature yields a 401 error. With a valid signature and an existing channel it returns the occupancy flag and the subscription (connection) count. Requesting a channel that is not currently occupied yields a 404 error naming the channel. The report prints the HTTP status then the raw JSON body, or a normalized error with its status and message.",
+    "cases": [
+        {
+            "input": {
+                "action": "fetch_channel",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "my-channel"
+                    },
+                    {
+                        "socket_id": "2.2",
+                        "channel": "my-channel"
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channel/my-channel",
+                    "route_params": {
+                        "appId": "1234",
+                        "channelName": "my-channel"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "status=200\n{\"occupied\":true,\"subscription_count\":2}\n"
+        },
+        {
+            "input": {
+                "action": "fetch_channel",
+                "setup": [
+                    {
+                        "socket_id": "1.1",
+                        "channel": "my-channel"
+                    }
+                ],
+                "request": {
+                    "path": "/apps/1234/channel/invalid-channel",
+                    "route_params": {
+                        "appId": "1234",
+                        "channelName": "invalid-channel"
+                    },
+                    "sign_secret": "TestSecret"
+                }
+            },
+            "expected_output": "error=http_exception\nstatus=404\nmessage=Unknown channel `invalid-channel`.\n"
+        }
+    ]
+}

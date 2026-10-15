@@ -1,0 +1,25 @@
+{
+    "description": "Unified facade that fans a single high-level instruction out to all markup channels at once and renders their combined output in a fixed order: standard head tags, then Open Graph, then Twitter, then JSON-LD. Setting the title updates the head title (composed with the default), the og:title, twitter:title, and the JSON-LD name simultaneously. Setting the description updates the head description meta, og:description, twitter:description, and the JSON-LD description. With no instructions, the defaults for each channel are rendered.",
+    "cases": [
+        {
+            "input": {"channel": "seo", "steps": []},
+            "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta property=\"og:title\" content=\"Over 9000 Thousand!\" /><meta property=\"og:description\" content=\"For those who helped create the Genki Dama\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"For those who helped create the Genki Dama\"}</script>"
+        },
+        {
+            "input": {"channel": "seo", "steps": [{"title": "Kamehamehaaaaaaa"}]},
+            "expected_output": "<title>Kamehamehaaaaaaa - It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta property=\"og:title\" content=\"Kamehamehaaaaaaa\" /><meta property=\"og:description\" content=\"For those who helped create the Genki Dama\" /><meta name=\"twitter:title\" content=\"Kamehamehaaaaaaa\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Kamehamehaaaaaaa\",\"description\":\"For those who helped create the Genki Dama\"}</script>"
+        },
+        {
+            "input": {"channel": "seo", "steps": [{"description": "Kamehamehaaaaaaa"}]},
+            "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"Kamehamehaaaaaaa\"><meta property=\"og:description\" content=\"Kamehamehaaaaaaa\" /><meta property=\"og:title\" content=\"Over 9000 Thousand!\" /><meta name=\"twitter:description\" content=\"Kamehamehaaaaaaa\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"Kamehamehaaaaaaa\"}</script>"
+        },
+        {
+            "input": {"channel": "seo", "steps": [{"canonical": "http://domain.com"}]},
+            "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><link rel=\"canonical\" href=\"http://domain.com\"/><meta property=\"og:title\" content=\"Over 9000 Thousand!\" /><meta property=\"og:description\" content=\"For those who helped create the Genki Dama\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"For those who helped create the Genki Dama\"}</script>"
+        },
+        {
+            "input": {"channel": "seo", "steps": [{"images": ["Kamehamehaaaaaaa.png"]}, {"images": "Kamehamehaaaaaaa.png"}]},
+            "expected_output": "<title>It's Over 9000!</title><meta name=\"description\" content=\"For those who helped create the Genki Dama\"><meta property=\"og:title\" content=\"Over 9000 Thousand!\" /><meta property=\"og:description\" content=\"For those who helped create the Genki Dama\" /><meta property=\"og:image\" content=\"Kamehamehaaaaaaa.png\" /><meta property=\"og:image\" content=\"Kamehamehaaaaaaa.png\" /><meta name=\"twitter:image\" content=\"Kamehamehaaaaaaa.png\" /><script type=\"application/ld+json\">{\"@context\":\"https:\\/\\/schema.org\",\"@type\":\"WebPage\",\"name\":\"Over 9000 Thousand!\",\"description\":\"For those who helped create the Genki Dama\",\"image\":[\"Kamehamehaaaaaaa.png\",\"Kamehamehaaaaaaa.png\"]}</script>"
+        }
+    ]
+}

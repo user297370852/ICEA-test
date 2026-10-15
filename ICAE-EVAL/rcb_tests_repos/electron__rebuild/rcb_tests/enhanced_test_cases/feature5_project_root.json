@@ -1,0 +1,82 @@
+{
+  "description": "Project-root discovery boundary coverage: a lock file sitting one level above the start directory, yarn.lock taking precedence over a nearer package-lock.json, a deeply nested start directory with no lock file anywhere (start is its own root), a lock file directly in the start directory, package-lock.json at an intermediate ancestor, and a three-level-deep start directory with the lock file at the base.",
+  "cases": [
+    {
+      "input": {
+        "command": "resolve_project_root",
+        "dirs": [
+          "a/b"
+        ],
+        "lockfiles": [
+          "a/yarn.lock"
+        ],
+        "startDir": "a/b"
+      },
+      "expected_output": "project_root=..\n"
+    },
+    {
+      "input": {
+        "command": "resolve_project_root",
+        "dirs": [
+          "x/y"
+        ],
+        "lockfiles": [
+          "x/package-lock.json",
+          "yarn.lock"
+        ],
+        "startDir": "x/y"
+      },
+      "expected_output": "project_root=../..\n"
+    },
+    {
+      "input": {
+        "command": "resolve_project_root",
+        "dirs": [
+          "a/b/c/d"
+        ],
+        "lockfiles": [],
+        "startDir": "a/b/c/d"
+      },
+      "expected_output": "project_root=.\n"
+    },
+    {
+      "input": {
+        "command": "resolve_project_root",
+        "dirs": [
+          "solo"
+        ],
+        "lockfiles": [
+          "solo/yarn.lock"
+        ],
+        "startDir": "solo"
+      },
+      "expected_output": "project_root=.\n"
+    },
+    {
+      "input": {
+        "command": "resolve_project_root",
+        "dirs": [
+          "p/q/r"
+        ],
+        "lockfiles": [
+          "p/package-lock.json"
+        ],
+        "startDir": "p/q/r"
+      },
+      "expected_output": "project_root=../..\n"
+    },
+    {
+      "input": {
+        "command": "resolve_project_root",
+        "dirs": [
+          "a/b/c"
+        ],
+        "lockfiles": [
+          "yarn.lock"
+        ],
+        "startDir": "a/b/c"
+      },
+      "expected_output": "project_root=../../..\n"
+    }
+  ]
+}

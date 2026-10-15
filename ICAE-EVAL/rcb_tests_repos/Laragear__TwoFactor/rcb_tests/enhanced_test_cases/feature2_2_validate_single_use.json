@@ -1,0 +1,51 @@
+{
+  "description": "Exercise single-use replay protection together with a positive backward window: a code accepted at one moment is refused when replayed at a later moment that is still inside the window, and after a code is consumed a different code that is independently still time-valid is still accepted within the same session.",
+  "cases": [
+    {
+      "input": {
+        "action": "validate_code",
+        "secret": "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ",
+        "algorithm": "sha1",
+        "digits": 6,
+        "seconds": 30,
+        "window": 2,
+        "checks": [
+          {
+            "code": "198010",
+            "at": 1600000000
+          },
+          {
+            "code": "198010",
+            "at": 1600000020
+          }
+        ]
+      },
+      "expected_output": "code=198010 at=1600000000 valid=true\ncode=198010 at=1600000020 valid=false\n"
+    },
+    {
+      "input": {
+        "action": "validate_code",
+        "secret": "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ",
+        "algorithm": "sha1",
+        "digits": 6,
+        "seconds": 30,
+        "window": 1,
+        "checks": [
+          {
+            "code": "198010",
+            "at": 1600000000
+          },
+          {
+            "code": "198010",
+            "at": 1600000000
+          },
+          {
+            "code": "427404",
+            "at": 1600000000
+          }
+        ]
+      },
+      "expected_output": "code=198010 at=1600000000 valid=true\ncode=198010 at=1600000000 valid=false\ncode=427404 at=1600000000 valid=true\n"
+    }
+  ]
+}

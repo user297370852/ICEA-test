@@ -1,0 +1,295 @@
+{
+  "description": "Synthetic integration-mode edge cases covering dispatched take continuation, arrays of take patterns, multiple reports, fork reporting, nested return rendering, multiple reducer transitions, and selective mock matching.",
+  "cases": [
+    {
+      "input": {
+        "mode": "integration",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "take": [
+                  "START",
+                  "RESUME"
+                ]
+              },
+              "as": "action"
+            },
+            {
+              "yield": {
+                "call": {
+                  "fn": "identity",
+                  "args": [
+                    {
+                      "$var": "action"
+                    }
+                  ]
+                }
+              },
+              "as": "echo"
+            },
+            {
+              "put": {
+                "type": "ECHO",
+                "payload": {
+                  "$var": "echo"
+                }
+              }
+            },
+            {
+              "yield": {
+                "fork": {
+                  "fn": "otherSaga",
+                  "args": [
+                    99
+                  ]
+                }
+              }
+            },
+            {
+              "return": {
+                "done": true,
+                "source": {
+                  "$var": "echo"
+                }
+              }
+            }
+          ]
+        },
+        "dispatch": [
+          {
+            "type": "RESUME",
+            "payload": {
+              "token": "abc"
+            }
+          }
+        ],
+        "expect": [
+          {
+            "take": [
+              "START",
+              "RESUME"
+            ]
+          },
+          {
+            "putType": "ECHO"
+          },
+          {
+            "put": {
+              "type": "ECHO",
+              "payload": {
+                "type": "RESUME",
+                "payload": {
+                  "token": "abc"
+                }
+              }
+            }
+          },
+          {
+            "callMatch": {
+              "fn": "identity",
+              "args": [
+                {
+                  "type": "RESUME",
+                  "payload": {
+                    "token": "abc"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "fork": {
+              "fn": "otherSaga",
+              "args": [
+                99
+              ]
+            }
+          },
+          {
+            "returns": {
+              "done": true,
+              "source": {
+                "type": "RESUME",
+                "payload": {
+                  "token": "abc"
+                }
+              }
+            }
+          },
+          {
+            "not.putType": "MISSING"
+          }
+        ],
+        "report": [
+          "take",
+          "call",
+          "fork",
+          "put",
+          "returnValue"
+        ]
+      },
+      "expected_output": "expectation 1 met\nexpectation 2 met\nexpectation 3 met\nexpectation 4 met\nexpectation 5 met\nexpectation 6 met\nexpectation 7 met\ntake=[START, RESUME]\ncall=identity({\"payload\": {\"token\": \"abc\"}, \"type\": \"RESUME\"})\nfork=otherSaga(99)\nput={\"payload\": {\"payload\": {\"token\": \"abc\"}, \"type\": \"RESUME\"}, \"type\": \"ECHO\"}\nreturnValue={\"done\": true, \"source\": {\"payload\": {\"token\": \"abc\"}, \"type\": \"RESUME\"}}\n"
+    },
+    {
+      "input": {
+        "mode": "integration",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "take": "HAVE_BIRTHDAY"
+              }
+            },
+            {
+              "yield": {
+                "take": "HAVE_BIRTHDAY"
+              }
+            },
+            {
+              "yield": {
+                "select": {
+                  "selector": "getAge"
+                }
+              },
+              "as": "age"
+            },
+            {
+              "put": {
+                "type": "AGE_AFTER_TWO",
+                "payload": {
+                  "$var": "age"
+                }
+              }
+            }
+          ]
+        },
+        "reducer": "dog",
+        "initialState": {
+          "name": "Fido",
+          "age": 4
+        },
+        "dispatch": [
+          {
+            "type": "HAVE_BIRTHDAY"
+          },
+          {
+            "type": "HAVE_BIRTHDAY"
+          }
+        ],
+        "expect": [
+          {
+            "put": {
+              "type": "AGE_AFTER_TWO",
+              "payload": 6
+            }
+          },
+          {
+            "finalState": {
+              "name": "Fido",
+              "age": 6
+            }
+          },
+          {
+            "not.finalState": {
+              "name": "Fido",
+              "age": 5
+            }
+          }
+        ],
+        "report": [
+          "put",
+          "storeState"
+        ]
+      },
+      "expected_output": "expectation 1 met\nexpectation 2 met\nexpectation 3 met\nput={\"payload\": 6, \"type\": \"AGE_AFTER_TWO\"}\nstoreState={\"age\": 6, \"name\": \"Fido\"}\n"
+    },
+    {
+      "input": {
+        "mode": "integration",
+        "saga": {
+          "body": [
+            {
+              "yield": {
+                "call": {
+                  "fn": "apiFn",
+                  "args": [
+                    1
+                  ]
+                }
+              },
+              "as": "a"
+            },
+            {
+              "yield": {
+                "call": {
+                  "fn": "apiFn",
+                  "args": [
+                    2
+                  ]
+                }
+              },
+              "as": "b"
+            },
+            {
+              "put": {
+                "type": "SUM",
+                "payload": {
+                  "$op": "add",
+                  "args": [
+                    {
+                      "$var": "a"
+                    },
+                    {
+                      "$var": "b"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "mocks": [
+          {
+            "call": {
+              "fn": "apiFn",
+              "args": [
+                2
+              ],
+              "value": 40
+            }
+          }
+        ],
+        "expect": [
+          {
+            "call": {
+              "fn": "apiFn",
+              "args": [
+                1
+              ]
+            }
+          },
+          {
+            "call": {
+              "fn": "apiFn",
+              "args": [
+                2
+              ]
+            }
+          },
+          {
+            "put": {
+              "type": "SUM",
+              "payload": 40
+            }
+          }
+        ],
+        "report": [
+          "call",
+          "put"
+        ]
+      },
+      "expected_output": "expectation 1 met\nexpectation 2 met\nexpectation 3 met\ncall=apiFn(1)\ncall=apiFn(2)\nput={\"payload\": 40, \"type\": \"SUM\"}\n"
+    }
+  ]
+}

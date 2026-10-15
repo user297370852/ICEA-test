@@ -1,0 +1,32 @@
+{
+  "description": "Plain-message payload boundary coverage: an empty message text is still emitted as a present (empty) field, a UTF-8 message carrying non-ASCII characters and an embedded '=' is preserved byte-for-byte, and a long single-line message is forwarded intact. The identifier length and fresh-session last_event_id remain stable across message shapes.",
+  "cases": [
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "event": {
+          "message": ""
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nmessage=\nevent_id_length=32\nlast_event_id=0\n"
+    },
+    {
+      "input": {
+        "dsn": "http://k:s@h.test/9999999999",
+        "event": {
+          "message": "città 日本語 ✓ a=b"
+        }
+      },
+      "expected_output": "url=http://h.test/api/9999999999/store/\nplatform=c\nmessage=città 日本語 ✓ a=b\nevent_id_length=32\nlast_event_id=0\n"
+    },
+    {
+      "input": {
+        "dsn": "https://abc:def@sentry.io/123",
+        "event": {
+          "message": "The quick brown fox jumps over the lazy dog 0123456789 - and keeps going on and on to exercise a long single-line message payload without any newline characters at all."
+        }
+      },
+      "expected_output": "url=https://sentry.io/api/123/store/\nplatform=c\nmessage=The quick brown fox jumps over the lazy dog 0123456789 - and keeps going on and on to exercise a long single-line message payload without any newline characters at all.\nevent_id_length=32\nlast_event_id=0\n"
+    }
+  ]
+}

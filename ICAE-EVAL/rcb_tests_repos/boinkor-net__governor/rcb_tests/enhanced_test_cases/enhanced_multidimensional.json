@@ -1,0 +1,293 @@
+{
+  "description": "Synthetic native-disjoint coverage for quota rounding, custom constructors, exact virtual-clock boundaries, all-or-nothing batches, keyed limiter independence/reclamation, state-reporting batched admissions, and high-rate stress-like draining.",
+  "cases": [
+    {
+      "input": {
+        "action": "quota_info",
+        "quota": {
+          "per_second": 3
+        }
+      },
+      "expected_output": "replenish_interval_ns=333333333\nburst_size=3\nburst_replenish_all_ns=999999999\n"
+    },
+    {
+      "input": {
+        "action": "quota_info",
+        "quota": {
+          "per_minute": 7,
+          "allow_burst": 11
+        }
+      },
+      "expected_output": "replenish_interval_ns=8571428571\nburst_size=11\nburst_replenish_all_ns=94285714281\n"
+    },
+    {
+      "input": {
+        "action": "quota_build",
+        "spec": {
+          "new": {
+            "burst": 3,
+            "all_per_ms": 1000
+          }
+        }
+      },
+      "expected_output": "replenish_interval_ns=333333333\nburst_size=3\nburst_replenish_all_ns=999999999\n"
+    },
+    {
+      "input": {
+        "action": "quota_build",
+        "spec": {
+          "with_period_ms": 1,
+          "allow_burst": 3
+        }
+      },
+      "expected_output": "replenish_interval_ns=1000000\nburst_size=3\nburst_replenish_all_ns=3000000\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "quota": {
+          "with_period_ms": 100,
+          "allow_burst": 3
+        },
+        "ops": [
+          {
+            "check_n": 2
+          },
+          {
+            "check": {}
+          },
+          {
+            "check": {}
+          },
+          {
+            "advance_ms": 99
+          },
+          {
+            "check": {}
+          },
+          {
+            "advance_ms": 1
+          },
+          {
+            "check": {}
+          }
+        ]
+      },
+      "expected_output": "check_n n=2 allow\ncheck allow\ncheck deny wait_ns=100000000\nadvance now_ns=99000000\ncheck deny wait_ns=1000000\nadvance now_ns=100000000\ncheck allow\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "quota": {
+          "per_second": 10,
+          "allow_burst": 5
+        },
+        "ops": [
+          {
+            "check_n": 4
+          },
+          {
+            "check_n": 2
+          },
+          {
+            "advance_ms": 50
+          },
+          {
+            "check_n": 2
+          },
+          {
+            "advance_ms": 50
+          },
+          {
+            "check_n": 2
+          },
+          {
+            "check_n": 5
+          }
+        ]
+      },
+      "expected_output": "check_n n=4 allow\ncheck_n n=2 deny wait_ns=100000000\nadvance now_ns=50000000\ncheck_n n=2 deny wait_ns=50000000\nadvance now_ns=100000000\ncheck_n n=2 allow\ncheck_n n=5 deny wait_ns=500000000\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "limiter": "keyed",
+        "quota": {
+          "per_second": 2,
+          "allow_burst": 3
+        },
+        "ops": [
+          {
+            "check_key_n": {
+              "key": "alpha",
+              "n": 3
+            }
+          },
+          {
+            "check_key": "alpha"
+          },
+          {
+            "check_key": "beta"
+          },
+          {
+            "check_key_n": {
+              "key": "beta",
+              "n": 4
+            }
+          },
+          {
+            "len": {}
+          },
+          {
+            "advance_ms": 1600
+          },
+          {
+            "retain_recent": {}
+          },
+          {
+            "keys": {}
+          }
+        ]
+      },
+      "expected_output": "check_key_n key=alpha n=3 allow\ncheck_key key=alpha deny wait_ns=500000000\ncheck_key key=beta allow\ncheck_key_n key=beta n=4 error=insufficient_capacity max=3\nlen count=2 empty=false\nadvance now_ns=1600000000\nretain_recent ok\nkeys alpha\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "limiter": "keyed",
+        "quota": {
+          "per_second": 1
+        },
+        "ops": [
+          {
+            "check_key": "edge"
+          },
+          {
+            "advance_ms": 999
+          },
+          {
+            "retain_recent": {}
+          },
+          {
+            "keys": {}
+          }
+        ]
+      },
+      "expected_output": "check_key key=edge allow\nadvance now_ns=999000000\nretain_recent ok\nkeys edge\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "limiter": "keyed",
+        "quota": {
+          "per_second": 1
+        },
+        "ops": [
+          {
+            "check_key": "edge"
+          },
+          {
+            "advance_ms": 1000
+          },
+          {
+            "retain_recent": {}
+          },
+          {
+            "keys": {}
+          }
+        ]
+      },
+      "expected_output": "check_key key=edge allow\nadvance now_ns=1000000000\nretain_recent ok\nkeys edge\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "middleware": "state",
+        "quota": {
+          "per_second": 5
+        },
+        "ops": [
+          {
+            "check_n": 3
+          },
+          {
+            "check_n": 2
+          },
+          {
+            "check_n": 1
+          },
+          {
+            "advance_ms": 400
+          },
+          {
+            "check_n": 2
+          },
+          {
+            "check": {}
+          }
+        ]
+      },
+      "expected_output": "check_n n=3 allow remaining=2\ncheck_n n=2 allow remaining=0\ncheck_n n=1 deny wait_ns=200000000\nadvance now_ns=400000000\ncheck_n n=2 allow remaining=0\ncheck deny wait_ns=200000000\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "quota": {
+          "per_second": 1000
+        },
+        "ops": [
+          {
+            "check_n": 999
+          },
+          {
+            "check": {}
+          },
+          {
+            "check": {}
+          },
+          {
+            "advance_ms": 1
+          },
+          {
+            "check": {}
+          },
+          {
+            "advance_ms": 999
+          },
+          {
+            "check_n": 1000
+          },
+          {
+            "check": {}
+          }
+        ]
+      },
+      "expected_output": "check_n n=999 allow\ncheck allow\ncheck deny wait_ns=1000000\nadvance now_ns=1000000\ncheck allow\nadvance now_ns=1000000000\ncheck_n n=1000 deny wait_ns=1000000\ncheck allow\n"
+    },
+    {
+      "input": {
+        "action": "simulate",
+        "limiter": "keyed",
+        "quota": {
+          "with_period_ms": 250,
+          "allow_burst": 2
+        },
+        "ops": [
+          {
+            "check_key": "zeta"
+          },
+          {
+            "check_key": "Alpha"
+          },
+          {
+            "check_key": "alpha"
+          },
+          {
+            "keys": {}
+          }
+        ]
+      },
+      "expected_output": "check_key key=zeta allow\ncheck_key key=Alpha allow\ncheck_key key=alpha allow\nkeys Alpha,alpha,zeta\n"
+    }
+  ]
+}

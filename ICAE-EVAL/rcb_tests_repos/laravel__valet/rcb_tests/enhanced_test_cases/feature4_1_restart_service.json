@@ -1,0 +1,29 @@
+{
+  "description": "Restart a background service managed by the package manager's service supervisor. The adapter first confirms the service's package is installed (issuing the metadata query and checking for a non-empty installed set). When installed, it issues three supervisor commands in order: a plain stop, a privileged stop, and a privileged start. When the package is not installed, no supervisor commands are issued. The output echoes the installed-check query followed by any supervisor commands in the exact order issued.",
+  "cases": [
+    {
+      "input": {
+        "action": "restart_service",
+        "service": "nginx",
+        "info_response": "[{\"name\":\"nginx\",\"full_name\":\"nginx\",\"aliases\":[],\"versioned_formulae\":[],\"versions\":{\"stable\":\"1.21.0\"},\"installed\":[]}]"
+      },
+      "expected_output": "cmd=brew info nginx --json\n"
+    },
+    {
+      "input": {
+        "action": "restart_service",
+        "service": "dnsmasq",
+        "info_response": "Error: No available formula with the name \"dnsmasq\"."
+      },
+      "expected_output": "cmd=brew info dnsmasq --json\n"
+    },
+    {
+      "input": {
+        "action": "restart_service",
+        "service": "php@7.4",
+        "info_response": "[{\"name\":\"php@7.4\",\"full_name\":\"php@7.4\",\"aliases\":[],\"versioned_formulae\":[],\"versions\":{\"stable\":\"7.4.5\"},\"installed\":[{\"version\":\"7.4.5\"}]}]"
+      },
+      "expected_output": "cmd=brew info php@7.4 --json\ncmd=brew services stop php@7.4\ncmd=sudo brew services stop php@7.4\ncmd=sudo brew services start php@7.4\n"
+    }
+  ]
+}

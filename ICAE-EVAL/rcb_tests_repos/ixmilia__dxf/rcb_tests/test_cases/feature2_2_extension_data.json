@@ -1,0 +1,36 @@
+{
+    "description": "Entities may carry application-scoped extension data groups, delimited by an opening '{<app-name>' marker (group code 102) and a matching '}' marker. The group preserves an ordered list of raw code/value pairs. Both directions are supported: extension groups present in the input are reported, and groups supplied programmatically are emitted before the entity body.",
+    "cases": [
+        {
+            "input": {
+                "op": "read_entity",
+                "dxf": "  0\nLINE\n102\n{APP_NAME\n360\nAAAA\n360\nBBBB\n102\n}\n"
+            },
+            "expected_output": "type=line\nlayer=0\nlinetype=BYLAYER\nlinetype_scale=1\nis_visible=true\nis_in_paper_space=false\ncolor=BYLAYER\nextension.group_name=APP_NAME\nextension.group_item_count=2\nextension.item.0=360:AAAA\nextension.item.1=360:BBBB\np1=0,0,0\np2=0,0,0\nthickness=0\nextrusion=0,0,1\n"
+        },
+        {
+            "input": {
+                "op": "write_entity",
+                "entity": {
+                    "type": "line",
+                    "extension_groups": [
+                        {
+                            "name": "APP_NAME",
+                            "pairs": [
+                                {
+                                    "code": 1,
+                                    "value": "foo"
+                                },
+                                {
+                                    "code": 2,
+                                    "value": "bar"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "expected_output": "  0\nSECTION\n  2\nENTITIES\n  0\nLINE\n  5\nA\n102\n{APP_NAME\n  1\nfoo\n  2\nbar\n102\n}\n100\nAcDbEntity\n  8\n0\n100\nAcDbLine\n 10\n0.0\n 20\n0.0\n 30\n0.0\n 11\n0.0\n 21\n0.0\n 31\n0.0\n  0\nENDSEC\n"
+        }
+    ]
+}

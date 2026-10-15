@@ -1,0 +1,16 @@
+{
+  "description": "A component annotated to merge a scope collects every contribution for that scope; the generated merged super-interface inherits the contributed component interfaces (a nested one and a top-level one), proving the contributions were actually merged into the component.",
+  "cases": [
+    {
+      "input": {
+        "sources": [
+          "package com.example\n\nimport me.tatarka.inject.annotations.Component\nimport me.tatarka.inject.annotations.Inject\nimport me.tatarka.inject.annotations.Provides\nimport software.amazon.lastmile.kotlin.inject.anvil.AppScope\nimport software.amazon.lastmile.kotlin.inject.anvil.ContributesTo\nimport software.amazon.lastmile.kotlin.inject.anvil.MergeComponent\nimport software.amazon.lastmile.kotlin.inject.anvil.SingleIn\n\ninterface Base\n\n@Inject\n@SingleIn(AppScope::class)\nclass Impl : Base {\n    @ContributesTo(AppScope::class)\n    interface Component {\n        @Provides fun provideImpl(impl: Impl): Base = impl\n        val string: String\n    }\n}\n\n@ContributesTo(AppScope::class)\ninterface StringComponent {\n    @Provides fun provideString(): String = \"abc\"\n}\n\n@Component\n@MergeComponent(AppScope::class)\n@SingleIn(AppScope::class)\nabstract class ComponentInterface : ComponentInterfaceMerged {\n    abstract val base: Base\n}\n"
+        ],
+        "merged": [
+          "com.example.ComponentInterface"
+        ]
+      },
+      "expected_output": "status=compiled\nmerges com.example.Impl.Component\nmerges com.example.StringComponent\n"
+    }
+  ]
+}

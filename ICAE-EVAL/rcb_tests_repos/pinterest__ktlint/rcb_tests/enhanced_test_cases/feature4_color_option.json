@@ -1,0 +1,198 @@
+{
+    "description": "Build the reporter from a free-form string-keyed option map (as a command line would pass) and report the outcome. The color selection is driven by a dedicated option whose value must be the name of a supported color; coloring is enabled by a separate flag option. When the color option resolves to a valid color name, the reporter is constructed successfully and rendering a violation through it produces colorized output using that color. When the color name is absent (missing key, including an unrecognized key) or is the empty string, construction is rejected and a neutral error line carrying the failure message is reported instead.",
+    "cases": [
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "DARK_GRAY",
+                    "color": "true"
+                },
+                "violations": [
+                    {
+                        "file": "/g.kt",
+                        "line": 1,
+                        "col": 1,
+                        "rule": "r",
+                        "message": "dark gray via configure",
+                        "corrected": false
+                    }
+                ]
+            },
+            "expected_output": "\u001b[90m/\u001b[0mg.kt\u001b[90m:\u001b[0m1\u001b[90m:1:\u001b[0m dark gray via configure\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "RED",
+                    "color": ""
+                },
+                "violations": [
+                    {
+                        "file": "/e.kt",
+                        "line": 2,
+                        "col": 2,
+                        "rule": "r",
+                        "message": "empty color flag enables",
+                        "corrected": false
+                    }
+                ]
+            },
+            "expected_output": "\u001b[31m/\u001b[0me.kt\u001b[31m:\u001b[0m2\u001b[31m:2:\u001b[0m empty color flag enables\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "RED"
+                },
+                "violations": [
+                    {
+                        "file": "/flat.kt",
+                        "line": 3,
+                        "col": 3,
+                        "rule": "r",
+                        "message": "valid name but coloring off",
+                        "corrected": false
+                    }
+                ]
+            },
+            "expected_output": "/flat.kt:3:3: valid name but coloring off\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "RED",
+                    "color": "false"
+                },
+                "violations": [
+                    {
+                        "file": "/false.kt",
+                        "line": 4,
+                        "col": 4,
+                        "rule": "r",
+                        "message": "color false means flat",
+                        "corrected": false
+                    }
+                ]
+            },
+            "expected_output": "/false.kt:4:4: color false means flat\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "BLUE",
+                    "color": "true"
+                },
+                "violations": [
+                    {
+                        "file": "/b.kt",
+                        "line": 5,
+                        "col": 50,
+                        "rule": "r",
+                        "message": "blue multi col",
+                        "corrected": false
+                    }
+                ]
+            },
+            "expected_output": "\u001b[34m/\u001b[0mb.kt\u001b[34m:\u001b[0m5\u001b[34m:50:\u001b[0m blue multi col\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "GREEN",
+                    "color": "true"
+                },
+                "violations": [
+                    {
+                        "file": "/m1.kt",
+                        "line": 1,
+                        "col": 1,
+                        "rule": "r",
+                        "message": "first",
+                        "corrected": false
+                    },
+                    {
+                        "file": "/m2.kt",
+                        "line": 2,
+                        "col": 2,
+                        "rule": "r",
+                        "message": "second",
+                        "corrected": false
+                    }
+                ]
+            },
+            "expected_output": "\u001b[32m/\u001b[0mm1.kt\u001b[32m:\u001b[0m1\u001b[32m:1:\u001b[0m first\n\u001b[32m/\u001b[0mm2.kt\u001b[32m:\u001b[0m2\u001b[32m:2:\u001b[0m second\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "DARK_GRAY"
+                }
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "RED",
+                    "color": "true"
+                },
+                "violations": [
+                    {
+                        "file": "/x.kt",
+                        "line": 1,
+                        "col": 1,
+                        "rule": "r",
+                        "message": "gone",
+                        "corrected": true
+                    }
+                ]
+            },
+            "expected_output": ""
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "GARBAGE"
+                }
+            },
+            "expected_output": "error: Invalid color parameter.\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "red"
+                }
+            },
+            "expected_output": "error: Invalid color parameter.\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": " "
+                }
+            },
+            "expected_output": "error: Invalid color parameter.\n"
+        },
+        {
+            "input": {
+                "action": "configure",
+                "options": {
+                    "color_name": "DARK_GRAY ",
+                    "color": "true"
+                }
+            },
+            "expected_output": "error: Invalid color parameter.\n"
+        }
+    ]
+}

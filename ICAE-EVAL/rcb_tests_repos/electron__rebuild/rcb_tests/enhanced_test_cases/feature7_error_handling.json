@@ -1,0 +1,115 @@
+{
+  "description": "Normalized, language-neutral error coverage for the execution adapter: an unknown target runtime ABI, a non-string runtime version supplied as a boolean / null / array (each reported with its got=<type>), a non-absolute build path, an unrecognized command, and a missing manifest. Errors must surface as stable category lines, never as host-language exception details.",
+  "cases": [
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "11.0.0",
+        "dependencies": {
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "error=unknown_runtime_abi\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "13.0.0",
+        "dependencies": {
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "error=unknown_runtime_abi\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": true,
+        "dependencies": {
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "error=invalid_runtime_version\ngot=boolean\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": null,
+        "dependencies": {
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "error=invalid_runtime_version\ngot=object\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": [],
+        "dependencies": {
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "error=invalid_runtime_version\ngot=object\n"
+    },
+    {
+      "input": {
+        "command": "plan_rebuild",
+        "runtimeVersion": "10.4.7",
+        "relativeBuildPath": true,
+        "dependencies": {
+          "ref-napi": "1"
+        },
+        "modules": [
+          {
+            "name": "ref-napi",
+            "native": true
+          }
+        ]
+      },
+      "expected_output": "error=build_path_not_absolute\n"
+    },
+    {
+      "input": {
+        "command": "totally_unknown_command"
+      },
+      "expected_output": "error=invalid_request\n"
+    },
+    {
+      "input": {
+        "command": "read_manifest",
+        "missing": true
+      },
+      "expected_output": "error=manifest_not_found\n"
+    }
+  ]
+}

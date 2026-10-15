@@ -1,0 +1,20 @@
+{
+    "description": "Collect a set of named data sources into a components map. Each source is invoked independently: a source that returns a value is recorded as a value component, while a source that throws is caught and recorded as an error component whose normalized message carries the source's error text. One failing source never aborts the others, and the collection preserves the original source order.",
+    "cases": [
+        {
+            "input": {"op": "collect", "sources": [
+                {"name": "success1", "returns": "foo"},
+                {"name": "throwsErrorObject", "throws": "bar", "as": "error"},
+                {"name": "throwsErrorString", "throws": "baz", "as": "string"},
+                {"name": "success2", "returns": "baq"}
+            ]},
+            "expected_output": "name=success1 outcome=value value=\"foo\"\nname=throwsErrorObject outcome=error message=bar\nname=throwsErrorString outcome=error message=baz\nname=success2 outcome=value value=\"baq\""
+        },
+        {
+            "input": {"op": "collect", "sources": [
+                {"name": "onlyOne", "returns": "solo"}
+            ]},
+            "expected_output": "name=onlyOne outcome=value value=\"solo\""
+        }
+    ]
+}

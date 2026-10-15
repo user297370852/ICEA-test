@@ -1,0 +1,81 @@
+{
+  "description": "Boundary coverage for plain many-to-many batched loading. Concurrent owner-side collection getters issued within one tick are folded into a single underlying round-trip whose filter carries the union of owner keys, and the rows are de-multiplexed back per owner. The reported signals are the number of round-trips, the owner-key set folded into each round-trip, and the linked-record id set returned to each owner, including owners that have no links at all and owners requested more than once in the same wave.",
+  "cases": [
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members"
+          },
+          {
+            "project": 2,
+            "as": "members"
+          },
+          {
+            "project": 3,
+            "as": "members"
+          },
+          {
+            "project": 4,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2,3,4\nr0.op0=members=101,102,103,104\nr0.op1=members=104,105,106,107\nr0.op2=members=107,108,109\nr0.op3=members=\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_string",
+        "ops": [
+          {
+            "project": 3,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=3\nr0.op0=members=107,108,109\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 1,
+            "as": "members"
+          },
+          {
+            "project": 1,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,1\nr0.op0=members=101,102,103,104\nr0.op1=members=101,102,103,104\n"
+    },
+    {
+      "input": {
+        "scenario": "simple_model",
+        "ops": [
+          {
+            "project": 4,
+            "as": "members"
+          },
+          {
+            "project": 3,
+            "as": "members"
+          },
+          {
+            "project": 2,
+            "as": "members"
+          },
+          {
+            "project": 1,
+            "as": "members"
+          }
+        ]
+      },
+      "expected_output": "queries=1\nbatch=1,2,3,4\nr0.op0=members=\nr0.op1=members=107,108,109\nr0.op2=members=104,105,106,107\nr0.op3=members=101,102,103,104\n"
+    }
+  ]
+}

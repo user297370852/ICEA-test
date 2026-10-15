@@ -1,0 +1,30 @@
+{
+  "description": "Decode chunked CSV text through the batch-oriented codec adapter, where rows decoded from one input chunk are forwarded together as a single batch so natural chunk boundaries are preserved. Rows that straddle chunk edges (split fields, split line terminators, split escaped quotes, single-character feeding) are reconstructed correctly, and the number and contents of the emitted batches reflect how the input was chunked.",
+  "cases": [
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": true
+        },
+        "chunks": [
+          "a,b\r\n1,2\r\n3,4\r\n"
+        ]
+      },
+      "expected_output": "batches=1\nbatch[0] rows=3: [ str=\"a\" | str=\"b\" ] [ str=\"1\" | str=\"2\" ] [ str=\"3\" | str=\"4\" ]\n"
+    },
+    {
+      "input": {
+        "op": "decode_batches",
+        "config": {
+          "autoDetect": false
+        },
+        "chunks": [
+          "a,b\r\n",
+          "c,d\r\n"
+        ]
+      },
+      "expected_output": "batches=2\nbatch[0] rows=1: [ str=\"a\" | str=\"b\" ]\nbatch[1] rows=1: [ str=\"c\" | str=\"d\" ]\n"
+    }
+  ]
+}
