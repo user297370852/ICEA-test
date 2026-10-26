@@ -7,6 +7,7 @@ Adapted from agent_env/scripts/pipeline_sdk/sdk_runner.py. Differences:
 """
 import asyncio
 import json
+import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -107,8 +108,14 @@ def _block_to_record(block) -> dict:
     return {"kind": block.__class__.__name__, "repr": repr(block)}
 
 
-def build_env(model_entry: dict) -> dict:
-    """ANTHROPIC_* overrides for the CLI subprocess from a model_list.json entry."""
+def build_env(model_entry: dict, cwd: Path | None = None) -> dict:
+    """ANTHROPIC_* overrides for the CLI subprocess from a model_list.json entry.
+
+    With QA mode on (ICAE_QA_MODE=1), also passes the per-task question-bank
+    directory through to the CLI process so plugin hooks and quiz.sh resolve
+    the same bank (QA_BANK_DIR takes priority over the plugin's default
+    `<cwd>/.qa-bank`).
+    """
     env = {}
     if model_entry.get("ANTHROPIC_MODEL"):
         env["ANTHROPIC_MODEL"] = model_entry["ANTHROPIC_MODEL"]
@@ -116,6 +123,12 @@ def build_env(model_entry: dict) -> dict:
         env["ANTHROPIC_BASE_URL"] = model_entry["ANTHROPIC_BASE_URL"]
     if model_entry.get("ANTHROPIC_AUTH_TOKEN"):
         env["ANTHROPIC_AUTH_TOKEN"] = model_entry["ANTHROPIC_AUTH_TOKEN"]
+    if os.environ.get("ICAE_QA_MODE") == "1" and cwd is not None:
+        bank = Path(cwd).parent / ".qa-bank" / Path(cwd).name
+        env["QA_BANK_DIR"] = str(bank)
+        for passthrough in ("QA_JUDGE_CONFIG",):
+            if os.environ.get(passthrough):
+                env[passthrough] = os.environ[passthrough]
     return env
 
 
@@ -123,6 +136,12 @@ async def run_agent(prompt: str, cwd: Path, log_path: Path, model_entry: dict,
                     *, max_turns: int = 200, timeout: float | None = 7200) -> AgentResult:
     """Run one agent turn-loop in `cwd`, streaming a transcript to `log_path`."""
     log_path.parent.mkdir(parents=True, exist_ok=True)
+    # QA-gate experiment (env-gated, default off): load the self-quiz plugin
+    # into the CLI via --plugin-dir when both flags are present.
+    plugin_opts = {}
+    if os.environ.get("ICAE_QA_MODE") == "1" and os.environ.get("ICAE_PLUGIN_DIR"):
+        plugin_opts["plugins"] = [{"type": "local",
+                                   "path": os.environ["ICAE_PLUGIN_DIR"]}]
     opts = ClaudeAgentOptions(
         model=model_entry.get("ANTHROPIC_MODEL"),
         permission_mode="bypassPermissions",
@@ -131,7 +150,8 @@ async def run_agent(prompt: str, cwd: Path, log_path: Path, model_entry: dict,
         max_turns=max_turns,
         allowed_tools=["Bash", "Read", "Write", "Edit", "Glob", "Grep"],
         setting_sources=["user", "project"],
-        env=build_env(model_entry),
+        env=build_env(model_entry, cwd=cwd),
+        **plugin_opts,
     )
 
     started = time.time()

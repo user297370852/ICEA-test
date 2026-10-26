@@ -264,7 +264,12 @@ def docker_egress_args() -> list[str]:
 #   {"Tested Model": {<name>: [{ANTHROPIC_*[, OPENHANDS_*]}, ...]},
 #    "Critic Model": {<name>: [{ANTHROPIC_*}, ...]}}
 def load_model_list() -> dict:
-    return json.loads(MODEL_LIST_FILE.read_text(encoding="utf-8"))
+    ml = json.loads(MODEL_LIST_FILE.read_text(encoding="utf-8"))
+    # Runtime credential override: the tracked model_list.json ships sanitized
+    # placeholders (and possibly a stale endpoint URL); the gitignored
+    # models.json at the repo root is the canonical credential store.
+    from . import creds
+    return creds.override_model_list(ml)
 
 
 def _resolve_in_section(model_name: str, section: str) -> dict:

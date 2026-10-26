@@ -77,8 +77,22 @@ _rr_state_lock = threading.Lock()
 
 def _load_user_models() -> dict:
     if USER_MODEL_PATH.exists():
-        return json.loads(USER_MODEL_PATH.read_text(encoding="utf-8"))
-    return {}
+        models = json.loads(USER_MODEL_PATH.read_text(encoding="utf-8"))
+    else:
+        models = {}
+    # Runtime credential override from the gitignored models.json (the tracked
+    # user_model.json ships sanitized placeholders). harness.creds lives one
+    # directory up; import lazily so this module still works standalone.
+    try:
+        import sys
+        root = str(BASE_DIR.parent)
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        from harness.creds import override_user_models
+        models = override_user_models(models)
+    except Exception:  # noqa: BLE001 — no models.json / import issue: keep file values
+        pass
+    return models
 
 
 def _get_rr(model_key: str, n: int) -> dict:

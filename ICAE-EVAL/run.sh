@@ -191,6 +191,16 @@ user_file = root / "user_agent" / "user_model.json"
 models = json.loads(model_file.read_text(encoding="utf-8"))
 users = json.loads(user_file.read_text(encoding="utf-8"))
 
+# Apply the same runtime credential override the harness uses (harness.creds
+# reads the gitignored models.json at the repo root). The tracked files ship
+# sanitized placeholders; validation must check the EFFECTIVE config.
+try:
+    from harness.creds import override_model_list, override_user_models
+    models = override_model_list(models)
+    users = override_user_models(users)
+except Exception:
+    pass
+
 tested = models.get("Tested Model", {})
 if model_name not in tested:
     raise SystemExit(

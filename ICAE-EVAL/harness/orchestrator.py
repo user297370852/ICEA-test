@@ -33,6 +33,7 @@ from .critic_pool import CriticPool
 from . import user_agent_client as ua
 from .agent_runner import run_agent, RateLimited
 from .task_template import render_task_prompt
+from . import qa_gate
 
 RATELIMIT_BACKOFF = [30, 60, 120, 240]
 
@@ -358,6 +359,11 @@ async def process_repo(alias: str, args, model_entries: list, append_id: str,
         #    memory (the failure mode behind the 2026-06-20 hang).
         image_tag = container.image_tag
         prompt = render_task_prompt(alias, docker_id=container.container_id, lang=lang)
+        # QA-gate experiment (env-gated): per-task question bank + gate instructions
+        if qa_gate.qa_enabled():
+            bank = await asyncio.to_thread(qa_gate.provision_bank, append_id, alias)
+            if bank is not None:
+                prompt += qa_gate.gate_suffix(alias, append_id)
         # Fresh trajectory per (re)generation: overwrite this repo's transcript so it
         # reflects only the current attempt. If the PRIOR attempt ended in error, its
         # trajectory is archived under trajectory/_failed/ first (post-mortem for
@@ -386,6 +392,18 @@ async def process_repo(alias: str, args, model_entries: list, append_id: str,
         print(f"[{alias}] generation={result.status} turns={result.num_turns} "
               f"cost=${result.cost_usd:.3f} tok={result.input_tokens}/{result.output_tokens} "
               f"({gen_status['gen_seconds']}s)")
+
+        # QA-gate experiment: archive quiz records + summary (even for failed gens)
+        if qa_gate.qa_enabled():
+            try:
+                quiz_summary = await asyncio.to_thread(
+                    qa_gate.harvest_quiz, append_id, alias)
+                ua.update_repo_status(append_id, alias, {"quiz": quiz_summary})
+                print(f"[{alias}] quiz: compliance={quiz_summary.get('compliance')} "
+                      f"asked={quiz_summary.get('asked_total')} "
+                      f"first_pass={quiz_summary.get('first_pass_rate')}")
+            except Exception as e:  # noqa: BLE001
+                print(f"[{alias}] quiz harvest FAILED: {e}")
 
         # 4. objective eval
         if args.eval and result.status == "success":
@@ -635,6 +653,34 @@ async def run_async(args) -> None:
                 f"run {append_id} has no successfully generated repos to evaluate")
         raise SystemExit("no repos selected (check --repos / --repo-file)")
 
+    # QA-gate experiment preflight (env-gated): plugin dir + judge endpoints
+    if qa_gate.qa_enabled() and not args.only_eval:
+        plugin_dir = os.environ.get("ICAE_PLUGIN_DIR", "")
+        if plugin_dir:
+            if not Path(plugin_dir).is_dir():
+                raise SystemExit(f"ICAE_PLUGIN_DIR does not exist: {plugin_dir}")
+            manifest = Path(plugin_dir) / ".claude-plugin" / "plugin.json"
+            if not manifest.is_file():
+                raise SystemExit(f"no .claude-plugin/plugin.json under {plugin_dir}")
+            print(f"[qa] plugin: {plugin_dir}")
+        else:
+            raise SystemExit("ICAE_QA_MODE=1 requires ICAE_PLUGIN_DIR (the "
+                             "self-quiz plugin directory)")
+        from .creds import write_judge_config
+        jc = write_judge_config(C.RESULTS / ".qa_judge.json")
+        if jc:
+            os.environ["QA_JUDGE_CONFIG"] = str(jc)
+            print(f"[qa] judge config written: {jc}")
+        else:
+            print("[qa] warn: no judge endpoints (models.json AI_Core/Zcode) — "
+                  "llm_free questions will be ungradeable")
+        if not qa_gate.QA_BANKS_DIR.is_dir():
+            raise SystemExit(f"ICAE_QA_BANKS_DIR not found: {qa_gate.QA_BANKS_DIR}")
+        missing = [r for r in repos if not (qa_gate.QA_BANKS_DIR / r).is_dir()]
+        if missing:
+            raise SystemExit(f"no question bank for: {', '.join(missing)} "
+                             f"(generate with qa_experiment/gen_qbank.py)")
+
     if not args.only_eval:
         # Persist enough context to reproduce or resume the run. Secrets and
         # proxy URLs are intentionally excluded.
@@ -664,6 +710,7 @@ async def run_async(args) -> None:
             "evaluation_enabled": args.eval,
             "proxy_enabled": bool(args.proxy),
             "proxy_fallback_enabled": bool(args.proxy_fallback_file),
+            "qa_mode": os.environ.get("ICAE_QA_MODE") == "1",
         })
     print(f"selected {len(repos)} repo(s); concurrency={args.concurrency}")
 

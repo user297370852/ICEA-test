@@ -138,7 +138,11 @@ _RUN_ONLY_KEYS = ("repos",)
 def _read_json(path: Path) -> dict:
     if path.exists():
         try:
-            return json.loads(path.read_text(encoding="utf-8"))
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                return data
+            # A legacy/corrupted file (e.g. an empty list left by an archive
+            # pass) must never crash the run — treat it as empty.
         except Exception:
             pass
     return {}

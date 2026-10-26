@@ -94,7 +94,22 @@ macOS 特有注意事项（完整版见手册）：
    跑前 `pkill -f user_agent/main.py`；
 5. Docker Hub 直连不通时，可在 `~/.colima/default/colima.yaml` 配置 registry-mirrors。
 
-## 4. 免责与致谢
+## 4. 问答门禁实验（self-quiz）：理解偏差自检 × ICAE
+
+在原评测上追加"理解偏差门禁"的 A/B 实验（2026-10）：把失败案例归纳出的约束点做成隐藏题库，
+在关键时点（写 dispatcher 前 / 压缩后 / 宣布完成前）强制抽考、确定性判分（逐字节对质）、当场纠错。
+
+| 指标 | 基线（2026-09 复现） | 问答门禁 |
+|---|---|---|
+| Overall（hidden+enhanced） | 47.1% | **68.3%**（+586 cases） |
+| 协议零分 20 仓子集 | 1.4% | **74.8%** |
+
+同被测模型（glm-5.3-flash）超过论文最高 Opus-4.8（48.2%）。经典纠错案例、残余盲区与完整
+方法见 [comparison/QA门禁实验报告.md](comparison/QA门禁实验报告.md)；
+插件设计见 [plugins/self-quiz/README.md](plugins/self-quiz/README.md)；
+实验管线见 [qa_experiment/README.md](qa_experiment/README.md)。
+
+## 5. 免责与致谢
 
 - ICAE-Bench 基准、代码与数据集版权归论文作者（复旦 / 美团 / SMU 等）所有，本仓库仅记录复现过程与结果；
 - 复现为单次运行，Lite 排名与论文全量排名仅有中等一致性（论文报告 Spearman ρ=0.71），结论解读请以论文为准；
