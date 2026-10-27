@@ -10,7 +10,7 @@ This PRD is intentionally incomplete. A requirements oracle can answer questions
 
 **Oracle** — POST `http://127.0.0.1:50002/`
 ```
-{"append_id":"3992f153f5bf4d0aa80a27105e752e67","task_id":"realcode@041","question":"..."}
+{"append_id":"82a934e3c47a478fb7271cbf550951f1","task_id":"realcode@041","question":"..."}
 ```
 Answer is in `data`. Budget shown in `status.remaining`.
 

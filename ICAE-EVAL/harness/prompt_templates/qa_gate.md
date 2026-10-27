@@ -28,11 +28,14 @@ bash {quiz_bin} end
 
 (a) `bash {quiz_bin} start 5 --type T4 --type T6 --wrong-only` (if it reports no questions, this part is satisfied); answer and clear every FAIL through the grade / re-answer loop, then `end`.
 
-(b) **Code confrontation** for every exact-stdout question: for each QID printed by `bash {quiz_bin} list --type T2`, run `bash {quiz_bin} verify QID`. This executes YOUR OWN `rcb_tests/test.sh` on the question's input and byte-compares the produced stdout against the golden reference — a trailing newline, letter case (`DELETE` vs `delete`), numeric format (`0` vs `0.00`) and line order all count. A VERIFY FAIL means your CODE — and probably the self-written `rcb_tests/public_test_cases` you self-checked with — deviates from ground truth even if your textual answers were right. Fix the dispatcher/test.sh output bytes, align your own case files to the golden bytes (never the reverse), and re-run `verify` until every T2 question prints VERIFY PASS. Only then `bash {quiz_bin} end`.
+(b) **Code confrontation** for every exact-stdout question: for each QID printed by `bash {quiz_bin} list --type T2`, run:
 
-Do not declare completion with an uncleared FAIL or VERIFY FAIL. **If you modify ANYTHING under `rcb_tests/` or in the implementation after verification passed, you MUST re-run every `verify` again** — a later edit can silently break the evaluation protocol (e.g. your runner must tolerate case files that carry ONLY `input` and no `expected_output` field: the evaluator feeds sanitized input-only case JSONs, and reads only the stdout files you write).
+```bash
+QA_AGENT_CONTAINER={container_id} bash {quiz_bin} verify QID
+```
 
-Rules while a quiz is active (between `start` and `end`):
-- Write/Edit tools are blocked (read-only mode); file reads are budgeted. Answer from memory, your context, and code you have already written.
-- Treat every FAIL's source excerpt as ground truth: align your implementation (key names, formats, conditions) to it before continuing to code.
-- These gates are part of the task. Skipping them is a task failure.
+This runs YOUR OWN `rcb_tests/test.sh` **inside a fresh container from your task image** — the same conditions as the real evaluation: the case files it injects carry ONLY an `input` field (NO `expected_output`), nothing you installed by hand is present, and the produced stdout is byte-compared against the golden reference. A trailing newline, letter case (`DELETE` vs `delete`), numeric format (`0` vs `0.00`) and line order all count. A VERIFY FAIL means your CODE — and probably the self-written `rcb_tests/public_test_cases` you self-checked with — deviates from ground truth, or your test.sh/runner would crash under the evaluation protocol. Fix the dispatcher/test.sh output bytes, make sure `test.sh` bootstraps every dependency itself, never read fields that sanitized cases do not contain, align your own case files to the golden bytes (never the reverse), and re-run `verify` until every T2 question prints VERIFY PASS. Only then `bash {quiz_bin} end`.
+
+**Circuit breaker**: if the same question fails grading 3 times in a row, grading is skipped for it (accept the result and move on; a new `start` resets it). Do not loop on a hopeless question.
+
+**After G3**: if you modify ANYTHING under `rcb_tests/` or in the implementation, you MUST re-run every `verify` again — a later edit can silently break the evaluation protocol. Do not declare completion with an uncleared FAIL or VERIFY FAIL. These gates are part of the task; skipping them is a task failure.

@@ -53,13 +53,14 @@ def provision_bank(append_id: str, alias: str) -> Path | None:
     return dst
 
 
-def gate_suffix(alias: str, append_id: str) -> str:
+def gate_suffix(alias: str, append_id: str, container_id: str = "") -> str:
     if not GATE_TEMPLATE.is_file():
         print("[qa] gate template missing — no gate instructions appended")
         return ""
     text = GATE_TEMPLATE.read_text(encoding="utf-8")
     return "\n\n" + text.format(
         alias=alias,
+        container_id=container_id,
         quiz_bin=f"../.qa-bank/{alias}/bin/quiz.sh",
         abs_bank=str(bank_dir(append_id, alias)),
     )

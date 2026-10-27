@@ -363,7 +363,8 @@ async def process_repo(alias: str, args, model_entries: list, append_id: str,
         if qa_gate.qa_enabled():
             bank = await asyncio.to_thread(qa_gate.provision_bank, append_id, alias)
             if bank is not None:
-                prompt += qa_gate.gate_suffix(alias, append_id)
+                prompt += qa_gate.gate_suffix(alias, append_id,
+                                              container_id=container.container_id)
         # Fresh trajectory per (re)generation: overwrite this repo's transcript so it
         # reflects only the current attempt. If the PRIOR attempt ended in error, its
         # trajectory is archived under trajectory/_failed/ first (post-mortem for

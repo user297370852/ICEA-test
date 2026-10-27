@@ -142,6 +142,7 @@ cmd_start() {
   done
   expire_stale
   [ -d "$QDIR" ] || die "题库不存在，先运行 quiz.sh init"
+  rm -f "$RDIR"/.circuit_* "$RDIR"/.fails_* 2>/dev/null  # 新一轮自检重置熔断
   local sel
   if [ "$n" = "all" ]; then
     sel=$(make_pool "$filter" "$types" | cut -d' ' -f1)
@@ -271,6 +272,13 @@ cmd_grade() {
   if [ "${1:-}" = "--re" ]; then re=1; shift; fi
   local id="${1:?用法: quiz.sh grade [--re] <QID>，作答经 stdin 传入}"
   [ -f "$ADIR/$id.md" ] || die "答案不存在：$id"
+  # 熔断（v0.4）：同题连续 3 次判分 FAIL 后跳过，防死循环（如 @049 的 2407 次判分）；
+  # --re 复答不受熔断限制（它是恢复路径，通过即清除熔断）；新 start 重置全部熔断
+  local circ="$RDIR/.circuit_$id"
+  if [ -f "$circ" ] && [ "$re" = "0" ]; then
+    echo "──────── $id SKIPPED（已熔断：此前连续多次未通过，判分跳过；接受结果并继续后续流程，新一次 start 会重置）"
+    exit 0
+  fi
   local ans judge expected src pass=0 diff_desc=""
   ans=$(cat)
   judge=$(fm_field "$ADIR/$id.md" judge)
@@ -297,6 +305,15 @@ cmd_grade() {
   esac
 
   local verdict=FAIL; [ "$pass" = 1 ] && verdict=PASS
+  # 熔断计数：连续 FAIL 计数，PASS 或复答通过即清零；第 3 次 FAIL 触发熔断
+  local failfile="$RDIR/.fails_$id"
+  if [ "$pass" = 1 ]; then
+    rm -f "$failfile" "$circ"
+  elif [ "$re" = "0" ]; then
+    local n; n=$(( $(cat "$failfile" 2>/dev/null || echo 0) + 1 ))
+    printf '%s' "$n" > "$failfile"
+    if [ "$n" -ge 3 ]; then printf '1' > "$circ"; fi
+  fi
   # 复用 record 的统计/错题逻辑
   _record_result "$re" "$id" "$verdict" "判分(${judge})：${diff_desc}；作答摘要：$(printf '%s' "$ans" | tr '\n' ' ' | cut -c1-200)"
 
@@ -388,17 +405,38 @@ if not m:
 case = {"description": "self-quiz code verification", "cases": [{"input": json.loads(m.group(1))}]}
 open(sys.argv[2], "w", encoding="utf-8").write(json.dumps(case, ensure_ascii=False))
 PY
-  bash rcb_tests/test.sh --cases-dir "$vname" >/dev/null 2>&1
-  local out
-  out=$(ls "rcb_tests/stdout/$vname/$stem"@*.txt 2>/dev/null | head -1)
-  [ -n "$out" ] || die "test.sh 未产出 rcb_tests/stdout/$vname/${stem}@*.txt"
+  # ── 执行对质：优先 fresh 容器（v0.4，完全模拟评测协议：同镜像、用例仅含 input、
+  #    干净环境）；无 QA_AGENT_CONTAINER/docker 时退回本机原地执行
+  local out=""
+  if [ -n "${QA_AGENT_CONTAINER:-}" ] && command -v docker >/dev/null 2>&1 \
+     && docker inspect "${QA_AGENT_CONTAINER}" >/dev/null 2>&1; then
+    local img
+    img=$(docker inspect "${QA_AGENT_CONTAINER}" --format '{{.Config.Image}}')
+    rm -rf "rcb_tests/qa_verify_f" "rcb_tests/stdout/qa_verify_f"
+    docker run --rm -v "$PWD:/gen" -v "$PWD/rcb_tests/$vname:/auth:ro" -w /gen "$img" \
+      bash -c 'mkdir -p rcb_tests/qa_verify_f && cp -r /auth/. rcb_tests/qa_verify_f/ \
+               && bash rcb_tests/test.sh --cases-dir qa_verify_f' >/dev/null 2>&1
+    out=$(ls "rcb_tests/stdout/qa_verify_f/$stem"@*.txt 2>/dev/null | head -1)
+    echo "（fresh 容器对质：镜像 ${img}，用例仅含 input——与评测协议同构）"
+  else
+    bash rcb_tests/test.sh --cases-dir "$vname" >/dev/null 2>&1
+    out=$(ls "rcb_tests/stdout/$vname/$stem"@*.txt 2>/dev/null | head -1)
+  fi
   local expf="$BANK/.verify_exp.tmp"
   printf '%s' "$b64" | base64 -d > "$expf"
   local note
-  if cmp -s "$expf" "$out"; then
+  if [ -n "$out" ] && cmp -s "$expf" "$out"; then
     note="代码对质：$stem 实际输出与 golden 逐字节一致"
     printf '%s\t%s\tVERIFY-PASS\t%s\n' "$(date '+%F %T')" "$id" "$note" >> "$HIST"
     echo "──────── $id VERIFY PASS（${stem}）：代码输出与 golden 逐字节一致"
+  elif [ -z "$out" ]; then
+    note="代码对质：$stem 在评测协议下未产出任何输出（test.sh 失败或 runner 依赖了评测不提供的内容，"
+    note="${note}如 case 里的 expected_output 字段、未在 test.sh 内引导的依赖）——评测将记 0，必须修复"
+    printf '%s\t%s\tVERIFY-FAIL\t%s\n' "$(date '+%F %T')" "$id" "$note" >> "$HIST"
+    echo "──────── $id VERIFY FAIL（${stem}）：评测协议下零输出"
+    echo "【修复要求】1) test.sh 必须自带依赖引导（fresh 容器无你手工安装过的东西）；"
+    echo "2) runner 不得读取评测用例中不存在的字段（用例只含 input）；"
+    echo "3) 在本机自查通过后，用本命令重跑直到 VERIFY PASS。"
   else
     local where; where=$(cmp "$expf" "$out" 2>&1 | head -1)
     note="代码对质：$stem 不一致（${where}）——必须修代码与自建用例"
